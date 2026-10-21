@@ -4,6 +4,7 @@ import {
   accountPasswordMeetsMinimum
 } from "$lib/account-password-policy.js"
 
+import { emailVerifyIssue } from "$lib/server/deepwell/email-token"
 import { translate } from "$lib/server/deepwell/translate"
 import { userCreate } from "$lib/server/deepwell/user"
 import {
@@ -138,6 +139,17 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
       password: data.password,
       ipAddress
     })
+
+    // #2130: registration owns the first verification email. The quiet
+    // issue path is safe here — the address was just submitted by the
+    // registrant, and unknown/imported/deleted addresses stay silent.
+    // A failed issue must not fail the registration itself: the account
+    // already exists, and the resend page remains the recovery path.
+    try {
+      await emailVerifyIssue({ email: data.email, ipAddress })
+    } catch {
+      // The pending-verification notice still links the resend page.
+    }
 
     return redactAuthActionPayload(
       { form: clearRegisterPasswords(form), res, isRegistered: true },

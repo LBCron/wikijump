@@ -48,6 +48,13 @@
     {data.internationalization?.["register.toast"]}
     <a href={resolve("/-/login", {})}>{data.internationalization?.login}</a>
   </p>
+  <!-- LOCAL DEFAULT pending Wikidot evidence: exact post-registration
+       verification copy is not evidenced. -->
+  <p role="status" class="register-success">
+    Check your email for a confirmation link to verify your address. If it does not
+    arrive,
+    <a href={resolve("/-/verify-email", {})}>request a new one</a>.
+  </p>
 {:else}
   <form id="register" class="register-form" method="POST" use:enhance>
     <label for="username">

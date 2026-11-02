@@ -94,8 +94,6 @@ impl User {
         }
     }
 
-    /// If this is a Wikijump user, then unwrap it and return.
-    /// Otherwise, yield an error.
     pub fn unwrap_wikijump(self) -> Result<WikijumpUserModel> {
         match self {
             User::Wikijump(user) => Ok(user),
@@ -106,8 +104,6 @@ impl User {
         }
     }
 
-    /// If this is a Wikidot user, then unwrap it and return.
-    /// Otherwise, yield an error.
     pub fn unwrap_wikidot(self) -> Result<WikidotUserModel> {
         match self {
             User::Wikidot(user) => Ok(user),
@@ -149,12 +145,6 @@ impl From<WikidotUserModel> for User {
     }
 }
 
-// Custom serialization so we can reuse user_type for 'wikidot'
-//
-// For Wikijump users, user_type is 'regular', 'system', etc.
-// We are using this field for user_type 'wikidot' to enable
-// consumers of the serialized JSON can distinguish the different
-// sets of fields.
 impl Serialize for User {
     fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
     where
@@ -183,10 +173,8 @@ impl Serialize for User {
         }
 
         match self {
-            // Wikijump users are the same (it already has a user_type field)
             User::Wikijump(user) => user.serialize(serializer),
 
-            // We add the user_type field to Wikidot users
             User::Wikidot(user) => {
                 let mut object = serializer.serialize_struct("WikidotUserModel", 15)?;
                 serialize_field!(object, user, user_id);
@@ -341,8 +329,6 @@ fn user_serialization() {
         }};
     }
 
-    // Wikidot
-
     check!(
         User::Wikidot(WikidotUserModel {
             user_id: 1000,
@@ -390,7 +376,7 @@ fn user_serialization() {
             is_deleted: false,
             name: Some(str!("aismallard")),
             slug: Some(str!("aismallard")),
-            avatar_s3_hash: Some(vec![2]), // not a valid hash, just for the test
+            avatar_s3_hash: Some(vec![2]),
             real_name: None,
             gender: Some(str!("female")),
             birthday: None,
@@ -463,8 +449,6 @@ fn user_serialization() {
   "is_pro": false
 }"#,
     );
-
-    // Wikijump
 
     check!(
         User::Wikijump(WikijumpUserModel {
@@ -619,7 +603,7 @@ fn user_serialization() {
                 str!("d"),
             ]),
             locales: vec![str!("fr"), str!("de")],
-            avatar_s3_hash: Some(vec![0; 4]), // actually 64 long
+            avatar_s3_hash: Some(vec![0; 4]),
             forum_signature: None,
             real_name: Some(str!("Bot McMuffin")),
             gender: Some(str!("sans genre")),

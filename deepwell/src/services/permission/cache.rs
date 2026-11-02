@@ -62,7 +62,6 @@ pub struct SetUserPermissionInput {
 
 #[allow(dead_code)]
 impl PermissionCache {
-    /// Build Redis cache key prefix to lookup user permissions for a specific site.
     fn site_user_key(site_id: Option<i64>, user_id: Option<i64>) -> String {
         format!(
             "permission:site:{}:user:{}",
@@ -75,7 +74,6 @@ impl PermissionCache {
         )
     }
 
-    /// Build Redis cache key to lookup one user permission decision.
     fn site_user_permission_key(
         site_id: Option<i64>,
         user_id: Option<i64>,
@@ -101,7 +99,6 @@ impl PermissionCache {
         format!("{}:version", Self::site_user_key(Some(site_id), user_id))
     }
 
-    /// Build a hash field key for the permission
     fn permission_key(
         resource: Resource,
         resource_category_id: Option<i64>,
@@ -116,7 +113,6 @@ impl PermissionCache {
         ))
     }
 
-    /// Check if an action should be cached.
     pub fn is_cacheable(resource_type: Resource, action: Action) -> bool {
         #[allow(clippy::match_like_matches_macro)]
         match (resource_type, action) {
@@ -125,7 +121,6 @@ impl PermissionCache {
         }
     }
 
-    /// Check if this user's permission has been cached, and return it.
     pub async fn check_user_permission(
         ctx: &ServiceContext<'_>,
         site_id: Option<i64>,
@@ -176,7 +171,6 @@ impl PermissionCache {
         })
     }
 
-    /// Set a user's permission value in the cache.
     pub async fn set_user_permission(
         ctx: &ServiceContext<'_>,
         site_id: Option<i64>,
@@ -265,10 +259,6 @@ impl PermissionCache {
         Ok(set == 1)
     }
 
-    /// Queue cache invalidation for a specific user on a specific site.
-    ///
-    /// The queued invalidation is run by the API wrapper after the enclosing
-    /// database transaction commits.
     pub fn defer_invalidate_user(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -277,15 +267,10 @@ impl PermissionCache {
         ctx.defer_permission_cache_invalidate_user(site_id, user_id)
     }
 
-    /// Queue cache invalidation for a specific site.
-    ///
-    /// The queued invalidation is run by the API wrapper after the enclosing
-    /// database transaction commits.
     pub fn defer_invalidate_site(ctx: &ServiceContext<'_>, site_id: i64) -> Result<()> {
         ctx.defer_permission_cache_invalidate_site(site_id)
     }
 
-    /// Invalidate the cache for a specific user on a specific site.
     pub async fn invalidate_user(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -351,7 +336,6 @@ impl PermissionCache {
         Ok(())
     }
 
-    /// Invalidate the cache for a specific site.
     pub async fn invalidate_site(ctx: &ServiceContext<'_>, site_id: i64) -> Result<()> {
         Self::invalidate_site_for_state(&ctx.state(), site_id).await
     }
@@ -417,9 +401,6 @@ impl PermissionCache {
 mod tests {
     use super::*;
 
-    /// Distinct fence versions must produce distinct key fragments, otherwise
-    /// the article-view cache key would not change when a permission fence is
-    /// bumped and stale content could be served.
     #[test]
     fn permission_cache_fence_fragment_distinguishes_versions() {
         let baseline = PermissionCacheFence {

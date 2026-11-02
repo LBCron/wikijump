@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! SQL and deferred ordering support for page queries.
-
 use super::super::structs::{FoundPageFields, OrderBySelector, OrderProperty};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};

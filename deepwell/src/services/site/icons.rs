@@ -18,14 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Site-level icon byte storage (favicon, iOS touch icons, Windows tile).
-//!
-//! Icon sources (`favicon_source` and siblings) record the configured
-//! location, but the compatibility routes (`/local--favicon/*`,
-//! `/local--iosicon/*`, `/local--wp8icon/*`) must serve bytes without
-//! depending on Wikidot at request time. Imported icon bytes live here, keyed
-//! by site and kind, outside the page model (file rows require a page).
-
 use super::service::{SiteIconSourceKind, validate_site_icon_source};
 use super::structs::{GetSiteIconOutput, SetSiteIconOutput};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
@@ -39,8 +31,6 @@ use sea_orm::sea_query::OnConflict;
 use sea_orm::{ActiveModelTrait, EntityTrait, Set};
 use std::net::IpAddr;
 
-/// Largest accepted icon upload, in bytes. Icons are tiny page-head assets;
-/// anything larger is not a site icon.
 pub const MAX_SITE_ICON_BYTES: usize = 524288;
 
 fn allowed_mime_types(kind: SiteIconSourceKind) -> &'static [&'static str] {
@@ -103,9 +93,6 @@ fn validate_site_icon_bytes(
         .into());
     }
 
-    // The favicon slot keeps Wikidot's leniency: any image bytes are
-    // accepted under any allowed declared type. The derived iOS and Windows
-    // slots have no such evidence, so they stay strict.
     let magic_ok = match kind {
         SiteIconSourceKind::Favicon => magic_matches_any_image(bytes),
         SiteIconSourceKind::Ios | SiteIconSourceKind::Windows => {
@@ -129,12 +116,6 @@ fn sha256_hex(bytes: &[u8]) -> String {
 }
 
 impl super::service::SiteService {
-    /// Stores (or clears) one site icon's configured source and/or bytes.
-    ///
-    /// Each of `source` and `data` is tri-state: absent leaves that half
-    /// untouched, null clears it, and a value sets it. Setting bytes
-    /// requires a MIME type. Stored bytes always require a configured
-    /// source, so a refresh and a removal stay consistent in one call.
     #[allow(clippy::too_many_arguments)]
     pub async fn set_site_icon(
         ctx: &ServiceContext<'_>,
@@ -159,15 +140,12 @@ impl super::service::SiteService {
             .await
             .or_raise(make_error)?;
 
-        // Resolve the resulting source, validating any new value the same
-        // way site settings updates do.
         let mut new_source = site_source(&site, kind);
         if let Some(ref validated) = source {
             validate_site_icon_source(&site.slug, site.from_wikidot, validated, kind)?;
             new_source = validated.clone();
         }
 
-        // Resolve the resulting bytes.
         let existing = SiteIcon::find_by_id((site.site_id, kind.as_str().to_string()))
             .one(txn)
             .await
@@ -202,9 +180,6 @@ impl super::service::SiteService {
             .into());
         }
 
-        // Stored bytes without a configured source would serve from routes
-        // the page head never declares, so refuse the inconsistent state
-        // before any write keeps rejected calls side-effect free.
         let bytes_present = match &bytes_update {
             BytesUpdate::Leave => existing.is_some(),
             BytesUpdate::Clear => false,
@@ -256,7 +231,6 @@ impl super::service::SiteService {
         }
 
         if source_changed {
-            // Audit before writing, mirroring site settings updates.
             let mut previous_fields = SiteFields::default();
             let mut changed_fields = SiteFields::default();
             match kind {
@@ -308,7 +282,6 @@ impl super::service::SiteService {
             model.settings_revision = Set(site.settings_revision + 1);
             model.update(txn).await.or_raise(make_error)?;
         } else if bytes_changed {
-            // Bytes-only refreshes still invalidate cached site output.
             let model = site::ActiveModel {
                 site_id: Set(site.site_id),
                 updated_at: Set(Some(now())),
@@ -335,7 +308,6 @@ impl super::service::SiteService {
         })
     }
 
-    /// Fetches one site icon's stored bytes, if any.
     pub async fn get_site_icon(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
@@ -441,12 +413,10 @@ mod tests {
         assert!(
             validate_site_icon_bytes(SiteIconSourceKind::Ios, "image/gif", &png).is_err(),
         );
-        // The favicon slot tolerates Wikidot's legacy gif-declared PNG bytes.
         assert!(
             validate_site_icon_bytes(SiteIconSourceKind::Favicon, "image/gif", &png)
                 .is_ok(),
         );
-        // Non-image bytes are still rejected everywhere.
         assert!(
             validate_site_icon_bytes(SiteIconSourceKind::Favicon, "image/gif", b"nope")
                 .is_err(),

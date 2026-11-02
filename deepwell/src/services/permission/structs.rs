@@ -28,10 +28,6 @@ pub struct DecoratedPermission<'a> {
     pub removable: bool,
 }
 
-/// Context for permission checks.
-///
-/// Contains all information needed to evaluate whether a user can perform
-/// an action on a resource.
 #[derive(Debug, Clone)]
 pub struct CheckPermissionContext<'a> {
     pub user_id: Option<i64>,

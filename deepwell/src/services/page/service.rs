@@ -70,7 +70,6 @@ use wikidot_normalize::normalize;
 /// found was 199,898 characters).
 pub const MAX_PAGE_SOURCE_LENGTH: usize = 200_001;
 
-/// Reject a page source longer than Wikidot would accept.
 fn check_page_source_length(wikitext: &str) -> Result<()> {
     let length = wikitext.chars().count();
     if length > MAX_PAGE_SOURCE_LENGTH {
@@ -88,25 +87,6 @@ fn check_page_source_length(wikitext: &str) -> Result<()> {
 #[derive(Debug)]
 pub struct PageService;
 
-/// SQL predicate fragment hiding foreign include-source snapshots from
-/// site-page queries (issue #2690).
-///
-/// A snapshot page belongs to the site when its source names the site
-/// itself or one of the corpus branches the site imports from; rows
-/// without snapshots (locally created pages) always belong. Anything else
-/// is cross-site include-source storage (for example `d3-readonly-assets`
-/// pages held inside `scp-wiki` so that
-/// `[[include :d3-readonly-assets:…]]` resolves) and must not be served as
-/// a page of the holding site — though `fetch_imported_cross_site_source`
-/// keeps resolving those rows by (`source_site`, `source_fullname`).
-///
-/// `page_id_ref` is the SQL reference to the outer page row (for example
-/// `page.page_id`); `site_id` is inlined as a literal because it is always
-/// a server-side integer, never caller input. A branch code only ever
-/// matches its own corpus branch, so foreign import runs must keep using
-/// dated one-off branch names (as the existing `d3-readonly-*` runs do)
-/// rather than the bare source site name, or their pages would read as
-/// own.
 pub(in crate::services) fn foreign_snapshot_exclusion_sql(
     page_id_ref: &str,
     site_id: i64,
@@ -120,13 +100,6 @@ pub(in crate::services) fn foreign_snapshot_exclusion_sql(
 }
 
 impl PageService {
-    /// Resolve display-name-only page lifecycle identities.
-    ///
-    /// Imported revisions use the authoritative names retained by the corpus
-    /// snapshot. Native revisions use the current public display name of their
-    /// revision actor. Each lifecycle endpoint follows its own provenance, so
-    /// a locally edited imported page keeps its snapshot creator while naming
-    /// the local updater.
     pub async fn get_lifecycle_identity(
         ctx: &ServiceContext<'_>,
         page: &PageModel,
@@ -239,7 +212,6 @@ WHERE page.site_id = $1
 
         let txn = ctx.transaction();
 
-        // Ensure slug is normalized
         normalize(&mut slug);
 
         let requested_slug = slug.clone();
@@ -253,7 +225,6 @@ WHERE page.site_id = $1
             )
         };
 
-        // Perform filter validation
         if !bypass_filter {
             Self::run_filter(
                 ctx,
@@ -268,8 +239,6 @@ WHERE page.site_id = $1
             .or_raise(make_error)?;
         }
 
-        // Resolve category settings before choosing the final slug. The category
-        // lock serializes conflict checks and page insertion for every create.
         let category_slug = str!(get_category_name(&slug));
         let category = CategoryService::get_or_create(ctx, site_id, &category_slug)
             .await
@@ -303,7 +272,6 @@ WHERE page.site_id = $1
                 .or_raise(make_error)?;
         }
 
-        // Insert page
         let model = page::ActiveModel {
             site_id: Set(site_id),
             page_category_id: Set(category_id),
@@ -311,7 +279,6 @@ WHERE page.site_id = $1
             ..Default::default()
         };
         let PageModel { page_id, .. } = model.insert(txn).await.or_raise(make_error)?;
-        // Commit first revision
         let revision_input = CreateFirstPageRevision {
             user_id,
             comments,
@@ -339,7 +306,6 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)?;
 
-        // Update latest revision
         let model = page::ActiveModel {
             page_id: Set(page_id),
             latest_revision_id: Set(Some(revision_id)),
@@ -359,7 +325,6 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)?;
 
-        // Audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -374,7 +339,6 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)?;
 
-        // Build and return
         Ok(CreatePageOutput {
             site_id,
             page_id,
@@ -434,14 +398,12 @@ WHERE page.site_id = $1
             )
         };
 
-        // Perform filter validation
         Self::run_filter(
             ctx,
             site_id,
             Some(page_id),
             wikitext.to_option(),
             title.to_option(),
-            // Flatten what is essentially Option<Option<_>>
             match alt_title {
                 Maybe::Set(Some(ref alt_title)) => Some(alt_title),
                 _ => None,
@@ -451,18 +413,12 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)?;
 
-        // Get and check latest revision
         let last_revision = PageRevisionService::get_latest(ctx, site_id, page_id)
             .await
             .or_raise(make_error)?;
 
         check_last_revision(Some(&last_revision), latest_revision_id, last_revision_id)
             .or_raise(make_error)?;
-
-        // Create new revision
-        //
-        // A response of None means no revision was created
-        // because none of the data actually changed.
 
         let revision_input = CreatePageRevision {
             user_id,
@@ -488,10 +444,6 @@ WHERE page.site_id = $1
         let revision_id =
             persisted_revision.ref_map(|revision| revision.output.revision_id);
 
-        // Set page updated_at and latest_revision_id columns.
-        //
-        // Previously this was conditional on whether a revision was actually created.
-        // But since this rerenders regardless, we need to update the page row.
         let model = page::ActiveModel {
             page_id: Set(page_id),
             latest_revision_id: match revision_id {
@@ -514,7 +466,6 @@ WHERE page.site_id = $1
             None => None,
         };
 
-        // Audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -528,12 +479,9 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)?;
 
-        // Build and return
         Ok(revision_output)
     }
 
-    /// Record the evidenced Wikidot metadata revision created when a parent
-    /// relationship is newly assigned through the legacy parent-set action.
     pub(crate) async fn record_parent_metadata_revision(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -597,7 +545,6 @@ WHERE page.site_id = $1
             .or_raise(make_error)
     }
 
-    /// Moves a page from from one slug to another.
     pub async fn r#move(
         ctx: &ServiceContext<'_>,
         MovePage {
@@ -632,12 +579,9 @@ WHERE page.site_id = $1
             )
         };
 
-        // Check last revision ID argument
         check_last_revision(None, latest_revision_id, last_revision_id)
             .or_raise(make_error)?;
 
-        // Check that a move is actually taking place,
-        // and that a page with that slug doesn't already exist.
         if old_slug == new_slug {
             bail!(Error::new(
                 format!(
@@ -652,7 +596,6 @@ WHERE page.site_id = $1
             .await
             .or_raise(make_error)?;
 
-        // Create category if not already present
         let PageCategoryModel { category_id, .. } =
             CategoryService::get_or_create(ctx, site_id, get_category_name(&new_slug))
                 .await
@@ -663,14 +606,10 @@ WHERE page.site_id = $1
             page_id,
         };
 
-        // Get latest revision
         let last_revision = PageRevisionService::get_latest(ctx, site_id, page_id)
             .await
             .or_raise(make_error)?;
 
-        // The move revision must render against the destination page identity. Keep
-        // the existing latest revision in place until the new revision is persisted;
-        // the surrounding transaction rolls this identity change back on failure.
         let model = page::ActiveModel {
             page_id: Set(page_id),
             slug: Set(new_slug.clone()),
@@ -679,7 +618,6 @@ WHERE page.site_id = $1
         };
         model.update(txn).await.or_raise(make_error)?;
 
-        // Create revision for move
         let revision_input = CreatePageRevision {
             user_id,
             comments,
@@ -703,7 +641,6 @@ WHERE page.site_id = $1
             None => ActiveValue::NotSet,
         };
 
-        // Finish updating the page after the move revision has been persisted.
         let model = page::ActiveModel {
             page_id: Set(page_id),
             latest_revision_id,
@@ -723,15 +660,12 @@ WHERE page.site_id = $1
             None => None,
         };
 
-        // Build and return
         match revision_output {
             Some(CreatePageRevisionOutput {
                 revision_id,
                 revision_number,
                 parser_errors,
             }) => {
-                // Audit log
-                // Only in this path since the other is an error
                 AuditService::log(
                     ctx,
                     ip_address,
@@ -798,7 +732,6 @@ WHERE page.site_id = $1
             )
         };
 
-        // Get and check latest revision
         let last_revision = PageRevisionService::get_latest(ctx, site_id, page_id)
             .await
             .or_raise(make_error)?;
@@ -807,8 +740,6 @@ WHERE page.site_id = $1
             .or_raise(make_error)
             .or_raise(make_error)?;
 
-        // Create tombstone revision
-        // This also updates backlinks, includes, etc
         let output = PageRevisionService::create_tombstone(
             ctx,
             CreateTombstonePageRevision {
@@ -823,7 +754,6 @@ WHERE page.site_id = $1
         .map_err(|error| raise_if_revision_insert_conflict(error, last_revision_id))
         .or_raise(make_error)?;
 
-        // Set deletion flag
         let model = page::ActiveModel {
             page_id: Set(page_id),
             latest_revision_id: Set(Some(output.revision_id)),
@@ -833,7 +763,6 @@ WHERE page.site_id = $1
         let page = model.update(txn).await.or_raise(make_error)?;
         assert_latest_revision(&page);
 
-        // Audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -848,20 +777,13 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)?;
 
-        // Finally, clear out any hosted text blocks.
-        //
-        // The rows are deleted within this transaction, and the
-        // S3 objects are removed by a post-commit action once it
-        // commits, so a rollback leaves both intact.
         TextBlockService::delete_blocks(ctx, page_id)
             .await
             .or_raise(make_error)?;
 
-        // Return deletion information
         Ok((output, page_id).into())
     }
 
-    /// Restore a deleted page, causing it to be undeleted.
     pub async fn restore(
         ctx: &ServiceContext<'_>,
         RestorePage {
@@ -891,11 +813,6 @@ WHERE page.site_id = $1
             )
         };
 
-        // Do page checks:
-        // - Site is correct
-        // - Page is deleted
-        // - Slug doesn't already exist
-
         if page.site_id != site_id {
             warn!(
                 "Page's site ID ({}) and passed site ID ({}) do not match",
@@ -919,7 +836,6 @@ WHERE page.site_id = $1
             .await
             .or_raise(make_error)?;
 
-        // Create category if not already present
         let category =
             CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
                 .await
@@ -930,13 +846,10 @@ WHERE page.site_id = $1
             page_id,
         };
 
-        // Get latest revision
         let last_revision = PageRevisionService::get_latest(ctx, site_id, page_id)
             .await
             .or_raise(make_error)?;
 
-        // Create resurrection revision
-        // This also updates backlinks, includes, etc.
         let revision = PageRevisionService::create_resurrection(
             ctx,
             CreateResurrectionPageRevision {
@@ -950,7 +863,6 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)?;
 
-        // Publish the restored identity and its resurrection revision together.
         let model = page::ActiveModel {
             page_id: Set(page_id),
             page_category_id: Set(category.category_id),
@@ -963,16 +875,10 @@ WHERE page.site_id = $1
         let page = model.update(txn).await.or_raise(make_error)?;
         assert_latest_revision(&page);
 
-        // Resurrection rendering happens while the page is still deleted so
-        // generic body queries do not observe a half-restored aggregate. Runtime
-        // content that depends on the live latest revision needs one full pass
-        // after both halves of the aggregate are published in this transaction.
         let output = PageRevisionService::apply_resurrection_followups(ctx, id, revision)
             .await
             .or_raise(make_error)?;
 
-        // Preserve the established navigation-only followup after the restored
-        // identity and latest revision are visible.
         PageRevisionService::rerender(
             ctx,
             id,
@@ -982,7 +888,6 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)?;
 
-        // Audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -1001,13 +906,6 @@ WHERE page.site_id = $1
         Ok((output, slug).into())
     }
 
-    /// Rolls back a page to be the same as it was in a previous revision.
-    /// Also called "page reset".
-    ///
-    /// It changes the page to have the exact state it had in a previous
-    /// revision, regardless of any changes since.
-    ///
-    /// This is equivalent to Wikidot's concept of a "revert".
     pub async fn rollback(
         ctx: &ServiceContext<'_>,
         RollbackPage {
@@ -1048,7 +946,6 @@ WHERE page.site_id = $1
             )
         };
 
-        // Get target revision and latest revision
         let (target_revision, last_revision) = join!(
             PageRevisionService::get(
                 ctx,
@@ -1063,7 +960,6 @@ WHERE page.site_id = $1
         let (target_revision, last_revision) =
             raise_multiple!(target_revision, last_revision; make_error);
 
-        // Check last revision ID
         check_last_revision(Some(&last_revision), latest_revision_id, last_revision_id)
             .or_raise(make_error)?;
 
@@ -1081,9 +977,6 @@ WHERE page.site_id = $1
         let hide_alt_title = hidden.iter().any(|field| field == "alt_title");
         let hide_tags = hidden.iter().any(|field| field == "tags");
 
-        // NOTE: we can't just copy the wikitext_hash because we
-        //       need its actual value for rendering unless it has been hidden.
-        //       This isn't run here, but in PageRevisionService::create().
         let wikitext = if hide_wikitext {
             Maybe::Unset
         } else {
@@ -1092,10 +985,6 @@ WHERE page.site_id = $1
                 .or_raise(make_error)?;
             Maybe::Set(text)
         };
-
-        // Create new revision
-        //
-        // Copy the body of the target revision
 
         let revision_input = CreatePageRevision {
             user_id,
@@ -1118,7 +1007,7 @@ WHERE page.site_id = $1
                 } else {
                     Maybe::Set(tags)
                 },
-                slug: Maybe::Unset, // rollbacks should never move a page
+                slug: Maybe::Unset,
                 parent_changed: false,
             },
         };
@@ -1136,7 +1025,6 @@ WHERE page.site_id = $1
             None => ActiveValue::NotSet,
         };
 
-        // Set page updated_at column.
         let model = page::ActiveModel {
             page_id: Set(page_id),
             updated_at: Set(Some(now())),
@@ -1156,7 +1044,6 @@ WHERE page.site_id = $1
             None => None,
         };
 
-        // Audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -1171,11 +1058,9 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)?;
 
-        // Build and return
         Ok(revision_output)
     }
 
-    /// Sets the layout override for a page.
     pub async fn set_layout(
         ctx: &ServiceContext<'_>,
         SetPageLayout {
@@ -1201,7 +1086,6 @@ WHERE page.site_id = $1
         ctx.defer_public_content_cache_invalidate_site(site_id)
             .or_raise(make_error)?;
 
-        // Update in database
         let txn = ctx.transaction();
         let model = page::ActiveModel {
             page_id: Set(page_id),
@@ -1210,7 +1094,6 @@ WHERE page.site_id = $1
         };
         model.update(txn).await.or_raise(make_error)?;
 
-        // Audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -1244,15 +1127,6 @@ WHERE page.site_id = $1
         Self::get_optional_impl(ctx, site_id, reference, true).await
     }
 
-    /// Gets a page like [`Self::get_optional`], but without the foreign
-    /// snapshot exclusion.
-    ///
-    /// This is only for callers that have already established the page's
-    /// identity through the snapshot store itself: cross-site include
-    /// resolution, which finds foreign include-source snapshots by
-    /// (`source_site`, `source_fullname`) precisely so they can be read
-    /// as include sources (issue #2690). Ordinary page surfaces must use
-    /// [`Self::get_optional`] so foreign snapshots stay hidden there.
     pub async fn get_optional_including_foreign_snapshots(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1271,10 +1145,7 @@ WHERE page.site_id = $1
         let page = {
             let condition = match reference {
                 Reference::Id(id) => page::Column::PageId.eq(id),
-                Reference::Slug(slug) => {
-                    // Trim off _default category if present
-                    page::Column::Slug.eq(trim_default(&slug))
-                }
+                Reference::Slug(slug) => page::Column::Slug.eq(trim_default(&slug)),
             };
 
             let mut condition = Condition::all()
@@ -1282,8 +1153,6 @@ WHERE page.site_id = $1
                 .add(page::Column::SiteId.eq(site_id))
                 .add(page::Column::DeletedAt.is_null());
             if exclude_foreign_snapshots {
-                // Foreign include-source snapshots are storage, not
-                // pages of this site (issue #2690).
                 condition = condition.add(Expr::cust(foreign_snapshot_exclusion_sql(
                     "page.page_id",
                     site_id,
@@ -1300,7 +1169,6 @@ WHERE page.site_id = $1
         Ok(page)
     }
 
-    /// Gets all deleted pages that match the provided slug.
     pub async fn get_deleted_by_slug(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1332,11 +1200,6 @@ WHERE page.site_id = $1
         Ok(pages)
     }
 
-    /// Gets the page ID from a reference, looking up if necessary.
-    ///
-    /// Convenience method since this is much more common than the optional
-    /// case, and we don't want to perform a redundant check for site existence
-    /// later as part of the actual query.
     pub async fn get_id(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1345,7 +1208,6 @@ WHERE page.site_id = $1
         match reference {
             Reference::Id(page_id) => Ok(page_id),
             Reference::Slug(slug) => {
-                // For slugs we pass-through the call so that slug-handling is done consistently.
                 let slug: &str = slug.as_ref();
                 let PageModel { page_id, .. } =
                     Self::get(ctx, site_id, Reference::Slug(cow!(slug)))
@@ -1398,20 +1260,12 @@ WHERE page.site_id = $1
             && !allow_deleted
             && page.deleted_at.is_some()
         {
-            // If we're not looking for deleted pages, then
-            // return nothing if the page whose ID match is.
             return Ok(None);
         }
 
         Ok(page)
     }
 
-    /// Get a page directly while holding an exclusive row lock until the
-    /// request transaction completes.
-    ///
-    /// Mutation paths that derive additional persistent state from a page
-    /// must use this form so a concurrent soft delete cannot commit between
-    /// the existence check and the dependent mutation.
     pub async fn get_direct_optional_for_update(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -1442,10 +1296,6 @@ WHERE page.site_id = $1
         Ok(page)
     }
 
-    /// Gets all pages which match the given page references.
-    ///
-    /// The result list is not in the same order as the input, it
-    /// is up to the caller to order it if they wish.
     pub async fn get_pages(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1491,20 +1341,6 @@ WHERE page.site_id = $1
         Ok(models)
     }
 
-    /// Get all pages in a site, with potential conditions.
-    ///
-    /// The `category` argument:
-    /// * If it is `Some(_)`, then it specifies a reference to the category
-    ///   to select from.
-    /// * If it is `None`, then all pages on the site are selected.
-    ///
-    /// The `deleted` argument:
-    /// * If it is `Some(true)`, then it only returns pages which have been deleted.
-    /// * If it is `Some(false)`, then it only returns pages which are extant.
-    /// * If it is `None`, then it returns all pages regardless of deletion status.
-    ///
-    /// For the `order` argument, see documentation on `PageOrder`.
-    // TODO add pagination
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1550,9 +1386,6 @@ WHERE page.site_id = $1
         Ok(pages)
     }
 
-    /// Checks to see if a page already exists at the slug specified.
-    ///
-    /// If so, this method fails with `ErrorType::PageExists`. Otherwise it returns nothing.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1674,10 +1507,6 @@ WHERE page.site_id = $1
             .or_raise(make_error)
     }
 
-    /// Variant of `check_user_permission` for an explicit page, used when
-    /// the request context carries no page reference (for example the
-    /// page-edit-permission endpoint falling back to the site's default
-    /// page, upstream #3155).
     pub async fn check_user_permission_for_page(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1710,14 +1539,6 @@ WHERE page.site_id = $1
     }
 }
 
-/// Verifies that a `last_revision_id` passed into this function is actually the latest.
-///
-/// This is to avoid issues wherein a user edits overs a more recently-updated page
-/// without realizing it, since attempting to make this edit would cause the backend
-/// to produce an error saying that the request had too old of a revision ID and thus
-/// the page would need to be refreshed.
-///
-/// This check is intended for before an operation has run.
 fn check_last_revision(
     last_revision_model: Option<&PageRevisionModel>,
     page_latest_revision_id: Option<i64>,
@@ -1775,16 +1596,7 @@ fn raise_if_revision_insert_conflict(
     }
 }
 
-/// Ensure that the page has a properly-set `latest_revision_id` column.
-///
-/// This check is intended for after an operation has run.
 fn assert_latest_revision(page: &PageModel) {
-    // Even in production, we want to assert that this invariant holds.
-    //
-    // We cannot set the column itself to NOT NULL because of cyclic update
-    // requirements. However when using PageService, at no point should a method
-    // quit with this value being null.
-
     assert!(
         page.latest_revision_id.is_some(),
         "Page ID {} (slug '{}', site ID {}) has a NULL latest_revision_id column!",
@@ -1812,8 +1624,6 @@ mod tests {
 
     #[test]
     fn page_source_length_counts_characters_not_bytes() {
-        // Each of these characters is three bytes in UTF-8; the limit is
-        // on the character count, as measured against Wikidot.
         let source = "\u{3042}".repeat(MAX_PAGE_SOURCE_LENGTH);
         assert!(check_page_source_length(&source).is_ok());
         let source = "\u{3042}".repeat(MAX_PAGE_SOURCE_LENGTH + 1);

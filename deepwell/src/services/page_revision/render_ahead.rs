@@ -18,12 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Rendering a page's latest revision ahead of a renderer generation switch.
-//!
-//! The output goes to `page_revision_render_ahead`, not to the revision, so a
-//! Deepwell build of the previous generation keeps serving the revision's own
-//! output until the new build starts and promotes the row.
-
 use super::service::PageRevisionService;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::ServiceContext;
@@ -32,14 +26,6 @@ use crate::types::PageId;
 use sea_orm::{ConnectionTrait, Statement, Value};
 
 impl PageRevisionService {
-    /// Renders the page's latest revision into the render-ahead table.
-    ///
-    /// The revision's `updated_at` is captured before its inputs are read, so
-    /// a rerender by the serving build in the meantime invalidates the row.
-    /// Imported revisions use the corpus include ceiling, as the corpus
-    /// finalizer renders them; local revisions keep the public limit.
-    ///
-    /// Returns the revision ID whose output was stored.
     pub(crate) async fn render_ahead(
         ctx: &ServiceContext<'_>,
         id: PageId,

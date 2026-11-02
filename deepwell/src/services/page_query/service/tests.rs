@@ -94,8 +94,6 @@ fn author_selectors_test_first_revisions_once_per_query() {
         wikidot_snapshot_names: &[],
     });
 
-    // Uncorrelated with the outer page, so Postgres hashes it once instead of
-    // probing every candidate page for its first revision.
     for (sql, operator) in [
         (&any, "page.page_id IN ("),
         (&not_any, "page.page_id NOT IN ("),
@@ -114,8 +112,6 @@ fn wildcard_free_names_use_the_slug_index_and_wildcards_keep_ilike() {
             .build(DatabaseBackend::Postgres)
     };
 
-    // Stored slugs are lowercase, so a literal name compares with lower(name)
-    // and the (site_id, slug) index serves it; the escaped `_` stays literal.
     let literal = sql("Component:Literal_Name");
     assert!(
         literal.sql.contains(r#""page"."slug" = LOWER($1)"#),

@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code, unused_variables)] // TEMP
+#![allow(dead_code, unused_variables)]
 
 use super::structs::{
     AuthorSelector, CategoriesSelector, ComparisonOperation, DataFormSelector,
@@ -97,10 +97,6 @@ use self::score_filter::{apply_score_filters, score_comparison_operator};
 #[derive(Debug)]
 pub struct PageQueryService;
 
-/// A page query with every SQL-side filter applied, stopped before the
-/// fetch-specific steps (the effective-revision-count column, ORDER BY, and
-/// the LIMIT/OFFSET window). Row fetches and exact counts share this builder
-/// so a count always describes the same row set a fetch would return.
 struct BuiltPageQuery<'a> {
     query: sea_orm::Select<page::Entity>,
     fields: FoundPageFields,
@@ -182,15 +178,6 @@ impl PageQueryService {
         Self::fetch_built_page_query(ctx, built).await
     }
 
-    /// Counts the pages matching a query without fetching any rows.
-    ///
-    /// The count runs over the same fully-filtered query a row fetch would
-    /// use (see `build_page_query`), with no LIMIT/OFFSET window applied, so
-    /// `metadata.candidate_count` is the total number of matching rows. The
-    /// remaining metadata mirrors a row fetch: the count is only marked
-    /// `exact_count_safe` when no filtering or ordering was deferred to Rust
-    /// and the candidate bound was not reached, which is what
-    /// `count_pages_exact_count_eligibility` consumes.
     pub async fn count_with_metadata(
         ctx: &ServiceContext<'_>,
         query: PageQuery<'_>,
@@ -346,9 +333,6 @@ impl PageQueryService {
 
         condition = condition.add(page::Column::SiteId.eq(queried_site_id));
 
-        // Foreign include-source snapshots are storage, not pages of this
-        // site (issue #2690): hide them from every ListPages selection the
-        // same way direct routes hide them.
         condition = condition.add(Expr::cust(foreign_snapshot_exclusion_sql(
             "page.page_id",
             queried_site_id,
@@ -368,10 +352,7 @@ impl PageQueryService {
             PageTypeSelector::All => {}
         }
 
-        // Categories (included and excluded)
         let page_category_condition = match included_categories {
-            // If all categories are selected (using an asterisk or by only specifying excluded categories),
-            // then filter only by site_id and exclude the specified excluded categories.
             IncludedCategories::All => page::Column::PageCategoryId.in_subquery(
                 Query::select()
                     .column(page_category::Column::CategoryId)
@@ -384,13 +365,6 @@ impl PageQueryService {
                     .to_owned(),
             ),
 
-            // If a specific list of categories is provided, filter by site_id, inclusion in the
-            // specified included categories, and exclude the specified excluded categories.
-            //
-            // NOTE: Exclusion can only have an effect in this query if it is *also* included.
-            //       Although by definition this is the same as not including the category in the
-            //       included categories to begin with, it is still accounted for to preserve
-            //       backwards-compatibility with poorly-constructed ListPages modules.
             IncludedCategories::List(included_categories) => page::Column::PageCategoryId
                 .in_subquery(
                     Query::select()
@@ -424,7 +398,6 @@ impl PageQueryService {
             condition = condition.add(parent_condition);
         }
 
-        // Slug
         if let Some(slug) = slug {
             if !slugs.is_empty() {
                 return Err(Error::new(
@@ -490,7 +463,6 @@ impl PageQueryService {
             condition = condition.add(vote_selectors_condition(&votes));
         }
 
-        // Build the final query
         let mut query = Page::find()
             .filter(page::Column::DeletedAt.is_null())
             .filter(condition);
@@ -509,8 +481,6 @@ impl PageQueryService {
             query = query.join(JoinType::LeftJoin, page::Relation::PageRevision.def());
         }
 
-        // Tag filtering. Tags live on the current page revision, so this joins through
-        // page.latest_revision_id -> page_revision.revision_id before applying array predicates.
         for tag in all_tags {
             query = query.filter(
                 Expr::col(page_revision::Column::Tags)
@@ -608,7 +578,6 @@ impl PageQueryService {
             );
         }
 
-        // Add on at the query-level (ORDER BY, LIMIT)
         query = apply_sql_ordering(query, &order, needs_tag_filter);
 
         let defer_offset_limit = ordering_deferred_to_rust
@@ -629,18 +598,6 @@ impl PageQueryService {
             query = query.limit(candidate_limit);
         }
 
-        // TODO pagination
-        //      the "reverse" field means that, for each page, it is reversed.
-        //
-        //      this does not affect the overall ORDER BY
-        //      for instance, imagine we are selecting from the positive integers
-        //      if the pagination limit is 5 and the order is ascending, but reverse = true,
-        //      then this means we get pages like:
-        //
-        //      1. [ 4,  3,  2,  1,  0]
-        //      2. [ 9,  8,  7,  6,  5]
-        //      3. [14, 13, 12, 11, 10]
-
         // Tag predicates have the same problem as the score selectors above:
         // a generic plan cannot see how rare a tag is, so after a few
         // executions PostgreSQL walks every page in order and probes each
@@ -652,7 +609,6 @@ impl PageQueryService {
                 .or_raise(make_error)?;
         }
 
-        // Execute it!
         let (mut pages, effective_revision_count_by_page_id) =
             if projects_effective_revision_count {
                 let selected = query
@@ -688,10 +644,6 @@ impl PageQueryService {
             .into());
         }
         let candidate_count = Some(pages.len());
-        // Both deferred paths resolve in Rust over the fetched candidate set, so
-        // a scan that filled its bound may be missing rows that belong in the
-        // result. The caller preserves the module rather than rendering a list
-        // sorted or filtered from a truncated candidate set.
         let cap_exceeded = defer_offset_limit
             && candidate_limit
                 .and_then(|limit| usize::try_from(limit).ok())

@@ -48,16 +48,6 @@ pub struct MimeAnalyzer {
 }
 
 impl MimeAnalyzer {
-    /// Starts the MIME analyzer and returns an instance of this struct.
-    ///
-    /// This launches a new thread to take MIME requests and then returns
-    /// a means of communicating with this thread to the caller so calls can be made.
-    ///
-    /// While technically multiple `MimeAnalyzer` instances could be made, this
-    /// is very wasteful; you should only create and use one.
-    ///
-    /// This object is cheaply cloneable and should be reused instead of
-    /// making new instances and starting new threads.
     pub fn spawn() -> Self {
         info!("Starting MIME analyzer worker");
         let (sink, source) = mpsc::channel(64);
@@ -73,9 +63,8 @@ impl MimeAnalyzer {
         MimeAnalyzer { sink }
     }
 
-    /// Loads the libmagic database from file, failing if it was invalid or missing.
     fn load_magic(flags: MagicFlags) -> Result<Magic> {
-        const MAGIC_PATHS: &[&str] = &[]; // Empty indicates using the default magic database
+        const MAGIC_PATHS: &[&str] = &[];
 
         let make_error = || Error::new("failed to open magic database", ErrorType::Blob);
 
@@ -85,14 +74,6 @@ impl MimeAnalyzer {
         Ok(magic)
     }
 
-    /// Main loop for the MIME analyzer.
-    ///
-    /// Runs in a dedicated thread due to borrow checker issues, taking in
-    /// requests via a mpsc channel.
-    ///
-    /// When this loop ends, it means the channel has closed.
-    /// This should only happen when the application as a whole is shutting
-    /// down (whether from crash or normal exit).
     fn main_loop(
         mime_magic: Magic,
         descriptor_magic: Magic,
@@ -109,30 +90,19 @@ impl MimeAnalyzer {
         }
     }
 
-    /// Requests that libmagic determine the buffer's MIME type and textual descriptor.
-    ///
-    /// Because all requests involve sending an item over the channel,
-    /// and then waiting for the response, we need to send both the input
-    /// and a oneshot channel to get the response.
     pub(crate) async fn analyze(&self, buffer: Vec<u8>) -> Result<ContentAnalysis> {
         let buffer_len = buffer.len();
-        // Decided before the buffer moves into the worker channel below.
         let maybe_webp = is_webp(&buffer);
         info!("Sending content analysis request ({} bytes)", buffer_len);
 
-        // Channel for getting the result
         let (resp_send, resp_recv): (ResponseSender, ResponseReceiver) =
             oneshot::channel();
 
-        // Send the request
         self.sink
             .send((buffer, resp_send))
             .await
             .expect("MIME channel is closed");
 
-        // Wait for the response
-        //
-        // Two layers of result for channel failure and MIME request failure
         let resp = resp_recv.await.expect("Response channel is closed");
         let (mime, description) = resp.or_raise(|| {
             Error::new(
@@ -177,15 +147,12 @@ impl MimeAnalyzer {
     }
 }
 
-/// Whether the bytes are a WebP image: a RIFF chunk whose form type is
-/// `WEBP` in the first twelve bytes.
 fn is_webp(bytes: &[u8]) -> bool {
     bytes.len() >= 12 && &bytes[..4] == b"RIFF" && &bytes[8..12] == b"WEBP"
 }
 
 #[test]
 fn is_webp_detects_only_webp_chunks() {
-    // Fails before the fix: no content-based WebP detection exists.
     assert!(is_webp(b"RIFF\x1a\x00\x00\x00WEBPVP8 "));
     assert!(is_webp(b"RIFF\x00\x04\x00\x00WEBPVP8L"));
     assert!(!is_webp(b""));
@@ -215,9 +182,6 @@ async fn mime_request() {
     check!(b"Apple banana", "text/plain; charset=us-ascii");
     check!(PNG, "image/png; charset=binary");
     check!(TAR_GZIP, "application/gzip; charset=binary");
-    // Minimal WebP: RIFF chunk with WEBP form type. Passes on databases
-    // that know WebP (no correction needed) and on older ones that report
-    // `application/octet-stream` (corrected from the magic bytes).
     const WEBP: &[u8] = b"RIFF\x1a\x00\x00\x00WEBPVP8 \x0c\x00\x00\x00\x9d\x01\x2a";
     check!(WEBP, "image/webp; charset=binary");
 

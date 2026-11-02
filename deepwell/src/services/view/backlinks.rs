@@ -81,10 +81,6 @@ impl ViewService {
         let user_id = ctx.request().user_id;
         let mut backlinks = Vec::new();
         let mut category_permissions = BTreeMap::new();
-        // Keyset pagination on the primary key `(to_page_id, connection_type,
-        // from_page_id)` replaces `OFFSET`, so the scan no longer re-reads every
-        // preceding row on each page. `from_page_id` is unique for a fixed
-        // (target, Link) pair, so `> last` visits each connection exactly once.
         let mut last_from_page_id: Option<i64> = None;
         loop {
             let mut query = PageConnection::find()
@@ -103,9 +99,6 @@ impl ViewService {
             }
             last_from_page_id = connections.last().map(|row| row.from_page_id);
 
-            // Resolve every candidate source page in one query instead of one
-            // `PageService::get_optional` per connection, keeping the same
-            // site-scoped, non-deleted semantics.
             let from_page_ids = connections
                 .iter()
                 .map(|row| row.from_page_id)
@@ -114,8 +107,6 @@ impl ViewService {
                 .filter(page::Column::SiteId.eq(input.site_id))
                 .filter(page::Column::DeletedAt.is_null())
                 .filter(page::Column::PageId.is_in(from_page_ids))
-                // Foreign include-source snapshots are storage, not pages
-                // of this site (issue #2690).
                 .filter(Expr::cust(foreign_snapshot_exclusion_sql(
                     "page.page_id",
                     input.site_id,

@@ -1,5 +1,3 @@
-//! ListPages page-query score filtering and request-local membership caches.
-
 use super::super::structs::{ComparisonOperation, ScoreSelector};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};
@@ -74,13 +72,9 @@ impl ScoreFilterMembership {
     }
 }
 
-// Keeps each request-local ID array bounded while accommodating the 24,430-page EN corpus.
 pub(super) const MAX_CACHED_SCORE_FILTER_PAGE_IDS: usize = 50_000;
-// Bounds aggregate request-local score-cache retention across distinct score filters.
 pub(super) const MAX_TOTAL_CACHED_SCORE_FILTER_PAGE_IDS: usize = 100_000;
 
-/// Request-local cache for broad score predicates shared by multiple ListPages queries.
-/// It caches only qualifying IDs; each caller still applies its own filters and ordering.
 #[derive(Debug, Default)]
 pub(crate) struct PageQueryScoreFilterCache {
     pub(super) seen: BTreeSet<ScoreFilterCacheKey>,

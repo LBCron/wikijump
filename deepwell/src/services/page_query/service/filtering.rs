@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Page-query selector normalization and deferred data-form filtering.
-
 use super::{
     BTreeMap, ColumnTrait, ComparisonOperation, Condition, DataFormSelector,
     DateSelector, DateTimeResolution, EntityTrait, Error, ErrorType, Expr,
@@ -42,12 +40,6 @@ pub(super) fn wikidot_name_pattern(value: &str) -> String {
     pattern
 }
 
-/// The slug condition for a `wikidot_name_pattern` pattern.
-///
-/// A pattern without wildcards names one page. Stored slugs are normalized to
-/// lowercase, so matching it case-insensitively is the indexed
-/// `slug = lower(name)`, while an `ILIKE` scans every page of the site for
-/// each name.
 pub(super) fn wikidot_name_condition(pattern: &str) -> SimpleExpr {
     let slug = Expr::col((page::Entity, page::Column::Slug));
     match like_pattern_literal(pattern) {
@@ -56,8 +48,6 @@ pub(super) fn wikidot_name_condition(pattern: &str) -> SimpleExpr {
     }
 }
 
-/// The only string a `LIKE` pattern (backslash escapes) matches, if it has no
-/// wildcard.
 fn like_pattern_literal(pattern: &str) -> Option<String> {
     let mut literal = String::with_capacity(pattern.len());
     let mut characters = pattern.chars();

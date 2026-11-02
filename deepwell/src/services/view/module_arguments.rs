@@ -18,52 +18,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wikidot URL path arguments that a module on the viewed page reads.
-//!
-//! These are the same `/name/value` pairs [`PageOptions`] parses, split out
-//! because they address the page's modules rather than the view itself. Only
-//! Raw names are retained because a ListPages module may opt into any
-//! documented argument with `@URL` and may prefix that name with
-//! `urlAttrPrefix`.
-//!
-//! [`PageOptions`]: super::options::PageOptions
-
 use super::options::PAGE_ARGUMENTS_SCHEMA;
 use crate::services::render::UrlArgumentPair;
 use unicase::UniCase;
 use wikidot_path::PageArguments;
 
-/// URL path arguments addressed to the viewed page's modules.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct PageModuleArguments {
-    /// `/tag/<value>`, read by `PagesByTag`.
-    ///
-    /// `Some("")` is distinct from `None`: live renders an empty tag heading
-    /// for `/tag` and `/tag/`, and renders nothing at all when the argument is
-    /// absent.
     pub tag: Option<String>,
 
-    /// `/p/<n>`, the 1-based page number a paginated `ListPages` renders.
-    ///
-    /// Only a positive integer counts. Live ignores `/p/0` and `/p/abc` rather
-    /// than erroring, so those parse as absent and the module renders its
-    /// first page.
     pub page: Option<u32>,
 
-    /// `/category/<value>`, read by a `ListPages` `category="@URL"` selector.
-    ///
-    /// As with [`tag`](Self::tag), `Some("")` is kept distinct from `None` so
-    /// the renderer decides what an empty segment means.
     pub category: Option<String>,
 
-    /// `/offset/<n>`, read by a ListPages `offset="@URL|fallback"` selector.
-    ///
-    /// Invalid and negative values are absent, so the selector uses its
-    /// authored fallback.
     pub offset: Option<u32>,
 
-    /// Ordered raw path arguments, including arbitrary ListPages
-    /// `urlAttrPrefix` names such as `/a_p/2`.
     pub path_arguments: Vec<UrlArgumentPair>,
 }
 
@@ -72,9 +41,6 @@ impl PageModuleArguments {
         let arguments = PageArguments::parse(extra, PAGE_ARGUMENTS_SCHEMA).0;
         let path_arguments = raw_path_arguments(extra);
 
-        // The raw segment is used rather than the parsed `ArgumentValue`
-        // because a tag can legitimately be `true`, `t`, `f`, or a number,
-        // which the value parser would turn into a boolean or an integer.
         let tag = arguments
             .get(&UniCase::unicode("tag"))
             .map(|(_, raw)| (*raw).to_owned());
@@ -101,7 +67,6 @@ impl PageModuleArguments {
         }
     }
 
-    /// Whether the path addressed any module at all.
     pub fn is_empty(&self) -> bool {
         self.tag.is_none()
             && self.page.is_none()
@@ -230,7 +195,6 @@ mod tests {
 
     #[test]
     fn tag_values_that_look_like_other_types_survive() {
-        // `ArgumentValue` would render these as booleans and an integer.
         for value in ["true", "false", "t", "f", "2024"] {
             assert_eq!(
                 PageModuleArguments::parse(&format!("/tag/{value}"))
@@ -244,8 +208,6 @@ mod tests {
 
     #[test]
     fn a_name_without_a_value_yields_an_empty_tag() {
-        // Live renders `<em></em>` and an empty list for both of these, which
-        // is distinct from omitting the argument entirely.
         assert_eq!(PageModuleArguments::parse("/tag").tag.as_deref(), Some(""));
         assert_eq!(PageModuleArguments::parse("/tag/").tag.as_deref(), Some(""));
     }

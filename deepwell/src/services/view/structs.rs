@@ -41,9 +41,6 @@ pub(super) fn is_reserved_admin_slug(slug: &str) -> bool {
     slug.trim_matches('/').eq_ignore_ascii_case("_admin")
 }
 
-// NOTE: Any changes to the output structures here, including the variant names,
-//       MUST be reflected in framerail!
-
 #[derive(Deserialize, Debug, Clone)]
 pub struct GetPageView {
     pub site_id: i64,
@@ -65,19 +62,12 @@ pub struct GetPreloadView {
     pub locales: Vec<String>,
 }
 
-/// Yield common preload data for any views
-///
-/// See also framerail src/lib/server/load/preload.ts
 #[derive(Serialize, Debug, Clone)]
 pub struct GetPreloadViewOutput {
     #[serde(flatten)]
     pub viewer: Viewer,
 }
 
-/// Yield common preload data plus page view data for article routes.
-///
-/// This is a serving-latency helper for clients that need both payloads for the
-/// same request and want to avoid a second JSON-RPC round trip.
 #[derive(Serialize, Debug, Clone)]
 pub struct GetArticleViewOutput {
     #[serde(flatten)]
@@ -102,14 +92,6 @@ pub enum PageRedirectKind {
     RandomHelper,
 }
 
-/// Yield information for a page view, depending on the status of the page.
-/// For instance, if a page is missing, there is no revision data but we do
-/// still need to display the "this page doesn't exist" content.
-///
-/// See also framerail src/lib/server/load/page.ts and src/routes/+error.svelte
-///
-/// Note that compiled_xxx_bar_html is Option because None means that this page
-/// does not have that nav bar / it is disabled in this context.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetPageViewOutput {
@@ -163,13 +145,8 @@ pub enum GetPageViewOutput {
         selected_template_page_id: Option<i64>,
         #[serde(default)]
         data_form: Option<DataFormEditor>,
-        /// Whether the viewer may create this missing page. Same decision as
-        /// `page_create`; when false, no template or data-form source is returned.
         #[serde(default)]
         can_create: bool,
-        /// Whether the body is the site's own missing-page template (`_404`).
-        /// Wikidot then shows only that template; otherwise it shows its
-        /// default message and a "Create page" link.
         #[serde(default)]
         missing_template: bool,
         compiled_body_html: String,
@@ -219,7 +196,6 @@ pub struct GetUserView<'a> {
     pub locales: Vec<String>,
 }
 
-// See also framerail src/lib/server/load/admin.ts and src/routes/[x+2d]/admin/+error.svelte
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetUserViewOutput {
@@ -242,7 +218,6 @@ pub struct PageTemplateSummary {
     pub wikitext: String,
 }
 
-// See also framerail src/lib/server/load/admin.ts and src/routes/[x+2d]/user/+error.svelte
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetAdminViewOutput {
@@ -262,8 +237,6 @@ pub struct Viewer {
     pub site: SiteModel,
     pub site_settings: crate::services::settings::SiteSettings,
     pub promoted_sites: Vec<PromotedSiteView>,
-    /// URL authority of the site's files host: the files domain, plus the
-    /// public HTTPS port when it is not 443.
     pub site_file_domain: String,
     pub license_name: String,
     pub license_url: &'static str,

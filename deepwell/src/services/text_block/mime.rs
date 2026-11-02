@@ -20,10 +20,6 @@
 
 use paste::paste;
 
-/// Convenience macro to make the MIME string constants.
-///
-/// This is so we don't have to repeat `pub const` and `charset=utf-8` each time.
-/// It is assumed since all Rust strings must be UTF-8.
 macro_rules! mime {
     ($name:ident, $mime:expr) => {
         paste! {
@@ -51,7 +47,7 @@ mime!(DIFF, "text/x-diff");
 mime!(DTD, "text/x-dtd");
 mime!(EIFFEL, "text/x-eiffel");
 mime!(ERLANG, "text/x-erlang");
-mime!(EXAMPLE, "text/example"); // lol
+mime!(EXAMPLE, "text/example");
 mime!(FORTRAN, "text/x-fortran");
 mime!(FTML, "text/x-ftml");
 mime!(FSHARP, "text/x-fsharp");
@@ -89,12 +85,8 @@ mime!(XML, "application/xml");
 mime!(YACC, "text/x-yacc");
 mime!(YAML, "text/x-yaml");
 
-/// Gets the MIME type for a given `[[code]]` language specification.
-///
-/// This supports everything Wikidot does and more.
 pub fn mime_for_language<S: AsRef<str>>(language: &Option<S>) -> &'static str {
     const MAPPING: [(&str, &str); 75] = [
-        // These are at the top since they're the most common.
         ("css", MIME_CSS),
         ("html", MIME_HTML),
         ("js", MIME_JAVASCRIPT),
@@ -102,7 +94,6 @@ pub fn mime_for_language<S: AsRef<str>>(language: &Option<S>) -> &'static str {
         ("ftml", MIME_FTML),
         ("wikidot", MIME_FTML),
         ("wikijump", MIME_FTML),
-        // Everything else
         ("actionscript", MIME_ACTIONSCRIPT),
         ("apl", MIME_APL),
         ("asm", MIME_ASM),

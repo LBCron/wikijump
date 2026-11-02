@@ -21,18 +21,9 @@
 use unicase::UniCase;
 use wikidot_path::{ArgumentSchema, ArgumentValue, PageArguments};
 
-/// Every URL path argument name Wikidot recognizes here.
-///
-/// Membership matters beyond the names this module itself consumes: a solo key
-/// such as `norender` decides whether the next segment is its value or the next
-/// pair's name by looking the segment up in this list. So a module argument
-/// like `tag` must appear here even though [`PageOptions`] ignores it, or
-/// `/norender/tag/alpha` would parse as `norender=tag` plus `alpha=`.
 pub(super) const PAGE_ARGUMENTS_SCHEMA: ArgumentSchema = ArgumentSchema {
     valid_keys: &[
         "edit",
-        // Read by the viewed page's modules, not by PageOptions.
-        // See services/view/module_arguments.rs.
         "tag",
         "p",
         "category",
@@ -63,10 +54,6 @@ pub(super) const PAGE_ARGUMENTS_SCHEMA: ArgumentSchema = ArgumentSchema {
     ],
 };
 
-/// Describes the operations to be done by Framerail for this page view.
-///
-/// `RawPageOptions` (from `wikidot_path`) contains the direct key / value
-/// pairs, this struct parses them into logical flags to be processed.
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct PageOptions {
     pub edit: bool,
@@ -171,15 +158,9 @@ impl PageOptions {
             }
         }
 
-        // Arguments addressed to the page's modules rather than to the view.
-        // PageModuleArguments reads these from the same path; drop them here so
-        // they are not reported as unused.
         arguments.remove(unicase!("tag"));
         arguments.remove(unicase!("p"));
         arguments.remove(unicase!("category"));
-
-        // Done processing arguments
-        // Now go through anything remaining and emitting warnings for them
 
         for (key, (value, raw)) in arguments {
             warn!("Unused argument in page path: {key} -> {value:?} ('{raw}')");
@@ -193,13 +174,10 @@ fn to_bool(value: ArgumentValue) -> bool {
     debug!("Converting argument value to plain boolean: {value:?}");
 
     match value {
-        // Simply unwrap bool
         ArgumentValue::Boolean(b) => b,
 
-        // Convert integer to truthy/falsey
         ArgumentValue::Integer(i) => i != 0,
 
-        // Presence indicates a value of true
         ArgumentValue::String(_) | ArgumentValue::Null => true,
     }
 }

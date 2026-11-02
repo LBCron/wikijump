@@ -152,9 +152,6 @@ export function validateTemporalRunContract(contract) {
   }
   if (contract.capture?.script !== SCRIPT_RELATIVE_PATH) throw new Error("temporal run contract points at the wrong capture script");
   if (!/^[0-9a-f]{40}$/u.test(contract.source_revision ?? "")) throw new Error("temporal run contract source revision is malformed");
-  if (!contract.evidence_registry || path.isAbsolute(contract.evidence_registry.path ?? "") || !/^[0-9a-f]{64}$/u.test(contract.evidence_registry.sha256 ?? "")) {
-    throw new Error("temporal run contract evidence registry identity is malformed");
-  }
   if (contract.historical_evidence?.schema !== "wikijump.page_pane_lazy_browser.v1" || contract.historical_evidence?.classification !== "historical_history_only") {
     throw new Error("temporal run contract historical receipt is not classified as history-only");
   }
@@ -645,9 +642,6 @@ export function validateCaptureInputBindings(contract, urls, identities) {
   if (!fixture || fixture.schema !== "wikijump.framerail_route_action_fixture_identity.v1") {
     throw new Error("fixture identity descriptor is required");
   }
-  if (JSON.stringify(fixture.evidence_registry) !== JSON.stringify(contract.evidence_registry)) {
-    throw new Error("fixture identity is not bound to the evidence registry");
-  }
   if (fixture.urls_sha256 !== urlsSha256 || captureUrlsSha256(fixture.urls) !== urlsSha256) {
     throw new Error("fixture identity is not bound to the supplied URLs");
   }
@@ -655,9 +649,6 @@ export function validateCaptureInputBindings(contract, urls, identities) {
   const failureControl = identities?.failureControl?.descriptor;
   if (!failureControl || failureControl.schema !== "wikijump.framerail_route_action_failure_control_identity.v1") {
     throw new Error("failure-control identity descriptor is required");
-  }
-  if (JSON.stringify(failureControl.evidence_registry) !== JSON.stringify(contract.evidence_registry)) {
-    throw new Error("failure-control identity is not bound to the evidence registry");
   }
   if (failureControl.urls_sha256 !== urlsSha256) {
     throw new Error("failure-control identity is not bound to the supplied URLs");
@@ -685,31 +676,6 @@ async function inputIdentities(args, contract, urls, contractIdentity, outputDir
   const actualSource = repositoryIdentity();
   const script = await fileIdentity(SCRIPT_PATH, "capture_script");
   if (contract.capture.script_sha256 !== script.sha256) throw new Error("capture script SHA-256 does not match the run contract");
-  const registryPath = path.resolve(REPO_ROOT, contract.evidence_registry.path);
-  const retainedRegistryFile = await readFileIdentity(registryPath, "retained_evidence_registry");
-  const registryBytes = execFileSync(
-    "/usr/bin/git",
-    ["--no-replace-objects", "cat-file", "blob", `${contract.source_revision}:${contract.evidence_registry.path}`],
-    {cwd: REPO_ROOT, maxBuffer: 16 * 1024 * 1024},
-  );
-  const evidenceRegistry = {
-    label: "evidence_registry",
-    path: registryPath,
-    sha256: crypto.createHash("sha256").update(registryBytes).digest("hex"),
-    size: registryBytes.byteLength,
-  };
-  if (evidenceRegistry.sha256 !== contract.evidence_registry.sha256) {
-    throw new Error("evidence registry SHA-256 does not match the run contract");
-  }
-  let registry;
-  try {
-    registry = JSON.parse(retainedRegistryFile.bytes.toString("utf8"));
-  } catch (error) {
-    throw new Error(`retained evidence registry is not valid JSON: ${errorMessage(error)}`);
-  }
-  if (registry?.schema !== "wikijump.framerail_route_action_evidence.v1" || registry.source_revision !== contract.source_revision) {
-    throw new Error("evidence registry is not bound to the run contract source revision");
-  }
   const historicalEvidence = await verifyHistoricalEvidence(contract.historical_evidence);
   const browserExecutableFile = await readFileIdentity(args.browserExecutable, "browser_executable");
   const browserExecutable = browserExecutableFile.identity;
@@ -734,7 +700,6 @@ async function inputIdentities(args, contract, urls, contractIdentity, outputDir
     contract: contractIdentity,
     repository: {name: contract.repository, root: REPO_ROOT},
     script,
-    evidenceRegistry,
     fixture: {...fixture.identity, urls_sha256: fixture.descriptor.urls_sha256},
     failureControl: {
       ...failureControl.identity,
@@ -1385,7 +1350,6 @@ export async function runTemporalCapture(args) {
       status: failures.length === 0 && artifactFailures === 0 && records.length === expected ? "captured" : "failed",
       source_revision: identities.source.wikijump_commit,
       source_tree: identities.source.wikijump_tree,
-      evidence_registry: contract.evidence_registry,
       historical_evidence: contract.historical_evidence,
       run_id: runId,
       required_intervals: contract.required_intervals,
@@ -1400,7 +1364,6 @@ export async function runTemporalCapture(args) {
         repository_identity: identities.repository,
         capture_script_identity: identities.script,
         run_contract_identity: identities.contract,
-        evidence_registry_identity: identities.evidenceRegistry,
         fixture_identity: identities.fixture,
         historical_evidence_identity: identities.historicalEvidence,
         failure_control_identity: identities.failureControl,

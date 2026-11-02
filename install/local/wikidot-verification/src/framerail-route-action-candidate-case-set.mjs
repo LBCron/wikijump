@@ -28,7 +28,6 @@ const SOURCE_FILES = Object.freeze([...new Set([
   "install/local/wikidot-verification/src/browser-render-evidence.mjs",
   CONTRACT_RELATIVE_PATH,
   HISTORICAL_EVIDENCE_RELATIVE_PATH,
-  "docs/development/framerail-route-action-evidence.json",
 ])]);
 
 function absolutePath(value, label) {

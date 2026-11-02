@@ -603,6 +603,8 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
     register!("parent_get_direct_metadata", parent_get_direct_metadata);
     register!("parent_get_all", parent_get_all);
     register!("parent_update", parent_update);
+    register!("parent_trace", parent_trace);
+    register!("child_get_all", child_get_all);
 
     // Hosted text blocks
     register!("text_block_get_index", text_block_get_index);

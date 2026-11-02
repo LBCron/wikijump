@@ -93,6 +93,9 @@ wiki-page-edit = ページの編集
 
 wiki-page-parent = 親ページ
 
+wiki-page-children = 子ページ
+  .no-children = このページに子ページはありません。
+
 wiki-page-delete = ページの削除
 
 wiki-page-move = ページの移動

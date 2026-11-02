@@ -1989,7 +1989,7 @@ ORDER BY breadcrumb_chain.depth ASC
         let make_error = || {
             Error::new(
                 format!(
-                    "failed to generate user view for site ID {}, locales '{:?}'",
+                    "failed to generate admin view for site ID {}, locales '{:?}'",
                     site_id, locales_str,
                 ),
                 ErrorType::GetView(ViewType::Admin),

@@ -969,6 +969,40 @@ export async function pageParentGet(
   )
 }
 
+/* ----- Page Parent Trace ----- */
+export async function pageParentTrace(
+  siteId: number,
+  pageId: Optional<number>,
+  slug: string,
+  requestContext: RequestContext
+): Promise<object> {
+  return client.request(
+    "parent_trace",
+    {
+      site_id: siteId,
+      page: pageId ?? slug
+    },
+    requestContext
+  )
+}
+
+/* ----- Page Children Get ----- */
+export async function pageChildrenGet(
+  siteId: number,
+  pageId: Optional<number>,
+  slug: string,
+  requestContext: RequestContext
+): Promise<object> {
+  return client.request(
+    "child_get_all",
+    {
+      site_id: siteId,
+      page: pageId ?? slug
+    },
+    requestContext
+  )
+}
+
 /* ----- Page Deleted Get ----- */
 export interface PageDeletedGet {
   page_id: number

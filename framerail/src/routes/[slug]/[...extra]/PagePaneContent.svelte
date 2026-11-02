@@ -46,6 +46,7 @@
   let LayoutPane = $state<typeof import("./LayoutPane.svelte").default>()
   let LockPane = $state<typeof import("./LockPane.svelte").default>()
   let MovePane = $state<typeof import("./MovePane.svelte").default>()
+  let ChildrenPane = $state<typeof import("./ChildrenPane.svelte").default>()
   let ParentPane = $state<typeof import("./ParentPane.svelte").default>()
   let SiteToolsPane = $state<typeof import("./SiteToolsPane.svelte").default>()
   let TagsPane = $state<typeof import("./TagsPane.svelte").default>()
@@ -83,6 +84,9 @@
         break
       case PagePane.Parent:
         ParentPane ??= (await import("./ParentPane.svelte")).default
+        break
+      case PagePane.Children:
+        ChildrenPane ??= (await import("./ChildrenPane.svelte")).default
         break
       case PagePane.SiteTools:
         SiteToolsPane ??= (await import("./SiteToolsPane.svelte")).default
@@ -144,6 +148,12 @@
   {:else if pagePaneState === PagePane.Parent}
     {#if ParentPane}
       <ParentPane bind:pagePaneState {...props} />
+    {:else}
+      <p class="pane-loading" aria-live="polite">Loading…</p>
+    {/if}
+  {:else if pagePaneState === PagePane.Children}
+    {#if ChildrenPane}
+      <ChildrenPane {...props} />
     {:else}
       <p class="pane-loading" aria-live="polite">Loading…</p>
     {/if}

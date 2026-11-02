@@ -966,6 +966,16 @@
       </a>
       <!-- svelte-ignore a11y_invalid_attribute -->
       <a
+        id="children-page-button"
+        class="btn btn-default"
+        href="javascript:;"
+        onclick={() => openPagePane(PagePane.Children)}
+        type={wikidotPageActions ? undefined : "button"}
+      >
+        {data.internationalization?.children}
+      </a>
+      <!-- svelte-ignore a11y_invalid_attribute -->
+      <a
         id={wikidotPageActions ? "page-block-button" : "lock-page-button"}
         class="btn btn-default"
         href="javascript:;"

@@ -812,12 +812,18 @@ def render_delta_pages(
         render_ahead.config_mount(inspected),
         render_ahead.runtime_environment(inspected),
         render_ahead.render_ahead_settings(
-            len(page_ids) if page_ids else 16, 200, render_ahead.utc_now(), page_ids, dry_run
+            # Cap concurrency at render-ahead's default: the delta can be
+            # thousands of imported pages, and every task uses pool
+            # connections on the live site.
+            min(len(page_ids), 16) if page_ids else 16,
+            200, render_ahead.utc_now(), page_ids, dry_run
         ),
         log_path,
     )
-    if summary["failed"]:
-        raise RuntimeError(f"rendering the stale delta failed: {summary['failures']}")
+    # A page that failed its render (e.g. the serving deadline under load)
+    # is reported, not raised: it stays stale and the caller's next bounded
+    # round retries it, as render_ahead's own tail retries do. Only a
+    # failed render *process* (nonzero exit, in render_pass) raises.
     return summary
 
 
@@ -891,6 +897,9 @@ def _converge_stale_pages(
             break
         page_ids = saved_page_stale_ids(STANDING_DATABASE, expected)
         if not page_ids:
+            # The count and the ID query are separate reads: a view or
+            # fan-out render between them can clear every stale page.
+            stale = 0
             break
         summary = render_delta_pages(
             image, page_ids, evidence / f"{log_prefix}-{round_number}.log"
@@ -900,7 +909,11 @@ def _converge_stale_pages(
         reload_gateway()
         stale = saved_page_staleness(STANDING_DATABASE, expected)
         result["rounds"].append(
-            {"round": round_number, "pages": len(page_ids), "stale_after": stale}
+            {
+                "round": round_number, "pages": len(page_ids), "stale_after": stale,
+                "failed": int(summary.get("failed") or 0),
+                "failed_page_ids": list(summary.get("failed_page_ids") or []),
+            }
         )
         if not stale:
             break
@@ -917,6 +930,13 @@ def _converge_stale_pages(
         for round_number in range(1, render_ahead.MAX_READER_ROUNDS + 1):
             if not changed or not readers:
                 break
+            if time.monotonic() - started > ACTIVATION_CATCH_UP_TIMEOUT_SECONDS:
+                # The total bound spans both loops: readers can be many,
+                # and an unbounded settle would hold the flip open.
+                raise RuntimeError(
+                    "activation catch-up exceeded its time bound "
+                    f"({ACTIVATION_CATCH_UP_TIMEOUT_SECONDS}s) while settling link readers"
+                )
             before = render_ahead.link_digests(STANDING_DATABASE)
             requested = sorted(readers)
             mark_link_readers_stale(requested)
@@ -931,7 +951,11 @@ def _converge_stale_pages(
                 render_ahead.changed_pages(before, render_ahead.link_digests(STANDING_DATABASE))
             )
             result["link_reader_rounds"].append(
-                {"round": round_number, "pages": len(requested), "stale_after": stale}
+                {
+                    "round": round_number, "pages": len(requested), "stale_after": stale,
+                    "failed": int(summary.get("failed") or 0),
+                    "failed_page_ids": list(summary.get("failed_page_ids") or []),
+                }
             )
             if stale:
                 break
@@ -964,7 +988,15 @@ def converge_saved_pages(
     )
     stale = int(result["stale_pages_remaining"])
     if stale:
-        raise RuntimeError(f"standing serves {stale} stale saved pages")
+        message = f"standing serves {stale} stale saved pages"
+        failed = [
+            page_id
+            for entry in [*result["rounds"], *result["link_reader_rounds"]]
+            for page_id in entry.get("failed_page_ids", [])
+        ]
+        if failed:
+            message += f"; catch-up renders failed for pages {failed[:20]}"
+        raise RuntimeError(message)
     return result
 
 

@@ -1,28 +1,21 @@
 ------------------------ MODULE PromotionActivation ------------------------
 (***************************************************************************)
-(* Promotion activation vs concurrent writers (rewritten 2026-11-02 to the *)
-(* real protocol per tla-pilot ASSESSMENT.md; supersedes the pilot's       *)
-(* D0/D1/D2, atomic CheckFlip, fence, gate, and `refused` outcome).        *)
-(* Protocol (promote.py): snapshot, park, up (new Deepwell promotes valid  *)
-(* ahead rows in one txn), health, gateway, count, bounded catch-up        *)
-(* (render delta, restart, gateway, re-count), commit, proof; any          *)
-(* post-flip failure rolls back (guarded restore, old containers, then     *)
-(* old-image recovery render). Parking fences all Deepwell-routed writers, *)
-(* fan-out included; after the flip only direct-SQL imports stale a page.  *)
-(* Writers: DbImport (direct SQL, placeholder gen, any time); RpcWrite and *)
-(* FanOut (only while Deepwell runs, its generator, ahead invalidated). A  *)
-(* write to p1 moves dependent p2's inputs too. outVer/outGen/outTime say  *)
-(* which input version a page's output reflects, by which generator, and   *)
-(* whether before/after the switch started, so restore regression is       *)
-(* statable. Link readers settle in code by digest rounds (verify_with_    *)
-(* catch_up precedent); not modeled. CUR = pre-fix activation (single      *)
-(* count, unguarded restore, no recovery); FIX = the protocol above.       *)
+(* Promotion activation vs concurrent writers (rewritten 2026-11-02 to   *)
+(* the real protocol per tla-pilot ASSESSMENT.md; supersedes the pilot's  *)
+(* D0/D1/D2, atomic CheckFlip, fence, gate, and `refused` outcome).       *)
+(* Protocol (promote.py): snapshot, park, up+promote, health, gateway,    *)
+(* count, bounded catch-up (render delta, restart, re-count), commit,     *)
+(* proof; post-flip failure rolls back (guarded restore, old containers,  *)
+(* old-image recovery). Parking fences Deepwell-routed writers (fan-out   *)
+(* included); after the flip only direct-SQL imports stale a page.        *)
+(* outVer/outGen/outTime track which input version a page's output        *)
+(* reflects, by which generator, before/after the switch started, so      *)
+(* restore regression is statable. CUR = pre-fix; FIX = the protocol.     *)
 (***************************************************************************)
 EXTENDS Integers, FiniteSets
 
 CONSTANTS Design              \* Design \in {"CUR", "FIX"}
 Pages == {"p1", "p2"}         \* p2 depends on p1 (fan-out target)
-Gens == {"old", "new", "import"}
 VARIABLES rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen,
           active, flipped, verifiedStale, lastCount, pc, outcome, receipt,
           queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite, rbMoved, promoted
@@ -30,12 +23,12 @@ vars == <<rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen,
           active, flipped, verifiedStale, lastCount, pc, outcome, receipt,
           queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite, rbMoved, promoted>>
 
-Fresh(p) == (outGen[p] = "new" /\ outVer[p] = rev[p]) \/ aheadVer[p] = rev[p]
-StaleCount == Cardinality({p \in Pages : ~Fresh(p)})
+FreshGen(p) == outGen[p] = "new"   \* the activation count: generator only
+FreshVerified(p) == FreshGen(p) \/ aheadVer[p] = rev[p]  \* render-ahead verify
+StaleCount == Cardinality({p \in Pages : ~FreshGen(p)})
+VerifiedStaleCount == Cardinality({p \in Pages : ~FreshVerified(p)})
 Quiet == impLeft = 0 /\ rpcLeft = 0 /\ queue = 0 /\ failLeft = 0
           /\ pc \notin {"rbrestore", "rbup", "rbrender", "rbrestart", "done"}
-Terminal == outcome \in {"activated", "rolledback"}
-PostFlipPc == pc \in {"health", "gateway", "count", "catchup", "restart", "commit", "proof"}
 
 Init ==
     /\ rev = [p \in Pages |-> 1] /\ outVer = [p \in Pages |-> 1]
@@ -59,7 +52,7 @@ RenderOne ==
     /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 Verify ==
     /\ pc = "verify" /\ outcome = "running"
-    /\ verifiedStale' = StaleCount /\ pc' = "snap"
+    /\ verifiedStale' = VerifiedStaleCount /\ pc' = "snap"
     /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 Snapshot ==
     /\ pc = "snap" /\ outcome = "running"
@@ -91,7 +84,8 @@ Count ==  \* the activation stale count (and every catch-up re-count)
 CatchUpRender ==   \* render the stale delta with the new image (ahead rows)
     /\ pc = "catchup" /\ outcome = "running" /\ Design = "FIX"
     /\ retries' = retries + 1
-    /\ aheadVer' = [p \in Pages |-> IF Fresh(p) THEN aheadVer[p] ELSE rev[p]]    /\ aheadTime' = [p \in Pages |-> IF Fresh(p) THEN aheadTime[p] ELSE "post"]
+    /\ aheadVer' = [p \in Pages |-> IF FreshGen(p) THEN aheadVer[p] ELSE rev[p]]
+    /\ aheadTime' = [p \in Pages |-> IF FreshGen(p) THEN aheadTime[p] ELSE "post"]
     /\ pc' = "restart"
     /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, preFlipWrite>>
 Restart ==   \* Deepwell restart promotes the catch-up ahead rows, then re-count
@@ -111,7 +105,7 @@ Proof ==
     /\ outcome' = "activated" /\ pc' = "done"
     /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 PostFlipFail ==   \* health/gateway/canary/proof failure after the flip
-    /\ PostFlipPc /\ outcome = "running" /\ failLeft > 0
+    /\ pc \in {"health", "gateway", "count", "catchup", "restart", "commit", "proof"} /\ outcome = "running" /\ failLeft > 0
     /\ failLeft' = failLeft - 1 /\ pc' = "rbrestore" /\ rbMoved' = [p \in Pages |-> FALSE]
     /\ UNCHANGED <<promoted, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, retries, preFlipWrite>>
 
@@ -138,7 +132,8 @@ RbRender ==   \* render the old build's stale delta with the old image
     /\ aheadVer' = [p \in Pages |-> IF outGen[p] = "old" THEN aheadVer[p] ELSE rev[p]]
     /\ aheadTime' = [p \in Pages |-> "post"] /\ pc' = "rbrestart"
     /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
-RbRestart ==   \* old Deepwell restart promotes them; rollback then completes
+RbRestart ==   \* old Deepwell restart promotes them and its worker drains
+              \* the bounded rerender queue (RSMQ survives: cache not parked)
     /\ pc = "rbrestart" /\ outcome = "running" /\ Design = "FIX"
     /\ outVer' = [p \in Pages |-> IF p = "p2" /\ queue > 0 THEN rev[p] ELSE IF aheadVer[p] = rev[p] THEN aheadVer[p] ELSE outVer[p]]
     /\ outGen' = [p \in Pages |-> IF p = "p2" /\ queue > 0 THEN "old" ELSE IF aheadVer[p] = rev[p] THEN "old" ELSE outGen[p]]
@@ -149,7 +144,7 @@ RbRestart ==   \* old Deepwell restart promotes them; rollback then completes
 
 \* --- Writers ---
 DbImport ==   \* direct SQL: any time, placeholder generator; its finalizer
-              \* queues a dependent rerender (job rows persist while parked)
+              \* queues a dependent rerender (RSMQ in Valkey, not parked)
     /\ outcome = "running" /\ impLeft > 0
     /\ impLeft' = impLeft - 1 /\ preFlipWrite' = (preFlipWrite \/ ~flipped)
     /\ rev' = [rev EXCEPT !["p1"] = rev["p1"] + 1, !["p2"] = rev["p2"] + 1]
@@ -188,29 +183,24 @@ Spec == Init /\ [][Next]_vars /\ WF_vars(PromoterNext)
 \* --- Properties ---
 TypeOK ==
     /\ active \in {"old", "new", "none"} /\ outcome \in {"running", "activated", "rolledback"}
-    /\ \A p \in Pages : rev[p] \in 1..3 /\ outGen[p] \in Gens
-\* Receipt cannot pass while the last count saw stale pages (view refusal
-\* covers writes after that count).
+    /\ \A p \in Pages : rev[p] \in 1..3 /\ outGen[p] \in {"old", "new", "import"}
+\* Receipt cannot pass while the last count saw stale pages.
 NoPassWithStale == receipt => lastCount = 0
-\* After rollback, under the old build a page is either refused (not the
-\* old generator's output) or reflects its latest inputs: no regression.
-\* Scoped to inputs as of rollback entry (rbMoved): a write landing during
-\* or after recovery advances inputs under any build and is owned by the
-\* same fan-out/finalizer paths as a write after any rollback.
+\* After rollback a page is either refused (not the old generator's
+\* output) or reflects its latest inputs, scoped to inputs at rollback
+\* entry (rbMoved): later writes are the fan-out/finalizer's, as always.
 RollbackNoRegression ==
     outcome = "rolledback" =>
         \A p \in Pages : ~rbMoved[p] =>
             (outGen[p] = "old" => outVer[p] = rev[p])
-Termination == <>(Terminal)
+Termination == <>(outcome \in {"activated", "rolledback"})
 QuietSuccess == (Quiet /\ outcome = "running") ~> (outcome = "activated")
-\* Restore-config property: a page promoted at the flip, whose inputs did
-\* not move during rollback, must not end up served by the old build with
-\* output older than its inputs. Any violation is a restore regression.
+\* Restore-config property: any violation is a restore regression (a
+\* promoted page served by the old build with older-than-input output).
 RestoreRegressionFree ==
     ~(outcome = "rolledback" /\ \E p \in Pages :
         promoted[p] /\ ~rbMoved[p] /\ outGen[p] = "old" /\ outVer[p] < rev[p])
-\* Incident-B shape (asserted only in the CUR configuration): a clean
-\* verify, a write that lands before the flip, then a clean rollback.
+\* Incident-B shape (CUR only): clean verify, pre-flip write, rollback.
 CleanVerifyNoRollback == ~(verifiedStale = 0 /\ preFlipWrite /\ outcome = "rolledback")
 NeverRolledback == outcome # "rolledback"
 =============================================================================

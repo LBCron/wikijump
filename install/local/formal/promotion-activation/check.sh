@@ -38,7 +38,7 @@ expect_fail() { # name cfgfile [module]
   local start=$SECONDS
   tlc_run "$1" "$2" "${3:-}"; local rc=$?
   if [[ $rc -ne 0 ]] && grep -q 'violated' "$WORK/$1.log"; then
-    echo "EXPECTED-FAIL $1 ($((SECONDS-start))s, $(grep -oE '[0-9]+ distinct states found' "$WORK/$1.log" | head -1))"
+    echo "EXPECTED-FAIL $1 ($((SECONDS-start))s, $(grep -oE '[0-9,]+ distinct states found' "$WORK/$1.log" | head -1))"
     grep -m1 'violated' "$WORK/$1.log"
     return 0
   fi
@@ -51,7 +51,7 @@ expect_pass() { # name cfgfile
   local start=$SECONDS
   tlc_run "$1" "$2"; local rc=$?
   if [[ $rc -eq 0 ]]; then
-    echo "PASS $1 ($((SECONDS-start))s, $(grep -oE '[0-9]+ distinct states found' "$WORK/$1.log" | head -1))"
+    echo "PASS $1 ($((SECONDS-start))s, $(grep -oE '[0-9,]+ distinct states found' "$WORK/$1.log" | head -1))"
     return 0
   fi
   echo "UNEXPECTED $1: expected TLC pass, got exit $rc" >&2
@@ -128,8 +128,10 @@ def one(name, old, new):
     assert out != src
     (work / f"{name}.tla").write_text(out.replace("MODULE PromotionActivation", f"MODULE {name}"))
     print(f"mutation {name}: {old!r} -> {new!r} ({src.count(old)} site(s), one element)")
-# MA: catch-up moved before park (its stage guard now fires at snapshot time)
-one("MA", 'pc = "catchup"', 'pc = "snap"')
+# MA: no post-flip catch-up (the count's catch-up branch becomes false);
+# a post-verify write followed by quiet then ends in rollback, so
+# QuietSuccess -- the property that justifies the loop -- must fail
+one("MA", 'Design = "FIX" /\\ retries < 3', 'FALSE')
 # MB: restore guard removed (the compiled-at guard, one logical element)
 one("MB", '(Design = "CUR" \\/ outTime[p] = "pre")', "TRUE")
 # MC: receipt passing without the re-count (restart goes straight to commit)
@@ -138,9 +140,13 @@ one("MC", 'aheadVer\' = [p \\in Pages |-> 0] /\\ pc\' = "count"',
 PY
   for m in MA MB MC; do
     mkdir -p "$WORK/$m-dir" && cp "$WORK/$m.tla" "$WORK/$m-dir/"
-    fixed_cfg "$WORK/$m-dir/$m.cfg" FIX 'INVARIANT NoPassWithStale
+    if [[ "$m" == "MA" ]]; then
+      fixed_cfg "$WORK/$m-dir/$m.cfg" FIX 'PROPERTY QuietSuccess'
+    else
+      fixed_cfg "$WORK/$m-dir/$m.cfg" FIX 'INVARIANT NoPassWithStale
 INVARIANT RollbackNoRegression
 PROPERTY Termination'
+    fi
     start=$SECONDS
     (cd "$WORK/$m-dir" && java -XX:+UseParallelGC -cp "$JAR" tlc2.TLC -deadlock -workers 8 \
         -config "$m.cfg" -metadir "$WORK/$m-dir/states" "$m.tla") > "$WORK/mutation-$m.log" 2>&1
@@ -148,6 +154,8 @@ PROPERTY Termination'
     if [[ $rc -ne 0 ]] && grep -q 'violated' "$WORK/mutation-$m.log"; then
       echo "EXPECTED-FAIL mutation-$m ($((SECONDS-start))s)"
       grep -m1 'violated' "$WORK/mutation-$m.log"
+      # MA's config checks QuietSuccess alone, so its temporal failure is
+      # attributable to QuietSuccess (TLC does not name temporal properties).
     else
       echo "MUTATION $m DID NOT FAIL (exit $rc)" >&2; cat "$WORK/mutation-$m.log" >&2; exit 1
     fi

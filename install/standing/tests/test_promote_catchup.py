@@ -151,23 +151,27 @@ class RealPostgresTest(unittest.TestCase):
         except subprocess.CalledProcessError:
             raise unittest.SkipTest(f"{PG_IMAGE} not present locally")
         subprocess.run(["docker", "rm", "--force", cls.container], capture_output=True)
-        docker(
-            "run", "-d", "--name", cls.container,
-            "-e", "POSTGRES_PASSWORD=tlafix", "-e", "POSTGRES_USER=wikijump",
-            "-e", "POSTGRES_DB=wikijump", PG_IMAGE,
-        )
-        deadline = time.monotonic() + 60
-        while True:
-            ready = subprocess.run(
-                ["docker", "exec", cls.container, "pg_isready", "-U", "wikijump", "-d", "wikijump"],
-                capture_output=True,
+        try:
+            docker(
+                "run", "-d", "--name", cls.container,
+                "-e", "POSTGRES_PASSWORD=tlafix", "-e", "POSTGRES_USER=wikijump",
+                "-e", "POSTGRES_DB=wikijump", PG_IMAGE,
             )
-            if ready.returncode == 0:
-                break
-            if time.monotonic() > deadline:
-                raise RuntimeError("disposable Postgres did not become ready")
-            time.sleep(0.5)
-        promote.psql(cls.container, SCHEMA)
+            # pg_isready also answers during the image's initdb temporary
+            # server, which then restarts; retry the schema itself until
+            # the final server accepts it.
+            deadline = time.monotonic() + 60
+            while True:
+                try:
+                    promote.psql(cls.container, SCHEMA)
+                    break
+                except subprocess.CalledProcessError:
+                    if time.monotonic() > deadline:
+                        raise RuntimeError("disposable Postgres did not become ready")
+                    time.sleep(0.5)
+        except BaseException:
+            subprocess.run(["docker", "rm", "--force", cls.container], capture_output=True)
+            raise
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -243,6 +247,106 @@ class RealPostgresTest(unittest.TestCase):
         self.assertEqual(self.revision(101)[:2], ["oldA", OLD_GENERATOR])
         self.assertEqual(self.revision(102)[:2], ["postB", TARGET])
         self.assertEqual(self.revision(103)[:2], ["newC", TARGET])
+
+    # STEER-1.5: a marked link reader is not restored and is stale to the
+    # old build after rollback, so it lands in its recovery delta.
+    def test_marked_link_reader_survives_restore_and_is_stale_to_old(self) -> None:
+        self.insert_page(1, 101, OLD_GENERATOR, "oldA", "2026-11-02 00:00:00+00")
+        with tempfile.TemporaryDirectory() as directory:
+            snapshot = Path(directory) / "snapshot.tsv"
+            promote.snapshot_saved_page_output(snapshot, self.container)
+            promote.psql(
+                self.container,
+                f"UPDATE page_revision SET compiled_generator = '{TARGET}', "
+                "compiled_at = '2026-11-02 00:30:00+00' WHERE revision_id = 101;\n",
+            )
+            self.insert_page(4, 104, "activation-link-rerender", "markedD",
+                             "2026-11-02 02:00:00+00")
+            with mock.patch.object(promote, "run", side_effect=lambda *a, **k: ""):
+                promote.restore_saved_page_output(
+                    snapshot, TARGET, self.container, "unused-cache",
+                    switch_started_at="2026-11-02 01:00:00+00",
+                )
+        self.assertEqual(self.revision(104)[:2], ["markedD", "activation-link-rerender"])
+        self.assertEqual(promote.saved_page_stale_ids(self.container, OLD_GENERATOR), [4])
+
+
+class Steer1CatchUpTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.directory = tempfile.TemporaryDirectory()
+        self.root = Path(self.directory.name)
+        (self.root / "home").mkdir()
+        self.standing = FakeStanding(self.root / "home")
+
+    def tearDown(self) -> None:
+        self.directory.cleanup()
+
+    def test_empty_stale_ids_between_count_and_query_means_zero(self) -> None:
+        self.standing.stale_sequence = [5]
+        self.standing.stale_page_ids = []
+        result = self.standing.run(self.root / "evidence", GENERATION_CHANGE)
+        self.assertEqual(result["catch_up"]["stale_pages_remaining"], 0)
+        self.assertNotIn("render-delta", names(self.standing.calls))
+
+    def test_a_failed_render_is_retried_by_the_next_round(self) -> None:
+        self.standing.stale_sequence = [1, 1, 0]
+        self.standing.stale_page_ids = [9]
+        self.standing.fail_next_delta_ids = [9]
+        result = self.standing.run(self.root / "evidence", GENERATION_CHANGE)
+        rounds = result["catch_up"]["rounds"]
+        self.assertEqual(rounds[0]["failed"], 1)
+        self.assertEqual(rounds[0]["failed_page_ids"], [9])
+        renders = [c for c in self.standing.calls if c[0] == "render-delta" and c[1] == NEW_IMAGE]
+        self.assertEqual(len(renders), 2, "the failed page is rendered again next round")
+
+    def test_link_reader_rounds_respect_the_total_time_bound(self) -> None:
+        self.standing.stale_sequence = [3, 0]
+        self.standing.stale_page_ids = [11, 12, 13]
+        self.standing.link_digest_sequence = [{"9": "a"}, {"9": "b"}]
+        self.standing.link_digest_sleep = 0.6
+        self.standing.catch_up_reader_ids = [42]
+        with mock.patch.object(promote, "ACTIVATION_CATCH_UP_TIMEOUT_SECONDS", 1.0):
+            with self.assertRaisesRegex(RuntimeError, "time bound"):
+                self.standing.run(self.root / "evidence", GENERATION_CHANGE)
+        self.assertNotIn("mark-readers", names(self.standing.calls),
+                         "the deadline hits before any reader is marked")
+        self.assertIn("restore-parked", names(self.standing.calls),
+                      "exceeding the bound rolls back")
+
+
+class RenderDeltaUnitTest(unittest.TestCase):
+    def render_delta(self, page_ids, summary):
+        inspected = {
+            "Mounts": [{"Destination": "/etc/deepwell.toml", "Source": "/cfg/deepwell.toml"}],
+            "Config": {"Env": ["DATABASE_URL=x", "REDIS_URL=y", "DEEPWELL_RPC_TOKEN=z"]},
+        }
+        captured = {}
+
+        def fake_render_pass(image, container, config, environment, settings, log):
+            captured.update(settings)
+            return summary
+
+        with mock.patch.object(promote.render_ahead, "container_inspect", return_value=inspected), \
+                mock.patch.object(promote, "run", return_value="CREATE TABLE IF NOT EXISTS t (x int);"), \
+                mock.patch.object(promote.render_ahead, "psql"), \
+                mock.patch.object(promote.render_ahead, "render_pass", side_effect=fake_render_pass):
+            result = promote.render_delta_pages("img", page_ids, Path("/tmp/render.log"))
+        return captured, result
+
+    def test_render_concurrency_is_capped_at_the_default(self) -> None:
+        ok = {"rendered": 1, "failed": 0, "failed_page_ids": [], "failures": [],
+              "link_reader_page_ids": [], "compiled_generator": TARGET}
+        settings, _ = self.render_delta(list(range(5000)), ok)
+        self.assertEqual(settings["DEEPWELL_RENDER_AHEAD_CONCURRENCY"], "16")
+        settings, _ = self.render_delta([1, 2, 3], ok)
+        self.assertEqual(settings["DEEPWELL_RENDER_AHEAD_CONCURRENCY"], "3")
+
+    def test_a_failed_summary_is_returned_not_raised(self) -> None:
+        failed = {"rendered": 0, "failed": 1, "failed_page_ids": [7],
+                  "failures": [{"page_id": 7, "error": "deadline has elapsed"}],
+                  "link_reader_page_ids": [], "compiled_generator": TARGET}
+        _, result = self.render_delta([7], failed)
+        self.assertEqual(result["failed"], 1)
 
 
 class T1ActivationTest(unittest.TestCase):

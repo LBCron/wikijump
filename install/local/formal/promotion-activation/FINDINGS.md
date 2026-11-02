@@ -3,7 +3,7 @@
 Rewritten 2026-11-02 (BRIEF-TLA-FIX Step 3) to the real protocol, per the
 tla-pilot ASSESSMENT.md ruling. This supersedes the pilot FINDINGS in this
 file; the pilot commits themselves are unchanged. Model:
-`PromotionActivation.tla` (217 lines). Runner: `check.sh` (fixed +
+`PromotionActivation.tla` (206 lines). Runner: `check.sh` (fixed +
 incident + restore + rollback-witness configurations), `check.sh
 mutations` (three one-element mutations). Production code now implements
 the modeled FIX design in `install/standing/promote.py`.
@@ -86,11 +86,16 @@ output is guarded and re-rendered as above.
   write after any rollback completes.
 - Recovery in the model renders the old build's stale delta (selected the
   way `saved_page_stale_ids` selects it, by generator) and the old
-  Deepwell's restart also drains the bounded rerender queue: fan-out and
-  finalizer job rows persist in the database while parked, and the
-  worker resumes with the container. Dependent-input freshness for a
-  page whose own generator already matches is, as outside promotion, the
-  fan-out/finalizer's job, not the activation count's.
+  Deepwell's restart also drains the bounded rerender queue. That queue
+  is RSMQ messages in Valkey (`deepwell/src/services/job/service.rs`),
+  not database rows, and it survives parking for a simpler reason:
+  activation parks only Deepwell, Framerail, and WWS, never the cache
+  container. Dependent-input freshness for a page whose own generator
+  already matches is, as outside promotion, the fan-out/finalizer's job,
+  not the activation count's. Unproven residual: deferred dependents
+  rely on that queue survival and on Deepwell's `rerender_skip` rules
+  not skipping them when the worker resumes; neither has been exercised
+  on Standing.
 - Properties dropped as true by construction in the pilot
   (`RollbackRestores`, the old `NoLostWrite`, `FenceReopens`,
   `GateReopens`): FIX keeps `NoPassWithStale` (the receipt cannot pass
@@ -101,7 +106,9 @@ output is guarded and re-rendered as above.
 ## Results (check.sh, TLC 1.7.4, ~5 s total)
 
 - **Fixed (FIX): PASS** — `NoPassWithStale`, `RollbackNoRegression`,
-  `Termination`, `QuietSuccess` (25,010 distinct states).
+  `Termination`, `QuietSuccess` (23,597 distinct states; STEER-1 recount after the count predicate was
+  made generator-only — no property changed its result: `QuietSuccess`
+  and the rollback properties still pass in FIX).
 - **Incident (CUR): EXPECTED-FAIL** — `CleanVerifyNoRollback` violated;
   shape asserted from the parsed trace states, not a grep: a clean verify
   (state 3), a write landing before the flip (state 5–6), and a final
@@ -116,11 +123,20 @@ output is guarded and re-rendered as above.
   so the safety properties above are not vacuous over an unreachable
   rollback.
 - **Mutations, each exactly one element changed, each fails:**
-  MA catch-up moved before park (`pc = "catchup"` → `"snap"`) violates
-  `RollbackNoRegression`; MB restore guard removed
+  MA no post-flip catch-up (the count's catch-up branch
+  `Design = "FIX" /\ retries < 3` → `FALSE`) violates `QuietSuccess` —
+  a write after the verify, followed by quiet, ends in rollback instead
+  of activation; that property is what justifies the loop (an earlier
+  version moved the catch-up guard to `"snap"`, which did not test this
+  claim, and was replaced on review). MB restore guard removed
   (`(Design = "CUR" \/ outTime[p] = "pre")` → `TRUE`) violates
   `RollbackNoRegression`; MC receipt passing without the re-count
   (restart goes straight to `commit`) violates `NoPassWithStale`.
+- The model's activation count is generator-only, exactly like
+  `saved_page_stale_ids`: a dependent awaiting fan-out at the target
+  generator is not stale to it (`outVer` tracking remains only so
+  restore regression can be stated). Ahead validity applies at the
+  render-ahead verify (`VerifiedStaleCount`), not at the count.
 
 ## CRITERION-4 STATEMENT (updated)
 

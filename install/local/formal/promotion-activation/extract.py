@@ -47,6 +47,8 @@ ANCHORS = [
      "in-place rerenders stamp compiled_at with the running build's clock"),
     ("deepwell/src/services/context.rs", "PostCommitAction::RerenderPage",
      "fan-out rerenders are deferred post-commit actions (ungateable)"),
+    ("deepwell/src/services/job/service.rs", "rsmq.send_message(JOB_QUEUE_NAME",
+     "fan-out jobs are RSMQ messages in Valkey (cache is never parked)"),
     ("install/local/wikidot-verification/scripts/apply-corpus-import-manifest.mjs",
      "const SHELL_COMPILED_GENERATOR = 'corpus db import';",
      "db-mode corpus imports carry the placeholder generator (stale)"),

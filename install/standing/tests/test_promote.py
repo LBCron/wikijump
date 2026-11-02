@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest import mock
 
@@ -190,6 +191,8 @@ class FakeStanding:
         self.known_reader_ids: list[int] = []
         self.link_digest_sequence: list[dict[str, str]] = [{}]
         self.recovery_probe_generator = "ftml v1; deepwell-render/v25"
+        self.fail_next_delta_ids: list[int] = []
+        self.link_digest_sleep = 0.0
 
     def containers(self, _home=None):
         generation = "new" if self.switched else "old"
@@ -233,14 +236,21 @@ class FakeStanding:
         ids = tuple(page_ids) if page_ids is not None else ()
         self.calls.append(("render-delta", image, ids, kwargs.get("dry_run", False)))
         generator = self.recovery_probe_generator if kwargs.get("dry_run") else "ftml v1; deepwell-render/v26"
+        failed_ids: list[int] = []
+        if self.fail_next_delta_ids and not kwargs.get("dry_run"):
+            failed_ids, self.fail_next_delta_ids = self.fail_next_delta_ids, []
         return {
             "candidates": len(ids),
-            "rendered": len(ids), "failed": 0, "failed_page_ids": [],
+            "rendered": len(ids) - len(failed_ids),
+            "failed": len(failed_ids), "failed_page_ids": failed_ids,
+            "failures": [{"page_id": p, "error": "deadline has elapsed"} for p in failed_ids],
             "link_reader_page_ids": list(self.catch_up_reader_ids),
             "compiled_generator": generator,
         }
 
     def _link_digests(self, *args, **kwargs):
+        if self.link_digest_sleep:
+            time.sleep(self.link_digest_sleep)
         if len(self.link_digest_sequence) > 1:
             return self.link_digest_sequence.pop(0)
         return self.link_digest_sequence[0]

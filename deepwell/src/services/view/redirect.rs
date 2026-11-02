@@ -10,12 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Runtime resolution of preserved Wikidot Redirect modules.
-//!
-//! FTML intentionally leaves this module in source form. Deepwell recognizes the
-//! narrow, provenance-backed module shape here because producing an HTTP redirect
-//! is site-runtime behavior. Unsupported shapes remain preserved in normal output.
-
 use crate::services::render::LiteralRegionIndex;
 use regex::Regex;
 use std::sync::LazyLock;
@@ -233,10 +227,6 @@ fn wikidot_redirect_notice_html(destination: &str) -> String {
     )
 }
 
-/// Shared canonical escaper for the redirect notice destination.
-///
-/// Reused by the render residual path so preview and noredirect views emit
-/// byte-identical notice text for the same destination.
 pub(crate) fn escape_wikidot_html_text(value: &str) -> String {
     let mut escaped = String::with_capacity(value.len());
 

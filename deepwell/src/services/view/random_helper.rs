@@ -18,55 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Runtime resolution of source-defined random helper pages.
-//!
-//! Current Wikidot exposes operational random routes (`random:random-page`,
-//! `random:random-scp`, and others). Each such page selects one eligible page
-//! with a `ListPages order="random" limit="1"` invocation whose row body is
-//! the standard redirect include:
-//!
-//! ```wikidot
-//! [[module ListPages category="_default" order="random" limit="1" tag="scp"]]
-//! [[include :snippets:redirect url=%%link%%]]
-//! [[/module]]
-//! ```
-//!
-//! Live Wikidot renders that row as a `snippets.wdfiles.com` iframe whose
-//! fragment carries the selected page's absolute Wikidot URL, and the framed
-//! snippet bounces the browser there. Sealed evidence for the exact emitted
-//! markup lives in
-//! `install/local/wikidot-verification/tests/listpages-preview-classification.test.mjs`
-//! (`preview classifier isolates random redirect rows selected from different
-//! fixtures`) and the `unsynchronized-random-row-state` branch of
-//! `install/local/wikidot-verification/src/listpages-preview-classification.mjs`.
-//!
-//! A mirror cannot replay that mechanism literally: `%%link%%` renders an
-//! absolute `*.wikidot.com` URL, so following the iframe would leave the
-//! mirror. The general rule implemented here is therefore shape-based rather
-//! than slug-based: any page whose source holds exactly one random
-//! redirect-helper module (random order, effective limit of one, redirect
-//! body) resolves at view time to a same-site eligible page and answers with
-//! a temporary redirect to it. Page names are never hardcoded; a site
-//! redirects its helpers because its own sources define them.
-//!
-//! Eligibility mirrors the imported `ListPages` contract for the narrow,
-//! evidenced argument subset the helpers use (`category`/`categories`,
-//! `tag`/`tags`, `order`, `limit`, plus inert presentation arguments).
-//! Anything outside that subset — other selectors, data-form fields,
-//! `@URL`-driven values that cannot resolve on the bare helper route,
-//! truthy `reverse`/`skipCurrent`, nonzero offsets, feed-only `rssOnly`
-//! output, or a second helper module — fails closed to the normal page view
-//! instead of redirecting. Candidate visibility is re-evaluated per request
-//! with the same batched permission primitive the render path uses, so a
-//! viewer never selects a page they cannot read, and an empty eligible set
-//! renders the normal (evidence-backed) empty ListPages state.
-//!
-//! The holder page itself is excluded from candidacy. Live ListPages would
-//! include it by default and bounce back to the helper, which has no defined
-//! single-target outcome; skipping it keeps every helper visit a bounded,
-//! non-looping single hop while preserving uniformity over the remaining
-//! eligible pages.
-
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::sync::LazyLock;
@@ -83,24 +34,13 @@ use crate::services::render::{ViewablePageRef, view_decisions_for_scanned_pages}
 use crate::services::{PageQueryService, ServiceContext};
 use wikidot_normalize::normalize;
 
-/// Maximum candidates scanned for one helper redirect.
-///
-/// This mirrors the render window a random `ListPages` module itself would
-/// see: random-order scans are deliberately bounded to one render window, so
-/// the helper redirect never considers pages its own module could not have
-/// selected.
 const RANDOM_HELPER_SCAN_ROWS: u64 = 50_000;
 
-/// The redirect-helper row body, byte for byte the shape sealed by the
-/// `unsynchronized-random-row-state` classifier: optional surrounding
-/// whitespace around one `[[include :snippets:redirect url=%%link%%]]`.
-/// Matching is case-insensitive exactly like the sealed expression.
 static REDIRECT_HELPER_BODY_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)^\s*\[\[include\s+:snippets:redirect\s+url=%%link%%\]\]\s*$")
         .expect("random helper body expression should compile")
 });
 
-/// A random redirect-helper selection parsed from one page source.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct RandomHelperSelector {
     category_all: bool,
@@ -111,11 +51,6 @@ pub(super) struct RandomHelperSelector {
     none_tags: Vec<String>,
 }
 
-/// Find the random redirect-helper selection for a page, if its source
-/// defines exactly one.
-///
-/// `current_category` is the requesting route's category, used for the
-/// documented current-category default and `.` references.
 pub(super) fn find_random_helper_selector(
     source: &str,
     current_category: &str,
@@ -132,9 +67,6 @@ pub(super) fn find_random_helper_selector(
         else {
             continue;
         };
-        // Two helper invocations would race two independent random picks on
-        // live Wikidot with no defined single target. Fail closed instead of
-        // guessing which one the browser would keep.
         if helper.replace(selector).is_some() {
             return None;
         }
@@ -142,11 +74,6 @@ pub(super) fn find_random_helper_selector(
     helper
 }
 
-/// Resolve one eligible same-site target for a helper selection.
-///
-/// Returns `None` when no eligible page exists (the caller renders the
-/// normal empty state), when capability metadata reports a truncated or
-/// unsupported scan, or when the only candidate is the holder page itself.
 pub(super) async fn resolve_random_helper_redirect(
     ctx: &ServiceContext<'_>,
     site_id: i64,
@@ -191,8 +118,6 @@ pub(super) async fn resolve_random_helper_redirect(
     let empty_cow: &[Cow<'_, str>] = &[];
     let empty_scores: &[crate::services::page_query::ScoreSelector] = &[];
     let empty_data_forms: &[crate::services::page_query::DataFormSelector<'_>] = &[];
-    // The element type is inferred from the query struct field, so the
-    // unexported variables enum never needs naming here.
     let empty_variables = &[];
 
     let query = PageQuery {
@@ -275,10 +200,6 @@ pub(super) async fn resolve_random_helper_redirect(
     .await
     .or_raise(make_error)?;
 
-    // Rows arrive in SQL random order, so the first viewable row outside the
-    // holder page is uniform over the eligible set. The holder page itself is
-    // skipped: redirecting to it would bounce back to the helper with no
-    // defined single target.
     for (page, can_view) in found.pages.pages.iter().zip(viewable) {
         if !can_view {
             continue;
@@ -340,8 +261,6 @@ fn find_list_pages_module<'a>(
         if !name.eq_ignore_ascii_case("module") {
             continue;
         }
-        // The module name must be followed by head spacing, mirroring the
-        // render scanner's opening candidate.
         if !bytes
             .get(cursor)
             .is_some_and(|byte| matches!(byte, b' ' | b'\t' | b'\n' | b'\r'))
@@ -380,12 +299,6 @@ fn find_list_pages_module<'a>(
     None
 }
 
-/// Scan a quote-aware module head terminator.
-///
-/// Mirrors the render head boundary: horizontal and physical whitespace may
-/// separate arguments, and quoted values may span lines. Returns the byte
-/// offset of the closing `]]`, or `None` when the head cannot be evaluated
-/// faithfully (a comment opener or an unterminated quote).
 fn scan_module_head_end(source: &str, from: usize) -> Option<usize> {
     let bytes = source.as_bytes();
     let mut cursor = from;
@@ -415,13 +328,6 @@ fn scan_module_head_end(source: &str, from: usize) -> Option<usize> {
     None
 }
 
-/// Port of the render ListPages double-quoted value scanner: a quote only
-/// closes the value at an argument boundary (or before `@` / `[!--`), so an
-/// embedded quote such as `tag="a"b"` stays value content.
-///
-/// While scanning a module head terminator, a quote immediately before the
-/// closing `]]` also closes the value: every source-defined helper ends its
-/// head that way, so live ListPages necessarily accepts it.
 fn scan_double_quoted_value(
     source: &str,
     quote_start: usize,
@@ -535,11 +441,6 @@ struct HeadArgument<'a> {
     kind: ArgumentValueKind,
 }
 
-/// Port of the render permissive ListPages head tokenizer, with one
-/// deliberate narrowing: a comment opener inside the head fails the module
-/// instead of being skipped, because resuming after it cannot be done
-/// without the full literal-region machinery. Anything the tokenizer
-/// cannot represent fails the whole module via `None`.
 fn tokenize_list_pages_head(head: &str) -> Option<Vec<HeadArgument<'_>>> {
     let bytes = head.as_bytes();
     let mut arguments = Vec::new();
@@ -607,7 +508,6 @@ fn tokenize_list_pages_head(head: &str) -> Option<Vec<HeadArgument<'_>>> {
         } else if bytes.get(cursor) == Some(&b'=') {
             cursor += 1;
         } else {
-            // A bare alphabetic token is an inert flag on live ListPages.
             continue;
         }
         let op = &head[op_start..cursor];
@@ -625,7 +525,6 @@ fn tokenize_list_pages_head(head: &str) -> Option<Vec<HeadArgument<'_>>> {
                 .len_utf8();
         }
         if cursor >= head.len() {
-            // An assignment without a value is inert rather than fatal.
             continue;
         }
         let value_start = cursor;
@@ -635,7 +534,6 @@ fn tokenize_list_pages_head(head: &str) -> Option<Vec<HeadArgument<'_>>> {
             .expect("head tokenizer stays on a character boundary");
         if first != '"' && first != '\'' && argument_key_assignment_at(head, value_start)
         {
-            // The outer assignment is inert; resume at the nested key.
             continue;
         }
         let (kind, value);
@@ -697,9 +595,6 @@ fn bare_argument_end(head: &str, mut cursor: usize) -> usize {
     cursor
 }
 
-/// Lowercase ListPages argument families whose recognition requires the
-/// exact documented spelling with a double-quoted `=` assignment. Anything
-/// else is an inert token on live ListPages and is skipped here as well.
 const EXACT_SPELLINGS: &[(&str, &str)] = &[
     ("category", "category"),
     ("categories", "categories"),
@@ -726,8 +621,6 @@ const EXACT_SPELLINGS: &[(&str, &str)] = &[
     ("appendline", "appendLine"),
 ];
 
-/// Argument keys that always select or restrict pages, in any spelling that
-/// reaches evaluation. Any occurrence fails the helper shape.
 const DENY_KEYS: &[&str] = &[
     "pagetype",
     "parent",
@@ -747,7 +640,6 @@ const DENY_KEYS: &[&str] = &[
     "updatedat",
 ];
 
-/// Argument keys that only affect presentation and never selection.
 const INERT_KEYS: &[&str] = &[
     "separate",
     "wrapper",
@@ -766,7 +658,6 @@ const INERT_KEYS: &[&str] = &[
     "score",
 ];
 
-/// Raw spellings that take the double-quoted comparison grammar.
 const COMPARISON_KEYS: &[&str] = &["rating", "votes", "created_at", "date", "updated_at"];
 
 fn evaluate_helper_arguments(
@@ -795,7 +686,6 @@ fn evaluate_helper_arguments(
     let mut saw_rss = false;
 
     for argument in arguments {
-        // A bare `&quot;`-wrapped value is inert on live ListPages.
         if argument.kind == ArgumentValueKind::Bare
             && argument.value.starts_with("&quot;")
             && argument.value.ends_with("&quot;")
@@ -902,9 +792,6 @@ fn evaluate_helper_arguments(
                     return None;
                 }
             }
-            // Like live ListPages, only the exact lowercase spelling
-            // with a double-quoted assignment counts; anything else is
-            // an inert token and must not overwrite the order state.
             "order"
                 if argument.key == "order"
                     && argument.op == "="
@@ -916,9 +803,6 @@ fn evaluate_helper_arguments(
             "limit" => {
                 limit_values.push(value);
             }
-            // The bare helper route carries no URL arguments, so an
-            // absent `@URL` drops to zero exactly like live resolution.
-            // Any nonzero displacement would move the single pick.
             "offset" if parse_numeric_argument(value).unwrap_or(0) != 0 => {
                 return None;
             }
@@ -926,8 +810,6 @@ fn evaluate_helper_arguments(
             "reverse" => {
                 reverse_values.push(value);
             }
-            // Only the exact camel-case spelling with a double-quoted
-            // assignment counts; every other spelling is inert.
             "skipcurrent" | "skip_current"
                 if argument.key == "skipCurrent"
                     && argument.op == "="
@@ -953,7 +835,6 @@ fn evaluate_helper_arguments(
             "rsstitle" => {}
             _ if DENY_KEYS.contains(&lower.as_str()) => return None,
             _ if INERT_KEYS.contains(&lower.as_str()) => {}
-            // Data-form selectors cannot be evaluated here.
             _ if argument.key.starts_with('_')
                 && argument.kind == ArgumentValueKind::DoubleQuoted
                 && matches!(argument.op, "=" | "!=") =>
@@ -965,15 +846,12 @@ fn evaluate_helper_arguments(
             _ => {}
         }
 
-        // Double-quoted comparison forms on the comparison keys select
-        // numeric ranges even with a non-`=` operator.
         if argument.kind == ArgumentValueKind::DoubleQuoted
             && COMPARISON_KEYS.contains(&argument.key)
         {
             return None;
         }
     }
-    // A feed-only module renders no row and therefore never redirects.
     if rss_only && rss_title.is_some_and(|title| !title.is_empty()) {
         return None;
     }
@@ -1013,8 +891,6 @@ fn evaluate_helper_arguments(
     let (category_all, mut categories) = if category_present {
         (category_all, categories)
     } else {
-        // Without a category selector live ListPages falls back to the
-        // current category, exactly like an explicit `.`.
         (false, Vec::new())
     };
     let include_current_category = include_current_category || !category_present;
@@ -1034,10 +910,6 @@ fn evaluate_helper_arguments(
     })
 }
 
-/// Collect one `tag`/`tags` value into the any/all/none tag condition.
-///
-/// Returns `false` for selectors this resolver declines: the current-page
-/// `=`/`==` forms and the standalone untagged `-` form.
 fn collect_tag_selector(
     value: &str,
     any_tags: &mut Vec<String>,
@@ -1067,8 +939,6 @@ fn collect_tag_selector(
     true
 }
 
-/// Port of the render `parse_list_pages_order` decision for the single
-/// question this resolver asks: does the value order randomly?
 fn is_random_order(value: &str) -> bool {
     let parts: Vec<&str> = value.split_whitespace().collect();
     let property = match parts.as_slice() {
@@ -1096,8 +966,6 @@ fn is_random_order(value: &str) -> bool {
     property.eq_ignore_ascii_case("random")
 }
 
-/// Port of the render camel-case order suffix strip (`randomDesc` orders
-/// randomly, exactly like `random`).
 fn strip_order_direction_suffix(value: &str) -> Option<(&str, bool)> {
     let lower = value.to_ascii_lowercase();
     for (suffix, ascending) in [
@@ -1113,9 +981,6 @@ fn strip_order_direction_suffix(value: &str) -> Option<(&str, bool)> {
     None
 }
 
-/// Port of the render `parse_list_pages_numeric_argument`: an `@URL|`
-/// fallback applies before the digits check, so the bare helper route (which
-/// carries no URL arguments) resolves through the fallback exactly.
 fn parse_numeric_argument(value: &str) -> Option<u64> {
     let value = url_fallback_value(value).unwrap_or(value);
     (!value.is_empty() && value.bytes().all(|byte| byte.is_ascii_digit()))
@@ -1123,8 +988,6 @@ fn parse_numeric_argument(value: &str) -> Option<u64> {
         .flatten()
 }
 
-/// Port of the render `@URL` token scan: a case-insensitive `@url` token
-/// delimited by whitespace, commas, or semicolons, before any `|` fallback.
 fn url_token_present(value: &str) -> bool {
     let selector = value
         .split_once('|')
@@ -1158,9 +1021,6 @@ enum StaticSelector<'a> {
     Present(&'a str),
 }
 
-/// Resolve an `@URL` selector for the bare helper route, which carries no
-/// URL arguments: a fallback applies, while a bare `@URL` drops the
-/// constraint exactly like live resolution.
 fn static_selector_value(value: &str) -> StaticSelector<'_> {
     match url_fallback_value(value) {
         Some(fallback) => StaticSelector::Present(fallback),
@@ -1175,11 +1035,6 @@ enum TagsSelectorValue<'a> {
     Empty,
 }
 
-/// Resolve a `tags` value with the two `@URL` edges the plural arm adds on
-/// top of the plain resolution: a fallback that is empty after trimming is
-/// an unsatisfiable conjunction member (the eligible set is empty), while a
-/// bare `@URL` stays a literal conjunction member inside a mixed expression
-/// and only drops a lone selector.
 fn tags_selector_value(value: &str) -> TagsSelectorValue<'_> {
     match url_fallback_value(value) {
         Some(fallback) if fallback.trim().is_empty() => TagsSelectorValue::Empty,
@@ -1195,7 +1050,6 @@ fn tags_selector_value(value: &str) -> TagsSelectorValue<'_> {
     }
 }
 
-/// Port of the render category value split: comma- or space-separated.
 fn split_category_values(value: &str) -> Vec<String> {
     value
         .split(|character: char| character.is_whitespace() || character == ',')
@@ -1204,9 +1058,6 @@ fn split_category_values(value: &str) -> Vec<String> {
         .collect()
 }
 
-/// Port of the render tag value split: whitespace, comma, or semicolon
-/// separated, with surrounding double quotes stripped per token and values
-/// lowercased.
 fn split_tag_values(value: &str) -> Vec<String> {
     value
         .split(|character: char| {
@@ -1225,15 +1076,6 @@ fn split_tag_values(value: &str) -> Vec<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    // Corpus provenance for the five source-defined helpers below:
-    // shared corpus corpus/en/pages/random:<name>/source.wikidot.txt.
-    // File SHA-256 at the time of seeding:
-    // random-art        3248f9dc01648252cf5141da76aba01b91f073d17e202dadc5e20f36dd96003c
-    // random-goi-format f9e3dd17c4d76706765d18304ee715a41cf9dd51e9f7dc1c896137d220be3b9b
-    // random-page       af4d4001c2e0790587bbc5769813ef18248bedd9402aa2a66fa92037abf90cba
-    // random-scp        6c3b6497b717f5d964848fb041ab578c2dcfcf1acd7c726342bd380699d321e5
-    // random-tale       2b700b35d3ffb179afbc1bd1a6671945e86b4c0bc312e64ab35aaf288a92c654
 
     const RANDOM_SCP: &str = concat!(
         "[[module ListPages category=\"_default\" order=\"random\" limit=\"1\" tag=\"scp\"]]\n",
@@ -1308,7 +1150,6 @@ mod tests {
         assert_eq!(page.excluded_categories, vec!["unlisted"]);
         assert!(page.any_tags.is_empty());
 
-        // Space-separated bare tags select pages carrying any of them.
         let art = select(RANDOM_ART).expect("random-art should resolve");
         assert!(art.category_all);
         assert_eq!(art.any_tags, vec!["artist", "artwork"]);
@@ -1324,7 +1165,6 @@ mod tests {
 
     #[test]
     fn rejects_non_helper_module_shapes() {
-        // Display-only bodies never redirect.
         assert_eq!(
             find_random_helper_selector(
                 "[[module ListPages category=\"*\" order=\"random\" limit=\"1\"]]\n%%title_linked%%\n[[/module]]\n",
@@ -1332,7 +1172,6 @@ mod tests {
             ),
             None,
         );
-        // Deterministic orders, other limits, and missing limits are not helpers.
         for head in [
             "category=\"*\" order=\"name\" limit=\"1\"",
             "category=\"*\" order=\"random\" limit=\"2\"",
@@ -1346,7 +1185,6 @@ mod tests {
                 "head should not resolve: {head}",
             );
         }
-        // A Redirect module page is a different redirect mechanism.
         assert_eq!(
             find_random_helper_selector(
                 "ordinary content\n[[module Redirect destination=\"target\"]]\nmore content",
@@ -1354,10 +1192,8 @@ mod tests {
             ),
             None,
         );
-        // Two helper invocations have no defined single target.
         let doubled = format!("{RANDOM_SCP}\n{RANDOM_SCP}");
         assert_eq!(select(&doubled), None);
-        // An unrelated include body is not the redirect helper.
         assert_eq!(
             select(&helper(
                 "category=\"*\" order=\"random\" limit=\"1\"",
@@ -1380,21 +1216,17 @@ mod tests {
 
     #[test]
     fn applies_documented_selector_defaults_and_grammar() {
-        // No category argument selects the current category.
         let selector = select(&redirect_helper("order=\"random\" limit=\"1\""))
             .expect("category-less helper should resolve");
         assert!(!selector.category_all);
         assert_eq!(selector.categories, vec!["random"]);
 
-        // `.` merges the current category.
         let selector = select(&redirect_helper(
             "category=\".\" order=\"random\" limit=\"1\"",
         ))
         .expect("dot category should resolve");
         assert_eq!(selector.categories, vec!["random"]);
 
-        // Inexact spellings are inert: a capitalized category falls back to
-        // the current category, and single-quoted or bare values likewise.
         for head in [
             "Category=\"*\" order=\"random\" limit=\"1\"",
             "category='*' order=\"random\" limit=\"1\"",
@@ -1406,7 +1238,6 @@ mod tests {
             assert_eq!(selector.categories, vec!["random"], "head: {head}");
         }
 
-        // Bare and inexact order/limit spellings never select randomly.
         for head in [
             "category=\"*\" ORDER=\"random\" limit=\"1\"",
             "category=\"*\" order='random' limit=\"1\"",
@@ -1416,8 +1247,6 @@ mod tests {
             assert_eq!(select(&redirect_helper(head)), None, "head: {head}");
         }
 
-        // The random property itself is case-insensitive and accepts the
-        // documented direction forms.
         for order in ["RANDOM", "randomDesc", "random desc", "-random"] {
             assert!(
                 select(&redirect_helper(&format!(
@@ -1428,8 +1257,6 @@ mod tests {
             );
         }
 
-        // A leading-zero limit still parses to one; an invalid limit holds
-        // the last successful value instead of widening.
         assert!(
             select(&redirect_helper(
                 "category=\"*\" order=\"random\" limit=\"01\""
@@ -1452,7 +1279,6 @@ mod tests {
 
     #[test]
     fn honors_tag_and_category_precedence() {
-        // The deprecated singular tag wins over tags in either order.
         let selector = select(&redirect_helper(
             "category=\"*\" order=\"random\" limit=\"1\" tags=\"scp\" tag=\"tale\"",
         ))
@@ -1464,7 +1290,6 @@ mod tests {
         .expect("tag should win in reverse order");
         assert_eq!(selector.any_tags, vec!["tale"]);
 
-        // The modern category wins over the alias in either order.
         let selector = select(&redirect_helper(
             "categories=\"tale\" category=\"scp\" order=\"random\" limit=\"1\"",
         ))
@@ -1476,7 +1301,6 @@ mod tests {
         .expect("category should win in reverse order");
         assert_eq!(selector.categories, vec!["scp"]);
 
-        // Signed tag modifiers keep their any/all/none semantics.
         let selector = select(&redirect_helper(
             "category=\"*\" order=\"random\" limit=\"1\" tag=\"+scp -tale joke\"",
         ))
@@ -1488,7 +1312,6 @@ mod tests {
 
     #[test]
     fn fails_closed_outside_the_narrow_selector_subset() {
-        // Any unevaluated selector fails the helper shape.
         for head in [
             "category=\"*\" order=\"random\" limit=\"1\" parent=\"start\"",
             "category=\"*\" order=\"random\" limit=\"1\" range=\"others\"",
@@ -1506,7 +1329,6 @@ mod tests {
             assert_eq!(select(&redirect_helper(head)), None, "head: {head}");
         }
 
-        // Falsy or inert spellings of the same arguments stay helpers.
         for head in [
             "category=\"*\" order=\"random\" limit=\"1\" offset=\"0\"",
             "category=\"*\" order=\"random\" limit=\"1\" offset=\"@URL\"",
@@ -1524,7 +1346,6 @@ mod tests {
             );
         }
 
-        // Bare-route `@URL` fallbacks resolve through the fallback value.
         assert!(
             select(&redirect_helper(
                 "category=\"*\" order=\"random\" limit=\"@URL|1\""
@@ -1541,8 +1362,6 @@ mod tests {
 
     #[test]
     fn url_selectors_resolve_for_the_bare_helper_route() {
-        // A bare `@URL` drops a lone tags selector but stays a literal
-        // conjunction member inside a mixed expression, exactly like live.
         let selector = select(&redirect_helper(
             "category=\"*\" order=\"random\" limit=\"1\" tags=\"@URL\"",
         ))
@@ -1554,8 +1373,6 @@ mod tests {
         .expect("mixed dynamic tags should keep the literal member");
         assert_eq!(selector.any_tags, vec!["scp", "@url"]);
 
-        // An empty `@URL|` fallback is unsatisfiable for the plural tags
-        // selector, while the singular form parses to no constraint.
         assert_eq!(
             select(&redirect_helper(
                 "category=\"*\" order=\"random\" limit=\"1\" tags=\"@URL|\""
@@ -1571,7 +1388,6 @@ mod tests {
 
     #[test]
     fn module_name_matching_follows_the_render_scanner() {
-        // Case-insensitive module names resolve.
         assert!(
             select(
                 &helper(
@@ -1582,7 +1398,6 @@ mod tests {
             )
             .is_some()
         );
-        // A longer subname is a different module, not ListPages.
         assert_eq!(
             find_random_helper_selector(
                 "[[module ListPagesExtra category=\"*\" order=\"random\" limit=\"1\"]]\n[[include :snippets:redirect url=%%link%%]]\n[[/module]]\n",
@@ -1590,7 +1405,6 @@ mod tests {
             ),
             None,
         );
-        // An unclosed module has no body and cannot be a helper.
         assert_eq!(
             find_random_helper_selector(
                 "[[module ListPages category=\"*\" order=\"random\" limit=\"1\"]]\n[[include :snippets:redirect url=%%link%%]]\n",

@@ -206,15 +206,6 @@ pub struct GetPageRevisionRangeDetails {
     pub details: PageDetails,
 }
 
-/// Information about the revisions currently associated with a page.
-///
-/// A lot of this information is not strictly necessary:
-/// * The first revision number is always `0`.
-/// * The last revision number is always the total count of revisions minus one.
-/// * If there is only one revision, then the first and last revision numbers are the same.
-///
-/// However it's convenient to avoid having to do these calculations inline
-/// in other places, and also so that API consumers have the relevant information.
 #[derive(Serialize, Debug, Clone)]
 pub struct PageRevisionCountOutput {
     pub revision_count: NonZeroI32,
@@ -256,23 +247,12 @@ pub struct PageRevisionModelFiltered {
     pub tags: Option<Vec<String>>,
 }
 
-/// Encapsulates the kind of rerender job to be performed.
-///
-/// This affects both which fields are updated and how outdating is performed.
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 pub enum RerenderType {
-    /// Rerender the page normally.
-    ///
-    /// This involves recompiling its main body source and navigation pages,
-    /// as well as updating links and queueing any subsequent rerenders.
     #[serde(rename = "full")]
     #[default]
     Full,
 
-    /// Rerender the page's navigation pages only.
-    ///
-    /// This rerenders the top and side bar navigation page data, if
-    /// they are present for this page. Does not do any outdating.
     #[serde(rename = "nav")]
     NavigationOnly,
 }

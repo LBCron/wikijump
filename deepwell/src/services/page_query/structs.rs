@@ -18,8 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// TODO: add serde, include time fmt conversions
-#![allow(dead_code)] // TEMP
+#![allow(dead_code)]
 
 use crate::services::score::ScoreValue;
 use crate::types::Reference;
@@ -30,7 +29,6 @@ pub(crate) const MAX_PAGE_QUERY_SCORE_SELECTORS: usize = 64;
 use std::collections::BTreeMap;
 use time::OffsetDateTime;
 
-/// What kinds of pages (hidden or not) to select from.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum PageTypeSelector {
     All,
@@ -47,32 +45,24 @@ pub enum IncludedCategories<'a> {
     List(CategoryList<'a>),
 }
 
-/// Which categories to select from.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CategoriesSelector<'a> {
     pub included_categories: IncludedCategories<'a>,
     pub excluded_categories: CategoryList<'a>,
 }
 
-/// What tag conditions to maintain during the search.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TagCondition<'a> {
-    /// Represents an OR operator for the tags; page may contain any of these tags.
     pub any_present: TagList<'a>,
 
-    /// Represents the AND operator for the tags; page must contain all of these tags.
     pub all_present: TagList<'a>,
 
-    /// Represents the NOT operator for the tags; page must *not* contain any of these tags.
     pub none_present: TagList<'a>,
 
     /// Wikidot's `tags="-"` selector; page must carry no tags at all.
     pub untagged: bool,
 }
 
-/// Selects pages by their creation author without overloading an empty list.
-///
-/// Local Wikijump pages have a stable user ID on their earliest revision. Imported Wikidot snapshots can instead have only the source author's display name, so a query may match either representation. `Any` combines the two representations with OR semantics. An empty `Any` is treated like `None`, never like `All`.
 #[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
 pub enum AuthorSelector<'a> {
     #[default]
@@ -126,25 +116,18 @@ pub(crate) fn wikidot_author_name_sql(column: &str) -> String {
     WIKIDOT_AUTHOR_NAME_SQL_TEMPLATE.replace("{column}", column)
 }
 
-/// The relationship of the pages being queried to their parent/child pages.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PageParentSelector<'a> {
-    /// Pages without parent-based filtering.
     All,
 
-    /// Pages which have no parent page.
     NoParent,
 
-    /// Pages which share any parent page(s) with the page making the query.
     SameParents,
 
-    /// Pages which do *not* share any parent page(s) with the page making the query.
     DifferentParents,
 
-    /// Pages which are children of the page making the query.
     ChildOf,
 
-    /// Pages which have specified parent pages.
     HasParents(&'a [Reference<'a>]),
 }
 
@@ -170,15 +153,15 @@ pub enum DateTimeResolution {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum DateSelector {
-    /// A time span represented by a timestamp, the "resolution" of the time, and a comparison operator.
     Span {
         timestamp: OffsetDateTime,
         resolution: DateTimeResolution,
         comparison: ComparisonOperation,
     },
 
-    /// A time span represented by a timestamp, from present to the time specified.
-    FromPresent { start: OffsetDateTime },
+    FromPresent {
+        start: OffsetDateTime,
+    },
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -187,23 +170,17 @@ pub struct ScoreSelector {
     pub comparison: ComparisonOperation,
 }
 
-/// Range of pages to display, relative to the current page.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum RangeSelector {
-    /// Display only the current page.
     Current,
 
-    /// Display pages before the current page in queried results.
     Before,
 
-    /// Display pages after the current page in queried results.
     After,
 
-    /// Display all pages besides the current page.
     Others,
 }
 
-/// Selects all pages that have a data form with matching field-value pairs.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DataFormSelector<'a> {
     pub field: Cow<'a, str>,
@@ -396,8 +373,8 @@ pub struct PageQuery<'a> {
     pub creation_date: DateSelector,
     pub update_date: DateSelector,
     pub author: AuthorSelector<'a>,
-    pub score: &'a [ScoreSelector], // 5-star rating selector
-    pub votes: &'a [ScoreSelector], // upvote/downvote rating selector
+    pub score: &'a [ScoreSelector],
+    pub votes: &'a [ScoreSelector],
     pub offset: u32,
     pub range: RangeSelector,
     pub name: Option<Cow<'a, str>>,
@@ -411,10 +388,6 @@ pub struct PageQuery<'a> {
     pub fields: FoundPageFields,
 }
 
-/// Specifies which optional fields to include in the query results.
-///
-/// Fields required for filtering or ordering are always fetched
-/// internally, but only appear in the output if requested here.
 #[derive(Deserialize, Serialize, Debug, Clone, Default, PartialEq, Eq)]
 #[serde(default)]
 pub struct FoundPageFields {
@@ -432,11 +405,6 @@ pub struct FoundPageFields {
     pub revision_count: bool,
 }
 
-/// A single page row in the query results.
-///
-/// Fields are optional because callers specify which fields
-/// they need via `FoundPageFields`. Fields not requested will
-/// be `None` to avoid unnecessary data transfer.
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct FoundPageRow {
     pub page_id: i64,
@@ -470,10 +438,6 @@ pub struct FoundPageRow {
     pub revision_count: Option<u64>,
 }
 
-/// The result of `PageQueryService::find()`.
-///
-/// Contains an ordered list of pages matching the query,
-/// with only the requested fields populated.
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct FoundPages {
     pub pages: Vec<FoundPageRow>,
@@ -486,7 +450,6 @@ impl FoundPages {
     }
 }
 
-/// Metadata describing how a PageQuery result was produced.
 #[derive(Serialize, Debug, Clone, Default, PartialEq, Eq)]
 pub struct PageQueryResultMetadata {
     pub candidate_count: Option<usize>,
@@ -498,7 +461,6 @@ pub struct PageQueryResultMetadata {
     pub unsupported_reason: Option<String>,
 }
 
-/// PageQuery result plus metadata for later ListPages and CountPages decisions.
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct PageQueryResultEnvelope {
     pub pages: FoundPages,

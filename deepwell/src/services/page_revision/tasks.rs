@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// A representation of the updating tasks to do for a revision.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct PageRevisionTasks {
     pub render_and_update_links: bool,
@@ -28,8 +27,6 @@ pub struct PageRevisionTasks {
 }
 
 impl PageRevisionTasks {
-    /// Determine what tasks need to be performed based on the found changes.
-    ///
     pub fn determine(changes: &[PageRevisionChange]) -> Self {
         let mut tasks = PageRevisionTasks::default();
 

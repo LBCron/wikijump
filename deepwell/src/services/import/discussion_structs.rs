@@ -1,5 +1,3 @@
-//! A complete, provenance-bound current page discussion snapshot.
-
 use time::OffsetDateTime;
 
 #[derive(Clone, Debug, Deserialize)]
@@ -76,7 +74,6 @@ pub struct DiscussionPost {
     pub edit: Option<DiscussionPostEdit>,
     pub title: String,
     pub wikitext: String,
-    /// Source identities explicitly observed in the rendered post body.
     pub referenced_user_ids: Vec<i64>,
     #[serde(default)]
     pub observed_users: Vec<DiscussionBodyUser>,
@@ -99,13 +96,9 @@ pub struct ImportDiscussionOutput {
     pub created_posts: usize,
     pub created_revisions: usize,
     pub unchanged: bool,
-    /// Source actors banked as observations that still have no imported
-    /// profile row. Recorded, not fabricated: each entry names the
-    /// identity whose public profile snapshot is still missing.
     pub actors_missing_profiles: Vec<ActorProfileGap>,
 }
 
-/// One observed identity with no `wikidot_user` profile row after import.
 #[derive(Clone, Debug, Serialize)]
 pub struct ActorProfileGap {
     pub user_id: i64,
@@ -113,8 +106,6 @@ pub struct ActorProfileGap {
     pub slug: String,
 }
 
-/// Identity retained in this source revision's cached rendered user reference.
-/// It may predate a rename visible in the current post author metadata.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct DiscussionBodyUser {

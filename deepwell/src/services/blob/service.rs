@@ -55,43 +55,24 @@ use std::sync::Arc;
 use time::format_description::well_known::Rfc2822;
 use time::{Duration, OffsetDateTime};
 
-/// How many samples to provide when providing hard deletion stats.
 const SAMPLE_COUNT: u16 = 10;
 
-/// Hash for empty blobs.
-///
-/// Even though it is not the SHA-512 hash, for simplicity we treat the hash
-/// value with all zeroes to be the blob address for the empty blob.
-/// This empty blob is not actually stored in S3 but instead is a "virtual blob",
-/// considered to have always been present in `BlobService`.
 pub const EMPTY_BLOB_HASH: BlobHash = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
 ];
 
-/// MIME type for empty blobs.
 pub const EMPTY_BLOB_MIME: &str = "inode/x-empty; charset=binary";
 
-/// Created UNIX timestamp for empty blobs.
-///
-/// Timestamp is 2019/01/18 at midnight, the date of the first Wikijump commit.
 pub const EMPTY_BLOB_TIMESTAMP: i64 = 1547769600;
 
-/// The subdirectory in the S3 bucket where all pending uploads are kept.
 pub const PRESIGN_DIRECTORY: &str = "uploads";
 
 #[derive(Debug)]
 pub struct BlobService;
 
 impl BlobService {
-    // File-related operations
-
-    /// Creates an S3 presign URL to allow an end user to upload a blob.
-    /// This is the start to the upload process for any kind of file.
-    ///
-    /// # Returns
-    /// The generated presign URL, which can be uploaded to.
     pub async fn start_upload(
         ctx: &ServiceContext<'_>,
         user_id: i64,
@@ -102,7 +83,6 @@ impl BlobService {
         let config = ctx.config();
         let txn = ctx.transaction();
 
-        // Convert expected length integer type, then check it
         let blob_size = i64::try_from(blob_size).or_raise(|| Error::new(
             format!(
                 "failed to create pending blob upload, size integer could not be converted: {}",
@@ -128,7 +108,6 @@ impl BlobService {
         let make_error =
             || Error::new("failed to create pending blob upload", ErrorType::Blob);
 
-        // Generate primary key and random S3 path
         let pending_blob_id = cuid();
         let s3_path = {
             let mut path = format!("{PRESIGN_DIRECTORY}/");
@@ -148,20 +127,17 @@ impl BlobService {
 
         info!("Creating presign upload URL for a pending blob");
 
-        // Create presign URL
         let bucket = ctx.s3_files_bucket();
         let presign_url = bucket
             .presign_put(&s3_path, config.presigned_expiry_secs, None, None)
             .await
             .or_raise(make_error)?;
 
-        // Get timestamps
         let created_at = now();
         let expires_at = created_at
             .checked_add(Duration::seconds(i64::from(config.presigned_expiry_secs)))
             .ok_or_raise(make_error)?;
 
-        // Add pending blob entry
         let (site_id, page_id) = match owner {
             PendingBlobOwner::Unscoped => (None, None),
             PendingBlobOwner::Page { site_id, page_id } => (Some(site_id), Some(page_id)),
@@ -278,12 +254,6 @@ impl BlobService {
         Ok(())
     }
 
-    /// Helper function to do the actual "move" step of blob finalization.
-    /// This is where, after uploading to the presign URL, the S3 object is
-    /// then moved to its permanent location with a hashed name.
-    // NOTE: Because S3 changes cannot be rolled back on error, we are
-    //       creating a separate transaction here so that `blob_pending`
-    //       changes are persistent even if the outer request fails.
     async fn move_uploaded(
         ctx: &ServiceContext<'_>,
         pending_blob_id: &str,
@@ -298,7 +268,6 @@ impl BlobService {
         let make_error =
             || Error::new("failed to move uploaded blob to final", ErrorType::Blob);
 
-        // Produce temporary context in a new transaction
         let txn = db_state.database.begin().await.or_raise(make_error)?;
 
         let inner_ctx = ServiceContext::new(&state, &txn);
@@ -312,7 +281,6 @@ impl BlobService {
         )
         .await;
 
-        // Commit separate transaction, recording a move (if it occurred)
         txn.commit().await.or_raise(make_error)?;
         result
     }
@@ -386,7 +354,6 @@ impl BlobService {
             ));
         }
 
-        // Special handling for empty blobs
         if data.is_empty() {
             debug!("File being created is empty, special case");
             let content_type = ctx
@@ -406,16 +373,8 @@ impl BlobService {
 
         debug!("Updating blob metadata in database and S3");
 
-        // If the blob exists, then just delete the uploaded one.
-        //
-        // If it doesn't, then we need to move it. However, within S3
-        // we cannot "move" objects, we have to upload and delete the original.
-        //
-        // In either case, we delete the blob at the temporary upload location.
-
         let s3_hash = sha512_hash(&data);
 
-        // Check that the blob is not blacklisted before writing to permanent storage.
         if Self::on_blacklist(ctx, s3_hash)
             .await
             .or_raise(make_error)?
@@ -423,7 +382,6 @@ impl BlobService {
             let hex_hash = blob_hash_to_hex(&s3_hash);
             error!("Newly-uploaded blob is blacklisted (hash {hex_hash})");
 
-            // Remove the temporary object before cancelling its database record.
             bucket.delete_object(&s3_path).await.or_raise(make_error)?;
             Self::cancel_upload(ctx, pending_blob_user_id, pending_blob_id)
                 .await
@@ -439,7 +397,6 @@ impl BlobService {
 
         bucket.delete_object(&s3_path).await.or_raise(make_error)?;
 
-        // Update pending blob with hash
         let model = blob_pending::ActiveModel {
             external_id: Set(str!(pending_blob_id)),
             s3_hash: Set(Some(result.s3_hash.to_vec())),
@@ -449,16 +406,9 @@ impl BlobService {
         };
         model.update(txn).await.or_raise(make_error)?;
 
-        // Return
         Ok(result)
     }
 
-    /// Takes a blob and uploads it to its final destination in S3.
-    ///
-    /// This is used in the above `move_uploaded_inner()` method to
-    /// "move" the S3 blob. This is done by uploading to the final
-    /// destination, then afterwards, deleting the blob at the temporary
-    /// upload location.
     pub(crate) async fn direct_upload(
         ctx: &ServiceContext<'_>,
         data: Vec<u8>,
@@ -468,16 +418,11 @@ impl BlobService {
         let make_error =
             || Error::new("failed to perform direct upload", ErrorType::Blob);
 
-        // Get hash for blob
         let s3_hash = sha512_hash(&data);
         let hex_hash = blob_hash_to_hex(&s3_hash);
 
-        // Convert size to correct integer type
         let size = data.len().try_into_i64().or_raise(make_error)?;
 
-        // Analyze the bytes even when their content-addressed object already exists.
-        // S3 stores only the transport MIME type; the Wikidot file type row requires
-        // the textual libmagic descriptor produced from this immutable byte stream.
         let ContentAnalysis {
             mime: analyzed_mime,
             content_type,
@@ -491,10 +436,6 @@ impl BlobService {
             Some(result) => {
                 debug!("Blob with hash {hex_hash} already exists");
 
-                // TODO: Should we ever update the mime type?
-                //       In case of changing file formats, etc.
-
-                // Content-Type header should be returned
                 let mime = result.content_type.ok_or_raise(|| {
                     Error::new(
                         format!("blob with hash {} already exists in S3", hex_hash),
@@ -515,13 +456,11 @@ impl BlobService {
 
                 let mime = analyzed_mime;
 
-                // Upload S3 object
                 let response = bucket
                     .put_object_with_content_type(&hex_hash, &data, &mime)
                     .await
                     .or_raise(make_error)?;
 
-                // We assume all unexpected statuses are errors, even if 1XX or 2XX
                 match response.status_code() {
                     200 => Ok(FinalizeBlobUploadOutput {
                         s3_hash,
@@ -578,7 +517,6 @@ impl BlobService {
         }
 
         let output = match moved_hash {
-            // Need to move from pending to main hash area
             None => {
                 let expected_length =
                     expected_length.try_into_usize().or_raise(make_error)?;
@@ -600,7 +538,6 @@ impl BlobService {
                 .or_raise(make_error)?
             }
 
-            // Already moved
             Some(hash_vec) => {
                 let BlobMetadata { mime, size, .. } = Self::get_metadata(ctx, &hash_vec)
                     .await
@@ -641,7 +578,6 @@ impl BlobService {
             }
         };
 
-        // Return result based on blob status
         Ok(output)
     }
 
@@ -660,8 +596,6 @@ impl BlobService {
         .await
     }
 
-    /// Raster avatar content types, matched on the MIME essence only
-    /// (parameters such as `charset` are ignored).
     fn is_raster_avatar_mime(mime: &str) -> bool {
         matches!(
             mime.split(';')
@@ -688,14 +622,6 @@ impl BlobService {
         )
         .await?;
 
-        // Avatars render as <img> on profiles but are served verbatim from
-        // the files origin, so only raster image types are acceptable: SVG,
-        // HTML, and other active document types would execute script when
-        // navigated to directly (see issue #2653). The MIME type here is
-        // libmagic output over the finalized bytes, not the client-declared
-        // upload label, so it cannot be bypassed with a forged label.
-        // Wikidot avatars are raster images; no compatibility evidence
-        // requires inline SVG avatar documents.
         if !Self::is_raster_avatar_mime(&output.mime) {
             return Err(Error::new(
                 format!(
@@ -727,9 +653,6 @@ impl BlobService {
         .await
     }
 
-    // Prune operations
-
-    /// Deletes all expired pending blobs from the database and S3.
     pub async fn prune(ctx: &ServiceContext<'_>) -> Result<()> {
         let txn = ctx.transaction();
         let bucket = ctx.s3_files_bucket();
@@ -738,7 +661,6 @@ impl BlobService {
         let make_error =
             || Error::new("failed to prune expired pending blobs", ErrorType::Blob);
 
-        // Fetch all expired pending blobs
         let pending_blobs = BlobPending::find()
             .select_only()
             .column(blob_pending::Column::ExternalId)
@@ -749,16 +671,12 @@ impl BlobService {
             .await
             .or_raise(make_error)?;
 
-        // Delete from the S3 bucket
         for (_, s3_path) in &pending_blobs {
-            // Only try to delete if the object exists,
-            // ignore missing objects.
             if Self::exists(ctx, s3_path).await.or_raise(make_error)? {
                 bucket.delete_object(&s3_path).await.or_raise(make_error)?;
             }
         }
 
-        // Delete from the database
         let blob_ids = pending_blobs.into_iter().map(|(id, _)| id);
 
         BlobPending::delete_many()
@@ -770,10 +688,6 @@ impl BlobService {
         Ok(())
     }
 
-    // Hard-deletion operations
-
-    /// Does a dry run on a blob hard deletion, showing what would have been changed.
-    /// This method does not mutate any data.
     pub async fn hard_delete_preview(
         ctx: &ServiceContext<'_>,
         s3_hash: &[u8],
@@ -786,17 +700,6 @@ impl BlobService {
             .or_raise(|| Error::new("failed to preview hard deletion", ErrorType::Blob))
     }
 
-    /// Hard deletes the specified blob and all duplicates.
-    ///
-    /// This is a very powerful method and needs to be used carefully.
-    /// It should only be accessible to platform staff.
-    ///
-    /// As opposed to normal soft deletions, this method will completely
-    /// remove a file from Wikijump. The data will be entirely purged
-    /// and the data will be replaced with the blank file.
-    ///
-    /// This method should only be used very rarely to clear content such
-    /// as severe copyright violations, abuse content, or comply with court orders.
     pub async fn hard_delete_all(
         ctx: &ServiceContext<'_>,
         HardDelete { s3_hash }: HardDelete,
@@ -833,10 +736,6 @@ impl BlobService {
         Ok(user_id)
     }
 
-    /// Inner implementation, which runs the hard deletion procedure but may not actually delete.
-    ///
-    /// By running the actual deletion system, we can verify that the predicted set to delete is in
-    /// fact what will be deleted in a run.
     async fn hard_delete_inner(
         ctx: &ServiceContext<'_>,
         input: HardDeleteInner,
@@ -846,10 +745,6 @@ impl BlobService {
             HardDeleteInner::Commit { s3_hash, user_id } => (s3_hash, Some(user_id)),
             HardDeleteInner::DryRun { s3_hash } => (s3_hash, None),
         };
-        // NOTE: Instead of an explicit "dry_run" variable, the value of "is real run"
-        //       or "is dry run" is derived from whether "deleter_user_id" is None or not.
-        //       If there's no user ID to record as responsible, it must necessarily
-        //       be a dry run.
 
         let make_error = || {
             Error::new(
@@ -880,12 +775,8 @@ impl BlobService {
                     blob_hash_to_hex(&s3_hash),
                     user_id,
                 );
-                // TODO add to audit log
             }
         }
-
-        // Get all latest file revisions with this hash, which we then delete
-        // so it's no longer the most recent revision (which we can't hide).
 
         #[derive(Debug, FromQueryResult)]
         struct LatestFileRevision {
@@ -933,7 +824,6 @@ impl BlobService {
                 total_files_deleted += 1;
 
                 if deleter_user_id.is_some() {
-                    // Only do deletions when running for real
                     FileService::delete_with_erased_s3_hash(
                         ctx,
                         DeleteFile {
@@ -954,7 +844,6 @@ impl BlobService {
             }
         }
 
-        // Go through all the revisions with the matching S3 hash and delete / hide it
         {
             let mut results = FileRevision::find()
                 .filter(file_revision::Column::S3Hash.eq(s3_hash.as_slice()))
@@ -968,9 +857,8 @@ impl BlobService {
                     sites.add(rev.site_id);
 
                     if deleter_user_id.is_some() {
-                        // Amend 'hidden' to add 's3_hash'
                         let hidden = {
-                            let column = str!("s3_hash"); // avoid double-allocating String
+                            let column = str!("s3_hash");
                             let mut hidden = rev.hidden;
                             if !hidden.contains(&column) {
                                 hidden.push(column);
@@ -979,7 +867,6 @@ impl BlobService {
                             hidden
                         };
 
-                        // Run UPDATE
                         let model = file_revision::ActiveModel {
                             revision_id: Set(rev.revision_id),
                             s3_hash: Set(EMPTY_BLOB_HASH.to_vec()),
@@ -993,9 +880,6 @@ impl BlobService {
             }
         }
 
-        // Update all users using this blob to remove this as a profile picture
-        // (But first getting a set of sample records)
-
         let sample_user_ids: Vec<i64> = User::find()
             .select_only()
             .column(user::Column::UserId)
@@ -1008,7 +892,6 @@ impl BlobService {
 
         let total_users: u64 = match deleter_user_id {
             Some(_) => {
-                // Mutate, update all users and get count
                 let model = user::ActiveModel {
                     avatar_s3_hash: Set(None),
                     ..Default::default()
@@ -1023,7 +906,6 @@ impl BlobService {
                     .rows_affected
             }
             None => {
-                // Read-only, just get the count
                 User::find()
                     .select_only()
                     .column_as(user::Column::UserId.count(), "count")
@@ -1039,8 +921,6 @@ impl BlobService {
         };
 
         if deleter_user_id.is_some() {
-            // Delete and blacklist the hash, nobody should be uploading new versions
-            // Only do so if we are actually mutating.
             let (result1, result2) = join!(
                 BlobService::add_blacklist(ctx, s3_hash),
                 BlobService::hard_delete(ctx, &s3_hash),
@@ -1048,7 +928,6 @@ impl BlobService {
             raise_multiple!(result1, result2; make_error);
         }
 
-        // Finish counting and sampling
         let (total_revisions, sample_revision_ids) = revisions.finish();
         let (total_files, sample_file_ids) = files.finish();
         let (total_pages, sample_page_ids) = pages.finish();
@@ -1069,12 +948,6 @@ impl BlobService {
         })
     }
 
-    // Blacklist operations
-
-    /// Verifies that the blob hash to blacklist is not the static empty blob.
-    ///
-    /// After all it makes no sense to blacklist empty files, and doing so
-    /// would cause some issues internally.
     pub(crate) fn check_hash_not_empty(hash: BlobHash) -> Result<()> {
         if hash == EMPTY_BLOB_HASH {
             error!("Cannot hard delete the empty blob");
@@ -1087,10 +960,6 @@ impl BlobService {
         Ok(())
     }
 
-    /// Checks that a blob hash is not presently used anywhere in the system.
-    ///
-    /// If this is the case, then a hard deletion is needed instead to purge
-    /// this object from data storage.
     pub(crate) async fn check_hash_in_use(
         ctx: &ServiceContext<'_>,
         hash: BlobHash,
@@ -1215,19 +1084,15 @@ impl BlobService {
         Ok(exists)
     }
 
-    // Getters
-
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<Vec<u8>>> {
-        // Special handling for empty blobs
         if hash == EMPTY_BLOB_HASH {
             debug!("Returning the empty blob");
             return Ok(Some(Vec::new()));
         }
 
-        // Retrieve blob from S3
         let bucket = ctx.s3_files_bucket();
         let hex_hash = blob_hash_to_hex(hash);
         let response = bucket
@@ -1259,7 +1124,6 @@ impl BlobService {
             )
         };
 
-        // Special handling for empty blobs
         if hash == EMPTY_BLOB_HASH {
             return Ok(Some(BlobMetadata {
                 mime: str!(EMPTY_BLOB_MIME),
@@ -1269,7 +1133,6 @@ impl BlobService {
             }));
         }
 
-        // Retrieve metadata from S3
         match Self::head(ctx, &hex_hash).await.or_raise(make_error)? {
             None => Ok(None),
             Some(result) => {
@@ -1279,7 +1142,6 @@ impl BlobService {
                     error
                 };
 
-                // Headers should be passed in
                 let size = result.content_length.ok_or_raise(make_error)?;
                 let mime = result.content_type.ok_or_raise(make_error)?;
                 let created_at = {
@@ -1304,12 +1166,6 @@ impl BlobService {
         find_or_error!(Self::get_metadata_optional(ctx, hash), "blob", Blob)
     }
 
-    /// Possibly retrieve blob contents, if a flag is set.
-    ///
-    /// This utility conditionally retrieves the
-    /// text given by the specified hash only
-    /// if the flag `requested` is true.
-    /// Otherwise, it does no action, returning `None`.
     pub async fn fetch_if_requested(
         ctx: &ServiceContext<'_>,
         requested: bool,
@@ -1356,10 +1212,6 @@ impl BlobService {
         Ok(head.is_some())
     }
 
-    /// Checks whether the content-addressed blob for this hash is materialized.
-    ///
-    /// Used by import verification to prove that a canonical file relation
-    /// points at bytes which actually exist in storage.
     pub(crate) async fn blob_exists(
         ctx: &ServiceContext<'_>,
         hash: &[u8],
@@ -1371,16 +1223,11 @@ impl BlobService {
     }
 
     pub async fn hard_delete(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<()> {
-        // Special handling for empty blobs
-        //
-        // Being virtual, having always existed, they cannot be deleted.
-        // So this is a no-op.
         if hash == EMPTY_BLOB_HASH {
             debug!("Ignoring attempt to hard delete the empty blob");
             return Ok(());
         }
 
-        // Delete from S3
         let bucket = ctx.s3_files_bucket();
         let hex_hash = blob_hash_to_hex(hash);
 
@@ -1396,14 +1243,10 @@ impl BlobService {
     }
 }
 
-/// Helper method to parse out an S3 error response and print the message (if any).
 #[must_use]
 fn s3_error(response: &ResponseData, action: &str) -> Error {
     let error_message = match str::from_utf8(response.bytes()) {
         Ok("") => match response.status_code() {
-            // handling for specific error codes
-            // (for when S3 doesn't provide messages)
-            // add as needed
             507 => "insufficient storage",
             _ => "(no content)",
         },
@@ -1443,7 +1286,6 @@ struct PendingBlob {
     content_type_description: Option<String>,
 }
 
-/// Helper struct to produce a count of items and a sample list.
 #[derive(Debug)]
 struct SamplerCounter<T: Hash + Ord + Eq> {
     items: HashSet<T>,
@@ -1477,5 +1319,3 @@ impl<T: Hash + Ord + Eq> SamplerCounter<T> {
         (count, samples)
     }
 }
-
-// Helper functions to assist rustc in disambiguating error typing.

@@ -22,7 +22,6 @@ use serde::{Deserialize, Serialize};
 
 // As of March 2026, see https://www.usercheck.com/docs/api/email-endpoint.md for information
 
-/// A response from the MailCheck API.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum MailCheckResponse {
@@ -30,9 +29,6 @@ pub enum MailCheckResponse {
     Failure(MailCheckFailureResponse),
 }
 
-/// A deserialized successful response from the MailCheck API.
-///
-/// Describes all the fields received from the API, but not all fields are used.
 #[derive(Deserialize, Debug, Clone)]
 pub struct MailCheckSuccessResponse {
     pub status: u16,
@@ -70,39 +66,29 @@ pub struct MxProvider {
     pub grade: MxProviderGrade,
 }
 
-/// The kind of email provider this MX record is for.
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")] // set by MailCheck, don't change!
 pub enum MxProviderType {
-    /// Full mailbox provider (e.g. Google Workspace, Microsoft 365, Fastmail)
     Mailbox,
 
-    /// Web hosting provider with bundled email (e.g. GoDaddy, OVH, Hostinger)
     Hosting,
 
-    /// Transactional / programmable email API service (e.g. Mailgun, SendGrid, Postmark)
     EmailApi,
 
-    /// Email security or filtering gateway (e.g. Mimecast, Barracuda, Proofpoint)
     SecurityGateway,
 
-    /// Email forwarding or relay service (e.g. Cloudflare, ImprovMX, SimpleLogin)
     Forwarding,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")] // set by MailCheck
 pub enum MxProviderGrade {
-    /// High-involvement providers with sales processes and contracts (e.g. Mimecast, Proofpoint)
     Enterprise,
 
-    /// Established paid providers (e.g. Google Workspace, Microsoft 365)
     Professional,
 
-    /// Mid-range providers, moderate onboarding
     Standard,
 
-    /// Low barrier to entry, minimal verification (e.g. free email hosting service)
     Basic,
 }
 
@@ -140,27 +126,15 @@ pub enum EmailClassification {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailProviderClassification {
-    /// Known provider, see `mx_providers` field for information.
     KnownProvider,
 
-    /// Public email service that runs its own infrastructure.
     PublicEmail,
 
-    /// Self-hosted or otherwise unrecognized email infrastructure.
     SelfHosted,
 
-    /// No detected email infrastructure.
     NoProvider,
 }
 
-/// A Wikidot MailForm submission composed as the email Wikidot would
-/// send for it: the authored `to=` recipients (Wikidot user names, as
-/// authored), the email title, and the serialized form data.
-///
-/// Wikijump has no outbound email facility, so instances of this struct
-/// are only ever recorded by the local no-delivery sink
-/// (`EmailService::send_mail_form_message`); nothing resolves the
-/// recipients to mailboxes and nothing is transmitted.
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct MailFormMessage {
     pub recipients: String,

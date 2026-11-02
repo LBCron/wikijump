@@ -18,12 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The blob service, for interfacing with content-addressable S3 objects.
-//!
-//! This is essentially just a wrapper for how DEEPWELL interacts with S3.
-//! Method implementations should instead work with the relevant concept
-//! service instead, for instance the `FileService`.
-
 mod mime;
 mod service;
 mod structs;

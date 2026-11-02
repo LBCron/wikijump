@@ -18,17 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Single-use, short-lived email ownership and recovery tokens.
-//!
-//! One table and one service cover verification, password reset, and
-//! account-deletion confirmation, distinguished only by purpose. Tokens are
-//! random, stored by hash, bound to an exact account + email snapshot +
-//! purpose, and consumed atomically on redemption.
-//!
-//! TTLs, cooldowns, and capacity bounds below are LOCAL DEPLOYMENT DEFAULTS
-//! pending live Wikidot evidence (see the account lane plan). They are
-//! single constants, easy to tune, and never claimed as Wikidot behavior.
-
 use std::net::IpAddr;
 
 use rand::distr::{Alphanumeric, SampleString};
@@ -47,42 +36,19 @@ use crate::models::email_token::{self, Entity as EmailToken};
 use crate::services::ServiceContext;
 use crate::utils::{assert_is_csprng, now};
 
-/// How long an issued token stays redeemable.
-///
-/// LOCAL DEFAULT pending live Wikidot evidence.
 const VERIFY_EMAIL_TTL: Duration = Duration::hours(24);
-/// LOCAL DEFAULT pending live Wikidot evidence.
 const RESET_PASSWORD_TTL: Duration = Duration::hours(1);
-/// LOCAL DEFAULT pending live Wikidot evidence.
 const RESET_GRANT_TTL: Duration = Duration::minutes(15);
-/// LOCAL DEFAULT pending live Wikidot evidence.
 const DELETE_CONFIRM_TTL: Duration = Duration::hours(1);
-/// LOCAL DEFAULT pending live Wikidot evidence.
 const DELETE_GRANT_TTL: Duration = Duration::minutes(15);
 
-/// Minimum age of the newest live token before another may be issued.
-///
-/// LOCAL DEFAULT pending live Wikidot evidence. The public issue endpoints
-/// answer identically whether a token was issued or suppressed, so this
-/// cooldown never leaks account existence.
 const RESEND_COOLDOWN: Duration = Duration::seconds(60);
 
-/// Per-address issue bound: at most this many emailed-link issues per
-/// purpose inside the window below, counted over the proxy-aware client
-/// address framerail resolves.
-///
-/// LOCAL DEFAULT pending live Wikidot evidence. Throttled issues report
-/// `Suppressed`, exactly like cooldown, so the bound never oracles.
 const ISSUE_IP_MAX: u64 = 10;
-/// LOCAL DEFAULT pending live Wikidot evidence.
 const ISSUE_IP_WINDOW: Duration = Duration::minutes(15);
 
-/// Plaintext token length (alphanumeric, URL-safe without encoding).
 const TOKEN_LENGTH: usize = 48;
 
-/// Purpose binding for an email token. A token issued for one purpose can
-/// never redeem another; verification, recovery, and deletion confirmation
-/// are mutually unintelligible by construction.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailTokenPurpose {
@@ -123,10 +89,6 @@ pub struct IssueEmailToken {
     pub ip_address: IpAddr,
 }
 
-/// An issued token with its stored expiry, so delivery logging uses the row
-/// value instead of recomputing it.
-///
-/// The plaintext token never appears in debug output.
 #[derive(PartialEq, Eq)]
 pub struct IssuedEmailToken {
     pub token: String,
@@ -166,8 +128,6 @@ impl std::fmt::Debug for IssueEmailTokenOutcome {
     }
 }
 
-/// What a successful redemption proves: the account and the exact email
-/// snapshot the token was bound to.
 #[derive(Debug, PartialEq, Eq)]
 pub struct RedeemedEmailToken {
     pub user_id: i64,
@@ -178,11 +138,6 @@ pub struct RedeemedEmailToken {
 pub struct EmailTokenService;
 
 impl EmailTokenService {
-    /// Issue a token, rotating out prior live tokens for the account and
-    /// purpose (a re-issue invalidates earlier links).
-    ///
-    /// Returns the plaintext token exactly once; only its hash is stored.
-    /// Callers must deliver it to the mailbox and never log or persist it.
     pub async fn issue(
         ctx: &ServiceContext<'_>,
         IssueEmailToken {
@@ -204,9 +159,6 @@ impl EmailTokenService {
         Self::delete_expired(ctx, user_id, purpose).await?;
         Self::delete_consumed(ctx, user_id, purpose).await?;
 
-        // Address-scoped bound, checked before the account cooldown so one
-        // abusive address cannot probe many mailboxes, and answered like a
-        // cooldown so the bound never oracles.
         if Self::address_over_bound(ctx, &ip_address, purpose, now).await? {
             return Ok(IssueEmailTokenOutcome::Suppressed);
         }
@@ -224,7 +176,6 @@ impl EmailTokenService {
                 return Ok(IssueEmailTokenOutcome::Suppressed);
             }
 
-            // Rotation: a fresh issue invalidates earlier live links.
             EmailToken::delete_many()
                 .filter(email_token::Column::UserId.eq(user_id))
                 .filter(email_token::Column::Purpose.eq(purpose.as_str()))
@@ -238,17 +189,6 @@ impl EmailTokenService {
         Ok(IssueEmailTokenOutcome::Issued(issued))
     }
 
-    /// Issue a one-time mutation grant after a freshly consumed link.
-    ///
-    /// Unlike [`Self::issue`], this never suppresses: every grant spends a
-    /// consumed single-use link, grants are never emailed, and outstanding
-    /// live grants rotate — so there is no cooldown signal to leak and no
-    /// inbox-flood vector. A link therefore always yields its grant; the
-    /// link is never burned by a warm bucket.
-    ///
-    /// `grant_purpose` must be a grant purpose (`ResetGrant`,
-    /// `DeleteGrant`): links redeem under their own purpose and the grant
-    /// authorizes only the matching terminal mutation.
     pub async fn issue_grant(
         ctx: &ServiceContext<'_>,
         user_id: i64,
@@ -272,7 +212,6 @@ impl EmailTokenService {
         Self::delete_expired(ctx, user_id, grant_purpose).await?;
         Self::delete_consumed(ctx, user_id, grant_purpose).await?;
 
-        // Rotation without cooldown: at most one live grant per account.
         EmailToken::delete_many()
             .filter(email_token::Column::UserId.eq(user_id))
             .filter(email_token::Column::Purpose.eq(grant_purpose.as_str()))
@@ -284,12 +223,6 @@ impl EmailTokenService {
         Self::insert_token(ctx, user_id, email, grant_purpose, ip_address).await
     }
 
-    /// Revoke every outstanding (unconsumed) email token for the account,
-    /// across all purposes. Called when the account's email rotates so a
-    /// link bound to the old mailbox cannot outlive the move (#2693).
-    /// Runs in the caller's transaction: revocation lands atomically with
-    /// whatever change triggered it. Consumed rows are left alone; they
-    /// can never redeem and are purged on the next issue.
     pub async fn revoke_all_for_user(
         ctx: &ServiceContext<'_>,
         user_id: i64,
@@ -308,12 +241,6 @@ impl EmailTokenService {
         Ok(())
     }
 
-    /// Redeem a token with a single conditional write instead of
-    /// find-then-update: exactly one concurrent redeemer can flip an
-    /// unconsumed, unexpired token to consumed. Every loser observes zero
-    /// affected rows and fails exactly like a bogus token, so concurrent
-    /// double-redeem is impossible and redemption never oracles which
-    /// property failed.
     pub async fn redeem(
         ctx: &ServiceContext<'_>,
         token: &str,
@@ -406,9 +333,6 @@ impl EmailTokenService {
         Ok(())
     }
 
-    /// Purge spent tokens for the account and purpose. Consumed rows can
-    /// never redeem again, so dropping them on the next issue bounds
-    /// per-account row growth to live tokens plus not-yet-reaped expiries.
     async fn delete_consumed(
         ctx: &ServiceContext<'_>,
         user_id: i64,
@@ -429,9 +353,6 @@ impl EmailTokenService {
         Ok(())
     }
 
-    /// Count recent issues from one address for one purpose. The address is
-    /// the proxy-aware client IP framerail resolves, so NAT-shared and
-    /// proxied clients share one honest bucket.
     async fn address_over_bound(
         ctx: &ServiceContext<'_>,
         ip_address: &IpAddr,
@@ -453,8 +374,6 @@ impl EmailTokenService {
         Ok(recent >= ISSUE_IP_MAX)
     }
 
-    /// Securely generate a plaintext token. Returned to the caller exactly
-    /// once; never persisted or logged.
     fn generate() -> String {
         let mut rng = rand::rng();
         assert_is_csprng(&rng);

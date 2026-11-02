@@ -38,6 +38,7 @@ export interface Locales {
   breadcrumbs: string
   cancel: string
   change: string
+  children: string
   clear: string
   close: string
   confirm: string
@@ -538,6 +539,8 @@ export interface Locales {
   "wiki-page-lock.toast-override": string
   "wiki-page-parent": string
   "wiki-page-parent.toast": string
+  "wiki-page-children": string
+  "wiki-page-children.no-children": string
   "wiki-page-missing": string
   "wiki-page-private": string
   "wiki-page-banned": string

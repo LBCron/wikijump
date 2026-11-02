@@ -1,6 +1,6 @@
 {
   "name": "framerail",
-  "version": "2026.3.25",
+  "version": "2026.10.27",
   "description": "Framerail - Wikijump frontend service",
   "repository": "https://github.com/scpwiki/wikijump/tree/develop/framerail",
   "license": "AGPL-3.0-or-later",
@@ -55,6 +55,7 @@
     "vite": "^8.3.5"
   },
   "dependencies": {
+    "@flatten-js/interval-tree": "^2.0.3",
     "@popperjs/core": "^2.11.8",
     "@sveltejs/adapter-node": "^6.0.0",
     "@sveltejs/kit": "^3.1.0",

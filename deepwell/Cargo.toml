@@ -9,7 +9,7 @@ keywords = ["wikijump", "api", "backend", "wiki"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "2026.8.20"
+version = "2026.10.27"
 authors = ["Emmie Smith <emmie.maeda@gmail.com>"]
 edition = "2024"
 rust-version = "1.95.0"
@@ -78,6 +78,7 @@ arrayvec = "0.7.6"
 
 # Local crates
 deepwell-relation-impl-derive = { path = "relation-impl-derive" }
+parking_lot = "0.13.0"
 
 [dev-dependencies]
 maplit = "1"

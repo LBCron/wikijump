@@ -602,5 +602,19 @@
       font-size: 2rem;
       text-align: center;
     }
+
+    .footer-inner {
+      flex-direction: column;
+      justify-content: center;
+      padding-bottom: 1em;
+    }
+    .footer-items {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-powered-by {
+      text-align: center;
+    }
   }
 </style>

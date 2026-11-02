@@ -318,6 +318,7 @@ export enum PagePane {
   Parent = "parent",
   Watchers = "watchers",
   SiteTools = "site-tools",
+  Children = "children",
   Vote = "vote",
   Delete = "delete",
   EditMeta = "edit-meta",

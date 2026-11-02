@@ -83,6 +83,8 @@ def main() -> int:
         if isinstance(record, dict) and record.get("email_present") is True
     )
 
+    # Recipient identity alone is not a controlled sink. A future authorized run
+    # must explicitly supply all three capabilities without exposing their values.
     sink_capability_presence = {
         "dedicated_sink": bool(os.environ.get("WIKIDOT_MAILFORM_SINK_READY")),
         "run_id_only_query": bool(os.environ.get("WIKIDOT_MAILFORM_SINK_QUERY_READY")),

@@ -46,6 +46,8 @@ def build_blocked_artifact(fixture_path: Path, fixture: dict[str, Any]) -> dict[
     present_keys = sorted(key for key in environment_keys if key in os.environ)
     missing_keys = sorted(key for key in environment_keys if key not in os.environ)
 
+    # The producer gate must pass before loading any provider credential value or
+    # issuing any request. This run has no complete run-owned producer contract.
     reason = "missing_safe_public_producer" if missing_keys else "producer_not_bounded"
     if reason not in fixture["blocked_reason_codes"]:
         raise ValueError("blocked reason is not declared by the fixture")

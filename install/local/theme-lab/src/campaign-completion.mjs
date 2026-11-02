@@ -14,7 +14,6 @@ import {overallAcceptance} from './verdict.mjs';
 import {SEMANTIC_BROWSER_MODEL, validateSemanticBrowserAcceptance, semanticReviewArtifactBindings} from './semantic-browser-acceptance.mjs';
 import {captureRunContractIsCurrent,scopedRunContractSha} from './scoped-run-contract.mjs';
 import {readBoundArtifact} from './artifact-binding.mjs';
-import {TARGET_ACCEPTANCE_CONTRACT_SHA256} from './target-acceptance-contract.mjs';
 import {isAdmittedTargetAcceptanceContract} from './target-acceptance-instruments.mjs';
 import {candidateAssetDependencyState} from './candidate-asset-dependencies.mjs';
 import {resolveRunContractPath} from './run-contract-path.mjs';
@@ -408,7 +407,7 @@ export function checkCampaignCompletion(root, {captureContractReader = readCurre
       const visualReview=JSON.parse(bind(row.visual_review,`${row.package}/visual review`));
       const packageDir=packageDirectory(row.package);
       if(result.browser_acceptance?.path!==(row.browser_audit?.encoding==='gzip'?row.browser_audit.path.slice(0,-3):row.browser_audit?.path)||result.browser_acceptance?.sha256!==(row.browser_audit?.uncompressed_sha256??row.browser_audit?.sha256))failures.push(`${row.package}: accepted result is not bound to the current browser audit`);
-      if(result.target_acceptance_contract_sha256!==TARGET_ACCEPTANCE_CONTRACT_SHA256&&!isAdmittedTargetAcceptanceContract(result.target_acceptance_contract_sha256))failures.push(`${row.package}: accepted result uses a superseded target acceptance contract`);
+      if(!isAdmittedTargetAcceptanceContract(result.target_acceptance_contract_sha256))failures.push(`${row.package}: accepted result uses a superseded target acceptance contract`);
       const currentFullCheckBindings=currentPackageFullCheckInputBindings(root,row.package);
       if(result.full_check_input_bindings?.sha256!==currentFullCheckBindings.sha256)failures.push(`${row.package}: accepted result uses superseded package check inputs`);
       const imageProvenance=result.image_review_provenance;

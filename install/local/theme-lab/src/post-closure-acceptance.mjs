@@ -21,15 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 
-import {collectViewportOverflow, inspectPlatformFonts} from './browser-lab.mjs';
-import {
-  buildVerdict, issuesFromInteractions, issuesFromPreview, issuesFromSelectorDiagnosis,
-  issuesFromTorture, issuesFromViewports, nextActions, overallAcceptance,
-  styleChangesFromComputed, summarizeVisual,
-} from './verdict.mjs';
-import {applyRuntimeSurfaceParityGate, RUNTIME_SURFACE_PARITY} from './runtime-surface-parity.mjs';
-import {measureTargetBaselineViewportOverflow} from './target-baseline-viewport-probe.mjs';
-import {TARGET_ACCEPTANCE_CONTRACT} from './target-acceptance-contract.mjs';
+import {TARGET_ACCEPTANCE_CONTRACT, targetAcceptanceContractSha256} from './target-acceptance-contract.mjs';
 import {TARGET_ACCEPTANCE_INSTRUMENT_SUCCESSORS} from './target-acceptance-instruments.mjs';
 import {candidateIdentity} from '../ports/scripts/candidate-identity.mjs';
 import {validateCombinedAcceptance} from './campaign-completion.mjs';
@@ -82,29 +74,16 @@ const EVIDENCE_KINDS = [
     candidateBound(doc, entry.candidate) ? [] : [`${label}: visual review is not bound to the entry's candidate`]},
 ];
 
-// C6: the instrument-proper digest. Same construction as
-// TARGET_ACCEPTANCE_CONTRACT_SHA256 (src/target-acceptance-contract.mjs),
-// with every runtime-derived field replaced by its recorded closure value
-// before hashing. Per CLOSURE-ANCHORS (b) there is exactly one such field:
-// static_inputs.target_page_runtime_sha256. Mirroring the codebase's own
-// runContractWithoutRuntimeBindings precedent, the substitution is total:
-// any live framerail value yields the same digest, and only an instrument
-// change moves it.
-export function computeInstrumentProperDigest({contract = TARGET_ACCEPTANCE_CONTRACT, recordedTargetPageRuntimeSha256 = CLOSURE_ANCHORS.recordedTargetPageRuntimeSha256} = {}) {
-  const substituted = {
-    ...contract,
-    static_inputs: {...contract.static_inputs, target_page_runtime_sha256: recordedTargetPageRuntimeSha256},
-  };
-  return crypto.createHash('sha256')
-    .update(JSON.stringify(substituted)).update('\0')
-    .update(JSON.stringify(RUNTIME_SURFACE_PARITY)).update('\0')
-    .update([
-      collectViewportOverflow, inspectPlatformFonts, measureTargetBaselineViewportOverflow,
-      issuesFromSelectorDiagnosis, issuesFromTorture, issuesFromViewports, issuesFromPreview,
-      issuesFromInteractions, styleChangesFromComputed, nextActions, summarizeVisual,
-      overallAcceptance, applyRuntimeSurfaceParityGate, buildVerdict,
-    ].map(fn => fn.toString()).join('\0'))
-    .digest('hex');
+// C6: the instrument-proper digest. The derivation lives in exactly one
+// place: targetAcceptanceContractSha256 in
+// src/target-acceptance-contract.mjs, which hashes the full contract
+// function set with the recorded closure runtime value substituted for
+// the live one (the recorded value is a literal in that module, pinned to
+// CLOSURE_ANCHORS.recordedTargetPageRuntimeSha256 by test). This delegate
+// keeps the Check 2 name; it carries no function list of its own, so the
+// two derivations cannot drift apart again.
+export function computeInstrumentProperDigest({contract = TARGET_ACCEPTANCE_CONTRACT} = {}) {
+  return targetAcceptanceContractSha256(contract);
 }
 
 function declaredSourceName(root, packageName) {

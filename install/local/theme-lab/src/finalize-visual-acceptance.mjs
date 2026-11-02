@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import {bindVisualAcceptance} from './visual-acceptance.mjs';
 import {overallAcceptance,summarizeVisual} from './verdict.mjs';
 import {ACCEPTANCE_VIEWPORT_IDS} from './acceptance-viewports.mjs';
-import {TARGET_ACCEPTANCE_CONTRACT_SHA256} from './target-acceptance-contract.mjs';
 import {isAdmittedTargetAcceptanceContract} from './target-acceptance-instruments.mjs';
 const sha=value=>crypto.createHash('sha256').update(value).digest('hex');
 // Faithful-design exemption ledger (TAIL-PLAN TL-05). An entry waives one
@@ -198,7 +197,7 @@ export function reviewCompletionTime(review){
 // Review completes the image dimension of a captured full check. It does not
 // rerender unchanged surfaces or reinterpret any failed/unknown port dimension.
 export async function finalizeVisualAcceptance({result,review,css,baseCss='',source,preview,fullCheckInputBindings=null}){
- if(result.target_acceptance_contract_sha256!==TARGET_ACCEPTANCE_CONTRACT_SHA256&&!isAdmittedTargetAcceptanceContract(result.target_acceptance_contract_sha256))throw new Error('Current full check uses a superseded target acceptance contract');
+ if(!isAdmittedTargetAcceptanceContract(result.target_acceptance_contract_sha256))throw new Error('Current full check uses a superseded target acceptance contract');
  if(fullCheckInputBindings&&result.full_check_input_bindings?.sha256!==fullCheckInputBindings.sha256)throw new Error('Current full check uses superseded package check inputs');
  for(const [key,bytes] of [['candidate_css_sha256',css],['candidate_source_sha256',source],['candidate_preview_sha256',preview]])if(result[key]!==sha(bytes))throw new Error(`Current full check uses superseded ${key}`);
  if((result.candidate_base_css_sha256??null)!==(baseCss?sha(baseCss):null))throw new Error('Current full check uses superseded base CSS');

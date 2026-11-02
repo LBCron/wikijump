@@ -72,7 +72,7 @@ jobs:
             echo "standing=$standing"
             echo "policy=$policy"
             echo "locales=$locales"
-            echo "rust=$(( deepwell || wws || locales ))"
+            echo "rust=$(( deepwell || wws || locales || verification ))"
             echo "node=$(( framerail || verification ))"
           } >> "$GITHUB_OUTPUT"
           {

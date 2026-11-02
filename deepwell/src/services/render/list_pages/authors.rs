@@ -416,7 +416,13 @@ impl RenderService {
                      WHERE vote.page_id = input.page_id \
                        AND vote.deleted_at IS NULL \
                        AND vote.disabled_at IS NULL \
-                       AND (snapshot.page_id IS NULL OR vote.from_wikidot = FALSE) \
+                       AND (snapshot.page_id IS NULL \
+                            OR vote.from_wikidot = FALSE \
+                            OR NOT COALESCE( \
+                                snapshot.meta_json ->> 'votes_count' ~ '^[0-9]{{1,19}}$' \
+                                AND (length(snapshot.meta_json ->> 'votes_count') < 19 \
+                                     OR snapshot.meta_json ->> 'votes_count' <= '9223372036854775807'), \
+                                FALSE)) \
                        AND vote.rating_system = CASE \
                            WHEN COALESCE(category.rating_type, \
                                          default_category.rating_type, \

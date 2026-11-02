@@ -271,6 +271,13 @@ pub(super) fn apply_sql_ordering(
     query
 }
 
+/// Effective vote count for a page: the imported Wikidot votes plus the
+/// local votes. The imported term is the snapshot's captured `votes_count`
+/// meta figure when the snapshot carries a usable one; when it does not
+/// (the corpus import does not write that key), the imported term falls
+/// back to counting the page's imported (`from_wikidot`) vote rows,
+/// mirroring how the Sum scorer treats the roster when no baseline
+/// figure is in play. Local votes are the active non-Wikidot rows.
 pub(super) fn effective_vote_count_sql(page_id_sql: &str) -> String {
     format!(
         "COALESCE((\
@@ -281,16 +288,16 @@ pub(super) fn effective_vote_count_sql(page_id_sql: &str) -> String {
                              AND (length(snapshot.meta_json ->> 'votes_count') < 19 \
                                   OR snapshot.meta_json ->> 'votes_count' <= '9223372036854775807') \
                         THEN (snapshot.meta_json ->> 'votes_count')::bigint \
+                        ELSE COUNT(vote.page_vote_id) FILTER (WHERE vote.from_wikidot = TRUE) \
                     END, \
                     0\
                 ) \
-                + COUNT(vote.page_vote_id) FILTER (WHERE snapshot.page_id IS NULL OR vote.from_wikidot = FALSE) \
+                + COUNT(vote.page_vote_id) FILTER (WHERE vote.from_wikidot = FALSE) \
             FROM (SELECT 1) vote_seed \
             LEFT JOIN wikidot_page_snapshot snapshot ON snapshot.page_id = {page_id_sql} \
             LEFT JOIN page_vote vote ON vote.page_id = {page_id_sql} \
                 AND vote.deleted_at IS NULL \
                 AND vote.disabled_at IS NULL \
-                AND (snapshot.page_id IS NULL OR vote.from_wikidot = FALSE) \
             GROUP BY snapshot.page_id, snapshot.meta_json\
         ), 0)"
     )

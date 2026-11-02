@@ -122,7 +122,7 @@ to explain any incident; a trace shows a shape is possible.
 Each configuration enables only the processes its property needs
 (constants in `check.sh`); the reader is bounded to 2 reads. State counts
 are TLC distinct states; times are per-config wall seconds (JVM start
-included). `check.sh` exits 0; total ~19 s, largest single config 2 s.
+included). `check.sh` exits 0; about 13–19 s wall in total (14 TLC JVM launches), largest single config 2 s, against the brief's ~5 s guidance.
 
 | Config | Processes on | Result |
 |---|---|---|
@@ -150,7 +150,7 @@ post-commit cleanup deletes that object, and the reader's S3 fetch then
 misses (trace shape: lookup@4, delete@6, miss@7). User-visible effect: a
 single `/local--code/<page>/<n>` or HTML-block request answers HTTP 500
 (`TextBlockS3Fetch`); a retry succeeds. Window: one request's
-lookup→fetch gap (milliseconds), opened by any replacement commit whose
+lookup→fetch gap (duration unmeasured), opened by any replacement commit whose
 cleanup lands inside it. Lasting effect: none — `CommittedRowLive`
 passing proves every *committed* row always names a live object.
 
@@ -163,7 +163,7 @@ newest committed first, then overwritten). The revision's compiled
 columns are *not* regressed (the job updates revision 1 by id); only the
 hosted blocks regress. User-visible effect: the page serves new article
 HTML with old hosted CSS/HTML blocks. Window: any rerender in flight
-across a save (renders take seconds; redelivery widens it). Lasting
+across a save (window duration unmeasured; redelivery widens it in principle). Lasting
 effect: until the next rerender of that page — nothing re-detects it.
 
 Non-vacuity: crash, duplicate-delivery completion, restore and clone
@@ -172,6 +172,19 @@ the passes are not vacuous over unreachable paths. `FanOutSettles` is
 checked with crashes disabled: a crash may strand a job (its blocks stay
 at the previous committed set, which `CommittedRowLive` covers), and the
 code's retry is the queue's, not a guarantee this model should assume.
+
+**Limit of the model.** `JobCommit` models `add_blocks` as one step, but
+`deepwell/src/services/text_block/service.rs:276-300` runs `delete_many`
+and then `insert_many` as separate statements in READ COMMITTED
+transactions, against primary key `(block_type, page_id, block_index)`.
+The model covers commit orders that do not overlap in those statements.
+When two write transactions do overlap there, Postgres semantics imply
+the blocked DELETE finds nothing left to delete once the other commits,
+and its INSERT then fails with a unique violation. That shape aborts a
+job or possibly a save; it is not an overwrite. It has not been executed
+or modeled: it is an unmodeled and unexecuted residual, it may be a
+separate user-visible failure (a failed save or job), and any
+production issue filed for F2 must test it.
 
 ## Verdicts on the two claims
 
@@ -245,7 +258,10 @@ was fixed, and the model was not tuned to make any of them disappear.
    order, user-visible effect and window in §Results. Possible
    directions for the production issue: a per-page serialization or
    committed-version check in `rerender_inner`, or making the block
-   replacement conditional on the revision still being latest.
+   replacement conditional on the revision still being latest. The
+   issue must also test the unmodeled overlap residual in *Limit of
+   the model* above (overlapping `delete_many`/`insert_many` may abort
+   a save or job with a unique violation instead of overwriting).
 2. **Reader 500 in the lookup→fetch gap (F1).** A `/local--code` or
    HTML-block request whose DB lookup races a replacement's post-commit
    cleanup answers one HTTP 500. Transient and self-healing on retry;
@@ -269,7 +285,8 @@ was fixed, and the model was not tuned to make any of them disappear.
 The model changed what this lane concluded, in two places — and in one
 place it confirmed, rather than produced, the conclusion:
 
-- **Produced by the model:** F2 as a *proven* shape. Step 0 reading
+- **Produced by the model:** F2 as a shape reachable in the model under
+  the Step 0 assumptions; not observed in production. Step 0 reading
   established that blocks are page-scoped and jobs are unserialized, so
   an older-over-newer block overwrite was conceivable; only the model
   showed the code's own step order (input read, previous-name read,
@@ -277,7 +294,8 @@ place it confirmed, rather than produced, the conclusion:
   STEER-1) actually commits it, including through the redelivery path,
   while the revision columns stay correct. F1's exact window (lookup →
   cleanup → fetch, and *only* that window, since `CommittedRowLive`
-  passes with crash and duplicates enabled) is likewise a model result.
+  passes with crash and duplicates enabled) is likewise reachable in
+  the model under the Step 0 assumptions; not observed in production.
 - **Produced by Step 0 reading, confirmed by the model:** claim (a)
   (both halves reproduce, including the #2650 order) and the safety
   half of claim (b). The (b) *reframing* — naming is impossible, pairing

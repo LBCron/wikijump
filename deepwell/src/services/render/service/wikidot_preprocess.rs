@@ -1,5 +1,3 @@
-//! Wikidot compatibility preprocessing before FTML parsing and include expansion.
-
 use super::{
     AttachmentOwner, AttachmentProvenanceRegistry, BTreeMap, CompatTextFragments,
     INCLUDE_VARIABLE_REGEX, LiteralRegionIndex, PageInfo, PageRef, Range, RenderService,
@@ -127,10 +125,7 @@ impl RenderService {
         preserved: &mut CompatTextFragments,
         include_depth: usize,
     ) {
-        // Keep incomplete boundaries available for adjacent caller/include
-        // source while still pruning self-contained inactive gates early.
         if include_depth == 0 {
-            // Nested sources were already resolved against their include callsite immediately before recursion.
             resolve_unbound_include_variable_iftags(wikitext);
         }
         if include_depth == 0 && wikitext.contains("[[#") {
@@ -683,19 +678,6 @@ impl RenderService {
         Self::is_inside_wikidot_line_block(source, start, "[[html", "[[/html]]")
     }
 
-    /// Whether `start` falls inside a line-delimited raw block (`[[code]]`
-    /// or `[[html]]`), judged from the line-start openers and closers that
-    /// precede it.
-    ///
-    /// A closer that shares its opener's line closes the block again on
-    /// that line: one-line blocks such as `[[html]]<hr>[[/html]]` or
-    /// `[[code]]x[[/code]]` are complete blocks, so the state must not stay
-    /// open for the rest of the document. Leaving it open misjudged every
-    /// later position as block content — in the assembled render of
-    /// fragment:scp-7869-iteration-one, a one-line html block ahead of the
-    /// theme includes made the include-carried `[[embed]]` blocks look
-    /// like html content, so embed claiming skipped them and they printed
-    /// as literal text.
     fn is_inside_wikidot_line_block(
         source: &str,
         start: usize,
@@ -707,8 +689,6 @@ impl RenderService {
             let marker = line.trim_start().to_ascii_lowercase();
             if let Some(rest) = marker.strip_prefix(opener) {
                 if !inside && rest.contains(closer) {
-                    // The block opens and closes on this one line, so it
-                    // has no net effect on the state.
                     continue;
                 }
                 inside = true;

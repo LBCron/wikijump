@@ -1,5 +1,3 @@
-//! ListPages block query and row rendering.
-
 use super::{
     Action, BTreeMap, BTreeSet, CategoriesSelector, CheckPermissionContext, ColumnTrait,
     ComparisonOperation, CompatHtmlFragments, CompatTextFragments,
@@ -586,10 +584,6 @@ impl RenderService {
             .collect::<Vec<_>>();
         let total_selected = selected_pages.len();
 
-        // `/p/<n>` picks which page of an already-paginated module to render.
-        // Live counts pages after the module's own `offset`, so the count and
-        // the clamp both come from `total_selected` rather than the raw match
-        // count, and a number past the end renders the last page.
         let page_count = (total_selected as u64).div_ceil(per_page).max(1);
         let page = u64::from(url_page.unwrap_or(1)).clamp(1, page_count);
         let url_page_skip = usize::try_from((page - 1) * per_page).unwrap_or(usize::MAX);
@@ -707,8 +701,6 @@ impl RenderService {
                     .flatten()
                     .is_none()
             }) {
-                // Wikidot's captured imported size or a native page's latest
-                // source size is required; neither can be replaced with zero.
                 return Ok(ListPagesBlockRenderResult::PreserveOriginal(
                     "selected page source size unavailable",
                 ));
@@ -760,8 +752,6 @@ impl RenderService {
             && wikidot_snapshot_names.is_empty()
             && current_page_identity.is_some()
         {
-            // The excluded author did not resolve, and rendering without the
-            // exclusion would return exactly the pages the author excluded.
             return Ok(ListPagesBlockRenderResult::PreserveOriginal(
                 "excluded current-page author cannot be resolved",
             ));
@@ -820,8 +810,6 @@ impl RenderService {
                     .is_none()
             })
         {
-            // An imported row's local creating revision belongs to the importer,
-            // so its account slug cannot stand in for the Wikidot author's unix name.
             return Ok(ListPagesBlockRenderResult::PreserveOriginal(
                 "imported creating author's Unix name unavailable",
             ));
@@ -877,8 +865,6 @@ impl RenderService {
             pager_route,
             url,
             url_attr_prefix.as_deref(),
-            // The pager numbers pages from after the module's own offset,
-            // so it reads the URL-derived skip, not the raw offset.
             u32::try_from(url_page_skip).unwrap_or(u32::MAX),
             per_page,
             total_selected,
@@ -948,11 +934,6 @@ impl RenderService {
         let render_generated_html =
             template.output_shape() == ListPagesOutputShape::TableRows;
         let unknown_link_target_slugs = list_pages_unknown_link_target_slugs(body);
-        // Form wiki fields are inserted after the outer ListPages template has
-        // been expanded. Their links therefore are not visible to the normal
-        // page-level fallback-title scan; include the selected source values
-        // in the same narrowly scoped existence snapshot so missing targets
-        // retain Wikidot's `newpage` class.
         let numbered_link_titles = if body
             .lines()
             .any(|line| native_numbered_list_content(line).is_some())

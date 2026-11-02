@@ -103,8 +103,6 @@ fn corpus_replay_worker_preparation_uses_production_protection_order() {
 
 #[test]
 fn corpus_replay_worker_preprocesses_many_flat_collapsibles() {
-    // Flat collapsible galleries are no longer fallback pages (#2606): the
-    // replay worker runs them through the normal pipeline.
     let mut wikitext = String::new();
     for index in 0..65 {
         wikitext.push_str(&format!(
@@ -162,9 +160,6 @@ fn dense_style_resource_page_has_no_name_gate() {
         source.push_str("ordinary corpus prose line\n");
     }
 
-    // The score still measures density, but it no longer routes anything to
-    // the fallback by itself, and the style-resource name buys no special
-    // treatment (#2606).
     assert!(
         RenderService::wikidot_compat_parse_complexity_score(&source)
             > MAX_FTML_COMPAT_DENSE_PARSE_SCORE
@@ -831,9 +826,6 @@ fn wikidot_compatibility_fallback_preserves_tabview_bodies_in_hidden_panels() {
 
 #[test]
 fn many_flat_collapsibles_with_images_and_headings_stay_parse_eligible() {
-    // Gallery-shaped pages like scp-buns carry far more than 48 flat
-    // collapsibles with images and headings; they render through FTML, so
-    // the count gate must not route them to the literal fallback (#2606).
     let mut source = String::new();
     for index in 0..65 {
         source.push_str(&format!(
@@ -855,10 +847,6 @@ fn many_flat_collapsibles_with_images_and_headings_stay_parse_eligible() {
 
 #[test]
 fn large_tabbed_corpus_page_stays_parse_eligible() {
-    // The removed tabview shape gate (#337: 64 KB with 12 tabs) no longer
-    // routes anything to the fallback by itself (#2606). The July 2026 hang
-    // it was measured against does not reproduce on the pinned FTML, which
-    // renders that page in 0.13 s.
     let mut source = String::new();
     source.push_str("[[tabview]]\n");
     for index in 0..12 {
@@ -882,10 +870,6 @@ fn large_tabbed_corpus_page_stays_parse_eligible() {
 }
 
 fn large_tabbed_gallery_source() -> String {
-    // Gallery-shaped tabbed pages like zal-cryptid-s-artwork-hub carry a
-    // dozen tabs of collapsibles with images and headings. Titles and
-    // headings use no spaces so the rendered text is asserted verbatim
-    // (the renderer may encode spaces inside link labels).
     let mut source = String::new();
     source.push_str("[[tabview]]\n");
     for tab in 0..14 {
@@ -911,9 +895,6 @@ fn large_tabbed_gallery_source() -> String {
 
 #[test]
 fn large_tabbed_page_with_collapsible_images_and_headings_stays_parse_eligible() {
-    // The tabview shape must not route gallery-shaped pages to the
-    // fallback, whose line-oriented parser drops same-line collapsible
-    // bodies and shreds tab bodies (#2606).
     let source = large_tabbed_gallery_source();
 
     assert!(source.len() < MAX_FTML_COMPAT_PARSE_BYTES);
@@ -950,11 +931,6 @@ fn large_tabbed_page_with_collapsible_images_and_headings_stays_parse_eligible()
 
 #[test]
 fn large_tabbed_gallery_renders_every_collapsible_body_and_image() {
-    // Routing eligibility alone does not prove the bodies survive: render
-    // the gallery fixture through FTML (the path parse-eligible pages
-    // take) and require every collapsible body and image in the output
-    // (#2606). zal-cryptid-s-artwork-hub lost all 14 tab bodies and all
-    // but 2 of its 415 images to the fallback; FTML must keep all of them.
     const TABS: usize = 14;
     const COLLAPSIBLES_PER_TAB: usize = 30;
     const BODIES: usize = TABS * COLLAPSIBLES_PER_TAB;
@@ -1435,8 +1411,6 @@ fn html_block_with_intact_interwiki_frame_rewrites_to_local_frame() {
         r#"<iframe src="//interwiki.scp-jp.org/interwikiFrame.html?lang=jp&community=scp&pagename=%%name%%" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#,
     );
 
-    // The frame reports the page being rendered, not the component's
-    // placeholder, mirroring how the [[embed]] path binds it.
     assert!(rewritten.contains(
         r#"<iframe src="/-/wikidot-interwiki/interwikiFrame.html?lang=jp&community=scp&pagename=replay" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#
     ));
@@ -1512,8 +1486,6 @@ fn html_block_rewrite_keys_hosted_blocks_to_the_owner_page() {
     // The interwiki frame binds to the viewed page even when the assembly
     // is owned by another page, and a missing pagename is appended.
     assert!(rewritten.contains("pagename=main"));
-    // The hosted block keys to the owner page and keeps its ordinal: the
-    // interwiki frame still occupies the first block slot.
     assert!(rewritten.contains(r#"src="/nav:side/html/2""#));
     assert!(!rewritten.contains("/main/html/"));
 }
@@ -1574,8 +1546,6 @@ fn wikidot_compatibility_fallback_keys_nav_html_blocks_to_the_nav_page() {
         },
     );
 
-    // Every [[html]] block counts, interwiki frames included, so the
-    // hosted block keeps the index the FTML render gives it.
     assert_eq!(output.html_block_texts.len(), 3);
     assert!(output.body.contains(
         r#"src="/-/wikidot-interwiki/interwikiFrame.html?lang=jp&community=scp&pagename=main""#
@@ -1644,8 +1614,6 @@ fn direct_html_iframe_with_data_src_falls_back_to_hosted_frame() {
         r#"<iframe src="data:text/html,<script>alert(1)</script>"></iframe>"#,
     );
 
-    // The data URL contains angle brackets, so the direct-iframe shape
-    // rejects it before the scheme gate; either way it must stay hosted.
     assert!(rewritten.contains(r#"<iframe src="/replay/html/1""#));
     assert!(!rewritten.contains("data:text/html"));
 }
@@ -1705,7 +1673,6 @@ fn direct_html_iframe_with_uppercase_scheme_falls_back_to_hosted_frame() {
         r#"<iframe src="HTTPS://example.com/a"></iframe>"#,
     );
 
-    // Matches the legacy [[iframe]] gate, which is case-sensitive.
     assert!(rewritten.contains(r#"<iframe src="/replay/html/1""#));
 }
 
@@ -1740,8 +1707,6 @@ fn direct_html_iframe_with_http_src_passes_through_verbatim() {
 
 #[test]
 fn direct_html_iframe_with_embedded_allowlisted_scheme_falls_back_to_hosted_frame() {
-    // Anchoring pin: the gate is starts_with, not contains. A dangerous
-    // scheme with an allowlisted URL embedded later must still fall back.
     let rewritten = rewrite_single_html_block_body(
         r#"<iframe src="javascript:http://example.com/x"></iframe>"#,
     );
@@ -1763,8 +1728,6 @@ fn direct_html_iframe_with_padded_dangerous_src_falls_back_to_hosted_frame() {
 
 #[test]
 fn direct_html_iframe_with_padded_legitimate_src_falls_back_to_hosted_frame() {
-    // Documents the deliberate stricter-than-legacy behavior: even a padded
-    // https URL falls back instead of passing through.
     let rewritten = rewrite_single_html_block_body(
         r#"<iframe src=" https://example.com/a"></iframe>"#,
     );
@@ -1774,7 +1737,6 @@ fn direct_html_iframe_with_padded_legitimate_src_falls_back_to_hosted_frame() {
 
 #[test]
 fn direct_html_iframe_with_entity_encoded_scheme_falls_back_to_hosted_frame() {
-    // The raw & fails starts_with, so no decoding can smuggle a scheme past.
     let rewritten = rewrite_single_html_block_body(
         r#"<iframe src="&#106;avascript:alert(1)"></iframe>"#,
     );
@@ -1805,8 +1767,6 @@ fn direct_html_iframe_with_scheme_free_src_forms_falls_back_to_hosted_frame() {
 
 #[test]
 fn wikidot_line_block_scans_treat_one_line_blocks_as_complete() {
-    // Multi-line html block: a position in the body is inside, a position
-    // after the closer line is not.
     let source = "[[html]]\n<p>x</p>\n[[/html]]\nafter\n";
     assert!(RenderService::is_inside_wikidot_html_block(
         source,
@@ -1817,9 +1777,6 @@ fn wikidot_line_block_scans_treat_one_line_blocks_as_complete() {
         source.find("after").unwrap()
     ));
 
-    // One-line html block (the fragment:scp-7869-iteration-one shape): a
-    // position between the opener and the closer is inside, everything
-    // after the line is outside.
     let source = "[[html]]<hr>[[/html]]\nafter\n";
     assert!(RenderService::is_inside_wikidot_html_block(
         source,
@@ -1830,15 +1787,12 @@ fn wikidot_line_block_scans_treat_one_line_blocks_as_complete() {
         source.find("after").unwrap()
     ));
 
-    // An unclosed html block still covers the rest of the document.
     let source = "[[html]]\n<p>x</p>\nafter\n";
     assert!(RenderService::is_inside_wikidot_html_block(
         source,
         source.find("after").unwrap()
     ));
 
-    // One-line code block (the djkaktus-s-proposal shape, repeated four
-    // times ahead of the component carrying its interwiki frames).
     let source = "[[code]][MEMETIC KILL AGENT NEUTRALIZED][[/code]]\nafter\n";
     assert!(RenderService::is_inside_wikidot_code_block(
         source,
@@ -1849,8 +1803,6 @@ fn wikidot_line_block_scans_treat_one_line_blocks_as_complete() {
         source.find("after").unwrap()
     ));
 
-    // A one-line code block with attributes closes on its line too, and
-    // the multi-line baseline is unchanged.
     let source = "[[code type=\"css\"]].x { color: red; }[[/code]]\nafter\n";
     assert!(!RenderService::is_inside_wikidot_code_block(
         source,
@@ -1869,9 +1821,6 @@ fn wikidot_line_block_scans_treat_one_line_blocks_as_complete() {
 
 #[test]
 fn embed_after_one_line_html_block_is_claimed() {
-    // fragment:scp-7869-iteration-one authors `[[html]]<hr>[[/html]]` ahead
-    // of its theme includes; the embeds the themes carry must still be
-    // claimed exactly as if the block were written on its own.
     let mut wikitext = concat!(
         "[[html]]<hr>[[/html]]\n",
         "[[embed]]\n",
@@ -1945,9 +1894,6 @@ fn render_embed_claims_after_preparation(
     (claims, prepared, html)
 }
 
-/// The interwiki-style component body as include expansion produces it:
-/// callsite variables substituted, the unbound `{$css}` left in place, and
-/// the documentation comment intact ahead of the block.
 fn interwiki_style_component(priority: &str, theme: &str) -> String {
     let mut source = String::new();
     source.push_str(
@@ -1964,8 +1910,6 @@ fn interwiki_style_component(priority: &str, theme: &str) -> String {
 fn include_carried_styleframe_embeds_are_claimed_and_rendered() {
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
 
-    // Two carriage levels, assembled the way production expansion inlines
-    // them: page -> theme -> component (twice, at priorities 1 and 2).
     let theme_source = concat!(
         "[[module CSS]]\n",
         ".theme { display: block; }\n",
@@ -1997,8 +1941,6 @@ fn include_carried_styleframe_embeds_are_claimed_and_rendered() {
     )
     .expect("theme includes should expand");
 
-    // The root page authors the one-line html block ahead of the include,
-    // as fragment:scp-7869-iteration-one does ahead of its theme includes.
     let root_source = concat!(
         "[[html]]<hr>[[/html]]\n",
         "[[include :scp-wiki:theme:black-highlighter-theme]]\n",
@@ -2044,9 +1986,6 @@ fn include_carried_styleframe_embeds_are_claimed_and_rendered() {
 
 #[test]
 fn include_carried_unsupported_embed_payloads_fail_closed() {
-    // A payload that arrives through an include gets no weaker treatment
-    // than one authored on the page itself: each of these is replaced by
-    // the same no-match error an own-surface block produces.
     for payload in [
         r#"<iframe src="//evil.example/widget" style="display: none"></iframe>"#,
         r#"<iframe src="//interwiki.example.com/styleFrame.html?priority=1" style="display: none"></iframe>"#,

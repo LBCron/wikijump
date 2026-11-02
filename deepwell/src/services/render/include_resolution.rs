@@ -1,5 +1,3 @@
-//! Live-compatible output for missing Wikidot include targets.
-
 use super::compat::text_fragments::CompatTextFragments;
 use super::include_attachment_owners::wikidot_include_directive_ranges;
 use super::literal_regions::LiteralRegionIndex;
@@ -186,15 +184,6 @@ fn is_optional_no_visible_wikidot_include(page_ref: &PageRef) -> bool {
         || (site.eq_ignore_ascii_case("crom") && page.eq_ignore_ascii_case("pixel"))
 }
 
-/// Wikidot page-name normalization strips trailing colons, so an include
-/// target such as `:scp-wiki:theme:basalt:` resolves to `theme:basalt`.
-/// FTML's normalizer instead keeps the last colon as the category separator,
-/// which lets a trailing colon steal that slot and dashes the real category
-/// separator (`component:license-box:` would look up `component-license-box`).
-/// Strip trailing colons from the page portion of the raw target before the
-/// include scan, so lookup, cross-site resolution, and the missing-include
-/// message all see the normalized name. Targets that would lose their whole
-/// page portion (`:site:`, `::page`) are left to the malformed-target pass.
 pub(super) fn normalize_trailing_colon_include_targets(wikitext: &mut String) {
     let literal_regions = LiteralRegionIndex::new_wikidot_syntax(wikitext);
     let directive_starts = wikidot_include_directive_ranges(wikitext)
@@ -229,7 +218,6 @@ fn strip_trailing_colon_include_target(target: &str) -> Option<String> {
         return None;
     }
     let page = match target.strip_prefix(':') {
-        // Cross-site targets keep their site prefix; `::page` stays malformed.
         Some(qualified) if !qualified.starts_with(':') => {
             match qualified.split_once(':') {
                 Some((_site, page)) => page,
@@ -262,7 +250,6 @@ pub(super) fn expand_malformed_include_targets(wikitext: &mut String) {
     let mut replacements = EMPTY_INCLUDE_TARGET_REGEX
         .find_iter(wikitext)
         .filter(|matched| {
-            // Live preserves exactly one ASCII space, while two or more spaces and tabs resolve as a missing empty target.
             !matched.as_str().eq_ignore_ascii_case("[[include ]]")
                 && !literal_regions.contains(matched.start())
         })
@@ -303,8 +290,6 @@ mod tests {
             "[[include :destinox:metodologia:]]\n",
         )
         .to_owned();
-        // Drive the pipeline entry point so the test pins the wiring, not
-        // just the helper.
         expand_malformed_include_targets(&mut source);
         assert!(source.contains("[[include :scp-wiki:component:license-box]]"));
         assert!(source.contains("[[include component:license-box-end]]"));
@@ -334,8 +319,6 @@ mod tests {
             Some("theme:basalt"),
         );
 
-        // A genuinely missing trailing-colon target reports the normalized name,
-        // matching the observed Wikidot message for :destinox:metodologia:.
         let mut missing_source = "[[include :destinox:metodologia:]]".to_owned();
         normalize_trailing_colon_include_targets(&mut missing_source);
         let mut display_pages = collect_include_display_pages(&missing_source);
@@ -419,9 +402,6 @@ mod tests {
 
     #[test]
     fn dotted_include_site_segments_key_on_the_canonical_site() {
-        // `<slug>.wikidot.com` names the same site as `<slug>` (Wikidot looks
-        // the segment up as a site or a host), so display-page keys must match
-        // the PageRef FTML's include parser emits for the dotted spelling.
         for target in [
             ":scp-wiki.wikidot.com:component:license-box",
             ":SCP-WIKI.WIKIDOT.COM:component:license-box",
@@ -450,8 +430,6 @@ mod tests {
 
     #[test]
     fn dashed_host_form_include_sites_stay_distinct_from_the_canonical_site() {
-        // `:scp-jp-wikidot-com:` is a different, nonexistent site on Wikidot
-        // (capture pv2-dashed-host-form): it must not key on `scp-jp`.
         let pages = collect_include_display_pages(
             "[[include :scp-jp-wikidot-com:component:jstyles]]",
         );
@@ -466,8 +444,6 @@ mod tests {
 
     #[test]
     fn site_only_include_targets_canonicalize_host_form_sites() {
-        // Wikidot echoes the canonical site for a dotted miss
-        // (capture pv2-dotted-missing).
         let mut source = "[[include :scp-jp.wikidot.com:]]".to_owned();
         expand_malformed_include_targets(&mut source);
         assert!(

@@ -1,5 +1,3 @@
-//! Runtime expansion for www.wikidot.com system modules.
-
 use super::{
     BTreeMap, CompatHtmlFragments, ConnectionTrait, Error, ErrorType, FromQueryResult,
     LazyLock, LiteralRegionIndex, PageInfo, Reference, Regex, RenderService, Result,
@@ -188,10 +186,6 @@ impl RenderService {
         let make_error =
             || Error::new("failed to render SitesTagCloud", ErrorType::Render);
         let txn = ctx.transaction();
-        // Imported/platform directory tags have no dedicated storage table in
-        // Wikijump. The all-pages metadata key below is the explicit local
-        // representation for that site-level read model; absence means an
-        // empty local directory, not a replay of Wikidot's captured cloud.
         let rows = WwwSiteDirectoryTagRow::find_by_statement(
             Statement::from_string(
                 txn.get_database_backend(),

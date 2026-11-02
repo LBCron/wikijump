@@ -766,8 +766,6 @@ fn image_block_prepass_unquotes_composite_names_for_the_authoring_page() {
 
 #[test]
 fn expands_image_block_caption_with_external_link_without_stealing_its_bracket() {
-    // Reduced from EN:ralliston-s-authorpage. The final external-link `]`
-    // adjacent to the include `]]` must not be treated as the include end.
     let mut wikitext = concat!(
         "[[include component:image-block ",
         "name=linked.jpg|caption=[https://example.com/path Linked label] by ",
@@ -903,8 +901,6 @@ fn expands_dotted_site_image_block_includes_like_the_canonical_spelling() {
 
 #[test]
 fn dotted_image_block_include_refs_canonicalize_while_dashed_spellings_stay_distinct() {
-    // Fragment shape: `:<B-slug>.wikidot.com:page` keys on site B, so the
-    // snapshot fallback uses the same canonical key as the bare spelling.
     assert_eq!(
         RenderService::wikidot_image_block_page_ref(
             Some("scp-sandbox-3.wikidot.com"),
@@ -1424,8 +1420,6 @@ fn nested_imported_source_includes_carry_the_source_site() {
 
     let nested = context.for_nested_source(&source);
 
-    // The lookup site stays the callsite site; the imported origin travels
-    // separately so nested unprefixed includes can consult its snapshots.
     assert_eq!(nested.current_site_id, 11);
     assert_eq!(nested.current_site_slug, "scp-wiki");
     assert_eq!(
@@ -1656,10 +1650,6 @@ fn nested_include_preparation_preserves_callsite_dynamic_iftags_outcomes() {
 
 #[test]
 fn nested_include_preparation_prunes_comment_branches_before_iftags() {
-    // Reduced from EN:component:blacklight-box-source. The inactive
-    // branches must be removed while each include invocation is still an
-    // independent source; otherwise repeated fragments can leave their
-    // outer gates to cross-pair after textual assembly.
     let source = concat!(
         "[[iftags -component-backend]]\n",
         "[!-- {$inc-source}\n",
@@ -1845,11 +1835,6 @@ fn nested_include_preparation_skips_repeated_unbound_dynamic_iftags_resolution()
     assert_eq!(source, expected);
 }
 
-/// A plain comment branch (`[!-- -{$flag}` … `[!-- --]`) before an iftags
-/// gate must not cost the gate its closer: the boundary line carries the
-/// comment's `--]`, and dropping it makes the literal-region scan treat the
-/// gate opener as comment text, leaking `[[/iftags]]` into including pages
-/// (component:pride-logos-base shape behind #2353's deer-college leak).
 #[test]
 fn comment_branch_closer_does_not_swallow_a_following_iftags_gate() {
     let source = concat!(
@@ -1882,12 +1867,6 @@ fn comment_branch_closer_does_not_swallow_a_following_iftags_gate() {
 
 #[test]
 fn wikidot_image_block_include_with_unterminated_quote_cannot_swallow_enclosing_block() {
-    // Regression (art-exchange-hub): an image-block include whose `link="`
-    // quote is never closed on its own line must not pair with a quote in
-    // later content. The directive-end scan used to run on to that later
-    // quote, and the pre-expansion replaced everything in between --
-    // including the enclosing collapsible's end marker -- with the
-    // generated image block, so the collapsible degraded to literal text.
     let mut wikitext = concat!(
         "[[collapsible show=\"Open\" hide=\"Close\"]]\n",
         "[[include component:image-block name=https://scp-wiki.wikidot.com/local--files/hub-page/pic.webp|align=center|link=\"https://scp-wiki.wikidot.com/local--files/hub-page/pic.webp|width=100%|caption=A sketch by [[*user Artist]] ]]\n",
@@ -1899,9 +1878,6 @@ fn wikidot_image_block_include_with_unterminated_quote_cannot_swallow_enclosing_
     let page_info = fallback_test_page_info("hub-page", "Hub Page");
     RenderService::expand_wikidot_image_block_includes(&mut wikitext, &page_info, None);
 
-    // The malformed directive is left for ftml's include expansion, and
-    // nothing outside it is consumed: the enclosing block keeps its end
-    // marker and the following content is untouched.
     assert!(
         wikitext
             .contains("[[include component:image-block name=https://scp-wiki.wikidot.com/local--files/hub-page/pic.webp"),

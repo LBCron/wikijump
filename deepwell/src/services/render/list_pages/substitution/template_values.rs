@@ -88,14 +88,6 @@ pub(super) fn list_pages_variable_starts_triple_link_target(
         .is_some_and(|opening| template[opening + 3..start].trim().is_empty())
 }
 
-/// Whether a variable occurrence falls inside a double-quoted attribute value
-/// of an unterminated wiki construct (see #2787).
-///
-/// FTML only recognizes `"` as an attribute delimiter, and it parses the
-/// construct head after substitution, so a raw quote in a substituted value
-/// terminates the attribute early. Looking back to the last unclosed `[[`
-/// keeps the check independent of line shape, matching the quoted
-/// continuation forms the ListPages scanner already accepts.
 pub(super) fn list_pages_variable_inside_quoted_attribute(
     template: &str,
     start: usize,

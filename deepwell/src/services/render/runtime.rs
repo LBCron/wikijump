@@ -172,13 +172,6 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
                 .await
             }
             _ => {
-                // Inside an imported cross-site include source, Wikidot
-                // resolves an unprefixed include against the source wiki.
-                // The holding site carries that wiki's pages only as
-                // foreign snapshots, which the ordinary page surface
-                // excludes by design (#2690), so consult the snapshot
-                // store scoped to the source site first and fall back to
-                // the ordinary surface when it holds no such snapshot.
                 if page_ref.site().is_none()
                     && let Some(source_site) = imported_source_site
                     && let Some(source) = self
@@ -273,9 +266,6 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
             cache.imported_cross_site_sources.insert(cache_key, None);
             return Ok(None);
         };
-        // The snapshot match above is the authorization for this read:
-        // the page is an include source, not an ordinary page of this
-        // site, so the foreign-snapshot exclusion must not apply (#2690).
         let Some(page) = PageService::get_optional_including_foreign_snapshots(
             self.ctx,
             current_site_id,
@@ -317,8 +307,6 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
             return Ok(None);
         };
 
-        // The holding page's slug is storage only; the source fullname is
-        // the Wikidot identity that owns the source's relative attachments.
         cache
             .imported_cross_site_sources
             .insert(cache_key, Some(wikitext.clone()));
@@ -388,11 +376,6 @@ pub(super) struct IncludeSource {
     pub(super) site_slug: String,
     pub(super) page_slug: String,
     pub(super) wikitext: String,
-    /// Wikidot origin this source was imported from, when it was resolved
-    /// out of the holding site's foreign-snapshot store. Unprefixed
-    /// includes nested inside such a source resolve against that origin,
-    /// as they would on the source wiki. `None` for sources read from an
-    /// ordinary page surface.
     pub(super) source_site: Option<String>,
 }
 
@@ -428,7 +411,6 @@ impl IncludeSourceCache {
         F: FnOnce() -> Fut,
         Fut: Future<Output = Result<Option<String>>>,
     {
-        // PageRef already normalizes the slug and separates #section or /path. PageService also treats an explicit `_default:` category as canonical.
         let page_slug = trim_default(page_slug);
         if let Some(entry) = self.get(site_id, page_slug) {
             return Ok(match entry {
@@ -438,7 +420,6 @@ impl IncludeSourceCache {
         }
 
         let wikitext = load().await?;
-        // Errors return above and are deliberately never cached. None is safe to retain within this render because missing, denied, and revision-less sources all have the same fail-closed include result.
         let entry = match &wikitext {
             Some(wikitext) => IncludeSourceCacheEntry::Available(wikitext.clone()),
             None => IncludeSourceCacheEntry::Unavailable,

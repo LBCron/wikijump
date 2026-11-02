@@ -564,7 +564,6 @@ fn protects_wikidot_color_spans_before_ftml_parsing() {
     assert!(source.ends_with('\n'));
     assert!(!source.contains("<span"));
     assert!(!source.contains("##blue"));
-    // Only the span tags are protected; FTML still parses the body.
     assert!(source.contains("**[[include :scp-wiki:component:coltop**"));
     assert_eq!(
         spans[0].html,
@@ -1093,15 +1092,11 @@ fn leaves_other_wikidot_urls_that_only_resemble_the_page_code_route() {
     config.files_domain = ".wjfiles.localhost".to_owned();
     config.files_domain_no_dot = "wjfiles.localhost".to_owned();
     for html in [
-        // not the code route: no block index, an extra segment, a non-numeric index
         r#"<style>@import url(https://scp-wiki.wikidot.com/theme:al-slop/code);</style>"#,
         r#"<style>@import url(https://scp-wiki.wikidot.com/theme:al-slop/code/1/extra);</style>"#,
         r#"<style>@import url(https://scp-wiki.wikidot.com/theme:al-slop/code/x);</style>"#,
-        // a plain page link in an attribute keeps its Wikidot target
         r#"<a href="https://scp-wiki.wikidot.com/theme:al-slop/code/1">code</a>"#,
-        // not a Wikidot host
         r#"<style>@import url(https://example.test/theme:al-slop/code/1);</style>"#,
-        // a Wikidot site this mirror does not host
         r#"<style>@import url(https://another-site.wikidot.com/theme:x/code/1);</style>"#,
     ] {
         assert_eq!(
@@ -1277,8 +1272,6 @@ fn final_render_localizes_restored_wdfiles_urls_in_body_and_generated_styles() {
         r#".external{background:url(https://assets.example.test/local--files/file.png)}"#.to_owned(),
     ];
 
-    // The final-output pass runs after compatibility placeholders and
-    // generated module output have been restored by the renderer.
     RenderService::localize_wikidot_render_output_file_urls(
         &mut body,
         &mut styles,
@@ -1304,9 +1297,6 @@ fn final_render_localizes_restored_wdfiles_urls_in_body_and_generated_styles() {
 
 #[test]
 fn keeps_wikidot_www_site_attachments_on_their_own_host_in_final_output() {
-    // The final-output pass re-reads URLs the first pass already emitted. The
-    // www site's attachments must survive that second pass unchanged, while
-    // same-site and foreign corpus attachments on a mirror are still localized.
     let site = wikidot_site("scp-wiki", Some("scp-wiki.wikidot.com"));
     let mut config = Config::integration_testing();
     config.files_domain = ".wjfiles.localhost".to_owned();
@@ -1348,10 +1338,6 @@ fn keeps_wikidot_www_site_attachments_on_their_own_host_in_final_output() {
 
 #[test]
 fn localizes_query_param_asset_urls_in_final_output() {
-    // Asset URLs embedded as query parameter values (e.g. the styleFrame
-    // `theme=` template parameter) have no quote or `url(` prefix, so the
-    // plain attribute and stylesheet passes miss them. They resolve through
-    // the same local-file mapping; query tails and encoding are preserved.
     let site = wikidot_site("scp-wiki", Some("scp-wiki.wikidot.com"));
     let mut config = Config::integration_testing();
     config.files_domain = ".wjfiles.localhost".to_owned();
@@ -1418,10 +1404,6 @@ fn localizes_entity_quoted_urls_in_style_attributes() {
 
 #[test]
 fn keeps_displayed_code_asset_references_literal() {
-    // Syntax-highlighted code samples escape their quotes to `&#39;`, which
-    // looks like the style-attribute shape above, but they are source text,
-    // not fetched assets: no literal `style="` opener survives highlighting,
-    // so the attribute-scoped pass leaves them alone.
     let site = wikidot_site("scp-wiki", Some("scp-wiki.wikidot.com"));
     let mut config = Config::integration_testing();
     config.files_domain = ".wjfiles.localhost".to_owned();
@@ -1647,8 +1629,6 @@ fn render_wikidot_inline_markup_after_protection(wikitext: &str) -> String {
     );
     let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
     let tokens = ftml::tokenize(&inner.wikitext);
-    // Malformed nested syntax reports FTML errors and renders as text, as in
-    // production.
     let (tree, _errors) = ftml::parse(&tokens, &page_info, &settings).into();
     let html = HtmlRender.render(&tree, &page_info, &settings).body;
     inner.protection.restore(|protection| {
@@ -1711,11 +1691,6 @@ fn localizes_scp_wiki_theme_code_url_to_the_scp_wiki_mirror_for_a_local_custom_d
     config.files_domain = ".wjfiles.localhost".to_owned();
     config.files_domain_no_dot = "wjfiles.localhost".to_owned();
     let html = r#"<style>@import url('https://scp-wiki.wdfiles.com/local--code/theme%3Ajust-girly-things/1');</style>"#;
-    // The site's preferred domain is its local custom domain, not a
-    // wikidot.com host, so the site is not a "translated SCP branch" for
-    // asset purposes: the scp-wiki theme URL must stay on the scp-wiki
-    // mirror's file host (where the page actually exists), not be
-    // rewritten onto scp-jp.
     assert_eq!(
         RenderService::localize_wikidot_local_file_urls(html, Some(&site), &config),
         r#"<style>@import url('https://scp-wiki.wjfiles.localhost/local--code/theme%3Ajust-girly-things/1');</style>"#,

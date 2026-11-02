@@ -1,10 +1,3 @@
-//! Wikidot `iftags` selection against runtime page tags.
-//!
-//! Real Wikidot evaluates root-level gates once. If an active gate contains
-//! another `iftags` pair, the nested pair remains literal instead of becoming
-//! another condition. Render preparation has several passes, so nested tokens
-//! are registered temporarily to keep later passes from evaluating them.
-
 use super::compat::text_fragments::CompatTextFragments;
 use super::literal_regions::LiteralRegionIndex;
 use regex::Regex;
@@ -61,9 +54,6 @@ pub(super) fn resolve_outermost_wikidot_iftags_before_include_expansion(
     tags: &[Cow<'_, str>],
     preserved: &mut CompatTextFragments,
 ) {
-    // An included target can open a gate that a later caller token closes (and
-    // vice versa). Resolve only self-contained roots here; the caller-level
-    // pass finalizes recovery or literal protection after textual expansion.
     resolve_outermost_wikidot_iftags_with_mode(
         wikitext,
         tags,
@@ -77,10 +67,6 @@ pub(super) fn resolve_outermost_wikidot_iftags_before_include_expansion_for_page
     wikitext: &mut String,
     preserved: &mut CompatTextFragments,
 ) {
-    // Anonymous PagePreviewModule has no page conditional context: both
-    // positive and negative `iftags` branches are omitted. Keep this mode
-    // limited to the include prepass; ListPages row templates resolve their
-    // own conditions later against the selected row.
     resolve_outermost_wikidot_iftags_with_mode(
         wikitext,
         &[],
@@ -102,11 +88,6 @@ fn resolve_outermost_wikidot_iftags_with_mode(
     let mut replacements = Vec::<Replacement>::new();
     let mut inactive_literal_scopes =
         HashMap::<(usize, usize), InactiveLiteralScope>::new();
-    // Whether a gate opener the scan skips (and so leaves raw) precedes the
-    // current token. A closer following such an opener may still complete a
-    // pair the pinned FTML resolves natively, so it stays raw; a closer with
-    // no visible opener anywhere before it can never pair, and escaping it
-    // keeps truly malformed closers literal without FTML parse errors.
     let mut seen_skipped_opener = false;
 
     for captures in IFTAGS_TOKEN_REGEX.captures_iter(wikitext) {
@@ -157,13 +138,6 @@ fn resolve_outermost_wikidot_iftags_with_mode(
         }
 
         let Some(outer) = stack.pop() else {
-            // An unmatched closer stays raw when a skipped opener precedes
-            // it: the pair may still resolve natively in the pinned FTML,
-            // and escaping the closer would freeze it as authored text and
-            // blind that recovery. With no visible opener anywhere before
-            // it the closer can never pair, so Preserve keeps escaping it;
-            // that keeps truly malformed closers literal without FTML parse
-            // errors, exactly as the malformed-iftags evidence requires.
             if unmatched_mode == UnmatchedBoundaryMode::Preserve && !seen_skipped_opener {
                 replacements.push(Replacement {
                     range: token.start()..token.end(),
@@ -319,24 +293,8 @@ fn preserve_nested_tokens(
     output
 }
 
-/// Marker appended to an `[[iftags]]` spec whose head is produced by a
-/// Wikidot parser function (for example `[[#ifexpr ...]]`), recorded by
-/// [`mark_wikidot_generated_iftags_specs`] before render preparation
-/// evaluates the function. A spec a function evaluates to nothing is the
-/// OFF state of the frozen theme-source idiom, unlike an authored bare
-/// gate, whose empty spec follows the page's tags. The marker never names
-/// a real tag (Wikidot tags carry no `:`), so a gate that reaches FTML
-/// with the marker still present fails closed instead of leaking its body.
 pub(super) const WIKIDOT_GENERATED_SPEC_MARKER: &str = "+wikijump:generated-spec";
 
-/// Append the generated-spec marker to every `[[iftags]]` head whose spec
-/// is produced by a Wikidot parser function, before preparation evaluates
-/// the function and erases the distinction from an authored bare gate.
-///
-/// The scan is deliberately conservative: it follows only heads that close
-/// without a newline at the head's own nesting level, and skips heads
-/// inside literal regions. A head it cannot follow keeps the authored
-/// treatment.
 pub(super) fn mark_wikidot_generated_iftags_specs(wikitext: &mut String) {
     if !wikitext.contains("[[#")
         || !wikitext
@@ -378,10 +336,6 @@ pub(super) fn mark_wikidot_generated_iftags_specs(wikitext: &mut String) {
     }
 }
 
-/// Length of the `[[iftags ...]]` head starting at `source`, following
-/// nested `[[...]]` constructs (a parser function in the spec carries its
-/// own brackets). Returns `None` for a head that does not close on its own
-/// nesting level without crossing a newline.
 fn wikidot_iftags_head_len(source: &str) -> Option<usize> {
     let bytes = source.as_bytes();
     let mut depth = 0usize;
@@ -411,10 +365,6 @@ fn wikidot_iftags_head_len(source: &str) -> Option<usize> {
     None
 }
 
-/// Remove the generated-spec marker from heads that stay in the text after
-/// the final resolution pass (nested pairs preserved as literal text and
-/// unrecoverable heads), so the visible head carries the plain evaluated
-/// spec. The marker is always the final spec token.
 fn strip_wikidot_generated_spec_markers(wikitext: &mut String) {
     if !wikitext.contains(WIKIDOT_GENERATED_SPEC_MARKER) {
         return;
@@ -437,12 +387,6 @@ fn strip_wikidot_generated_spec_markers(wikitext: &mut String) {
 }
 
 pub(super) fn wikidot_tag_conditions_match(spec: &str, tags: &[Cow<'_, str>]) -> bool {
-    // An authored bare gate carries no conditions to check against the
-    // page: on Wikidot's saved-page route it passes exactly when the page
-    // carries at least one tag, and fails on a tag-less page (the context
-    // of the frozen PagePreview observations). A spec a parser function
-    // evaluated to nothing never reaches this branch: preparation marks
-    // such heads, and the marker-only case below keeps them off.
     if spec.trim().is_empty() {
         return !tags.is_empty();
     }
@@ -479,9 +423,6 @@ pub(super) fn wikidot_tag_conditions_match(spec: &str, tags: &[Cow<'_, str>]) ->
     }
 
     if saw_generated_marker && !had_condition {
-        // The spec held only the generated-spec marker: a parser function
-        // produced the spec and evaluated to nothing, which is the OFF
-        // state regardless of the page's tags.
         return false;
     }
 
@@ -530,13 +471,10 @@ mod tests {
     #[test]
     fn generated_spec_marker_only_matches_when_real_conditions_pass() {
         let tags = [Cow::Borrowed("alpha")];
-        // A spec a parser function evaluated to nothing stays off even on
-        // a tagged page.
         assert!(!wikidot_tag_conditions_match(
             WIKIDOT_GENERATED_SPEC_MARKER,
             &tags
         ));
-        // With real conditions present the marker is inert.
         assert!(wikidot_tag_conditions_match(
             &format!("- {WIKIDOT_GENERATED_SPEC_MARKER}"),
             &tags
@@ -575,12 +513,6 @@ mod tests {
 
     #[test]
     fn marking_heads_with_multibyte_first_tag_does_not_panic() {
-        // Regression for the Standing promotion render-ahead panic: the
-        // head-length scan walked the spec byte by byte and sliced the
-        // source at every offset, which panics inside a multibyte first
-        // tag. These are the four spec shapes carried by real pages
-        // (component:raisa-ribbon, component:the-buck-stops-here-base-1,
-        // component:note-source, theme:brokedown-database).
         for spec in [
             "+\u{d15c}\u{d50c}\u{b9bf}",
             "+\u{ad6c}\u{c131}\u{c694}\u{c18c}",
@@ -1151,9 +1083,6 @@ mod tests {
     #[test]
     fn pinned_url_adjacent_raw_delimiter_keeps_iftags_literal() {
         let source = "[[iftags +component]]https://e.test/a@@b[[/iftags]]@@tail";
-        // FTML exposes the URL-adjacent `@@` as an inline-raw opener. The
-        // conditional closer is consequently inside that literal region and
-        // the whole malformed gate is preserved for the later parser pass.
         assert_eq!(resolve(source, &[], 1), source);
         assert_eq!(resolve(source, &["component"], 1), source);
     }

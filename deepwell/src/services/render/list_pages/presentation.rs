@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Shared ListPages variable and presentation helpers.
-
 use super::super::compat::CompatHtmlFragments;
 use super::super::compat::preparation::neutralize_authored_markers;
 #[cfg(test)]
@@ -338,21 +336,11 @@ pub(in crate::services::render) fn format_list_pages_created_at(
     let Some(created_at) = created_at else {
         return String::new();
     };
-    // Saved pages and previews both carry the Wikidot server text in UTC.
-    // Viewer-local rendering (including the comma format and any JST wall
-    // clock) is the browser ODate phase's job: it reads the transported
-    // timestamp and `format_*` class. Pinning JST server-side would show
-    // every non-JST viewer the wrong day and time (issue #2638). The
-    // `page_preview` argument is retained for call-site stability and
-    // selects no behavior.
     let _ = page_preview;
     let created_at = created_at.to_offset(time::UtcOffset::UTC);
     const SERVER_FORMAT: &str = "%d %b %Y %H:%M";
     const DEFAULT_ODATE_FORMAT: &str = "%e %b %Y, %H:%M|agohover";
     let format = format.unwrap_or(DEFAULT_ODATE_FORMAT);
-    // Wikidot's Ajax response always carries the default server-rendered text.
-    // A requested display format belongs to the later ODate client phase and
-    // is transported only through the `format_*` class.
     let text = format_wikidot_list_pages_date(created_at, SERVER_FORMAT);
     let mut normalized_format = String::with_capacity(format.len());
     let mut previous_was_space = false;
@@ -474,7 +462,6 @@ mod tests {
 
     #[test]
     fn percent_encoding_keeps_only_unreserved_and_selected_reserved_bytes() {
-        // Path segments keep only unreserved bytes.
         assert_eq!(
             percent_encode_list_pages_path_segment("a-b.c_d~e"),
             "a-b.c_d~e"
@@ -482,7 +469,6 @@ mod tests {
         assert_eq!(percent_encode_list_pages_path_segment("a b/c"), "a%20b%2Fc");
         assert_eq!(percent_encode_list_pages_path_segment("é"), "%C3%A9");
 
-        // Href prefixes keep the reserved bytes Wikidot preserves.
         assert_eq!(
             percent_encode_list_pages_href_prefix("/landing/tag/?a=b&c,d@e%f+g;h"),
             "/landing/tag/?a=b&c,d@e%f+g;h"
@@ -608,7 +594,6 @@ mod tests {
             },
         );
 
-        // A snapshot with a non-empty name wins and uses its own slug.
         let mut snapshots = BTreeMap::new();
         snapshots.insert(1, snapshot(Some("Alice"), Some("alice")));
         assert_eq!(
@@ -616,7 +601,6 @@ mod tests {
             Some("alice".to_owned()),
         );
 
-        // A snapshot without a name falls back to the user display slug.
         let mut snapshots = BTreeMap::new();
         snapshots.insert(1, snapshot(None, Some("alice")));
         assert_eq!(
@@ -624,7 +608,6 @@ mod tests {
             Some("alice-user".to_owned()),
         );
 
-        // No snapshot and no user display resolves to no slug.
         assert_eq!(
             list_pages_created_by_slug(&page, &BTreeMap::new(), &BTreeMap::new()),
             None,
@@ -633,7 +616,6 @@ mod tests {
 
     #[test]
     fn tag_rendering_uses_the_whitespace_target_only_for_a_whitespace_prefix() {
-        // A normal prefix renders an ordinary tag link.
         let mut fragments = CompatHtmlFragments::new("");
         let rendered = render_list_pages_tags(
             &["alpha".to_owned()],
@@ -648,7 +630,6 @@ mod tests {
         );
         assert!(!normal.contains("/tag/alpha "), "{normal}");
 
-        // An empty prefix falls back to the default ordinary tag link.
         let mut fragments = CompatHtmlFragments::new("");
         let rendered =
             render_list_pages_tags(&["alpha".to_owned()], Some(""), true, &mut fragments);
@@ -659,7 +640,6 @@ mod tests {
         );
         assert!(!empty.contains("/tag/alpha "), "{empty}");
 
-        // Only a whitespace prefix uses the whitespace target form.
         let mut fragments = CompatHtmlFragments::new("");
         let rendered = render_list_pages_tags(
             &["alpha".to_owned()],

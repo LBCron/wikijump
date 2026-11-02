@@ -18,15 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The read-only Wikidot `site-changes.xml` RSS feed.
-//!
-//! Current Wikidot serves this feed at `/feed/site-changes.xml` and links it
-//! from the SiteChanges module view. It reports the same recent page activity
-//! as `[[module SiteChanges]]` (source revisions and file revisions, newest
-//! first) with the public revision identity, the change type, the author and a
-//! preview of the page content, so it reuses the SiteChanges visibility rules
-//! instead of a second permission model.
-
 use super::service::RenderService;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::page::foreign_snapshot_exclusion_sql;
@@ -38,11 +29,6 @@ use serde::Serialize;
 use std::collections::BTreeMap;
 use time::OffsetDateTime;
 
-/// The bounded number of recent changes the feed reports.
-///
-/// The SiteChanges browser module selects its rows per page in the same
-/// magnitude as the ListPages RSS limit, and an RSS feed reports one bounded
-/// recent window rather than the whole revision history.
 pub const SITE_CHANGES_FEED_ITEM_LIMIT: usize = 20;
 const SITE_CHANGES_FEED_QUERY_BATCH: usize = 250;
 const SITE_CHANGES_FEED_MAX_RAW_SCAN: usize = 5_000;
@@ -89,12 +75,6 @@ pub struct WikidotSiteChangesFeedOutput {
     pub items: Vec<WikidotSiteChangesFeedItem>,
 }
 
-/// The change type Wikidot reports for one revision.
-///
-/// The SiteChanges module labels each row with one of these flags, so the feed
-/// reuses that vocabulary rather than inventing one. A file revision and a newly
-/// created page are their own types; other revisions report the most visible
-/// field that changed.
 pub fn wikidot_site_changes_change_type(
     is_file: bool,
     is_new_page: bool,
@@ -171,8 +151,6 @@ impl RenderService {
         {
             let batch_size = SITE_CHANGES_FEED_QUERY_BATCH
                 .min(SITE_CHANGES_FEED_MAX_RAW_SCAN.saturating_sub(offset));
-            // Foreign include-source snapshots are storage, not pages of
-            // this site (issue #2690).
             let own_pages_only = foreign_snapshot_exclusion_sql("p.page_id", site_id);
             let rows = SiteChangesFeedRevisionRow::find_by_statement(
                 Statement::from_sql_and_values(
@@ -246,8 +224,6 @@ impl RenderService {
             offset = offset.saturating_add(row_count);
 
             for row in rows {
-                // Hidden revision fields, hidden pages and deleted pages follow
-                // the public SiteChanges contract.
                 if row.hidden.iter().any(|field| {
                     ["comments", "title", "alt_title", "slug"].contains(&field.as_str())
                 }) {

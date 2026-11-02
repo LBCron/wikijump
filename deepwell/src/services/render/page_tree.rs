@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The Wikidot `PageTree` runtime module.
-
 use std::collections::{HashMap, HashSet};
 use std::num::NonZeroU32;
 use std::sync::LazyLock;

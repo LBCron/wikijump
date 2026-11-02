@@ -129,10 +129,6 @@ pub(in crate::services::render) fn protect_wikidot_color_spans(
                 });
                 return marker;
             }
-            // Otherwise only the span tags are protected. The body stays
-            // wikitext, so FTML renders the inline syntax Wikidot allows inside
-            // a color span, such as footnotes, `^^`, `,,`, `{{ }}` and
-            // `[[size]]` (wikidot-color-span-nested-preview-20261019.json).
             let open_tag = format!(
                 r#"<span style="color: {}">"#,
                 escape_list_pages_html_attr(&color),
@@ -156,8 +152,6 @@ fn replace_active_inline_matches(
     pattern: &regex::Regex,
     mut render: impl FnMut(&regex::Captures<'_>) -> String,
 ) -> String {
-    // Build the index lazily and against this pass's exact input, since an
-    // earlier inline replacement may have moved every later match.
     let mut literals: Option<LiteralRegionIndex> = None;
     pattern
         .replace_all(source, |captures: &regex::Captures<'_>| {
@@ -335,19 +329,6 @@ pub(in crate::services::render) fn render_wikidot_protected_inline_body_html(
     substitute_wikidot_protected_inline_typography(&rendered)
 }
 
-/// Render `[[size]]` blocks inside a pre-rendered protected body.
-///
-/// The plain color-span protection leaves span bodies as wikitext, so FTML
-/// renders block constructs Wikidot allows inside a color span (see the
-/// `[[size]]` note in `protect_wikidot_color_spans`). The bold/underline
-/// color-span passes in this file instead pre-render their bodies through
-/// `render_wikidot_protected_inline_body_html`, whose inline pipeline has no
-/// block handling, so a nested `[[size]]` leaked as literal text. This pass
-/// restores parity for that one block: matched `[[size value]]` /
-/// `[[/size]]` pairs in text (never inside a tag) become the same
-/// `<span style="font-size:value;">` FTML emits in the Wikidot layout.
-/// Unmatched or malformed markers stay literal, as they do when FTML
-/// rejects the block.
 fn render_wikidot_protected_inline_sizes(html: &str) -> String {
     let mut output = String::with_capacity(html.len());
     let mut rest = html;
@@ -375,9 +356,6 @@ fn render_wikidot_protected_inline_sizes(html: &str) -> String {
     output
 }
 
-/// Find the first valid `[[size value]]` open marker in `text`, skipping
-/// `<...>` tags and malformed markers. Returns its byte offset, byte
-/// length, and validated CSS size value.
 fn find_wikidot_size_open(text: &str) -> Option<(usize, usize, &str)> {
     let bytes = text.as_bytes();
     let mut index = 0;
@@ -396,9 +374,6 @@ fn find_wikidot_size_open(text: &str) -> Option<(usize, usize, &str)> {
     None
 }
 
-/// Find the `[[/size]]` close matching an open whose body starts at the
-/// beginning of `text`, counting nested valid opens. Returns its byte
-/// offset and length.
 fn find_wikidot_size_close(text: &str) -> Option<(usize, usize)> {
     let close_marker = "[[/size]]";
     let bytes = text.as_bytes();
@@ -428,11 +403,6 @@ fn find_wikidot_size_close(text: &str) -> Option<(usize, usize)> {
     None
 }
 
-/// Parse a `[[size value]]` open marker at the start of `text`, returning
-/// its byte length and the validated CSS size value. Mirrors FTML's
-/// Wikidot-layout size validation (`wikidot_size_value` in ftml's size
-/// block): a fixed keyword set, or a number with a `%`, `px`, or `em`
-/// suffix.
 fn wikidot_protected_inline_size_open(text: &str) -> Option<(usize, &str)> {
     let rest = text.strip_prefix("[[size")?;
     if !rest

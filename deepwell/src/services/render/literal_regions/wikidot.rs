@@ -118,9 +118,6 @@ struct WikidotLiteralPolicy {
 const LIST_PAGES_LITERAL_POLICY: WikidotLiteralPolicy = WikidotLiteralPolicy {
     runtime_extended: true,
     fail_closed_inline: true,
-    // The ListPages event scanner validates and rolls back generic heads
-    // itself. Masking those prefixes here would hide malformed module heads
-    // before the scanner can apply its fail-closed policy.
     own_generic_tag_heads: false,
     own_module_bodies: false,
 };
@@ -144,7 +141,6 @@ fn collect_wikidot_literal_ranges(
     ranges: &mut Vec<Range<usize>>,
     policy: WikidotLiteralPolicy,
 ) {
-    // A successfully opened literal owns all delimiter-looking text until it closes.
     let bytes = source.as_bytes();
     let mut offset = 0usize;
     let mut state = WikidotLiteralState::Normal;
@@ -256,10 +252,6 @@ fn collect_wikidot_literal_ranges(
                                 if policy.own_generic_tag_heads {
                                     ranges.push(cursor..end);
                                 }
-                                // A multiline generic tag head has already lost
-                                // its opener before the next physical line. Skip
-                                // its remaining physical lines so the collector
-                                // cannot reinterpret quoted syntax.
                                 if end > body_end {
                                     skip_until = end;
                                 }
@@ -321,8 +313,6 @@ fn collect_wikidot_literal_ranges(
                         ranges.push(cursor..body_end);
                         cursor = body_end;
                     } else {
-                        // FTML aborts this raw form at a physical line break or
-                        // EOF, so an unmatched opener owns no literal region.
                         cursor += 2;
                     }
                 }
@@ -447,22 +437,11 @@ fn wikidot_literal_block(
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ModuleBody {
-    /// The first `[[/module]]` belongs to this opener.
     Paired,
-    /// A later line-start module opener takes the first `[[/module]]`.
     Claimed,
-    /// No `[[/module]]` follows.
     Unclosed,
 }
 
-/// Wikidot pairs `[[/module]]` with the nearest preceding module opener that
-/// starts a line, and a module without its own closer owns no body: an
-/// unclosed `[[module CSS]]` renders its text, and an unclosed
-/// `[[module Rate]]` or `[[module PageTree]]` leaves later `[[/iftags]]`
-/// boundaries live. A body-less module therefore owns nothing when another
-/// line-start `[[module ...]]` (typically CSS) comes before the first closer.
-/// An opener elsewhere on a line, such as one quoted inside a CSS comment,
-/// does not take the closer.
 fn module_body(source: &str, opener_end: usize) -> ModuleBody {
     let Some(close) = find_block_close(source, opener_end, source.len(), "[[/module]]")
     else {
@@ -582,8 +561,6 @@ mod tests {
         for (owner, dollar_owned) in
             [("foo@bar.example", false), ("https://e.test/a", true)]
         {
-            // An email ends at its last domain label, so `$]]` right after it
-            // closes the inline math; a URL token still owns the `$`.
             for (source, hidden, live) in [
                 (format!("@@{owner}@@x hidden @@ live"), false, true),
                 (

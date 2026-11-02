@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Final protection, sealing, and pending-output lifecycle for delayed ListPages rows.
-
 use super::{
     CompatHtmlFragments, CompatTextFragments, DelayedInput, Error, ErrorType,
     GeneratedValue, InputSegment, ListPagesRuntimeTextRange, PageExistenceSnapshot,
@@ -302,12 +300,6 @@ pub(in crate::services::render) fn finish_or_defer_list_pages_delayed_output_wit
     list_pages_inline: bool,
     page_existence: Option<&PageExistenceSnapshot>,
 ) -> Result<(String, Option<PendingDelayedListPagesOutput>)> {
-    // Every executed ListPages body belongs to FTML's List mode, including a
-    // wholly authored/static row. Parsing only rows with typed values here
-    // makes otherwise identical templates depend on whether they happen to
-    // reference a runtime scalar, and loses line-start constructs beside the
-    // generated outer containers. Include-bearing output is protected until
-    // expansion, then sealed through this same path.
     if defer_for_include_expansion {
         let (protected, pending) = protect_list_pages_delayed_output_with_modes(
             output,

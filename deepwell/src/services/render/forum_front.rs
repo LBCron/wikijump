@@ -1,5 +1,3 @@
-//! Observed default-format slice of Wikidot's FrontForum module.
-
 use std::collections::HashSet;
 use std::fmt::Write as _;
 use std::sync::LazyLock;
@@ -132,9 +130,6 @@ pub(super) fn parse_arguments(head: &str) -> Option<FrontForumArgumentsParse> {
             }
             "feed" if !feed_seen => feed_seen = true,
             "feedTitle" if !feed_title_seen => feed_title_seen = true,
-            // Anonymous PagePreview accepts both observed switch values. The
-            // content-bearing rewrite remains unimplemented until a public
-            // fixture supplies a relative post link.
             "fixRelativeLinks"
                 if !fix_relative_links_seen
                     && matches!(argument.value, "true" | "false") =>
@@ -336,11 +331,6 @@ pub(super) fn render(items: &[FrontForumItem]) -> String {
 }
 
 static FRONT_FORUM_VARIABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    // Custom date formats pass through opaquely: any nonempty format without
-    // a double-percent sequence is accepted and echoed percent-encoded into
-    // the odate class, matching live behavior for observed formats such as
-    // %e %b %Y, %H:%M, and unknown %Q%Q alike. An empty format or a %%
-    // sequence keeps the variable literal (fail closed).
     Regex::new(concat!(
         r"%%(?P<name>title|linked_title|title_linked|link|author|date|comments|category|",
         r"description|short|summary|content|text|long|body)",
@@ -349,10 +339,6 @@ static FRONT_FORUM_VARIABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     .expect("FrontForum variable expression is valid")
 });
 
-/// Percent-encode a custom date format for the odate class exactly as live
-/// Wikidot does: ASCII alphanumerics and `-_.~` pass through, every other
-/// byte becomes uppercase `%XX`. The encoded value cannot break out of the
-/// class attribute.
 fn encode_forum_date_format_class(format: &str) -> String {
     let mut class = String::with_capacity("format_".len() + format.len());
     class.push_str("format_");
@@ -655,11 +641,6 @@ mod tests {
 
     #[test]
     fn frontforum_custom_body_date_formats_match_live_odate_classes() {
-        // Live sandbox probes honor custom strftime formats opaquely: the
-        // odate class echoes the requested format percent-encoded while the
-        // server text stays the fallback rendering. Unknown formats pass
-        // through the same way (no validation); an empty format and a format
-        // on a non-date variable stay literal.
         let rendered = render_owned_source(
             concat!(
                 "[[module FrontForum category=\"8503559\" limit=\"1\"]]\n",
@@ -680,11 +661,6 @@ mod tests {
                 "custom date format should echo {expected:?}:\n{rendered}",
             );
         }
-        // Fail-closed boundaries: an empty format and a format on a
-        // non-date variable stay literal. A double-percent sequence ends
-        // the honored prefix compositionally (the evidenced %e renders,
-        // the unestablished remainder stays literal) rather than
-        // suppressing the whole variable.
         let literal = render_owned_source(
             concat!(
                 "[[module FrontForum category=\"8503559\" limit=\"1\"]]\n",

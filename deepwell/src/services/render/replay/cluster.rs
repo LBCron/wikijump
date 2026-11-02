@@ -1,10 +1,3 @@
-/*
- * services/render/replay/cluster.rs
- *
- * Exact deterministic grouping. Heuristic syntax features are already part of
- * timeout signatures; parser errors use rule/kind/token/local-line shape.
- */
-
 use super::model::{ReplayCaseObservation, ReplayCluster, ReplayOutcome, sha256_hex};
 use std::collections::BTreeMap;
 

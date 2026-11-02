@@ -1,5 +1,3 @@
-//! Wikidot PageCalendar runtime expansion.
-
 use super::{
     Action, BTreeMap, BTreeSet, CheckPermissionContext, CompatHtmlFragments,
     ConnectionTrait, Cow, Error, ErrorType, FromQueryResult, Future, HashMap,

@@ -1,5 +1,3 @@
-//! Runtime rendering for Wikidot Search and Feed modules.
-
 use std::sync::LazyLock;
 
 use ftml::settings::WikitextSettings;
@@ -34,8 +32,6 @@ const SEARCH_ALL_FORM_HTML: &str = r#"<div class="search-box">
 </div>
 </div>"#;
 
-// The frozen live contract covers standalone module lines. Inline calls are
-// deliberately left to the ordinary literal or unknown-module path.
 static SEARCH_FEED_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?im)^[\t ]*\[\[module\s+(?P<name>Search|Feed)\b(?P<head>(?:[^\]\r\n"]+|"[^"\r\n]*")*)\]\][\t ]*$"#,
@@ -238,10 +234,6 @@ mod tests {
 
     #[test]
     fn feed_inaccessible_source_error_escapes_the_source_url() {
-        // Normative #1036 correction: a recognized but unreadable source
-        // renders the processing error with the escaped source URL, so a
-        // hostile query string cannot break out of the error block. The
-        // inaccessible path never fetches; no network is involved.
         let rendered =
             expand("[[module Feed src=\"https://example.com/feed?a=1&b=<x>\"]]");
         assert!(

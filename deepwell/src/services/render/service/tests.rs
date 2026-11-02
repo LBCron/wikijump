@@ -367,8 +367,6 @@ fn compatibility_protection_preserves_ftml_lexical_ownership() {
     }
 }
 
-/// Render a page body through the Wikidot source trim, the render
-/// preparation, and the FTML pipeline, in the production order.
 fn render_wikidot_trimmed_page_body(wikitext: &str) -> String {
     let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -1693,9 +1691,6 @@ fn rate_module_expansion_ignores_literal_and_attribute_occurrences() {
         &mut compat_text,
     );
 
-    // Every occurrence here is inside inline source text, an attribute, a
-    // literal region, or a paired same-line module. Wikidot leaves them as
-    // source text; only a standalone module line becomes runtime HTML.
     assert_eq!(protected, source);
 
     let mut output =
@@ -1812,8 +1807,6 @@ fn protects_unbound_include_variables_in_all_rendered_positions() {
     assert_eq!(fragments.restore(&wikitext), original);
 }
 
-/// Parse protected Wikidot source, optionally restoring compatibility text
-/// in link targets first, and return the restored HTML with its links.
 fn render_protected_links(
     source: &str,
     restore_targets: bool,
@@ -1824,7 +1817,6 @@ fn render_protected_links(
         &mut wikitext,
         &mut fragments,
     );
-    // A stray `##` is protected the same way as an unrendered color marker.
     wikitext = wikitext.replace("##", &fragments.push("##"));
     let page_info = fallback_test_page_info("component:links", "Links");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -1888,8 +1880,6 @@ fn link_targets_keep_the_authored_text_of_protected_fragments() {
         "{recorded}"
     );
 
-    // Without the pass the marker survives into the page target, which is
-    // the leak this guards against.
     let (unrestored, _) = render_protected_links(source, false);
     assert!(
         unrestored
@@ -2036,7 +2026,6 @@ fn raw_markers_on_separate_lines_do_not_protect_a_multiline_page_link() {
     RenderService::normalize_wikidot_multiline_page_links(&mut wikitext);
     assert_eq!(wikitext, source);
 
-    // Other links, including ones next to a closed pair, still normalize.
     let mut wikitext =
         "@@raw@@\n[[[page-link|Yes\nPlease]]]\n@@[[[escape-link|Nope Please]]]@@\n"
             .to_owned();
@@ -3913,9 +3902,6 @@ fn empty_protection_bundle() -> RenderProtectionBundle {
 
 #[test]
 fn render_protection_bundle_drop_propagates_errors() {
-    // Regression test for #2686: every `?` between bundle creation and
-    // restoration used to turn the original Err into a Drop panic, hiding the
-    // real failure. An error path must defuse the unrestored bundle first.
     fn run_with_forced_error() -> Result<(), Box<Error>> {
         let mut bundle = empty_protection_bundle();
         Err::<(), _>(Error::new("forced render failure", ErrorType::Render))

@@ -1,5 +1,3 @@
-//! Delayed ListPages output sealing helpers.
-
 use super::{
     CompatHtmlFragments, DelayedInput, Error, ErrorType, GeneratedInput, GeneratedKind,
     GeneratedValue, InputSegment, ListPagesRuntimeTextRange, PageExistenceSnapshot,
@@ -75,11 +73,6 @@ pub(super) fn seal_list_pages_delayed_output_with_modes(
     {
         return Ok(String::new());
     }
-    // A non-wrapper, combined ListPages body with no generated HTML or typed
-    // values is already ordinary Wikidot source. Keep it in the outer page
-    // stream so surrounding text remains in the same paragraph; registering
-    // the sealed `<p>` as a block would manufacture an extra paragraph around
-    // an otherwise inline module.
     if !block_output
         && delayed_occurrences.is_empty()
         && runtime_text_ranges.is_empty()
@@ -87,10 +80,6 @@ pub(super) fn seal_list_pages_delayed_output_with_modes(
     {
         return Ok(output);
     }
-    // Static rows have no typed source ranges to preserve. Apply FTML's
-    // compatibility pass here as a final guard for direct/static sealing;
-    // delayed rows are preprocessed before their typed ranges are allocated
-    // above, so their `%%...%%` markers remain byte-stable.
     if settings.enable_page_syntax
         && delayed_occurrences.is_empty()
         && runtime_text_ranges.is_empty()
@@ -98,12 +87,6 @@ pub(super) fn seal_list_pages_delayed_output_with_modes(
         ftml::preprocess_for_layout(&mut output, settings.layout);
     }
     if delayed_occurrences.is_empty() && runtime_text_ranges.is_empty() {
-        // Static rows may already contain the narrowly generated table or
-        // numbered-list HTML produced by Wikijump's ListPages compatibility
-        // renderer. Protect those blocks before the mandatory FTML List-mode
-        // pass so FTML does not correctly escape them as authored raw HTML.
-        // Rows with typed ranges remain untouched because replacing bytes
-        // here would invalidate their source ownership offsets.
         output = register_generated_list_pages_html(output, compat_html);
     }
     let generated_capacity = delayed_occurrences.len();
@@ -225,8 +208,6 @@ pub(super) fn seal_list_pages_delayed_output_with_modes(
         None,
     );
     sealed_body = strip_generated_list_pages_html_markers(sealed_body);
-    // A residual alignment opener here belongs to one selected page summary.
-    // Restore it while typed row boundaries can still keep it inside that row.
     if sealed_body.contains("[[=")
         || sealed_body.contains("[[<")
         || sealed_body.contains("[[>")
@@ -237,11 +218,6 @@ pub(super) fn seal_list_pages_delayed_output_with_modes(
         sealed_body =
             RenderService::restore_residual_wikidot_alignment_markers(&sealed_body);
     }
-    // Wikijump owns the fixed ListPages runtime containers and registers them
-    // as trusted block fragments. Resolve those markers after FTML has parsed
-    // the authored List-mode template, then protect the complete sealed block
-    // for the outer page parse. Leaving nested markers inside the new block
-    // fragment would intentionally prevent recursive restoration.
     sealed_body = compat_html.restore(&sealed_body);
     let delayed_block_output = !block_output && sealed_body.starts_with("\n\n");
     if !block_output {

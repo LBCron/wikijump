@@ -287,9 +287,6 @@ fn whole_head_literal_index_budget_preserves_the_authored_source() {
 
 #[test]
 fn projected_quoted_continuation_malformed_syntax_fails_closed_with_linear_work() {
-    // A backslash continuation changes quoted-line ownership in the projected
-    // source. An unresolved conditional or an unterminated nested module head
-    // still must not cause the later ListPages-shaped source to execute.
     for (label, source, expected_work, expected_literal_advances) in [
         (
             "unresolved quoted conditional",
@@ -330,9 +327,6 @@ fn projected_quoted_continuation_malformed_syntax_fails_closed_with_linear_work(
 
 #[test]
 fn projected_quoted_recovery_counts_literal_region_cursor_before_fail_closed() {
-    // The inline literal is not an executable module. Projection changes the
-    // following quote-continuation ownership; its malformed ListPages head
-    // must fail closed even after the recovery scanner passed a literal span.
     let source = concat!(
         "@@[[module ListPages]]hidden[[/module]]@@\n",
         "> intro\\\n> [[module ListPages name=\"incomplete\n[[/module]]",
@@ -356,11 +350,6 @@ fn projected_quoted_recovery_counts_literal_region_cursor_before_fail_closed() {
 
 #[test]
 fn projected_unresolved_conditional_charges_both_scanners_literal_cursor_work() {
-    // A line-continuation produces the unresolved [[#if ...]] boundary only
-    // after early-runtime projection. Neither of the preceding balanced @@
-    // spans may become a module, nor may a later ListPages body execute.
-    // The direct and projected scans each cross both literal spans; the
-    // final work count also charges the projected cursor's two advances.
     let source = concat!(
         "@@[[module ListPages]]hidden[[/module]]@@\n",
         "@@[[module ListPages]]hidden[[/module]]@@\n",
@@ -380,9 +369,6 @@ fn projected_unresolved_conditional_charges_both_scanners_literal_cursor_work() 
 
 #[test]
 fn projected_unresolved_conditional_charges_single_literal_in_both_scanners() {
-    // One preceding balanced @@ span is skipped once in the direct scan and
-    // once in the projected scan. Addition must count both traversals;
-    // multiplication of the independent cursor counts is not equivalent.
     let source = concat!(
         "@@[[module ListPages]]hidden[[/module]]@@\n",
         "[[#\\\nif true]]\n",
@@ -401,11 +387,6 @@ fn projected_unresolved_conditional_charges_single_literal_in_both_scanners() {
 
 #[test]
 fn projected_quoted_continuation_recovery_charges_direct_work_and_literal_advances() {
-    // The quoted-line continuation forces a source projection. The direct
-    // recovery scanner remains unambiguous and must account for its own work
-    // and literal-region cursor traversals rather than dropping or multiplying
-    // the contributions. These are internal accounting invariants, not live
-    // Wikidot rendering oracles.
     for (label, source, expected_work, expected_advances) in [
         (
             "one literal",
@@ -441,10 +422,6 @@ fn projected_quoted_continuation_recovery_charges_direct_work_and_literal_advanc
 
 #[test]
 fn terminal_scanner_work_counts_projected_merge_and_literal_advances() {
-    // Fully closed authored ListPages modules stay at their original source
-    // positions. Account for each scanner and literal traversal, including
-    // projection/merge overhead, rather than conflating their contributions.
-    // These are internal work-counter invariants, not a live Wikidot oracle.
     for (label, source, expected_work, expected_advances) in [
         (
             "direct two literals",
@@ -487,11 +464,6 @@ fn terminal_scanner_work_counts_projected_merge_and_literal_advances() {
 
 #[test]
 fn unclosed_collapsible_boundary_accounts_for_suffix_work_and_literal_advances() {
-    // The unclosed module/collapsible boundary comes from the retained
-    // 2026-08-01 Wikidot PagePreviewModule observation exercised by
-    // `corpus_unclosed_at_marker_body_owns_the_first_collapsible_opening`.
-    // The extra escaped suffixes extend only scanner accounting coverage;
-    // they are NOT separate live Wikidot behavior oracles.
     let consumed = concat!(
         "[[module ListPages fullname=\"@@##red|missing-page##@@\" ",
         "separate=\"yes\" limit=\"250\"]]@@\n",
@@ -545,8 +517,6 @@ fn unclosed_collapsible_boundary_accounts_for_suffix_work_and_literal_advances()
 
 #[test]
 fn unclosed_preservation_counts_literal_advances_in_resumed_suffix() {
-    // This adds scanner work-accounting coverage to the retained preservation
-    // case; it does not claim another live Wikidot behavior observation.
     let source = concat!(
         "\n[[# scanner-counter]]",
         "[[module ListPages name=\"missing\"]]",
@@ -581,9 +551,6 @@ fn unclosed_preservation_counts_literal_advances_in_resumed_suffix() {
 
 #[test]
 fn unclosed_listpages_empty_tail_distinguishes_default_and_explicit_query() {
-    // These are internal scanner ownership assertions, not fresh live Wikidot
-    // oracles. Neither ordinary unclosed invocation has an authored closing
-    // module tag to consume, regardless of whether its head is empty.
     for (label, source, head, consume_tail) in [
         ("bare", "[[module ListPages]]", "", false),
         (
@@ -615,11 +582,6 @@ fn unclosed_listpages_empty_tail_distinguishes_default_and_explicit_query() {
 
 #[test]
 fn recovered_dangling_quote_without_closer_keeps_default_template_tail_ownership() {
-    // The malformed head shape is retained from the 2026-08-01 Wikidot
-    // PagePreviewModule boundary matrix. The *unclosed* suffix variants
-    // here assert scanner ownership invariants, not separate live Wikidot
-    // observations. The default-template path must differ from an ordinary
-    // well-formed unclosed explicit query.
     let prefix = "[[module ListPages category=\"*\" limit=\"1\" order=\"name\" ";
     for (label, tail, suffix, consume_empty_tail) in [
         (

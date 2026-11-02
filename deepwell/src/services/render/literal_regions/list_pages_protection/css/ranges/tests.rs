@@ -161,8 +161,6 @@ fn wikidot_css_yields_to_list_pages_with_a_body_or_an_inline_close() {
 
 #[test]
 fn wikidot_css_closed_by_a_raw_list_pages_close_leaves_the_next_list_pages_live() {
-    // `css-empty-body-then-second-listpages` renders one list-pages-box (the
-    // second module) and `z`.
     let head = MISSING_LIST_PAGES;
     let source =
         format!("[[module CSS]]\n{head}\n[[/module]]\n{head}\nTWO\n[[/module]]\n\nz");

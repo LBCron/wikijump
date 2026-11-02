@@ -29,8 +29,6 @@ pub(super) fn collect_count_pages_literal_ranges(source: &str) -> Vec<Range<usiz
         comment_ranges,
     );
     let Ok(list_pages_ranges) = collect_count_pages_inherited_ranges(source) else {
-        // Treat the complete source as literal when shared parser ownership
-        // cannot be established within its source-proportional work budget.
         return (!source.is_empty())
             .then_some(0..source.len())
             .into_iter()

@@ -18,14 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Live-compatible idle caching for `ListPages order="random"`.
-//!
-//! Wikidot keeps one random result stable while a complete module invocation is
-//! used, renews that key's approximately one-minute idle lifetime on a hit, and
-//! treats the rendered pager page as part of the key. Deepwell caches only the
-//! random seed: candidates and view permissions are still evaluated on every
-//! request instead of serving stale HTML across an authorization boundary.
-
 use std::borrow::Cow;
 
 use redis::Script;
@@ -114,10 +106,6 @@ fn random_order_cache_key(
     hash_optional_i64(&mut digest, b"current-page", current_page_id);
     hash_part(&mut digest, b"pager-page", page.to_string().as_bytes());
 
-    // This is an ephemeral, versioned key. Debug formatting is useful here
-    // because it covers every parsed selector and presentation flag without
-    // putting any raw user value in Redis; changing the structure naturally
-    // starts a fresh sixty-second key space.
     hash_part(
         &mut digest,
         b"parsed-arguments",

@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! PostgreSQL inventory loading for the corpus render gate.
-
 use super::inventory::{
     CorpusRenderInventoryService, InventoryRow, InventoryRunContext, RenderInventoryPass,
     RenderInventorySettings, RenderInventorySummary, build_summary,

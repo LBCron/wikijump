@@ -132,11 +132,6 @@ impl DelimiterIndex {
                 Some(DelimiterKind::CommentClose) => {
                     index.comment_close.push(DelimiterIdentity {
                         kind: DelimiterKind::CommentClose,
-                        // A Wikidot comment context accepts any run of two or
-                        // more hyphens followed by `]`. Represent the closing
-                        // token by its final `--]` suffix so the existing
-                        // fixed-width candidate accounting reaches the real
-                        // source end for `---]`, `----]`, and longer runs.
                         start: step.end - 3,
                     });
                 }
@@ -247,9 +242,6 @@ fn scan_literal(bytes: &[u8], start: usize) -> Option<TokenStep> {
         b'$' if has(bytes, start, b"$]]") => {
             TokenStep::delimiter(DelimiterKind::InlineMathClose, start + 3)
         }
-        // Right-bracket tokens do not emit delimiter events here. Consume a
-        // contiguous run in one step instead of rescanning its prefix for
-        // every bracket.
         b']' => TokenStep::other(scan_same(bytes, start, b']')),
         b'|' if has(bytes, start, b"||~")
             || has(bytes, start, b"||>")

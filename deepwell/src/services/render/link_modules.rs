@@ -18,8 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wikidot link-list modules backed by the page connection graph.
-
 use super::compat::CompatHtmlFragments;
 use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
@@ -36,7 +34,6 @@ use std::collections::{BTreeMap, HashMap};
 use std::future::Future;
 use std::sync::{Arc, LazyLock};
 
-/// The most rows one site-level link module render will load.
 pub(super) const MAX_LINK_LISTING_MODULE_ROWS: usize = 2_000;
 const LINK_LISTING_MODULE_QUERY_LIMIT: usize = MAX_LINK_LISTING_MODULE_ROWS + 1;
 const WANTED_PAGES_PER_PAGE: usize = 50;

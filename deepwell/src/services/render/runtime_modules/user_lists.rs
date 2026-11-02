@@ -1,5 +1,3 @@
-//! Runtime expansion for ListUsers and ListDrafts.
-
 use crate::services::PageDraftPageType;
 
 use super::{

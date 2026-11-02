@@ -1,5 +1,3 @@
-//! Module-head and argument-boundary validation for the ListPages scanner.
-
 use super::{
     TextTokenCursor, WikidotArgumentValueKind, WikidotTagArgumentScan,
     classify_wikidot_right_bracket_and_advance_text_tokens,

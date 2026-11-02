@@ -15,7 +15,6 @@ use super::token_boundaries::{
 };
 use std::ops::Range;
 
-/// Enumerate complete pinned `[[# name]]` anchors without masking siblings.
 #[cfg(test)]
 pub(super) fn collect_pinned_anchor_candidates(source: &str) -> Vec<Range<usize>> {
     let text_tokens = TextTokenIndex::new(source);

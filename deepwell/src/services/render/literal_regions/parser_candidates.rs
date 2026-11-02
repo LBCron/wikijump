@@ -44,9 +44,7 @@ impl ParserOwnerKind {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum ParserOwnerCertainty {
-    /// Selecting this candidate proves that its parser consumes its range.
     Exact,
-    /// Early-runtime safety protects this range without claiming parser consumption.
     ProtectionOnly,
 }
 
@@ -55,7 +53,6 @@ pub(super) struct ParserOwnerCandidate {
     pub(super) range: Range<usize>,
     pub(super) kind: ParserOwnerKind,
     pub(super) certainty: ParserOwnerCertainty,
-    /// A same-token opener at this byte is consumed only when this candidate is selected.
     pub(super) terminator_start: Option<usize>,
 }
 
@@ -83,9 +80,6 @@ impl ParserOwnerCandidate {
     }
 }
 
-/// Resolve parser-owned candidates once, after every source of candidates has
-/// retained its overlaps. Protection-only alternatives contribute a safety
-/// union but never suppress a later exact candidate.
 #[cfg(test)]
 pub(super) fn select_parser_owner_candidates(
     streams: &[Vec<ParserOwnerCandidate>],

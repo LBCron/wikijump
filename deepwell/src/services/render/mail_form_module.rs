@@ -18,40 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Support for the Wikidot `[[module MailForm]]` module.
-//!
-//! Wikidot's MailForm collects form input and emails it to the `to=`
-//! recipients. Wikijump's emulation follows the standing policy for this
-//! module: the display and the interaction behavior match live Wikidot --
-//! the form renders with the same markup, and submissions are validated
-//! against the authored rules and answered with Wikidot's response shapes
-//! (per-field errors, or the success outcome with its `successPage`
-//! redirect) -- but no email is ever actually sent. A rules-passing
-//! submission is recorded in deepwell's local no-delivery sink (see
-//! `EmailService::send_mail_form_message`) and reported to the reader
-//! exactly as Wikidot reports a sent form; the sink record, explicitly
-//! marked not delivered, is the only trace.
-//!
-//! This module owns the definition model: it parses the authored field
-//! definition (the nested-list body grammar documented on Wikidot's
-//! MailForm module page) and renders the same markup shape live Wikidot
-//! serves -- a `.mailform-box` div wrapping a `table.form` with one row
-//! per field, a `.buttons` div, and the hidden `mailformdef-<instance>`
-//! definition-handle div. The handle is stateless: a digest of the
-//! canonical definition plus the rendering page's id, in the same
-//! `<32 hex>_<page id>` shape Wikidot uses, so a submission resolves its
-//! definition by re-deriving it from the page's current wikitext (see
-//! `find_mail_form_definition` below).
-//!
-//! Markup details are pinned to live captures (scp-4757, scp-7079, scp-5232
-//! on scp-wiki, fetched 2026-11-01): text inputs carry `value` only when a
-//! default is authored, `maxlength` only from the `maxLength` rule, textareas
-//! render as `cols=<size> rows="5"`, and selects always lead with the
-//! `-- Please select --` placeholder option. Two shapes have no live capture
-//! and are implemented from the module documentation alone: the `hint` option
-//! (parsed and retained, but no captured live box renders hint markup, so it
-//! is not rendered) and checkbox inputs (no mirrored page authors one).
-
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
@@ -66,7 +32,6 @@ use super::module_arguments::wikidot_module_argument;
 use super::native_list_context::matching_source_scope_close;
 use super::service::{escape_list_pages_html_attr, escape_list_pages_html_text};
 
-/// Wikidot's documented default for a field's `size` option.
 const MAIL_FORM_DEFAULT_SIZE: u32 = 30;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -101,7 +66,6 @@ pub(crate) struct MailFormField {
     pub(crate) size: Option<u32>,
     pub(crate) default: Option<String>,
     pub(crate) hint: Option<String>,
-    /// `(value, label)` pairs for `select` fields, in authored order.
     pub(crate) options: Vec<(String, String)>,
     pub(crate) rules: MailFormRules,
 }
@@ -135,12 +99,6 @@ pub(crate) struct MailFormDefinition {
     pub(crate) fields: Vec<MailFormField>,
 }
 
-/// Parse a MailForm module head and body into a definition.
-///
-/// Parsing is fail-soft in the same way Wikidot's own list handling is: lines
-/// that do not fit the field grammar are ignored rather than failing the
-/// whole form, so a page always renders the fields that were authored
-/// recognizably.
 pub(crate) fn parse_mail_form_definition(head: &str, body: &str) -> MailFormDefinition {
     let mut definition = MailFormDefinition {
         recipients: wikidot_module_argument(head, "to").map(str::to_owned),
@@ -226,9 +184,6 @@ fn parse_mail_form_fields(body: &str, fields: &mut Vec<MailFormField>) {
         } else if key.eq_ignore_ascii_case("size") {
             field.size = value.trim().parse().ok();
         } else if key.eq_ignore_ascii_case("default") {
-            // Kept verbatim apart from the separator whitespace: a live
-            // capture shows an authored trailing space surviving into the
-            // rendered `value` attribute.
             field.default = Some(value.to_owned());
         } else if key.eq_ignore_ascii_case("hint") {
             field.hint = Some(value.trim().to_owned());
@@ -275,18 +230,10 @@ fn apply_mail_form_rule(rules: &mut MailFormRules, key: &str, value: &str) {
     }
 }
 
-/// Wikidot authors write rule flags as `true`; any non-empty value other
-/// than `0` or `false` counts as setting the flag.
 fn mail_form_rule_flag(value: &str) -> bool {
     !value.is_empty() && value != "0" && !value.eq_ignore_ascii_case("false")
 }
 
-/// The stateless definition handle rendered into the hidden
-/// `mailformdef-<instance>` div, in Wikidot's `<md5>_<page id>` shape. The
-/// digest is the first 32 hex characters of the SHA-1 of a canonical
-/// serialization of the definition; a submission names its definition by
-/// presenting this handle back, and the definition is re-derived from the
-/// page wikitext and matched against it.
 pub(crate) fn mail_form_definition_handle(
     definition: &MailFormDefinition,
     instance: usize,
@@ -326,14 +273,11 @@ pub(crate) fn mail_form_definition_handle(
     format!("{hex}_{}", page_id.unwrap_or(0))
 }
 
-/// Render one MailForm module occurrence as the HTML live Wikidot serves.
 pub(crate) fn render_mail_form_module(
     definition: &MailFormDefinition,
     instance: usize,
     page_id: Option<i64>,
 ) -> String {
-    // Live captures render `value="Send"` for the corpus's authored
-    // `button=""`, so an absent or blank label falls back to `Send`.
     let button = definition
         .button
         .as_deref()
@@ -467,10 +411,6 @@ pub(crate) struct MailFormFieldError {
     pub(crate) violation: MailFormRuleViolation,
 }
 
-/// Validate submitted values against the authored rules, in field order.
-///
-/// An empty value on an optional field skips the remaining rules, as on
-/// Wikidot; on a required field it reports only the `Required` violation.
 pub(crate) fn validate_mail_form_submission(
     definition: &MailFormDefinition,
     values: &HashMap<String, String>,
@@ -539,9 +479,6 @@ pub(crate) fn validate_mail_form_submission(
     errors
 }
 
-/// Wikidot authors write `match` rules as Perl-style patterns (`/…/`, with an
-/// optional trailing `i` flag). An authored pattern that does not compile is
-/// not failed closed: the rule is skipped rather than rejecting every value.
 fn mail_form_pattern_matches(pattern: &str, value: &str) -> bool {
     let Some(regex) = compile_mail_form_pattern(pattern) else {
         return true;
@@ -566,11 +503,6 @@ fn compile_mail_form_pattern(pattern: &str) -> Option<regex::Regex> {
     regex::Regex::new(&body).ok()
 }
 
-/// The message a field's `.field-error-message` cell shows when the
-/// submitted value violates this rule. Wikidot's connector answers a
-/// failed submission with `status: "form_errors"` and a map from field
-/// name to one such message, which its MailFormModule script writes into
-/// the matching row's error cell.
 pub(crate) fn mail_form_error_message(violation: &MailFormRuleViolation) -> String {
     match violation {
         MailFormRuleViolation::Required => "This field is required.".to_owned(),
@@ -588,10 +520,6 @@ static MAILFORM_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         .expect("MailForm module expression is valid")
 });
 
-/// Find the body of the MailForm module occurrence whose head ends at
-/// `open_end`, mirroring the Rate module's occurrence handling: an immediate
-/// `[[/module]]` means an empty body, otherwise the body must start on the
-/// next line and run to the closer paired with this opener.
 fn mail_form_occurrence_body<'a>(
     source: &'a str,
     module_start: usize,
@@ -618,15 +546,11 @@ fn mail_form_occurrence_body<'a>(
     (close.end, Some(&source[open_end..close.start]))
 }
 
-/// A MailForm module only expands when it owns its lines: FTML would not
-/// treat a mid-line or trailing-text occurrence as a module block either.
 fn mail_form_occurrence_is_block_owned(source: &str, start: usize, end: usize) -> bool {
     let line_start = source[..start].rfind('\n').map_or(0, |index| index + 1);
     if !source[line_start..start].trim().is_empty() {
         return false;
     }
-    // The closer must end its own line as well: a block's last line is the
-    // line holding the end of the paired closer.
     let last_line_start = source[..end].rfind('\n').map_or(0, |index| index + 1);
     if !source[last_line_start..end].ends_with("[[/module]]") {
         return false;
@@ -637,13 +561,6 @@ fn mail_form_occurrence_is_block_owned(source: &str, start: usize, end: usize) -
     source[end..line_end].trim().is_empty()
 }
 
-/// One expanded MailForm module occurrence in a page's wikitext: the byte
-/// range it spans (opener through the paired closer) plus its head and
-/// body slices. Occurrences are enumerated exactly as the render-time
-/// expander sees them -- occurrences inside literal regions, without a
-/// paired closer, or not owning their lines are not occurrences at all --
-/// so the per-page instance numbering a reader's form carries is the
-/// same numbering a submission resolves against.
 struct MailFormOccurrence<'a> {
     start: usize,
     end: usize,
@@ -684,12 +601,6 @@ fn mail_form_occurrences(wikitext: &str) -> Vec<MailFormOccurrence<'_>> {
     occurrences
 }
 
-/// Resolve the MailForm definition a submission's `formdef` handle names.
-///
-/// The handle rendered into the page is stateless (a digest of the
-/// canonical definition plus the page id), so the page's current wikitext
-/// is the registry: re-enumerate its expanded occurrences and return the
-/// definition whose handle matches the presented one.
 pub(crate) fn find_mail_form_definition(
     wikitext: &str,
     page_id: i64,
@@ -736,8 +647,6 @@ pub(super) fn expand_mail_form_modules(
 mod tests {
     use super::*;
 
-    /// The SCiPnet fake-login prop shape carried by 95 of the 101 MailForm
-    /// blocks on the mirrored scp-wiki corpus (here the scp-4757 instance).
     const FAKE_LOGIN_HEAD: &str = r#" to="aaaa (DUMMY)" button="""#;
     const FAKE_LOGIN_BODY: &str = concat!(
         "\n# name\n",
@@ -750,8 +659,6 @@ mod tests {
         "  * minLength: 100\n",
     );
 
-    /// The conference-registration example from Wikidot's MailForm module
-    /// documentation, copied verbatim by scp-5232 and scp-6010.
     const DOC_EXAMPLE_BODY: &str = concat!(
         "\n# name\n",
         " * title: Your name\n",
@@ -825,7 +732,6 @@ mod tests {
             r#"<tr id="mailform-row-1-name"><td>ID</td>"#,
             r#"<div class="field-error-message"></div>"#,
             r#"<input name="name" class="text" type="text" value="driosua" size="30" maxlength="10"/>"#,
-            // button="" renders the live default label.
             r#"<div class="buttons"><input type="button" value="Send" onclick="WIKIDOT.modules.MailFormModule.listeners.send(event, '1')"/></div>"#,
             r#"<div id="mailformdef-1" style="display: none;">"#,
             "_1793489522</div>",
@@ -870,7 +776,6 @@ mod tests {
 
         let html = render_mail_form_module(&definition, 3, Some(42));
         for expected in [
-            // A field without an authored maxlength has no attribute.
             r#"<input name="name" class="text" type="text" size="30"/>"#,
             r#"<select name="payment" class="select"><option value="">-- Please select --</option>"#,
             r#"<option value="creditcard">Credit card</option>"#,
@@ -880,7 +785,6 @@ mod tests {
         ] {
             assert!(html.contains(expected), "missing {expected:?} in {html}");
         }
-        // The hint is parsed but has no evidenced live rendering.
         assert!(!html.contains("leave blank in none"), "{html}");
         assert!(
             !html.contains("we will contact you via email if yes"),
@@ -917,7 +821,6 @@ mod tests {
 
     #[test]
     fn duplicate_field_names_are_kept_as_separate_rows() {
-        // scp-5232 authors three distinct `comments` textarea fields.
         let definition = parse_mail_form_definition(
             "",
             concat!(
@@ -1012,7 +915,6 @@ mod tests {
             MailFormRuleViolation::MaxValue(5.0)
         );
         assert!(check("3.5").is_empty());
-        // Optional and empty: no violations.
         assert!(check("").is_empty());
     }
 }

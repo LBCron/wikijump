@@ -151,10 +151,6 @@ impl RenderService {
         iframes
     }
 
-    /// Keep the same-origin styleFrame compatibility path out of untrusted
-    /// fragment and Ajax renders. Saved pages and page previews retain the
-    /// live Wikidot behavior; those contexts are explicitly allowed by the
-    /// render lifecycle before this prepass runs.
     pub(in crate::services::render) fn neutralize_untrusted_wikidot_styleframe_embeds(
         wikitext: &mut String,
     ) {
@@ -411,9 +407,6 @@ impl RenderService {
         }
     }
 
-    /// Percent-encodes a page slug for the frame's `pagename` query value.
-    /// Colons stay literal, matching the frame URLs the local stack
-    /// already emits for categorized pages.
     fn escape_wikidot_interwiki_pagename(slug: &str) -> String {
         let mut encoded = String::with_capacity(slug.len());
         for byte in slug.bytes() {

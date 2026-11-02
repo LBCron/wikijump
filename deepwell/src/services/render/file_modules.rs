@@ -10,18 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Runtime-backed Wikidot file module states.
-//!
-//! File inventory remains deliberately separate from FTML syntax. Saved pages
-//! render only an authorized, bounded inventory whose latest revisions carry
-//! immutable byte-derived content descriptors. PagePreview has no saved page
-//! identity, so it retains the frozen empty contract. Each saved Files module
-//! receives a fresh opaque module-instance suffix: Wikidot's saved container
-//! id, refresh function name, and refresh selector all share one per-render
-//! value while the script's page id remains the real saved page id. The exact
-//! server-side suffix generator is not observed, so only the observable shape
-//! is reproduced.
-
 use std::sync::LazyLock;
 
 use ftml::data::PageInfo;
@@ -187,13 +175,6 @@ async fn expand_files_modules(
     Ok(output)
 }
 
-/// Draw a fresh opaque module-instance suffix for one saved Files module.
-///
-/// The live contract keeps the container id, refresh function, and refresh
-/// selector identical within a module and distinct across modules of one
-/// render, while never colliding with the real saved page id. Wikidot's own
-/// generator is unobserved, so this only reproduces those observable
-/// invariants.
 fn fresh_files_module_suffix(used_suffixes: &mut Vec<u32>, page_id: i64) -> u32 {
     let reserved_page_id = u32::try_from(page_id).ok();
     loop {
@@ -212,9 +193,6 @@ async fn load_files_module_state(
     page_id: i64,
     viewer_user_id: Option<i64>,
 ) -> Result<FilesModuleState> {
-    // Missing and forbidden pages reveal no page or file identity: the module
-    // stays literal, so no fabricated page id, file metadata, DOM, or script
-    // can escape. File metadata is queried only after Page:View permits it.
     let Some(page) =
         PageService::get_optional(ctx, site_id, Reference::Id(page_id)).await?
     else {

@@ -124,8 +124,6 @@ mod tests {
     use ftml::settings::WikitextMode;
     use std::borrow::Cow;
 
-    /// Render a source through the same FTML pipeline inputs Deepwell's
-    /// render service uses for Wikidot-layout pages.
     fn render_wikidot(source: &str) -> String {
         let page_info = PageInfo {
             page: Cow::Borrowed("test-page"),
@@ -172,7 +170,6 @@ mod tests {
             "{html}"
         );
 
-        // An original-display extension stays a plain original.
         let html = render_wikidot("[[image other-page/photo.png]]");
         assert!(
             html.contains(
@@ -182,7 +179,6 @@ mod tests {
         );
         assert!(!html.contains("local--resized-images"), "{html}");
 
-        // Current-page attachments keep their existing behavior.
         let html = render_wikidot("[[image photo.jpeg]]");
         assert!(
             html.contains(

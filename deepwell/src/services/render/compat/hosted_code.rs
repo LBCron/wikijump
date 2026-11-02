@@ -55,12 +55,6 @@ pub(in crate::services::render) async fn persist_hosted_code_blocks(
             config,
         )
     };
-    // Recovery is all-or-nothing for a page: it runs only when every
-    // visible scanned block rendered, in source order. If a visible block
-    // did not render (a different defect class), the rendered list is
-    // missing that block's index, and inserting recovered blocks at their
-    // raw positions would serve them under the wrong numbers -- a
-    // misnumbering, which is worse than the current 404.
     let comment_source = include_comment_blocks
         .then_some(hosted_code_source)
         .flatten()
@@ -106,21 +100,12 @@ pub(in crate::services::render) async fn persist_hosted_code_blocks(
     TextBlockService::add_blocks(ctx, page_id, TextBlockType::Code, &blocks).await
 }
 
-/// A hosted block with owned text, so a merged or paired list can be
-/// built before the borrowed `TextBlock` rows that `add_blocks` takes.
 struct OwnedHostedCodeBlock {
     text: String,
     language: Option<String>,
     name: Option<String>,
 }
 
-/// Whether every visible (not comment-wrapped) block in the raw scan
-/// pairs with a distinct rendered block, in source order.
-///
-/// The pairing key is the one `hosted_code_texts` uses. Rendered blocks
-/// no scan block pairs with (for example blocks an included page
-/// contributed) do not affect the result: they hold no index in this
-/// page's own source.
 fn visible_scan_blocks_render_in_order(
     rendered: &[CodeBlock<'_>],
     raw: &[CompatCodeBlock],
@@ -141,8 +126,6 @@ fn visible_scan_blocks_render_in_order(
     true
 }
 
-/// One hosted block in a merged list: its served text and the metadata
-/// its `TextBlock` row carries.
 #[derive(Debug, Eq, PartialEq)]
 struct MergedHostedCodeBlock {
     text: String,
@@ -150,21 +133,6 @@ struct MergedHostedCodeBlock {
     name: Option<String>,
 }
 
-/// A page's hosted blocks in Wikidot's order: the rendered blocks, with
-/// the raw scan's comment-wrapped blocks merged in at their source
-/// positions.
-///
-/// Rendered blocks are paired with the scan's visible blocks by content
-/// key (the test `hosted_code_texts` pairs by), in source order. A
-/// rendered block no visible scan block pairs with (for example one an
-/// included page contributed) keeps its position relative to the paired
-/// ones and to recovered blocks around them. A comment-wrapped block is
-/// recovered from the scan unless a still-unpaired rendered block
-/// carries the same content within the ordering its paired neighbours
-/// impose -- that means the comment flag misread the source (markers
-/// can hide inside constructs the scan does not model) and the block
-/// did render. A visible scan block the render never produced is not
-/// recovered here; its classes are parser fixes, not registration ones.
 fn merged_hosted_code_blocks<F>(
     rendered: &[CodeBlock<'_>],
     raw: &[CompatCodeBlock],
@@ -182,7 +150,6 @@ where
         .map(|block| rendered_code_key(&localize(&block.contents)))
         .collect::<Vec<_>>();
 
-    // Pair the scan's visible blocks with rendered blocks, in order.
     let mut anchor = vec![None; raw.len()];
     let mut claimed = vec![false; rendered.len()];
     let mut cursor = 0;
@@ -198,7 +165,6 @@ where
             cursor = found + 1;
         }
     }
-    // Recover-or-anchor pass for the comment-wrapped blocks.
     for (index, block) in raw.iter().enumerate() {
         if !block.comment_wrapped {
             continue;
@@ -216,8 +182,6 @@ where
         }
     }
 
-    // Rendered texts pair against the scan's visible blocks only, so a
-    // recovered block never shifts a visible block's pairing.
     let visible = raw
         .iter()
         .filter(|block| !block.comment_wrapped)
@@ -270,11 +234,6 @@ where
     merged
 }
 
-/// The hosted text for each rendered code block.
-///
-/// `rendered` holds the restored FTML block contents in source order and
-/// `raw` the page's own source blocks, when they scanned cleanly. The blocks
-/// pair by position only when both lists have the same length.
 pub(in crate::services::render) fn hosted_code_texts<F>(
     rendered: &[&str],
     raw: Option<&[CompatCodeBlock]>,
@@ -299,7 +258,6 @@ where
         .collect()
 }
 
-/// Wikidot's hosted form of a block body.
 fn wikidot_hosted_code(body: &str) -> String {
     let mut hosted = body.trim_matches('\n').to_owned();
     hosted.push('\n');
@@ -421,8 +379,6 @@ mod tests {
 
     #[test]
     fn hosted_code_keeps_the_rendered_text_when_the_raw_body_differs() {
-        // A raw body that renders to something else (here: expanded include
-        // text in the rendered block) is not paired.
         let rendered = "expanded include\n";
         let source = [raw("[[include component:x]]")];
         assert_eq!(
@@ -442,8 +398,6 @@ mod tests {
 
     #[test]
     fn merged_recovers_comment_only_pages_in_source_order() {
-        // nav:interwiki-c404's shape: every block sits in one comment and
-        // the render produced none of them.
         let source = [raw_comment("first"), raw_comment("second")];
         let merged = merged_hosted_code_blocks(&[], &source, identity);
         assert_eq!(merged_texts(&merged), ["first\n", "second\n"]);
@@ -460,8 +414,6 @@ mod tests {
 
     #[test]
     fn merged_keeps_an_included_pages_block_relative_to_the_anchors() {
-        // The foreign block renders first; the page's own comment block
-        // precedes its own visible block in the source.
         let source = [raw_comment("hidden"), raw("a")];
         let rendered = [tree("foreign"), tree("a")];
         let merged = merged_hosted_code_blocks(&rendered, &source, identity);
@@ -470,8 +422,6 @@ mod tests {
 
     #[test]
     fn merged_counts_duplicate_contents_once_per_source_block() {
-        // The same contents authored visibly and inside a comment are
-        // two blocks on Wikidot, in whichever order they were written.
         let rendered = [tree("x")];
         let comment_first = [raw_comment("x"), raw("x")];
         let merged = merged_hosted_code_blocks(&rendered, &comment_first, identity);
@@ -483,9 +433,6 @@ mod tests {
 
     #[test]
     fn merged_does_not_recover_a_flagged_block_that_did_render() {
-        // A marker the comment pass misread (for example one inside an
-        // [[html]] body) flags a visible block; its rendered counterpart
-        // accounts for it, so nothing is added.
         let source = [raw_comment("x")];
         let rendered = [tree("x")];
         let merged = merged_hosted_code_blocks(&rendered, &source, identity);
@@ -518,14 +465,11 @@ mod tests {
 
     #[test]
     fn recovery_requires_every_visible_block_to_render_in_order() {
-        // All visible blocks render, in order: recovery may run.
         assert!(visible_scan_blocks_render_in_order(
             &[tree("a"), tree("b")],
             &[raw("a"), raw_comment("hidden"), raw("b")],
             &identity,
         ));
-        // A visible block that never rendered keeps its Wikidot index;
-        // recovering the comment block would serve it under that number.
         assert!(!visible_scan_blocks_render_in_order(
             &[tree("b")],
             &[raw("a"), raw_comment("hidden"), raw("b")],
@@ -536,8 +480,6 @@ mod tests {
             &[raw("a"), raw_comment("hidden"), raw("b")],
             &identity,
         ));
-        // Out-of-order renders and duplicate contents consumed only once
-        // per rendered block do not pair.
         assert!(!visible_scan_blocks_render_in_order(
             &[tree("b"), tree("a")],
             &[raw("a"), raw("b")],
@@ -553,8 +495,6 @@ mod tests {
             &[raw("x"), raw("x")],
             &identity,
         ));
-        // A block an included page contributed pairs with nothing in the
-        // scan and does not block recovery.
         assert!(visible_scan_blocks_render_in_order(
             &[tree("foreign"), tree("a")],
             &[raw_comment("hidden"), raw("a")],

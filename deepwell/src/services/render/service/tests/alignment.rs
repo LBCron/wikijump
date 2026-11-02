@@ -18,16 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Regression locks for the scp-744 epoch-38 body loss (#2573).
-//!
-//! Under the reverted #2596 pairing, the whole-article body vanished while a
-//! literal `[[>]]` printed after the header. The current behavior pairs
-//! markers on the whole expanded document, and every pair of non-literal
-//! markers with no trailing whitespace becomes a `[[div]]`, so a balanced
-//! marker set never leaks as literal text and no pairing state can hide
-//! content. These tests lock that behavior on the exact marker shapes
-//! scp-744 carries.
-
 use super::*;
 
 fn rewrite(source: &str) -> String {

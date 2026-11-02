@@ -1,5 +1,3 @@
-//! Render-local analysis for a ListPages body template.
-
 use crate::services::page_query::FoundPageFields;
 use crate::services::render::literal_regions::LiteralRegionIndex;
 use regex::Regex;
@@ -93,9 +91,6 @@ impl ListPagesVariable {
             "created_by_linked" | "createdbylinked" | "author" => {
                 Some(Self::CreatedByLinked)
             }
-            // Only the evidenced spelling is accepted. The collapsed aliases in
-            // this table were each observed live; an unobserved variant stays
-            // literal rather than being guessed from a naming pattern.
             "created_by_unix" => Some(Self::CreatedByUnix),
             "created_by_id" => Some(Self::CreatedById),
             "created_at" | "createdat" | "date" => Some(Self::CreatedAt),
@@ -231,11 +226,6 @@ pub(in crate::services::render) struct ListPagesTemplatePlan {
     variable_traversals: usize,
 }
 
-/// The `[[head]]`, `[[body]]`, and `[[foot]]` split of a ListPages template.
-///
-/// Wikidot emits the head once, the body once per selected row, and the foot
-/// once, all inside the result wrapper. A template without any marker is one
-/// undivided per-row body.
 #[derive(Debug, Default, PartialEq, Eq)]
 struct ListPagesSections {
     head: Option<String>,
@@ -285,12 +275,6 @@ struct ListPagesSectionPair {
     close_end: usize,
 }
 
-/// Splits a template into its once-emitted sections and its per-row body.
-///
-/// A complete body pair activates section mode. A head is once-emitted only
-/// when it is the immediately preceding balanced section, and a foot is
-/// once-emitted only when it is the immediately following balanced section.
-/// Other source is local recovery and does not get reordered around the body.
 fn split_list_pages_sections(body: &str) -> Option<(ListPagesSections, String, bool)> {
     let literal_regions = LiteralRegionIndex::new(body);
     let mut stacks: [Vec<ListPagesSectionMarker>; 3] =
@@ -309,8 +293,6 @@ fn split_list_pages_sections(body: &str) -> Option<(ListPagesSections, String, b
         let kind = ListPagesSectionKind::parse(&captures["name"]);
         if kind == ListPagesSectionKind::Body {
             if captures.name("close").is_none() {
-                // Wikidot commits the first body opener. A later nested or
-                // repeated opener cannot replace it before the first close.
                 if body_pair.is_none() && body_open.is_none() {
                     body_open = Some(ListPagesSectionMarker {
                         kind,
@@ -353,8 +335,6 @@ fn split_list_pages_sections(body: &str) -> Option<(ListPagesSections, String, b
     }
 
     let Some(body_pair) = body_pair else {
-        // Without a body pair, Wikidot treats all section-shaped source as
-        // ordinary per-row template text.
         return Some((ListPagesSections::default(), body.to_owned(), false));
     };
 
@@ -532,7 +512,6 @@ impl ListPagesTemplatePlan {
         }
     }
 
-    /// The section emitted once before the rows, if the template declares one.
     pub(in crate::services::render) fn head_section(&self) -> Option<&str> {
         self.sections.head.as_deref()
     }
@@ -545,12 +524,10 @@ impl ListPagesTemplatePlan {
         }
     }
 
-    /// The section emitted once after the rows, if the template declares one.
     pub(in crate::services::render) fn foot_section(&self) -> Option<&str> {
         self.sections.foot.as_deref()
     }
 
-    /// Whether the template splits itself into once-emitted sections.
     pub(in crate::services::render) fn has_sections(&self) -> bool {
         self.sections != ListPagesSections::default()
     }
@@ -1067,8 +1044,6 @@ mod section_tests {
 
     #[test]
     fn splits_the_evidenced_head_body_foot_template() {
-        // The G59 probe template, whose live output was one head, four body
-        // rows, and one foot inside the result wrapper.
         let plan = ListPagesTemplatePlan::compile(
             "[[head]]G59_HEAD;[[/head]][[body]]G59_BODY=%%name%%;[[/body]][[foot]]G59_FOOT;[[/foot]]",
         )

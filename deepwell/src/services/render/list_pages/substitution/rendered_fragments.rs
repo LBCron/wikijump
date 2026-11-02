@@ -1,5 +1,3 @@
-//! Rendered ListPages fragment normalization and trusted-marker placement.
-
 use super::{CompatHtmlFragments, Range, RenderService, WikidotCompatLinkTitleMap};
 
 #[cfg(test)]
@@ -118,19 +116,11 @@ pub(super) fn push_list_pages_rendered_fragment_with_mode(
     compat_html: &mut CompatHtmlFragments,
     force_block: bool,
 ) -> String {
-    // A selected-content render can wrap block-valued HTML in one redundant
-    // paragraph. Wikidot's page parser drops that outer paragraph instead of
-    // nesting the block paragraphs.
     let html = html
         .strip_prefix("<p><p>")
         .and_then(|value| value.strip_suffix("</p></p>"))
         .map(|value| format!("<p>{value}</p>"))
         .unwrap_or_else(|| html.to_owned());
-    // The secondary Ad/AdSense handlers emit this exact empty paragraph as a
-    // block marker in an ordinary page render.  Inside a ListPages content
-    // value Wikidot leaves the surrounding paragraph boundary in place and
-    // does not nest a second empty `<p>`; remove only that handler-owned shape
-    // before deciding whether the selected content is inline or block HTML.
     let html = html.replace("<p>\n\n</p>", "\n\n");
     let has_html_block = list_pages_rendered_fragment_has_html_block(&html);
     let rendered = if has_html_block {
@@ -138,11 +128,6 @@ pub(super) fn push_list_pages_rendered_fragment_with_mode(
     } else {
         list_pages_rendered_inline_fragment(&html)
     };
-    // The embed compatibility path intentionally splits one paragraph around
-    // Wikidot's terminal "no match" block. Restore that flow fragment as a
-    // block so it can close the surrounding row paragraph; other runtime
-    // module errors may contain nested trusted markers and must stay inline
-    // until their own fragment stack is restored.
     if force_block
         || (list_pages_rendered_fragment_has_block_root(&rendered)
             && rendered.contains(
@@ -157,8 +142,6 @@ pub(super) fn push_list_pages_rendered_fragment_with_mode(
 }
 
 pub(super) fn list_pages_rendered_fragment_has_html_block(html: &str) -> bool {
-    // Wikidot's generated style frames are block-valued even though they do
-    // not carry the ordinary HTML-block class.
     html.contains(r#"<iframe "#)
         && (html.contains(r#"class="html-block-iframe""#)
             || html.contains("styleFrame.html"))
@@ -205,19 +188,10 @@ fn list_pages_rendered_fragment_has_block_root(html: &str) -> bool {
     })
 }
 
-/// Ranges whose opener and closer each occupy a complete line. The ListPages
-/// date lane depends on this strict shape, so it stays unchanged.
 pub(super) fn collect_list_pages_html_body_ranges(source: &str) -> Vec<Range<usize>> {
     collect_html_body_ranges(source, true)
 }
 
-/// Byte ranges that FTML can render as a raw `[[html]]` body, used to choose
-/// HTML escaping for substituted identity, tag, and form values (#2667).
-///
-/// Deliberately over-inclusive: FTML's block rule accepts an opener at any
-/// position in a line, an inline body, and a closer that is not on its own
-/// line, so a block such as `Summary [[html]]<b>%%tags%%</b>[[/html]]` is raw
-/// HTML. Escaping extra text is display-neutral for ordinary values.
 pub(super) fn collect_list_pages_html_escape_ranges(source: &str) -> Vec<Range<usize>> {
     collect_html_body_ranges(source, false)
 }

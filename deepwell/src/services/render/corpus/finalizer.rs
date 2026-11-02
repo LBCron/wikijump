@@ -151,8 +151,6 @@ impl RenderFinalizerPass {
 
     fn candidate_filter(self) -> &'static str {
         match self {
-            // Retry failed rows while attempts remain, and reclaim expired
-            // render_running rows abandoned by an interrupted worker.
             Self::Pass1 => {
                 "
                 (
@@ -879,8 +877,6 @@ impl CorpusRenderFinalizerService {
         success_state: &'static str,
         snapshot: &CorpusRenderTraceSnapshot,
     ) -> Result<()> {
-        // claim_candidates increments attempts atomically; matching it here
-        // fences out a stale worker after an expired lease is reclaimed.
         debug_assert!(matches!(success_state, "rendered" | "done"));
         let make_error = || {
             Error::new(
@@ -972,8 +968,6 @@ impl CorpusRenderFinalizerService {
         error_chain: &str,
         trace: &CorpusRenderTrace,
     ) -> Result<()> {
-        // Use the same claim fence as the success path so a stale failure
-        // cannot overwrite the state of a newer attempt.
         let make_error = || {
             Error::new(
                 format!(

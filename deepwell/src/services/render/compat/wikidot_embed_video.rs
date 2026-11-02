@@ -249,13 +249,6 @@ fn validate_media_attributes(
     Some(output)
 }
 
-/// Feature names an embedded media iframe may request through its `allow`
-/// attribute: the presentation and autoplay features carried by the
-/// standard YouTube and Acast embed code. Anything that could grant device
-/// or sensor access (camera, microphone, geolocation, payment, ...) stays
-/// rejected. `rel` and `modestbranding` are inert in this position --
-/// authors paste them in from YouTube URL parameters, and browsers ignore
-/// unknown `allow` features.
 const MEDIA_ALLOW_FEATURES: &[&str] = &[
     "accelerometer",
     "autoplay",

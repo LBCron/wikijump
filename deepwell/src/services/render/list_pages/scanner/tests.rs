@@ -88,9 +88,6 @@ fn corpus_complete_heads_that_execute_live_remain_runtime_executable() {
 
 #[test]
 fn scanner_keeps_the_body_after_an_executable_head_with_trailing_note_text() {
-    // Exact-source replay provenance: en:scp-7992:L59:B1630. Live Wikidot
-    // executes the supported selectors before the prose `NOTE:` tail and
-    // starts the row template immediately after this complete opener.
     let source = concat!(
         "[[module ListPages limit=\"1\" category=\"*\" ",
         "order=\"updated_at desc\" NOTE: module end is at bottom of page. ",
@@ -176,10 +173,6 @@ fn scanner_keeps_generated_comment_gate_rows_inside_the_module() {
 
 #[test]
 fn scanner_ignores_inert_prose_after_supported_list_pages_arguments() {
-    // Anonymous PagePreview boundary matrix:
-    // listpages-head-recovery-{prose-ascii,prose-unicode,prose-nested-block,
-    // prose-crossing-quote}. The assignments and custom row execute while
-    // arbitrary trailing prose remains inert.
     for head in [
         r#"limit="1" category="*" order="name" NOTE: arbitrary words can move freely."#,
         r#"limit="1" category="*" order="name" NOTA: conteúdo muda livremente."#,
@@ -203,10 +196,6 @@ fn scanner_ignores_inert_prose_after_supported_list_pages_arguments() {
 
 #[test]
 fn scanner_recovers_final_unclosed_quotes_as_default_template_modules() {
-    // Anonymous PagePreview boundary matrix:
-    // listpages-head-recovery-final-unclosed-{unknown-a,unknown-b,known,
-    // spaced,single-bracket,spaced-brackets}. Wikidot consumes the authored
-    // body but renders its default row template.
     for malformed_tail in [
         r#"mystery="alpha]]"#,
         r#"alternate="bravo-42]]"#,
@@ -246,10 +235,6 @@ fn scanner_recovers_final_unclosed_quotes_as_default_template_modules() {
 
 #[test]
 fn scanner_executes_the_live_factory_head_with_a_crossing_rating_quote() {
-    // Exact-source PagePreview provenance: zh-tr:factory-hub:L242:B6951.
-    // The first module's `rating="<-0"` assignment crosses the still-open
-    // `tags` quote. Live nevertheless closes the opener at the line-final
-    // `]]`, executes it, and independently executes the later valid module.
     let source = concat!(
         "[[module ListPages order=\"created_at Asc\" limit=\"100\" ",
         "tags=\"-已歸檔 -管理 -作者頁面 -沙盒 scp -tale -en-goi2014 +工廠 ",
@@ -311,8 +296,6 @@ fn scanner_accepts_an_inline_comment_between_legacy_arguments() {
 
 #[test]
 fn incomplete_module_openers_at_eof_fail_closed() {
-    // Without the required closing delimiter, this unsupported shape must
-    // stay outside the scanner's executable module matches.
     for source in ["[[module ListPages", "[[module ListPages]"] {
         let modules = find_list_pages_module_matches(source);
         assert!(modules.is_empty(), "{source:?}: {modules:#?}");
@@ -572,10 +555,6 @@ fn count_pages_shapes_need_the_module_name_in_any_case() {
 
 #[test]
 fn standalone_countpages_detector_matches_frozen_ownership_shapes() {
-    // Frozen Wikidot observation: a standalone nested opening is treated as
-    // the empty-row shape, while a same-line module body takes the separate
-    // legacy-tail path. Comments own their module-shaped text per the syntax
-    // comment specification.
     let standalone = "[[module CountPages category=\"*\" tags=\"+active\" limit=\"10\"]]";
     assert!(list_pages_body_has_standalone_count_pages_opening(
         standalone
@@ -1186,10 +1165,6 @@ fn list_pages_scanner_ignores_modules_inside_pinned_literal_forms() {
     );
     let modules = find_list_pages_module_matches(wikidot_unclosed_css);
 
-    // Anonymous Wikidot PagePreview executes both root ListPages modules for
-    // this boundary family. The matching two-module evidence has raw HTML
-    // SHA-256
-    // 48a80a2dd6ca8c27d1813e82ed7e0f9a1700214d34095cb81fdefda88344365f.
     assert_eq!(modules.len(), 2);
     assert_eq!(modules[0].head, "name=\"recovered\"");
     assert_eq!(modules[0].body, "body\n");
@@ -1439,9 +1414,6 @@ fn malformed_generic_heads_roll_back_to_the_first_nested_block() {
 
 #[test]
 fn pinned_generic_quote_lookahead_counts_its_examined_suffix() {
-    // `data-*` attributes are documented for span blocks. When one quoted
-    // value is followed by another attribute, the lookahead ends at that
-    // assignment's equals sign and reports precisely the bytes it inspected.
     let source = r#"[[span data-first="x" data-second="y"]]"#;
     let quote = source.find("\" data-second").unwrap();
     let head_end = source.rfind("]]").unwrap();
@@ -1495,8 +1467,6 @@ fn pinned_generic_quote_lookahead_counts_its_examined_suffix() {
 
 #[test]
 fn pinned_generic_quote_lookahead_rejects_an_empty_next_attribute_key() {
-    // The punctuation after the quoted value cannot begin a supported
-    // `key="value"` attribute and must terminate the lookahead promptly.
     let source = r#"[[span data-first="x" ?]]"#;
     let quote = source.find("\" ?").unwrap();
     let head_end = source.rfind("]]").unwrap();
@@ -1533,8 +1503,6 @@ fn rolled_back_competing_parser_function_runs_fail_closed() {
 
 #[test]
 fn quotes_after_emails_close_attribute_values_like_plain_text() {
-    // The pinned FTML email token ends at its last domain label, as Wikidot
-    // does, so a following quote closes the value exactly as after plain text.
     let shapes = [
         concat!(
             "[[span title=\"{}\" x=y ",
@@ -1810,7 +1778,6 @@ fn full_source_typography_changes_make_direct_heads_runtime_unsafe() {
     for source in [
         "`prefix [[module ListPages name=\"foo'bar\"]]B[[/module]]",
         "[[module ListPages name=\"foo`bar\"]]B' suffix[[/module]]",
-        // A later bare value must not clear a projection contained in the head.
         r#"[[module ListPages name="``foo''" limit=1]]B[[/module]]"#,
     ] {
         let modules = find_list_pages_module_matches(source);
@@ -1962,11 +1929,6 @@ fn list_pages_scanner_keeps_completed_matches_before_an_unclosed_body() {
 
 #[test]
 fn corpus_inline_raw_documentation_tail_cannot_supply_a_module_close() {
-    // Exact-source family: the multilingual ListPages tutorials wrap syntax
-    // names in paired @@ spans after an otherwise complete argumentless
-    // opener, then put the apparent module close after another @@ marker.
-    // Live Wikidot leaves that opener literal and continues rendering the
-    // document. A later ordinary module must remain independently visible.
     let source = concat!(
         "[[module ListPages]]@@. @@[[html]]@@ prose\n",
         "more @@[[html]]@@ prose\n",
@@ -2005,8 +1967,6 @@ fn corpus_inline_raw_documentation_tail_cannot_supply_a_module_close() {
     assert_eq!(modules[0].original, "[[Module Listpages]]");
     assert_eq!(modules[1].original, "[[Module Listpages]]");
 
-    // A single ordinary inline-raw body remains a complete module. The
-    // campaign evidence only rejects the multi-span documentation tail.
     let ordinary = "[[module ListPages name=\"ordinary\"]]@@literal@@[[/module]]";
     let modules = find_list_pages_module_matches(ordinary);
     assert_eq!(modules.len(), 1, "{modules:#?}");
@@ -2273,10 +2233,6 @@ fn at_marker_footnote_tail_does_not_hide_a_later_valid_module() {
 
 #[test]
 fn corpus_unclosed_at_marker_body_owns_the_first_collapsible_opening() {
-    // Anonymous PagePreviewModule evidence captured 2026-08-01 shows that
-    // Wikidot executes this unclosed ListPages opener with its default
-    // template, consumes the raw-marker documentation prefix through the
-    // first complete collapsible opening, then resumes at its body.
     let consumed = concat!(
         "[[module ListPages fullname=\"@@##red|missing-page##@@\" ",
         "separate=\"yes\" limit=\"250\"]]@@\n",
@@ -2342,10 +2298,6 @@ fn corpus_unclosed_at_marker_body_owns_the_first_collapsible_opening() {
 
 #[test]
 fn corpus_raw_footnote_head_owns_prose_through_the_first_collapsible_opening() {
-    // Exact-source boundary from
-    // jp:advanced-formatting-and-you:L341:B11200. The malformed ListPages
-    // head closes on the raw footnote closer. Live consumes the prose and
-    // first collapsible opening, then resumes at the collapsible body.
     let consumed = concat!(
         "[[module Listpages @@以降という認識で良い。 [[/footnote]]",
         "には、表示させたいものを指定します。\n\n",
@@ -2372,9 +2324,6 @@ fn corpus_raw_footnote_head_owns_prose_through_the_first_collapsible_opening() {
 
 #[test]
 fn unclosed_at_marker_preservation_does_not_hide_a_later_valid_module() {
-    // When no evidenced boundary follows, Wikidot leaves the opener visible
-    // as legacy module654 text. A later module after the closed raw span
-    // remains independently executable.
     let preserved = "[[module ListPages name=\"missing\"]]";
     let raw_tail = "@@\nDOC\n@@\n";
     let later = "[[module ListPages name=\"later-valid\"]]ROW[[/module]]";
@@ -2392,9 +2341,6 @@ fn unclosed_at_marker_preservation_does_not_hide_a_later_valid_module() {
 
 #[test]
 fn corpus_trailing_at_marker_head_keeps_its_evidenced_raw_row_tail_executable() {
-    // Exact-source case es:listpages-magic-and-you:L177:B6617. Live executes
-    // the default ListPages query, and the malformed raw row/close tail
-    // contributes no downstream output.
     let source = concat!(
         "[[module ListPages created_by=\"morhadow\" tags=\"es\" ",
         "order=\"rating\" limit=\"5\" separate=\"no\"@@]]@@\n",
@@ -2420,8 +2366,6 @@ fn corpus_trailing_at_marker_head_keeps_its_evidenced_raw_row_tail_executable() 
 
 #[test]
 fn unquoted_comparison_discriminators_remain_structurally_executable() {
-    // Frozen Wikidot oracle: unquoted-comparison-live.jsonl. These observed
-    // inert tokens must not force an executable module into literal fallback.
     for token in [
         "rating>100000",
         "score>100000",
@@ -2578,12 +2522,6 @@ fn corpus_monospace_and_comment_owners_hide_listpages_candidates() {
 }
 #[test]
 fn preserved_module654_suffix_charges_projected_merge_and_recursive_work() {
-    // The unclosed head and raw-tail preservation is a retained live Wikidot
-    // behavioral oracle (unclosed_at_marker_preservation_does_not_hide_a_later_valid_module).
-    // Quoted-line continuation extensions below test internal work counters;
-    // their exact renderings are NOT independently verified live Wikidot oracles.
-    // `raw_tail` is two lone `@@` lines: Wikidot pairs `@@` per line, so neither
-    // owns a literal range (the counters count only real ranges).
     let preserved = "[[module ListPages name=\"missing\"]]";
     let raw_tail = "@@\nDOC\n@@\n";
     let later = "[[module ListPages name=\"later-valid\"]]ROW[[/module]]";

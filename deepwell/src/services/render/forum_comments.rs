@@ -1,5 +1,3 @@
-//! Read-only page comment resolution and first-page rendering.
-
 use std::collections::BTreeMap;
 use std::fmt::Write as _;
 
@@ -170,8 +168,6 @@ pub(super) async fn count_comment_roots(
         .or_raise(|| Error::new("failed to count page comments", ErrorType::Render))
 }
 
-/// Load one page of root posts (ten per page) with every descendant nested
-/// under its parent. `page` is 1-based; roots are paged in `order`.
 pub(super) async fn load_comment_nodes(
     ctx: &ServiceContext<'_>,
     site_id: i64,
@@ -352,9 +348,6 @@ fn render_new_post_form(thread_id: i64) -> String {
     )
 }
 
-/// Reply is a navigation control, independent of posting permission. At or above the
-/// effective nesting boundary only the last sibling may offer a flattened
-/// reply. A flat category never offers Reply.
 fn reply_is_visible(depth: usize, max_nest_level: i16, last_sibling: bool) -> bool {
     let Ok(max_depth) = usize::try_from(max_nest_level) else {
         return false;
@@ -393,10 +386,6 @@ pub(super) fn render_comment_nodes(
     )
 }
 
-/// Wikidot's AJAX post pager: the first two pages, two pages either side of
-/// the current one, and the last two. A gap of one page shows that page; a
-/// longer gap shows `...`. Previous/next surround the list, and every link
-/// reloads the posts in place.
 pub(super) fn push_pager(output: &mut String, page: u64, page_count: u64) {
     if page_count <= 1 {
         return;
@@ -474,8 +463,6 @@ mod tests {
         }
     }
 
-    /// Rebuild Wikidot's pager markup from a compact token list: `[n]` is the
-    /// current page, `<n` previous, `>n` next, `...` a gap, `n` a page link.
     fn wikidot_pager(page: u64, page_count: u64, tokens: &str) -> String {
         let link = |target: &str, label: &str| {
             format!(

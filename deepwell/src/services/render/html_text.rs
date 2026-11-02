@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Conservative, non-reserializing discovery of HTML data-state ranges.
-
 mod scanner;
 
 pub(super) use scanner::{
@@ -57,9 +55,6 @@ pub(super) fn html_data_segments(html: &str) -> Vec<HtmlDataSegment> {
     html_data_segments_with_options(html, false)
 }
 
-/// Returns text ranges inside preformatted blocks. Compatibility fragments
-/// there must remain text, but their private marker strings must never be
-/// exposed in rendered output.
 pub(super) fn html_preformatted_content_ranges(html: &str) -> Vec<Range<usize>> {
     let mut ranges = Vec::new();
     let mut cursor = 0;
@@ -107,8 +102,6 @@ pub(super) fn html_preformatted_content_ranges(html: &str) -> Vec<Range<usize>> 
     ranges
 }
 
-/// Discovers data ranges while allowing canonical generated inline monospace contents.
-/// Every other code element and opaque element remains protected.
 pub(super) fn html_data_segments_with_inline_code(html: &str) -> Vec<HtmlDataSegment> {
     html_data_segments_with_options(html, true)
 }

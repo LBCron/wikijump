@@ -32,11 +32,6 @@ pub(in crate::services::render) struct WikidotCompatInlineMarker {
     pub(in crate::services::render) kind: WikidotCompatInlineMarkerKind,
 }
 
-/// Return the earliest complete compatibility marker in `value`.
-///
-/// Candidate discovery advances monotonically through the string. Invalid
-/// candidates never restart the search from the beginning, which keeps a call
-/// linear in the supplied text instead of rescanning it once per marker kind.
 pub(in crate::services::render) fn next_wikidot_compat_inline_marker(
     value: &str,
 ) -> Option<WikidotCompatInlineMarker> {

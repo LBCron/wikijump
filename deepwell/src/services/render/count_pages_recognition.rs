@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Recognize CountPages modules that the runtime renderer can actually execute.
-
 use std::ops::Range;
 
 use super::UrlArguments;

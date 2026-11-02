@@ -1,5 +1,3 @@
-//! Nested ListPages boundary-protection helpers for delayed rows.
-
 use super::{
     CompatHtmlFragments, SharedRenderCostBudget,
     find_list_pages_module_matches_with_delayed_links,
@@ -59,9 +57,6 @@ pub(super) fn nested_list_pages_boundary_ranges(
             let body_end = body_start + module.body.len();
             ranges.push((0, base + module.start, body_start));
             ranges.push((0, body_end, base + module.end));
-            // A malformed or crossing scanner match must not enqueue the same
-            // source span forever. Nested protection is a compatibility guard,
-            // not an alternate parser, so leave non-shrinking matches alone.
             if body_start > base && body_start < body_end && body_end <= end {
                 pending.push((body_start, body_end));
             }

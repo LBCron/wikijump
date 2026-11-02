@@ -137,7 +137,6 @@ fn static_category_preflight_accepts_only_literal_inclusions() {
         list_pages_static_category_preflight(r#"category="+blog""#),
         Some((vec!["blog".to_owned()], true))
     );
-    // A later non-wrapper double-quoted argument must not affect `wrapper`.
     assert_eq!(
         list_pages_static_category_preflight(
             r#"category="blog" wrapper="yes" name="false""#
@@ -234,7 +233,6 @@ fn name_selectors_compose_without_widening() {
         );
     }
 
-    // Equal selectors collapse instead of widening.
     let equal_current =
         compose_list_pages_name_selectors(Some(CurrentPage), Some(CurrentPage));
     assert!(equal_current.current_page_only && !equal_current.unsupported);

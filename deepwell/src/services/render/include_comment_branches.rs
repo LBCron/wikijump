@@ -26,33 +26,16 @@ const SELECTED_BRANCH_MARKER: &str = "[!-- --]";
 const PAIRED_BRANCH_CLOSE_PREFIX: &str = "[!{$";
 const PAIRED_BRANCH_CLOSE_SUFFIX: &str = "} --]";
 
-/// Removes Wikidot include-variable comment branches that remain hidden after
-/// variable substitution.
-///
-/// Wikidot components use both compact comment boundaries (`[!----]`) and
-/// empty-comment boundaries (`[!-- --]`). Components also gate blocks with
-/// paired markers (`[!-- {$var}]` ... `[!{$var} --]`): on Wikidot, the
-/// comment opened by an unresolved opener runs to the `--]` in the paired
-/// closer, hiding the gated block. A branch with neither a boundary nor its
-/// own variable's paired closer is preserved literally so malformed input
-/// fails closed during FTML parsing.
 pub(super) fn remove_unresolved_include_comment_branches(wikitext: &mut String) {
     remove_unresolved_include_comment_branches_inner(wikitext, None);
 }
 
-/// Include-local comment boundaries must not close a branch owned by the
-/// caller after nested sources are assembled.
 pub(super) fn remove_nested_include_boundaries(wikitext: &mut String) {
     let mut output = String::with_capacity(wikitext.len());
     let mut plain_comment_open = false;
     for line in wikitext.split_inclusive('\n') {
         let marker = line.trim();
         if plain_comment_open {
-            // Inside a plain Wikidot comment every line is comment text.
-            // A boundary-looking line here carries the `--]` that closes
-            // the comment, so it must survive: dropping it leaves the
-            // comment unterminated, and later literal-region scans swallow
-            // following caller content into the comment.
             output.push_str(line);
             if marker.contains("--]") {
                 plain_comment_open = false;
@@ -67,8 +50,6 @@ pub(super) fn remove_nested_include_boundaries(wikitext: &mut String) {
     *wikitext = output;
 }
 
-/// Removes bounded inactive branches and protects malformed openers so they
-/// cannot claim a boundary from a caller or sibling source after assembly.
 pub(super) fn remove_unresolved_include_comment_branches_source_local(
     wikitext: &mut String,
     fragments: &mut CompatTextFragments,
@@ -95,10 +76,6 @@ fn remove_unresolved_include_comment_branches_inner(
                 .zip(paired_branch_close_variable(marker))
                 .is_some_and(|(variable, closed_by)| variable == closed_by);
             if paired_close {
-                // The branch's own paired closer terminates it even when a
-                // sibling gate's opener landed inside: sequential paired
-                // gates are siblings, not true nesting, and on Wikidot the
-                // comment ends at the closer's `--]` either way.
                 unresolved_branch = None;
             } else if is_unresolved_branch_open(marker) {
                 branch.nested_opener = true;
@@ -109,11 +86,6 @@ fn remove_unresolved_include_comment_branches_inner(
         }
 
         if plain_comment_open {
-            // Inside a plain Wikidot comment every line is comment text.
-            // A boundary-looking line here carries the `--]` that closes
-            // the comment, so it must survive: dropping it leaves the
-            // comment unterminated and later literal-region scans swallow
-            // following conditional markers into the comment.
             output.push_str(line);
             if marker.contains("--]") {
                 plain_comment_open = false;
@@ -149,10 +121,6 @@ fn protect_unbounded_branch(
     source: &str,
     fragments: &mut CompatTextFragments,
 ) {
-    // Protect the complete malformed branch, rather than only its opener, so
-    // include or module syntax in its body cannot become active while the
-    // opener is hidden from cross-source pruning. Keep the final line ending
-    // outside the marker so the following caller source retains its boundary.
     let (body, ending) = split_line_ending(source);
     output.push_str(&fragments.push_escaped_html_text(body));
     output.push_str(ending);
@@ -173,8 +141,6 @@ fn split_line_ending(line: &str) -> (&str, &str) {
 struct UnresolvedBranch {
     source: String,
     nested_opener: bool,
-    /// The include variable the opener is keyed on, when it could be
-    /// parsed; the branch ends at that variable's paired closer.
     variable: Option<String>,
 }
 
@@ -182,16 +148,12 @@ fn is_unresolved_branch_open(line: &str) -> bool {
     line.starts_with(UNRESOLVED_BRANCH_OPEN_PREFIX)
 }
 
-/// Parses the include variable an unresolved branch opener is keyed on,
-/// e.g. `inc-animation` from `[!-- {$inc-animation}]`.
 fn unresolved_branch_variable(line: &str) -> Option<String> {
     let rest = line.strip_prefix(UNRESOLVED_BRANCH_OPEN_PREFIX)?;
     let name = &rest[..rest.find('}')?];
     is_valid_branch_variable(name).then(|| name.to_owned())
 }
 
-/// Parses the include variable named by a paired branch closer, e.g.
-/// `inc-animation` from `[!{$inc-animation} --]`.
 fn paired_branch_close_variable(line: &str) -> Option<&str> {
     let name = line
         .strip_prefix(PAIRED_BRANCH_CLOSE_PREFIX)?
@@ -206,8 +168,6 @@ fn is_valid_branch_variable(name: &str) -> bool {
             .any(|c| c.is_whitespace() || matches!(c, '{' | '}'))
 }
 
-/// Whether a line leaves a plain Wikidot comment unterminated: its last
-/// `[!--` opener has no `--]` after it on the same line.
 fn opens_plain_comment(line: &str) -> bool {
     match line.rfind("[!--") {
         Some(open) => !line[open + "[!--".len()..].contains("--]"),
@@ -317,10 +277,6 @@ mod tests {
 
     #[test]
     fn preserves_plain_comment_closer_lines_for_later_passes() {
-        // A `[!-- --]` line that carries the `--]` closing an earlier plain
-        // comment opener is not a branch boundary: dropping it leaves the
-        // comment unterminated, and later literal-region scans then swallow
-        // following conditional markers into the comment.
         let original = concat!(
             "Before\n",
             "[!-- -draft\n",
@@ -374,11 +330,6 @@ mod tests {
 
     #[test]
     fn nested_boundary_pruning_preserves_plain_comment_closers() {
-        // A `[!-- --]` line that carries the `--]` closing an earlier plain
-        // comment opener is comment text, not a nested-include boundary:
-        // dropping it leaves the comment unterminated, and module
-        // recognition then treats following modules as comment text
-        // (component:pride-logos shape behind the deer-college Rate stub).
         let original = concat!(
             "Before\n",
             "[!-- -draft\n",
@@ -497,11 +448,6 @@ mod tests {
 
     #[test]
     fn drops_paired_comment_gates_with_unresolved_variables() {
-        // The slim-acs idiom: optional sections are wrapped in paired
-        // comment markers keyed on an include variable. With the variable
-        // unpassed, Wikidot's comment spans from the opener to the paired
-        // closer, so each gated block is hidden while the rest of the
-        // component renders normally.
         let mut wikitext = concat!(
             "Component styles\n",
             "[!-- {$inc-animation}]\n",
@@ -549,9 +495,6 @@ mod tests {
 
     #[test]
     fn paired_comment_gate_with_dashes_value_keeps_the_block() {
-        // With the gate variable bound to `--`, substitution rewrites the
-        // opener into a complete empty comment before this pass runs, so no
-        // unresolved branch exists and the gated block survives pruning.
         let mut wikitext = concat!(
             "Before\n",
             "[!-- --]\n",
@@ -590,9 +533,6 @@ mod tests {
 
     #[test]
     fn paired_closer_terminates_a_branch_despite_a_sibling_opener() {
-        // Sequential paired gates are siblings, not true nesting: a second
-        // gate's opener landing inside an unclosed first branch must not
-        // stop the first branch's own paired closer from terminating it.
         let mut wikitext = concat!(
             "Before\n",
             "[!-- {$inc-first}]\n",
@@ -627,8 +567,6 @@ mod tests {
 
     #[test]
     fn source_local_cleanup_protects_a_paired_gate_without_its_closer() {
-        // A paired-idiom opener with no closer anywhere is genuinely
-        // unbounded, so the fail-closed protection still applies in full.
         let original = concat!(
             "CHILD_BEFORE\n",
             "[!-- {$inc-animation}]\n",

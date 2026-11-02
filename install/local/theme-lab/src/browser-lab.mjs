@@ -18,7 +18,7 @@ const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_BROWSER_ROOT = path.resolve(MODULE_DIR, "../../../../framerail");
 
 export function loadChromium(browserRoot = DEFAULT_BROWSER_ROOT) {
-  return resolveBrowser('chromium',browserRoot,['playwright','@playwright/test']);
+  return resolveBrowser('chromium',browserRoot,['@playwright/test','playwright']);
 }
 
 export function loadBrowser(engine, browserRoot = DEFAULT_BROWSER_ROOT) {
@@ -38,6 +38,7 @@ function resolveBrowser(engine,browserRoot,packages){
   assertBrowserRoot(browserRoot);
   const requireFromRoot = createRequire(path.join(browserRoot, "package.json"));
   for (const name of packages) {
+    if (!fs.existsSync(path.join(browserRoot, "node_modules", name))) continue;
     try {
       const loaded = requireFromRoot(name);
       if (loaded?.[engine]) return loaded[engine];

@@ -532,11 +532,13 @@ def remove_volumes(*names: str) -> None:
         subprocess.run(["docker", "volume", "rm", "--force", name], capture_output=True)
 
 
-def saved_page_staleness(
-    database_container: str, expected: str, scp_wiki_slugs: list[str] | None = None
-) -> int:
+def _stale_saved_pages_from_where(
+    expected: str, scp_wiki_slugs: list[str] | None = None
+) -> str:
+    """The one stale-page predicate, shared by the count and the ID query:
+    a live page whose latest revision was not compiled by `expected`."""
     sql = (
-        "SELECT count(*) FROM page p JOIN page_revision pr "
+        "FROM page p JOIN page_revision pr "
         "ON pr.revision_id = p.latest_revision_id WHERE p.deleted_at IS NULL "
         "AND pr.compiled_generator <> '" + expected.replace("'", "''") + "'"
     )
@@ -546,14 +548,42 @@ def saved_page_staleness(
             " AND p.site_id = (SELECT site_id FROM site WHERE slug = 'scp-wiki')"
             f" AND p.slug IN ({quoted})"
         )
+    return sql
+
+
+def _psql_scalar(database_container: str, sql: str) -> str:
+    return run(
+        "docker", "exec", database_container, "sh", "-c",
+        'PGPASSWORD="$POSTGRES_PASSWORD" exec psql -h 127.0.0.1 -U "$POSTGRES_USER" '
+        '-d "$POSTGRES_DB" -At -v ON_ERROR_STOP=1 -c "$1"',
+        "sh", sql,
+    )
+
+
+def saved_page_staleness(
+    database_container: str, expected: str, scp_wiki_slugs: list[str] | None = None
+) -> int:
     return int(
-        run(
-            "docker", "exec", database_container, "sh", "-c",
-            'PGPASSWORD="$POSTGRES_PASSWORD" exec psql -h 127.0.0.1 -U "$POSTGRES_USER" '
-            '-d "$POSTGRES_DB" -At -v ON_ERROR_STOP=1 -c "$1"',
-            "sh", sql,
+        _psql_scalar(
+            database_container,
+            "SELECT count(*) " + _stale_saved_pages_from_where(expected, scp_wiki_slugs),
         )
     )
+
+
+def saved_page_stale_ids(database_container: str, expected: str) -> list[int]:
+    """Page IDs failing the stale predicate, ascending."""
+    output = _psql_scalar(
+        database_container,
+        "SELECT p.page_id " + _stale_saved_pages_from_where(expected) + " ORDER BY p.page_id",
+    )
+    return [int(value) for value in output.split()]
+
+
+def database_clock(database: str = STANDING_DATABASE) -> str:
+    """The database's clock, for comparing against `compiled_at` values
+    the database-adjacent writers recorded."""
+    return psql(database, "SELECT clock_timestamp();\n").splitlines()[0].strip()
 
 
 SAVED_PAGE_OUTPUT_COLUMNS = (
@@ -599,13 +629,28 @@ def restore_saved_page_output(
     promoted_generator: str,
     database: str = STANDING_DATABASE,
     cache: str = STANDING_CACHE,
+    switch_started_at: str | None = None,
 ) -> int:
     """Put the snapshot back on revisions the new build has not rendered
     since (their generator is still the promoted one), and move every site's
-    public-content fence so no cached response from the new build is served."""
+    public-content fence so no cached response from the new build is served.
+
+    Rows compiled at or after `switch_started_at` (the database clock
+    captured before parking) are not restored: a post-flip in-place
+    rerender already replaced their output (and may have deleted the text
+    blocks the snapshot names), so restoring would silently regress them
+    under a generator the old build accepts. Post-rollback convergence
+    renders those pages with the old build instead."""
     columns = ", ".join(SAVED_PAGE_OUTPUT_COLUMNS)
     assignments = ", ".join(f"{column} = saved.{column}" for column in SAVED_PAGE_OUTPUT_COLUMNS[1:])
     generator = promoted_generator.replace("'", "''")
+    guard = ""
+    if switch_started_at is not None:
+        guard = (
+            "AND page_revision.compiled_at < '"
+            + switch_started_at.replace("'", "''")
+            + "' "
+        )
     output = psql(
         database,
         "CREATE TEMPORARY TABLE saved ON COMMIT DROP AS "
@@ -615,7 +660,7 @@ def restore_saved_page_output(
         + "\\.\n"
         + f"WITH restored AS (UPDATE page_revision SET {assignments} FROM saved "
         "WHERE page_revision.revision_id = saved.revision_id "
-        f"AND page_revision.compiled_generator = '{generator}' RETURNING 1) "
+        f"AND page_revision.compiled_generator = '{generator}' {guard}RETURNING 1) "
         "SELECT count(*) FROM restored;\n",
     )
     sites = psql(database, "SELECT site_id FROM site ORDER BY site_id;\n").split()
@@ -732,6 +777,220 @@ def rerender_rehearsal_pages(project: str, image: str, slugs: list[str]) -> dict
             raise RuntimeError("the rehearsal Deepwell did not become healthy after its restart")
         time.sleep(1)
     return {"pages": len(page_ids), "slugs": slugs}
+
+
+# Activation catch-up and post-rollback convergence
+
+# Total wall-clock bound for one convergence loop, on top of the round
+# bound (`render_ahead.CATCH_UP_ROUNDS`) it reuses.
+ACTIVATION_CATCH_UP_TIMEOUT_SECONDS = 900
+
+
+def render_delta_pages(
+    image: str,
+    page_ids: list[int] | None,
+    log_path: Path,
+    *,
+    dry_run: bool = False,
+    database: str = STANDING_DATABASE,
+    deepwell: str = STANDING_DEEPWELL,
+) -> dict[str, object]:
+    """Render `page_ids` into render-ahead rows with `image`, following
+    `rerender_rehearsal_pages`: the image's idempotent render-ahead
+    migration runs first (so this also works when the render-ahead stage
+    was not needed), and the pass joins the running Deepwell's network
+    namespace. A dry run renders nothing; its summary still carries the
+    image's own `compiled_generator`."""
+    if page_ids is not None and not page_ids and not dry_run:
+        raise ValueError("a page-limited render needs page IDs")
+    inspected = render_ahead.container_inspect(deepwell)
+    migration = run("docker", "run", "--rm", "--entrypoint", "cat", image, render_ahead.MIGRATION_PATH)
+    render_ahead.require_idempotent_migration(migration)
+    render_ahead.psql(database, migration)
+    summary = render_ahead.render_pass(
+        image, deepwell,
+        render_ahead.config_mount(inspected),
+        render_ahead.runtime_environment(inspected),
+        render_ahead.render_ahead_settings(
+            len(page_ids) if page_ids else 16, 200, render_ahead.utc_now(), page_ids, dry_run
+        ),
+        log_path,
+    )
+    if summary["failed"]:
+        raise RuntimeError(f"rendering the stale delta failed: {summary['failures']}")
+    return summary
+
+
+def restart_standing_deepwell(
+    runtime_home: Path, override_file: Path, health_timeout: int
+) -> dict[str, str]:
+    """Restart standing Deepwell so it promotes valid ahead rows at
+    startup, then require the whole runtime healthy again."""
+    run("docker", "restart", STANDING_DEEPWELL)
+    return refresh.wait_for_health(runtime_home, override_file, health_timeout)
+
+
+def mark_link_readers_stale(page_ids: list[int], database: str = STANDING_DATABASE) -> None:
+    """Mark readers' latest revisions stale to the running generator (the
+    `rerender_rehearsal_pages` marking), so a page-limited render pass
+    selects them even though they already carry the target generator."""
+    quoted = ", ".join(str(int(page_id)) for page_id in page_ids)
+    psql(
+        database,
+        "UPDATE page_revision SET compiled_generator = 'activation-link-rerender' "
+        "WHERE revision_id IN (SELECT latest_revision_id FROM page "
+        f"WHERE page_id IN ({quoted}) AND deleted_at IS NULL "
+        "AND latest_revision_id IS NOT NULL);\n",
+    )
+
+
+def render_ahead_link_readers(render_ahead_result: dict[str, object]) -> list[int]:
+    """Link readers the render-ahead stage's own passes reported, from its
+    receipt; empty when that stage did not run or its receipt is unreadable."""
+    if render_ahead_result.get("status") != "pass":
+        return []
+    receipt = render_ahead_result.get("receipt")
+    if not isinstance(receipt, dict) or not isinstance(receipt.get("path"), str):
+        return []
+    try:
+        data = json.loads(Path(receipt["path"]).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    readers = data.get("link_reader_page_ids")
+    if not isinstance(readers, list):
+        return []
+    return [int(page_id) for page_id in readers]
+
+
+def _converge_stale_pages(
+    expected: str,
+    image: str,
+    evidence: Path,
+    runtime_home: Path,
+    override_file: Path,
+    health_timeout: int,
+    *,
+    log_prefix: str,
+    settle_link_readers: bool,
+    known_link_readers: list[int] | tuple[int, ...] = (),
+) -> dict[str, object]:
+    """Bounded stale-page convergence against the running Deepwell: render
+    the stale delta with `image`, restart Deepwell to promote it, reload
+    the gateway, re-count. Returns the final stale count (never raises on
+    non-convergence; raises on render/restart failures)."""
+    started = time.monotonic()
+    stale = saved_page_staleness(STANDING_DATABASE, expected)
+    result: dict[str, object] = {"rounds": [], "link_reader_rounds": []}
+    if not stale:
+        result["stale_pages_remaining"] = 0
+        return result
+    links_before = render_ahead.link_digests(STANDING_DATABASE) if settle_link_readers else None
+    readers = set(known_link_readers)
+    for round_number in range(1, render_ahead.CATCH_UP_ROUNDS + 1):
+        if time.monotonic() - started > ACTIVATION_CATCH_UP_TIMEOUT_SECONDS:
+            break
+        page_ids = saved_page_stale_ids(STANDING_DATABASE, expected)
+        if not page_ids:
+            break
+        summary = render_delta_pages(
+            image, page_ids, evidence / f"{log_prefix}-{round_number}.log"
+        )
+        readers |= render_ahead.link_readers(summary)
+        restart_standing_deepwell(runtime_home, override_file, health_timeout)
+        reload_gateway()
+        stale = saved_page_staleness(STANDING_DATABASE, expected)
+        result["rounds"].append(
+            {"round": round_number, "pages": len(page_ids), "stale_after": stale}
+        )
+        if not stale:
+            break
+    if stale or not settle_link_readers or links_before is None:
+        result["stale_pages_remaining"] = stale
+        return result
+    # A catch-up render can move the link graph; known readers already at
+    # the target generator are not re-rendered by render-ahead (#2738), so
+    # settle them the way render_ahead.verify_with_catch_up does: mark,
+    # re-render, restart, until a round leaves every link unchanged.
+    changed = set(render_ahead.changed_pages(links_before, render_ahead.link_digests(STANDING_DATABASE)))
+    result["link_pages_changed"] = sorted(changed)
+    if changed and readers:
+        for round_number in range(1, render_ahead.MAX_READER_ROUNDS + 1):
+            if not changed or not readers:
+                break
+            before = render_ahead.link_digests(STANDING_DATABASE)
+            requested = sorted(readers)
+            mark_link_readers_stale(requested)
+            summary = render_delta_pages(
+                image, requested, evidence / f"{log_prefix}-link-readers-{round_number}.log"
+            )
+            readers |= render_ahead.link_readers(summary)
+            restart_standing_deepwell(runtime_home, override_file, health_timeout)
+            reload_gateway()
+            stale = saved_page_staleness(STANDING_DATABASE, expected)
+            changed = set(
+                render_ahead.changed_pages(before, render_ahead.link_digests(STANDING_DATABASE))
+            )
+            result["link_reader_rounds"].append(
+                {"round": round_number, "pages": len(requested), "stale_after": stale}
+            )
+            if stale:
+                break
+        if changed:
+            raise RuntimeError(
+                f"links of {len(changed)} pages did not settle after "
+                f"{render_ahead.MAX_READER_ROUNDS} link-reader rounds during activation catch-up"
+            )
+    result["stale_pages_remaining"] = stale
+    return result
+
+
+def converge_saved_pages(
+    expected: str,
+    image: str,
+    evidence: Path,
+    runtime_home: Path,
+    override_file: Path,
+    health_timeout: int,
+    known_link_readers: list[int] | tuple[int, ...] = (),
+) -> dict[str, object]:
+    """Activation freshness after the flip. A zero first count is exactly
+    the historical behavior (no render, no restart); otherwise converge in
+    bounded rounds and keep the historical failure when it does not."""
+    result = _converge_stale_pages(
+        expected, image, evidence, runtime_home, override_file, health_timeout,
+        log_prefix="activation-catch-up",
+        settle_link_readers=True,
+        known_link_readers=known_link_readers,
+    )
+    stale = int(result["stale_pages_remaining"])
+    if stale:
+        raise RuntimeError(f"standing serves {stale} stale saved pages")
+    return result
+
+
+def recover_stale_saved_pages(
+    old_image: str,
+    evidence: Path,
+    runtime_home: Path,
+    override_file: Path,
+    health_timeout: int,
+) -> int:
+    """After a rollback, render pages left stale to the old build with the
+    old image (its generator comes from the image's own dry-run summary),
+    bounded the same way. Returns the stale count that remains."""
+    probe = render_delta_pages(
+        old_image, None, evidence / "rollback-render-probe.log", dry_run=True
+    )
+    old_generator = probe["compiled_generator"]
+    if not isinstance(old_generator, str) or not old_generator:
+        raise RuntimeError("the rollback image did not report its compiled generator")
+    result = _converge_stale_pages(
+        old_generator, old_image, evidence, runtime_home, override_file,
+        health_timeout,
+        log_prefix="rollback-catch-up",
+        settle_link_readers=False,
+    )
+    return int(result["stale_pages_remaining"])
 
 
 # Browser parity
@@ -1279,6 +1538,7 @@ def activate(
         differential_path.read_text(encoding="utf-8") if differential_path.exists() else None
     )
     timings: dict[str, float] = {}
+    switch_started_at: str | None = None
     snapshot = evidence / "saved-page-output-before.tsv"
 
     def timed(name, action):
@@ -1289,7 +1549,7 @@ def activate(
             timings[name] = round(time.monotonic() - started, 3)
 
     def switch_stage():
-        nonlocal parked, switched
+        nonlocal parked, switched, switch_started_at
         if refresh.runtime_containers(runtime_home) != previous:
             raise RuntimeError("standing changed while the promotion prepared; rerun it")
         activation_started = time.monotonic()
@@ -1297,6 +1557,7 @@ def activate(
             snapshot_rows = timed("saved-page-snapshot", lambda: snapshot_saved_page_output(snapshot))
             if snapshot_rows < render_ahead["stale_pages_before"]:
                 raise RuntimeError("the saved-page snapshot is missing pages")
+        switch_started_at = database_clock()
         parked = refresh.park_containers(previous, runtime_home, run_id)
         environment.update(
             {
@@ -1319,9 +1580,11 @@ def activate(
         ))
         health = timed("health", lambda: refresh.wait_for_health(runtime_home, override_file, health_timeout))
         gateway = timed("gateway", reload_gateway)
-        stale = saved_page_staleness(STANDING_DATABASE, render_ahead["expected_compiled_generator"])
-        if stale:
-            raise RuntimeError(f"standing serves {stale} stale saved pages")
+        catch_up = timed("catch-up", lambda: converge_saved_pages(
+            render_ahead["expected_compiled_generator"], images["deepwell"]["id"],
+            evidence, runtime_home, override_file, health_timeout,
+            known_link_readers=render_ahead_link_readers(render_ahead),
+        ))
         canary = timed("canary", lambda: http_canary(refresh.CANARY_URL))
         current = refresh.runtime_containers(runtime_home)
         for service in SERVICES:
@@ -1394,7 +1657,7 @@ def activate(
         }
         path = evidence / "refresh-receipt.json"
         refresh.atomic_json_no_replace(path, refresh_receipt)
-        return {"refresh_receipt": str(path), "timings": dict(timings), "gateway": gateway}
+        return {"refresh_receipt": str(path), "timings": dict(timings), "gateway": gateway, "catch_up": catch_up}
 
     try:
         switched_result = stages.run("activation", switch_stage)
@@ -1423,7 +1686,8 @@ def activate(
                     )
                 if snapshot.exists():
                     rollback["restored_saved_pages"] = restore_saved_page_output(
-                        snapshot, render_ahead["expected_compiled_generator"]
+                        snapshot, render_ahead["expected_compiled_generator"],
+                        switch_started_at=switch_started_at,
                     )
             rollback["container_recovery"] = refresh.restore_or_recreate_previous_containers(
                 parked, runtime_home, override_file, rollback_images
@@ -1434,6 +1698,18 @@ def activate(
                 differential_path.write_text(previous_differential, encoding="utf-8")
             refresh.wait_for_health(runtime_home, override_file, health_timeout)
             rollback["gateway"] = reload_gateway()
+            # Best effort, after the old build is back: render whatever the
+            # flip left stale to it (post-flip revisions, guarded-out
+            # rerenders) with the old image, before the final canary. A
+            # failure here never masks the original activation error.
+            try:
+                rollback["stale_after_recovery"] = recover_stale_saved_pages(
+                    rollback_images["deepwell"]["id"], evidence, runtime_home,
+                    override_file, health_timeout,
+                )
+            except BaseException as recovery_error:
+                rollback["stale_after_recovery"] = None
+                rollback["recovery_error"] = str(recovery_error)
             rollback.update(status="pass", canary=http_canary(refresh.CANARY_URL))
         except BaseException as rollback_error:
             rollback["error"] = str(rollback_error)

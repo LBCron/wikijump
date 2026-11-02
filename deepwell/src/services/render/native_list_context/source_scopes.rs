@@ -1,31 +1,11 @@
-//! Rule-aware guard for source scopes surrounding trusted list fragments.
-//!
-//! This catalog mirrors FTML body-rule identity only far enough to distinguish
-//! proven block containers from source scopes that must retain native text.
-
 use std::ops::Range;
 
 use super::super::literal_regions::{
     LiteralRegionIndex, TextTokenCursor, WikidotTagScan, scan_wikidot_tag,
 };
 
-/// A finite pairing depth keeps malformed source from turning every closer
-/// into a scan of an attacker-sized opener stack. Exceeding it preserves the
-/// complete source as unsafe, which is the fail-closed result for the native
-/// block-list pass.
 pub(super) const MAX_SOURCE_SCOPE_DEPTH: usize = 1_024;
 
-/// Collect source scopes whose rendered parent has not been proven to accept a
-/// trusted block fragment. The early native-list pass runs before FTML has
-/// built that parent, so a known body owner or an unknown paired scope must be
-/// treated as unsafe rather than allowing an opaque marker to reach an inline
-/// element.
-///
-/// A known body owner without a matching close remains unsafe through EOF.
-/// An unknown unpaired head does not, because it might be a leaf-like custom
-/// construct rather than a body owner. `div`, `blockquote`/`quote`, and the
-/// four symbolic alignment rules are the deliberately small safe set, and
-/// only after a valid matching close.
 pub(in crate::services::render) fn collect_unproven_scope_ranges(
     source: &str,
     literals: &LiteralRegionIndex,
@@ -65,11 +45,6 @@ pub(in crate::services::render) fn collect_unproven_scope_ranges(
                         let identity = source_scope_rule(&head.name)
                             .map(|mut rule| {
                                 if !rule.accepts_open(&head) {
-                                    // FTML falls back to literal text when a
-                                    // safe-looking rule rejects its star or
-                                    // score flag. Preserve the list source in
-                                    // that case rather than treating the head
-                                    // as a safe block container.
                                     rule.safety = SourceScopeSafety::Unproven;
                                 }
                                 SourceScopeIdentity::Known(rule)
@@ -110,11 +85,6 @@ pub(in crate::services::render) fn collect_unproven_scope_ranges(
     ranges
 }
 
-/// Find the closer paired with the source scope that starts at `scope_start`.
-///
-/// This uses the same Wikidot tag scanner and scope identities as the native
-/// list guard, so a closer owned by a nested module cannot be mistaken for the
-/// outer scope's closer. An unclosed or malformed target returns `None`.
 pub(in crate::services::render) fn matching_source_scope_close(
     source: &str,
     literals: &LiteralRegionIndex,
@@ -263,9 +233,6 @@ fn source_scope_tag(bytes: &[u8], start: usize, end: usize) -> Option<SourceScop
             cursor += 1;
         }
     } else if bytes.get(cursor) == Some(&b'*') {
-        // FTML dispatches a starred block opener to the same body rule as its
-        // unstarred spelling. A close remains unstarred, so normalize only
-        // the opening head before the per-rule close-set lookup.
         starred = true;
         cursor += 1;
         while matches!(bytes.get(cursor), Some(b' ' | b'\t')) {
@@ -282,8 +249,6 @@ fn source_scope_tag(bytes: &[u8], start: usize, end: usize) -> Option<SourceScop
     if name.is_empty() {
         return None;
     }
-    // FTML's closing heads do not accept arguments. A malformed close must
-    // not manufacture a paired scope around a later list run.
     if closing
         && !bytes[cursor..close_body_end]
             .iter()
@@ -303,9 +268,6 @@ fn source_scope_tag(bytes: &[u8], start: usize, end: usize) -> Option<SourceScop
     })
 }
 
-/// FTML removes one score suffix (`_`) and compares closing names against the
-/// opener rule's accepted aliases. The scope-rule catalog below mirrors only
-/// body owners relevant to trusted block-fragment placement.
 fn normalize_source_scope_name(name: &[u8]) -> (String, bool) {
     let name = String::from_utf8_lossy(name).to_ascii_lowercase();
     let scored = name.ends_with('_');

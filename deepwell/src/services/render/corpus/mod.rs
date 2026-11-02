@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Corpus render finalization and inventory workflows.
-
 mod finalizer;
 mod inventory;
 mod inventory_query;

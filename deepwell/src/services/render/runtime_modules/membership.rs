@@ -1,5 +1,3 @@
-//! Runtime expansion for Wikidot membership modules.
-
 #[cfg(test)]
 use super::membership_apply_action_count;
 use super::{

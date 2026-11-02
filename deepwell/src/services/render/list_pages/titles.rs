@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Parser-context compatibility for ListPages title variables.
-
 use super::super::compat::text_fragments::CompatTextFragments;
 
 pub(super) fn sanitize_list_pages_title(title: &str) -> String {

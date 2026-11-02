@@ -147,9 +147,6 @@ impl MappedSource {
             );
             record_collector_work(range.start - cursor);
             if let Some(marker_origin) = marker_origin {
-                // Marker callers pass one inert byte because marker length and nonce
-                // do not affect downstream syntax guards; text-replacement callers
-                // pass the exact replacement text instead.
                 let replacement =
                     replacement.expect("replacement text accompanies an origin");
                 let marker_start = rewritten.len();

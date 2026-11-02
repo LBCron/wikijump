@@ -1,5 +1,3 @@
-//! ListPages and CountPages query-selector helpers.
-
 use super::{
     ComparisonOperation, CountPagesExactCountEligibilityDiagnostics,
     CountPagesExactCountEligibilityInput, CountPagesRequiredTagBatchResult, Cow,
@@ -20,12 +18,6 @@ pub(super) fn list_pages_comparison_value(operator: &str, value: &str) -> String
 pub(in crate::services::render) fn count_pages_should_remain_literal(
     arguments: &ListPagesArguments,
 ) -> bool {
-    // `+==`/`-==` are accepted as legacy signed tag tokens by ListPages,
-    // where `=` and `==` are ordinary tag names.  CountPages has no
-    // evidenced equivalent for those signed forms; expanding them as a
-    // database query would silently turn an unsupported current-page shape
-    // into a zero count.  Keep that narrow family literal while preserving
-    // the ordinary ListPages parser behavior.
     let has_unsupported_signed_current_tag = arguments
         .all_tags
         .iter()
@@ -44,11 +36,6 @@ pub(in crate::services::render) fn count_pages_should_remain_literal(
                 .saturating_add(u64::from(arguments.exclude_current_page))
                 > u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS)
         })
-        // The all-category, unfiltered, unbounded shape is deliberately
-        // absent here: `count_pages_unbounded_all_category_shape` names it,
-        // and `render_count_pages_block` answers it through the exact-count
-        // path, preserving the module literally only when that count is not
-        // eligible. The bounded row scan is never used for the shape.
         || (arguments.current_page_only
             && (arguments.category_selector_present
                 || arguments.page_type != PageTypeSelector::Normal
@@ -73,11 +60,6 @@ pub(in crate::services::render) fn count_pages_should_remain_literal(
                 || arguments.name_pattern.is_some()))
 }
 
-/// The CountPages shape an unbounded row scan cannot answer safely: an
-/// all-category selector with no static filter and no explicit bound.
-/// `render_count_pages_block` routes exactly this shape to the exact-count
-/// path and preserves the module literally when the exact count is not
-/// eligible for the invocation.
 pub(in crate::services::render) fn count_pages_unbounded_all_category_shape(
     arguments: &ListPagesArguments,
 ) -> bool {

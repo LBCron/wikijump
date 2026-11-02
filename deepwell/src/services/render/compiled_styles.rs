@@ -1,4 +1,3 @@
-//! Saved-page presentation effects are typed metadata, never CSS sentinels.
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, PartialEq, Eq)]

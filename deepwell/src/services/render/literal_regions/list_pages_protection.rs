@@ -135,7 +135,6 @@ pub(in crate::services::render) struct ListPagesOriginalRangeCursor<'a> {
 }
 
 impl ListPagesSourceProjection {
-    // This early-runtime projection follows the preprocessing steps that can change literal ownership. The scanner still reads the original source, so projection cannot create a runtime module candidate.
     pub(in crate::services::render) fn new(source: &str) -> Option<Self> {
         let bytes = source.as_bytes();
         let mut prepared = Vec::with_capacity(bytes.len());
@@ -783,7 +782,6 @@ mod tests {
 
     #[test]
     fn css_module_unions_downstream_and_pinned_parser_ownership() {
-        // Keep the downstream CSS-reset contract while adding pinned-valid module spellings.
         let source = concat!(
             "[[module\nCSS-reset anything]]\n",
             "[[ /module]]\n",

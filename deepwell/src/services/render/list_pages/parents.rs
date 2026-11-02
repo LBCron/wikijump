@@ -18,13 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Parent metadata for the ListPages parent template variables.
-//!
-//! Wikidot gives a page at most one parent, while the Wikijump schema models
-//! `page_parent` as a many-to-many relation. A row therefore resolves to a
-//! parent full name only when exactly one live parent exists; every other
-//! shape is left unresolved because selecting one parent would invent output.
-
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::ServiceContext;
 use crate::services::page_query::FoundPageRow;
@@ -33,9 +26,6 @@ use crate::types::{Action, Permission, Reference, Resource};
 use sea_orm::{ConnectionTrait, FromQueryResult, Statement};
 use std::collections::{BTreeMap, BTreeSet};
 
-// Permission-aware child counts are intentionally bounded. A render that would
-// require inspecting more rows preserves the authored module instead of
-// exposing a count derived from an incomplete permission scan.
 const MAX_LISTPAGES_CHILD_PERMISSION_SCAN_ROWS: usize = 50_000;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -46,11 +36,6 @@ pub(in crate::services::render) struct ListPagesParentDisplay {
     pub(in crate::services::render) title: String,
 }
 
-/// The number of direct children each given row has, keyed by page ID.
-///
-/// Live Wikidot reports this as `%%children%%`: `component:offset-timeline`
-/// answers 2 for its two fragment children, and a page with none answers 0.
-/// Deleted children are not counted, matching the parent lookup below.
 pub(in crate::services::render) async fn load_list_pages_child_counts(
     ctx: &ServiceContext<'_>,
     viewer_user_id: Option<i64>,
@@ -151,10 +136,6 @@ pub(in crate::services::render) async fn load_list_pages_child_counts(
     Ok(Some(counts))
 }
 
-/// The parent full names of the given result rows, keyed by child page ID.
-///
-/// Rows without exactly one live parent are absent from the map rather than
-/// present with an empty value.
 pub(in crate::services::render) async fn load_list_pages_parent_displays(
     ctx: &ServiceContext<'_>,
     viewer_user_id: Option<i64>,

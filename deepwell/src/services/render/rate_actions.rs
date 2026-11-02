@@ -28,12 +28,6 @@ pub enum RateBrowserAction {
     },
 }
 
-/// Browser-safe Rate actions bound to one exact saved page revision.
-///
-/// The browser receives enough information to bind renderer-owned controls,
-/// but the mutation endpoint resolves the index and fingerprint again from the
-/// current revision. The sidecar therefore never makes a client vote value,
-/// actor, site, page, or revision authoritative.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct RateBrowserActionRegistry {
     pub site_id: i64,
@@ -138,8 +132,6 @@ impl RateActionRegistry {
             .collect()
     }
 
-    /// Issue a browser sidecar only when the saved HTML still has the exact
-    /// renderer-owned Rate control cardinality for the source registry.
     pub fn browser_registry_for_wikidot_html(
         &self,
         body: &str,
@@ -297,10 +289,6 @@ mod tests {
 
     #[test]
     fn star_registry_rejects_cross_index_fingerprint_reuse() {
-        // A forged browser request must not reuse one star control's
-        // fingerprint at another index: the mutation gate resolves the exact
-        // index/fingerprint pair or writes nothing. Values 1-5 follow the
-        // retained live star widget semantics.
         let registry = RateActionRegistry::for_rendered_modules(1, PageRatingType::Stars);
         let body =
             crate::services::render::rate_module::render_read_only_star_rate_module(

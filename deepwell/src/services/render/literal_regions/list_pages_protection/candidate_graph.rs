@@ -132,8 +132,6 @@ pub(super) fn collect_candidate_graph_ranges(
         |heads| collect_head_candidate_streams_with_context(source, heads, &text_tokens),
     );
     if head_candidates.work_limit_exceeded {
-        // Do not select a partial ownership graph. The only safe result after
-        // exhausting whole-head proof work is to preserve the authored source.
         return Err(head_candidates.whole_head_scan_work);
     }
     let generic_heads = adapt_runtime_module_heads(head_candidates.generic);

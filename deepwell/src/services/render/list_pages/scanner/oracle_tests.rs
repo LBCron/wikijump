@@ -109,8 +109,6 @@ fn right_bracket_scanner_matches_pinned_tokens_for_short_runs_and_marker_ownersh
             let (oracle_token, oracle_span) =
                 token_covering(&tokens, start).expect("every bracket belongs to a token");
             if comment_owned {
-                // The scanner gives the comment closer contextual ownership, so
-                // the remaining bracket run starts a fresh token boundary here.
                 contextual_restart_until = oracle_span.end;
             }
             let contextual_restart = start < contextual_restart_until;

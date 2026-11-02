@@ -18,13 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Which page and request a render run is happening for.
-//!
-//! These describe the surroundings of a render rather than the wikitext being
-//! rendered: which site and page the run belongs to, how much include
-//! expansion it may spend, whether a corpus trace is collecting timings, and
-//! which Wikidot URL path arguments the request carried.
-
 use super::diagnostics::{CorpusRenderScope, CorpusRenderTrace};
 use super::list_pages::ListPagesPagerRoute;
 use super::render_budget::SharedRenderCostBudget;
@@ -45,10 +38,6 @@ pub(super) struct RenderContext {
     pub(super) current_category_id: Option<i64>,
     pub(super) current_page_id: Option<i64>,
     pub(super) text_block_page_id: Option<i64>,
-    /// Slug of the page whose saved render registered the hosted text
-    /// blocks this render assembles, when that is not the page being
-    /// rendered. Navigation bars render in the viewed page's context, but
-    /// their hosted blocks stay registered under the navigation page.
     pub(super) html_block_owner_slug: Option<String>,
     pub(super) lifecycle: RenderLifecycle,
     pub(super) suppress_nested_list_pages: bool,
@@ -65,23 +54,17 @@ pub(super) struct RenderInnerOptions<'a> {
     pub(super) trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
     pub(super) persist_compiled_text: bool,
 
-    /// The Wikidot URL path arguments this request carried. Empty for every
-    /// render that is not serving a page view, including the render that
-    /// produces a revision's stored HTML.
     pub(super) url: UrlArguments<'a>,
 }
 
-/// What distinguishes one page render from another beyond its wikitext.
 #[derive(Clone, Debug)]
 pub(super) struct RenderPageOptions<'a> {
     pub(super) max_include_expansions: usize,
     pub(super) viewer_user_id: Option<i64>,
     pub(super) current_page_data_form_values: Option<BTreeMap<String, String>>,
 
-    /// Whether this render may update compiled text and hosted page blocks.
     pub(super) persist_page_artifacts: bool,
 
-    /// The Wikidot URL path arguments this request carried.
     pub(super) url: UrlArguments<'a>,
 
     pub(super) trace: Option<&'a CorpusRenderTrace>,
@@ -201,8 +184,6 @@ impl RenderContext {
             } else {
                 RenderLifecycle::SavedPage
             },
-            // The surrounding ListPages render owns any protected source markers
-            // and restores them after this selected-content render returns.
             suppress_nested_list_pages: true,
         }
     }

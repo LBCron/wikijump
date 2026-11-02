@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Render-scoped visibility decisions for page-associated forum activity.
-
 use std::collections::HashMap;
 
 use sea_orm::{ConnectionTrait, FromQueryResult, Statement, Value};

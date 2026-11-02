@@ -15,17 +15,10 @@ const END_MARKER: &str = "[!-- End metacomponent context detection --]";
 const REVEAL_START: &str = "[[iftags +component]]-][[/iftags]]";
 const REVEAL_END: &str = "[[iftags +component]][!-[[/iftags]]- --]";
 
-/// Source ownership at the point where Wikidot's metacomponent context trick is selected.
-///
-/// The distinction must be made before include sources are concatenated. Once expanded, a
-/// caller's tag set cannot identify which marked region belonged to the root page.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum MetacomponentSourceContext {
-    /// The saved root page has the `component` tag, so its own documentation is visible.
     RootComponent,
-    /// The saved root page is not a component definition.
     RootNonComponent,
-    /// An include source, whose documentation is hidden under the documented metacomponent usage.
     Included,
 }
 
@@ -77,8 +70,6 @@ fn complete_regions(source: &str) -> Vec<(usize, usize)> {
         } else if in_code && lowercase == "[[/code]]" {
             in_code = false;
         } else if !in_code && trimmed == BEGIN_MARKER {
-            // A later begin supersedes an unterminated earlier candidate. The earlier bytes remain
-            // untouched, while the later independently complete region can still be selected.
             pending_begin = Some(offset);
         } else if !in_code
             && trimmed == END_MARKER

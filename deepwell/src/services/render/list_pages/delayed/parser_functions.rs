@@ -1,5 +1,3 @@
-//! Parser-function and preprocessor helpers for delayed ListPages rows.
-
 use super::{
     COUNTPAGES_MODULE_REGEX, CompatTextFragments, ListPagesGeneratedSlot,
     ListPagesModuleMatch, ListPagesRuntimeTextRange, LiteralRegionIndex, Range,
@@ -62,11 +60,6 @@ pub(super) fn resolve_list_pages_expr_parser_functions(
         return;
     }
 
-    // FTML's delayed parser owns the recovery of a generated link inside a
-    // parser-function branch. Resolving that branch textually here would turn
-    // Wikidot's evidenced malformed triple-link result into a normal active
-    // link after slot binding. Leave the complete linked branch intact; the
-    // delayed parser can bind its generated slot and preserve that boundary.
     if linked_parser_function_ranges(body).iter().any(|range| {
         generated_slots.iter().any(|slot| {
             range.start <= slot.source_range.start && slot.source_range.end <= range.end
@@ -229,18 +222,10 @@ pub(in crate::services::render) fn protect_generated_parser_function_comment_gat
     if replacements.is_empty() {
         return None;
     }
-    // Gate tokens inside parser-function result branches look like real
-    // comments to the ordinary literal index and can make every later closer
-    // appear comment-owned. Mask only the candidate tokens in an
-    // offset-preserving projection, then use that index to reject function
-    // lines that genuinely live in code, raw, HTML, or authored comments.
     let mut literal_projection = source.clone();
     for (range, _, _) in replacements.iter().rev() {
         literal_projection.replace_range(range.clone(), &" ".repeat(range.len()));
     }
-    // Neutralize the matching standalone close while constructing the literal
-    // index; otherwise the generated opener makes that close look comment-
-    // owned and prevents us from preserving it through preprocessing.
     let mut projection_line_start = 0usize;
     for line in source.split_inclusive('\n') {
         let line_body = line.strip_suffix('\n').unwrap_or(line);
@@ -259,10 +244,6 @@ pub(in crate::services::render) fn protect_generated_parser_function_comment_gat
         return None;
     }
 
-    // The matching generated close is a standalone `[!-- --]` line rather
-    // than another parser-function opener.  Preserve those lines too, while
-    // keeping authored comments in code/raw/HTML owned by their literal
-    // context.
     let generated_gate_present = !replacements.is_empty();
     let mut line_start = 0usize;
     for line in source.split_inclusive('\n') {
@@ -307,9 +288,6 @@ fn prune_generated_parser_function_comment_gates(
                 output.push_str(&source[cursor..open]);
                 cursor = close + closing.len();
             }
-            // A malformed, crossing, or unmatched generated boundary must
-            // retain ordinary comment syntax rather than deleting an
-            // ambiguous span.
             _ => {
                 return source.replace(opening, "[!--").replace(closing, "--]");
             }
@@ -477,12 +455,6 @@ fn find_list_pages_module_matches_with_delayed_links_inner<'a>(
         .collect()
 }
 
-/// Resolve document-level parser functions while retaining complete ListPages
-/// row templates for their evidenced post-substitution phase.
-///
-/// Module heads remain in the outer phase. Only structurally recognized bodies
-/// are delayed; malformed or ambiguous module text keeps the ordinary
-/// fail-closed preprocessor behavior.
 pub(in crate::services::render) fn resolve_wikidot_parser_functions_outside_list_pages(
     source: &str,
 ) -> String {

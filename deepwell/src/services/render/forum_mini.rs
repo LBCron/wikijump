@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Permission-aware Wikidot mini forum activity modules.
-
 use std::sync::LazyLock;
 
 use regex::Regex;

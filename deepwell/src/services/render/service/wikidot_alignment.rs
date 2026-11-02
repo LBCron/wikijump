@@ -1,8 +1,5 @@
-//! Wikidot page-source leading-whitespace trim and alignment-marker pairing.
-
 use super::{CompatTextFragments, Range, RenderService};
 
-/// The alignment a Wikidot alignment marker block owns.
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum WikidotAlignment {
     Center,
@@ -10,22 +7,11 @@ enum WikidotAlignment {
     Right,
 }
 
-/// A Wikidot alignment marker line and the source range of its marker text.
 struct WikidotAlignmentMarker {
-    /// The source range of the marker text itself.
     range: Range<usize>,
-    /// The alignment the marker opens or closes.
     alignment: WikidotAlignment,
-    /// Whether the marker closes a block.
     is_closer: bool,
-    /// Whether the marker line carries trailing whitespace, which means the
-    /// line is not a block head.
     trailing_whitespace: bool,
-    /// Whether the marker sits inside a comment or another literal region.
-    /// A skipped marker never owns a block on its own, and a pair split by
-    /// a literal boundary owns no block either: both sides stay raw so the
-    /// pinned FTML still sees the pair together, exactly as it did before
-    /// the expanded-document normalization.
     skipped: bool,
 }
 
@@ -120,10 +106,6 @@ impl RenderService {
         *wikitext = output;
     }
 
-    /// Collect the alignment marker lines of a source.
-    ///
-    /// A marker line holds nothing but the marker, apart from the leading
-    /// whitespace Wikidot accepts before a line-start block head.
     fn wikidot_alignment_markers(source: &str) -> Vec<WikidotAlignmentMarker> {
         let mut markers = Vec::new();
 

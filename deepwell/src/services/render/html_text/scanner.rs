@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! HTML tokenizer and conservative opaque-element scanning internals.
-
 use super::OPAQUE_ELEMENTS;
 
 #[derive(Clone, Copy, Debug)]

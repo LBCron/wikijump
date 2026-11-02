@@ -1,5 +1,3 @@
-//! Wikidot `NewPage` module parsing and DOM rendering.
-
 use std::ops::Range;
 use std::sync::LazyLock;
 
@@ -14,22 +12,10 @@ pub(super) static NEWPAGE_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         .unwrap()
 });
 
-/// Bound executable NewPage modules in one render. Modules beyond this bound
-/// remain authored text so a page cannot multiply template lookups without
-/// limit.
 pub(super) const MAX_NEW_PAGE_MODULES_PER_RENDER: usize = 64;
 
-/// Bound the number of template pages resolved for one NewPage module.
-///
-/// The normal corpus uses at most two names in one module. Keeping a generous
-/// finite bound preserves ordinary authored pages without allowing an
-/// unbounded allocation or sequence of page, permission, and revision lookups.
 pub(super) const MAX_NEW_PAGE_TEMPLATES_PER_MODULE: usize = 32;
 
-/// One NewPage invocation the runtime renderer can execute.
-///
-/// Recognition owns the literal-region, parser, and two lookup-budget rules so
-/// the view-freshness decision and the renderer cannot drift apart.
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct ExecutableNewPageModule<'a> {
     pub(super) source_range: Range<usize>,

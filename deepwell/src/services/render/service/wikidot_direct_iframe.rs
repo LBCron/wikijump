@@ -1,5 +1,3 @@
-//! Wikidot's direct emission of a saved `[[html]]` block that holds one iframe.
-
 use super::{LazyLock, Regex, RenderService, escape_list_pages_html_attr};
 use ftml::data::PageInfo;
 
@@ -16,22 +14,17 @@ static WIKIDOT_DIRECT_HTML_IFRAME_ATTRIBUTE_REGEX: LazyLock<Regex> = LazyLock::n
     },
 );
 
-/// One attribute of a lone `[[html]]` block iframe, with its name
-/// lowercased and its value unquoted.
 pub(in crate::services::render) struct WikidotHtmlBlockIframeAttribute<'a> {
     pub name: String,
     pub value: Option<&'a str>,
 }
 
-/// A saved `[[html]]` block that holds exactly one empty iframe whose
-/// attributes all belong to the recognized set.
 pub(in crate::services::render) struct WikidotHtmlBlockIframe<'a> {
     pub iframe: &'a str,
     pub attributes: Vec<WikidotHtmlBlockIframeAttribute<'a>>,
 }
 
 impl<'a> WikidotHtmlBlockIframe<'a> {
-    /// The value of the first attribute with this (already lowercased) name.
     pub fn attribute_value(&self, name: &str) -> Option<&'a str> {
         self.attributes
             .iter()
@@ -39,7 +32,6 @@ impl<'a> WikidotHtmlBlockIframe<'a> {
             .and_then(|attribute| attribute.value)
     }
 
-    /// How many attributes carry this (already lowercased) name.
     pub fn attribute_count(&self, name: &str) -> usize {
         self.attributes
             .iter()
@@ -59,12 +51,6 @@ fn unquoted_attribute_value(raw: &str) -> &str {
 }
 
 impl RenderService {
-    /// Parses a saved `[[html]]` block that holds exactly one empty iframe.
-    ///
-    /// Every attribute must belong to the recognized set, and the iframe
-    /// must carry at least one attribute; anything else returns `None`.
-    /// The `src` value is not vetted here: each emission path applies its
-    /// own rules on top of this shape.
     pub(in crate::services::render) fn parse_wikidot_html_block_iframe(
         html_block: &str,
     ) -> Option<WikidotHtmlBlockIframe<'_>> {
@@ -127,15 +113,6 @@ impl RenderService {
             })
     }
 
-    /// The iframe a saved `[[html]]` block holds when Wikidot emits it
-    /// directly instead of behind the hosted `html-block-iframe` wrapper.
-    ///
-    /// The block must hold one empty iframe with at least one recognized
-    /// attribute and no unknown one. A `src` that is present must be a single
-    /// absolute http(s) URL, the same gate as the legacy `[[iframe]]`
-    /// directive: a repeated, bare, `javascript:`, `data:`, or relative `src`
-    /// keeps the hosted wrapper. An iframe without `src` loads nothing, and
-    /// live Wikidot emits it directly (for example a title-only iframe).
     pub(super) fn wikidot_direct_html_iframe(html_block: &str) -> Option<&str> {
         let parsed = Self::parse_wikidot_html_block_iframe(html_block)?;
         let mut src_seen = false;
@@ -183,11 +160,6 @@ impl RenderService {
         } else {
             full_slug
         };
-        // Hosted blocks are served under the slug of the page whose saved
-        // render registered them. A body render registers its own blocks,
-        // but a navigation bar's blocks stay registered under the
-        // navigation page even though the bar renders in the viewed page's
-        // context, so its emissions key to that page instead.
         let hosted_slug = html_block_owner_slug.unwrap_or(&full_slug);
         let mut search_start = 0;
         for index in 1..=html_blocks.len() {

@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Parsing for argument heads shared by Wikidot runtime modules.
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(in crate::services::render) enum WikidotModuleArgumentValueKind {
     DoubleQuoted,
@@ -228,11 +226,6 @@ pub(in crate::services::render) fn wikidot_module_arguments_ignoring_bare_flags(
     Some(arguments)
 }
 
-/// Parse the permissive legacy argument head used by ListPages.
-///
-/// Live ListPages skips inert bare words, punctuation, and assignments with no
-/// value, then resumes at the next assignment. Other runtime modules use the
-/// stricter parsers above.
 pub(in crate::services::render) fn wikidot_list_pages_arguments(
     head: &str,
 ) -> Vec<WikidotModuleArgument<'_>> {
@@ -284,14 +277,12 @@ pub(in crate::services::render) fn wikidot_list_pages_arguments(
         } else if head.as_bytes().get(cursor) == Some(&b'=') {
             cursor += 1;
         } else {
-            // A bare alphabetic token is an inert flag on live ListPages.
             continue;
         }
         let op = &head[op_start..cursor];
 
         skip_wikidot_argument_whitespace(head, &mut cursor);
         if cursor >= head.len() {
-            // An assignment without a value is inert rather than fatal.
             continue;
         }
 
@@ -305,8 +296,6 @@ pub(in crate::services::render) fn wikidot_list_pages_arguments(
             && first != '\''
             && wikidot_argument_key_assignment_at(head, value_start)
         {
-            // Live ListPages treats the outer assignment as inert and resumes
-            // at the nested key (for example `created_by=created_by="name"`).
             continue;
         } else if first == '"' {
             value_kind = WikidotModuleArgumentValueKind::DoubleQuoted;

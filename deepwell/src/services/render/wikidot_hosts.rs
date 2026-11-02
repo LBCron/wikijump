@@ -18,21 +18,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Reading a site slug back out of a Wikidot-shaped host name.
-//!
-//! Imported content refers to sites by host: `example.wikidot.com` for pages
-//! and `example.wdfiles.com` for uploaded files. The renderer has to map those
-//! back onto local sites, and each of these helpers answers one part of that.
-
 use crate::config::Config;
 
 pub(super) fn preferred_domain_wikidot_slug(preferred_domain: &str) -> Option<String> {
     let host = preferred_domain_host(preferred_domain)?;
-    // Only a wikidot.com host names a Wikidot slug. A preferred domain on
-    // any other host (a local mirror's scp-jp.localhost, a deployment's own
-    // domain) is not a Wikidot identity; returning it here made the
-    // asset-localization heuristics treat such sites as translated SCP
-    // branches and rewrite other sites' asset URLs onto them.
     let wikidot_slug = host.strip_suffix(".wikidot.com")?;
 
     (!wikidot_slug.is_empty()).then(|| wikidot_slug.to_owned())
@@ -70,12 +59,6 @@ pub(super) fn local_file_host_site_slug(host: &str, config: &Config) -> Option<S
         })
 }
 
-/// Wikidot's own `www` site is the wikidot.com service, not a wiki that owns a
-/// `wdfiles.com` file host. A live Wikidot render of
-/// `[[f=image https://www.wikidot.com/local--files/...]]` keeps the
-/// `https://www.wikidot.com/local--files/...` source as emitted (G06 capture,
-/// sha256 `f4e55f5d…`), so its attachments are neither mapped to
-/// `www.wdfiles.com` nor claimed by a mirror's file host.
 pub(super) fn is_wikidot_www_host(host: &str) -> bool {
     let host = host.trim().trim_end_matches('.').to_ascii_lowercase();
 

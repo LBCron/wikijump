@@ -393,9 +393,6 @@ impl RenderService {
         current_site: Option<&SiteModel>,
         config: &Config,
     ) -> String {
-        // Wikidot code blocks used through /local--code are active CSS. Keep
-        // their dependency graph intact; Framerail's CSP allowlist is the
-        // browser boundary for external requests, not the renderer.
         Self::localize_wikidot_local_file_urls(code, current_site, config)
     }
 

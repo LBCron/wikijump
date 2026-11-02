@@ -1,5 +1,3 @@
-//! Compatibility-local provenance for HTML produced by trusted runtime producers.
-
 use serde::{Deserialize, Serialize};
 use std::fmt::Write as _;
 use uuid::Uuid;
@@ -104,10 +102,6 @@ impl CompatHtmlFragments {
         })
     }
 
-    /// Registers trusted flow content that live Wikidot permits beneath an
-    /// authored `[[span]]`. This remains deliberately narrower than generic
-    /// block restoration: only a `span` parent is admitted, while links,
-    /// opaque elements, and all other inline parents continue to fail closed.
     pub(in crate::services::render) fn push_block_html_allowing_span_parent(
         &mut self,
         html: String,
@@ -122,9 +116,6 @@ impl CompatHtmlFragments {
         })
     }
 
-    /// Registers a trusted block from a live Rate module, whose observed
-    /// Wikidot output remains inside a cross-tree authored span or anchor.
-    /// The parent is accepted only after FTML has closed any paragraph.
     pub(in crate::services::render) fn push_rate_block_html(
         &mut self,
         html: String,
@@ -168,9 +159,6 @@ impl CompatHtmlFragments {
         })
     }
 
-    /// Register only the fixed closing tag of a paired runtime container.
-    /// Its restoration may outlive structurally invalid selected HTML, so it
-    /// must never carry arbitrary block content.
     pub(in crate::services::render) fn push_list_pages_container_close(
         &mut self,
         trim_preceding_space: bool,
@@ -185,9 +173,6 @@ impl CompatHtmlFragments {
         })
     }
 
-    /// Registers a trusted block produced while rendering a default-summary
-    /// fragment. Live Wikidot leaves a preceding unmatched `[[div]]` fragment
-    /// at the flow root in this context instead of wrapping it in a paragraph.
     pub(in crate::services::render) fn push_block_html_unwrapping_residual_div_prefix(
         &mut self,
         html: String,
@@ -217,10 +202,6 @@ impl CompatHtmlFragments {
         !self.exact_fragments.is_empty()
     }
 
-    /// Register a source-preserving marker whose byte length must remain
-    /// unchanged while the delayed List-mode parser runs. This is used for
-    /// nested ListPages openers/closers because generated slot ranges still
-    /// point into the substituted row body.
     pub(in crate::services::render) fn push_exact_html(
         &mut self,
         marker: String,
@@ -237,13 +218,6 @@ impl CompatHtmlFragments {
         format!("{}{index}X", self.namespace)
     }
 
-    /// `restore` with each of `sets` in turn, in one pass.
-    ///
-    /// A ListPages block keeps one set per row, and restoring them one after
-    /// another rescanned the whole sealed block for every row: a block of 255
-    /// table rows scanned its HTML 255 times. Rows are rendered in order and
-    /// each row's markers stay inside it, so the sets are merged into one
-    /// (their markers renamed into one namespace) and restored once.
     pub(in crate::services::render) fn restore_in_order(
         sets: &[Self],
         text: &str,
@@ -258,8 +232,6 @@ impl CompatHtmlFragments {
         }
     }
 
-    /// One set holding every fragment of `sets`, and `text` with their markers
-    /// renamed to it. Markers of other sets are left alone.
     fn merge(sets: &[Self], text: &str) -> (Self, String) {
         let mut merged = Self::new(text);
         let mut offsets = std::collections::HashMap::with_capacity(sets.len());
@@ -330,10 +302,6 @@ impl CompatHtmlFragments {
         )
     }
 
-    /// Restore registered fragments that a compatibility fallback could not
-    /// place structurally, keeping them as escaped text in visible HTML data.
-    /// This is used only at the fallback boundary; ordinary rendering retains
-    /// its conservative block-placement rules.
     pub(in crate::services::render) fn restore_remaining_markers_as_text(
         &self,
         text: &str,
@@ -713,9 +681,6 @@ struct BlockParagraphRestoreOptions {
     trim_preceding_space: bool,
 }
 
-/// Restores a runtime Rate block that FTML placed inside a paragraph-spanning
-/// Wikidot inline scope. Split that scope at the block boundary, matching the
-/// live Wikidot DOM shape while keeping the block outside every paragraph.
 fn restore_rate_block_from_inline_paragraph(
     output: &mut String,
     text: &str,
@@ -812,10 +777,6 @@ fn active_rate_inline_scope_tags(value: &str) -> Option<Vec<(String, String)>> {
         .then_some(stack)
 }
 
-/// Restores a trusted block marker without ever nesting block HTML in the
-/// paragraph FTML created for marker text. Splitting is intentionally limited
-/// to a plain-text paragraph; inline element balancing belongs to the renderer,
-/// not to this trust-boundary pass.
 fn restore_block_html_from_paragraph(
     output: &mut String,
     text: &str,
@@ -1029,19 +990,12 @@ impl IncrementalHtmlElementStack {
     }
 
     fn close_list_pages_row_boundary(&mut self, html: &mut String, start: usize) {
-        // The paired delimiter is trusted closing markup, even when a selected
-        // fragment contains crossed/unmatched authored tags. Never let those
-        // tags expose the delimiter's internal marker. Ordinary block fragments
-        // still require the conservative structural parent check.
         let structurally_valid = self.advance(&html[..start]);
         let Some(boundary_stack) = self.list_pages_row_stacks.pop() else {
             return;
         };
         let depth = boundary_stack.len();
         if !structurally_valid || self.stack.len() < depth {
-            // A sealed selected-content row owns its malformed descendants.
-            // Resume at its paired, fixed close rather than poisoning every
-            // later runtime fragment with those descendants' scan state.
             self.stack = boundary_stack;
             self.parsed = start;
             self.valid = true;
@@ -1118,10 +1072,6 @@ fn advance_open_html_element_stack(
             }
             Some(TagKind::Cdata | TagKind::Declaration) => return false,
             Some(TagKind::Element { .. }) => {}
-            // A literal or malformed `<` is not a tag that can contribute a
-            // trustworthy parent. Failing closed prevents the hand parser
-            // below from treating `< div>` as a real `<div>` and admitting a
-            // block fragment beneath an actual inline ancestor.
             None => return false,
         }
         let Some(end) = html_tag_end(html, start) else {

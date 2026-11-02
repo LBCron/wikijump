@@ -203,13 +203,6 @@ pub(in crate::services::render) fn extract_css_modules_with_runtime_insertions(
         return extract_css_modules(wikitext, page_info, settings, compat_html);
     }
 
-    // ListPages renders selected %%content%% through a nested page render. Its
-    // CSS modules belong in the parent document head at the exact ListPages
-    // source position, not at the end of the page. Keep the generated CSS
-    // bytes out of wikitext and temporarily project only the trusted marker as
-    // a CSS-module body. The ordinary extractor then establishes one total
-    // order with authored parent modules; afterwards the marker is expanded
-    // back to the already-rendered style vector.
     for insertion in &insertions {
         if wikitext.matches(&insertion.marker).count() != 1 {
             continue;
@@ -379,8 +372,6 @@ pub(in crate::services::render) fn neutralize_authored_markers(wikitext: &mut St
     }
 }
 
-/// Hide authored renderer-shaped strings behind the text registry so final
-/// cleanup can remove unresolved runtime tokens without deleting page content.
 pub(in crate::services::render) fn protect_authored_runtime_marker_literals(
     wikitext: &mut String,
     compat_text: &mut CompatTextFragments,

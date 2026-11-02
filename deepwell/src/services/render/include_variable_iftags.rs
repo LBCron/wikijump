@@ -1,11 +1,3 @@
-//! Structural resolution for Wikidot include-variable `iftags` names.
-//!
-//! Some Wikidot sources spell `iftags` as `ift{$name}gs`: the include value
-//! `a` turns it into a real gate, while an omitted value leaves a transparent
-//! wrapper. Resolve that choice before ordinary include substitution so the
-//! source structure, rather than a theme name or body substring, determines
-//! the result.
-
 use super::iftags::wikidot_tag_conditions_match;
 use super::literal_regions::LiteralRegionIndex;
 use ftml::data::PageInfo;
@@ -79,9 +71,6 @@ pub(super) fn resolve_include_variable_iftags(
     resolve_include_variable_iftags_with_tags(source, variables, &page_info.tags);
 }
 
-/// Resolve dynamic `iftags` names in a source rendered without an include
-/// callsite. Such names have no value to bind and therefore use Wikidot's
-/// absent-value behavior.
 pub(super) fn resolve_unbound_include_variable_iftags(source: &mut String) {
     resolve_include_variable_iftags_with_tags(source, &VariableMap::new(), &[]);
 }

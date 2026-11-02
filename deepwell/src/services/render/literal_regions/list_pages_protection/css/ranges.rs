@@ -397,7 +397,6 @@ fn collect_module_close_prefix_offsets(source: &str) -> Vec<usize> {
     offsets
 }
 
-// The regex path preserves the downstream extractor contract, while the pinned path adds parser-valid CSS ownership. Each path scans independently before their ranges are coalesced so an overlapping range from one contract cannot hide a longer range from the other.
 fn collect_css_module_ranges(
     source: &str,
     scan: &CssLiteralScan,
@@ -473,7 +472,6 @@ fn collect_pinned_css_module_ranges(
     wikidot_boundaries: &WikidotCssListPagesBoundaryIndex,
     quote_ranges: &[Range<usize>],
 ) -> Vec<Range<usize>> {
-    // FTML scans a raw CSS body as context-free tokens, so comments, raw spans, math, and generic tag heads do not mask a token-valid module end block.
     let mut cursor = 0usize;
     let mut open_literals = indices.open.monotone_cursor();
     let mut quote_cursor = 0usize;
@@ -523,10 +521,6 @@ fn collect_root_list_pages_head_offsets(
     offsets
 }
 
-// Wikidot treats a ListPages module whose body is only whitespace (such as
-// `]]\n[[/module]]`) as an unclosed default-template invocation and leaves
-// that close as text, as the ListPages scanner does. Such a head therefore
-// does not own the close, and an enclosing CSS module consumes both.
 fn list_pages_head_leaves_close_raw(
     source: &str,
     head_start: usize,

@@ -39,9 +39,6 @@ use std::sync::LazyLock;
 use time::{Month, OffsetDateTime};
 use wikidot_normalize::normalize;
 
-// This bounded content-expansion specialization accepts only proven shapes.
-// The runtime parser handles the general selector surface; unsupported content
-// expansion shapes remain preserved so existing pages keep their source.
 const CONTENT_VARIABLE: &str = "%%content%%";
 const CREATED_AT_VARIABLE: &str = "created_at";
 const DEFAULT_CATEGORY: &str = "*";

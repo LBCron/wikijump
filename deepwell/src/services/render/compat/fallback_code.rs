@@ -34,15 +34,6 @@ impl WikidotCompatibilityFallbackOutput {
     }
 }
 
-/// Where a compatibility render's `[[html]]` blocks are served from, and
-/// what its SCPnet interwiki frames report.
-///
-/// Hosted blocks are looked up under the slug of the page whose saved
-/// render registered them. A page's own blocks register under the page
-/// itself, but a navigation bar renders in the viewed page's context while
-/// its blocks stay registered under the navigation page, so a navigation
-/// render names that page as the owner. The interwiki frames always
-/// report the page being viewed, as they do on Wikidot.
 #[derive(Clone, Copy, Default)]
 pub(in crate::services::render) struct WikidotHtmlBlockEmission<'a> {
     pub owner_page_slug: Option<&'a str>,
@@ -57,9 +48,6 @@ pub(in crate::services::render) struct CompatCodeBlock {
     pub(in crate::services::render) language: Option<String>,
     pub(in crate::services::render) name: Option<String>,
     pub(in crate::services::render) contents: String,
-    /// Whether the block's opener sits inside a Wikidot comment, as
-    /// determined by `mark_comment_wrapped_code_blocks`. The scan itself
-    /// is comment-agnostic, so this stays false until that pass runs.
     pub(in crate::services::render) comment_wrapped: bool,
 }
 
@@ -73,9 +61,6 @@ impl CompatCodeBlock {
     }
 }
 
-/// Locates complete Wikidot code blocks without consuming ambiguous input.
-///
-/// This is a compatibility boundary rather than a second wikitext parser. If a code-looking marker is malformed, nested, unmatched, or exceeds the bounded representation below, the entire scan fails closed. The caller must then render the original source literally so no text can disappear. FTML should eventually expose this as a delayed structure; Deepwell only retains the metadata here because hosted `/local--code/` resources require runtime persistence today.
 pub(in crate::services::render) fn scan_compat_code_blocks(
     wikitext: &str,
 ) -> Result<Vec<CompatCodeBlock>, CompatCodeScanError> {
@@ -137,13 +122,11 @@ pub(in crate::services::render) fn mark_comment_wrapped_code_blocks(
     }
 
     let line_count = wikitext.lines().count();
-    // Lines a code block spans suspend comment tracking.
     let mut code_span_lines = vec![false; line_count];
     for block in blocks.iter() {
         code_span_lines[block.start_line..=block.end_line].fill(true);
     }
 
-    // Comment state at the start of each line.
     let mut starts_in_comment = vec![false; line_count];
     let mut in_comment = false;
     for (line_index, line) in wikitext.lines().enumerate() {
@@ -351,8 +334,6 @@ mod tests {
 
     #[test]
     fn comment_wrapped_blocks_are_flagged_in_source_order() {
-        // The theme:shushuin shape: one comment holding several blocks,
-        // then a visible block after the comment closes.
         let source = concat!(
             "[!--\n[[code type=\"css\"]]\na{}\n[[/code]]\n",
             "[[code type=\"css\"]]\nb{}\n[[/code]]\n--]\n",
@@ -405,9 +386,6 @@ mod tests {
 
     #[test]
     fn evidenced_comment_sources_are_flagged() {
-        // nav:interwiki-c404: one comment wraps both blocks; the first
-        // block's body carries an HTML comment and a script tag naming
-        // the second block's hosted URL.
         let nav = concat!(
             "[[iframe https://scp-jp.wdfiles.com/local--code/nav:interwiki-c404/1]]\n",
             "[!--\n",
@@ -437,7 +415,6 @@ mod tests {
         assert_eq!(blocks[0].language.as_deref(), Some("html"));
         assert_eq!(blocks[1].language.as_deref(), Some("JavaScript"));
 
-        // theme:shushuin: three separate comments, one CSS block each.
         let shushuin = concat!(
             "[!--\n[[code type=\"css\"]]\n",
             "@import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP');\n/*header*/\n",

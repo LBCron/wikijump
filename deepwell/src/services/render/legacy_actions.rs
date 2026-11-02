@@ -20,10 +20,6 @@ use ftml::tree::{StandaloneButtonAction, TagAlteration};
 use std::borrow::Cow;
 use std::time::Duration;
 
-/// One fixed runtime action emitted by trusted render code.
-///
-/// Callers may select only a variant and its typed data. The descriptor never
-/// carries authored JavaScript, a URL, an actor, or client-computed page state.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum LegacyActionDescriptor {
     Edit,
@@ -44,8 +40,6 @@ impl LegacyActionDescriptor {
         Self::CancelRate
     }
 
-    /// Apply the authored set-tags declaration using Wikidot's removal-before-
-    /// addition rule. Other descriptor kinds deliberately return `None`.
     pub fn apply_to_tags(&self, current: &[String]) -> Option<Vec<String>> {
         let Self::SetTags(alterations) = self else {
             return None;
@@ -89,12 +83,6 @@ impl LegacyActionDescriptor {
     }
 }
 
-/// One browser-safe action carried beside rendered Wikidot HTML.
-///
-/// This sidecar deliberately contains no selector, JavaScript, URL, vote
-/// value, or tag alteration. Framerail binds the closed action kind to the
-/// corresponding exact legacy control and fails closed if the DOM shape and
-/// sidecar length disagree.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "type")]
 pub enum LegacyBrowserAction {
@@ -111,12 +99,6 @@ struct RegisteredLegacyAction {
     descriptor: LegacyActionDescriptor,
 }
 
-/// The minimal typed registry shared by page rendering and action mutations.
-///
-/// FTML supplies renderer-generated IDs and closed action descriptors. This
-/// module consumes those values once, removes renderer-private IDs from
-/// Wikidot HTML, and lets serving and mutation code resolve the same closed
-/// action order. Unknown or missing entries are never widened.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct LegacyActionRegistry {
     actions: Vec<RegisteredLegacyAction>,
@@ -148,9 +130,6 @@ impl LegacyActionRegistry {
         Self { actions }
     }
 
-    /// Resolve authored standalone button syntax through FTML's public typed
-    /// render output. Mutation handlers use this on the bound page revision so
-    /// the browser never submits tag alterations.
     pub fn from_wikidot_source(source: &str) -> Self {
         let mut source = source.to_owned();
         let page_info = PageInfo {
@@ -219,11 +198,6 @@ impl LegacyActionRegistry {
             .collect()
     }
 
-    /// Return a sidecar only when the saved inert anchors and FTML requirements
-    /// have the same cardinality. An extra authored or runtime anchor therefore
-    /// disables the whole surface instead of shifting an ordinal onto another
-    /// control. Standalone buttons with a custom class remain eligible because
-    /// Wikidot replaces the default class with the authored class.
     pub fn browser_actions_for_wikidot_html(
         &self,
         body: &str,
@@ -237,9 +211,6 @@ impl LegacyActionRegistry {
         }
     }
 
-    /// Fingerprint one set-tags descriptor without exposing its tag payload.
-    /// Mutation handlers recompute this from the bound revision so an ordinal
-    /// can never select a different descriptor after render/source drift.
     pub fn fingerprint(&self, index: usize) -> Option<String> {
         let LegacyActionDescriptor::SetTags(alterations) = self.get(index)? else {
             return None;

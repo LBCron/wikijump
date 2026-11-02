@@ -81,7 +81,6 @@ fn render_list_pages_substituted_wikitext(wikitext: &str) -> String {
     HtmlRender.render(&tree, &page_info, &settings).body
 }
 
-/// A request that carried only a `tag` path argument.
 fn url_tag(tag: Option<&str>) -> UrlArguments<'_> {
     UrlArguments {
         tag,
@@ -89,7 +88,6 @@ fn url_tag(tag: Option<&str>) -> UrlArguments<'_> {
     }
 }
 
-/// A request that carried only a `category` path argument.
 fn url_category(category: Option<&str>) -> UrlArguments<'_> {
     UrlArguments {
         category,
@@ -97,7 +95,6 @@ fn url_category(category: Option<&str>) -> UrlArguments<'_> {
     }
 }
 
-/// A request that carried only an `offset` path argument.
 fn url_offset(offset: Option<u32>) -> UrlArguments<'static> {
     UrlArguments {
         offset,
@@ -379,7 +376,6 @@ fn an_unresolved_url_category_selector_names_no_category() {
 
 #[test]
 fn a_url_tag_does_not_resolve_a_category_selector() {
-    // Each selector reads the path argument of its own name.
     let arguments = parse_list_pages_arguments_with_url(
         r#" category="@URL""#,
         url_tag(Some("alpha")),
@@ -1036,7 +1032,6 @@ fn parses_relative_and_comparison_date_selectors() {
         None,
     );
 
-    // A bare keyword or an incomplete phrase is not a selector.
     for value in ["older", "newer", "last", "older than", "newer than"] {
         assert_eq!(
             parse_list_pages_date_selector(value),
@@ -1418,9 +1413,6 @@ fn count_pages_all_categories_shape_is_decided_by_exact_count_eligibility() {
     assert!(!count_pages_should_remain_literal(&no_filter));
     assert!(!count_pages_unbounded_all_category_shape(&no_filter));
 
-    // The all-category, unfiltered, unbounded shape no longer stays
-    // literal at the gate: the render answers it through the exact-count
-    // path and preserves it only when that count is not eligible.
     let all_categories = parse_list_pages_arguments(r#" category="*" "#)
         .expect("all-category CountPages selector should parse");
     assert!(!count_pages_should_remain_literal(&all_categories));
@@ -1431,8 +1423,6 @@ fn count_pages_all_categories_shape_is_decided_by_exact_count_eligibility() {
     assert!(!count_pages_should_remain_literal(&exclusion_only));
     assert!(count_pages_unbounded_all_category_shape(&exclusion_only));
 
-    // The shape the imported JP system pages use: the category selector
-    // resolves to the all-category selector, and the separate argument is a display flag only.
     let jp_shape = parse_list_pages_arguments_with_url(
         r#" separate="@URL" category="@URL|*" "#,
         UrlArguments::default(),
@@ -1441,8 +1431,6 @@ fn count_pages_all_categories_shape_is_decided_by_exact_count_eligibility() {
     assert!(!count_pages_should_remain_literal(&jp_shape));
     assert!(count_pages_unbounded_all_category_shape(&jp_shape));
 
-    // An explicit bound or a static filter takes the invocation out of
-    // the shape, back to the ordinary bounded paths.
     let bounded = parse_list_pages_arguments(r#" category="*" limit="20" "#)
         .expect("bounded all-category CountPages selector should parse");
     assert!(!count_pages_unbounded_all_category_shape(&bounded));
@@ -4005,9 +3993,6 @@ fn substituted_identity_and_tag_values_render_as_literal_text() {
         &list_pages_substitution_context(20, &users, None, &BTreeMap::new()),
     );
 
-    // The payload text survives (nothing is stripped) but its brackets went
-    // through the substitution boundary as entities, so no executable
-    // module syntax reaches the page parser.
     assert!(rendered.contains("WJ-PENTEST-DISPLAY"), "{rendered:?}");
     assert!(rendered.contains("wj-pentest-tag-a"), "{rendered:?}");
     assert!(
@@ -4066,7 +4051,6 @@ fn substituted_payload_values_cannot_form_modules_for_the_page_parser() {
         &mut compat_text,
     );
 
-    // The page parser must never see executable module syntax from values.
     assert!(!substituted.contains("[["), "{substituted:?}");
 
     let page_info = fallback_test_page_info("wj-pentest-host", "WJ Pentest Host");
@@ -4078,13 +4062,9 @@ fn substituted_payload_values_cannot_form_modules_for_the_page_parser() {
     let html = HtmlRender.render(&tree, &page_info, &settings).body;
     let html = compat_text.restore(&compat_html.restore(&html));
 
-    // The proof artifact is written before asserting so a failing run still
-    // leaves the output behind for browser-level inspection.
     std::fs::write("/tmp/listpages-2652-proof.html", &html)
         .expect("browser proof artifact must be writable");
 
-    // No nested module shell, iframe, or html block may survive; the payload
-    // text renders literally instead.
     assert!(!html.contains("error-block"), "{html:?}");
     assert!(!html.contains("list-pages-box"), "{html:?}");
     assert!(!html.contains("<iframe"), "{html:?}");
@@ -4094,11 +4074,6 @@ fn substituted_payload_values_cannot_form_modules_for_the_page_parser() {
     assert!(html.contains("wj-pentest-tag-a"), "{html:?}");
 }
 
-/// Issue #2652's exact closed-module payloads, with `%%content%%`, in both
-/// the display-name form and the stored tag-fragment form. Nothing is
-/// stripped, but neither brackets nor double quotes may reach the page
-/// parser raw, and the carried `%%content%%` stays literal (single-pass
-/// substitution performs no second expansion round).
 #[test]
 fn substituted_issue_exact_closed_module_payloads_render_as_literal_text() {
     let payload_name = "wj5[[module ListPages category=\"*\" tags=\"+wjpentest\" name=\"wj-pentest-html-payload*\" limit=\"1\" separate=\"false\"]]%%content%%[[/module]]";
@@ -4148,8 +4123,6 @@ fn substituted_issue_exact_closed_module_payloads_render_as_literal_text() {
         &context,
     );
 
-    // No raw syntax-forming character from either payload survives the
-    // substitution boundary; the payload text itself is preserved.
     assert!(!substituted.contains("[["), "{substituted:?}");
     assert!(!substituted.contains("]]"), "{substituted:?}");
     assert!(!substituted.contains('"'), "{substituted:?}");
@@ -4191,11 +4164,6 @@ fn substituted_issue_exact_closed_module_payloads_render_as_literal_text() {
     assert!(html.contains("ListPages"), "{html:?}");
 }
 
-/// Data Form values are page-author-controlled and may be displayed by a
-/// ListPages host through `%%form_data{field}%%` or `%%form_raw{field}%%`.
-/// The #2652 closed-module payload must not reach the page parser raw from
-/// either variable; otherwise the nested ListPages can render the source
-/// page's html block and execute its script on the files origin.
 #[test]
 fn substituted_form_data_values_cannot_form_modules_for_the_page_parser() {
     let payload = "[[module ListPages category=\"*\" tags=\"+wjpentest\" name=\"wj-pentest-html-payload*\" limit=\"1\" separate=\"false\"]]%%content%%[[/module]]";
@@ -4255,12 +4223,6 @@ fn substituted_form_data_values_cannot_form_modules_for_the_page_parser() {
     assert!(html.contains("ListPages"), "{html:?}");
 }
 
-/// A double quote in a tag or name must not break out of a double-quoted
-/// module attribute such as `[[div class="%%tags%%"]]`: the substituted
-/// text carries no raw quote, and the rendered div keeps the payload inside
-/// its class value instead of gaining an injected attribute. The div uses
-/// stanza form because same-line `[[div …]]x[[/div]]` is literal text even
-/// without any payload.
 #[test]
 fn substituted_quote_breakout_values_cannot_escape_double_quoted_attributes() {
     let template =
@@ -4295,8 +4257,6 @@ fn substituted_quote_breakout_values_cannot_escape_double_quoted_attributes() {
     let context = list_pages_substitution_context(20, &users, None, &data_form_values);
     let substituted = substitute_list_pages_variables(template, &page, 1, 1, &context);
 
-    // Byte-exact: the template survives untouched and the quote becomes an
-    // entity, so the template-authored attribute cannot terminate early.
     assert_eq!(
         substituted,
         "[[div class=\"&#34; onmouseover=&#34;alert(1)\" data-author=\"WJ-PENTEST-DISPLAY\"]]\nx\n[[/div]]",
@@ -4316,9 +4276,6 @@ fn substituted_quote_breakout_values_cannot_escape_double_quoted_attributes() {
     std::fs::write("/tmp/listpages-2652-proof-attribute-breakout.html", &html)
         .expect("browser proof artifact must be writable");
 
-    // Strip double-quoted spans from the rendered div open tag: whatever
-    // remains outside quotes is real markup, where no injected attribute
-    // may appear. The payload text stays inside the class value.
     let div_start = html.find("<div").expect("template renders a div");
     let div_end = html[div_start..].find('>').expect("div tag closes") + div_start;
     let div_tag = &html[div_start..=div_end];
@@ -4339,13 +4296,6 @@ fn substituted_quote_breakout_values_cannot_escape_double_quoted_attributes() {
     assert!(html.contains("alert(1)"), "{html:?}");
 }
 
-/// Regression for #2787 (mirrors
-/// `substituted_quote_breakout_values_cannot_escape_double_quoted_attributes`,
-/// which pins the same #2652 property for `%%tags%%` / `%%created_by%%`).
-///
-/// A page-author-controlled `%%title%%` inside a template-authored quoted
-/// attribute must not carry a raw double quote into the wikitext, since the
-/// value would terminate the attribute and inject real markup.
 #[test]
 fn substituted_title_cannot_escape_double_quoted_attributes() {
     let template = "[[div class=\"%%title%%\"]]\nx\n[[/div]]";
@@ -4371,8 +4321,6 @@ fn substituted_title_cannot_escape_double_quoted_attributes() {
         list_pages_substitution_context(20, &user_displays, None, &data_form_values);
     let substituted = substitute_list_pages_variables(template, &page, 1, 1, &context);
 
-    // The title quote is neutralized at the substitution boundary, so the
-    // template-authored class attribute cannot terminate early.
     assert_eq!(
         substituted,
         "[[div class=\"x&#34; data-injected=&#34;yes\"]]\nx\n[[/div]]",
@@ -4398,9 +4346,6 @@ fn substituted_title_cannot_escape_double_quoted_attributes() {
     );
 }
 
-/// The sibling page-author-controlled title variables from #2787
-/// (`%%parent_title%%`, `%%form_label%%`, `%%form_hint%%`) share the quoted
-/// attribute boundary.
 #[test]
 fn substituted_sibling_title_variables_cannot_escape_quoted_attributes() {
     let page = FoundPageRow {
@@ -4486,8 +4431,6 @@ fn substituted_sibling_title_variables_cannot_escape_quoted_attributes() {
     }
 }
 
-/// Issue #2787 sibling variables inside `[[html]]` blocks must be
-/// HTML-escaped like `%%title%%` and the #2667 identity/tag values.
 #[test]
 fn substituted_sibling_title_variables_escape_html_inside_html_blocks() {
     let page = FoundPageRow {
@@ -4559,11 +4502,6 @@ fn substituted_sibling_title_variables_escape_html_inside_html_blocks() {
     }
 }
 
-/// Issue #2667: inside `[[html]]` blocks the substituted value is raw HTML
-/// in the files-origin iframe, so identity and tag values must be
-/// HTML-escaped there (with bracket neutralization kept), not passed
-/// through with raw angle brackets. Fails before the fix: the payload
-/// reaches the substituted text with executable `<script>` / `<img>`.
 #[test]
 fn substituted_identity_and_tag_values_escape_html_inside_html_blocks() {
     let template = "[[html]]\nBy %%created_by%% (%%updated_by%%) comment %%commented_by%% tags %%tags%% hidden %%_tags%%\n[[/html]]";
@@ -4632,16 +4570,12 @@ fn substituted_identity_and_tag_values_escape_html_inside_html_blocks() {
     );
     let substituted = substitute_list_pages_variables(template, &page, 1, 1, &context);
 
-    // The template survives; no raw HTML-significant character from the
-    // payloads may remain inside the html body.
     assert!(substituted.contains("[[html]]"), "{substituted:?}");
     assert!(substituted.contains("[[/html]]"), "{substituted:?}");
     assert!(!substituted.contains("<script>"), "{substituted:?}");
     assert!(!substituted.contains("<img"), "{substituted:?}");
     assert!(!substituted.contains("<b onmouseover"), "{substituted:?}");
     assert!(!substituted.contains("[[module"), "{substituted:?}");
-    // The payload text survives visibly, inert: HTML-escaped with bracket
-    // neutralization kept.
     assert!(substituted.contains("&lt;script&gt;"), "{substituted:?}");
     assert!(
         substituted.contains("&lt;img src=x onerror=alert(1)&gt;"),
@@ -4662,11 +4596,6 @@ fn substituted_identity_and_tag_values_escape_html_inside_html_blocks() {
     assert!(substituted.contains("wjpentest"), "{substituted:?}");
 }
 
-/// Issue #2667 residual: a `[[html]]` block need not occupy complete lines.
-/// FTML accepts an opener mid-line, an inline body, and a closer mid-line,
-/// and renders each as a raw html-block iframe. The substituted identity and
-/// tag values must be HTML-escaped in every such shape. Fails before the fix,
-/// which escaped only complete-line blocks.
 #[test]
 fn substituted_tag_values_escape_html_blocks_at_any_line_position() {
     let templates = [

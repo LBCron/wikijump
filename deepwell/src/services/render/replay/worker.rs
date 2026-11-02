@@ -1,10 +1,3 @@
-/*
- * services/render/replay/worker.rs
- *
- * Credential-free, one-request worker. The controller always runs this in a
- * separate process so parser CPU cannot survive a deadline.
- */
-
 use super::features::{error_sites, parser_error_signature, syntax_features};
 use super::model::{
     FailureSignature, REPLAY_SCHEMA, ReplayOutcome, ReplayStage, ReplayWorkerRequest,
@@ -246,8 +239,6 @@ fn write_atomic(path: &std::path::Path, contents: &[u8]) -> io::Result<()> {
         file.flush()?;
         drop(file);
 
-        // hard_link is an atomic no-replace publish: unlike rename, it fails
-        // if the final artifact name already exists, including as a symlink.
         std::fs::hard_link(&temporary, path)
     })();
     match result {

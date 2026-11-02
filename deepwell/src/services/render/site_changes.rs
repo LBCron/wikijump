@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The initial, read-only Wikidot `SiteChanges` module view.
-
 use super::categories::wikidot_category_sort_key;
 use super::compat::CompatHtmlFragments;
 use super::literal_regions::LiteralRegionIndex;

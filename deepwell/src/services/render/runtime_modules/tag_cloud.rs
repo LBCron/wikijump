@@ -1,5 +1,3 @@
-//! Wikidot TagCloud runtime expansion.
-
 use super::{
     BTreeMap, CompatHtmlFragments, CompatTextFragments, ConnectionTrait, Cow, Error,
     ErrorType, FromQueryResult, LiteralRegionIndex, PageInfo, PermissionService,
@@ -85,9 +83,6 @@ fn default_tag_cloud_arguments() -> TagCloudArguments {
             value: 300.0,
             unit: "%",
         },
-        // Live Wikidot's default color endpoints are the reverse of the
-        // historical table labels: least-common tags are light, most-common
-        // tags are dark.
         min_color: TagCloudColor {
             red: 128,
             green: 128,
@@ -138,8 +133,6 @@ fn parse_tag_cloud_arguments(head: &str) -> Option<TagCloudArguments> {
                 arguments.category = (!value.is_empty()).then(|| value.to_owned());
             }
             "showhidden" => {
-                // Production Wikidot treats any non-empty value, including
-                // "false" and "no", as enabling hidden tags.
                 arguments.show_hidden = !value.is_empty();
             }
             "urlattrprefix" => {
@@ -517,10 +510,6 @@ impl RenderService {
             .all(txn)
             .await
             .or_raise(make_error)?;
-        // The TagCloud viewer is anonymous, so a page reference cannot grant a
-        // page-scoped virtual role such as PageAuthor. Every scanned page can
-        // therefore share one permission derivation plus one category probe per
-        // distinct category, instead of a full page-scoped check per page.
         let category_permissions = &mut BTreeMap::new();
         let category_ids = pages
             .iter()
@@ -547,8 +536,6 @@ impl RenderService {
             return Ok(Vec::new());
         }
 
-        // Fetch revision tags in bounded chunks so a site with more pages than
-        // PostgreSQL's bind-parameter ceiling still renders instead of failing.
         let mut counts = BTreeMap::<String, usize>::new();
         for chunk in visible_revision_ids.chunks(REVISION_ID_QUERY_CHUNK) {
             let revision_values =

@@ -443,13 +443,6 @@ fn protect_selected_content_spans(
     output
 }
 
-/// Selected `%%content%%` is rendered in a nested pass so ordinary Wikidot
-/// syntax in the row still receives the page renderer. Includes are a
-/// deliberate exception: executing them here would make selected page rows
-/// consume the caller's include budget. Hide only include and image directives
-/// from that nested pass and restore them as authored text after rendering.
-/// Literal regions are excluded so comments, raw text, and code do not acquire
-/// a new executable boundary.
 fn protect_selected_content_includes(
     source: &str,
     compat_text: &mut CompatTextFragments,
@@ -811,7 +804,6 @@ mod tests {
 
     #[test]
     fn selected_content_protects_spaced_and_leading_include_openings() {
-        // Whitespace between `[[` and the keyword is allowed.
         let spaced = "x [[ include component:y]] z";
         let mut fragments = CompatTextFragments::new(spaced);
         let protected = protect_selected_content_includes(spaced, &mut fragments);
@@ -821,7 +813,6 @@ mod tests {
         );
         assert_eq!(fragments.restore(&protected), spaced);
 
-        // An opening at index 0 is protected without underflowing.
         let leading = "[[include a]] tail";
         let mut fragments = CompatTextFragments::new(leading);
         let protected = protect_selected_content_includes(leading, &mut fragments);

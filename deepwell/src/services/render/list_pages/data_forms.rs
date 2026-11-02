@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wikidot data-form metadata used by ListPages template variables.
-
 use std::collections::BTreeMap;
 
 use crate::error::prelude::Result;

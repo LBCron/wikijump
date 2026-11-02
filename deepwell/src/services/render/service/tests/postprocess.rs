@@ -705,9 +705,6 @@ fn normalizes_alignment_markers_that_own_a_block() {
     assert!(source.contains("[[code]]\n[[=]]\n[[/code]]"));
 }
 
-/// Render a page body through the alignment marker normalization, the FTML
-/// pipeline, and the Wikidot compatibility restoration, in the production
-/// order.
 fn render_wikidot_alignment_body(wikitext: &str) -> String {
     let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -782,7 +779,6 @@ fn keeps_blank_line_separated_poisoned_markers_literal() {
     );
 }
 
-/// The left and right markers keep their authored spelling as text.
 #[test]
 fn keeps_left_and_right_alignment_markers_with_trailing_whitespace_literal() {
     for (source, expected) in [
@@ -857,17 +853,10 @@ fn renders_paired_alignment_markers_as_a_block() {
     }
 }
 
-/// Expand one include, then render through the production outer
-/// preparation, the FTML pipeline, and the Wikidot compatibility
-/// restoration. This mirrors `expand_render_wikitext` handing the expanded
-/// document to `prepare_outer_render_wikitext`, which is where alignment
-/// ownership is decided.
 fn render_wikidot_expanded_alignment_body(top: &str, fragment: &str) -> String {
     let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
 
-    // The compatibility text starts from the page source, exactly as
-    // production builds it before expansion fills the document.
     let preserved = CompatTextFragments::new(top);
     let (expanded, _) = ftml::include(
         top,
@@ -939,10 +928,6 @@ fn pairs_alignment_markers_split_across_include_boundaries() {
     );
 }
 
-/// Normalizing the unexpanded page source alone must not claim an opener
-/// whose closer has not arrived yet: without its pair it is protected as
-/// authored text. This guards the old unconditional-rewrite shape at the
-/// source seam, whatever phase production calls the pass from.
 #[test]
 fn leaves_unpaired_opener_in_unexpanded_source_unclaimed() {
     let mut source = "[[=]]\nA\n[[include fragment:pair-close]]\n".to_owned();

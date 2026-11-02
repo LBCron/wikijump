@@ -49,11 +49,6 @@ enum EmitSetNode {
     Union(EmitSetId, EmitSetId),
 }
 
-/// Compact DAG of source ranges emitted by parser candidates.
-///
-/// Nested candidates share child sets by ID. Materialization is iterative, so
-/// deeply nested color and formatting scopes neither copy descendant vectors
-/// nor consume the Rust call stack.
 #[derive(Debug)]
 pub(in crate::services::render::literal_regions) struct EmitSetArena {
     leaves: Vec<Range<usize>>,

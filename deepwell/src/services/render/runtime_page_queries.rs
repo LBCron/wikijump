@@ -42,10 +42,6 @@ pub(in crate::services::render) struct ViewableCountPagesRows {
 pub(in crate::services::render) enum CountPagesRawScanCompletion {
     Complete,
     Capped,
-    /// A random-order query sampled the complete render window. The sampled
-    /// viewable count is an intentionally inexact, privacy-preserving fallback:
-    /// switching to literal output based on permission filtering would expose
-    /// the existence or proportion of hidden matches.
     RandomSampleCapped,
 }
 
@@ -242,8 +238,6 @@ async fn find_viewable_render_page_rows(
     })
 }
 
-/// A page as the ListPages view filter sees it: the identity it is checked by,
-/// the site that owns it, and the category the check is scoped to.
 #[derive(Debug, Clone, Copy)]
 pub struct ViewablePageRef {
     pub page_id: i64,
@@ -251,23 +245,6 @@ pub struct ViewablePageRef {
     pub page_category_id: Option<i64>,
 }
 
-/// Resolves whether a viewer may view each scanned page.
-///
-/// Results are returned in the same order as `pages`.
-///
-/// A page reference can grant page-specific virtual roles such as PageAuthor, so
-/// its decision must not be reused for another page in the same category.
-/// PageAuthor is the only such role and it requires a live page attribution, so
-/// the pages the viewer has authored are identified for the whole batch in one
-/// query and then checked individually.
-///
-/// Every other input to the decision -- the site ban probe, the explicit site
-/// roles, the virtual roles and the membership check -- depends only on
-/// `(user_id, site_id)`. The remaining pages therefore share one permission
-/// derivation per site and one category probe per distinct category instead of
-/// repeating the whole derivation for every row. A scan of `R` rows costs a
-/// constant number of queries plus one per distinct `(site, category)` and per
-/// authored page, rather than a fixed handful per row.
 pub async fn view_decisions_for_scanned_pages(
     ctx: &ServiceContext<'_>,
     viewer_user_id: Option<i64>,
@@ -289,12 +266,9 @@ pub async fn view_decisions_for_scanned_pages(
                 .await
                 .or_raise(make_error)?
         }
-        // Anonymous viewers can never hold a page attribution.
         None => BTreeSet::new(),
     };
 
-    // Grouped by site so a single permission derivation serves every page of a
-    // site. The site is carried by the row, so a cross-site scan stays correct.
     let mut unattributed_by_site: BTreeMap<i64, Vec<(usize, Option<i64>)>> =
         BTreeMap::new();
     let mut viewable = vec![false; pages.len()];

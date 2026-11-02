@@ -57,11 +57,6 @@ static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         .expect("the Wikidot anchor marker regex is valid")
 });
 
-/// Precomputed literal regions for compatibility transforms.
-///
-/// Building the index is linear in the input length. Membership checks use a
-/// binary search, avoiding a full prefix rescan for every parser function or
-/// conditional on component-heavy pages.
 #[derive(Debug, Default)]
 pub(crate) struct LiteralRegionIndex {
     ranges: Vec<Range<usize>>,
@@ -96,12 +91,6 @@ impl LiteralRegionIndex {
         }
     }
 
-    /// Literal regions used while pairing Wikidot conditional boundaries.
-    ///
-    /// Balanced inline raw text is confined to its physical line for this
-    /// pass, while an unmatched `@@` owns no literal region. This matches FTML
-    /// compatibility scanning and prevents an unmatched opener from hiding a
-    /// conditional boundary. Other literals retain fail-closed behavior.
     pub(super) fn new_wikidot_conditional_syntax(source: &str) -> Self {
         let mut ranges = Vec::new();
         collect_wikidot_conditional_literal_ranges(source, &mut ranges);
@@ -115,19 +104,12 @@ impl LiteralRegionIndex {
         self.ranges.get(index).filter(|range| range.start <= offset)
     }
 
-    /// Legacy literal ownership used while expanding CountPages modules.
-    ///
-    /// This preserves the former fail-closed line-prefix rules while replacing their per-capture prefix rescans with one linear index build.
     pub(super) fn new_count_pages_syntax(source: &str) -> Self {
         Self {
             ranges: collect_count_pages_literal_ranges(source),
         }
     }
 
-    /// Test oracle for the complete runtime-protection index.
-    ///
-    /// The structural scanner deliberately uses `new_list_pages_scanner_syntax`
-    /// so recovery barriers remain visible to its own rollback logic.
     #[cfg(test)]
     pub(super) fn new_list_pages_syntax(source: &str) -> Self {
         let mut index = Self {
@@ -164,7 +146,6 @@ impl LiteralRegionIndex {
             });
         };
 
-        // The direct and projected structural scanners use the same projected candidate graph. Build it once, then map a clone back to original offsets for the direct scanner instead of rebuilding the graph and source projection independently.
         let projected_ranges =
             collect_already_projected_list_pages_literal_ranges(projection.source())?;
         let original_css_ranges = collect_list_pages_downstream_css_ranges(source);
@@ -223,9 +204,6 @@ impl LiteralRegionIndex {
         }
     }
 
-    /// Inline protectors must follow FTML's physical-line ownership of `@@`.
-    /// A dangling raw delimiter on an earlier line cannot hide real syntax or
-    /// expose escaped syntax on the next one.
     pub(super) fn new_wikidot_protection(source: &str) -> Self {
         let mut index = Self::new_wikidot_inline_protection(source);
         let mut ranges = Vec::new();
@@ -273,9 +251,6 @@ impl LiteralRegionIndex {
         }
     }
 
-    /// The older inline-HTML protector also formats prose inside authored
-    /// angle brackets. Keep that behavior while excluding actual Wikidot
-    /// literal owners and syntax attribute interiors.
     pub(super) fn new_wikidot_inline_protection(source: &str) -> Self {
         let mut index = Self::new_wikidot_conditional_syntax(source);
         let mut ranges = Vec::new();
@@ -284,11 +259,6 @@ impl LiteralRegionIndex {
         index
     }
 
-    /// Literal and tag interiors where a compatibility module recognizer must
-    /// not treat tag-shaped text as a new module. The first byte of every tag
-    /// remains outside the index so a candidate can recognize the tag that
-    /// starts exactly there. Shrinking before merging also preserves the gap
-    /// between adjacent tags.
     pub(crate) fn new_wikidot_module_recognition(source: &str) -> Self {
         let mut index = Self::build(source, true);
         let mut ranges = Vec::new();
@@ -309,7 +279,6 @@ impl LiteralRegionIndex {
         index
     }
 
-    /// Rendered HTML regions where trusted-fragment markers must remain text.
     #[cfg(test)]
     pub(super) fn new_html_restoration(source: &str) -> Self {
         let mut index = Self::build(source, true);
@@ -322,20 +291,7 @@ impl LiteralRegionIndex {
         index
     }
 
-    /// Rendered HTML regions where color-fragment markers must remain text.
-    ///
-    /// Inline Wikidot monospace permits color syntax, so standalone `<code>`
-    /// contents are not literal for this restoration pass. Real `[[code]]`
-    /// blocks render as `<wj-code>` at this pipeline stage (the
-    /// `<div class="code">` rewrite runs later), so their contents stay
-    /// protected by the enclosing `<pre>` range. A `<div class="code">` in
-    /// this HTML is an authored ordinary div (for example
-    /// `[[div class="code"]]` on `component:coltop`, which live Wikidot
-    /// renders with color spans), never a code block, so markers inside it
-    /// must restore.
     pub(super) fn new_html_color_restoration(source: &str) -> Self {
-        // These bytes have already crossed FTML. Visible `@@` or `[[code]]`
-        // text is no longer an authored delimiter at this boundary.
         let mut index = Self { ranges: Vec::new() };
         let mut ranges = Vec::new();
         collect_html_literal_ranges(source, &mut ranges, false, false);
@@ -505,11 +461,6 @@ fn push_coalesced_range(ranges: &mut Vec<Range<usize>>, range: Range<usize>) {
     }
 }
 
-/// Line ranges following a valid Wikidot native quote prefix.
-///
-/// Construction is linear and membership uses binary search so compatibility
-/// protectors can share quote-context checks without rescanning prefixes for
-/// every syntax candidate.
 #[derive(Debug, Default)]
 pub(super) struct WikidotNativeQuoteIndex {
     ranges: Vec<Range<usize>>,

@@ -1,5 +1,3 @@
-//! Runtime-backed Wikidot module expansion.
-
 mod membership;
 mod page_calendar;
 mod platform_directory;
@@ -676,12 +674,6 @@ fn is_literal_runtime_module_residual(name: &str) -> bool {
         .any(|candidate| name.eq_ignore_ascii_case(candidate))
 }
 
-/// Preview-only redirect notice for an evidenced double-quoted destination.
-///
-/// Live PagePreview renders the redirect notice for exact
-/// `destination="..."` heads with a nonempty value; an empty destination
-/// renders the missing-destination error instead. Single quotes stay literal
-/// in preview and use the missing-destination error in saved renders.
 fn redirect_preview_destination_notice(head: &str) -> Option<String> {
     let destination = head
         .trim()
@@ -779,10 +771,6 @@ impl RenderService {
         settings: &WikitextSettings,
         compat_html: &mut CompatHtmlFragments,
     ) -> String {
-        // NewPage is expanded by the runtime-backed pass above. Keeping it
-        // out of this context-free fallback is what lets that pass preserve
-        // over-budget or otherwise unsupported modules literally. Members
-        // has its own site-scoped directory pass and is not in this registry.
         Self::expand_registry_modules_matching(wikitext, settings, compat_html, |name| {
             !name.eq_ignore_ascii_case("NewPage") && !name.eq_ignore_ascii_case("Join")
         })
@@ -798,7 +786,6 @@ impl RenderService {
             return wikitext;
         }
 
-        // Keep one index over the authored source for the complete pass. A replacement must not expose a later candidate that the original literal, comment, or tag boundaries protected, so malformed cross-boundary input remains fail closed.
         let literal_regions =
             LiteralRegionIndex::new_wikidot_module_recognition(&wikitext);
         let mut output = String::with_capacity(wikitext.len());
@@ -1162,11 +1149,6 @@ impl RenderService {
             output.push_str(&wikitext[cursor..matched.start()]);
             let rendered = Self::render_static_account_module(name);
             if rendered.is_empty() && name.eq_ignore_ascii_case("Watchers") {
-                // Wikidot leaves an empty paragraph for an executed
-                // Wikidot's empty Watchers block leaves five newline bytes
-                // between the surrounding paragraphs in PagePreview. Keep
-                // that observed block boundary even though the module has no
-                // visible body.
                 output.push_str(
                     &compat_html.push_block_html("<p>\n\n\n\n\n</p>".to_owned()),
                 );
@@ -1556,11 +1538,6 @@ mod runtime_module_residual_tests {
 
     #[test]
     fn redirect_preview_renders_destination_notice_and_empty_error() {
-        // Live PagePreview observations (sandbox-for-codex, anonymous):
-        // a double-quoted non-empty destination renders the redirect
-        // notice, while an empty destination renders the same
-        // missing-destination error as an absent one. Single-quoted saved
-        // destinations use the same missing-destination error.
         let notice =
             render_finalized("[[module Redirect destination=\"start\"]]\n", true);
         assert!(
@@ -1679,12 +1656,6 @@ mod runtime_module_residual_tests {
 
     #[test]
     fn watchers_argument_bearing_preview_stays_literal_without_watcher_list() {
-        // Retained #1032 contract: only the bare opener renders the live
-        // empty Watchers block. The documented noActions attribute and
-        // unknown attributes have no observed output, so the static preview
-        // expansion leaves them byte-literal (later unknown-module) instead
-        // of fabricating a watcher list or collapsing to the empty block.
-        // Static expansion is actor- and page-free by construction.
         fn preview_static(source: &str) -> String {
             let settings =
                 WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -1774,13 +1745,6 @@ mod runtime_module_residual_tests {
 
     #[test]
     fn dashboard_and_themepreviewer_argument_bearing_preview_stays_literal() {
-        // Retained #1038 contract: only the bare openers render the live
-        // Dashboard/ThemePreviewer errors. The documented ThemePreviewer
-        // noUi attribute and unknown attributes have no observed output, so
-        // the static preview expansion leaves them byte-literal (later
-        // unknown-module) instead of rendering an error branch or fetching
-        // an author-supplied theme URL. Static expansion is actor- and
-        // page-free by construction.
         fn preview_static(source: &str) -> String {
             let settings =
                 WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -1827,10 +1791,6 @@ mod runtime_module_residual_tests {
 
     #[test]
     fn www_counter_groups_thousands_with_spaces_like_live() {
-        // Retained #1508 live www front-special stats: large counters use
-        // space-separated thousands groups. Pin the general grouping rule
-        // (multi-group positives plus sub-thousand, zero, and clamped
-        // negative controls) without replaying any captured population.
         for (value, expected) in [
             (106_410_870_i64, "106 410 870"),
             (31_444_i64, "31 444"),

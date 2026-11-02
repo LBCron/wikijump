@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Permission-aware Wikidot forum index and recent-post modules.
-
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::fmt::Write as _;
@@ -394,11 +392,6 @@ pub(super) fn forum_guest_user(name: String, gravatar_md5: String) -> ForumUserD
     }
 }
 
-/// Render a forum user as Wikidot does for each request.
-///
-/// Wikidot links users and draws their avatar and karma badge over https
-/// (`WIKIDOT_USER_INFO_URL`, `WIKIDOT_AVATAR_BASE`); the avatar URL carries
-/// the render time.
 pub(super) fn render_forum_user(
     user: &ForumUserDisplay,
     avatar_timestamp: i64,

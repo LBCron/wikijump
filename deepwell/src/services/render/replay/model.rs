@@ -1,9 +1,3 @@
-/*
- * services/render/replay/model.rs
- *
- * Serializable protocol and evidence types for corpus render replay.
- */
-
 use crate::services::render::CorpusReplayExpandedWikitext;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;

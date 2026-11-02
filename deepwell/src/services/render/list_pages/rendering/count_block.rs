@@ -26,13 +26,9 @@ impl RenderService {
         let ListPagesPageContext {
             site_id: current_site_id,
             page_id: current_page_identity,
-            // CountPages renders a total, so the requested page does not apply.
             url: _,
         } = page_context;
         let current_page_id = current_page_identity.unwrap_or(0);
-        // The all-category, unfiltered, unbounded shape is answered by the
-        // exact-count path below instead of the bounded row scan; when the
-        // exact count is not eligible the module is preserved literally.
         let unbounded_all_category_shape =
             count_pages_unbounded_all_category_shape(&arguments);
         let ListPagesArguments {
@@ -138,8 +134,6 @@ impl RenderService {
             current_page_id,
             &authors,
             author_filter_present,
-            // CountPages keeps its existing literal behavior for the exclusion
-            // sentinel, which `unsupported_count_pages_filter` already drives.
             false,
         )
         .await?;
@@ -285,18 +279,6 @@ impl RenderService {
         ))
     }
 
-    /// Answers an all-category, unfiltered, unbounded CountPages with an
-    /// exact count instead of the bounded row scan.
-    ///
-    /// The CountPages render viewer is anonymous, and the row scan's view
-    /// filter decides unattributed pages purely by (site, category) -- an
-    /// anonymous viewer holds no page attributions -- so restricting the
-    /// count to the categories the viewer may view yields exactly the
-    /// total the scan would report, without scanning rows. When the
-    /// exact-count eligibility machinery denies the invocation (a
-    /// post-query exclusion or offset, deferred filtering or ordering, a
-    /// reached candidate bound), the module is preserved literally, as
-    /// the literal gate did before.
     async fn render_count_pages_exact_total(
         ctx: &ServiceContext<'_>,
         current_site_id: i64,

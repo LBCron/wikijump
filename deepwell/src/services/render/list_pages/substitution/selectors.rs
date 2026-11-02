@@ -152,30 +152,14 @@ pub(in crate::services::render) fn parse_list_pages_numeric_argument(
         .flatten()
 }
 
-/// What an `@URL` selector resolves to once the request's URL is known.
 pub(in crate::services::render) enum UrlSelector<'a> {
-    /// The selector names no `@URL`, or names one whose fallback applies.
     Static(&'a str),
 
-    /// The URL supplied a value, which replaces its standalone `@URL` token
-    /// while retaining any adjacent selector modifiers.
     Resolved(String),
 
-    /// `@URL` with nothing to resolve to and no fallback. Live drops the
-    /// constraint rather than matching nothing, so the module falls back to
-    /// whatever it would do without the selector. For `tags` that widens to
-    /// the whole site; for `category` it means the default category, not
-    /// every category. Dropping is not the same as matching everything.
     Dropped,
 }
 
-/// Resolve an `@URL` selector against the URL path argument of the same name.
-///
-/// A selector names the argument it reads: `tags="@URL"` reads `/tag/<value>`
-/// and `category="@URL"` reads `/category/<value>`. An empty argument counts
-/// as absent for both, which live confirms by rendering `/tag` and
-/// `/category` identically to the bare page URL. PagesByTag draws that line
-/// differently, which is why neither module reuses the other's rule.
 pub(in crate::services::render) fn resolve_url_selector<'a>(
     value: &'a str,
     url_value: Option<&str>,

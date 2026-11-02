@@ -1,5 +1,3 @@
-//! CountPages expansion and required-tag batching.
-
 use super::{
     Action, BTreeMap, BTreeSet, COUNTPAGES_DEFAULT_SHELL, COUNTPAGES_MODULE_REGEX,
     CategoryService, CheckPermissionContext, CompatHtmlFragments, CompatTextFragments,
@@ -52,8 +50,6 @@ impl RenderService {
         let page_context = ListPagesPageContext {
             site_id: current_site_id,
             page_id: current_page_id,
-            // CountPages uses static selector fallbacks and never reads URL
-            // path arguments from the current request.
             url: UrlArguments::default(),
         };
         let batched_required_tag_totals = Self::load_count_pages_required_tag_totals(
@@ -120,10 +116,6 @@ impl RenderService {
                 continue;
             }
 
-            // Live Wikidot preserves a closed, empty CountPages marker with
-            // no arguments as authored text.  Keep this separate from the
-            // executable argument path so a body-bearing or filtered module
-            // cannot accidentally inherit the literal fallback.
             if body_match.is_some() && body.is_empty() && head.trim().is_empty() {
                 expanded.push_str(&compat_text.push_escaped_html_text(mtch.as_str()));
                 cursor = mtch.end();
@@ -220,11 +212,6 @@ impl RenderService {
         Ok(expanded)
     }
 
-    /// Wikidot still renders the deprecated CountPages default shell when an
-    /// all-category opener is left unclosed.  Keep this narrow: the live
-    /// boundary is the explicit `category="*"` selector with no count bound
-    /// or unsupported filter.  Other malformed CountPages text remains
-    /// escaped instead of being guessed as executable markup.
     fn count_pages_unclosed_default_shell_head(head: &str) -> bool {
         let Some(arguments) =
             parse_list_pages_arguments_with_url(head, UrlArguments::default())
@@ -252,7 +239,6 @@ impl RenderService {
         let ListPagesPageContext {
             site_id: current_site_id,
             page_id: current_page_identity,
-            // CountPages renders a total, so the requested page does not apply.
             url: _,
         } = page_context;
         let CountPagesRequiredTagSource {
@@ -293,9 +279,6 @@ impl RenderService {
             {
                 continue;
             }
-            // This prefetch only serves CountPages, whose own URL-argument
-            // behavior is uncaptured, so a head naming `@URL` keeps the
-            // module literal rather than resolving here.
             let Some(arguments) = parse_list_pages_arguments(head) else {
                 continue;
             };

@@ -1,5 +1,3 @@
-//! Native read-only views for the seeded platform directory pages.
-
 use super::{
     CompatHtmlFragments, ConnectionTrait, DomainService, Error, ErrorType,
     FromQueryResult, LazyLock, LiteralRegionIndex, PageInfo, Regex, Result, ResultExt,
@@ -149,7 +147,6 @@ async fn render_sites(
     let visible_target = requested_page * SITES_PER_PAGE + 1;
     let mut raw_offset = 0usize;
     let mut visible = Vec::with_capacity(visible_target);
-    // Filter before applying the page window; hidden sites never affect visible offsets.
     while raw_offset < MAX_SITE_SCAN && visible.len() < visible_target {
         let batch_size = (MAX_SITE_SCAN - raw_offset).min(100);
         let sites = Site::find()

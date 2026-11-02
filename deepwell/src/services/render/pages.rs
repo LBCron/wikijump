@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wikidot `Pages` site-index rendering.
-
 use super::compat::CompatHtmlFragments;
 use super::diagnostics::{
     CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, StageGuard,
@@ -378,9 +376,7 @@ fn parse_pages_module_arguments(head: &str) -> Option<PagesModuleArguments> {
             "details" => {
                 arguments.details = argument.value.eq_ignore_ascii_case("true");
             }
-            "preview" => {
-                // Live Wikidot accepts this documented flag but currently ignores it.
-            }
+            "preview" => {}
             "order" => {
                 arguments.order = match argument.value {
                     "dateCreatedAsc" => PagesModuleOrder::DateCreatedAsc,
@@ -395,10 +391,7 @@ fn parse_pages_module_arguments(head: &str) -> Option<PagesModuleArguments> {
             "limit" => {
                 arguments.limit = Some(argument.value.parse::<usize>().ok()?);
             }
-            _ => {
-                // Live Wikidot ignores unknown Pages arguments while applying
-                // recognized arguments from the same module invocation.
-            }
+            _ => {}
         }
     }
     Some(arguments)

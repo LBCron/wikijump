@@ -18,13 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Resolving the people behind ListPages rows.
-//!
-//! A row can name its creator, its last editor, or an imported Wikidot author
-//! who has no local user. Turning those into display names means batching
-//! lookups across a page of rows and caching them for the rest of the render,
-//! which is what these functions do for `rendering.rs`.
-
 use super::super::service::RenderService;
 use super::{
     Cow, CurrentPageAuthorSource, ListPagesAuthorCacheKey, ListPagesRuntimeDisplay,
@@ -562,8 +555,6 @@ impl RenderService {
 
         user_ids.extend(Self::load_wikidot_author_ids(ctx, &snapshot_names).await?);
         if exclude_current_page_author {
-            // An exclusion that resolved to nobody would silently widen the
-            // query back to every page, so the caller preserves the module.
             return Ok(ResolvedListPagesAuthors::NotAny {
                 user_ids: user_ids.into_iter().collect(),
                 wikidot_snapshot_names: snapshot_names

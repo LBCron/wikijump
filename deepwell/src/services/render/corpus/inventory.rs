@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Whole-pass performance and completeness gate for corpus render observations.
-
 use crate::error::prelude::{Error, ErrorType, Result};
 use crate::services::render::{
     CORPUS_RENDER_BUDGET_US, CORPUS_RENDER_DIMENSIONS, is_corpus_render_timing,

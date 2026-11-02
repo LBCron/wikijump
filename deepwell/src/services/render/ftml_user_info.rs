@@ -121,7 +121,6 @@ async fn load_observed_wikidot_identities(
                 ErrorType::Render,
             )
         })?;
-    // Wikidot stamps a compiled avatar with its compile time.
     let avatar_timestamp = now().unix_timestamp();
     let mut users = users
         .into_iter()
@@ -129,9 +128,6 @@ async fn load_observed_wikidot_identities(
             user_id: user.user_id,
             user_name: std::borrow::Cow::Owned(user.name),
             user_slug: std::borrow::Cow::Owned(user.slug.clone()),
-            // Wikidot layout never emits this field: karma is obtained through
-            // userkarma.php. Sparse observations must not supply profile metadata
-            // to the Wikijump layout or user-directory/profile interfaces.
             user_karma: ftml::data::KarmaLevel::Zero,
             user_avatar_data: std::borrow::Cow::Owned(wikidot_avatar_url(
                 user.user_id,
@@ -149,19 +145,12 @@ async fn load_observed_wikidot_identities(
     Ok(users)
 }
 
-/// The `avatar.php` URL Wikidot compiles into a printuser avatar. FTML
-/// escapes it once more, as Wikidot's compiled HTML does.
-///
-/// This is the fallback for users without a stored avatar; a user whose
-/// avatar was stored at import time gets the inline data URI instead
-/// (see [`apply_stored_avatars`]).
 fn wikidot_avatar_url(user_id: i64, avatar_timestamp: i64) -> String {
     format!(
         "{WIKIDOT_AVATAR_BASE}/avatar.php?userid={user_id}&amp;size=small&amp;timestamp={avatar_timestamp}"
     )
 }
 
-/// Index the stored-avatar blob hashes of imported Wikidot users by ID.
 fn wikidot_avatar_hashes(users: &[WikidotUserModel]) -> BTreeMap<i64, Vec<u8>> {
     users
         .iter()
@@ -173,11 +162,6 @@ fn wikidot_avatar_hashes(users: &[WikidotUserModel]) -> BTreeMap<i64, Vec<u8>> {
         .collect()
 }
 
-/// Load the stored-avatar blob hashes for the given Wikidot user IDs.
-///
-/// Observed identities carry no avatar of their own, so the hashes live
-/// on the imported user record; an identity that was never promoted to
-/// a full import simply has no entry here.
 async fn load_wikidot_avatar_hashes(
     ctx: &ServiceContext<'_>,
     user_ids: &[i64],
@@ -204,14 +188,6 @@ async fn load_wikidot_avatar_hashes(
     Ok(wikidot_avatar_hashes(&users))
 }
 
-/// Give every resolved user with a stored avatar the inline data URI
-/// for that avatar, replacing the synthesized `avatar.php` URL.
-///
-/// The stored bytes are the avatar as resolved at import time, so the
-/// printuser renders even when the live avatar endpoint redirects to a
-/// host the page's content security policy does not allow (for example
-/// a Facebook-hosted avatar). A stored avatar that cannot be loaded
-/// keeps the `avatar.php` URL rather than failing the render.
 async fn apply_stored_avatars(
     ctx: &ServiceContext<'_>,
     users: &mut [UserInfo<'static>],
@@ -231,20 +207,13 @@ async fn apply_stored_avatars(
     }
 }
 
-/// Load one stored avatar blob as an inline data URI, if it can be
-/// represented as one.
 async fn load_stored_avatar(ctx: &ServiceContext<'_>, hash: &[u8]) -> Option<String> {
     let metadata = BlobService::get_metadata(ctx, hash).await.ok()?;
     let data = BlobService::get(ctx, hash).await.ok()?;
     stored_avatar_data_uri(&metadata.mime, &data)
 }
 
-/// Build the inline avatar data URI for a stored avatar blob.
-///
-/// Only the image types FTML passes through as an avatar source are
-/// eligible; anything else keeps the `avatar.php` URL.
 fn stored_avatar_data_uri(mime: &str, data: &[u8]) -> Option<String> {
-    // Mirrors the safe data URI prefixes in FTML's user element renderer.
     const STORED_AVATAR_MIME_TYPES: &[&str] = &[
         "image/png",
         "image/jpeg",
@@ -256,8 +225,6 @@ fn stored_avatar_data_uri(mime: &str, data: &[u8]) -> Option<String> {
         "image/vnd.microsoft.icon",
     ];
 
-    // Stored blob MIME types can carry parameters (libmagic reports e.g.
-    // "image/jpeg; charset=binary"), so compare the bare media type.
     let mime = mime
         .split(';')
         .next()
@@ -299,12 +266,6 @@ fn index_user_info(
     }
 }
 
-/// Split authored `[[user]]` lookup text into normalized name keys.
-///
-/// Live treats the complete positional text as a name key, including text
-/// that happens to be numeric, so every key resolves through the shared
-/// slug/display-name namespace. There is deliberately no identifier
-/// namespace: pure-digit input must error like any unknown name.
 fn user_reference_sets(names: &[String]) -> BTreeSet<String> {
     let mut slugs = BTreeSet::new();
     for name in names {
@@ -348,8 +309,6 @@ async fn load_visible_wikidot_users(
         reference =
             reference.add(wikidot_user::Column::Slug.is_in(slugs.iter().cloned()));
         reference = reference.add(
-            // Keep values bound through `is_in`; this uses the shared
-            // Unicode White_Space, lowercase, and separator contract.
             Expr::cust(wikidot_author_name_sql("wikidot_user.name"))
                 .is_in(slugs.iter().cloned()),
         );
@@ -409,7 +368,6 @@ mod tests {
 
     #[test]
     fn stored_avatar_data_uri_encodes_safe_image_types() {
-        // PNG magic bytes, and a case-insensitive MIME match.
         assert_eq!(
             stored_avatar_data_uri("image/png", &[0x89, 0x50, 0x4e, 0x47]),
             Some("data:image/png;base64,iVBORw==".to_owned()),
@@ -422,7 +380,6 @@ mod tests {
 
     #[test]
     fn stored_avatar_data_uri_normalizes_mime_parameters() {
-        // libmagic-style stored MIME with a charset parameter.
         assert_eq!(
             stored_avatar_data_uri("image/jpeg; charset=binary", &[0xff, 0xd8, 0xff]),
             Some("data:image/jpeg;base64,/9j/".to_owned()),
@@ -493,8 +450,6 @@ mod tests {
 
     #[test]
     fn digit_lookup_keys_stay_in_the_name_namespace() {
-        // Live treats pure-digit positional text as a name key: real
-        // numeric identities error instead of linking by ID.
         let references = [" 122357 ".to_owned(), "System User".to_owned()];
 
         assert_eq!(

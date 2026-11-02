@@ -18,14 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wikidot `pagestag/PagesByTagModule` argument parsing and DOM rendering.
-//!
-//! The emitted markup reproduces a live Wikidot capture byte for byte, tab
-//! indentation included, so imported author CSS that targets
-//! `#tagged-pages-list .pages-list-item .title` keeps working. Only the
-//! `tag` and `category` arguments are evidenced; every other form stays
-//! literal.
-
 use super::compat::CompatHtmlFragments;
 use super::percent_encoding::percent_encode_path_segment;
 use super::service::{
@@ -50,16 +42,7 @@ pub(super) static PAGES_BY_TAG_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| 
     Regex::new(r"(?is)\[\[module\s+PagesByTag(?P<head>[^\]]*)\]\]").unwrap()
 });
 
-/// Upper bound on rows a single PagesByTag expansion will load.
-///
-/// Live Wikidot emitted no pager for the largest captured tag, so this is a
-/// render-cost guard rather than an emulated page size.
 pub(super) const MAX_PAGES_BY_TAG_ROWS: usize = 500;
-/// Bounds distinct PagesByTag database queries in one render expansion.
-///
-/// The frozen corpus reaches seven occurrences on one page; this leaves a
-/// wide margin while preventing an authored page from multiplying the fixed
-/// per-query row and permission cost without limit.
 pub(super) const MAX_PAGES_BY_TAG_MODULE_QUERIES_PER_RENDER: usize = 32;
 
 #[derive(Debug, FromQueryResult)]
@@ -111,11 +94,6 @@ fn pages_by_tag_query_budget_exceeded(query_count: usize) -> bool {
     query_count >= MAX_PAGES_BY_TAG_MODULE_QUERIES_PER_RENDER
 }
 
-/// Extracts the evidenced `tag` and `category` arguments from a
-/// `[[module PagesByTag ...]]` head.
-///
-/// Returns `None` for any head this has no live evidence for, which keeps an
-/// argument-bearing module literal instead of guessing a query.
 pub(super) fn parse_pages_by_tag_arguments(head: &str) -> Option<PagesByTagArguments> {
     let mut rest = head.trim();
     let mut arguments = PagesByTagArguments::default();
@@ -168,7 +146,6 @@ fn parse_pages_by_tag_value(input: &str) -> Option<(&str, &str)> {
     }
 }
 
-/// Renders the live PagesByTag DOM for `tag` over already-filtered `pages`.
 pub(super) fn render_pages_by_tag_module(
     page_info: &PageInfo<'_>,
     tag: &str,
@@ -211,18 +188,6 @@ pub(super) fn render_pages_by_tag_module(
     output
 }
 
-/// Expands `[[module PagesByTag tag="..."]]` into the live Wikidot DOM.
-///
-/// Live Wikidot resolves the tag from the module argument when the module
-/// carries one, and from the request's `/tag/<value>` URL argument otherwise.
-/// A module with neither renders nothing at all. Captured on
-/// `sandbox-for-codex` on 2026-07-25: `/holder` emits nothing, `/holder/tag/x`
-/// emits the list for `x`, and a module written `tag="y"` keeps emitting `y`
-/// whatever the URL says.
-///
-/// An empty `url_tag` is a real value rather than an absent one, because live
-/// renders the heading with an empty `<em></em>` and an empty list for
-/// `/holder/tag` and `/holder/tag/`.
 pub(super) async fn expand_pages_by_tag_modules(
     ctx: &ServiceContext<'_>,
     wikitext: String,
@@ -258,15 +223,11 @@ pub(super) async fn expand_pages_by_tag_modules(
         let head = captures.name("head").map_or("", |mtch| mtch.as_str());
         let (tag, category) = if head.trim().is_empty() {
             let Some(url_tag) = url.tag else {
-                // Neither the module nor the URL names a tag, so live emits
-                // nothing at all rather than an empty list.
                 continue;
             };
             (url_tag.to_owned(), url.category.map(str::to_owned))
         } else {
             let Some(arguments) = parse_pages_by_tag_arguments(head) else {
-                // Unevidenced argument forms stay literal rather than resolve
-                // to a guessed query.
                 expanded.push_str(mtch.as_str());
                 continue;
             };
@@ -494,8 +455,6 @@ mod tests {
 
     #[test]
     fn leaves_unevidenced_argument_forms_unparsed() {
-        // No live capture covers extra arguments, an empty value, or a
-        // duplicate selector, so each must stay literal.
         for head in [
             r#" tag="""#,
             r#" tag="a" tag="b""#,
@@ -545,8 +504,6 @@ mod tests {
 
         assert!(!rendered.contains("<script>"));
         assert!(rendered.contains("&lt;script&gt;alert(1)&lt;/script&gt;"));
-        // The tag and title are element text, where a bare quote is inert; the
-        // slug is an attribute value, where it is not.
         assert!(rendered.contains("<em>x\"y&lt;z</em>"));
         assert!(rendered.contains("href=\"/a&lt;b&gt;\""));
         assert!(!rendered.contains("href=\"/a<b>\""));

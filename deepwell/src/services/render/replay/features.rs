@@ -1,9 +1,3 @@
-/*
- * services/render/replay/features.rs
- *
- * Deterministic, allocation-bounded syntax features and parser error anchors.
- */
-
 use super::model::{
     ErrorSite, FailureSignature, ReplayStage, SyntaxFeatures, sha256_hex,
 };
@@ -123,7 +117,6 @@ fn line_prefix_after_quotes(mut line: &str) -> &str {
     line
 }
 
-/// Preserve syntax atoms and collapse page-specific prose/attribute values.
 pub(crate) fn line_shape(line: &str) -> String {
     let mut shape = String::new();
     let mut text_run = false;

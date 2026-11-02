@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Legacy ListPages recovery and preserved documentation-shape handling.
-
 use super::{
     ListPagesModuleMatch, ModuleEvent, ModuleOpenKind,
     PreservedAtMarkerDocumentationOpening,

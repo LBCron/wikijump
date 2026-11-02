@@ -40,13 +40,13 @@
       },
       {
         "path": "deepwell/src/services/text_block/service.rs",
-        "git_blob": "8101350f8bbc65fa61349b9c7513a08ac0a53ec2",
-        "sha256": "e29d9971b05d727f7b94f78ced6e172712bd7ae23ee6d01ec5fc87ad10d484fa"
+        "git_blob": "6aa822d8a87fc2a4bd8246157bf6d9917346372d",
+        "sha256": "7949659aedbd8f59c926fb3d0aa7daf0ca1554a5b33bbe1b452c4a04b4902327"
       },
       {
         "path": "deepwell/src/services/text_block/structs.rs",
-        "git_blob": "22127a37ab9554f6c26228541df86d4ae2163b3c",
-        "sha256": "9b100aba9b9ee0b2347cdb2617449c1afa47b0379041c4694ea4aac91a41d5bd"
+        "git_blob": "172031e7401bc178e33b9791abd9df6616c9b7ca",
+        "sha256": "c25035999b75bf6677e9e62fbeb0f297930a5941a7e0022f18f879368aeca5e1"
       },
       {
         "path": "deepwell/tests/page.rs",

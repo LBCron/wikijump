@@ -97,10 +97,6 @@ struct FallbackParagraph {
 }
 
 impl RenderService {
-    /// Remove only reserved runtime protection tokens that survived the
-    /// compatibility fallback's owning registries. The fallback may combine
-    /// expanded content whose registry is no longer in scope; exposing those
-    /// tokens is never useful to readers.
     pub(in crate::services::render) fn strip_residual_wikidot_protection_markers(
         html: &str,
     ) -> String {
@@ -128,23 +124,6 @@ impl RenderService {
             return true;
         }
 
-        // Collapsible count and page name/title used to gate this fallback
-        // (#2606). Flat collapsible galleries render normally through FTML
-        // (59 Standing pages, all nesting depth 1), and page identity is
-        // never a content-shape rule. The dense-parse score cannot replace
-        // the name gate either: the real scp-style-resource scores 191,950
-        // while 47 healthy pages score higher (up to 1,132,500), so no
-        // threshold separates them. The tabview shape gate (64 KB with 12
-        // tabs, #337) is removed for the same reason: the July 2026 hang it
-        // was measured against (a-plague-of-philosophical-zombies holding a
-        // worker to a 300 s timeout) no longer reproduces on the pinned
-        // FTML, which renders that page in 0.13 s and the two remaining
-        // tabbed gallery pages (zal-cryptid-s-artwork-hub,
-        // personnel-and-character-dossier) with all bodies and images in
-        // under 0.4 s. Cost stays bounded by the byte cap above and the
-        // render timeouts (tabbed pages keep their extended deadline);
-        // pages that genuinely cannot render fail closed per-page through
-        // the timeout path.
         false
     }
 
@@ -246,10 +225,6 @@ impl RenderService {
             .collect::<Vec<_>>();
         let mut authorized_selector =
             super::super::AuthorizedPageSelector::new(ctx, viewer_user_id);
-        // Keep duplicate-slug selection identical to the singular lookup. The
-        // batch lookup must retain every candidate until that selection is
-        // made; filtering first would discard a denied candidate and make the
-        // other duplicate appear to be the singular result.
         let pages = PageService::get_pages(ctx, site_id, &references).await?;
         let mut pages_by_slug = BTreeMap::<String, Vec<_>>::new();
         for page in pages {
@@ -1219,18 +1194,6 @@ impl RenderService {
         marker.len() >= 4 && marker.chars().all(|character| character == '-')
     }
 
-    /// The iframe emitted for one `[[html]]` block of the compatibility
-    /// fallback.
-    ///
-    /// SCPnet interwiki frames go through the local interwiki routes, as
-    /// `[[embed]]`-carried ones do: the hosted wrapper cannot populate the
-    /// other-languages box, and an import may have replaced the stored
-    /// frame source with an empty inline document. Every other block
-    /// keeps the hosted iframe, keyed to the page whose saved render
-    /// registered the block — for a navigation bar that is the navigation
-    /// page itself, not the page being viewed. An interwiki frame still
-    /// counts as one of the render's blocks, so hosted indices agree with
-    /// the FTML render of the same assembly.
     fn wikidot_compat_html_block_emission(
         body: &str,
         current_page: Option<&str>,

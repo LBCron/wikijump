@@ -185,9 +185,6 @@ fn adjacent_rate_modules_in_cross_tree_scope<'a>(
 }
 
 impl RenderService {
-    /// Reconstruct the typed Rate action order using the same recognition
-    /// boundaries as the runtime renderer. The saved HTML cardinality is
-    /// checked separately before this registry is exposed to a browser.
     pub(crate) fn rate_action_registry_from_wikidot_source(
         source: &str,
         rating_type: PageRatingType,
@@ -404,10 +401,6 @@ impl RenderService {
                 compat_html.push_block_html(rendered)
             };
             if in_cross_tree_inline_scope {
-                // FTML's span/size scopes are paragraph-crossing inline
-                // scopes. A runtime block is a flow break in Wikidot too;
-                // give FTML that boundary so it closes and resumes the scope
-                // around the trusted runtime element.
                 output.push_str("\n\n");
                 output.push_str(&marker);
                 output.push_str("\n\n");

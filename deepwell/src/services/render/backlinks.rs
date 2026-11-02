@@ -18,12 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The Wikidot `Backlinks` module: which pages link to this one.
-//!
-//! Recognition, current-page resolution, the row query, the anonymous-view
-//! filter, and the rendered box live together here. Live Wikidot ignores
-//! attributes, including the tempting but unsupported `page` argument.
-
 use super::compat::CompatHtmlFragments;
 use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
@@ -37,7 +31,6 @@ use sea_orm::{ConnectionTrait, FromQueryResult, Statement};
 use std::collections::BTreeMap;
 use std::sync::LazyLock;
 
-/// The most Backlinks rows one module render will load.
 pub(super) const MAX_BACKLINKS_MODULE_ROWS: usize = 500;
 const BACKLINKS_MODULE_QUERY_LIMIT: usize = MAX_BACKLINKS_MODULE_ROWS + 1;
 
@@ -98,9 +91,6 @@ impl RenderService {
 
         let mut expanded = String::with_capacity(wikitext.len());
         let mut cursor = 0;
-        // The module resolves for the page being rendered, which is fixed for
-        // this call, so every occurrence shares one load. `None` means the scan
-        // was incomplete and each occurrence stays literal.
         let mut cached_pages: Option<Option<Vec<BacklinksModulePage>>> = None;
 
         for captures in BACKLINKS_MODULE_REGEX.captures_iter(&wikitext) {
@@ -189,10 +179,6 @@ impl RenderService {
             return Ok(None);
         }
 
-        // The Backlinks module always renders for an anonymous viewer, so a page
-        // reference cannot grant a page-scoped virtual role. One batched
-        // derivation plus one category probe per distinct category replaces a
-        // page-scoped check per row.
         let category_ids = rows
             .iter()
             .map(|row| Some(row.page_category_id))

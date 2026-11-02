@@ -1,5 +1,3 @@
-//! Post-render Wikidot compatibility normalization helpers.
-
 use super::{
     RenderProtectionBundle, RenderService, WIKIDOT_EMAIL_CLASS_SPAN_REGEX,
     WIKIDOT_OBFUSCATED_EMAIL_BODY_REGEX, WIKIDOT_RECOVERABLE_REVERSED_EMAIL_BODY_REGEX,

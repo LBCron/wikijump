@@ -123,8 +123,6 @@ pub fn classify_render_dependencies(source: &str) -> RenderDependencyClasses {
     classify_dependencies(source, false)
 }
 
-/// Dependencies of a view that every anonymous viewer shares. The rating widget renders
-/// the same markup for each anonymous viewer, so it does not make the view viewer-dependent.
 pub fn classify_anonymous_render_dependencies(source: &str) -> RenderDependencyClasses {
     classify_dependencies(source, true)
 }

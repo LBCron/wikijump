@@ -232,14 +232,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments(
     parse_list_pages_arguments_with_url(head, UrlArguments::default())
 }
 
-/// Locate standalone static `@URL|fallback` values that the parser actually
-/// consumes.
-///
-/// Unknown and otherwise inert arguments are deliberately excluded: removing
-/// the fallback from one of those values leaves the canonical parsed result
-/// unchanged. The returned ranges are relative to `head` and cover only the
-/// recognized four-byte `@URL` token, not its fallback, surrounding argument,
-/// or module head.
 pub(in crate::services::render) fn list_pages_recognized_static_url_fallback_ranges(
     head: &str,
     parsed: &ListPagesArguments,
@@ -328,11 +320,6 @@ pub(in crate::services::render) fn list_pages_static_parent_fullname_with_url(
     }
 }
 
-/// Parse a ListPages head against the request that is asking for it.
-///
-/// `url` carries the Wikidot URL path arguments, which a selector can name as
-/// `@URL`. Pass the default for any render that is not serving a page view,
-/// including the render that produces a revision's stored HTML.
 pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
     head: &str,
     url: UrlArguments<'_>,
@@ -491,9 +478,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
             if score_assignment_count > MAX_PAGE_QUERY_SCORE_SELECTORS {
                 unsupported_score_filter = true;
             }
-            // `score` is a legacy discriminator that remains inert when used
-            // once; repeated occurrences beyond the supported selector
-            // budget must still fail closed instead of widening a query.
             continue;
         }
         let comparison_value;
@@ -511,8 +495,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
             comparison_value = list_pages_comparison_value(argument.op, argument.value);
             Cow::Owned(comparison_value)
         } else {
-            // Live ListPages treats operator forms outside the narrow,
-            // double-quoted comparison grammar as inert head tokens.
             continue;
         };
         let raw_value = raw_value.as_ref();
@@ -552,8 +534,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                         resolved
                     }
                     UrlSelector::Resolved(tag) => {
-                        // A resolved `@URL` still leaves CountPages literal:
-                        // its own URL-argument behavior has not been captured.
                         unsupported_count_pages_filter = true;
                         resolved_url_tag = tag;
                         resolved_url_tag.as_str()
@@ -561,12 +541,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                     UrlSelector::Dropped => {
                         unsupported_count_pages_filter = true;
                         if split_list_pages_tag_values(value).len() > 1 {
-                            // A bare unresolved tags="@URL" drops the whole
-                            // selector. Live keeps the token literal when it
-                            // is only one member of a mixed tag expression,
-                            // so "+ko @URL" remains a conjunction with an
-                            // impossible required-alternative tag instead of
-                            // widening to every +ko page.
                             value
                         } else {
                             continue;
@@ -574,11 +548,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                     }
                 };
                 if empty_url_fallback {
-                    // An explicit `@URL|` fallback is a present-but-empty
-                    // selector on Wikidot. Required empty tags cannot exist,
-                    // so retaining one as the conjunction produces the
-                    // evidenced zero-row result without conflating it with a
-                    // bare unresolved `@URL`, which drops the selector.
                     all_tags.push(Cow::Borrowed(""));
                     continue;
                 }
@@ -711,18 +680,11 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                 ) {
                     UrlSelector::Static(value) => value,
                     UrlSelector::Resolved(category) => {
-                        // As with a resolved tag, CountPages stays literal:
-                        // its own URL-argument behavior is uncaptured.
                         unsupported_count_pages_filter = true;
                         resolved_url_category = category;
                         resolved_url_category.as_str()
                     }
                     UrlSelector::Dropped => {
-                        // A dropped selector leaves the module exactly as it
-                        // would be with no `category` argument at all, which
-                        // live answers with the current page's category. It
-                        // must not be recorded as a selector, or the query
-                        // widens to every category instead.
                         unsupported_count_pages_filter = true;
                         continue;
                     }
@@ -1040,9 +1002,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                     alias_name_selector = selector;
                 }
             }
-            // These inputs need additional data or Wikidot semantics that are not
-            // implemented by PageQueryService yet. Leaving the module untouched is
-            // safer than silently returning a wrong list.
             "separate" => {
                 separate = parse_list_pages_false_only_boolean_argument(raw_value);
             }
@@ -1078,9 +1037,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                     .trim_start_matches('[')
                     .trim_end_matches(']')
                     .trim();
-                // Wikidot's `=` resolves to the author of the page holding
-                // the module, so `-=` excludes that author rather than the
-                // viewer.
                 if author == "-=" {
                     author_filter_present = true;
                     exclude_current_page_author = true;
@@ -1377,9 +1333,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                 }
                 unsupported_count_pages_filter = true;
             }
-            // Live Wikidot accepts this legacy, non-data-form argument as a
-            // no-op. Underscore-prefixed fields remain owned by the data-form
-            // selector branch below.
             "form" => {}
             _ if raw_key.starts_with('_') => {
                 if argument.value_kind != WikidotModuleArgumentValueKind::DoubleQuoted
@@ -1426,10 +1379,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
                     negated: argument.op == "!=",
                 });
             }
-            // Live Wikidot ignores syntactically valid unknown non-data-form
-            // arguments while continuing to apply every recognized argument
-            // in the same invocation. Do not forward their author-controlled
-            // values into generated markup.
             _ => {}
         }
     }
@@ -1458,8 +1407,6 @@ pub(in crate::services::render) fn parse_list_pages_arguments_with_url(
         && !untagged
         && !exact_visible_tags
     {
-        // A lone tags="=" selector has an implicit skip-current behavior on
-        // live Wikidot, independent of the legacy skipCurrent argument.
         exclude_current_page = true;
     }
 

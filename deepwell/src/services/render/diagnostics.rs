@@ -10,11 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Low-overhead stage accounting for trusted corpus-finalizer renders.
-//!
-//! Normal interactive renders never construct a trace. `StageGuard::new()`
-//! therefore avoids even reading the clock when its trace argument is `None`.
-
 use serde::Serialize;
 use std::collections::BTreeMap;
 use std::sync::Arc;

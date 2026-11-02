@@ -18,13 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Substituting `{$name}` variables into included wikitext.
-//!
-//! An `[[include]]` carries named arguments that its target reads back as
-//! `{$name}`. Substitution has to happen before iftags and comment branches
-//! are resolved, and any variable the include did not supply has to survive
-//! the pass unexpanded, which is what the protect/unprotect pair is for.
-
 use super::compat::text_fragments::CompatTextFragments;
 use super::include_comment_branches::remove_unresolved_include_comment_branches_source_local;
 use super::include_variable_iftags::resolve_include_variable_iftags;
@@ -39,11 +32,6 @@ use ftml::{self};
 use std::borrow::Cow;
 use std::collections::HashSet;
 
-/// Maximum output accepted from one include-variable substitution pass.
-///
-/// The projection is checked before the replacement buffer is allocated. This
-/// is deliberately owned by Wikijump because the values come from runtime
-/// include arguments, while FTML only identifies the variable syntax.
 pub(super) const MAX_INCLUDE_VARIABLE_EXPANDED_BYTES: usize = 768_000;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -70,8 +58,6 @@ fn apply_include_variables_with_limits(
     maximum_passes: usize,
     maximum_output_bytes: usize,
 ) -> Result<()> {
-    // Preserve one unresolved self-reference when its value intentionally
-    // carries a prefix or suffix; otherwise each bounded pass repeats it.
     let mut self_referential_names = HashSet::new();
 
     for _ in 0..maximum_passes {
@@ -131,9 +117,6 @@ fn project_include_variable_pass(
     self_referential_names: &HashSet<String>,
     maximum_output_bytes: usize,
 ) -> Result<Option<PassProjection>> {
-    // The projection mirrors the real pass, including its self-reference
-    // guard, but never allocates the projected output string. Keep the set
-    // local so the real pass can discover the same references while copying.
     let mut projected_self_referential_names = self_referential_names.clone();
     let mut output_bytes = 0;
     let mut previous_end = 0;
@@ -233,10 +216,6 @@ pub(super) fn prepare_include_source_variables_and_comment_branches(
     compat_text: &mut CompatTextFragments,
 ) -> Result<()> {
     apply_include_variables_before_resolving_iftags(content, include, page_info)?;
-    // A comment branch is local to the included source once its callsite
-    // variables are bound. Remove inactive branches before recursively
-    // preparing that source so their conditional and include delimiters
-    // cannot pair with delimiters from sibling expansions.
     remove_unresolved_include_comment_branches_source_local(content, compat_text);
     Ok(())
 }

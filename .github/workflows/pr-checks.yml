@@ -129,7 +129,7 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-          key: cargo-registry-${{ runner.os }}-${{ hashFiles('deepwell/Cargo.lock', 'wws/Cargo.lock', 'locales/Cargo.lock') }}
+          key: cargo-registry-${{ runner.os }}-${{ hashFiles('deepwell/Cargo.lock', 'wws/Cargo.lock', 'locales/validator/Cargo.lock') }}
           restore-keys: |
             cargo-registry-${{ runner.os }}-
 
@@ -294,4 +294,4 @@ jobs:
 
       - name: Locales formatting
         if: steps.plan.outputs.locales == '1'
-        run: cargo fmt --manifest-path locales/Cargo.toml --check
+        run: cargo fmt --manifest-path locales/validator/Cargo.toml --check

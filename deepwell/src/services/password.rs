@@ -27,11 +27,9 @@ use tokio::time;
 #[derive(Debug)]
 pub struct PasswordService;
 
-/// Minimum Unicode code-point count for a regular account password.
 pub const ACCOUNT_PASSWORD_MIN_CODE_POINTS: usize = 15;
 
 impl PasswordService {
-    /// Validates and hashes a password used by a regular user account.
     pub fn new_account_hash(password: &str) -> Result<String> {
         let length = password.chars().count();
         if length < ACCOUNT_PASSWORD_MIN_CODE_POINTS {
@@ -47,10 +45,6 @@ impl PasswordService {
         Self::new_hash(password)
     }
 
-    /// Produces a new password hash from the input string.
-    ///
-    /// Generates a salt securely and performs Argon-2 hashing
-    /// and yields a string in PHC format.
     pub fn new_hash(password: &str) -> Result<String> {
         let argon2 = Argon2::default();
         let hash = argon2
@@ -61,13 +55,6 @@ impl PasswordService {
         Ok(hash)
     }
 
-    /// Verifies that the inputted password matches the provided password hash.
-    ///
-    /// The password hash is expected to be in PHC format.
-    ///
-    /// # Returns
-    /// Nothing on success, yields an `InvalidAuthentication` error on failure.
-    /// Will sleep a bit on failure.
     pub async fn verify(
         ctx: &ServiceContext<'_>,
         password: &str,
@@ -76,10 +63,6 @@ impl PasswordService {
         Self::verify_sleep(ctx, password, hash, true).await
     }
 
-    /// Like `verify()`, but allows specifying whether sleeping should take place.
-    ///
-    /// Should only be used internally, when the sleeping is performed by the caller
-    /// themselves on failure.
     pub async fn verify_sleep(
         ctx: &ServiceContext<'_>,
         password: &str,
@@ -92,25 +75,19 @@ impl PasswordService {
             Ok(()) => Ok(()),
             Err(error) => {
                 match error.error_type {
-                    // Simply the wrong password
-                    // This is converted in services/error.rs
                     ErrorType::InvalidAuthentication => {
                         warn!("Invalid password entered, verification failed\n{error}");
                     }
 
-                    // Some other kind of server error
                     _ => {
                         error!("Unexpected error while verifying password:\n{error}");
                     }
                 }
 
-                // Optionally delay a bit on failure to prevent brute-force attacks.
                 if sleep {
                     Self::failure_sleep(ctx.config()).await;
                 }
 
-                // Always return the same error for authentication methods,
-                // to not expose internal state to an adversary.
                 bail!(Error::new(
                     "failed to verify password",
                     ErrorType::InvalidAuthentication,
@@ -128,7 +105,6 @@ impl PasswordService {
         Ok(())
     }
 
-    /// Sleeps for a bit after authentication failure.
     pub async fn failure_sleep(config: &Config) {
         time::sleep(config.authentication_fail_delay).await;
     }
@@ -141,13 +117,6 @@ fn convert_argon_error(error: argon2::password_hash::Error) -> Error {
     )
 }
 
-/// Converts an error from password *verification*.
-///
-/// A computed hash that simply does not match is an expected
-/// authentication outcome ([`ErrorType::InvalidAuthentication`]), so the
-/// caller can log it as an ordinary rejection. Every other verifier
-/// failure (malformed stored hash, unsupported parameters, …) is a
-/// genuine cryptographic problem and keeps the hashing error class.
 fn convert_verify_error(error: argon2::password_hash::Error) -> Error {
     match error {
         argon2::password_hash::Error::PasswordInvalid => Error::new(
@@ -180,8 +149,6 @@ mod tests {
         let wrong_password = Uuid::new_v4().to_string();
         let hash = PasswordService::new_hash(&password).unwrap();
 
-        // A plain mismatch is an expected authentication outcome, not a
-        // cryptographic failure.
         let mismatch =
             PasswordService::verify_internal(&wrong_password, &hash).unwrap_err();
         assert!(
@@ -190,8 +157,6 @@ mod tests {
             mismatch.error_type,
         );
 
-        // A malformed stored hash is a genuine verifier failure and must
-        // stay in the cryptography error class.
         let malformed =
             PasswordService::verify_internal(&password, "not phc").unwrap_err();
         assert!(

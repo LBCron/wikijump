@@ -398,11 +398,6 @@ WHERE invitation_id = $1 AND accepted = FALSE
         Ok((site, actor_user_id))
     }
 
-    /// Resolve the only locally supported self-membership policy.
-    ///
-    /// Imported and reserved sites remain closed. This allowlist is the local
-    /// authoring authority documented in `docs/local-authoring-boundary.md`,
-    /// not a general compatibility policy for arbitrary Wikidot sites.
     pub fn policy(site: &SiteModel) -> MembershipPolicy {
         if site.deleted_at.is_none() && site.slug == EDITABLE_LOCAL_SITE_SLUG {
             MembershipPolicy::Open
@@ -411,7 +406,6 @@ WHERE invitation_id = $1 AND accepted = FALSE
         }
     }
 
-    /// Map an actor state to observable Join-module visibility.
     pub const fn join_module_state(actor: JoinActorState) -> JoinModuleState {
         match actor {
             JoinActorState::Anonymous
@@ -475,12 +469,6 @@ WHERE invitation_id = $1 AND accepted = FALSE
         })
     }
 
-    /// Atomically self-join the request-bound actor to the one editable site.
-    ///
-    /// The site row lock serializes policy evaluation and the membership
-    /// transition. The relation table's current-row unique index is the final
-    /// concurrent duplicate guard. Unsupported policies and actor states all
-    /// use the same outward permission failure.
     pub async fn join(
         ctx: &ServiceContext<'_>,
         input: JoinMembership,
@@ -499,10 +487,6 @@ WHERE invitation_id = $1 AND accepted = FALSE
             return Err(Self::denied().into());
         }
 
-        // Only a request that has already proved its route, actor, site
-        // policy, current revision, and renderer binding can consume this
-        // server-owned bucket. Exhaustion is deliberately indistinguishable
-        // from every other unavailable membership action.
         if !ActionThrottleService::consume(
             ctx,
             MEMBERSHIP_SELF_JOIN_THROTTLE,
@@ -560,12 +544,6 @@ WHERE invitation_id = $1 AND accepted = FALSE
             return Err(Self::denied().into());
         }
 
-        // The join password is a shared secret, so guesses must be bounded
-        // before verification runs. This consumes the password action's own
-        // server-owned partition, mirroring the self-join throttle: only a
-        // request that has proved its route, actor, site policy, current
-        // revision, and renderer binding can consume it, and exhaustion is
-        // indistinguishable from every other unavailable membership action.
         if !ActionThrottleService::consume(
             ctx,
             MEMBERSHIP_PASSWORD_THROTTLE,
@@ -793,9 +771,6 @@ WHERE invitation_id = $1 AND accepted = FALSE
             RelationDirection::Dest,
         )
         .await?;
-        // Resolve every pending applicant name in one batched lookup rather
-        // than one `UserService::get` per relation. The order of the returned
-        // applications still follows the relation order.
         let mut pending = Vec::new();
         let mut applicant_ids = std::collections::BTreeSet::new();
         for relation in relations {

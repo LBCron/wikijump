@@ -20,20 +20,6 @@
 
 #![warn(clippy::wildcard_imports)]
 
-//! The "services" module, providing low-level logical operations.
-//!
-//! Each service is named for a particular object or concept, and
-//! provides several low-level methods for interacting with it.
-//! This may be CRUD, or small operations which should be composed
-//! into larger ones.
-//!
-//! Services normally use the transaction supplied by their caller. A service may create
-//! an independent transaction only when its persistence boundary explicitly requires it,
-//! as blob finalization does to preserve pending-upload state after an outer failure.
-//!
-//! These methods are called as component operations either by other
-//! services or by route implementations found in the `endpoints` module.
-
 #[macro_use]
 mod macros;
 

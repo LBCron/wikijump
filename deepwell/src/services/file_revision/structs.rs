@@ -40,7 +40,7 @@ pub struct CreateFileRevision {
 
 #[derive(Debug, Default, Clone)]
 pub struct CreateFileRevisionBody {
-    pub page_id: Maybe<i64>, // for changing the page this file is on
+    pub page_id: Maybe<i64>,
     pub name: Maybe<String>,
     pub blob: Maybe<FileBlob>,
 }

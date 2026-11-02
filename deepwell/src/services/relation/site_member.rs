@@ -38,9 +38,6 @@ pub enum SiteMemberAccepted {
     Password,
     Accepted(i64),
     Invitation(i64),
-    /// Membership materialized from an imported Wikidot roster snapshot.
-    /// The identity stays non-authenticatable; this only records the
-    /// source site's public relation state.
     Imported,
 }
 
@@ -79,7 +76,6 @@ impl RelationService {
             )
         };
 
-        // Cannot join if banned
         Self::check_site_ban(ctx, GetSiteBan { site_id, user_id }, "join")
             .await
             .or_raise(make_error)?;

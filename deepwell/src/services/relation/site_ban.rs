@@ -53,7 +53,7 @@ impl_relation! {
 }
 
 impl RelationService {
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub async fn active_site_ban_exists(
         ctx: &ServiceContext<'_>,
         body: GetSiteBan,
@@ -84,7 +84,7 @@ impl RelationService {
         })
     }
 
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub async fn create_site_ban(
         ctx: &ServiceContext<'_>,
         CreateSiteBan {
@@ -126,8 +126,6 @@ impl RelationService {
                 .await
                 .or_raise(make_error)?;
             }
-
-            // TODO: remove site member applications
 
             let user_roles = UserRole::find()
                 .filter(
@@ -233,11 +231,6 @@ impl RelationService {
         Ok(relation)
     }
 
-    /// Lifts one expired site-ban relation only if the inspected row is still active.
-    ///
-    /// A replacement ban has a different relation ID and overwrites the inspected row.
-    /// The conditional update therefore treats that race as a benign no-op instead of
-    /// resolving the current site/user relation and removing the replacement.
     pub async fn lift_expired_site_ban_if_current(
         ctx: &ServiceContext<'_>,
         site_ban: RelationModel,
@@ -312,7 +305,6 @@ impl RelationService {
         Ok(true)
     }
 
-    /// Helper method for rejecting an relation if the user is banned.
     pub async fn check_site_ban(
         ctx: &ServiceContext<'_>,
         body: GetSiteBan,
@@ -348,12 +340,6 @@ impl RelationService {
         Ok(())
     }
 
-    /// Soft-deletes all active site bans whose expiry date has passed.
-    ///
-    /// Permanent bans, represented by a null `banned_until`, are left unmodified.
-    ///
-    /// # Returns
-    /// The number of site bans lifted.
     pub async fn lift_expired_site_bans(ctx: &ServiceContext<'_>) -> Result<u64> {
         info!("Lifting expired site bans");
 

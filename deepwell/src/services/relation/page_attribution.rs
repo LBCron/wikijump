@@ -99,10 +99,6 @@ pub struct GetPageAttributions<'a> {
 }
 
 impl RelationService {
-    /// Creates a page attribution relation without overwriting other attributions
-    /// for the same page / user combination. This mirrors the unique constraint of
-    /// (page_id, user_id, attribution_type, attribution_date) from the former
-    /// dedicated table.
     pub async fn create_page_attribution(
         ctx: &ServiceContext<'_>,
         CreatePageAttribution {
@@ -224,17 +220,6 @@ impl RelationService {
         Ok(attributions)
     }
 
-    /// The subset of `page_ids` on which `user_id` holds a live page
-    /// attribution.
-    ///
-    /// This answers, for many pages at once, the question that
-    /// `get_page_attributions` answers for one page: does the attribution list
-    /// contain this user? Callers use it to avoid one page lookup plus one
-    /// relation query per page when they only need the membership answer.
-    ///
-    /// `page_ids` must already be scoped to the site being checked; the
-    /// attribution rows are keyed by page ID, which is globally unique, so no
-    /// further site filter is applied — matching `page_attributions_condition`.
     pub async fn filter_attributed_page_ids(
         ctx: &ServiceContext<'_>,
         user_id: i64,
@@ -302,7 +287,6 @@ impl RelationService {
             )
         };
 
-        // Delete existing active attributions for this page.
         let delete_model = relation::ActiveModel {
             deleted_by: Set(Some(updated_by)),
             deleted_at: Set(Some(now())),
@@ -316,7 +300,6 @@ impl RelationService {
             .await
             .or_raise(make_error)?;
 
-        // Insert the new set.
         let mut created = Vec::with_capacity(attributions_len);
         let mut seen = BTreeSet::new();
         for PageAttributionEntry { user_id, metadata } in attributions {
@@ -386,7 +369,6 @@ impl RelationService {
     }
 }
 
-/// Builds a condition for querying one specific page attribution entry.
 fn page_attribution_condition(
     page_id: i64,
     user_id: i64,
@@ -403,7 +385,6 @@ fn page_attribution_condition(
         .add(relation::Column::DeletedAt.is_null())
 }
 
-/// Builds a condition for querying all page attribution entries for a page.
 fn page_attributions_condition(page_id: i64) -> Condition {
     Condition::all()
         .add(relation::Column::RelationType.eq(RelationType::PageAttribution))

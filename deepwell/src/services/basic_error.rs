@@ -18,20 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The "basic error" service.
-//!
-//! This produces localized HTML output which corresponds
-//! to a particular "basic" error condition.
-//!
-//! A basic error is a low-level error state which occurs
-//! when something fundamental about a web request is wrong.
-//!
-//! Normally, error pages source their text from templates
-//! like `_404`, but if the site referenced does not even exist,
-//! or the request is to something unexpected like the root of
-//! `wjfiles.com`, or the site has no template for a missing pages,
-//! then a more "basic" error needs to be returned.
-
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::ServiceContext;
 use crate::services::view::redirect::escape_wikidot_html_text;
@@ -61,7 +47,6 @@ fn html_arg(value: impl AsRef<str>) -> FluentValue<'static> {
 }
 
 impl BasicErrorService {
-    /// Error for when a canonical site does not exist.
     pub async fn missing_site_slug(
         ctx: &ServiceContext<'_>,
         locales: &[LanguageIdentifier],
@@ -102,7 +87,6 @@ impl BasicErrorService {
         })
     }
 
-    /// Error for when a custom domain does not exist.
     pub async fn missing_custom_domain(
         ctx: &ServiceContext<'_>,
         locales: &[LanguageIdentifier],
@@ -143,13 +127,6 @@ impl BasicErrorService {
         })
     }
 
-    /// Error for when a page slug does not exist.
-    ///
-    /// This is _not_ used as the regular "page missing" error
-    /// (see the `_404` special page), but instead in contexts
-    /// like in wjfiles where we need to display an error for
-    /// when a file doesn't exist because the page it's supposedly
-    /// attached to doesn't exist.
     pub async fn missing_page_slug(
         ctx: &ServiceContext<'_>,
         locales: &[LanguageIdentifier],
@@ -192,9 +169,6 @@ impl BasicErrorService {
         })
     }
 
-    /// Error for when a page cannot be fetched.
-    ///
-    /// Note the same caveats as above.
     pub async fn page_fetch(
         ctx: &ServiceContext<'_>,
         locales: &[LanguageIdentifier],
@@ -237,7 +211,6 @@ impl BasicErrorService {
         })
     }
 
-    /// Error for when a file (referred to by filename) does not exist.
     pub async fn missing_file_name(
         ctx: &ServiceContext<'_>,
         locales: &[LanguageIdentifier],
@@ -327,7 +300,6 @@ impl BasicErrorService {
         })
     }
 
-    /// Multi-faceted error for issues with hosted text blocks.
     pub async fn text_block(
         ctx: &ServiceContext<'_>,
         locales: &[LanguageIdentifier],
@@ -374,7 +346,6 @@ impl BasicErrorService {
         })
     }
 
-    /// Error for when a user tries to access wjfiles without passing in a site slug.
     pub async fn file_root(
         ctx: &ServiceContext<'_>,
         locales: &[LanguageIdentifier],

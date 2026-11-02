@@ -42,10 +42,6 @@ use sea_orm::{
 use std::num::NonZeroI32;
 use std::sync::LazyLock;
 
-/// The changes for the first revision.
-/// The first revision is always considered to have changed everything.
-///
-/// See `services/page_revision/service.rs`.
 static ALL_CHANGES: LazyLock<Vec<String>> =
     LazyLock::new(|| vec![str!("page"), str!("name"), str!("blob"), str!("mime")]);
 
@@ -53,12 +49,6 @@ static ALL_CHANGES: LazyLock<Vec<String>> =
 pub struct FileRevisionService;
 
 impl FileRevisionService {
-    /// Creates a new revision on an existing file.
-    ///
-    /// See `RevisionService::create()`.
-    ///
-    /// # Panics
-    /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         CreateFileRevision {
@@ -96,7 +86,6 @@ impl FileRevisionService {
             "Invalid revision type for standard revision creation",
         );
 
-        // Fields to create in the revision
         let mut changes = Vec::new();
         let mut blob_created = Maybe::Unset;
         let FileRevisionModel {
@@ -108,11 +97,6 @@ impl FileRevisionService {
             mut content_type_description,
             ..
         } = previous;
-
-        // Update fields from input
-        //
-        // We check the values so that the only listed "changes"
-        // are those that actually are different.
 
         if let Maybe::Set(new_page_id) = body.page_id
             && page_id != new_page_id
@@ -157,15 +141,10 @@ impl FileRevisionService {
             blob_created = Maybe::Set(new_blob.blob_created);
         }
 
-        // If nothing has changed, then don't create a new revision
-        // Also don't rerender the page, this isn't an edit.
         if changes.is_empty() {
             debug!("No changes in file, performing no action");
             return Ok(None);
         }
-
-        // Validate inputs
-        // (Note that filename checks are done in FileService)
 
         if mime.is_empty() {
             error!("MIME type is empty");
@@ -175,7 +154,6 @@ impl FileRevisionService {
             ));
         }
 
-        // Run outdater
         let page_slug = Self::get_page_slug(ctx, site_id, page_id)
             .await
             .or_raise(make_error)?;
@@ -190,7 +168,6 @@ impl FileRevisionService {
         .await
         .or_raise(make_error)?;
 
-        // Insert the new revision into the table
         let model = file_revision::ActiveModel {
             revision_type: Set(revision_type),
             revision_number: Set(revision_number),
@@ -229,9 +206,6 @@ impl FileRevisionService {
         }))
     }
 
-    /// Creates the first revision for an already-uploaded file.
-    ///
-    /// See `RevisionService::create_first()`.
     pub async fn create_first(
         ctx: &ServiceContext<'_>,
         CreateFirstFileRevision {
@@ -260,7 +234,6 @@ impl FileRevisionService {
             )
         };
 
-        // Run outdater
         let page_slug = Self::get_page_slug(ctx, site_id, page_id)
             .await
             .or_raise(make_error)?;
@@ -275,7 +248,6 @@ impl FileRevisionService {
         .await
         .or_raise(make_error)?;
 
-        // Insert the first revision into the table
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Create),
             revision_number: Set(0),
@@ -314,15 +286,6 @@ impl FileRevisionService {
         })
     }
 
-    /// Creates a revision marking a page as deleted.
-    ///
-    /// This revision is called a "tombstone" in that
-    /// its only purpose is to mark that the file has been deleted.
-    ///
-    /// See `RevisionService::create_tombstone()`.
-    ///
-    /// # Panics
-    /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_tombstone(
         ctx: &ServiceContext<'_>,
         CreateTombstoneFileRevision {
@@ -360,14 +323,11 @@ impl FileRevisionService {
         } = previous;
 
         if erase_s3_hash {
-            // Replace S3 hash for tombstone revision with empty data
             s3_hash.copy_from_slice(&EMPTY_BLOB_HASH);
 
-            // Also block the s3_hash column for this revision
             hidden.push(str!("s3_hash"));
         }
 
-        // Run outdater
         let page_slug = Self::get_page_slug(ctx, site_id, page_id)
             .await
             .or_raise(make_error)?;
@@ -382,7 +342,6 @@ impl FileRevisionService {
         .await
         .or_raise(make_error)?;
 
-        // Insert the tombstone revision into the table
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Delete),
             revision_number: Set(revision_number),
@@ -417,23 +376,6 @@ impl FileRevisionService {
         })
     }
 
-    /// Creates a revision marking a pages as restored (i.e., undeleted).
-    ///
-    /// Similar to `create_tombstone`, this method creates
-    /// a revision whose only purpose is to mark that the page
-    /// has been restored.
-    ///
-    /// Note that page parenting information is removed during deletion
-    /// and is not restored here.
-    ///
-    /// Remember that, like `create_first()`, this method assumes
-    /// the caller has already verified that undeleting the page here
-    /// will not cause conflicts.
-    ///
-    /// See `RevisionService::create_tombstone()`.
-    ///
-    /// # Panics
-    /// If the given previous revision is for a different file or page, this method will panic.
     pub async fn create_resurrection(
         ctx: &ServiceContext<'_>,
         CreateResurrectionFileRevision {
@@ -484,7 +426,6 @@ impl FileRevisionService {
             changes
         };
 
-        // Run outdater
         let new_page_slug = Self::get_page_slug(ctx, site_id, new_page_id)
             .await
             .or_raise(make_error)?;
@@ -499,7 +440,6 @@ impl FileRevisionService {
         .await
         .or_raise(make_error)?;
 
-        // Insert the resurrection revision into the table
         let model = file_revision::ActiveModel {
             revision_type: Set(FileRevisionType::Undelete),
             revision_number: Set(revision_number),
@@ -534,11 +474,6 @@ impl FileRevisionService {
         })
     }
 
-    /// Modifies an existing file revision.
-    ///
-    /// Revisions are immutable entries in an append-only log.
-    /// However, the `hidden` column can be updated to "delete"
-    /// revisions (wholly or partially) to cover spam and abuse.
     pub async fn update(
         ctx: &ServiceContext<'_>,
         UpdateFileRevision {
@@ -550,10 +485,6 @@ impl FileRevisionService {
             hidden,
         }: UpdateFileRevision,
     ) -> Result<FileRevisionModel> {
-        // The latest file revision cannot be hidden, because
-        // the file, its name, contents, etc are exposed.
-        // It should be reverted first, and then it can be hidden.
-
         let make_error = || {
             Error::new(
                 format!(
@@ -577,10 +508,7 @@ impl FileRevisionService {
             ));
         }
 
-        // TODO: record revision edit in audit log
         let _ = user_id;
-
-        // Update the revision
 
         let model = file_revision::ActiveModel {
             revision_id: Set(revision_id),
@@ -588,23 +516,16 @@ impl FileRevisionService {
             ..Default::default()
         };
 
-        // Update and return
         let revision = model.update(txn).await.or_raise(make_error)?;
         Ok(revision)
     }
 
-    /// Get the latest revision for this file.
-    ///
-    /// See `RevisionService::get_latest()`.
     pub async fn get_latest(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
         file_id: i64,
     ) -> Result<FileRevisionModel> {
-        // NOTE: There is no optional variant of this method,
-        //       since all extant files must have at least one revision.
-
         let make_error = || {
             Error::new(
                 format!(
@@ -640,9 +561,6 @@ impl FileRevisionService {
         }
     }
 
-    /// Get the given revision for a file.
-    ///
-    /// See `RevisionService::get_optional()`.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         GetFileRevision {
@@ -678,9 +596,6 @@ impl FileRevisionService {
         Ok(revision)
     }
 
-    /// Gets the given revision for a file, failing if it doesn't exist.
-    ///
-    /// See `RevisionService::get()`.
     #[inline]
     #[allow(dead_code)]
     pub async fn get(
@@ -694,9 +609,6 @@ impl FileRevisionService {
         )
     }
 
-    /// Counts the number of revisions for a file.
-    ///
-    /// See `RevisionService::count()`.
     pub async fn count(
         ctx: &ServiceContext<'_>,
         CountFileRevisions {
@@ -727,14 +639,9 @@ impl FileRevisionService {
             .await
             .or_raise(make_error)?;
 
-        // We store revision_number in INT, which is i32.
-        // So even though this row count is usize, it
-        // should always fit inside an i32.
         let row_count = i32::try_from(row_count)
             .expect("Revision row count greater than revision_number integer size");
 
-        // All pages have at least one revision, so if there are none
-        // that means this page does not exist, and we should return an error.
         match NonZeroI32::new(row_count) {
             Some(count) => Ok(count),
             None => bail!(Error::new(
@@ -747,9 +654,6 @@ impl FileRevisionService {
         }
     }
 
-    /// Gets a range of revisions for a file.
-    ///
-    /// See `RevisionService::get_range()`.
     pub async fn get_range(
         ctx: &ServiceContext<'_>,
         GetFileRevisionRange {
@@ -779,15 +683,12 @@ impl FileRevisionService {
         let revision_condition = {
             use file_revision::Column::RevisionNumber;
 
-            // Treat any negative revision number as "the most recent revision";
-            // otherwise keep it as-is.
             let revision_number = if revision_number >= 0 {
                 revision_number
             } else {
                 i32::MAX
             };
 
-            // Get correct database condition based on requested ordering
             match revision_direction {
                 FetchDirection::Before => RevisionNumber.lte(revision_number),
                 FetchDirection::After => RevisionNumber.gte(revision_number),
@@ -817,9 +718,6 @@ impl FileRevisionService {
         Ok(revisions)
     }
 
-    /// Gets the latest file revisions attached to a page, including revisions
-    /// for files that have since been deleted. Page History consumes this as
-    /// part of its shared chronological timeline.
     pub async fn get_page_history(
         ctx: &ServiceContext<'_>,
         GetPageFileRevisionHistory {
@@ -884,7 +782,6 @@ impl FileRevisionService {
 }
 
 fn next_revision_number(previous: &FileRevisionModel, page_id: i64, file_id: i64) -> i32 {
-    // Check for basic consistency
     assert_eq!(
         previous.file_id, file_id,
         "Previous revision has an inconsistent file ID",
@@ -894,6 +791,5 @@ fn next_revision_number(previous: &FileRevisionModel, page_id: i64, file_id: i64
         "Previous revision has an inconsistent page ID",
     );
 
-    // Get the new revision number
     previous.revision_number + 1
 }

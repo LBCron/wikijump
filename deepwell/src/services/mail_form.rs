@@ -18,20 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Submission handling for the Wikidot `[[module MailForm]]` module.
-//!
-//! The standing policy for this module (owner ruling, 2026-11-01) is
-//! that display and interaction emulate live Wikidot while no email is
-//! ever actually sent: a submission is validated against the authored
-//! field rules and answered with Wikidot's response shapes -- a
-//! `form_errors` status with one message per failing field, or the
-//! success outcome (the success message, plus the `successPage` slug
-//! when one is authored). A rules-passing submission composes the email
-//! Wikidot would send and records it in the local no-delivery sink
-//! (`EmailService::send_mail_form_message`); the composed message and
-//! its `not_delivered` marker are returned alongside the reader-facing
-//! success fields so the sink record stays observable.
-
 use std::collections::HashMap;
 
 use serde::Serialize;
@@ -47,21 +33,10 @@ use crate::services::{
 };
 use crate::types::{Action, Permission, Reference, Resource};
 
-/// The message left in place of the form after a sent submission.
-/// Wikidot's MailFormModule script shows the success dialog "The form
-/// has been sent. Thank you!" and replaces the form's contents with the
-/// response's success message; this is that message.
 const MAIL_FORM_SUCCESS_MESSAGE: &str = "<p>The form has been sent. Thank you!</p>";
 
-/// Wikidot's documented default email title when `title=` is not
-/// authored on the module.
 const MAIL_FORM_DEFAULT_TITLE: &str = "Wikidot.com - MailForm form data";
 
-/// A MailForm submission, as presented by the ajax module connector:
-/// the `formdef` definition handle rendered into the page, and the
-/// submitted field values by field name (the shape of Wikidot's
-/// `OZONE.utils.formToArray`, whose JSON encoding is a flat
-/// name-to-value object).
 #[derive(Debug)]
 pub struct SubmitMailForm {
     pub site_id: i64,
@@ -69,22 +44,12 @@ pub struct SubmitMailForm {
     pub values: HashMap<String, String>,
 }
 
-/// One field's validation failure: the field name and the message its
-/// `.field-error-message` cell shows.
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct MailFormSubmissionError {
     pub field: String,
     pub message: String,
 }
 
-/// The outcome of a MailForm submission.
-///
-/// `status` uses Wikidot's connector words: `form_errors` when any
-/// authored rule fails (with `errors` in definition order), `ok` when
-/// the submission is accepted. On success the reader-facing fields are
-/// `success_msg` and `success_page`; `delivery` and `message` are the
-/// internal no-delivery record -- delivery is always `not_delivered`,
-/// because Wikijump sends no email.
 #[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct MailFormSubmitOutput {
     pub status: String,
@@ -118,9 +83,6 @@ impl MailFormService {
 
         let page = PageService::get(ctx, input.site_id, Reference::Id(page_id)).await?;
 
-        // Submitting a form presupposes seeing it: the requester must be
-        // able to view the page that carries the form, exactly as voting
-        // on a page presupposes viewing it.
         MutationAuthorization::require_permission(
             ctx,
             input.site_id,
@@ -160,9 +122,6 @@ impl MailFormService {
             });
         }
 
-        // The submission is accepted. Compose the email Wikidot would
-        // send and record it in the no-delivery sink; no email leaves
-        // the system, and the record below is the only trace.
         let message = compose_mail_form_message(&definition, &input.values);
         EmailService::send_mail_form_message(&message).await;
 
@@ -177,8 +136,6 @@ impl MailFormService {
     }
 }
 
-/// The page id a `formdef` handle names: its `<32 hex>_<page id>`
-/// suffix. Anything else is not a handle this renderer produced.
 fn parse_mail_form_handle_page_id(formdef: &str) -> Option<i64> {
     let (digest, page) = formdef.rsplit_once('_')?;
     if digest.len() != 32 || !digest.bytes().all(|byte| byte.is_ascii_hexdigit()) {
@@ -187,13 +144,6 @@ fn parse_mail_form_handle_page_id(formdef: &str) -> Option<i64> {
     page.parse::<i64>().ok().filter(|page_id| *page_id > 0)
 }
 
-/// Compose the email a rules-passing submission would send, for the
-/// no-delivery sink record: the authored recipients (Wikidot's default
-/// is the site's administrators), the authored or default title, and
-/// the submitted values serialized in field order -- plain
-/// `Title: value` lines, or the CSV form when the module authors
-/// `format="csv"`. This serialization is the sink's record format;
-/// nothing is transmitted.
 fn compose_mail_form_message(
     definition: &MailFormDefinition,
     values: &HashMap<String, String>,

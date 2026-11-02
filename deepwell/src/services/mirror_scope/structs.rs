@@ -22,13 +22,6 @@ use crate::types::Reference;
 use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
 
-/// The scope and completeness record of one mirrored site.
-///
-/// A `full` mirror claims the source public corpus needed by site-wide
-/// queries; a `partial` mirror declares an explicitly bounded set.
-/// `declared_extras` are non-corpus slugs kept deliberately (seed and
-/// system pages), while `consumed_slugs` are renamed-away slugs that
-/// later import passes must never recreate.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct MirrorScope {
     pub site_id: i64,
@@ -39,10 +32,6 @@ pub struct MirrorScope {
     pub consumed_slugs: Vec<String>,
 }
 
-/// Write (insert or replace) the scope record of one mirrored site.
-///
-/// Slug sets are normalized, deduplicated, and sorted by the service so
-/// equivalent runs converge to identical rows.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct SetMirrorScope {
@@ -54,10 +43,6 @@ pub struct SetMirrorScope {
     pub consumed_slugs: Vec<String>,
 }
 
-/// One source-removed page to tombstone on the mirror.
-///
-/// The page is resolved by slug or id through the ordinary page lookup;
-/// `last_revision_id` guards against racing a concurrent edit.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ReconcilePageDelete<'a> {
@@ -66,10 +51,6 @@ pub struct ReconcilePageDelete<'a> {
     pub revision_comments: String,
 }
 
-/// One source-renamed page to move on the mirror.
-///
-/// The move keeps page history; the renamed-away slug is recorded as
-/// consumed so later passes never recreate it.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ReconcilePageRename<'a> {
@@ -79,13 +60,6 @@ pub struct ReconcilePageRename<'a> {
     pub revision_comments: String,
 }
 
-/// Apply one reconciliation pass of source deletes and renames.
-///
-/// Items are applied best-effort in order (deletes, then renames) through
-/// the canonical page operations; each entry carries `last_revision_id`
-/// so a concurrent edit fails that item instead of clobbering it.
-/// Requires an existing scope record: rename memory is meaningless
-/// without recorded scope.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ReconcileMirrorPages<'a> {
@@ -95,7 +69,6 @@ pub struct ReconcileMirrorPages<'a> {
     pub ip_address: IpAddr,
 }
 
-/// The outcome of one reconciliation item.
 #[derive(Serialize, Debug, Clone)]
 pub struct ReconcileItemResult {
     pub slug: String,
@@ -105,7 +78,6 @@ pub struct ReconcileItemResult {
     pub error: Option<String>,
 }
 
-/// The outcome of one reconciliation pass.
 #[derive(Serialize, Debug, Clone)]
 pub struct ReconcileMirrorOutput {
     pub site_id: i64,
@@ -115,12 +87,6 @@ pub struct ReconcileMirrorOutput {
     pub items: Vec<ReconcileItemResult>,
 }
 
-/// One source attachment the mirror page must carry, from corpus
-/// attachment metadata (name plus content hash and size when recorded).
-///
-/// The hash is the stored blob digest in hex, the same terms the import
-/// verify path (`ImportFileExpectation::s3_hash`) compares. A missing
-/// hash or size narrows the check to name presence only.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct SourceFileExpectation {
@@ -129,15 +95,6 @@ pub struct SourceFileExpectation {
     pub size: Option<i64>,
 }
 
-/// Reconcile one mirror page's file inventory against the source.
-///
-/// Active rows absent from the inventory are tombstoned through the
-/// canonical file delete (history preserved, attributed to the staff
-/// actor with the reconciliation time, never backdated to a fabricated
-/// source time). Rows whose bytes disagree and source names with no
-/// local row are reported, not touched: new or changed bytes must
-/// arrive through the import path, never invented here. Requires an
-/// existing scope record.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct ReconcileMirrorFiles<'a> {
@@ -147,7 +104,6 @@ pub struct ReconcileMirrorFiles<'a> {
     pub ip_address: IpAddr,
 }
 
-/// The outcome of one reconciled file row.
 #[derive(Serialize, Debug, Clone)]
 pub struct ReconcileFileItemResult {
     pub name: String,
@@ -157,7 +113,6 @@ pub struct ReconcileFileItemResult {
     pub error: Option<String>,
 }
 
-/// The outcome of one file reconciliation pass.
 #[derive(Serialize, Debug, Clone)]
 pub struct ReconcileMirrorFilesOutput {
     pub site_id: i64,

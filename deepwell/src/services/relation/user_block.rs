@@ -42,7 +42,7 @@ impl_relation! {
 }
 
 impl RelationService {
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub async fn create_user_block(
         ctx: &ServiceContext<'_>,
         CreateUserBlock {
@@ -52,8 +52,6 @@ impl RelationService {
             metadata,
         }: CreateUserBlock,
     ) -> Result<()> {
-        // Never reject a block, even if already blocked the other way.
-
         let make_error = || {
             Error::new(
                 format!(
@@ -64,7 +62,6 @@ impl RelationService {
             )
         };
 
-        // Unfollow both ways. Contact and contact-request cleanup remains TODO.
         let (result1, result2) = join!(
             Self::remove_user_follow(
                 ctx,
@@ -82,8 +79,6 @@ impl RelationService {
                     removed_by: created_by,
                 },
             ),
-            // TODO add user_contact
-            // TODO add user_contact_request
         );
         raise_multiple!(result1, result2; make_error);
 
@@ -102,7 +97,6 @@ impl RelationService {
         Ok(())
     }
 
-    /// Helper method for rejecting an relation if either user in a pair has blocked the other.
     pub async fn check_user_block(
         ctx: &ServiceContext<'_>,
         user_id_1: i64,

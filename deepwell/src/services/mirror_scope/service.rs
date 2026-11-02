@@ -64,8 +64,6 @@ impl MirrorScopeService {
             Self::validate_pin(pin)?;
         }
 
-        // The record describes a real site; fail closed on unknown sites
-        // instead of recording scope for a dangling ID.
         SiteService::get(ctx, Reference::Id(input.site_id))
             .await
             .or_raise(Self::make_error)?;
@@ -109,10 +107,6 @@ impl MirrorScopeService {
         Ok(Self::to_output(row))
     }
 
-    /// Remember a renamed-away slug so later passes never recreate it.
-    ///
-    /// Returns whether the slug was newly recorded. Requires an existing
-    /// scope row: consumed slugs are meaningless without a recorded scope.
     pub async fn record_consumed_slug(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -185,14 +179,6 @@ impl MirrorScopeService {
         .into())
     }
 
-    /// Reconcile one mirror page's file inventory against the source.
-    ///
-    /// Active rows absent from `input.files` are tombstoned through the
-    /// canonical file delete, attributed to the staff actor with the
-    /// reconciliation time. Rows whose recorded bytes disagree with the
-    /// expectation and source names with no local row are reported, not
-    /// touched. Items apply best-effort; a failed item is recorded and
-    /// the pass continues. Requires an existing scope record.
     pub async fn reconcile_files(
         ctx: &ServiceContext<'_>,
         actor_user_id: i64,
@@ -340,9 +326,6 @@ impl MirrorScopeService {
             return true;
         }
         if let Some(expected_hex) = &expectation.s3_hash_hex {
-            // An undecodable or wrong-length hash is not evidence of a
-            // difference, only of an unusable expectation; the name check
-            // still governs tombstoning, so this stays safe.
             if let Ok(expected) = hex::decode(expected_hex.trim())
                 && expected.len() == s3_hash.len()
                 && expected != s3_hash
@@ -374,16 +357,6 @@ impl MirrorScopeService {
             .collect()
     }
 
-    /// Apply one reconciliation pass: source deletes tombstone pages and
-    /// source renames move them, all through the canonical page
-    /// operations, so history is preserved and no manual SQL is needed.
-    ///
-    /// Items apply best-effort in order (deletes, then renames); a failed
-    /// item is recorded in the output and the pass continues, mirroring
-    /// the import refresh tooling contract. Each entry carries
-    /// `last_revision_id`, so a concurrent edit fails that item instead
-    /// of clobbering it. Renamed-away slugs are recorded as consumed.
-    /// Requires an existing scope record for the site.
     pub async fn reconcile(
         ctx: &ServiceContext<'_>,
         actor_user_id: i64,
@@ -456,8 +429,6 @@ impl MirrorScopeService {
             .await
             {
                 Ok(output) => {
-                    // The move keeps history; remember the renamed-away
-                    // slug so later passes never recreate it.
                     Self::record_consumed_slug(ctx, input.site_id, &output.old_slug)
                         .await?;
                     applied_renames += 1;

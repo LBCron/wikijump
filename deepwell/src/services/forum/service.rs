@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code)] // TEMP
+#![allow(dead_code)]
 
 use super::structs::{
     CreateForumCategory, CreateForumGroup, DeleteForumCategory, DeleteForumGroup,
@@ -398,7 +398,6 @@ impl ForumService {
                 .await
                 .or_raise(make_error)?;
 
-            // Categories are site-local. We keep this strict at the service layer.
             if group.site_id != category.site_id {
                 bail!(Error::new(
                     format!(
@@ -460,7 +459,6 @@ impl ForumService {
         let category = model.update(txn).await.or_raise(make_error)?;
 
         if moved_group {
-            // Keep denormalized group/site fields in sync for all descendants.
             let thread_model = forum_thread::ActiveModel {
                 forum_group_id: Set(new_group_id),
                 site_id: Set(new_site_id),

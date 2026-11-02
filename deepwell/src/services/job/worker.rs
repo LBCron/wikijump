@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Module for the worker which consumes `Job`s and performs the relevant task.
-
 use super::service::{JOB_QUEUE_NAME, JobService};
 use super::structs::Job;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
@@ -40,14 +38,12 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::time;
 
-/// Tells the main loop of the worker whether the queue had an item or not.
 #[derive(Debug)]
 enum JobProcessStatus {
     ReceivedJob,
     NoJob,
 }
 
-/// Used to queue a follow-up job, if needed.
 #[derive(Debug)]
 enum NextJob {
     Next { job: Job, delay: Option<Duration> },
@@ -92,8 +88,6 @@ pub struct JobWorker {
 }
 
 impl JobWorker {
-    /// Spawns a number of local job workers.
-    /// The number of workers is specified in the configuration.
     pub fn spawn_all(state: &ServerState) {
         let worker_count = state.config.job_workers.into();
 
@@ -103,10 +97,6 @@ impl JobWorker {
         }
     }
 
-    /// Spawns one local job worker with the given ID.
-    ///
-    /// Each worker within a process should have a unique ID,
-    /// but this will not cause breakages if this is violated.
     fn spawn_one(state: &ServerState, id: u16) {
         info!("Spawning job worker ID {id}");
         let state = Arc::clone(state);
@@ -163,7 +153,6 @@ impl JobWorker {
                 Ok(JobProcessStatus::NoJob) => {
                     trace!("No job for us to process, sleeping a while");
 
-                    // Exponential backoff, double wait up to the cap
                     if empty_queue_delay < config!(job_max_poll_delay) {
                         empty_queue_delay *= 2;
                     }

@@ -31,8 +31,6 @@ use deepwell_relation_impl_derive::impl_relation;
 use serde::Serialize;
 use time::OffsetDateTime;
 
-// External structures
-
 #[derive(Debug, Copy, Clone)]
 pub struct CreateSingleUserBotOwner<'a> {
     pub bot_user: &'a UserModel,
@@ -40,8 +38,6 @@ pub struct CreateSingleUserBotOwner<'a> {
     pub created_by: i64,
     pub metadata: &'a UserBotMetadata,
 }
-
-// Relation structures
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserBotOwner {
@@ -108,12 +104,10 @@ impl RelationService {
             )
         };
 
-        // Cannot be the owner if the bot is blocked
         Self::check_user_block(ctx, bot_user_id, owner_user_id, "follow")
             .await
             .or_raise(make_error)?;
 
-        // Verify user types
         if bot_user.user_type != UserType::Bot {
             error!(
                 "Bot user must have user type Bot, not {:?}",
@@ -128,8 +122,6 @@ impl RelationService {
             ));
         }
 
-        // Should we allow 'site' users to own a bot?
-        // For situations where a bot is managed by the staff of a site.
         if owner_user.user_type != UserType::Regular {
             error!(
                 "Owner account of a bot must have user type Regular, not {:?}",

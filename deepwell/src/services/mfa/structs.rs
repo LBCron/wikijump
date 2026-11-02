@@ -32,7 +32,6 @@ pub fn generate_totp_secret() -> String {
     let mut rng = rand::rng();
     assert_is_csprng(&rng);
 
-    // TOTP secret is any sufficiently-long random base32 string
     {
         let mut buffer = [0; 32];
         rng.fill(&mut buffer);
@@ -61,21 +60,16 @@ impl RecoveryCodes {
         let mut rng = rand::rng();
         assert_is_csprng(&rng);
 
-        // Recovery codes are any randomly-generated codes which the application
-        // accepts as a one-time code to bypass MFA.
         let recovery_codes = iter::repeat_n((), config.recovery_code_count)
             .map(|_| {
                 let mut code =
                     Alphanumeric.sample_string(&mut rng, config.recovery_code_length);
 
-                code.insert(config.recovery_code_length / 2, '-'); // for readability
+                code.insert(config.recovery_code_length / 2, '-');
                 code
             })
             .collect::<Vec<String>>();
 
-        // Since we only need to check if the recovery code is *correct*, not what it is,
-        // we can hash them just like passwords.
-        // We use argon2, the same as recommended for passwords.
         let recovery_codes_hashed = {
             let mut hashes = Vec::new();
 

@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code)] // TEMP
+#![allow(dead_code)]
 
 use crate::models::forum_category::Model as ForumCategoryModel;
 use crate::models::forum_group::Model as ForumGroupModel;

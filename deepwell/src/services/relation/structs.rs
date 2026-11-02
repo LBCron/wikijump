@@ -49,7 +49,7 @@ impl From<RelationObject> for RelationObjectType {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[allow(dead_code)] // TEMP
+#[allow(dead_code)]
 pub enum RelationReference {
     Id(i64),
     Relationship {
@@ -63,7 +63,6 @@ impl RelationReference {
     pub fn condition(self) -> Condition {
         match self {
             RelationReference::Id(id) => {
-                // Needs wrapping Condition due to type; ALL or ANY both work
                 Condition::all().add(relation::Column::RelationId.eq(id))
             }
             RelationReference::Relationship {
@@ -105,7 +104,6 @@ pub struct RelationObjectTypes {
 }
 
 impl RelationObjectTypes {
-    /// Asserts that the given object types match for relation type.
     pub fn check<O1, O2>(self, dest: O1, from: O2)
     where
         O1: Into<RelationObjectType>,
@@ -125,7 +123,7 @@ impl RelationObjectTypes {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[allow(dead_code)] // TEMP
+#[allow(dead_code)]
 pub enum RelationDirection {
     Dest,
     From,

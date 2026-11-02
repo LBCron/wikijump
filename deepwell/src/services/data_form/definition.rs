@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Wikidot category-template data-form definition parsing and validation.
-
 use super::scalar::{
     nonempty_wikidot_data_form_text_scalar, parse_wikidot_data_form_join,
     parse_wikidot_data_form_text_scalar, quoted_wikidot_data_form_scalar,
@@ -428,13 +426,6 @@ fn wikidot_data_form_comment_wrapper(prefix: &str, suffix: &str) -> bool {
     prefix.trim() == "[!--" && suffix.trim() == "--]"
 }
 
-/// Returns the authored presentation portion of a documented custom data-form
-/// category template.
-///
-/// Wikidot uses one standalone `====` line immediately before the `[[form]]`
-/// block as the boundary between the page layout and the form definition. We
-/// deliberately reject ambiguous multiple separators and non-whitespace
-/// material between the separator and the form block.
 pub fn wikidot_data_form_custom_layout_source(wikitext: &str) -> Option<&str> {
     let form_start = wikitext.find("[[form]]")?;
     wikidot_data_form_custom_layout_source_from_prefix(&wikitext[..form_start])

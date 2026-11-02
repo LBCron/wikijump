@@ -25,7 +25,6 @@ use regex::RegexSet;
 use std::fmt;
 use std::net::IpAddr;
 
-/// Describes one filter which a `FilterMatcher` can verify against.
 #[derive(Serialize, Deserialize, Clone, Hash, PartialEq, Eq)]
 pub struct FilterSummary {
     pub filter_id: i64,
@@ -43,10 +42,6 @@ impl fmt::Debug for FilterSummary {
     }
 }
 
-/// Wrapper structure which determines which filter(s) a string violates.
-///
-/// Internally uses `RegexSet` for performance, and has fragments describing
-/// each filter flagged by the given string.
 #[derive(Debug)]
 pub struct FilterMatcher {
     regex_set: RegexSet,
@@ -62,9 +57,6 @@ impl FilterMatcher {
         }
     }
 
-    /// Verifies that the given string does not trip any filters of this type.
-    ///
-    /// For any filter violations, they are logged and an error is returned.
     pub async fn verify(
         &self,
         ctx: &ServiceContext<'_>,

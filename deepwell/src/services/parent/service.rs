@@ -18,11 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Page parenting is a specialized relation backed by `page_parent`.
-//!
-//! It remains separate from generic user and site relations because it enforces
-//! page-specific same-site and cycle invariants.
-
 use super::structs::{ParentDescription, ParentalRelationshipType, RemoveParentOutput};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::Model as PageModel;
@@ -40,15 +35,6 @@ use std::collections::HashSet;
 pub struct ParentService;
 
 impl ParentService {
-    /// Adds a parental relationship with the two given pages.
-    ///
-    /// Both pages must be extant and on the same site.
-    ///
-    /// Errors out if creating the relationship forms a cycle.
-    ///
-    /// # Returns
-    /// Returns `Some` with a model if the relationship was created,
-    /// and `None` if it already existed.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         ParentDescription {
@@ -81,10 +67,6 @@ impl ParentService {
             )
         };
 
-        // Check if the two pages are the same
-        //
-        // When we move to relations, this check can be REMOVED,
-        // as this will be verified for us by RelationService itself.
         if parent_page.page_id == child_page.page_id {
             error!(
                 "Cannot parent a page to itself (ID {})",
@@ -99,7 +81,6 @@ impl ParentService {
             ));
         }
 
-        // Check if this relationship already exists
         let relationship =
             PageParent::find_by_id((parent_page.page_id, child_page.page_id))
                 .one(txn)
@@ -107,9 +88,7 @@ impl ParentService {
                 .or_raise(make_error)?;
 
         match relationship {
-            // Create new parent relationship
             None => {
-                // Check if this relationship forms a cycle
                 let cyclic =
                     Self::check_cycle(ctx, parent_page.page_id, child_page.page_id)
                         .await
@@ -149,16 +128,10 @@ impl ParentService {
                 Ok(Some(relationship))
             }
 
-            // Parent relationship already exists
             Some(_) => Ok(None),
         }
     }
 
-    /// Removes the parental relationship with the two given pages.
-    ///
-    /// # Returns
-    /// The struct contains `true` if the relationship was deleted, and
-    /// `false` if it was already absent.
     pub async fn remove(
         ctx: &ServiceContext<'_>,
         ParentDescription {
@@ -253,7 +226,6 @@ impl ParentService {
         Ok(model)
     }
 
-    /// Gets all relationships of the given type.
     pub async fn get_relationships(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -290,7 +262,6 @@ impl ParentService {
         Ok(models)
     }
 
-    /// Gets all children of the given page.
     pub async fn get_children(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -314,7 +285,6 @@ impl ParentService {
         })
     }
 
-    /// Gets all parents of the given page.
     pub async fn get_parents(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -338,11 +308,6 @@ impl ParentService {
         })
     }
 
-    /// Gets all parents of several child pages in one query.
-    ///
-    /// Results are grouped by child page ID, in the same shape
-    /// [`Self::get_parents`] returns per page. Pages with no parents are still
-    /// present with an empty vector.
     pub async fn get_parents_batch(
         ctx: &ServiceContext<'_>,
         page_ids: &[i64],
@@ -377,7 +342,6 @@ impl ParentService {
         Ok(grouped)
     }
 
-    /// Gets all parents of the given pages.
     pub async fn get_parents_multi(
         ctx: &ServiceContext<'_>,
         children_id: Vec<i64>,
@@ -395,13 +359,6 @@ impl ParentService {
             })
     }
 
-    /// Removes all parent relationships involving this page.
-    ///
-    /// Whether this page is a parent or a child, this method
-    /// will remove all those relationships.
-    ///
-    /// # Returns
-    /// Returns the number of relationships deleted.
     pub async fn remove_all(ctx: &ServiceContext<'_>, page_id: i64) -> Result<u64> {
         let txn = ctx.transaction();
 
@@ -444,7 +401,6 @@ impl ParentService {
         Ok(rows_deleted)
     }
 
-    /// Checks if adding this relation will form a cycle.
     pub async fn check_cycle(
         ctx: &ServiceContext<'_>,
         parent_id: i64,
@@ -477,7 +433,6 @@ impl ParentService {
                 .clone()
                 .into_iter()
                 .filter_map(|p| {
-                    // Remove nodes that are already evaluated
                     if checked_pages.contains(&p.parent_page_id) {
                         None
                     } else {
@@ -491,7 +446,6 @@ impl ParentService {
             }
         }
 
-        // Sanity check
         if checked_pages.contains(&child_id) {
             Ok(true)
         } else {

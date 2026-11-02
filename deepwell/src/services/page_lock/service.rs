@@ -54,13 +54,11 @@ impl PageLockService {
             )
         };
 
-        // Fetch the page to be locked, validating that it belongs to the site.
         let page_id = PageService::get(ctx, site_id, page_ref.borrow())
             .await
             .or_raise(make_error)?
             .page_id;
 
-        // Check if any active lock exists for the page
         let existing_lock = Self::get_active_lock_for_page(ctx, page_id)
             .await
             .or_raise(make_error)?;
@@ -75,7 +73,6 @@ impl PageLockService {
                     ErrorType::PageLockExists
                 ));
             } else {
-                // Soft delete the old lock
                 page_lock::ActiveModel {
                     page_lock_id: Set(old_lock.page_lock_id),
                     deleted_at: Set(Some(now())),
@@ -102,7 +99,6 @@ impl PageLockService {
             }
         }
 
-        // Create the page lock
         let new_lock = page_lock::ActiveModel {
             page_id: Set(page_id),
             user_id: Set(user_id),
@@ -152,24 +148,20 @@ impl PageLockService {
             )
         };
 
-        // Resolve page reference to ID, validating that it belongs to the site.
         let page_id = PageService::get(ctx, site_id, page_ref.borrow())
             .await
             .or_raise(make_error)?
             .page_id;
 
-        // Fetch the active lock to be removed
         let maybe_lock = Self::get_active_lock_for_page(ctx, page_id)
             .await
             .or_raise(make_error)?;
 
-        // If no lock, return
         let page_lock = match maybe_lock {
             Some(lock) => lock,
             None => return Ok(None),
         };
 
-        // Mark the page lock as deleted
         let removed_lock = page_lock::ActiveModel {
             page_lock_id: Set(page_lock.page_lock_id),
             deleted_at: Set(Some(now())),
@@ -211,13 +203,11 @@ impl PageLockService {
             )
         };
 
-        // Fetch the page to get its ID, validating that it belongs to the site.
         let page_id = PageService::get(ctx, site_id, page_ref.borrow())
             .await
             .or_raise(make_error)?
             .page_id;
 
-        // Fetch all historical locks for the page, including expired and deleted ones
         let locks = PageLock::find()
             .filter(page_lock::Column::PageId.eq(page_id))
             .order_by_desc(page_lock::Column::CreatedAt)
@@ -241,7 +231,6 @@ impl PageLockService {
             )
         };
 
-        // Fetch the active lock for the page
         let active_lock = PageLock::find()
             .filter(
                 Condition::all()
@@ -286,7 +275,6 @@ impl PageLockService {
             )
         };
 
-        // Check if any active lock exists for the page
         let active_lock = Self::get_active_lock_for_page(ctx, page_id)
             .await
             .or_raise(make_error)?;
@@ -313,13 +301,10 @@ impl PageLockService {
                 .or_raise(make_error)?;
 
             let can_bypass = match lock.lock_type {
-                // Mod is not a native Wikijump role; treat it as a permission check instead
                 PageLockType::PermissionOnly | PageLockType::Wikidot => {
                     can_bypass_permission
                 }
                 PageLockType::AuthorOrPermissionOnly => {
-                    // Check if the user is the author of the page.
-                    // Upstream #3136: authorship only counts for site members.
                     let is_member = RelationService::site_member_exists(
                         ctx,
                         crate::services::relation::GetSiteMember { site_id, user_id },
@@ -336,7 +321,6 @@ impl PageLockService {
                     .await
                     .or_raise(make_error)?;
 
-                    // User can bypass if they are an author of this page or have bypass permission
                     let is_author = is_member
                         && attributions.iter().any(|attr| attr.user_id == user_id);
                     is_author || can_bypass_permission
@@ -347,7 +331,6 @@ impl PageLockService {
                 can_edit: can_bypass,
             })
         } else {
-            // No active lock, so no need to bypass
             Ok(CheckLockBypassOutput {
                 lock_present: false,
                 can_edit: true,

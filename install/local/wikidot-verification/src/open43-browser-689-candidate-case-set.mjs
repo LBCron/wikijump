@@ -22,7 +22,7 @@ export const OPEN43_B689_CASE_IDS = Object.freeze([
 export const OPEN43_B689_TABVIEW_FIXTURE = Object.freeze({
   fixture_id: "open43-standing-browser-tabview-canaries",
   source_path: "install/local/wikidot-verification/src/standing-browser-canaries.mjs",
-  source_sha256: "62a0481154a673eefa36e346cac87cd8c6ca0475079715c5a06eb13353a4af51",
+  source_sha256: "6c9ad3b406d2a6f0f089b38b8ac3f882b10f0e9c0e43462f54f19ded58203e83",
   canary_slugs: Object.freeze(["theme:basalt", "scp-8980"]),
 });
 

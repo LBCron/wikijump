@@ -12,9 +12,9 @@ import {
   EXEMPTION_LEDGER_SHA256, FROZEN_CANDIDATE_SET_FILE_SHA256, MEASUREMENT_CONTRACT_SHA256,
   RECORDED_TARGET_PAGE_RUNTIME_SHA256, SIGMA9_RUN_CONTRACT, SIGMA10_RUN_CONTRACT,
   TARGET_ACCEPTANCE_CONTRACT_CLOSURE_SHA256, VISUAL_GATE_POLICY_CLOSURE_SHA256, W17_MERGE,
-  checkCampaignRecordIntegrity,
+  CLOSURE_ANCHORS, checkCampaignRecordIntegrity,
 } from '../src/campaign-record-integrity.mjs';
-import {TARGET_ACCEPTANCE_CONTRACT_SHA256} from '../src/target-acceptance-contract.mjs';
+import {RECORDED_TARGET_PAGE_RUNTIME_SHA256 as CONTRACT_RECORDED_TARGET_PAGE_RUNTIME_SHA256, TARGET_ACCEPTANCE_CONTRACT_SHA256} from '../src/target-acceptance-contract.mjs';
 import {
   ADMITTED_TARGET_ACCEPTANCE_CONTRACT_SHA256S, TARGET_ACCEPTANCE_INSTRUMENT_CLOSURE_SHA256,
   TARGET_ACCEPTANCE_INSTRUMENT_SUCCESSORS,
@@ -64,13 +64,23 @@ test('admitted target-acceptance instruments are pinned to their recorded values
     '1811b3b4bdb78d1d6a52584cd0f7c2bbaee39480498a9a017eb40498a4835131',
     '34e17dbac84038b1e9960a42ad7931b255baf3bd2e5ca219f6a2f62d79c8e2d4',
     'dc7fd55cf685154e60c2c8d482e594170be26563cd8ada16e468b3d08a9c74bb',
+    '9a7a9491f99622542defe07917c8d2f17946c641592aa25bdf675c6c3d7b2732',
   ]);
   assert.deepEqual([...ADMITTED_TARGET_ACCEPTANCE_CONTRACT_SHA256S], [
     'df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a',
     '1811b3b4bdb78d1d6a52584cd0f7c2bbaee39480498a9a017eb40498a4835131',
     '34e17dbac84038b1e9960a42ad7931b255baf3bd2e5ca219f6a2f62d79c8e2d4',
     'dc7fd55cf685154e60c2c8d482e594170be26563cd8ada16e468b3d08a9c74bb',
+    '9a7a9491f99622542defe07917c8d2f17946c641592aa25bdf675c6c3d7b2732',
   ]);
+});
+
+// The recorded runtime value substituted by the instrument derivation is a
+// literal in the contract module (it cannot import this one without
+// widening the program closure); it must name the closure anchor's value.
+test('the contract module recorded runtime literal names the closure anchor value', () => {
+  assert.equal(CONTRACT_RECORDED_TARGET_PAGE_RUNTIME_SHA256, CLOSURE_ANCHORS.recordedTargetPageRuntimeSha256);
+  assert.equal(CONTRACT_RECORDED_TARGET_PAGE_RUNTIME_SHA256, RECORDED_TARGET_PAGE_RUNTIME_SHA256);
 });
 
 // Build a Check 1 fixture from the original checker's mock campaign: the

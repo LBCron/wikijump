@@ -56,26 +56,57 @@ export const TARGET_ACCEPTANCE_CONTRACT = Object.freeze({
   },
 });
 
-export const TARGET_ACCEPTANCE_CONTRACT_SHA256 = crypto.createHash('sha256')
-  .update(JSON.stringify(TARGET_ACCEPTANCE_CONTRACT)).update('\0')
-  .update(JSON.stringify(RUNTIME_SURFACE_PARITY)).update('\0')
-  .update([
-    collectViewportOverflow,
+// The recorded closure value of the one runtime-derived contract field,
+// static_inputs.target_page_runtime_sha256 (CLOSURE_ANCHORS (b) in
+// src/campaign-record-integrity.mjs). The instrument digest below is
+// computed with this value substituted for the live runtime surface, so a
+// runtime-only move never moves the instrument identity; the live value is
+// recorded on each verdict as target_page_runtime_sha256 instead. This
+// literal must equal CLOSURE_ANCHORS.recordedTargetPageRuntimeSha256; a
+// test pins the equality. It is not imported from campaign-record-integrity:
+// that module sits outside the session-server program closure, and an
+// import would widen the closure and create a cycle.
+export const RECORDED_TARGET_PAGE_RUNTIME_SHA256 = '8e02ddd62fe1c928b851fea38494ef79b1a0da198490b86a26526f6887d3d318';
+
+// The measurement functions whose sources the instrument digest binds.
+export const TARGET_ACCEPTANCE_CONTRACT_FUNCTIONS = Object.freeze([
+  collectViewportOverflow,
   inspectPlatformFonts,
-    measureTargetBaselineViewportOverflow,
-    issuesFromSelectorDiagnosis,
-    issuesFromTorture,
-    issuesFromViewports,
-    issuesFromPreview,
-    issuesFromInteractions,
-    styleChangesFromComputed,
-    nextActions,
-    summarizeVisual,
-    overallAcceptance,
-    applyRuntimeSurfaceParityGate,
-    buildVerdict,
-    classifyViewportOverflowIssue,
-    classifyViewportOverflowIssues,
-    stateCapturesFromSurfaceCaptures,
-  ].map(fn=>fn.toString()).join('\0'))
-  .digest('hex');
+  measureTargetBaselineViewportOverflow,
+  issuesFromSelectorDiagnosis,
+  issuesFromTorture,
+  issuesFromViewports,
+  issuesFromPreview,
+  issuesFromInteractions,
+  styleChangesFromComputed,
+  nextActions,
+  summarizeVisual,
+  overallAcceptance,
+  applyRuntimeSurfaceParityGate,
+  buildVerdict,
+  classifyViewportOverflowIssue,
+  classifyViewportOverflowIssues,
+  stateCapturesFromSurfaceCaptures,
+]);
+
+// The instrument-proper digest: the single derivation of the target
+// acceptance contract identity. The contract is hashed with the recorded
+// runtime value substituted for the live one, so the digest names the
+// measurement instrument and nothing else. There is deliberately no
+// second, runtime-binding digest: admission and comparability decisions
+// (Check 2, campaign completion, visual finalization) are made against
+// this value and the admitted-instrument registry
+// (src/target-acceptance-instruments.mjs) only.
+export function targetAcceptanceContractSha256(contract = TARGET_ACCEPTANCE_CONTRACT, functions = TARGET_ACCEPTANCE_CONTRACT_FUNCTIONS) {
+  const substituted = {
+    ...contract,
+    static_inputs: {...contract.static_inputs, target_page_runtime_sha256: RECORDED_TARGET_PAGE_RUNTIME_SHA256},
+  };
+  return crypto.createHash('sha256')
+    .update(JSON.stringify(substituted)).update('\0')
+    .update(JSON.stringify(RUNTIME_SURFACE_PARITY)).update('\0')
+    .update(functions.map(fn => fn.toString()).join('\0'))
+    .digest('hex');
+}
+
+export const TARGET_ACCEPTANCE_CONTRACT_SHA256 = targetAcceptanceContractSha256();

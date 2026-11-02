@@ -1,14 +1,17 @@
 // Admitted target-acceptance instruments (post-closure successor anchors).
 //
 // TARGET_ACCEPTANCE_CONTRACT_SHA256 (src/target-acceptance-contract.mjs) is
-// the live identity of the instrument that measures full package checks:
-// src/session-server.mjs stamps it into every verdict, and campaign
-// completion / visual finalization compare recorded results against it.
-// The closure instrument's value is also a historical record: all 36
-// archived accepted results of the frozen 2026-10-28 campaign carry it, and
-// Check 1 (src/campaign-record-integrity.mjs) verifies them against the
-// closure anchor TARGET_ACCEPTANCE_CONTRACT_CLOSURE_SHA256, which therefore
-// never moves.
+// the instrument-proper digest of the instrument that measures full package
+// checks: the contract derivation substitutes the recorded closure runtime
+// value for the live runtime surface before hashing, so the digest names
+// the measurement instrument only. src/session-server.mjs stamps it into
+// every verdict and records the live runtime value separately as
+// target_page_runtime_sha256. The closure instrument's value is also a
+// historical record: all 36 archived accepted results of the frozen
+// 2026-10-28 campaign carry it, and Check 1
+// (src/campaign-record-integrity.mjs) verifies them against the closure
+// anchor TARGET_ACCEPTANCE_CONTRACT_CLOSURE_SHA256, which therefore never
+// moves.
 //
 // An instrument change after closure is admitted by recording the new
 // instrument HERE, never by moving the closure anchor. This registry is the
@@ -18,8 +21,10 @@
 //     successor admission evaluated under any instrument not in this list;
 //   - campaign completion (src/campaign-completion.mjs) and visual
 //     finalization (src/finalize-visual-acceptance.mjs) accept a recorded
-//     result whose contract digest names the live instrument or an admitted
-//     one, and reject any other as superseded.
+//     result whose contract digest is admitted here, and reject any other
+//     as superseded (admission only; there is no live-value shortcut, and
+//     waiver matching between a ledger entry and a result requires both
+//     digests admitted, so cross-instrument comparison stays symmetric).
 // Admission is a deliberate, recorded act: each successor entry names its
 // change and the equivalence basis for treating its measurements as
 // comparable with the closure instrument's. An unrecorded instrument change
@@ -54,6 +59,12 @@ export const TARGET_ACCEPTANCE_INSTRUMENT_SUCCESSORS = Object.freeze([
     admitted: '2026-11-03',
     change: 'state-aware viewport_overflow gate (issue #3381): the target acceptance contract gains viewport_overflow.state_classification hard-parked-unknown-v1 and the classification functions join its hashed function set, buildVerdict annotates every viewport_overflow finding as hard, parked or unknown from the captured interactive states, session-server passes those captures into the verdict, and the three full_check_target exemption entries rebind to this instrument',
     basis: 'annotation-only equivalence: classification annotates findings without changing severity, item keys, measurements or overflow_sources, drops nothing and auto-passes nothing, and parked dispositions still settle through the per-package/per-rule exemption ledger; the classifier tests and the buildVerdict integration test assert unchanged severity and counts on the canonical fixture shapes, so recorded measurements stay comparable and only the instrument identity stamped into future verdicts moves',
+  }),
+  Object.freeze({
+    sha256: '9a7a9491f99622542defe07917c8d2f17946c641592aa25bdf675c6c3d7b2732',
+    admitted: '2026-11-03',
+    change: 'single-derivation correction of the instrument digest (raw-vs-proper defect): TARGET_ACCEPTANCE_CONTRACT_SHA256 is now the instrument-proper digest, derived once in src/target-acceptance-contract.mjs over the full 17-function set with the recorded closure runtime value substituted for the live runtime surface; the former raw (runtime-binding) digest no longer exists, computeInstrumentProperDigest in src/post-closure-acceptance.mjs is a thin delegate to that derivation, verdicts record the live runtime value separately as target_page_runtime_sha256, and campaign completion / visual finalization match on admission only',
+    basis: 'stamp-identity only, no measurement function changed: the 17 hashed measurement functions are byte-identical before and after, the substituted runtime value is the closure-recorded one (pinned to CLOSURE_ANCHORS), and only the derivation — previously a 14-function hand copy in post-closure-acceptance.mjs that omitted the three #3381 classification functions the contract itself binds — plus the stamp bookkeeping changed; recorded measurements stay comparable and only the instrument identity stamped into future verdicts moves',
   }),
 ]);
 

@@ -1,6 +1,6 @@
 {
   "schema": "theme_lab_bhl_option_authority.v1",
-  "observed_at": "2026-10-30",
+  "observed_at": "2026-11-02",
   "authority": "shared SCP-JP corpus current snapshots plus retained exact public stylesheet response",
   "pages": [
     {
@@ -133,7 +133,7 @@
   ],
   "framerail": {
     "fingerprint_tool": "../../../../src/framerail-source-fingerprint.mjs",
-    "fingerprint_sha256": "abe648b26fc8a3097a593b7feaf90a5350e0e8bf4971c8a189b6faf8181b8f5d",
+    "fingerprint_sha256": "6a77cc32cbc895916de7517210b4f910da129fac69923481f168ce37e04b2a52",
     "runtime_origin": "https://scpaiueouiuiuiui.wikijump.localhost:3395",
     "runtime_source_header": "x-theme-lab-runtime-source-sha",
     "runtime_version": "captured by runner at execution"
@@ -149,13 +149,13 @@
     }
   ],
   "backend_runtime_identity": {
-    "binary_sha256": "b92fc84f7984d1ad3f008f1399d293773b8fb67f9006db5c014e308030c1046b",
-    "config_sha256": "6eeb5715be1ac0d72784a10eb2a821b14995e9d0e29cd886a146e489ff16f638",
-    "container_id": "3418f129098e1100feb3ee70278b47eae58e87c29c7ea41dc22dd2a43e9a7852",
-    "ftml_git_revision": "3f8be45c12532d981652edf4343e02f36f1380db",
-    "identity_sha256": "120fb06bdd9928f2c74a9fa616fb0c93700c67009f57a63dd38bbf4b8403cd41",
-    "image_id": "sha256:a5e06800dbb27714ac0de3c0193a9fd9a24e6b62b91a48d6c1ae4c208c8df2b4",
     "schema": "wikijump_deepwell_runtime_identity.v1",
-    "source_sha256": "5e59292b6cffe4f135f5f1c298f797efb16e305dcc3c55ece6a9ff5592c7e5d7"
+    "source_sha256": "5cb3f3d7c91e5f1179fa4aa7185afa2e9e7fe5ed61543d1aff1186a3026de8a0",
+    "ftml_git_revision": "bcfd17dbc2bf734d29370c1b398a3386d978b874",
+    "container_id": "eaf639a45342b34994517bf99d9bab53f0901f4ac57d5af2af9c6851e7658e82",
+    "image_id": "sha256:3fee2de423fc7fcdb47f1c8d6864849007a27d3a1282de95404b7330baa8aedf",
+    "binary_sha256": "713cd8947ecdc94ead85e43d827e7b2badb94b70e362a54f8326e6056f98f4aa",
+    "config_sha256": "6eeb5715be1ac0d72784a10eb2a821b14995e9d0e29cd886a146e489ff16f638",
+    "identity_sha256": "06ddffe8a9298412ea0cc079449b9891a458e08ea6c73ce3317b438557cd0df8"
   }
 }

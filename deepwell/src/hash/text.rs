@@ -22,21 +22,12 @@ use arraystring::ArrayString;
 use tiny_keccak::{Hasher, KangarooTwelve};
 use typenum::U32;
 
-/// The expected length of a text hash digest.
-///
-/// This is the standard output length for KangarooTwelve in bytes.
 pub const TEXT_HASH_LENGTH: usize = 16;
 
-/// The array type for a text hash digest;
 pub type TextHash = [u8; 16];
 
-/// The stack string type for a hex representation of a text hash.
-///
-/// Because it is hexadecimal, it must be double the size of the
-/// actual byte buffer it represents.
 pub type TextHexHash = ArrayString<U32>;
 
-/// Produces a byte array containing the KangaroTwelve hash for the given data.
 pub fn k12_hash(data: &[u8]) -> TextHash {
     let mut bytes = [0; 16];
     let mut hasher = KangarooTwelve::new(data);
@@ -45,7 +36,6 @@ pub fn k12_hash(data: &[u8]) -> TextHash {
     bytes
 }
 
-/// Converts the given KangarooTwelve hash into a hex array string.
 pub fn text_hash_to_hex(hash: &[u8]) -> TextHexHash {
     debug_assert_eq!(
         hash.len(),

@@ -387,7 +387,7 @@ async fn message_draft_lifecycle_sends_and_deletes_drafts() {
 
 #[tokio::test]
 async fn message_reference_drafts_require_sender_or_recipient_access() {
-    const UNRELATED_USER_ID: i64 = -6; // Seeded regular Guest account.
+    const UNRELATED_USER_ID: i64 = -6;
     const NONEXISTENT_MESSAGE_ID: &str = "c00000000000000000000000";
 
     let mut runner = TestRunner::setup().await;

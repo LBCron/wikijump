@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Endpoints associated with getting DEEPWELL daemon information.
-
 use super::prelude::*;
 use crate::info;
 use crate::utils::now;

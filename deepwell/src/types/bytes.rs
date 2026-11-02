@@ -18,13 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wrapper type for bytes in JSON-RPC.
-//!
-//! This way, instead of representing bytes as an array of integers, which takes
-//! up a lot more space in the JSON textual represe, we instead produce a long
-//! hexadecimal string which is more compact, readable as binary, and takes up
-//! a fixed amount of string space relative to blob size.
-
 use crate::hash::{BlobHash, TextHash};
 use hex::serde::{deserialize, serialize};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -47,8 +40,6 @@ impl Bytes<'_> {
     }
 }
 
-// Borrowing
-
 impl AsRef<[u8]> for Bytes<'_> {
     #[inline]
     fn as_ref(&self) -> &[u8] {
@@ -56,16 +47,12 @@ impl AsRef<[u8]> for Bytes<'_> {
     }
 }
 
-// Extraction
-
 impl From<Bytes<'_>> for Vec<u8> {
     #[inline]
     fn from(bytes: Bytes) -> Vec<u8> {
         bytes.inner.into_owned()
     }
 }
-
-// Construction
 
 impl From<Vec<u8>> for Bytes<'static> {
     #[inline]
@@ -107,8 +94,6 @@ impl Default for Bytes<'static> {
         }
     }
 }
-
-// Serialization
 
 impl Serialize for Bytes<'_> {
     #[inline]

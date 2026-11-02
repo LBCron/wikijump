@@ -47,7 +47,6 @@ pub async fn ping(
     ctx: &ServiceContext<'_>,
     _params: Params<'static>,
 ) -> Result<&'static str> {
-    // Ensure the database and cache are connected, and only then return.
     info!("Ping request");
 
     try_join!(postgres_check(ctx), redis_check(ctx))

@@ -22,7 +22,6 @@ use super::prelude::*;
 use crate::services::basic_error::{BasicErrorOutput, BasicErrorService};
 use crate::utils::parse_locales;
 
-/// Generates a closure that can be used to make errors for `.or_raise()`.
 macro_rules! make_make_error {
     ($method:ident) => {
         || {

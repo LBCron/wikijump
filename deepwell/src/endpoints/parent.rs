@@ -55,16 +55,6 @@ pub async fn parent_relationships_get(
         })
 }
 
-/// Resolve the one direct parent visible to the current request actor.
-///
-/// The registered JSON-RPC method starts a repeatable-read transaction before
-/// resolving its request context, so session lookup, relationship selection,
-/// visibility checks, and the deliberately narrow metadata projection observe
-/// one coherent database snapshot. This does not claim that authorization
-/// cannot change before the response is delivered. A missing or hidden child,
-/// or a missing, ambiguous, deleted, cross-site, or hidden parent, is represented
-/// by the same null result so callers cannot use this method as a visibility
-/// oracle.
 pub async fn parent_get_direct_metadata(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -420,19 +410,6 @@ pub async fn child_get_all(
     Ok(page_details)
 }
 
-/// Traces the parent chains for one page.
-///
-/// This problem is similar to constructing a commit graph,
-/// with the assumption of no cyclic parenthood, i.e.
-/// a directed acyclic graph.
-///
-/// Cyclic parenthood should have been checked when adding
-/// new parent-child relations.
-///
-/// Here we trace all the relevant pages in the chains
-/// and each page's children pages, along with the root
-/// parent page. The actual parent graph is constructed in
-/// the frontend.
 pub async fn parent_trace(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -514,7 +491,6 @@ pub async fn parent_trace(
             current_child_list.insert(p.child_page_id);
         }
 
-        // Find nodes that have no parents
         let current_root_parents: Vec<i64> = current_node_list
             .into_iter()
             .collect::<HashSet<i64>>()
@@ -524,13 +500,10 @@ pub async fn parent_trace(
 
         root_parents.extend(current_root_parents);
 
-        // Move one node up the chains
-
         current_node_list = parents
             .clone()
             .into_iter()
             .filter_map(|p| {
-                // Remove nodes that are already evaluated
                 if checked_pages.contains(&p.parent_page_id) {
                     None
                 } else {
@@ -539,7 +512,6 @@ pub async fn parent_trace(
             })
             .collect();
 
-        // Get newly fetched page details
         let parent_pages_id: Vec<Reference<'_>> = current_node_list
             .iter()
             .map(|i| Reference::Id(*i))

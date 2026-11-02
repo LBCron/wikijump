@@ -24,7 +24,6 @@ mod common;
 use self::common::TestRunner;
 use serde_json::json;
 
-/// Fluent wraps placeables in Unicode bidi isolates; compare the visible text.
 fn without_bidi_isolates(text: &str) -> String {
     text.replace(['\u{2068}', '\u{2069}'], "")
 }
@@ -147,9 +146,6 @@ async fn basic_error_endpoints_generate_localized_html() {
 
 #[tokio::test]
 async fn basic_error_text_block_index_renders_attacker_markup_inert() {
-    // Issue #2560: the hosted text-block index comes from the request path
-    // and is interpolated into the localized 404 body. It must render as
-    // inert text, never as live markup.
     let runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .expect("seeded test site should exist")

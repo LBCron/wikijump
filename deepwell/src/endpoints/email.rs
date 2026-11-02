@@ -54,16 +54,10 @@ struct EmailTokenRedeem {
     ip_address: IpAddr,
 }
 
-/// Normalize a submitted address the way the user store matches it: trim
-/// surrounding whitespace, otherwise exact (the user service performs no
-/// case folding anywhere, so recovery must not invent any).
 fn normalize_lookup_email(email: &str) -> String {
     email.trim().to_string()
 }
 
-/// Issue a token and record its delivery without ever answering whether an
-/// account holds the address. Unknown, imported, and deleted addresses all
-/// produce the identical success response having created nothing.
 async fn issue_token_quietly(
     ctx: &ServiceContext<'_>,
     email: &str,
@@ -72,7 +66,6 @@ async fn issue_token_quietly(
 ) -> Result<()> {
     let email = normalize_lookup_email(email);
     if !crate::services::email::is_well_formed_email(&email) {
-        // Malformed input reveals no account state, so it may fail loudly.
         return Err(
             Error::new("email address is malformed", ErrorType::InvalidEmail).into(),
         );
@@ -82,9 +75,6 @@ async fn issue_token_quietly(
         .await
         .or_raise(|| Error::new("failed to look up email owner", ErrorType::User))?
     {
-        // #2081 boundary: get_real_optional_by_email only ever returns
-        // regular Wikijump accounts, so imported non-authenticatable
-        // identities can never receive recovery or verification tokens.
         match EmailTokenService::issue(
             ctx,
             IssueEmailToken {
@@ -98,9 +88,6 @@ async fn issue_token_quietly(
         .or_raise(|| Error::new("failed to issue email token", ErrorType::Email))?
         {
             IssueEmailTokenOutcome::Issued(issued) => {
-                // The plaintext token stays server-side; only delivery
-                // metadata is recorded, never the token itself. The expiry
-                // comes from the stored row, not a recomputation.
                 EmailService::send_token_email(&email, purpose, issued.expires_at).await;
             }
             IssueEmailTokenOutcome::Suppressed => {}
@@ -110,8 +97,6 @@ async fn issue_token_quietly(
     Ok(())
 }
 
-/// Request a verification link for an address. Authenticated or not, the
-/// response is identical; verification completes only through the mailbox.
 pub async fn email_verify_issue(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -120,9 +105,6 @@ pub async fn email_verify_issue(
     issue_token_quietly(ctx, &email, EmailTokenPurpose::VerifyEmail, ip_address).await
 }
 
-/// Redeem a verification link. Succeeds only while the token's email
-/// snapshot still matches the account's current address; a rotated address
-/// fails exactly like a bogus token.
 pub async fn email_verify_redeem(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -162,8 +144,6 @@ pub async fn email_verify_redeem(
     Ok(())
 }
 
-/// Request a password-recovery link. Indistinguishable from the verify
-/// flow: unknown, imported, and deleted addresses all 200 with no effect.
 pub async fn password_reset_issue(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -185,13 +165,6 @@ impl std::fmt::Debug for ResetGrantOutput {
     }
 }
 
-/// Exchange a recovery link for a one-time password-set grant. The grant,
-/// not the link, authorizes the new password, so a used or expired link
-/// can never set one. The link's email snapshot must still match the
-/// account's current address: a rotated address fails exactly like a bogus
-/// token, mirroring `email_verify_redeem` (#2693). The grant issues
-/// unconditionally once the link is consumed: it spends the link, is never
-/// emailed, and rotates, so no cooldown signal can burn a valid link.
 pub async fn password_reset_redeem(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -246,12 +219,6 @@ pub struct ResetCompleteOutput {
     pub sessions_revoked: u64,
 }
 
-/// Set a new password on grant authority alone: no current password, no
-/// session. The grant is single-use, the new password meets the account
-/// policy, and every session of the account is revoked. The grant's email
-/// snapshot must still match the account's current address: a grant
-/// obtained before an address rotation is stale and fails exactly like a
-/// bogus token (#2693).
 pub async fn password_reset_complete(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -278,7 +245,6 @@ pub async fn password_reset_complete(
         .into());
     }
 
-    // Policy first, exactly as the password-change endpoint does.
     PasswordService::new_account_hash(&new_password)?;
 
     UserService::update(
@@ -311,13 +277,6 @@ struct AccountDeleteIssue {
     ip_address: IpAddr,
 }
 
-/// Request an account-deletion confirmation link for the signed-in account.
-///
-/// Self-service and self-only (spec P1, P4): the session actor is the
-/// target, so no address or user id is accepted and a third party cannot
-/// start someone else's deletion. The link is emailed to the account's
-/// current address; nothing is deleted until the link is redeemed and the
-/// password is confirmed.
 pub async fn account_delete_issue(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -345,9 +304,6 @@ pub async fn account_delete_issue(
     .or_raise(|| Error::new("failed to issue deletion token", ErrorType::Email))?
     {
         IssueEmailTokenOutcome::Issued(issued) => {
-            // The plaintext token stays server-side; only delivery
-            // metadata is recorded, never the token itself. The expiry
-            // comes from the stored row, not a recomputation.
             EmailService::send_token_email(
                 &user.email,
                 EmailTokenPurpose::DeleteConfirm,
@@ -374,13 +330,6 @@ impl std::fmt::Debug for DeleteGrantOutput {
     }
 }
 
-/// Exchange an account-deletion link for a one-time deletion grant.
-///
-/// The redeem landing shows confirmation state, never deletion controls
-/// (spec P7). Unsigned-out links fail closed: a session for the same
-/// account is required, and a link for another account fails exactly like
-/// a bogus one (spec P4, P6), so redemption never oracles which property
-/// failed. The grant, not the link, authorizes the terminal step.
 pub async fn account_delete_redeem(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -447,16 +396,6 @@ pub struct DeleteCompleteOutput {
     pub sessions_revoked: u64,
 }
 
-/// Delete the signed-in account on grant + password authority.
-///
-/// Terminal step of the documented flow (spec P1, P3): the mailbox proof
-/// (grant) and the password prompt both check out before anything mutates,
-/// so nothing destructive precedes the required confirmations. The
-/// password proof is indistinguishable on failure, exactly like the
-/// account-holder email-change path. Deletion itself is the existing
-/// idempotent server-owned `user_delete` (audit + `deleted_at`, wikis and
-/// pages untouched per spec P3), then every session of the account is
-/// revoked including the current one, signing the browser out.
 pub async fn account_delete_complete(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,

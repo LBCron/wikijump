@@ -317,8 +317,6 @@ async fn oversized_avatar_rejection_does_not_promote_blob_or_change_target() {
         .await
         .expect("avatar temporary fixture cleanup should succeed");
     if permanent_after_rejection.is_some() {
-        // The hash was absent before this fixture ran, so an unexpected object here
-        // was created by this request and is safe for the RED-run cleanup to remove.
         runner
             .state()
             .s3_files_bucket
@@ -418,11 +416,6 @@ async fn non_raster_avatar_rejection_does_not_change_target() {
         .delete_object(&s3_path)
         .await
         .expect("avatar temporary fixture cleanup should succeed");
-    // Unlike the oversized rejection (which fails before the move), the
-    // MIME verdict needs libmagic output over the finalized bytes, so the
-    // content-addressed object already exists when the upload is refused.
-    // The hash was absent before this fixture ran, so removing it here
-    // cannot delete another test's bytes.
     runner
         .state()
         .s3_files_bucket
@@ -485,8 +478,6 @@ async fn regular_account_password_policy_rejects_short_create_passwords() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    // Account holders change their own password through
-    // user_password_change, which checks the current one.
     runner.set_request_context(RequestContext {
         user_id: Some(created.user_id),
         ..Default::default()
@@ -804,13 +795,9 @@ async fn basic_update() {
     const USER_NAME: &str = "Jane Doe";
     const USER_SLUG: &str = "jane-doe";
 
-    // Doesn't exist yet
-
     let user = run_endpoint!(runner, user_get, json!({ "user": USER_SLUG }));
 
     assert!(user.is_none(), "User exists before creation");
-
-    // Create user
 
     let user = run_endpoint!(
         runner,
@@ -831,8 +818,6 @@ async fn basic_update() {
         ..Default::default()
     });
 
-    // Get via slug
-
     let output = run_endpoint!(runner, user_get, json!({ "user": USER_SLUG }))
         .expect("User does not exist after creation");
 
@@ -846,7 +831,7 @@ async fn basic_update() {
     assert_eq!(user.slug, USER_SLUG);
     assert!(user.updated_at.is_none());
     assert!(user.deleted_at.is_none());
-    assert_eq!(user.name_changes_left, 2); // set in Config::integration_testing()
+    assert_eq!(user.name_changes_left, 2);
     assert!(user.last_renamed_at.is_none());
     assert!(!user.password.is_empty());
     assert_eq!(user.email, "jane@private.me");
@@ -863,8 +848,6 @@ async fn basic_update() {
     assert!(user.user_page.is_none());
     assert!(output.aliases.is_empty());
 
-    // Update bio fields
-
     let user = run_endpoint!(
         runner,
         user_edit,
@@ -879,8 +862,6 @@ async fn basic_update() {
         }),
     );
 
-    // Get and check
-
     let last_user = user;
     let output = run_endpoint!(runner, user_get, json!({ "user": user_id }))
         .expect("User does not exist");
@@ -891,7 +872,7 @@ async fn basic_update() {
         .expect("Returned user not of type Wikijump");
 
     let birthday = Date::from_calendar_date(1986, Month::February, 1).unwrap();
-    assert_eq!(user, last_user); // ensures that the model returned by user_edit is latest
+    assert_eq!(user, last_user);
     assert_str_eq!(user.real_name, Some("Jane H. Doe"));
     assert_str_eq!(user.gender, Some("she/they"));
     assert_eq!(user.birthday, Some(birthday));
@@ -899,8 +880,6 @@ async fn basic_update() {
     assert!(user.biography.is_none());
     assert_str_eq!(user.user_page, Some("https://example.net"));
     let old_password = user.password;
-
-    // Update email (valid)
 
     let user = run_endpoint!(
         runner,
@@ -918,8 +897,6 @@ async fn basic_update() {
     assert_eq!(user.email, "jane@wikijump.dev");
     assert!(user.biography.is_none());
 
-    // Update email (spam)
-
     let error = run_endpoint_err!(
         runner,
         user_edit,
@@ -932,9 +909,6 @@ async fn basic_update() {
         }),
     );
     assert_contains_error!(error, ErrorType::DisallowedEmail);
-
-    // Update password (platform staff; account holders use
-    // user_password_change, which checks the current password)
 
     runner.set_request_context(RequestContext {
         user_id: Some(ADMIN_USER_ID),
@@ -1042,10 +1016,6 @@ async fn user_create_only_verified_email_blocks_conflict() {
         .expect("verified email login should create a session");
     assert_eq!(session.user_id, first.user_id);
 
-    // The second account was displaced when the first verified, so it no
-    // longer names any mailbox: verification fails as "no email set"
-    // (UserEmailEmpty) rather than "owned by another" (UserExists). Either
-    // way no second verified owner is created.
     let error = run_endpoint_err!(
         runner,
         user_edit,
@@ -1111,7 +1081,6 @@ async fn verifying_email_displaces_other_pending_claims() {
     );
     assert_ne!(first.user_id, second.user_id);
 
-    // First verified proof wins the mailbox.
     let verified = run_endpoint!(
         runner,
         user_edit,
@@ -1123,7 +1092,6 @@ async fn verifying_email_displaces_other_pending_claims() {
     );
     assert!(verified.email_verified_at.is_some());
 
-    // The other pending claim loses the address, not the account.
     let displaced = run_endpoint!(runner, user_get, json!({"user": second.user_id}))
         .expect("displaced user should remain readable")
         .user
@@ -1132,7 +1100,6 @@ async fn verifying_email_displaces_other_pending_claims() {
     assert!(displaced.email.is_empty());
     assert!(displaced.email_verified_at.is_none());
 
-    // Name login still works for the displaced account.
     let login = run_endpoint!(
         runner,
         auth_login,
@@ -1147,7 +1114,6 @@ async fn verifying_email_displaces_other_pending_claims() {
         .expect("name login should still work after displacement");
     assert_eq!(session.user_id, second.user_id);
 
-    // The displaced account cannot verify an address it no longer holds.
     let error = run_endpoint_err!(
         runner,
         user_edit,
@@ -1159,7 +1125,6 @@ async fn verifying_email_displaces_other_pending_claims() {
     );
     assert_contains_error!(error, ErrorType::UserEmailEmpty);
 
-    // It can claim a new address and verify that one instead.
     let relocated = run_endpoint!(
         runner,
         user_edit,
@@ -1631,8 +1596,6 @@ async fn wikidot_user() {
     const USER_NAME: &str = "Old Guy";
     const USER_SLUG: &str = "old-guy";
 
-    // Set up Wikidot user record
-
     let ImportUserOutput { user_id } = run_endpoint!(
         runner,
         import_wikidot_user,
@@ -1657,8 +1620,6 @@ async fn wikidot_user() {
         }),
     );
     assert_eq!(user_id, USER_ID, "Outputted user ID does not match input");
-
-    // Check user data (Wikidot)
 
     fn check_wikidot_user(user: &WikidotUserModel) {
         assert_eq!(user.user_id, USER_ID);
@@ -1690,8 +1651,6 @@ async fn wikidot_user() {
 
     check_wikidot_user(&user);
 
-    // Activate user (Wikidot -> Wikijump)
-
     let wikijump_user = run_endpoint!(
         runner,
         user_activate_from_wikidot,
@@ -1704,8 +1663,6 @@ async fn wikidot_user() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-
-    // Check user data (Wikijump)
 
     let output = run_endpoint!(runner, user_get, json!({ "user": USER_SLUG }))
         .expect("User does not exist");
@@ -1729,8 +1686,6 @@ async fn wikidot_user() {
     assert!(user.birthday.is_none());
     assert!(user.location.is_none());
 
-    // Update Wikijump user data
-
     run_endpoint!(
         runner,
         user_edit,
@@ -1742,8 +1697,6 @@ async fn wikidot_user() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-
-    // Check user data (Wikijump)
 
     let output = run_endpoint!(runner, user_get, json!({ "user": USER_SLUG }))
         .expect("User does not exist");
@@ -1757,9 +1710,6 @@ async fn wikidot_user() {
     assert_str_eq!(user.location, Some("Australia"));
     assert_eq!(user.birthday, Some(date!(1955 - 03 - 03)));
 
-    // Check Wikidot user data hasn't changed
-    // We need to manually query since it gets shadowed in UserService::get().
-
     let txn = runner.context().transaction();
     let user: WikidotUserModel = WikidotUser::find_by_id(USER_ID)
         .one(txn)
@@ -1769,9 +1719,6 @@ async fn wikidot_user() {
 
     check_wikidot_user(&user);
 }
-
-// TODO test renames / rename tokens
-//      test creating users of other types
 
 async fn stored_avatar(runner: &TestRunner, user_id: i64) -> Option<Vec<u8>> {
     run_endpoint!(runner, user_get, json!({ "user": user_id }))
@@ -1811,8 +1758,6 @@ async fn avatar_removal_is_owner_only_and_clears_only_the_association() {
         }),
     );
 
-    // Stored avatar hashes are set directly inside this test's transaction,
-    // so the upload and blob storage paths are not involved.
     const OWNER_HASH: [u8; 64] = [0xab; 64];
     const OTHER_HASH: [u8; 64] = [0xcd; 64];
     for (user_id, hash) in [(owner.user_id, OWNER_HASH), (other.user_id, OTHER_HASH)] {
@@ -1826,7 +1771,6 @@ async fn avatar_removal_is_owner_only_and_clears_only_the_association() {
         .expect("avatar fixture should be stored");
     }
 
-    // An unauthenticated caller and another user cannot clear the owner's avatar.
     let error = run_endpoint_err!(
         runner,
         user_edit,
@@ -1857,7 +1801,6 @@ async fn avatar_removal_is_owner_only_and_clears_only_the_association() {
         Some(OWNER_HASH.to_vec())
     );
 
-    // The owner's ordinary edit omits the avatar field, so it keeps the image.
     runner.set_request_context(RequestContext {
         user_id: Some(owner.user_id),
         ..Default::default()
@@ -1876,7 +1819,6 @@ async fn avatar_removal_is_owner_only_and_clears_only_the_association() {
         Some(OWNER_HASH.to_vec())
     );
 
-    // The owner's explicit null clears only the owner's association.
     run_endpoint!(
         runner,
         user_edit,
@@ -1892,7 +1834,6 @@ async fn avatar_removal_is_owner_only_and_clears_only_the_association() {
         Some(OTHER_HASH.to_vec())
     );
 
-    // Repeating the removal is harmless.
     run_endpoint!(
         runner,
         user_edit,
@@ -1930,13 +1871,11 @@ async fn self_email_change_requires_current_password_proof() {
         }),
     );
 
-    // Act as the account holder, not as platform staff.
     runner.set_request_context(RequestContext {
         user_id: Some(user.user_id),
         ..Default::default()
     });
 
-    // No proof: rejected, email untouched.
     let error = run_endpoint_err!(
         runner,
         user_edit,
@@ -1948,7 +1887,6 @@ async fn self_email_change_requires_current_password_proof() {
     );
     assert_contains_error!(error, ErrorType::InvalidAuthentication);
 
-    // Wrong proof: same indistinguishable rejection.
     let error = run_endpoint_err!(
         runner,
         user_edit,
@@ -1961,7 +1899,6 @@ async fn self_email_change_requires_current_password_proof() {
     );
     assert_contains_error!(error, ErrorType::InvalidAuthentication);
 
-    // Non-email self edits need no proof.
     let renamed = run_endpoint!(
         runner,
         user_edit,
@@ -1973,7 +1910,6 @@ async fn self_email_change_requires_current_password_proof() {
     );
     assert_eq!(renamed.email, "before-proof@example.invalid");
 
-    // Correct proof: email changes and verified ownership is cleared.
     let changed = run_endpoint!(
         runner,
         user_edit,
@@ -1988,8 +1924,6 @@ async fn self_email_change_requires_current_password_proof() {
     assert!(changed.email_verified_at.is_none());
 }
 
-/// WWS serves avatars from its `user_avatar:<id>` cache entry, so changing or
-/// removing an avatar must drop that entry, and only that user's (#2556).
 #[tokio::test]
 async fn avatar_changes_drop_only_that_users_wws_cache_entry() {
     use redis::AsyncCommands;
@@ -2039,7 +1973,6 @@ async fn avatar_changes_drop_only_that_users_wws_cache_entry() {
         user_id: Some(owner),
         ..Default::default()
     });
-    // An edit that leaves the avatar alone keeps the cache entry.
     run_endpoint!(
         runner,
         user_edit,
@@ -2052,7 +1985,6 @@ async fn avatar_changes_drop_only_that_users_wws_cache_entry() {
     let kept: Option<String> = redis.get(cached(owner)).await.expect("cache read");
     assert_eq!(kept.as_deref(), Some("stale-avatar-hash"));
 
-    // Removing the avatar drops the owner's entry and no one else's.
     run_endpoint!(
         runner,
         user_edit,

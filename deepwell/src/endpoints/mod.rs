@@ -18,15 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Definitions of endpoints invoked by different API routes.
-//!
-//! The structure of the internal API is specified in `api.rs`, not here.
-//! This module contains implementations of those endpoints only.
-//!
-//! The module should not contain core business logic of its own, which should
-//! instead live in `services`. Endpoint definitions should ideally be wrappers
-//! around service calls, or possibly perform modest data conversion for HTTP.
-
 #[macro_use]
 mod macros;
 

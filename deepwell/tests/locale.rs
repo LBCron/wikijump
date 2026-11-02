@@ -53,9 +53,6 @@ async fn locale_info() {
 async fn translate_strings() {
     let runner = TestRunner::setup().await;
 
-    // Error cases
-
-    // No locales
     let error = run_endpoint_err!(
         runner,
         translate_strings,
@@ -78,7 +75,6 @@ async fn translate_strings() {
             | ErrorType::LocaleMessageAttributeMissing { .. }
     );
 
-    // Key in strip_message_keys but not messages
     let error = run_endpoint_err!(
         runner,
         translate_strings,
@@ -122,7 +118,6 @@ async fn translate_strings() {
             | ErrorType::LocaleMessageAttributeMissing { .. }
     );
 
-    // No locale
     let error = run_endpoint_err!(
         runner,
         translate_strings,
@@ -130,9 +125,6 @@ async fn translate_strings() {
     );
     assert_contains_error!(
         error,
-        // it first tries xyz_US, which doesn't exist
-        // it then tries xyz, which also doesn't exist
-        // and it has no more fallbacks so that is what it returns
         ErrorType::LocaleMissing { locale } if locale == "xyz",
     );
     assert_no_error!(
@@ -144,7 +136,6 @@ async fn translate_strings() {
             | ErrorType::LocaleMessageAttributeMissing { .. }
     );
 
-    // No message key
     let error = run_endpoint_err!(
         runner,
         translate_strings,
@@ -163,8 +154,6 @@ async fn translate_strings() {
             | ErrorType::LocaleMessageAttributeMissing { .. }
     );
 
-    // No message value
-    // Only attributes exist
     let error = run_endpoint_err!(
         runner,
         translate_strings,
@@ -189,7 +178,6 @@ async fn translate_strings() {
             | ErrorType::LocaleMessageAttributeMissing { .. }
     );
 
-    // No message attribute
     let error = run_endpoint_err!(
         runner,
         translate_strings,
@@ -214,8 +202,6 @@ async fn translate_strings() {
             | ErrorType::LocaleMessageMissing { .. }
             | ErrorType::LocaleMessageValueMissing { .. }
     );
-
-    // Success cases
 
     let output = run_endpoint!(
         runner,
@@ -260,8 +246,6 @@ async fn translate_strings() {
     assert_eq!(output.len(), 2);
     assert!(output.contains_key("alt-title"));
     assert!(output.contains_key("close"));
-
-    // Testing strip_message_keys
 
     let output = run_endpoint!(
         runner,

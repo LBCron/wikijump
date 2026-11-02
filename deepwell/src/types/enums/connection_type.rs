@@ -49,7 +49,6 @@ pub enum ConnectionType {
 
 impl_try_from_u64!(ConnectionType);
 
-/// Ensure `ConnectionType::name()` produces the same output as serde.
 #[test]
 fn name_serde() {
     use strum::IntoEnumIterator;

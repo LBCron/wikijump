@@ -82,7 +82,6 @@ async fn subscribed_permission_invalidation_stream() -> redis::aio::PubSub {
 
 struct PermissionFixture {
     site_id: i64,
-    // A page category to use for testing category-scoped permissions
     category_id: i64,
     other_category_id: i64,
     role_a: i64,
@@ -118,21 +117,18 @@ impl PermissionFixture {
         .expect("Failed to create test site");
         let site_id = site.site_id;
 
-        // Page category for scoped permission tests
         let category_id =
             CategoryService::get_or_create(ctx, site_id, TEST_CATEGORY_NAME)
                 .await
                 .expect("Failed to create page category")
                 .category_id;
 
-        // Another category to test that scoped permissions don't apply to other categories
         let other_category_id =
             CategoryService::get_or_create(ctx, site_id, OTHER_CATEGORY_NAME)
                 .await
                 .expect("Failed to create other page category")
                 .category_id;
 
-        // RoleA: page:view + page:edit, both unscoped
         let role_a = create_role(ctx, site_id, "RoleA", None).await;
         add_perms_to_role(
             ctx,
@@ -153,7 +149,6 @@ impl PermissionFixture {
         )
         .await;
 
-        // RoleB: page:create + page:edit scoped to test-category only
         let role_b = create_role(ctx, site_id, "RoleB", None).await;
         add_perms_to_role(
             ctx,
@@ -174,7 +169,6 @@ impl PermissionFixture {
         )
         .await;
 
-        // RoleD: site:edit + page-lock:bypass-lock, both unscoped (upstream #3136)
         let role_d = create_role(ctx, site_id, "RoleD", None).await;
         add_perms_to_role(
             ctx,
@@ -202,7 +196,6 @@ impl PermissionFixture {
 
         grant_role(ctx, site_id, user_a, role_a).await;
         grant_role(ctx, site_id, user_b, role_b).await;
-        // user_c doesn't have any roles
         grant_role(ctx, site_id, user_d, role_d).await;
 
         let test_page = PageService::create(
@@ -257,8 +250,6 @@ impl PermissionFixture {
         }
     }
 }
-
-// Test helpers
 
 async fn create_role(
     ctx: &ServiceContext<'_>,
@@ -539,9 +530,6 @@ async fn check_user_can() {
     let c = Some(f.user_c);
     let cat = Some(f.category_id);
 
-    // Case: User with a role that grants the permission can exercise it
-
-    // RoleA grants page:view and page:edit unscoped
     assert!(
         check(&runner, a, f.site_id, Resource::Page, None, Action::View).await,
         "user_a should pass page:view check"
@@ -551,9 +539,6 @@ async fn check_user_can() {
         "user_a should pass page:edit check"
     );
 
-    // Case: User with no roles that grant a permission cannot exercise it
-
-    // user_c has no roles at all
     assert!(
         !check(&runner, c, f.site_id, Resource::Page, None, Action::View).await,
         "user_c should fail page:view check"
@@ -563,25 +548,19 @@ async fn check_user_can() {
         "user_c should fail page:edit check"
     );
 
-    // user_b no view permission
     assert!(
         !check(&runner, b, f.site_id, Resource::Page, None, Action::View).await,
         "user_b should fail page:view check"
     );
 
-    // Case: Permissions scoped to a category only apply within that category
-
-    // user_b has page:edit permission scoped to the test category
     assert!(
         check(&runner, b, f.site_id, Resource::Page, cat, Action::Edit).await,
         "user_b: should pass page:edit check in test-category"
     );
-    // unscoped edit should fail
     assert!(
         !check(&runner, b, f.site_id, Resource::Page, None, Action::Edit).await,
         "user_b: should fail page:edit without category"
     );
-    // edit in other category should fail
     let other_cat = Some(f.other_category_id);
     assert!(
         !check(
@@ -596,14 +575,12 @@ async fn check_user_can() {
         "user_b: should fail page:edit in other category"
     );
 
-    // Since test category has scoped edit permission, user_a cannot edit it with _default edit permission
     assert!(
         !check(&runner, a, f.site_id, Resource::Page, cat, Action::Edit).await,
         "user_a: should fail page:edit check in test-category"
     );
 }
 
-/// Ported from upstream #3136: checks via the target-typed API.
 async fn check_target(
     runner: &TestRunner,
     user_id: Option<i64>,
@@ -640,7 +617,6 @@ async fn can_user() {
         category_id: f.other_category_id,
     };
 
-    // RoleA grants page:view and page:edit unscoped
     assert!(
         check_target(&runner, a, f.site_id, test_page, Action::View).await,
         "user_a should pass page:view check"
@@ -650,7 +626,6 @@ async fn can_user() {
         "user_a should pass page:edit check"
     );
 
-    // user_c has no roles at all
     assert!(
         !check_target(&runner, c, f.site_id, test_page, Action::View).await,
         "user_c should fail page:view check"
@@ -660,13 +635,11 @@ async fn can_user() {
         "user_c should fail page:edit check"
     );
 
-    // user_b has no view permission
     assert!(
         !check_target(&runner, b, f.site_id, test_page, Action::View).await,
         "user_b should fail page:view check"
     );
 
-    // user_b has page:edit permission scoped to the test category
     assert!(
         check_target(&runner, b, f.site_id, test_page, Action::Edit).await,
         "user_b: should pass page:edit check in test-category"
@@ -676,14 +649,11 @@ async fn can_user() {
         "user_b: should fail page:edit in other category"
     );
 
-    // Since the test category has scoped edit permission, user_a cannot
-    // edit it with the _default edit permission
     assert!(
         !check_target(&runner, a, f.site_id, test_page, Action::Edit).await,
         "user_a: should fail page:edit check in test-category"
     );
 
-    // RoleD grants site:edit
     assert!(
         check_target(&runner, d, f.site_id, PermissionTarget::Site, Action::Edit).await,
         "user_d should pass site:edit check"
@@ -704,7 +674,6 @@ async fn can_user() {
         "anonymous should fail site:edit check"
     );
 
-    // RoleD grants page-lock:bypass-lock
     assert!(
         check_target(
             &runner,
@@ -728,7 +697,6 @@ async fn can_user() {
         "user_a should fail page-lock:bypass-lock check"
     );
 
-    // user_d has no page permissions
     assert!(
         !check_target(&runner, d, f.site_id, other_page, Action::Edit).await,
         "user_d: site:edit should not grant page:edit"
@@ -740,7 +708,6 @@ async fn check_category_scoping() {
     let runner = TestRunner::setup().await;
     let f = PermissionFixture::setup(&runner).await;
 
-    // Permission check should be able to resolve the category for a page target
     assert!(
         PermissionService::can_user_as(
             runner.context(),
@@ -1076,8 +1043,6 @@ async fn role_permission_updates_invalidate_cached_view_permissions() {
     let f = PermissionFixture::setup(&runner).await;
     let ctx = runner.context();
 
-    // Flush the invalidations queued by fixture role creation so the assertion
-    // below can only pass because of the invalidation queued by this update.
     run_queued_cache_invalidations(ctx).await;
 
     assert!(
@@ -1155,8 +1120,6 @@ async fn role_revocation_invalidates_cached_view_permissions() {
     let f = PermissionFixture::setup(&runner).await;
     let ctx = runner.context();
 
-    // Flush fixture-queued invalidations so the assertion below can only pass
-    // because of the invalidation queued by the revocation.
     run_queued_cache_invalidations(ctx).await;
 
     assert!(
@@ -1205,8 +1168,6 @@ async fn site_membership_changes_invalidate_cached_view_permissions() {
     let f = PermissionFixture::setup(&runner).await;
     let ctx = runner.context();
 
-    // Flush fixture-queued invalidations so each assertion below can only pass
-    // because of the invalidation queued by the membership change it follows.
     run_queued_cache_invalidations(ctx).await;
 
     assert!(
@@ -1429,9 +1390,6 @@ async fn active_timed_site_ban_does_not_cache_denied_view_permission() {
     );
 }
 
-/// A page-scoped decision must not use the category-wide cache key, because
-/// `page_reference` can add page-specific virtual roles (for example,
-/// PageAuthor) whose view result need not hold for other pages.
 #[tokio::test]
 async fn page_scoped_view_check_does_not_populate_the_category_cache() {
     let runner = TestRunner::setup().await;
@@ -1462,11 +1420,6 @@ async fn page_scoped_view_check_does_not_populate_the_category_cache() {
     );
 }
 
-/// While a site ban is active, view decisions must bypass the category-wide
-/// cache: bans are time-dependent and a cached denial would otherwise outlive
-/// the ban. The ban suppresses explicit roles, so give the retained virtual
-/// `registered` role a non-view permission to keep the permission set
-/// non-empty and force the view decision to be computed.
 #[tokio::test]
 async fn active_site_ban_suppresses_view_permission_caching() {
     let runner = TestRunner::setup().await;
@@ -1598,7 +1551,6 @@ async fn batch_check_user_can() {
     let c = Some(f.user_c);
     let cat = Some(f.category_id);
 
-    // Case: user_a has both view and edit unscoped
     let [can_view, can_edit] = batch_check(
         &runner,
         a,
@@ -1612,7 +1564,6 @@ async fn batch_check_user_can() {
     assert!(can_view, "user_a: batch should pass page:view");
     assert!(can_edit, "user_a: batch should pass page:edit");
 
-    // Case: user_b has scoped edit but no view
     let [can_view, can_edit] = batch_check(
         &runner,
         b,
@@ -1632,7 +1583,6 @@ async fn batch_check_user_can() {
         "user_b: batch should pass page:edit in test-category"
     );
 
-    // Case: User with no roles — all denied
     let [can_view, can_edit] = batch_check(
         &runner,
         c,
@@ -1646,7 +1596,6 @@ async fn batch_check_user_can() {
     assert!(!can_view, "user_c: batch should fail page:view");
     assert!(!can_edit, "user_c: batch should fail page:edit");
 
-    // Case: Batch and single check should return the same results
     let [batch_view, batch_edit] = batch_check(
         &runner,
         a,
@@ -1674,7 +1623,6 @@ async fn check_category_resolution() {
     let runner = TestRunner::setup().await;
     let f = PermissionFixture::setup(&runner).await;
 
-    // Permission check should be able to resolve category name to ID
     assert!(
         PermissionService::check_user_can(
             runner.context(),
@@ -1724,7 +1672,6 @@ async fn check_permission_endpoint() {
         }),
     );
 
-    // Check permissions for user_b via the endpoint, should allow
     runner.set_request_context(RequestContext {
         user_id: Some(f.user_b),
         site_id: Some(f.site_id),
@@ -1736,7 +1683,6 @@ async fn check_permission_endpoint() {
         "user_b should have edit permission for page in test-category"
     );
 
-    // Same test but with slug instead of page_id, should still work
     runner.set_request_context(RequestContext {
         user_id: Some(f.user_b),
         site_id: Some(f.site_id),
@@ -1748,7 +1694,6 @@ async fn check_permission_endpoint() {
         "user_b should have edit permission for page in test-category"
     );
 
-    // Check permissions for user_c via the endpoint, should deny due to no page permissions
     runner.set_request_context(RequestContext {
         user_id: Some(f.user_c),
         site_id: Some(f.site_id),
@@ -1760,7 +1705,6 @@ async fn check_permission_endpoint() {
         "user_c should NOT have edit permission for page in test-category"
     );
 
-    // Same test but with slug instead of page_id, should still work
     runner.set_request_context(RequestContext {
         user_id: Some(f.user_c),
         site_id: Some(f.site_id),
@@ -1778,9 +1722,6 @@ async fn check_permission_endpoint() {
         .await
         .expect("Failed to get site");
 
-    // Create the site's default page at the service layer, as the
-    // fixture does; the behavior under test is the endpoint's fallback,
-    // not page creation.
     PageService::create(
         runner.context(),
         CreatePage {
@@ -1822,7 +1763,6 @@ async fn check_permission_endpoint() {
         "user_c should NOT have edit permission for the default page"
     );
 
-    // Same test but with no site ID either, should fail
     runner.set_request_context(RequestContext {
         user_id: Some(f.user_a),
         ..Default::default()
@@ -2136,7 +2076,6 @@ async fn role_update_permissions_and_get() {
     const CATEGORY_NAME: &str = "TestCategory";
     const OTHER_CATEGORY_NAME: &str = "OtherCategory";
 
-    // Create some categories with names
     let category_id =
         CategoryService::get_or_create(runner.context(), f.site_id, CATEGORY_NAME)
             .await
@@ -2164,8 +2103,6 @@ async fn role_update_permissions_and_get() {
     .await
     .expect("Failed to create role");
 
-    // Assign permissions with different resource categories
-    // Using category names in the input to test that they get resolved correctly
     PermissionService::update_permissions_for_role(
         runner.context(),
         UpdateRolePermissionsInput {
@@ -2191,7 +2128,6 @@ async fn role_update_permissions_and_get() {
     .await
     .expect("Failed to update role permissions");
 
-    // Get permissions with raw category IDs
     let perms = run_endpoint!(
         runner,
         get_role_permissions,
@@ -2212,7 +2148,6 @@ async fn role_update_permissions_and_get() {
         .find(|p| p.action == Action::Edit)
         .expect("Expected to find edit permission");
 
-    // Assert that the resource categories were resolved to IDs
     assert_eq!(
         view_perm.resource_category,
         Some(Reference::Id(category_id))
@@ -2222,7 +2157,6 @@ async fn role_update_permissions_and_get() {
         Some(Reference::Id(other_category_id))
     );
 
-    // Get permissions with human-readable categories
     let perms = run_endpoint!(
         runner,
         get_role_permissions,
@@ -2243,7 +2177,6 @@ async fn role_update_permissions_and_get() {
         .find(|p| p.action == Action::Edit)
         .expect("Expected to find edit permission");
 
-    // Assert that the resource categories were resolved to human-readable slugs
     assert_eq!(
         view_perm.resource_category,
         Some(Reference::Slug(CATEGORY_NAME.into()))
@@ -2254,9 +2187,6 @@ async fn role_update_permissions_and_get() {
     );
 }
 
-/// A human-readable role permission listing must resolve a forum-category
-/// scoped permission back to the forum category name rather than silently
-/// dropping the scope.
 #[tokio::test]
 async fn role_permissions_resolve_human_readable_forum_category_names() {
     const FORUM_CATEGORY_NAME: &str = "Permission Forum Category";
@@ -2387,7 +2317,6 @@ async fn get_decorated_permissions_for_role() {
     let f = PermissionFixture::setup(&runner).await;
     let ctx = runner.context();
 
-    // Parent role: page:view + page:edit
     let parent_id = create_role(ctx, f.site_id, "Parent", None).await;
     add_perms_to_role(
         ctx,
@@ -2408,7 +2337,6 @@ async fn get_decorated_permissions_for_role() {
     )
     .await;
 
-    // Child role: page:view only
     let child_id = create_role(ctx, f.site_id, "Child", Some(parent_id)).await;
     add_perms_to_role(
         ctx,
@@ -2422,7 +2350,6 @@ async fn get_decorated_permissions_for_role() {
     )
     .await;
 
-    // Helper to find a permission in the list
     let find = |list: &Vec<DecoratedPermission<'static>>,
                 resource: Resource,
                 action: Action| {
@@ -2434,7 +2361,6 @@ async fn get_decorated_permissions_for_role() {
             .clone()
     };
 
-    // Calling endpoint on child role
     let child_decorated = run_endpoint!(
         runner,
         get_decorated_role_permissions,
@@ -2445,28 +2371,24 @@ async fn get_decorated_permissions_for_role() {
         }),
     );
 
-    // Page:View: active + removable
     let p = find(&child_decorated, Resource::Page, Action::View);
     assert!(
         p.active && p.removable && !p.addable,
         "child page:view: expected active+removable"
     );
 
-    // Page:Edit: inactive + addable
     let p = find(&child_decorated, Resource::Page, Action::Edit);
     assert!(
         !p.active && p.addable && !p.removable,
         "child page:edit: expected inactive+addable"
     );
 
-    // Page:Create: inactive, not addable
     let p = find(&child_decorated, Resource::Page, Action::Create);
     assert!(
         !p.active && !p.addable && !p.removable,
         "child page:create: expected inactive+locked"
     );
 
-    // Calling endpoint on parent role
     let parent_decorated = run_endpoint!(
         runner,
         get_decorated_role_permissions,
@@ -2477,27 +2399,23 @@ async fn get_decorated_permissions_for_role() {
         }),
     );
 
-    // Page:View: active + not removable because child has it
     let p = find(&parent_decorated, Resource::Page, Action::View);
     assert!(
         p.active && !p.removable && !p.addable,
         "parent page:view: expected active+locked"
     );
 
-    // Page:Edit: active + removable
     let p = find(&parent_decorated, Resource::Page, Action::Edit);
     assert!(
         p.active && p.removable && !p.addable,
         "parent page:edit: expected active+removable"
     );
 
-    // Page:Create: inactive + addable as root role has no parent, so all base permissions are addable
     let p = find(&parent_decorated, Resource::Page, Action::Create);
     assert!(
         !p.active && p.addable && !p.removable,
         "parent page:create: expected inactive+addable"
     );
 
-    // Check nonexistent permission type
     assert_panics!(|| find(&parent_decorated, Resource::Site, Action::Assign));
 }

@@ -21,10 +21,8 @@
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(default)]
 pub struct PageDetails {
-    /// Include the wikitext in the page output.
     pub wikitext: bool,
 
-    /// Include the compiled HTML in the page output.
     #[serde(alias = "compiled")]
     pub compiled_html: bool,
 }

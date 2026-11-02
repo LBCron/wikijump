@@ -1,15 +1,3 @@
-/*
- * tests/email_token.rs
- *
- * Single-use email tokens for the shared account recovery and verification
- * lane (#2128 password recovery, #2130 email verification).
- *
- * TTLs, cooldowns, and resend behavior are LOCAL DEPLOYMENT DEFAULTS
- * pending live Wikidot evidence; the tests pin the mechanism (hash-only
- * storage, atomic single-use consumption, purpose binding, quiet issue),
- * not any particular duration.
- */
-
 #[macro_use]
 mod common;
 
@@ -59,7 +47,6 @@ fn token_user(n: u64, user_type: UserType, email: String) -> CreateUser {
         name: format!("Email Token {n}"),
         email,
         locales: vec!["en".to_owned()],
-        // Bots carry a non-functional password marker by construction.
         password: "email-token-fixture-password".to_owned(),
         bypass_filter: true,
         bypass_email_verification: true,
@@ -122,8 +109,6 @@ async fn verify_round_trip_marks_verified_and_consumes() {
     )
     .await;
 
-    // The plaintext token exists only in this return value; the row holds
-    // the hash alone, and it is the documented unsalted KangarooTwelve hex.
     let stored = EmailTokenTable::find()
         .filter(email_token::Column::UserId.eq(created.user_id))
         .one(runner.context().transaction())
@@ -146,7 +131,6 @@ async fn verify_round_trip_marks_verified_and_consumes() {
         .expect("verified user should load");
     assert!(user.email_verified_at.is_some());
 
-    // Single-use: the same link never verifies twice.
     let error = run_endpoint_err!(
         runner => email_verify_redeem,
         common::make_params(json!({
@@ -162,8 +146,6 @@ async fn verify_round_trip_marks_verified_and_consumes() {
 async fn issue_is_quiet_for_unknown_imported_and_deleted_addresses() {
     let runner = TestRunner::setup().await;
 
-    // A Wikidot-only identity: present in the import tables, with no
-    // authenticatable users row (#2081 boundary).
     let fixture = Uuid::new_v4().to_string();
     let wikidot_id = 18_400_000 + (next_n() % 10_000) as i32;
     ImportService::add_user(
@@ -230,9 +212,6 @@ async fn issue_is_quiet_for_unknown_imported_and_deleted_addresses() {
     .await
     .expect("user should be soft-deleted");
 
-    // Addresses with no authenticatable users row all answer identically
-    // and record nothing, even with a Wikidot-only identity sitting in the
-    // import tables beside them. Bot and deleted rows are excluded too.
     for address in [
         format!("email-token-unknown-{n}@example.invalid"),
         format!("wikidot-identity-has-no-mailbox-{n}@example.invalid"),
@@ -266,7 +245,6 @@ async fn issue_is_quiet_for_unknown_imported_and_deleted_addresses() {
         0,
     );
 
-    // The regular account right beside them issues normally.
     run_endpoint!(
         runner => password_reset_issue,
         common::make_params(json!({
@@ -299,9 +277,6 @@ async fn reset_round_trip_sets_password_and_revokes_sessions() {
     .await
     .expect("regular user should be created");
 
-    // Email login only resolves verified addresses, so the account verifies
-    // its mailbox first, exactly as the #2130 lifecycle requires before a
-    // later #2128 recovery.
     let verify_token = issue_for(
         &runner,
         created.user_id,
@@ -345,7 +320,6 @@ async fn reset_round_trip_sets_password_and_revokes_sessions() {
     );
     let grant: String = grant_output.grant;
 
-    // The recovery link is spent; only the grant authorizes the new password.
     let error = run_endpoint_err!(
         runner => password_reset_redeem,
         common::make_params(json!({
@@ -368,7 +342,6 @@ async fn reset_round_trip_sets_password_and_revokes_sessions() {
         "recovery should revoke the account sessions",
     );
 
-    // The grant is single-use too.
     let error = run_endpoint_err!(
         runner => password_reset_complete,
         common::make_params(json!({
@@ -379,7 +352,6 @@ async fn reset_round_trip_sets_password_and_revokes_sessions() {
     );
     assert_contains_error!(error, ErrorType::InvalidEmailToken);
 
-    // The new password authenticates; the old one does not.
     let login = |password: &str| {
         AuthenticationService::auth_password(
             runner.context(),
@@ -407,7 +379,6 @@ async fn cross_purpose_expired_and_mismatched_tokens_are_rejected() {
     .await
     .expect("regular user should be created");
 
-    // A verification token never redeems a recovery grant and vice versa.
     let verify_token = issue_for(
         &runner,
         created.user_id,
@@ -440,7 +411,6 @@ async fn cross_purpose_expired_and_mismatched_tokens_are_rejected() {
     );
     assert_contains_error!(error, ErrorType::InvalidEmailToken);
 
-    // An expired token fails exactly like a bogus one.
     let row = EmailTokenTable::find()
         .filter(email_token::Column::TokenHash.eq(hash_of(&reset_token)))
         .filter(email_token::Column::ConsumedAt.is_null())
@@ -463,8 +433,6 @@ async fn cross_purpose_expired_and_mismatched_tokens_are_rejected() {
     );
     assert_contains_error!(error, ErrorType::InvalidEmailToken);
 
-    // The verification token from the top of the test still redeems: the
-    // failed attempts above consumed nothing.
     run_endpoint!(
         runner => email_verify_redeem,
         common::make_params(json!({
@@ -475,8 +443,6 @@ async fn cross_purpose_expired_and_mismatched_tokens_are_rejected() {
     runner.teardown().await;
 }
 
-// The service hashes with unsalted KangarooTwelve hex, so the test can
-// locate a row for fixture setup without ever persisting a plaintext.
 fn hash_of(token: &str) -> String {
     deepwell::hash::text_hash_to_hex(&deepwell::hash::k12_hash(token.as_bytes()))
         .to_string()
@@ -507,8 +473,6 @@ async fn resend_cooldown_suppresses_without_signaling() {
     .expect("first issue should succeed");
     assert!(matches!(outcome, IssueEmailTokenOutcome::Issued(_)));
 
-    // An immediate re-issue is suppressed server-side, and the public
-    // endpoint still answers success, so the cooldown never oracles.
     let outcome = EmailTokenService::issue(
         runner.context(),
         IssueEmailToken {
@@ -590,8 +554,6 @@ async fn concurrent_double_redeem_leaves_exactly_one_winner() {
     let n = next_n();
     let email = format!("email-token-race-{n}@example.invalid");
 
-    // The raced rows must be committed to be visible across connections;
-    // the runner's own transaction stays out of this test.
     let setup_txn = state
         .database
         .begin()
@@ -660,8 +622,6 @@ async fn concurrent_double_redeem_leaves_exactly_one_winner() {
         reuse.expect_err("a consumed email token must fail sequential reuse");
     assert_contains_error!(reuse_error, ErrorType::InvalidEmailToken);
 
-    // Clean up the committed fixture rows: soft-delete the user (which
-    // removes its aliases) and drop the token rows.
     let cleanup_txn = state
         .database
         .begin()
@@ -691,9 +651,6 @@ async fn issue_throttle_bounds_one_address_across_accounts() {
     let runner = TestRunner::setup().await;
     let n = next_n();
 
-    // Eleven distinct accounts share one calling address. The per-account
-    // cooldown never fires (each account issues once); the address bound
-    // suppresses the eleventh issue exactly like a cooldown.
     for i in 0..11_u64 {
         let email = format!("email-token-ipthrottle-{n}-{i}@example.invalid");
         let created = UserService::create(
@@ -758,7 +715,6 @@ async fn consumed_tokens_are_purged_on_next_issue() {
     )
     .await;
 
-    // The consumed row is gone; only the fresh live row remains.
     let total = EmailTokenTable::find()
         .filter(email_token::Column::UserId.eq(created.user_id))
         .count(runner.context().transaction())
@@ -798,7 +754,6 @@ async fn delete_issue_requires_session_and_records_link() {
     let n = next_n();
     let created = delete_fixture(&runner, n).await;
 
-    // Anonymous callers fail closed; no link is recorded.
     let error = run_endpoint_err!(
         runner,
         account_delete_issue,
@@ -883,7 +838,6 @@ async fn delete_round_trip_removes_self_and_revokes_sessions() {
     );
     let grant: String = grant_output.grant;
 
-    // The deletion link is spent; only the grant authorizes deletion.
     let error = run_endpoint_err!(
         runner => account_delete_redeem,
         common::make_params(json!({
@@ -906,8 +860,6 @@ async fn delete_round_trip_removes_self_and_revokes_sessions() {
         "deletion should revoke the account sessions",
     );
 
-    // The account is gone; the control account is untouched (user:2/user:19
-    // pattern from the #2129 evidence).
     assert!(
         stored_user(&runner, created.user_id)
             .await
@@ -921,8 +873,6 @@ async fn delete_round_trip_removes_self_and_revokes_sessions() {
             .is_none()
     );
 
-    // Deleted accounts cannot log in; the replayed grant fails like a
-    // bogus one instead of deleting again.
     assert!(
         !login_with(
             &runner,
@@ -982,8 +932,6 @@ async fn delete_wrong_password_keeps_account_and_burns_grant() {
             .is_none()
     );
 
-    // The spent grant cannot authorize a second attempt, even with the
-    // right password; the account holder re-runs the flow instead.
     let error = run_endpoint_err!(
         runner => account_delete_complete,
         common::make_params(json!({
@@ -1018,8 +966,6 @@ async fn delete_cross_user_and_anonymous_links_fail_closed() {
     )
     .await;
 
-    // Signed in as someone else: the link fails exactly like a bogus one,
-    // and the target account is untouched.
     as_actor(&mut runner, other.user_id);
     let error = run_endpoint_err!(
         runner => account_delete_redeem,
@@ -1036,7 +982,6 @@ async fn delete_cross_user_and_anonymous_links_fail_closed() {
             .is_none()
     );
 
-    // Signed out: the link fails closed to not-logged-in.
     runner.set_request_context(RequestContext::default());
     let error = run_endpoint_err!(
         runner => account_delete_redeem,
@@ -1047,7 +992,6 @@ async fn delete_cross_user_and_anonymous_links_fail_closed() {
     );
     assert_contains_error!(error, ErrorType::PermissionDenied);
 
-    // The account holder re-runs the flow on a fresh link and deletes.
     as_actor(&mut runner, created.user_id);
     let token = issue_for(
         &runner,
@@ -1132,13 +1076,10 @@ async fn reset_link_dies_with_old_email_after_rotation() {
     .await;
     assert!(live_token_count(&runner, created.user_id).await >= 1);
 
-    // Rotate the address through the normal update path.
     change_email(&runner, created.user_id, &new_email).await;
 
-    // Revocation removed the outstanding link: nothing live remains.
     assert_eq!(live_token_count(&runner, created.user_id).await, 0);
 
-    // The old link now fails exactly like a bogus token.
     let error = run_endpoint_err!(
         runner => password_reset_redeem,
         common::make_params(json!({
@@ -1148,7 +1089,6 @@ async fn reset_link_dies_with_old_email_after_rotation() {
     );
     assert_contains_error!(error, ErrorType::InvalidEmailToken);
 
-    // A fresh link for the new address works normally.
     let fresh = issue_for(
         &runner,
         created.user_id,
@@ -1196,10 +1136,8 @@ async fn stale_grant_dies_with_old_email_after_rotation() {
     );
     let grant: String = grant_output.grant;
 
-    // Rotate the address after the grant was issued but before use.
     change_email(&runner, created.user_id, &new_email).await;
 
-    // The stale grant is rejected even though it was legitimately issued.
     let error = run_endpoint_err!(
         runner => password_reset_complete,
         common::make_params(json!({
@@ -1210,8 +1148,6 @@ async fn stale_grant_dies_with_old_email_after_rotation() {
     );
     assert_contains_error!(error, ErrorType::InvalidEmailToken);
 
-    // The password is unchanged: slug login with the old password works,
-    // while the attacker's password does not.
     let slug = user_slug(&runner, created.user_id).await;
     let login = |password: &str| {
         AuthenticationService::auth_password(
@@ -1252,7 +1188,6 @@ async fn rotated_email_kills_verify_link_but_fresh_link_works() {
     change_email(&runner, created.user_id, &new_email).await;
     assert_eq!(live_token_count(&runner, created.user_id).await, 0);
 
-    // The pending verification link for the old address is dead.
     let error = run_endpoint_err!(
         runner => email_verify_redeem,
         common::make_params(json!({
@@ -1262,7 +1197,6 @@ async fn rotated_email_kills_verify_link_but_fresh_link_works() {
     );
     assert_contains_error!(error, ErrorType::InvalidEmailToken);
 
-    // A new token for the new address issues and redeems normally.
     let fresh = issue_for(
         &runner,
         created.user_id,
@@ -1288,9 +1222,6 @@ async fn rotated_email_kills_verify_link_but_fresh_link_works() {
 
 #[tokio::test]
 async fn delete_link_and_grant_die_with_old_email_after_rotation() {
-    // The #2693 address-rotation revocation is purpose-agnostic: a
-    // deletion link or grant bound to the old mailbox must not survive
-    // the move, exactly like recovery and verification links.
     let mut runner = TestRunner::setup().await;
     let n = next_n();
     let created = delete_fixture(&runner, n).await;

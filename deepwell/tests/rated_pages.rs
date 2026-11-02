@@ -697,8 +697,6 @@ async fn ratedpages_equal_scores_order_by_title_and_keep_unrated_rows() {
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
 
-    // Creation order deliberately disagrees with title order so a creation or
-    // fullname tie-break cannot pass for the observed title ordering.
     let bonly_id = create_page(
         &mut runner,
         site_id,

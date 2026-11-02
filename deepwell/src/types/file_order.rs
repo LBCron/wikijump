@@ -21,13 +21,6 @@
 use crate::models::file;
 use sea_orm::query::Order;
 
-/// Describes what order files should be retrieved in.
-///
-/// It is composed of two components:
-/// * `column`    -- The `FileOrderColumn` describing what column to order by.
-/// * `direction` -- Whether the order should be ascending or descending. (See [`Order`])
-///
-/// [`Order`]: https://docs.rs/sea-orm/latest/sea_orm/query/enum.Order.html
 #[derive(Debug, Clone, PartialEq)]
 pub struct FileOrder {
     pub column: FileOrderColumn,
@@ -44,26 +37,18 @@ impl Default for FileOrder {
     }
 }
 
-/// Describes what column that files should be ordered by.
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum FileOrderColumn {
-    /// Requests files in file ID order.
-    /// This is the default.
     #[default]
     Id,
 
-    /// Requests files in file creation order.
-    /// For most purposes this is the same as `FileOrderColumn::Id`.
     Creation,
 
-    /// Requests files in file update order.
     Update,
 
-    /// Requests files in file deletion order.
     Deletion,
 
-    /// Requests files in file name order.
     Name,
 }
 
@@ -74,7 +59,6 @@ impl FileOrderColumn {
     }
 }
 
-/// Converts a `FileOrderColumn` into the corresponding file column.
 impl From<FileOrderColumn> for file::Column {
     fn from(order: FileOrderColumn) -> file::Column {
         match order {

@@ -51,7 +51,6 @@ pub async fn file_get(
     .await
     .or_raise(make_error)?;
 
-    // We cannot use get_id() because we need File for build_file_response().
     let file = FileService::get_optional(ctx, input)
         .await
         .or_raise(make_error)?;
@@ -103,8 +102,6 @@ pub async fn file_create(
     .await
     .or_raise(|| Error::new("failed to check file create permission", ErrorType::File))?;
 
-    // Propagated directly (not wrapped) so the mirror refusal keeps its
-    // permission category and message for API callers.
     ensure_page_not_fully_imported(ctx, input.site_id, input.page_id, "create a file")
         .await?;
 
@@ -139,8 +136,6 @@ pub async fn file_edit(
     .await
     .or_raise(|| Error::new("failed to check file edit permission", ErrorType::File))?;
 
-    // Propagated directly (not wrapped) so the mirror refusal keeps its
-    // permission category and message for API callers.
     ensure_page_not_fully_imported(ctx, input.site_id, input.page_id, "edit a file")
         .await?;
 
@@ -175,8 +170,6 @@ pub async fn file_delete(
     .await
     .or_raise(|| Error::new("failed to check file delete permission", ErrorType::File))?;
 
-    // Propagated directly (not wrapped) so the mirror refusal keeps its
-    // permission category and message for API callers.
     ensure_page_not_fully_imported(ctx, input.site_id, input.page_id, "delete a file")
         .await?;
 
@@ -240,8 +233,6 @@ pub async fn file_move(
         )
     })?;
 
-    // A move mutates both ends: leaving a mirror and arriving on one are
-    // both refused. Propagated directly so the refusal keeps its category.
     ensure_page_not_fully_imported(
         ctx,
         input.site_id,
@@ -315,8 +306,6 @@ pub async fn file_restore(
         })?;
     }
 
-    // Propagated directly (not wrapped) so the mirror refusal keeps its
-    // permission category and message for API callers.
     ensure_page_not_fully_imported(ctx, input.site_id, input.page_id, "restore a file")
         .await?;
     if let Some(ref new_page) = input.new_page {
@@ -373,8 +362,6 @@ pub async fn file_rollback(
         Error::new("failed to check file rollback permission", ErrorType::File)
     })?;
 
-    // Propagated directly (not wrapped) so the mirror refusal keeps its
-    // permission category and message for API callers.
     ensure_page_not_fully_imported(ctx, input.site_id, input.page_id, "roll back a file")
         .await?;
 
@@ -481,23 +468,6 @@ async fn ensure_parent_page_permission(
     }
 }
 
-/// Refuses file mutations on fully imported mirror pages.
-///
-/// Mirror pages are read-only for ordinary authoring: their inventory is
-/// the source inventory, changed only through the platform-staff import
-/// endpoints (which call `ImportService` directly and never reach this
-/// guard). The both-flags predicate below is intentionally the same
-/// condition `FileService::get_visible_rows` uses to show the source-only
-/// inventory, so the pane and the mutation surface can never disagree
-/// about which files a mirror page owns: anything the pane hides cannot
-/// be created here, and anything created here is shown there.
-///
-/// Site-flag cliff note: flagging a site `from_wikidot` while its imported
-/// pages still carry unflagged local rows hides those rows from the pane
-/// (by the visibility rule, deliberately — rows and blobs are untouched,
-/// nothing is deleted). The transition must therefore reconcile row flags
-/// first; this guard only prevents NEW local rows from appearing on fully
-/// imported pages, so the hidden set can only shrink.
 async fn ensure_page_not_fully_imported(
     ctx: &ServiceContext<'_>,
     site_id: i64,

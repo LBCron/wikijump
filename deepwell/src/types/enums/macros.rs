@@ -18,10 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Implement `TryFromU64` for enums that cannot be constructed from a u64 primary key.
-///
-/// SeaORM requires this trait when an enum is used as a primary key column type.
-/// These enums are represented as strings in db, so u64 conversion should always error.
 macro_rules! impl_try_from_u64 {
     ($($type:ty),+ $(,)?) => {
         $(

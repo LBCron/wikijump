@@ -18,21 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Viewer-permission coverage for source-defined random helper pages (#2080).
-//!
-//! A helper page whose source holds exactly one `ListPages order="random"
-//! limit="1"` invocation with the standard redirect-include body must select
-//! an eligible same-site page and redirect to it, instead of rendering the
-//! missing-page UI. Selection is genuinely random (never a deterministic
-//! first row), never leaves the eligible set, and never touches private,
-//! unlisted-excluded, wrong-tag, deleted, or holder pages.
-//!
-//! The fixture views as an authenticated but otherwise unprivileged user.
-//! Fresh sites grant anonymous viewers nothing, so anonymous coverage belongs
-//! to seeded mirrors (whose role substrate grants anonymous view) and to
-//! browser acceptance; the permission path exercised here is the same one
-//! anonymous viewers take there.
-
 #[macro_use]
 mod common;
 
@@ -155,8 +140,6 @@ async fn setup_fixture_site(runner: &mut TestRunner) -> (i64, String) {
     .expect("fixture site should be created");
     let site_id = site.site_id;
 
-    // The fixture viewer is authenticated but holds no privilege beyond
-    // site-wide page view, so private categories stay unreadable to them.
     let viewer = UserService::create(
         runner.context(),
         CreateUser {
@@ -218,8 +201,6 @@ async fn setup_fixture_site(runner: &mut TestRunner) -> (i64, String) {
     .await
     .expect("fixture viewer should receive the viewer role");
 
-    // A category readable only through a privileged role: the fixture viewer
-    // must never be redirected into it.
     let private_category_id =
         CategoryService::get_or_create(runner.context(), site_id, "priv")
             .await
@@ -270,7 +251,6 @@ async fn setup_fixture_site(runner: &mut TestRunner) -> (i64, String) {
     .await
     .expect("fixture actor should receive the private viewer role");
 
-    // Eligible pair: ordinary pages carrying the selected tag.
     create_page(
         runner,
         site_id,
@@ -287,7 +267,6 @@ async fn setup_fixture_site(runner: &mut TestRunner) -> (i64, String) {
         String::from("eligible two"),
     )
     .await;
-    // Controls that must never be selected.
     create_page(
         runner,
         site_id,
@@ -334,8 +313,6 @@ async fn setup_fixture_site(runner: &mut TestRunner) -> (i64, String) {
     .await
     .expect("fixture page should be deleted");
 
-    // The main helper selects the eligible pair. It carries the selected tag
-    // itself, so it is a candidate too, and must be skipped on every visit.
     create_page(
         runner,
         site_id,
@@ -344,8 +321,6 @@ async fn setup_fixture_site(runner: &mut TestRunner) -> (i64, String) {
         helper_source("category=\"* -unlisted\" order=\"random\" limit=\"1\" tag=\"rt\""),
     )
     .await;
-    // Deterministic empty states: a selector matching only a private page, a
-    // selector matching only a deleted page, and a selector matching nothing.
     create_page(
         runner,
         site_id,
@@ -370,7 +345,6 @@ async fn setup_fixture_site(runner: &mut TestRunner) -> (i64, String) {
         helper_source("category=\"*\" order=\"random\" limit=\"1\" tag=\"no-such-tag\""),
     )
     .await;
-    // Deterministic self exclusion: the only candidate is the holder itself.
     create_page(
         runner,
         site_id,
@@ -380,7 +354,6 @@ async fn setup_fixture_site(runner: &mut TestRunner) -> (i64, String) {
     )
     .await;
 
-    // All views below run as the unprivileged fixture viewer.
     runner.set_request_context(RequestContext {
         session: None,
         user_id: Some(viewer.user_id),
@@ -407,9 +380,6 @@ async fn helper_redirects_stay_inside_the_eligible_set() {
     let mut runner = TestRunner::setup().await;
     let (site_id, session_token) = setup_fixture_site(&mut runner).await;
 
-    // Repeat enough times that a deterministic first-row pick, a private or
-    // holder pick, or a skewed sampler would be observably caught: every
-    // visit must land on one of the two eligible pages, and both must appear.
     let mut seen = BTreeSet::new();
     for _ in 0..40 {
         let target = redirect_target(
@@ -437,9 +407,6 @@ async fn helper_redirect_fails_closed_without_eligible_targets() {
     let mut runner = TestRunner::setup().await;
     let (site_id, session_token) = setup_fixture_site(&mut runner).await;
 
-    // A selector matching only a private page, only a deleted page, nothing
-    // at all, or only the holder itself renders the normal empty state
-    // instead of redirecting anywhere.
     for slug in [
         "random:helper-onlypriv",
         "random:helper-onlygone",
@@ -464,8 +431,6 @@ async fn helper_redirect_only_fires_on_the_bare_route() {
     let mut runner = TestRunner::setup().await;
     let (site_id, session_token) = setup_fixture_site(&mut runner).await;
 
-    // Suffixed views render the helper itself instead of redirecting, so the
-    // page stays viewable (and editable) through its route options.
     for extra in ["noredirect/true", "history"] {
         assert_eq!(
             redirect_target(
@@ -487,7 +452,6 @@ async fn helper_redirect_only_fires_on_the_bare_route() {
     runner.teardown().await;
 }
 
-/// Page and served-revision IDs of a view that resolved to a page.
 fn found_ids(view: GetPageViewOutput, slug: &str) -> (i64, i64) {
     match view {
         GetPageViewOutput::Found {
@@ -499,8 +463,6 @@ fn found_ids(view: GetPageViewOutput, slug: &str) -> (i64, i64) {
     }
 }
 
-/// Stamps a fixture page and its served revision with Wikidot import
-/// provenance, the two flags an imported page carries.
 async fn mark_imported(runner: &TestRunner, (page_id, revision_id): (i64, i64)) {
     let transaction = runner.context().transaction();
     transaction
@@ -526,10 +488,6 @@ async fn helper_redirects_when_the_page_is_imported_from_wikidot() {
     let mut runner = TestRunner::setup().await;
     let (site_id, session_token) = setup_fixture_site(&mut runner).await;
 
-    // Imported pages carry Wikidot provenance on the page and its served
-    // revision. That provenance selects the Redirect-module branch, which
-    // finds no module on a helper page. The helper must still select and
-    // redirect instead of rendering its ListPages body.
     let helper = found_ids(
         helper_view(&runner, site_id, &session_token, "random:helper-main", "").await,
         "random:helper-main",
@@ -555,8 +513,6 @@ async fn helper_redirects_when_the_page_is_imported_from_wikidot() {
         "imported helper must visit every eligible page",
     );
 
-    // Negative control: an imported ordinary page with no helper body and no
-    // Redirect module keeps rendering instead of redirecting.
     let plain = found_ids(
         helper_view(&runner, site_id, &session_token, "alpha-one", "").await,
         "alpha-one",

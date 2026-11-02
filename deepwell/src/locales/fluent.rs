@@ -120,22 +120,17 @@ impl Localizations {
         Ok(())
     }
 
-    /// Parses a message key to split the path from the attribute, if present.
-    ///
-    /// Fluent does not permit multiple periods in a message key, having multiple
-    /// is a logical error.
     pub fn parse_selector(key: &str) -> (&str, Option<&str>) {
         match key.find('.') {
             None => (key, None),
             Some(idx) => {
                 let (path, rest) = key.split_at(idx);
-                let attribute = &rest[1..]; // This is safe because '.' is one byte
+                let attribute = &rest[1..];
                 (path, Some(attribute))
             }
         }
     }
 
-    /// Retrieve the specified Fluent bundle and message.
     fn get_message(
         &self,
         locale: &LanguageIdentifier,
@@ -160,12 +155,6 @@ impl Localizations {
         }
     }
 
-    /// Retrieve the specified Fluent pattern from the associated bundle.
-    ///
-    /// Missing-message errors are returned with their specific `ErrorType`
-    /// variants (not wrapped in `ErrorType::Localization`) so that
-    /// `translate_option()` can distinguish "no such translation" from
-    /// genuine failures.
     fn get_pattern(
         &self,
         locale: &LanguageIdentifier,
@@ -199,7 +188,6 @@ impl Localizations {
         Ok((bundle, pattern))
     }
 
-    /// Iterate through a list of locales, and try to find the first existing pattern.
     fn get_pattern_locales<'a, L, I>(
         &'a self,
         locales: I,
@@ -210,7 +198,7 @@ impl Localizations {
         L: AsRef<LanguageIdentifier> + 'a,
         I: IntoIterator<Item = L>,
     {
-        let mut last_error = None; // Occurs if locales is empty
+        let mut last_error = None;
 
         for locale_ref in locales {
             let locale = locale_ref.as_ref();
@@ -241,12 +229,6 @@ impl Localizations {
         bail!(last_error);
     }
 
-    /// Translates the message, given the message key and formatting arguments.
-    ///
-    /// At least one locale must be specified. If no translation can be found for
-    /// the given locale, then progressively more generic forms are attempted. If
-    /// no translations can be found even for all fallback locales, an error is
-    /// returned.
     pub fn translate<'a, L, I>(
         &'a self,
         locales: I,
@@ -294,19 +276,11 @@ impl Localizations {
             }
         }
 
-        // We could return the locale used if we wished, but presently we discard this information.
-        // Change the return type of this method and its users if you need this information.
         let _ = locale;
 
         Ok(output)
     }
 
-    /// A variant of `translate()` which returns `Option`.
-    ///
-    /// This way, if a translation cannot be found, instead of returning
-    /// an error, it instead returns `Ok(None)`. Only genuinely missing
-    /// translations (locale, message, value, or attribute) map to `None`;
-    /// any other failure is still returned as an error.
     pub fn translate_option<'a, L, I>(
         &'a self,
         locales: I,
@@ -406,9 +380,6 @@ mod tests {
         let fr: LanguageIdentifier = "fr".parse().unwrap();
         let args = FluentArgs::new();
 
-        // Missing message, missing attribute, and missing locale all
-        // resolve to None so that batch translation can fall back
-        // per key instead of failing the whole request.
         let missing_message = localizations
             .translate_option([en.clone()], "missing", &args)
             .unwrap();
@@ -423,8 +394,6 @@ mod tests {
         assert_eq!(missing_attribute, None);
         assert_eq!(missing_locale, None);
 
-        // Present translations still resolve, and the strict variant
-        // still reports missing translations as errors.
         let present = localizations
             .translate_option([en.clone()], "hello", &args)
             .unwrap();
@@ -437,10 +406,6 @@ mod tests {
 
     #[tokio::test]
     async fn basic_error_keys_resolve_in_default_locale() {
-        // Regression coverage for the basic-error localization path:
-        // every basic-error message and its title attribute must resolve
-        // in the default locale so that missing-page fallbacks never fail
-        // with "could not find any translation patterns".
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../locales");
         let localizations = Localizations::open(&root).await.unwrap();
         let en: LanguageIdentifier = "en".parse().unwrap();

@@ -99,7 +99,6 @@ pub async fn translate_strings(
         allow_missing,
     } = parse!(params, Localization);
 
-    // Check that locales are specified
     if locales_str.is_empty() {
         error!("No locales specified in translate call");
         bail!(Error::new(
@@ -108,7 +107,6 @@ pub async fn translate_strings(
         ));
     }
 
-    // Check that all message keys to strip are being requested
     for message_key in &strip_message_keys {
         if !messages.contains_key(message_key.as_str()) {
             bail!(Error::new(
@@ -162,13 +160,7 @@ pub async fn translate_strings(
 
                 Some(translation)
             }
-            // Lenient presentation batches resolve missing keys to null
-            // so one missing key cannot fail the whole request.
             (None, true) => None,
-            // Strict callers keep the precise missing-translation error.
-            // Re-running the strict lookup reproduces it; the lookup is
-            // deterministic, so this cannot succeed when the option
-            // lookup just found nothing.
             (None, false) => ctx
                 .localization()
                 .translate(&locales, &message_key, &arguments)

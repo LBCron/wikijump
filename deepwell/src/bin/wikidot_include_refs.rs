@@ -1,9 +1,3 @@
-//! Emit include references recognized by the same FTML parser used at runtime.
-//!
-//! This small stdin/stdout adapter is intended for verification tooling that
-//! needs parser-owned include discovery without reimplementing Wikidot syntax
-//! in JavaScript.
-
 use ftml::includes::include;
 use ftml::layout::Layout;
 use ftml::settings::{WikitextMode, WikitextSettings};

@@ -18,23 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! This module concerns conversion methods for constrainted error types.
-//!
-//! JSONRPC expects a very particular kind of error structure, which our
-//! error type does account for, but it needs some conversion to take
-//! the stack of `exn::Frame`s and convert it.
-
 use super::{Error, ErrorType};
 use exn::{ErrorExt, Exn, Frame};
 use jsonrpsee::types::error::ErrorObjectOwned;
 use sea_orm::TransactionError;
 use serde_json::{Value as JsonValue, json};
 
-/// Unwraps Sea-ORM transaction error into a standard crate error.
-///
-/// Sea-ORM wraps all results from transactions in this enum.
-/// This function either passes through the real error or makes
-/// a new layer if it's a database connectivity issue.
 pub fn unwrap_transaction_error(txn_error: TransactionError<Exn<Error>>) -> Exn<Error> {
     match txn_error {
         TransactionError::Transaction(error) => error,
@@ -45,9 +34,6 @@ pub fn unwrap_transaction_error(txn_error: TransactionError<Exn<Error>>) -> Exn<
     }
 }
 
-/// Converts an `Exn<deepwell::error::Error>` to a JSONRPC object type.
-///
-/// Whether any error in the chain satisfies the predicate.
 pub fn exn_any_error(exn_error: &Exn<Error>, predicate: impl Fn(&Error) -> bool) -> bool {
     fn walk(frame: &Frame, predicate: &dyn Fn(&Error) -> bool) -> bool {
         frame.error().downcast_ref::<Error>().is_some_and(predicate)
@@ -56,13 +42,7 @@ pub fn exn_any_error(exn_error: &Exn<Error>, predicate: impl Fn(&Error) -> bool)
     walk(exn_error.frame(), &predicate)
 }
 
-/// This is not a `From` implementation since, technically, `Exn<T>` is a
-/// foreign type. 🙁
 pub fn exn_error_to_rpc_error(exn_error: Exn<Error>) -> ErrorObjectOwned {
-    // Traverse the tree until we hit the highest-level Error
-    // that is not a high-level error type, or an owned error
-    // from JSONRPC itself.
-
     #[derive(Debug)]
     enum TopError<'e> {
         CrateError(&'e Error),
@@ -76,11 +56,9 @@ pub fn exn_error_to_rpc_error(exn_error: Exn<Error>) -> ErrorObjectOwned {
     ) -> Option<TopError<'e>> {
         let crate_error = frame.error().downcast_ref::<Error>();
         if let Some(error) = crate_error {
-            // Add error code and data for history
             code_trace.push(error.code());
             extra_data.push(error.data());
 
-            // If acceptable, return
             if !error.error_type.is_high_level() {
                 return Some(TopError::CrateError(error));
             }
@@ -100,8 +78,6 @@ pub fn exn_error_to_rpc_error(exn_error: Exn<Error>) -> ErrorObjectOwned {
     let mut extra_data = Vec::new();
     let top_error = walk(exn_error.frame(), &mut code_trace, &mut extra_data);
 
-    // Special case
-    // If all the extra data fields are null, then just replace the list with that.
     let extra_data = if extra_data.iter().all(JsonValue::is_null) {
         None
     } else {
@@ -109,16 +85,12 @@ pub fn exn_error_to_rpc_error(exn_error: Exn<Error>) -> ErrorObjectOwned {
     };
 
     match top_error {
-        // Get the top non-request crate error
         Some(TopError::CrateError(error)) => {
             let error_code = error.code();
             let message = error.summary();
             let data = match error.error_type {
-                // Special case, if authentication then don't include call trace
-                // See comment in auth_login in endpoints/auth.rs
                 ErrorType::InvalidAuthentication => None,
 
-                // Normal case, provide error context
                 _ => Some(json!({
                     "call_trace": format!("{exn_error:?}"),
                     "code_trace": code_trace,
@@ -128,11 +100,8 @@ pub fn exn_error_to_rpc_error(exn_error: Exn<Error>) -> ErrorObjectOwned {
             ErrorObjectOwned::owned(error_code, message, data)
         }
 
-        // For JSONRPC errors, just pass them as-is
         Some(TopError::JsonrpcError(error)) => error.clone(),
 
-        // No crate or jsonrpsee Error exists in chain,
-        // just return as string.
         None => {
             let message = str!(exn_error);
             let data = json!({

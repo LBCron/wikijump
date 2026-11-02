@@ -263,9 +263,6 @@ async fn ordinary_user_joins_only_the_editable_site_then_creates_a_page() {
     );
     assert_contains_error!(forged, ErrorType::PermissionDenied);
 
-    // A renderer binding whose page differs from the trusted route must be
-    // denied even when that page carries an identical Join action, so the
-    // site/page/revision binding cannot be relaxed.
     let decoy_slug = format!("system:join-decoy-{n}");
     let decoy = PageService::create(
         runner.context(),
@@ -312,10 +309,6 @@ async fn ordinary_user_joins_only_the_editable_site_then_creates_a_page() {
     );
     let repeated = run_endpoint!(runner, membership_join, join_request.clone(),);
     assert_eq!(repeated, MembershipJoinOutcome::AlreadyMember);
-    // The forged descriptor above must not consume the local security bucket.
-    // One successful join plus nine idempotent renderer-bound repeats are
-    // accepted; the next valid dispatch is denied through the same outward
-    // permission boundary as every other unavailable membership action.
     for _ in 0..8 {
         let repeated = run_endpoint!(runner, membership_join, join_request.clone(),);
         assert_eq!(repeated, MembershipJoinOutcome::AlreadyMember);
@@ -400,8 +393,6 @@ async fn ordinary_user_joins_only_the_editable_site_then_creates_a_page() {
     let mirror_error = run_endpoint_err!(runner, membership_join, join_request,);
     assert_contains_error!(mirror_error, ErrorType::PermissionDenied);
 
-    // Only the editable local-authoring site is open; a non-deleted imported
-    // site with a different slug must remain closed.
     assert_eq!(
         MembershipService::policy(&editable),
         MembershipPolicy::Open,
@@ -463,7 +454,6 @@ impl RoleFixture {
     }
 }
 
-// Test helpers
 async fn create_test_user(runner: &TestRunner, n: u64, label: &str) -> i64 {
     UserService::create(
         runner.context(),
@@ -546,8 +536,6 @@ async fn create_role(
     name: &str,
     parent_role_id: Option<i64>,
 ) -> RoleModel {
-    // Use API because endpoint validates parent ID, and creating a root role for most tests causes more trouble than it's worth.
-    // Create endpoint will be tested explicitly in its test
     RoleService::create(
         runner.context(),
         InternalCreateRoleInput {
@@ -573,7 +561,6 @@ async fn set_role_perms(
 ) {
     let permissions: Vec<_> = actions
         .iter()
-        // Hardcoding Page resource type and null category for simplicity
         .map(|a| json!({ "resource_type": "page", "resource_category": null, "action": a }))
         .collect();
     run_endpoint!(
@@ -614,7 +601,6 @@ async fn role_create_and_list() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    // Create a role with an invalid parent, should error
     let err = run_endpoint_err!(
         runner,
         role_create,
@@ -630,10 +616,8 @@ async fn role_create_and_list() {
 
     assert_contains_error!(err, ErrorType::RoleNotFound);
 
-    // Create a root role to attach the new role to
     let root_role = create_role(&runner, f.site_id, "Root", None).await;
 
-    // Retry creating a role with a valid parent
     let role = run_endpoint!(
         runner,
         role_create,
@@ -651,7 +635,6 @@ async fn role_create_and_list() {
     assert_eq!(role.description, "A moderator role");
     assert!(!role.is_virtual);
 
-    // Check that the role appears in the site role listing
     let roles = run_endpoint!(runner, list_site_roles, json!({ "site_id": f.site_id }));
     let get = roles
         .iter()
@@ -791,15 +774,12 @@ async fn role_update_permissions_respect_hierarchy() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    // Parent role: page:view + page:edit
     let parent = create_role(&runner, f.site_id, "Parent", None).await;
     set_role_perms(&runner, f.site_id, parent.role_id, &["view", "edit"], false).await;
 
-    // Child role: page:view only (subset of parent)
     let child = create_role(&runner, f.site_id, "Child", Some(parent.role_id)).await;
     set_role_perms(&runner, f.site_id, child.role_id, &["view"], false).await;
 
-    // Test: Cannot add permissions that are not in the parent role
     let err = run_endpoint_err!(
         runner,
         role_update_permissions,
@@ -808,7 +788,7 @@ async fn role_update_permissions_respect_hierarchy() {
             "role_reference": child.role_id,
             "new_permissions": [
                 { "resource_type": "page", "resource_category": null, "action": "view" },
-                { "resource_type": "page", "resource_category": null, "action": "create" }, // Not in parent
+                { "resource_type": "page", "resource_category": null, "action": "create" },
             ],
             "cascade_removals": false,
             "updating_user_id": SYSTEM_USER_ID,
@@ -818,10 +798,8 @@ async fn role_update_permissions_respect_hierarchy() {
 
     assert_contains_error!(err, ErrorType::RoleHierarchyViolation { .. });
 
-    // Same permissions as parent is allowed
     set_role_perms(&runner, f.site_id, child.role_id, &["view", "edit"], false).await;
 
-    // Test: Removing permission from parent without cascading should cause a hierarchy violation for the child
     let err = run_endpoint_err!(
         runner,
         role_update_permissions,
@@ -829,16 +807,15 @@ async fn role_update_permissions_respect_hierarchy() {
             "site_id": f.site_id,
             "role_reference": parent.role_id,
             "new_permissions": [
-                { "resource_type": "page", "resource_category": null, "action": "edit" }, // Removed view
+                { "resource_type": "page", "resource_category": null, "action": "edit" },
             ],
-            "cascade_removals": false, // Not cascading removal to child
+            "cascade_removals": false,
             "updating_user_id": SYSTEM_USER_ID,
             "ip_address": common::IP_ADDRESS,
         }),
     );
     assert_contains_error!(err, ErrorType::RoleHierarchyViolation { .. });
 
-    // Now try with cascading removals, should succeed and remove the offending permission from the child role as well
     set_role_perms(&runner, f.site_id, parent.role_id, &["edit"], true).await;
 
     let perms = run_endpoint!(
@@ -862,12 +839,10 @@ async fn role_delete() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    // Set up a role hierarchy: Role A -> Role B -> Role C
     let role_a = create_role(&runner, f.site_id, "Role A", None).await;
     let role_b = create_role(&runner, f.site_id, "Role B", Some(role_a.role_id)).await;
     let _role_c = create_role(&runner, f.site_id, "Role C", Some(role_b.role_id)).await;
 
-    // Deleting role B without reparenting should throw an error because it has a child role
     let err = run_endpoint_err!(
         runner,
         role_delete,
@@ -882,7 +857,6 @@ async fn role_delete() {
 
     assert_contains_error!(err, ErrorType::DeleteRoleWithChildren);
 
-    // Now delete role B with reparenting, which should succeed and reparent role C under role A
     let deleted = run_endpoint!(
         runner,
         role_delete,
@@ -906,7 +880,6 @@ async fn role_delete() {
         "Deleted role should not appear in site role listing"
     );
 
-    // Verify role C is now a child of role A
     let role_c = run_endpoint!(
         runner,
         role_get,
@@ -922,7 +895,6 @@ async fn role_delete() {
         "Role C should now be a child of Role A after reparenting"
     );
 
-    // Cannot delete top-level role A even with reparenting because it has no parent to reparent its children to
     let err = run_endpoint_err!(
         runner,
         role_delete,
@@ -944,7 +916,6 @@ async fn grant_and_revoke_role() {
 
     let role = create_role(&runner, f.site_id, "Member", None).await;
 
-    // Grant the role
     let user_role = run_endpoint!(
         runner,
         grant_role_to_user,
@@ -962,7 +933,6 @@ async fn grant_and_revoke_role() {
     assert_eq!(user_role.role_id, role.role_id);
     assert_eq!(user_role.assigned_by, f.user_id);
 
-    // Verify that the user has the role
     let user_roles = run_endpoint!(
         runner,
         get_user_roles,
@@ -974,7 +944,6 @@ async fn grant_and_revoke_role() {
     assert_eq!(user_roles.len(), 1);
     assert_eq!(user_roles[0].role_id, role.role_id);
 
-    // Revoke the role
     let revoked = run_endpoint!(
         runner,
         revoke_role_from_user,
@@ -992,7 +961,6 @@ async fn grant_and_revoke_role() {
         "UserRole assignment should be deleted after revoking"
     );
 
-    // Verify that the user no longer has the role
     let user_roles = run_endpoint!(
         runner,
         get_user_roles,
@@ -1319,7 +1287,6 @@ async fn role_grant_expiration() {
 
     let role = create_role(&runner, f.site_id, "Member", None).await;
 
-    // Grant the role with expired date
     let expired = run_endpoint!(
         runner,
         grant_role_to_user,
@@ -1338,7 +1305,6 @@ async fn role_grant_expiration() {
         "Expired role should have expires_at timestamp set"
     );
 
-    // Verify that the expired role does not show up in the user's roles
     let user_roles = run_endpoint!(
         runner,
         get_user_roles,
@@ -1359,17 +1325,14 @@ async fn role_reparent() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    // Parent role: page:view + page:edit
     let parent = create_role(&runner, f.site_id, "Parent", None).await;
     set_role_perms(&runner, f.site_id, parent.role_id, &["view", "edit"], false).await;
 
-    // Child role: page:view only (subset of parent)
     let child = create_role(&runner, f.site_id, "Child", None).await;
     set_role_perms(&runner, f.site_id, child.role_id, &["view"], false).await;
 
     reparent_role(&runner, f.site_id, child.role_id, parent.role_id).await;
 
-    // Verify the new parent in the site role listing
     let roles = run_endpoint!(runner, list_site_roles, json!({ "site_id": f.site_id }),);
     let child_record = roles
         .iter()
@@ -1387,8 +1350,6 @@ async fn role_reparent_deleted_parent_rejected() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    // Deleted parent keeps its permission rows, so reparent validation must
-    // explicitly require an active parent instead of relying on permission checks.
     let deleted_parent = create_role(&runner, f.site_id, "Deleted Parent", None).await;
     set_role_perms(
         &runner,
@@ -1444,17 +1405,14 @@ async fn role_reparent_cycle_rejected() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    // Role A and Role B: same permissions so we hit the cycle violation before the hierarchy violation
     let role_a = create_role(&runner, f.site_id, "RoleA", None).await;
     set_role_perms(&runner, f.site_id, role_a.role_id, &["view"], false).await;
 
     let role_b = create_role(&runner, f.site_id, "RoleB", None).await;
     set_role_perms(&runner, f.site_id, role_b.role_id, &["view"], false).await;
 
-    // Parent A under B
     reparent_role(&runner, f.site_id, role_a.role_id, role_b.role_id).await;
 
-    // Self-parenting should also be rejected
     let err = run_endpoint_err!(
         runner,
         role_reparent,
@@ -1469,7 +1427,6 @@ async fn role_reparent_cycle_rejected() {
 
     assert_contains_error!(err, ErrorType::CyclicRoleViolation { .. });
 
-    // Now attempt to parent B under A, should fail with a cycle error
     let err = run_endpoint_err!(
         runner,
         role_reparent,
@@ -1490,15 +1447,12 @@ async fn role_reparent_subset_violation_rejected() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    // Role with page:view only
     let smaller = create_role(&runner, f.site_id, "Parent", None).await;
     set_role_perms(&runner, f.site_id, smaller.role_id, &["view"], false).await;
 
-    // Role with page:view + page:edit (superset of smaller)
     let bigger = create_role(&runner, f.site_id, "Child", None).await;
     set_role_perms(&runner, f.site_id, bigger.role_id, &["view", "edit"], false).await;
 
-    // Reparenting a role with more permissions under one with fewer should be rejected
     let err = run_endpoint_err!(
         runner,
         role_reparent,
@@ -1513,6 +1467,5 @@ async fn role_reparent_subset_violation_rejected() {
 
     assert_contains_error!(err, ErrorType::RoleHierarchyViolation { .. });
 
-    // Sanity check: reparenting the role with fewer permissions under the one with more IS valid
     reparent_role(&runner, f.site_id, smaller.role_id, bigger.role_id).await;
 }

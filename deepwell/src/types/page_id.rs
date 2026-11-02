@@ -20,10 +20,6 @@
 
 use crate::models::page::Model as PageModel;
 
-/// A structure storing the three IDs for a page.
-///
-/// This is needed to represent not just a particular page, but also
-/// its various levels of silo (site, category, then the page itself).
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 pub struct PageId {
     pub site_id: i64,

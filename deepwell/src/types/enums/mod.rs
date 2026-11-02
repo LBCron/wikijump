@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Enums used across multiple services that are stored as database TEXT values.
-
 #[macro_use]
 mod macros;
 

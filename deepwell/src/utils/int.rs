@@ -18,12 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Fallible conversion helpers between integer types.
-//!
-//! These functions exist because, with `.or_raise()`,
-//! Rust cannot determine the type we want to convert
-//! to unless we're explicit.
-
 use crate::error::StdResult;
 use std::num::TryFromIntError;
 

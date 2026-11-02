@@ -22,6 +22,7 @@ use super::structs::{AuditEvent, RawAuditEvent};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::audit_log::{self, Entity as AuditLog};
 use crate::services::ServiceContext;
+use sea_orm::prelude::IpNetwork;
 use sea_orm::{EntityTrait, Set};
 use std::net::IpAddr;
 
@@ -52,7 +53,7 @@ impl AuditService {
 
         let model = audit_log::ActiveModel {
             event_type: Set(str!(event_type)),
-            ip_address: Set(str!(ip_address)),
+            ip_address: Set(IpNetwork::from(ip_address)),
             user_id: Set(user_id),
             site_id: Set(site_id),
             page_id: Set(page_id),

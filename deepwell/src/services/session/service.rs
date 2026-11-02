@@ -39,6 +39,7 @@ use crate::services::ServiceContext;
 use crate::utils::assert_is_csprng;
 use crate::utils::now;
 use rand::distr::{Alphanumeric, SampleString};
+use sea_orm::prelude::IpNetwork;
 use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, DeleteResult, EntityTrait, ExprTrait,
@@ -110,7 +111,7 @@ impl SessionService {
             user_id: Set(user_id),
             created_at: Set(now),
             expires_at: Set(expiry),
-            ip_address: Set(str!(ip_address)), // TODO inet type?
+            ip_address: Set(IpNetwork::from(ip_address)),
             user_agent: Set(user_agent),
             restricted: Set(restricted),
             mfa_failed_attempts: Set(0),

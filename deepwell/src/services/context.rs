@@ -97,7 +97,7 @@ mod tests {
             user_id: 42,
             created_at: OffsetDateTime::UNIX_EPOCH,
             expires_at: OffsetDateTime::UNIX_EPOCH,
-            ip_address: str!("127.0.0.1"),
+            ip_address: "127.0.0.1".parse().expect("test IP"),
             user_agent: str!("test"),
             restricted: false,
             mfa_failed_attempts: 0,

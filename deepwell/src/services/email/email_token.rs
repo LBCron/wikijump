@@ -32,6 +32,7 @@
 use std::net::IpAddr;
 
 use rand::distr::{Alphanumeric, SampleString};
+use sea_orm::prelude::IpNetwork;
 use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
@@ -375,7 +376,7 @@ impl EmailTokenService {
             token_hash: Set(token_hash.to_string()),
             expires_at: Set(expires_at),
             consumed_at: Set(None),
-            created_ip: Set(ip_address.to_string()),
+            created_ip: Set(IpNetwork::from(ip_address)),
             ..Default::default()
         }
         .insert(ctx.transaction())
@@ -438,7 +439,7 @@ impl EmailTokenService {
         now: time::OffsetDateTime,
     ) -> Result<bool> {
         let recent = EmailToken::find()
-            .filter(email_token::Column::CreatedIp.eq(ip_address.to_string()))
+            .filter(email_token::Column::CreatedIp.eq(IpNetwork::from(*ip_address)))
             .filter(email_token::Column::Purpose.eq(purpose.as_str()))
             .filter(email_token::Column::CreatedAt.gt(now - ISSUE_IP_WINDOW))
             .count(ctx.transaction())

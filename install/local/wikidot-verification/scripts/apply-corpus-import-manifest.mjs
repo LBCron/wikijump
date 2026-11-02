@@ -430,9 +430,20 @@ ON CONFLICT (hash) DO NOTHING;
   await flush();
 }
 
-function buildPrecreateDbShellCategoriesSql(args, selectedRows) {
-  const categories = [...new Set(selectedRows.map((row) => categoryName(row.fullname)))].sort();
-  if (args.createMode !== 'db' || categories.length === 0) return null;
+/** The category a DB-shell page is stored under: the category of its storage
+ * slug, not of its source fullname. The two coincide for the holding site's
+ * own rows; for foreign rows the page lives at _foreign:<source>:<fullname>,
+ * and Deepwell resolves a page's category from its stored slug, so the
+ * category row must be the storage category (_foreign:<source>:<category>).
+ */
+export function dbShellCategorySlug(holding, row) {
+  return categoryName(storageSlug(holding, row));
+}
+
+export function buildPrecreateDbShellCategoriesSql(args, selectedRows) {
+  if (args.createMode !== 'db') return null;
+  const categories = [...new Set(selectedRows.map((row) => dbShellCategorySlug(args.holding, row)))].sort();
+  if (categories.length === 0) return null;
   const values = categories.map((category) => `(${sqlInt(args.siteId)}, ${sqlQuote(category)})`).join(',\n  ');
   return `
 WITH requested(site_id, slug) AS (
@@ -460,7 +471,7 @@ async function precreateDbShellCategories(args, sqlExecutor, selectedRows) {
   const sql = buildPrecreateDbShellCategoriesSql(args, selectedRows);
   if (sql === null) return;
   const ids = parsePrecreatedCategoryIds(await sqlExecutor.runSql(sql, { capture: true }));
-  const expected = new Set(selectedRows.map((row) => categoryName(row.fullname)));
+  const expected = new Set(selectedRows.map((row) => dbShellCategorySlug(args.holding, row)));
   if (ids.size !== expected.size || [...expected].some((slug) => !ids.has(slug))) {
     throw new Error('category precreate output did not contain every requested category');
   }
@@ -585,7 +596,7 @@ async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision
   const wikitextHash = textHashHex(args, wikitext, sourceEntityCacheKey(row));
   const bodyHash = shellBodyHashHex(args);
   const title = fallbackTitle(row);
-  const category = categoryName(row.fullname);
+  const category = categoryName(slug);
   const precreatedCategoryId = precreatedCategoryIds.get(category);
   const categorySql = precreatedCategoryId === undefined
     ? `category AS (
@@ -629,10 +640,11 @@ CREATE TEMP TABLE corpus_shell_import_result (
 WITH ${wikitextSql}${bodyTextSql}, ${categorySql}, target_page AS (
   SELECT
     p.page_id,
-    p.page_category_id,
+    category.category_id AS page_category_id,
     COALESCE(p.latest_revision_id, latest_revision.revision_id) AS latest_revision_id,
     true AS existed
   FROM page p
+  CROSS JOIN category
   LEFT JOIN LATERAL (
     SELECT revision_id
     FROM page_revision pr

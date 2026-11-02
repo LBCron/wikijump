@@ -147,7 +147,6 @@ pub const WIKIDOT_SITE_LANGUAGES: &[&str] = &[
     "zy-tr",
 ];
 
-/// Map Wikidot locale identifiers to the language identifiers accepted by FTML.
 pub fn locale_for_ftml(locale_str: &str) -> &str {
     match locale_str {
         "en-au-mate" | "en-corrections" | "en-pirate" => "en",
@@ -169,8 +168,6 @@ fn parse_locale_identifier(locale_str: &str) -> Option<LanguageIdentifier> {
     LanguageIdentifier::from_bytes(locale_for_ftml(locale_str).as_bytes()).ok()
 }
 
-/// Ensure the given locale string is valid, returning the parsed locale.
-/// If it is invalid, then the appropriate `Error` variant is returned.
 pub fn validate_locale(locale_str: &str) -> Result<LanguageIdentifier> {
     parse_locale_identifier(locale_str).ok_or_raise(|| {
         Error::new(
@@ -196,10 +193,6 @@ pub fn validate_wikidot_site_language(locale_str: &str) -> Result<LanguageIdenti
     }
 }
 
-/// Helper function to convert an array of strings to a list of locales.
-///
-/// Empty locales lists _are_ allowed, since we have not
-/// yet checked the user's locale preferences.
 pub fn parse_locales<S: AsRef<str>>(
     locales_str: &[S],
 ) -> Result<Vec<LanguageIdentifier>> {

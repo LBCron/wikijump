@@ -18,13 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Splits a normalized slug into the category and page portions.
-///
-/// This finds the last `:` in the full slug and returns everything
-/// up to that as the category slug.
-///
-/// Normalized slugs do not have an explicit `_default`, so they
-/// should lack a `:` entirely.
 pub fn split_category(slug: &str) -> (Option<&str>, &str) {
     match slug.rfind(':') {
         None => (None, slug),
@@ -35,38 +28,24 @@ pub fn split_category(slug: &str) -> (Option<&str>, &str) {
     }
 }
 
-/// Splits a normalized slug into the category and page portions.
-///
-/// If the category would be `None`, then an`explicit `_default`
-/// is returned.
 #[inline]
 pub fn split_category_name(slug: &str) -> (&str, &str) {
     let (category, slug) = split_category(slug);
     (category.unwrap_or("_default"), slug)
 }
 
-/// Retrieves the category portion of a slug, if it exists.
 #[inline]
-#[allow(dead_code)] // TEMP
+#[allow(dead_code)]
 pub fn get_category(slug: &str) -> Option<&str> {
     split_category(slug).0
 }
 
-/// Retrieves the category name for a slug.
 #[inline]
 pub fn get_category_name(slug: &str) -> &str {
     split_category_name(slug).0
 }
 
-/// Trims off the `_default:` category if present.
 pub fn trim_default(slug: &str) -> &str {
-    // We cannot simply use str::strip_prefix() here,
-    // since if the category *starts* with "_default"
-    // but is not solely "_default" (for instance,
-    // the category string "_default:blah", as in
-    // "_default:blah:page-name") then this will
-    // mangle the category name.
-
     match split_category_name(slug) {
         ("_default", page_slug) => page_slug,
         (_, _) => slug,

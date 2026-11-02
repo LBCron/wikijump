@@ -1,30 +1,3 @@
-//! Regression tests for issue #3461 (finding F2 of the TLA+ re-render
-//! lifecycle model): a page's hosted text blocks must always end up matching
-//! the page's latest revision, even when renders and saves interleave.
-//!
-//! Two shapes are exercised, both with real transactions against the
-//! integration database (the single-transaction `TestRunner` cannot express
-//! commit ordering, so these tests build raw server state and manage their
-//! own transactions, like `tests/page.rs`'s page-create concurrency test):
-//!
-//! * `older_rerender_does_not_overwrite_newer_blocks` — a rerender job that
-//!   read revision 1 renders slowly; a save to revision 2 commits in the
-//!   meantime; the job then finishes. Its stale blocks must not win.
-//! * `overlapping_add_blocks_do_not_abort_the_writer` — two `add_blocks`
-//!   calls for the same page overlap so the second one's DELETE blocks
-//!   behind the first one's transaction. Once the first commits, the second
-//!   must still complete instead of aborting (its INSERT would otherwise
-//!   hit the `(block_type, page_id, block_index)` primary key, because its
-//!   DELETE statement's snapshot predates the winner's rows).
-//!
-//! Deferred post-commit actions (S3 cleanups of replaced objects) are not
-//! run by these tests; they drop with each test context. That only leaks
-//! unreferenced objects in the test bucket and does not affect any
-//! assertion, which all read committed rows and live objects.
-//!
-//! Run serially, like the rest of the stateful suite:
-//! `RUST_MIN_STACK=8388608 cargo test --test text_block_rerender_race -- --test-threads 1`
-
 use deepwell::api::{ServerState, build_server_state_without_workers};
 use deepwell::config::{Config, Secrets};
 use deepwell::constants::ADMIN_USER_ID;
@@ -53,12 +26,6 @@ fn err_string(error: impl std::fmt::Debug) -> String {
 
 type CtxFut<'c, T> = Pin<Box<dyn Future<Output = Result<T, String>> + Send + 'c>>;
 
-/// Runs `f` the way the JSONRPC method wrapper in `api.rs` runs a method:
-/// one transaction, committed on success and rolled back on error.
-///
-/// The only deliberate deviation is that drained post-commit actions are
-/// dropped instead of run (the drain itself is crate-private); see the
-/// module comment for why that cannot affect these tests.
 async fn transact<T, F>(state: &ServerState, f: F) -> Result<T, String>
 where
     T: Send,
@@ -101,9 +68,6 @@ struct Fixture {
     revision_id: i64,
 }
 
-/// Creates a page (committed) whose wikitext is `wikitext`, and returns its
-/// identifiers. The page is left in the shared test database, under a
-/// unique slug, like other stateful fixtures in this suite.
 async fn create_fixture_page(state: &ServerState, wikitext: String) -> Fixture {
     create_fixture_page_outcome(state, wikitext)
         .await
@@ -162,8 +126,6 @@ async fn create_fixture_page_with_slug_outcome(
     })
 }
 
-/// Reads back the content of the page's first hosted HTML block through
-/// the real read path (row lookup, then the S3 object it names).
 async fn stored_html_block(state: &ServerState, page_id: i64) -> Option<String> {
     let txn = state.database.begin().await.expect("read txn");
     let ctx = ServiceContext::new(state, &txn);
@@ -185,21 +147,10 @@ async fn stored_html_block(state: &ServerState, page_id: i64) -> Option<String> 
 async fn older_rerender_does_not_overwrite_newer_blocks() {
     let state = setup_state().await;
 
-    // The rerender job must still be working from revision 1's inputs
-    // when the small save to revision 2 commits (the F2 interleaving).
-    // Revision 1 therefore carries thousands of tiny hosted blocks:
-    // persisting them makes the job spend most of its time uploading
-    // block objects inside `add_blocks`, long after it read revision 1
-    // and well before it can commit, while revision 2 (one block)
-    // saves almost immediately.
     let mut wikitext = String::from("[[html]]OLDER-BLOCK-CONTENT[[/html]]\n");
     for _ in 0..4_000 {
         wikitext.push_str("[[html]]filler[[/html]]\n");
     }
-    // Creating the fixture uploads thousands of block objects; on a
-    // loaded box a single object-store request can time out. Fixture
-    // creation is not what is under test, so retry it with a fresh
-    // page rather than let infrastructure noise fail the test.
     let mut fixture = None;
     for attempt in 1..=3 {
         match create_fixture_page_outcome(&state, wikitext.clone()).await {
@@ -232,9 +183,6 @@ async fn older_rerender_does_not_overwrite_newer_blocks() {
         );
     }
 
-    // The rerender job for the page, run the way the method wrapper runs
-    // it: it reads the latest revision (still revision 1), renders it
-    // slowly, and only then commits.
     let job_state = state.clone();
     let job_page = fixture.page_id;
     let job = tokio::spawn(async move {
@@ -253,8 +201,6 @@ async fn older_rerender_does_not_overwrite_newer_blocks() {
         .await
     });
 
-    // Let the job read revision 1 and get into its render, then save
-    // revision 2 (small, fast) and commit it.
     let job_started = std::time::Instant::now();
     sleep(Duration::from_millis(250)).await;
     let edit_result = transact(&state, |ctx| {
@@ -288,8 +234,6 @@ async fn older_rerender_does_not_overwrite_newer_blocks() {
         "the save should have installed revision 2's block",
     );
 
-    // The stale job now finishes. Whatever it returns, its revision 1
-    // blocks must not displace revision 2's.
     let job_result = job.await.expect("rerender job task should not panic");
     eprintln!(
         "stale rerender job finished with: {job_result:?} at {:?}",
@@ -318,8 +262,6 @@ async fn overlapping_add_blocks_do_not_abort_the_writer() {
         Some("SEED-BLOCK-CONTENT"),
     );
 
-    // First writer: replaces the blocks inside its transaction and holds
-    // the result uncommitted, locking the seed rows with its DELETE.
     let txn1 = state.database.begin().await.expect("first txn");
     {
         let ctx1 = ServiceContext::new(&state, &txn1);
@@ -338,8 +280,6 @@ async fn overlapping_add_blocks_do_not_abort_the_writer() {
         .expect("first add_blocks should succeed");
     }
 
-    // Second writer: its add_blocks overlaps the first one's. Its DELETE
-    // blocks behind the first transaction's row locks.
     let overlap_state = state.clone();
     let overlap = tokio::spawn(async move {
         transact(&overlap_state, |ctx| {
@@ -362,9 +302,6 @@ async fn overlapping_add_blocks_do_not_abort_the_writer() {
         .await
     });
 
-    // Wait until the second writer is genuinely blocked on a lock held
-    // over the text_block table, so the overlap is real and not a
-    // sequential near-miss.
     let mut saw_lock_wait = false;
     for _ in 0..60 {
         let count: i64 = state
@@ -391,9 +328,6 @@ async fn overlapping_add_blocks_do_not_abort_the_writer() {
     }
     eprintln!("second writer seen blocked on a lock: {saw_lock_wait}");
 
-    // Release the first writer. The second writer's DELETE now finds the
-    // seed rows already gone; the primary key is held by the first
-    // writer's committed row at the same index.
     txn1.commit().await.expect("first txn should commit");
 
     let overlap_result = overlap.await.expect("second writer task should not panic");

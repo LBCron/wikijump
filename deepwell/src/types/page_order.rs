@@ -21,13 +21,6 @@
 use crate::models::page;
 use sea_orm::query::Order;
 
-/// Describes what order pages should be retrieved in.
-///
-/// It is composed of two components:
-/// * `column`    -- The `PageOrderColumn` describing what column to order by.
-/// * `direction` -- Whether the order should be ascending or descending. (See [`Order`])
-///
-/// [`Order`]: https://docs.rs/sea-orm/latest/sea_orm/query/enum.Order.html
 #[derive(Debug, Clone, PartialEq)]
 pub struct PageOrder {
     pub column: PageOrderColumn,
@@ -44,26 +37,18 @@ impl Default for PageOrder {
     }
 }
 
-/// Describes what column that pages should be ordered by.
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum PageOrderColumn {
-    /// Requests pages in page ID order.
-    /// This is the default.
     #[default]
     Id,
 
-    /// Requests pages in page creation order.
-    /// For most purposes this is the same as `PageOrderColumn::Id`.
     Creation,
 
-    /// Requests pages in page update order.
     Update,
 
-    /// Requests pages in page deletion order.
     Deletion,
 
-    /// Requests pages in slug order.
     Slug,
 }
 
@@ -74,7 +59,6 @@ impl PageOrderColumn {
     }
 }
 
-/// Converts a `PageOrderColumn` into the corresponding page column.
 impl From<PageOrderColumn> for page::Column {
     fn from(order: PageOrderColumn) -> page::Column {
         match order {

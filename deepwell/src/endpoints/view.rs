@@ -60,7 +60,6 @@ pub async fn site_tools_list_drafts(
     ViewService::site_tools_list_drafts(ctx, input).await
 }
 
-/// Returns relevant context for rendering a view from a processed web request.
 pub async fn preload_view(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -75,7 +74,6 @@ pub async fn preload_view(
     })
 }
 
-/// Returns common preload data plus page data for an article request.
 pub async fn article_view(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -90,7 +88,6 @@ pub async fn article_view(
     })
 }
 
-/// Returns the current fenced cache metadata for an anonymous article request.
 pub async fn article_view_cache_metadata(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -107,7 +104,6 @@ pub async fn article_view_cache_metadata(
         })
 }
 
-/// Returns relevant context for rendering a page from a processed web request.
 pub async fn page_view(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -131,7 +127,6 @@ pub async fn page_view(
     Ok(output)
 }
 
-/// Returns relevant context for rendering a user profile from a processed web request.
 pub async fn user_view(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -146,7 +141,6 @@ pub async fn user_view(
     })
 }
 
-/// Returns relevant context for rendering admin panel from a processed web request.
 pub async fn admin_view(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,

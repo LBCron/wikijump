@@ -18,11 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Utilities to help with `Debug` formatting on type definitions.
-
-/// Returns the raw pointer to the given item.
-///
-/// Used in `Debug` to emit a pointer address for the given item.
 #[inline]
 pub fn debug_pointer<T>(item: &T) -> *const () {
     item as *const T as *const ()

@@ -100,8 +100,6 @@ fn serde() {
         field: Maybe<Option<String>>,
     }
 
-    // Deserialization
-
     macro_rules! check_deser {
         ($value:expr, $expected:expr $(,)?) => {{
             let object: Object =
@@ -117,8 +115,6 @@ fn serde() {
     check_deser!(json!({}), Maybe::Unset);
     check_deser!(json!({ "field": null }), Maybe::Set(None));
     check_deser!(json!({"field": "apple"}), Maybe::Set(Some(str!("apple"))));
-
-    // Serialization
 
     macro_rules! check_ser {
         ($field:expr, $expected:expr $(,)?) => {{

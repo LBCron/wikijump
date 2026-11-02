@@ -1,5 +1,3 @@
-//! Page endpoint permission checks.
-
 use super::*;
 
 pub(super) async fn ensure_page_create_permission(
@@ -232,8 +230,6 @@ pub async fn page_edit_permission(
             .await
             .or_raise(make_error)?
     } else {
-        // Upstream #3155: with no page reference, default to the site's
-        // default page instead of failing.
         let site_id = ctx.request().site_id().or_raise(make_error)?;
         let site = SiteService::get(ctx, Reference::Id(site_id))
             .await

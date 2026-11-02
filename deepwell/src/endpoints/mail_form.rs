@@ -30,10 +30,6 @@ struct MailFormSubmitInput {
     values: HashMap<String, String>,
 }
 
-/// Submit a rendered Wikidot MailForm form: validate the values against
-/// the authored rules of the definition the `formdef` handle names and
-/// answer with Wikidot's outcome shapes. No email is ever sent; a
-/// rules-passing submission is recorded in the local no-delivery sink.
 pub async fn mail_form_submit(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,

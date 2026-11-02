@@ -18,28 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Module to implement locale fallbacks.
-//!
-//! This is different than having a list of locales and simply trying each one.
-//! Beyond that, this is another important component to finding a proper locale.
-//!
-//! Given some locale, it iterates through increasingly generic forms of it
-//! until a match can be found (or not).
-//!
-//! The order followed is:
-//! * Language, script, region, and variant (unmodified)
-//! * Language, script, and region
-//! * Language and script
-//! * Language, region, and variant
-//! * Language and region
-//! * Language only
-//!
-//! The logic here will skip a locale variant if it's already been outputted.
-//! So for a locale like `ko`, it will only emit one item, `ko`. For something like `en-CA`,
-//! it will emit `en-CA` then `en`.
-//!
-//! If `Some(_)` or `Err(_)` is returned, then iteration will end prematurely.
-
 use unic_langid::LanguageIdentifier;
 
 pub fn iterate_locale_fallbacks<F, T>(

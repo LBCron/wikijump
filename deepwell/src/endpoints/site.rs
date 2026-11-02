@@ -37,9 +37,6 @@ pub async fn site_create(
     let actor_user_id =
         MutationAuthorization::require_authenticated(ctx, "create a site")?;
 
-    // Browser creation must yield a usable site, not only a site row: the
-    // baseline role/permission graph and the creator's admin binding run in
-    // the same transaction, so a bootstrap failure rolls everything back.
     let ip_address = input.ip_address;
     let output = SiteService::create(ctx, input, Some(actor_user_id))
         .await

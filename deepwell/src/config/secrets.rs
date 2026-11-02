@@ -28,59 +28,22 @@ use std::{env, process};
 
 #[derive(Debug, Clone)]
 pub struct Secrets {
-    /// Digest of the service token required by the JSON-RPC HTTP boundary.
-    ///
-    /// Loaded from `DEEPWELL_RPC_TOKEN`; the plaintext token is not retained.
     pub rpc_token_digest: RpcTokenDigest,
 
-    /// The URL of the PostgreSQL database to connect to.
-    ///
-    /// Set using environment variable `DATABASE_URL`.
     pub database_url: String,
 
-    /// The URL of the Redis database to connect to.
-    ///
-    /// Set using environment variable `REDIS_URL`.
     pub redis_url: String,
 
-    /// The name of the S3 bucket that file blobs are kept in.
-    /// The bucket must already exist prior to program invocation.
-    ///
-    /// Set using environment variable `S3_FILES_BUCKET`.
     pub s3_files_bucket: String,
 
-    /// The name of the S3 bucket that hosted text blocks are kept in.
-    /// The bucket must already exist prior to program invocation.
-    ///
-    /// Set using environment variable `S3_TEXT_BLOCKS_BUCKET`.
     pub s3_tblocks_bucket: String,
 
-    /// The region to use for S3.
-    ///
-    /// Set using environment variable `S3_AWS_REGION` if standard,
-    /// or `S3_REGION_NAME` and `S3_CUSTOM_ENDPOINT` if custom.
     pub s3_region: Region,
 
-    /// Whether to use path style for S3.
-    ///
-    /// Set using environment variable `S3_PATH_STYLE`.
     pub s3_path_style: bool,
 
-    /// The credentials to use for S3.
-    ///
-    /// Set using environment variable `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY`.
-    ///
-    /// Alternatively you can have it read from the AWS credentials file.
-    /// The profile to read from can be set in the `AWS_PROFILE_NAME` environment variable.
     pub s3_credentials: Credentials,
 
-    /// MailCheck API key.
-    ///
-    /// **Optional**. The server will still work without an API key, but MailCheck will
-    /// heavily ratelimit you.
-    ///
-    /// * No API key: 5 requests / hour
-    /// * Free tier: 1000 requests / month
     pub mailcheck_api_key: Option<String>,
 }
 
@@ -88,7 +51,6 @@ impl Secrets {
     pub fn load() -> Self {
         dotenv().ok();
 
-        // Essentially .expect(), but allows printing the environment variable name in the message.
         macro_rules! get_env {
             ($name:expr) => {
                 match env::var($name) {
@@ -119,7 +81,6 @@ impl Secrets {
         let s3_tblocks_bucket = get_env!("S3_TEXT_BLOCKS_BUCKET");
 
         let s3_region = match env::var("S3_AWS_REGION") {
-            // Standard AWS S3 region, parse out into enum.
             Ok(value) => match value.parse() {
                 Ok(region) => region,
                 Err(error) => {
@@ -130,7 +91,6 @@ impl Secrets {
                 }
             },
 
-            // Custom region, with a specific S3 endpoint.
             Err(_) => {
                 let region = get_env!("S3_REGION_NAME");
                 let endpoint = get_env!("S3_CUSTOM_ENDPOINT");
@@ -148,8 +108,6 @@ impl Secrets {
         };
 
         let s3_credentials = {
-            // Try to read from environment
-            // Reads from S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY
             let env_creds = Credentials::from_env_specific(
                 Some("S3_ACCESS_KEY_ID"),
                 Some("S3_SECRET_ACCESS_KEY"),
@@ -160,7 +118,6 @@ impl Secrets {
             match env_creds {
                 Ok(credentials) => credentials,
                 Err(_) => {
-                    // Try to read from profile
                     let profile_name = env::var("AWS_PROFILE_NAME").ok();
                     let profile_name = profile_name.ref_map(|s| s.as_str());
 
@@ -187,7 +144,6 @@ impl Secrets {
             }
         };
 
-        // Build and return
         Secrets {
             rpc_token_digest,
             database_url,

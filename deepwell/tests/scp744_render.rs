@@ -51,10 +51,6 @@ use uuid::Uuid;
 const SITE_SLUG_PREFIX: &str = "scp744-render";
 const PAGE_SLUG: &str = "scp-744";
 
-/// (page slug, fixture file) for the whole include closure. Fixture bytes are
-/// identical to the Standing extracts; the `:scp-wiki:` site prefix is
-/// stripped at seed time so the closure resolves inside the disposable site
-/// (same include graph, same marker structure).
 const FIXTURES: &[(&str, &str)] = &[
     (
         "scp-744",
@@ -154,8 +150,6 @@ const FIXTURES: &[(&str, &str)] = &[
     ),
 ];
 
-/// The 17 tags on the Standing scp-744 revision (tag-gated regions such as
-/// `[[iftags -component]]` must evaluate exactly as in production).
 const PAGE_TAGS: &[&str] = &[
     "_cc",
     "_licensebox",
@@ -217,7 +211,6 @@ async fn scp744_full_closure_render_keeps_article_body() {
         ..Default::default()
     });
 
-    // Explicit edit/view rights for the rerender + compiled read below.
     let role = RoleService::create(
         runner.context(),
         InternalCreateRoleInput {
@@ -275,11 +268,6 @@ async fn scp744_full_closure_render_keeps_article_body() {
     .await
     .expect("admin should receive the reproduction role");
 
-    // Mirror the production seeder (deepwell/seeder/roles.json): nested
-    // include fetches authorize as anonymous (user_id None), which only
-    // holds view rights through the virtual anonymous/guest/everyone roles.
-    // A bare SiteService::create site has none of these, so without them
-    // every include fails closed with "does not exist".
     for virtual_role in ["anonymous", "guest", "everyone"] {
         let virtual_role_id = RoleService::create(
             runner.context(),
@@ -317,8 +305,6 @@ async fn scp744_full_closure_render_keeps_article_body() {
 
     let mut page_id = 0;
     for (slug, source) in FIXTURES {
-        // Same-site closure: the extracts address the shared mirror as
-        // `:scp-wiki:`; inside the disposable site the same pages are local.
         let wikitext = source.replace("[[include :scp-wiki:", "[[include ");
         let created = PageService::create(
             runner.context(),
@@ -347,8 +333,6 @@ async fn scp744_full_closure_render_keeps_article_body() {
         }
     }
 
-    // Imported rating snapshot as observed on Standing (rating 98, author
-    // MontagueETC): the ListPages authorbox and the Rate widget read it.
     let import_run_id = 900001;
     execute_sql(
         &runner,
@@ -388,10 +372,6 @@ async fn scp744_full_closure_render_keeps_article_body() {
     )
     .await;
 
-    // Every include target the closure needs must exist on the render site
-    // and be viewable by the anonymous fetcher before rendering, so a
-    // systematic seeding failure trips here instead of surfacing as
-    // error-blocks in the compiled HTML.
     for (slug, _) in FIXTURES {
         if *slug == PAGE_SLUG {
             continue;

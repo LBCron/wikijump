@@ -25,13 +25,10 @@ pub async fn echo(
     _ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<JsonValue> {
-    // Just write out whatever JSON value they put in
     let data: JsonValue = parse!(params);
     Ok(data)
 }
 
-/// Method which always returns an error.
-/// For testing.
 pub async fn yield_error(
     _ctx: &ServiceContext<'_>,
     _params: Params<'static>,

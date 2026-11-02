@@ -30,11 +30,6 @@ pub fn empty_params() -> Params<'static> {
 
 #[inline]
 pub fn make_params(value: JsonValue) -> Params<'static> {
-    // This is kind of inconvenient, converting back and forth
-    // and making multiple owned buffers, but it's okay because
-    // this is just for tests, and it's convenient that it enables
-    // use of json! in request inputs.
-
     let json = serde_json::to_string(&value).expect("Unable to emit JSON");
     let params = Params::new(Some(&json));
     params.into_owned()

@@ -308,8 +308,6 @@ async fn import_user_deleted_snapshot_clears_public_profile_without_local_accoun
     let mut deleted = import_user(user_id, &fixture, "unused");
     deleted.fetched_at += time::Duration::seconds(1);
     deleted.wikidot_user_type = ImportedUserType::Deleted;
-    // A deleted source row carries no public profile data, even if a caller
-    // accidentally supplied stale values alongside the tombstone.
     deleted.real_name = Some("Must be cleared".to_owned());
     deleted.biography = Some("Must also be cleared".to_owned());
     ImportService::add_user(runner.context(), deleted)
@@ -508,7 +506,6 @@ async fn mirror_seed_carries_source_tags_and_navigation() {
         "mirror nav:top must not fall back to generic seed navigation:\n{wikitext}",
     );
 
-    // Control: freshly created native sites keep the generic navigation.
     let native = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .expect("seeded native test site should exist");
     let native_nav = run_endpoint!(
@@ -633,8 +630,6 @@ async fn mirror_seed_prefers_source_system_pages_over_generic_seeds() {
         "mirror system:join must not carry the generic starter modules",
     );
 
-    // Second colliding slug: the source tag browser wins over the generic
-    // single-module page.
     let page_tags = run_endpoint!(
         runner,
         page_get,
@@ -673,9 +668,6 @@ async fn mirror_seed_prefers_source_system_pages_over_generic_seeds() {
         "mirror system:members must carry the source acceptance section",
     );
 
-    // Control: a fresh native site still receives the generic starter.
-    // (The `test` site intentionally seeds the invite-only variant, so the
-    // control reads the `www` platform site's generic starter instead.)
     let native = run_endpoint!(runner, site_get, json!({"site": "www"}))
         .expect("seeded native www site should exist");
     let native_join = run_endpoint!(
@@ -745,13 +737,6 @@ async fn failed_import_rolls_back_new_known_user_with_caller_transaction() {
     }
 }
 
-// --- Attachment inventory import (issue #2095) ---
-//
-// The canonical file inventory and the materialized blobs must derive from
-// one source of truth: ImportService::add_file stages content-addressed bytes
-// and the file/file-revision rows from the same snapshot, and
-// verify_page_files rejects any split-brain state between them.
-
 // Source attachment modification time from the sealed issue evidence:
 // WDFiles reports scp-9506/weathermap.gif at Mon, 20 Apr 2026 21:35:49 GMT.
 fn source_attachment_time() -> OffsetDateTime {
@@ -809,8 +794,6 @@ fn verify_input(
 }
 
 async fn import_attachment_page(runner: &mut TestRunner, tag: &Uuid) -> (i64, i64) {
-    // Fixture pages come through the page importer itself, so they carry
-    // source provenance natively and no test-side flag flip is needed.
     let site_id = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .unwrap()
         .site
@@ -953,8 +936,6 @@ async fn import_file_materializes_source_attachment_with_provenance() {
     )
     .await
     .expect("latest revision lookup should succeed");
-    // Provenance must record the source uploader and source time, not the
-    // synthetic import actor or the materialization time.
     assert_eq!(revision.user_id, uploader);
     assert_ne!(revision.user_id, ADMIN_USER_ID);
     assert_eq!(revision.created_at, source_attachment_time());
@@ -963,8 +944,6 @@ async fn import_file_materializes_source_attachment_with_provenance() {
     assert_eq!(revision.s3_hash, sha512_hash(&data).to_vec());
     assert!(!revision.mime.is_empty());
 
-    // The Files surface reads the same canonical rows, so the imported
-    // attachment must be listed there.
     let visible = FileService::get_visible_rows(runner.context(), site_id, page_id, 100)
         .await
         .expect("visible file rows should load")
@@ -1011,8 +990,6 @@ async fn import_file_rejects_metadata_mismatching_materialized_bytes() {
         .expect_err("metadata disagreeing with staged bytes must fail");
     assert_contains_error!(error, ErrorType::DatabaseImport);
 
-    // Neither failed import may leave a relation behind, and since
-    // validation runs before staging, no bytes may be staged either.
     assert_eq!(file_row_count(&runner, page_id).await, 0);
     assert_blob_absent(&runner, &hash_hex).await;
 }
@@ -1183,7 +1160,6 @@ async fn import_file_delete_tombstones_source_and_spares_local_files() {
     assert_eq!(tombstone.user_id, uploader);
     assert_eq!(tombstone.created_at, deleted_at);
 
-    // Deleting again converges on the existing tombstone.
     let revisions_before = file_revision_count(&runner, imported.file_id).await;
     let repeated = ImportService::delete_file(
         runner.context(),
@@ -1205,7 +1181,6 @@ async fn import_file_delete_tombstones_source_and_spares_local_files() {
         revisions_before
     );
 
-    // Local-origin files are never source deletions.
     let error = ImportService::delete_file(
         runner.context(),
         ImportFileDelete {
@@ -1228,7 +1203,6 @@ async fn import_file_delete_tombstones_source_and_spares_local_files() {
         .expect("local-origin file should remain");
     assert!(local.deleted_at.is_none());
 
-    // Deleting a name that was never a source attachment fails closed.
     let error = ImportService::delete_file(
         runner.context(),
         ImportFileDelete {
@@ -1245,8 +1219,6 @@ async fn import_file_delete_tombstones_source_and_spares_local_files() {
     .expect_err("deleting an unknown source name must fail");
     assert_contains_error!(error, ErrorType::DatabaseImport);
 
-    // With the source attachment gone, the empty source inventory verifies
-    // while the local-origin addition remains.
     ImportService::verify_page_files(
         runner.context(),
         verify_input(site_id, page_id, &[]),
@@ -1280,8 +1252,6 @@ async fn verify_page_files_ignores_local_origin_additions() {
     .expect("source attachment should import");
     insert_local_origin_file(&runner, site_id, page_id, "SCP.txt").await;
 
-    // The source-equivalent inventory lists only the source attachment; the
-    // local scaffolding file must not fail source verification.
     let verified = ImportService::verify_page_files(
         runner.context(),
         verify_input(site_id, page_id, &[("800px-SCP002-new.jpg", &data)]),
@@ -1301,9 +1271,6 @@ async fn verify_page_files_rejects_missing_relation_despite_staged_bytes() {
     let data = source_bytes(&tag, "orphan");
     let hash_hex = blob_hash_to_hex(&sha512_hash(&data)).to_string();
 
-    // Stage the bytes in storage without creating any canonical relation,
-    // the split-brain shape where the Files pane says "No files" for served
-    // bytes.
     runner
         .state()
         .s3_files_bucket
@@ -1338,7 +1305,6 @@ async fn verify_page_files_rejects_relation_without_blob() {
     .await
     .expect("source attachment should import");
 
-    // Remove the materialized bytes while keeping the relation.
     runner
         .state()
         .s3_files_bucket
@@ -1410,8 +1376,6 @@ async fn import_file_reimport_corrects_provenance_without_new_revision() {
     .await
     .expect("first import should succeed");
 
-    // Same bytes with corrected provenance: no new revision, same rows,
-    // corrected uploader/timestamp/comments in place.
     let mut corrected = import_file_input(
         site_id,
         page_id,
@@ -1446,7 +1410,6 @@ async fn import_file_reimport_corrects_provenance_without_new_revision() {
         .expect("file row should exist");
     assert_eq!(file.created_at, corrected_at);
 
-    // Re-importing the corrected snapshot is now a pure no-op.
     let mut converged = import_file_input(
         site_id,
         page_id,
@@ -1496,7 +1459,6 @@ async fn import_file_readd_revives_tombstoned_row() {
     .await
     .expect("source deletion should import");
 
-    // Re-adding identical bytes revives the same row: no fork, history kept.
     let revived = ImportService::add_file(
         runner.context(),
         import_file_input(site_id, page_id, "revived.jpg", data.clone(), uploader),
@@ -1517,8 +1479,6 @@ async fn import_file_readd_revives_tombstoned_row() {
     assert_eq!(latest.revision_type, FileRevisionType::Undelete);
     assert_eq!(latest.revision_number, 2);
 
-    // Re-adding changed bytes after another delete appends one replacement
-    // revision on the same revived row.
     ImportService::delete_file(
         runner.context(),
         ImportFileDelete {
@@ -1613,7 +1573,6 @@ async fn import_file_requires_imported_parent_page() {
         site_id: Some(site_id),
         ..Default::default()
     });
-    // A native page: created through authoring, never flagged as imported.
     let page = run_endpoint!(
         runner,
         page_create,
@@ -1662,8 +1621,6 @@ async fn verify_page_files_tolerates_unnormalized_snapshot_names() {
     .await
     .expect("source attachment should import");
 
-    // Snapshot padding that the row lookup tolerates must not false-fail
-    // the extraneous sweep.
     let verified = ImportService::verify_page_files(
         runner.context(),
         verify_input(site_id, page_id, &[("  padded.jpg  ", &data)]),
@@ -1677,9 +1634,6 @@ async fn verify_page_files_tolerates_unnormalized_snapshot_names() {
 
 #[tokio::test]
 async fn import_page_records_page_meta_tags() {
-    // Issue #2089: per-page source `<META>` tags (description, social
-    // fields) must land in the page-meta-tag service on import, so the
-    // head projection has page-scoped values to emit.
     let runner = TestRunner::setup().await;
     let site_id = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .unwrap()
@@ -1736,9 +1690,6 @@ async fn import_page_records_page_meta_tags() {
 
 #[tokio::test]
 async fn import_site_records_site_meta_tags_for_its_pages() {
-    // Issue #2089: site-wide source defaults must apply to the site's
-    // pages through the same service, with page tags overriding same-named
-    // site tags.
     let runner = TestRunner::setup().await;
     let site_id = 3_100_000_011;
     ImportService::add_site(
@@ -1812,10 +1763,6 @@ async fn import_site_records_site_meta_tags_for_its_pages() {
 
 #[tokio::test]
 async fn mirror_scope_record_coexists_with_page_import() {
-    // Issue #2085: the per-site scope record shares the site row with
-    // imported pages. Importing a page must neither require nor disturb
-    // the scope row, and consumed-slug memory must survive alongside
-    // import writes.
     let runner = TestRunner::setup().await;
     let site_id = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .unwrap()
@@ -1885,8 +1832,6 @@ async fn mirror_scope_record_coexists_with_page_import() {
 
 #[tokio::test]
 async fn mirror_scope_set_fails_closed_for_unknown_site() {
-    // Issue #2085: scope describes a real site; recording scope for a
-    // dangling ID must fail instead of inserting an orphan row.
     let runner = TestRunner::setup().await;
 
     let error = MirrorScopeService::set(
@@ -1941,8 +1886,6 @@ fn promote(
 fn full_profile(fixture: &str) -> ObservedUserProfile {
     ObservedUserProfile {
         created_at: OffsetDateTime::UNIX_EPOCH,
-        // The wikidot_user table requires created_at < fetched_at;
-        // a real snapshot is always fetched after the account creation.
         fetched_at: Some(OffsetDateTime::UNIX_EPOCH + time::Duration::seconds(1)),
         avatar_uploaded_blob_id: None,
         real_name: Some(format!("Real {fixture}")),
@@ -2012,8 +1955,6 @@ async fn promote_observation_without_profile_banks_and_reports_gap() {
         ["created_at", "karma", "is_pro"].map(str::to_owned)
     );
 
-    // The stable source ID is banked for foreign keys, but no profile row
-    // is fabricated.
     assert!(
         KnownUser::find_by_id(i64::from(user_id))
             .one(runner.context().transaction())
@@ -2030,7 +1971,6 @@ async fn promote_observation_without_profile_banks_and_reports_gap() {
             .is_none(),
     );
 
-    // Repeating the same observation is idempotent, not a duplicate.
     let repeat = ImportService::promote_observed_identity(
         runner.context(),
         promote(user_id, &fixture, "gap", None),
@@ -2068,8 +2008,6 @@ async fn promote_observation_with_profile_materializes_row() {
     assert!(!row.is_pro);
     assert!(!row.is_deleted);
 
-    // Promoting the same snapshot again refreshes without reporting a
-    // promotion.
     let refresh = ImportService::promote_observed_identity(
         runner.context(),
         promote(user_id, &fixture, "full", Some(full_profile(&fixture))),
@@ -2092,8 +2030,6 @@ async fn promote_contradicting_observation_fails_closed() {
     .await
     .expect("first observation should bank");
 
-    // Same source ID, different display identity, no profile evidence:
-    // a contradiction, not rename evidence.
     let mut second = promote(user_id, &fixture, "second", None);
     second.name = format!("Renamed {fixture}");
     second.slug = format!("renamed-{fixture}");
@@ -2101,7 +2037,6 @@ async fn promote_contradicting_observation_fails_closed() {
         .await
         .expect_err("contradicting observation should fail closed");
 
-    // Nothing extra was banked and no profile row appeared.
     assert_eq!(observation_count(&runner, user_id).await, 1);
     assert!(
         WikidotUser::find_by_id(user_id)
@@ -2143,7 +2078,6 @@ async fn promote_observation_matching_other_identity_slug_fails() {
     .await
     .expect("first identity should import");
 
-    // A different source ID claiming the same slug is never merged.
     let mut claimed = promote(second_id, &fixture, "claim", None);
     claimed.name = format!("Promoted owner {fixture}");
     claimed.slug = format!("promoted-owner-{fixture}");
@@ -2225,7 +2159,6 @@ async fn promote_observation_for_deleted_identity_reports_gap() {
     .await
     .expect("deleted snapshot should tombstone");
 
-    // An observation alone never revives a tombstone.
     let output = ImportService::promote_observed_identity(
         runner.context(),
         promote(user_id, &fixture, "deleted", None),
@@ -2244,8 +2177,6 @@ async fn native_placeholder_slug_does_not_shadow_imported_identity() {
     let runner = TestRunner::setup().await;
     let (user_id, _, fixture) = identity_ids();
 
-    // Mirror repair residue: a system placeholder carrying the source
-    // author's slug (Standing user rows -20/-21 pattern).
     let placeholder = UserService::create(
         runner.context(),
         CreateUser {
@@ -2446,9 +2377,6 @@ async fn import_site_roster_syncs_members_roles_and_master_admin() {
     assert_eq!(out.roles_assigned, 2);
     assert!(out.master_admin_set);
 
-    // Relations carry the source join time; roles landed; the master
-    // admin is set; and no local account exists for any imported
-    // identity (they must stay non-authenticatable).
     for user_id in [member_id, mod_id, admin_id] {
         let relations =
             active_member_relations(&runner, site_id, i64::from(user_id)).await;
@@ -2478,7 +2406,6 @@ async fn import_site_roster_syncs_members_roles_and_master_admin() {
         .expect("site should exist");
     assert_eq!(site.master_admin_user_id, Some(i64::from(admin_id)));
 
-    // An identical re-sync is a no-op.
     let snapshot2 = roster(vec![
         ImportSiteMember {
             user_id: member_id,
@@ -2506,8 +2433,6 @@ async fn import_site_roster_syncs_members_roles_and_master_admin() {
     assert_eq!(out.roles_removed, 0);
     assert!(!out.master_admin_set);
 
-    // Re-sync with the moderator gone, the admin demoted to a plain
-    // member, and the member's join time corrected.
     let joined_later = joined + time::Duration::days(10);
     let snapshot3 = roster(vec![
         ImportSiteMember {
@@ -2558,7 +2483,6 @@ async fn import_site_roster_syncs_members_roles_and_master_admin() {
 #[tokio::test]
 async fn import_site_roster_rejects_non_imported_site() {
     let runner = TestRunner::setup().await;
-    // Site 6000000 is the seeded local www site (not from Wikidot).
     let result = ImportService::sync_site_roster(
         runner.context(),
         ImportSiteRoster {
@@ -2677,8 +2601,6 @@ fn import_idempotency_revision(
 }
 
 async fn import_idempotency_author(runner: &TestRunner) -> i64 {
-    // page_revision.user_id references known_user, so the revision author
-    // must exist as an imported identity first.
     let (user_id, _, fixture) = fixture_ids();
     ImportService::add_user(
         runner.context(),
@@ -2715,11 +2637,6 @@ async fn import_idempotency_current(
 
 #[tokio::test]
 async fn import_page_reimport_identical_snapshot_fails_closed_without_changing_state() {
-    // Refs #2083 item 4: re-running an import over an already-imported
-    // source page must neither duplicate rows nor restore generic seed
-    // content. Deepwell fails the conflicting create closed (the operator
-    // tool reconciles via its adopt/skip/replace flags); this test pins
-    // the fail-closed half: state is byte-identical afterwards.
     let runner = TestRunner::setup().await;
     let site_id = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .unwrap()
@@ -2752,10 +2669,6 @@ async fn import_page_reimport_identical_snapshot_fails_closed_without_changing_s
     .await
     .expect("source revision should import");
 
-    // Identical retry with the same stable page ID fails closed. The
-    // conflicting write aborts only its savepoint (repo savepoint idiom),
-    // so the outer transaction stays usable for the unchanged-state
-    // assertions below.
     let transaction = runner
         .context()
         .transaction()
@@ -2774,7 +2687,6 @@ async fn import_page_reimport_identical_snapshot_fails_closed_without_changing_s
         .await
         .expect("re-import savepoint should roll back");
 
-    // Same slug under a fresh stable ID also fails: never a duplicate row.
     let transaction = runner
         .context()
         .transaction()
@@ -2793,7 +2705,6 @@ async fn import_page_reimport_identical_snapshot_fails_closed_without_changing_s
         .await
         .expect("colliding re-import savepoint should roll back");
 
-    // State unchanged: one page row, one revision, source content intact.
     assert_eq!(imported_page_count(&runner, site_id, slug).await, 1);
     assert_eq!(imported_revision_count(&runner, page_id).await, 1);
     let (title, tags, wikitext) =
@@ -2814,9 +2725,6 @@ async fn import_page_reimport_identical_snapshot_fails_closed_without_changing_s
 
 #[tokio::test]
 async fn import_page_source_update_appends_single_deterministic_revision() {
-    // Refs #2083 item 5: a source update re-imports as exactly one new
-    // revision — the next number is enforced, so refresh is deterministic
-    // rather than a duplicate page or seed/import revision pile-up.
     let runner = TestRunner::setup().await;
     let site_id = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .unwrap()
@@ -2867,7 +2775,6 @@ async fn import_page_source_update_appends_single_deterministic_revision() {
     .expect("source update should import");
     assert_eq!(output.page_revision_number, 1);
 
-    // Skipping a revision number is rejected: the sequence is deterministic.
     let error = ImportService::add_page_revision(
         runner.context(),
         import_idempotency_revision(ImportIdempotencyRevision {
@@ -2886,7 +2793,6 @@ async fn import_page_source_update_appends_single_deterministic_revision() {
     .expect_err("out-of-sequence source revision must fail closed");
     assert_contains_error!(error, ErrorType::DatabaseImport);
 
-    // Exactly one page row, exactly two revisions, latest content wins.
     assert_eq!(imported_page_count(&runner, site_id, slug).await, 1);
     assert_eq!(imported_revision_count(&runner, page_id).await, 2);
     let (title, tags, wikitext) =
@@ -2947,10 +2853,6 @@ async fn stored_revision(
 
 #[tokio::test]
 async fn import_revision_queues_deferred_rerender_for_includers() {
-    // Refs #2076: importing a revision of a page must not re-render its
-    // includers inside the import request. Imported followups outdate one
-    // rerender depth deeper than interactive edits, so includers are
-    // queued as background rerender jobs instead.
     let namespace = format!("import-fanout-{}", std::process::id());
     let runner = TestRunner::setup_with_job_queue_namespace(&namespace).await;
     let site_id = run_endpoint!(runner, site_get, json!({"site": "test"}))
@@ -2959,7 +2861,6 @@ async fn import_revision_queues_deferred_rerender_for_includers() {
         .site_id;
     let author_id = import_idempotency_author(&runner).await;
 
-    // The included component.
     let component_slug = "import-fanout-component";
     let component_page_id = 3_260_000_031;
     ImportService::add_page(
@@ -2985,7 +2886,6 @@ async fn import_revision_queues_deferred_rerender_for_includers() {
     .await
     .expect("component revision should import");
 
-    // A page that includes the component.
     let includer_slug = "import-fanout-includer";
     let includer_page_id = 3_260_000_032;
     let includer_revision_id = 4_260_000_032;
@@ -3012,8 +2912,6 @@ async fn import_revision_queues_deferred_rerender_for_includers() {
     .await
     .expect("includer revision should import");
 
-    // Flush the setup imports' deferred work and empty the job queue, so
-    // only the second component revision's effects are measured below.
     runner
         .context()
         .run_post_commit_actions()
@@ -3024,7 +2922,6 @@ async fn import_revision_queues_deferred_rerender_for_includers() {
         .await
         .compiled_at;
 
-    // Import a new revision of the component.
     ImportService::add_page_revision(
         runner.context(),
         import_idempotency_revision(ImportIdempotencyRevision {
@@ -3042,8 +2939,6 @@ async fn import_revision_queues_deferred_rerender_for_includers() {
     .await
     .expect("component update should import");
 
-    // The import itself sends nothing to the job queue: dependent
-    // rerenders exist only as post-commit actions until the request ends.
     assert_eq!(queued_job_messages(&runner).await, 0);
 
     runner
@@ -3052,8 +2947,6 @@ async fn import_revision_queues_deferred_rerender_for_includers() {
         .await
         .expect("import post-commit actions should run");
 
-    // The includer was not re-rendered inline: its stored render is still
-    // the one produced by its own import.
     assert_eq!(
         stored_revision(&runner, includer_revision_id)
             .await
@@ -3062,7 +2955,6 @@ async fn import_revision_queues_deferred_rerender_for_includers() {
         "importing a component revision must not re-render its includers inline",
     );
 
-    // Instead, a deferred rerender job names the includer.
     let jobs = drain_queued_jobs(&runner).await;
     assert!(
         jobs.iter().any(|job| matches!(
@@ -3156,14 +3048,10 @@ async fn import_anonymous_first_revision_displays_with_masked_ip() {
     .await
     .expect("anonymous-authored revision should import");
 
-    // The revision is attributed to the dedicated Anonymous identity and
-    // carries its own masked IP.
     let stored = stored_imported_revision(&runner, 4_270_000_021).await;
     assert_eq!(stored.user_id, ANONYMOUS_USER_ID);
     assert_eq!(stored.anonymous_author_ip.as_deref(), Some("67.142.130.x"));
 
-    // That identity resolves to the platform's Anonymous pseudo-user,
-    // never to a real account.
     let identity =
         UserService::get_optional(runner.context(), Reference::Id(ANONYMOUS_USER_ID))
             .await
@@ -3173,8 +3061,6 @@ async fn import_anonymous_first_revision_displays_with_masked_ip() {
     assert_eq!(identity.user_name.as_ref(), "Anonymous");
     assert_eq!(identity.user_slug.as_ref(), "anonymous");
 
-    // The revision history endpoint presents the author the way Wikidot
-    // does: the Anonymous name plus this revision's masked IP.
     let revisions = run_endpoint!(
         runner,
         page_revision_range,
@@ -3199,9 +3085,6 @@ async fn import_anonymous_first_revision_displays_with_masked_ip() {
 
 #[tokio::test]
 async fn import_mixed_history_attributes_anonymous_revisions() {
-    // The scp-002 shape: an imported page whose history mixes a real
-    // Wikidot author with anonymous revisions, each anonymous revision
-    // carrying its own masked IP.
     let runner = TestRunner::setup().await;
     let site_id = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .unwrap()
@@ -3283,8 +3166,6 @@ async fn import_mixed_history_attributes_anonymous_revisions() {
     assert_eq!(third.revision_type, PageRevisionType::Rollback);
     assert_eq!(third.anonymous_author_ip.as_deref(), Some("65.26.177.x"));
 
-    // History comes back newest-first; each anonymous revision displays
-    // with its own IP, and the attributed revision keeps its author.
     let revisions = run_endpoint!(
         runner,
         page_revision_range,
@@ -3324,9 +3205,6 @@ async fn import_mixed_history_attributes_anonymous_revisions() {
 
 #[tokio::test]
 async fn import_revision_rejects_anonymous_ip_with_real_author() {
-    // The masked IP is part of an anonymous attribution only; a payload
-    // that pairs it with a real author ID has inconsistent provenance
-    // and must fail closed rather than guess.
     let runner = TestRunner::setup().await;
     let site_id = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .unwrap()
@@ -3382,9 +3260,6 @@ async fn page_scope_meta_tags(
 
 #[tokio::test]
 async fn import_page_meta_tags_replace_semantics() {
-    // Refs #2089: the meta-tag import is authoritative for the page's
-    // scope — a re-import with a changed source set converges (updates,
-    // additions, removals) instead of accumulating stale tags.
     let runner = TestRunner::setup().await;
     let site_id = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .unwrap()
@@ -3421,9 +3296,6 @@ async fn import_page_meta_tags_replace_semantics() {
     let stored = page_scope_meta_tags(&runner, site_id, page_id).await;
     assert_eq!(stored.len(), 2);
 
-    // Changed set: og:title updated, og:description dropped, twitter:card
-    // added. Removal is pair-precise, so both the dropped og:description
-    // pair and the superseded og:title pair count as removed.
     let output = ImportService::add_page_meta_tags(
         runner.context(),
         ImportPageMetaTags {
@@ -3445,8 +3317,6 @@ async fn import_page_meta_tags_replace_semantics() {
     assert_eq!(stored[0].content, "Source Title v2");
     assert_eq!(stored[1].name, "twitter:card");
 
-    // The same name with different content is a legitimate multi-valued
-    // tag: both pairs are stored, replacing the previous pairs.
     let output = ImportService::add_page_meta_tags(
         runner.context(),
         ImportPageMetaTags {
@@ -3462,7 +3332,6 @@ async fn import_page_meta_tags_replace_semantics() {
     assert_eq!(stored.len(), 2);
     assert!(stored.iter().all(|tag| tag.name == "og:title"));
 
-    // An exact duplicate (name, content) pair in one payload is rejected.
     let error = ImportService::add_page_meta_tags(
         runner.context(),
         ImportPageMetaTags {
@@ -3475,8 +3344,6 @@ async fn import_page_meta_tags_replace_semantics() {
     .expect_err("duplicate meta tag pairs must fail");
     assert_contains_error!(error, ErrorType::DatabaseImport);
 
-    // og:locale:alternate arrives as repeated pairs and converges on
-    // re-import (the #2089 rollout shape).
     let locale_tags = vec![
         tag("og:locale", "en_US"),
         tag("og:locale:alternate", "en_GB"),
@@ -3507,7 +3374,6 @@ async fn import_page_meta_tags_replace_semantics() {
     let stored = page_scope_meta_tags(&runner, site_id, page_id).await;
     assert_eq!(stored.len(), 3);
 
-    // A page that is not an imported Wikidot page is rejected.
     let error = ImportService::add_page_meta_tags(
         runner.context(),
         ImportPageMetaTags {

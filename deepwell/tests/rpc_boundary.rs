@@ -296,10 +296,6 @@ async fn rpc_request_with_session(
     response
 }
 
-/// A request that fails for an internal reason must roll back every write it
-/// performed, even though a terminal MFA rejection is allowed to commit. The
-/// production RPC wrapper owns that decision, so the boundary is proved here
-/// rather than through a direct endpoint call.
 #[tokio::test]
 async fn production_rpc_stack_rolls_back_internal_failure_writes() {
     let state = build_server_state_without_workers(
@@ -309,8 +305,6 @@ async fn production_rpc_stack_rolls_back_internal_failure_writes() {
     .await
     .expect("Unable to set up server state");
 
-    // A platform-staff session authorizes the privileged creation path that
-    // inserts a known_user placeholder before its remaining validation runs.
     let session_token = {
         let txn = state
             .database
@@ -335,8 +329,6 @@ async fn production_rpc_stack_rolls_back_internal_failure_writes() {
         token
     };
 
-    // Unique per run so a committed placeholder from a previous run cannot make
-    // the probe take the "already exists" branch before its validation.
     let probe_id = 1_000_000_000_i64
         + (SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -389,8 +381,6 @@ async fn production_rpc_stack_rolls_back_internal_failure_writes() {
         "an internal failure must roll back the known_user placeholder insert",
     );
 
-    // Best-effort cleanup so repeated runs in the shared task-owned database
-    // never observe a leftover placeholder or probe session.
     state
         .database
         .execute_unprepared(&format!(
@@ -408,10 +398,6 @@ async fn production_rpc_stack_rolls_back_internal_failure_writes() {
         .ok();
 }
 
-/// The terminal MFA rejection is the one error path that must commit: the
-/// restricted session's failed-attempt counter has to survive the rejected
-/// request. The production RPC wrapper owns that decision, so the boundary is
-/// proved here rather than through a direct endpoint call.
 #[tokio::test]
 async fn production_rpc_stack_commits_terminal_mfa_rejection_state() {
     let state = build_server_state_without_workers(
@@ -499,7 +485,6 @@ async fn production_rpc_stack_commits_terminal_mfa_rejection_state() {
         .expect("MFA login should return a restricted session token")
         .to_owned();
 
-    // Build a code that is certainly wrong for the current time step.
     let secret_bytes = BASE32_NOPAD
         .decode(secret.as_bytes())
         .expect("generated TOTP secret should be valid base32");
@@ -563,7 +548,6 @@ async fn production_rpc_stack_commits_terminal_mfa_rejection_state() {
         "a terminal MFA rejection must persist the failed-attempt counter",
     );
 
-    // Spend the remaining account-wide budget on this restricted session.
     for _ in 0..4 {
         let rejected = rpc_request(
             "mfa_verify",
@@ -582,8 +566,6 @@ async fn production_rpc_stack_commits_terminal_mfa_rejection_state() {
         );
     }
 
-    // A new password-authenticated session must not reset the user-wide MFA
-    // failure budget, even when the submitted TOTP is valid.
     let fresh_login = rpc_request(
         "login",
         json!({
@@ -614,7 +596,6 @@ async fn production_rpc_stack_commits_terminal_mfa_rejection_state() {
         "a new restricted session must not restore the MFA guess budget: {fresh_rejected}",
     );
 
-    // Best-effort cleanup for repeated runs in the shared task-owned database.
     let login_ip_bucket = AuthenticationAttemptService::login_ip_bucket("192.0.2.1");
     for statement in [
         format!("DELETE FROM session WHERE user_id = {user_id}"),
@@ -853,7 +834,6 @@ async fn production_rpc_serializes_recovery_code_use_across_sessions() {
         "a recovery code must authenticate exactly one concurrent session: {first}, {second}",
     );
 
-    // Best-effort cleanup for repeated runs in the shared task-owned database.
     let login_ip_bucket = AuthenticationAttemptService::login_ip_bucket(ip_address);
     for statement in [
         format!(

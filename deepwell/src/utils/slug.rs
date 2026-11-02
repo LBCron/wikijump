@@ -21,9 +21,6 @@
 use crate::utils::replace_in_place;
 use wikidot_normalize::normalize;
 
-/// Normalize a name to a slug. Does not preseve `:`.
-///
-/// Meant for use in sites and users.
 pub fn normalize_slug_without_category_separator<S: Into<String>>(name: S) -> String {
     let mut slug = name.into();
     replace_in_place(&mut slug, ":", "-");
@@ -31,7 +28,6 @@ pub fn normalize_slug_without_category_separator<S: Into<String>>(name: S) -> St
     slug
 }
 
-/// Normalize a name to a slug.
 pub fn normalize_page_slug<S: Into<String>>(name: S) -> String {
     let mut slug = name.into();
     normalize(&mut slug);

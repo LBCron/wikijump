@@ -162,9 +162,6 @@ struct PageWhoRatedInput {
 #[derive(Clone, Debug, Serialize)]
 pub struct PageWhoRatedVote {
     pub user_id: i64,
-    /// The voter's public identity, or `None` when the account is
-    /// deleted: Wikidot renders those rows as "(account deleted)"
-    /// placeholders keyed by the raw user ID.
     pub user: Option<UserInfo<'static>>,
     pub value: i16,
 }
@@ -230,8 +227,6 @@ pub async fn wikidot_page_preview(
             &output.html_output.resource_requirements,
         )
         .browser_actions_for_wikidot_html(&output.html_output.body),
-        // Preview reproduces the exact control DOM but has no immutable saved
-        // page revision to authorize a membership transition against.
         membership_actions: Vec::new(),
         body: output.html_output.body,
         styles: output.html_output.styles,
@@ -623,9 +618,6 @@ pub async fn wikidot_forum_feed(
             );
         }
     };
-    // The scoped Wikidot routes name exactly one forum object; a request that
-    // names none or more than one of them is a malformed feed path, not a
-    // site-wide feed.
     let scope = match (input.category_id, input.thread_id) {
         (None, None) => WikidotForumFeedScope::Site,
         (Some(category_id), None) => WikidotForumFeedScope::Category(category_id),
@@ -831,7 +823,6 @@ pub async fn page_create(
         .or_raise(|| Error::new("failed to create page", ErrorType::Page))
 }
 
-/// Persist the observed full-page editor draft state for the current actor.
 pub async fn page_draft_save(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -843,7 +834,6 @@ pub async fn page_draft_save(
         .or_raise(|| Error::new("failed to save page draft", ErrorType::Page))
 }
 
-/// Return whether the current actor owns the exact observed draft identity.
 pub async fn page_draft_exists(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -854,7 +844,6 @@ pub async fn page_draft_exists(
         .or_raise(|| Error::new("failed to check page draft", ErrorType::Page))
 }
 
-/// Remove the current actor's exact observed draft identity.
 pub async fn page_draft_remove(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -932,12 +921,6 @@ pub async fn page_get(
     }
 }
 
-/// Returns whether the current request may view a page reference.
-///
-/// Unlike `page_get`, this endpoint intentionally exposes no page metadata and
-/// treats a missing or hidden page as the same negative result. It is used by
-/// public helper routes that must distinguish an existing target only after
-/// applying the normal page-view permission boundary.
 pub async fn page_view_permission(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -966,12 +949,6 @@ pub async fn page_view_permission(
         })
 }
 
-/// Return display-name-only lifecycle identities for a viewable page.
-///
-/// Missing and hidden pages share the same null result. Identity resolution
-/// happens only after the normal page-view permission check, and unavailable
-/// identities remain null inside the projection rather than falling back to
-/// internal IDs or slugs.
 pub async fn page_lifecycle_identity(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -1085,9 +1062,6 @@ pub async fn page_who_rated(
         .or_raise(make_error)?;
     let mut output = Vec::with_capacity(votes.len());
     for vote in votes {
-        // A never-imported identity (e.g. only a known-user
-        // observation) is absent from the map and fails the whole
-        // list closed, rather than silently dropping a voter.
         let Some(user) = resolved.remove(&vote.user_id) else {
             return Err(make_error().into());
         };

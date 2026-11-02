@@ -235,11 +235,6 @@ async fn syntax_preview_preserves_other_delayed_fixture_shapes() {
     }
 }
 
-/// Reassigns a page's creating revision to another user.
-///
-/// Page creation is permission-checked against the request actor, so a fixture
-/// needing two distinct authors sets the stored author directly rather than
-/// granting create rights to a second account.
 async fn set_page_creating_user(runner: &TestRunner, page_id: i64, user_id: i64) {
     let transaction = runner.context().transaction();
     let statement = Statement::from_string(
@@ -1571,9 +1566,6 @@ async fn countpages_all_categories_unfiltered_expands_to_exact_count() {
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
 
-    // The shape the imported JP system pages use on system:list-all-pages:
-    // the category selector falls back to all categories, there is no
-    // static filter, and there is no explicit bound.
     let source = "[[module CountPages separate=\"@URL\" category=\"@URL|*\"]]TOTAL=%%total%%[[/module]]";
     let total_before = render_countpages_preview_total(
         &runner,
@@ -1645,8 +1637,6 @@ async fn countpages_all_categories_with_offset_remains_literal() {
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
 
-    // An offset is a post-query adjustment, so the exact count is not
-    // eligible for this invocation and the module stays literal.
     let body = RenderService::render_wikidot_page_preview(
         runner.context(),
         site.site.site_id,
@@ -3482,8 +3472,6 @@ async fn preview_parent_modes_do_not_invent_a_current_page_relation() {
 
 #[tokio::test]
 async fn listpages_total_counts_matches_beyond_the_rendered_page() {
-    // Deliberately outside the selector glob below; a source page that matched
-    // its own query would be counted among the results.
     const SOURCE_SLUG: &str = "total-window-holder";
 
     let mut runner = TestRunner::setup().await;
@@ -3976,8 +3964,6 @@ async fn created_by_exclusion_omits_the_containing_pages_author() {
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
 
-    // Both pages are created by the permitted account, then the other page's
-    // stored author is reassigned, which is what the exclusion reads.
     for (slug, author) in [(OWN_SLUG, ADMIN_USER_ID), (OTHER_SLUG, SAMPLE_USER_ID)] {
         runner.set_request_context(RequestContext {
             session: None,
@@ -4006,8 +3992,6 @@ async fn created_by_exclusion_omits_the_containing_pages_author() {
         }
     }
 
-    // The module lives on a page authored by ADMIN_USER_ID, so `-=` excludes
-    // that author's pages and keeps the other author's.
     let source = concat!(
         "[[module ListPages category=\"_default\" name=\"author-exclusion-*\" ",
         "created_by=\"-=\" separate=\"no\"]]\n",

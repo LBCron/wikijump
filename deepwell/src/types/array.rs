@@ -18,12 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Allows statically determining or comparing the length of an array.
-//!
-//! Arrays in Rust are fixed-length, essentially blocks of memory.
-//! This type enables extraction of its length value for static assetions
-//! and other const operations.
-
 pub trait ArrayLength {
     const LENGTH: usize;
 }

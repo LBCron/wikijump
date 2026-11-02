@@ -1,7 +1,3 @@
-//! `SeaORM` Entity for mirror scope and completeness records.
-//!
-//! One row per site mirrored as a compatibility mirror. See issue #2085.
-
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 

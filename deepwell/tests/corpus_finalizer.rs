@@ -18,14 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Committed corpus render-finalizer dependent coverage.
-//!
-//! Pass 2 rerenders an imported include source and outdates its dependents,
-//! which rerender immediately after the finalizer commits. A dependent whose
-//! latest revision was imported from Wikidot must render with the same corpus
-//! include ceiling the finalizer used for it in pass 1, while a locally
-//! authored dependent keeps the public safety limit.
-
 use deepwell::api::{
     ServerState, build_server_state_without_workers_with_job_queue_namespace,
     run_corpus_render_finalizer,
@@ -50,8 +42,6 @@ use uuid::Uuid;
 const TEST_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(192, 0, 2, 83));
 const LEAF_MARKER: &str = "CORPUS_CASCADE_LEAF";
 
-/// One include of the source plus this many leaf includes exceeds the public
-/// ceiling of 256 total includes but stays within the corpus ceiling.
 const DENSE_LEAF_INCLUDES: usize = 300;
 
 async fn cleanup_namespace(redis_url: &str, namespace: &str) {
@@ -108,8 +98,6 @@ async fn create_page(
     .page_id
 }
 
-/// Replace a page's latest source without rendering it, as the corpus import
-/// stores revisions before the finalizer renders them.
 async fn store_imported_source(
     ctx: &ServiceContext<'_>,
     site_id: i64,
@@ -140,10 +128,6 @@ async fn store_imported_source(
 }
 
 impl CascadeFixture {
-    /// Commit an imported include source, a leaf it shares with its
-    /// dependent, and a dependent whose stored source is denser than the
-    /// public include ceiling. The source is a rendered pass-1 item of an
-    /// import run, so pass 2 selects it for its query module.
     async fn new(namespace: &str, dependent_from_wikidot: bool) -> Self {
         let run_id = Uuid::new_v4().simple().to_string();
         let mut config = Config::integration_testing();

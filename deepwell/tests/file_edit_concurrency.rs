@@ -264,9 +264,6 @@ async fn transaction_backend_pid(transaction: &sea_orm::DatabaseTransaction) -> 
 }
 
 async fn wait_for_two_file_row_waiters(state: &ServerState, gate_pid: i32) {
-    // The gate transaction holds no lock except the unique fixture file row.
-    // Follow direct and queued blockers rooted at that backend, then accept only
-    // the two SQL shapes through which file_edit can reach the held row.
     let statement = Statement::from_sql_and_values(
         state.database.get_database_backend(),
         r#"

@@ -287,9 +287,6 @@ pub async fn vote_remove(
     Ok(vote)
 }
 
-/// Execute one renderer-issued Rate descriptor against the exact current
-/// route page and revision. The submitted index and fingerprint select a
-/// closed server registry; no client vote value is accepted.
 pub async fn wikidot_legacy_rate(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -393,7 +390,6 @@ pub async fn vote_action(
         .into());
     }
 
-    // e.g. enable or disable a vote
     let key = GetVote { page_id, user_id };
     let (page, settings) = page_rating_settings(ctx, page_id).await?;
     let rating_system = settings.rating_type.vote_store_key();

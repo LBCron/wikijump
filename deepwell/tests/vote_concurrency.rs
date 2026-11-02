@@ -18,14 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Committed two-connection vote contention coverage.
-//!
-//! The Rate mutation path serializes concurrent mutations on an exclusive
-//! page row lock. This test drives two real committed HTTP connections
-//! against one page: concurrent first votes, concurrent value changes, and
-//! concurrent cancellation must each leave exactly one current vote and an
-//! aggregate consistent with the committed winner.
-
 use deepwell::api::{
     ServerState, build_server_at,
     build_server_state_without_workers_with_job_queue_namespace,
@@ -565,9 +557,6 @@ async fn run_concurrent_vote_matrix(fixture: &VoteContentionFixture) {
     )
     .await
     .expect("public Deepwell server should start");
-    // Use independent HTTP/1 clients with no idle pooling so each pair below
-    // is an actual two-connection request race, not two futures queued on one
-    // reusable client connection.
     let clients = [contention_client(), contention_client()];
     let site_id = fixture.site_id;
     let slug = fixture.page_slug.clone();

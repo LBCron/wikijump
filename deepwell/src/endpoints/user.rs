@@ -137,10 +137,8 @@ pub async fn user_get(
         .or_raise(make_error)?;
 
     match user {
-        // No user match
         None => Ok(None),
 
-        // Fetch and populate alias data
         Some(User::Wikijump(user)) => {
             let aliases = AliasService::get_all(ctx, AliasType::User, user.user_id)
                 .await
@@ -152,7 +150,6 @@ pub async fn user_get(
             }))
         }
 
-        // Aliases aren't a thing on Wikidot user records
         Some(user) => Ok(Some(GetUserOutput {
             user,
             aliases: vec![],
@@ -179,8 +176,6 @@ pub async fn user_edit(
         target.user_id,
         "update this user",
     )?;
-    // A password set through ordinary profile editing would skip the
-    // current-password check; account holders use user_password_change.
     if actor_user_id != ADMIN_USER_ID
         && (body.email_verified.is_set() || body.bypass_filter || body.password.is_set())
     {
@@ -191,11 +186,6 @@ pub async fn user_edit(
         .into());
     }
 
-    // Changing the account email re-points password reset and recovery, so
-    // a hijacked session must not be able to do it silently: the account
-    // holder first proves the current password. Platform staff editing
-    // another account, and edits that keep the current email, need no
-    // proof. Missing and wrong proofs are indistinguishable.
     let email_changing = match &body.email {
         Maybe::Set(new_email) => {
             !new_email.trim().eq_ignore_ascii_case(target.email.trim())
@@ -272,7 +262,6 @@ pub async fn user_add_name_change(
 
     info!("Adding user name change token to {reference:?}");
 
-    // Wikidot users don't have name change tokens
     let user = UserService::get_real(ctx, reference)
         .await
         .or_raise(make_error)?;
@@ -295,12 +284,6 @@ pub struct ChangeUserPasswordOutput {
     pub other_sessions_revoked: u64,
 }
 
-/// Changes the signed-in account's own password.
-///
-/// The current password is checked under the same rate limits as a login,
-/// the new one under the account password policy, and every other session of
-/// the account is revoked, so a password change ends access obtained with the
-/// old credentials. The session making the change stays signed in.
 pub async fn user_password_change(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -340,8 +323,6 @@ pub async fn user_password_change(
         ));
     }
 
-    // Policy first: an empty password would otherwise disable the account's
-    // password login instead of being rejected.
     PasswordService::new_account_hash(&new_password)?;
 
     info!("Changing the password of user ID {}", user.user_id);

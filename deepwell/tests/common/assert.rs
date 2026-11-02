@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Functions and macros for performing assertions in tests.
-
 /// Allows for equality assertions on `Option<String>` without boilerplate.
 ///
 /// This avoids the type annoyance that comes with these two types,
@@ -61,7 +59,6 @@ macro_rules! assert_str_eq {
     }};
 }
 
-/// Asserts that a block of code panics.
 #[allow(unused_macros)]
 macro_rules! assert_panics {
     ($expr:expr) => {

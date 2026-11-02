@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Stream repository-owned syntax fixtures through the exact FTML revision pinned by Deepwell.
-
 use ftml::data::{PageInfo, ScoreValue};
 use ftml::layout::Layout;
 use ftml::render::Render;

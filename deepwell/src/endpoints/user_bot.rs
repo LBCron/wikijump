@@ -30,9 +30,6 @@ use crate::services::user::{CreateUser, CreateUserOutput, GetUser, UpdateUserBod
 use crate::types::{Maybe, Reference, UserType};
 use std::net::IpAddr;
 
-// Structs
-
-/// Input structure for creating a new bot user.
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateBotUser {
     pub name: String,
@@ -55,7 +52,6 @@ pub struct CreateBotUser {
     pub ip_address: IpAddr,
 }
 
-/// Input structure for adding new bot owners.
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateBotUserOwners {
     pub bot_user_id: i64,
@@ -98,8 +94,6 @@ async fn require_bot_owner_or_platform_staff(
     Ok(actor_user_id)
 }
 
-// Endpoints
-
 pub async fn bot_user_create(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -138,7 +132,6 @@ pub async fn bot_user_create(
     .await
     .or_raise(make_error)?;
 
-    // Create bot user
     let output = UserService::create(
         ctx,
         CreateUser {
@@ -146,7 +139,7 @@ pub async fn bot_user_create(
             name,
             email,
             locales,
-            password: String::new(), // TODO configure user-bot password
+            password: String::new(),
             bypass_filter,
             bypass_email_verification,
             override_user_id: None,
@@ -156,7 +149,6 @@ pub async fn bot_user_create(
     .await
     .or_raise(make_error)?;
 
-    // Set description, get bot user
     let bot_user_id = output.user_id;
     let bot_user = UserService::update(
         ctx,
@@ -170,11 +162,8 @@ pub async fn bot_user_create(
     .await
     .or_raise(make_error)?;
 
-    // Normalize metadata field
     RelationService::normalize_user_bot_metadata(&mut metadata);
 
-    // Add bot owners
-    // Owners must necessarily be Wikijump users
     debug!(
         "Adding human owners for bot user '{}' ({})",
         bot_user.name, bot_user_id,
@@ -217,7 +206,6 @@ pub async fn bot_user_get_owners(
         )
     };
 
-    // Bot users must necessarily be Wikijump users
     let user_bot = UserService::get_real_optional(ctx, reference)
         .await
         .or_raise(make_error)?;

@@ -706,7 +706,6 @@ async fn account_holders_change_their_password_with_the_current_one() {
         ..Default::default()
     });
 
-    // Ordinary profile editing cannot set a password without the current one.
     let edit_error = run_endpoint_err!(
         runner,
         user_edit,
@@ -757,7 +756,6 @@ async fn account_holders_change_their_password_with_the_current_one() {
     );
     assert_eq!(changed.other_sessions_revoked, 1);
 
-    // The session that changed the password stays; the other one ends.
     assert!(
         SessionService::get_optional(runner.context(), &current.session_token)
             .await
@@ -788,9 +786,6 @@ async fn account_holders_change_their_password_with_the_current_one() {
 
 #[tokio::test]
 async fn saturated_account_bucket_does_not_lock_out_correct_password() {
-    // Regression test for #2512: flooding an account with failed logins must
-    // not prevent the real holder from logging in with the correct password.
-    // A dedicated loopback IP keeps this bucket isolated from other tests.
     const LOCKOUT_TEST_IP: &str = "127.0.0.200";
 
     let runner = TestRunner::setup().await;
@@ -806,9 +801,6 @@ async fn saturated_account_bucket_does_not_lock_out_correct_password() {
         })
     };
 
-    // More failures than the 10-attempt / 600-second account bucket holds.
-    // Repeat the flood-then-success cycle to prove the account never gets
-    // stuck locked out.
     for _ in 0..2 {
         for _ in 0..11 {
             let error = run_endpoint_err!(runner, auth_login, wrong_password_params());

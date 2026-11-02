@@ -131,8 +131,6 @@ async fn page_meta_tags_support_site_and_page_round_trips() {
         ],
     );
 
-    // Meta tags are multi-valued: setting a second value under the same
-    // name adds a row instead of overwriting the first value.
     set_tag(&runner, site_id, page.page_id, "a", "updated", false).await;
     run_endpoint!(
         runner,
@@ -362,10 +360,6 @@ async fn page_editor_cannot_mutate_site_wide_meta_tags() {
     );
     assert_contains_error!(error, ErrorType::PermissionDenied);
 
-    // Anonymous direct API requests must be denied for both page-local and
-    // site-wide scope, and a denied request must leave existing metadata
-    // unchanged. This exercises the Deepwell boundary without relying on the
-    // Framerail control's client-side guard.
     runner.set_request_context(RequestContext {
         user_id: None,
         site_id: Some(site_id),
@@ -442,7 +436,6 @@ async fn page_meta_tags_allow_multiple_values_for_one_name() {
         true,
     )
     .await;
-    // Exact repeat of a stored pair: no duplicate row.
     set_tag(
         &runner,
         site_id,
@@ -468,7 +461,6 @@ async fn page_meta_tags_allow_multiple_values_for_one_name() {
         ],
     );
 
-    // Page scope is multi-valued too, and overrides the site group.
     set_tag(
         &runner,
         site_id,

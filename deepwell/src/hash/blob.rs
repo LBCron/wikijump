@@ -1,5 +1,6 @@
 /*
- * hash/blo.rs
+ * hash/blo
+.rs
  *
  * DEEPWELL - Wikijump API provider and database manager
  * Copyright (C) 2019-2026 Wikijump Team
@@ -22,21 +23,12 @@ use arraystring::ArrayString;
 use sha2::{Digest, Sha512};
 use typenum::U128;
 
-/// The expected length of a blob hash digest.
-///
-/// This is the output length for SHA-512 in bytes.
 pub const BLOB_HASH_LENGTH: usize = 64;
 
-/// The array type for a blob hash digest.
 pub type BlobHash = [u8; 64];
 
-/// The stack string type for a hex representation of a blob hash.
-///
-/// Because it is hexadecimal, it must be double the size of the
-/// actual byte buffer it represents.
 pub type BlobHexHash = ArrayString<U128>;
 
-/// Produces a byte array containing the SHA-512 hash for the given data.
 pub fn sha512_hash(data: &[u8]) -> BlobHash {
     let mut hasher = Sha512::new();
     hasher.update(data);
@@ -44,17 +36,12 @@ pub fn sha512_hash(data: &[u8]) -> BlobHash {
     slice_to_blob_hash(&result)
 }
 
-/// Convert a slice into a hash array.
-///
-/// # Panics
-/// Panics if the input slice is not the appropriate size.
 pub fn slice_to_blob_hash(slice: &[u8]) -> BlobHash {
     let mut hash = [0; 64];
     hash.copy_from_slice(slice);
     hash
 }
 
-/// Converts the given SHA-512 hash into a hex array string.
 pub fn blob_hash_to_hex(hash: &[u8]) -> BlobHexHash {
     debug_assert_eq!(
         hash.len(),

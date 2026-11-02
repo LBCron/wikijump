@@ -50,7 +50,6 @@ impl FromStr for Permission<'static> {
         let (resource, resource_category, action) = match parts.as_slice() {
             [resource, action] => (resource, None, action),
             [resource, resource_category, action] => {
-                // Try to parse as ID first, fall back to treating as slug
                 let reference = resource_category
                     .parse::<i64>()
                     .map(Reference::Id)
@@ -80,7 +79,6 @@ impl FromStr for Permission<'static> {
     }
 }
 
-/// Macro for generating a list of all valid Permission types, for iteration/validation purposes.
 macro_rules! define_permission_types {
     ( $( $resource:ident => [ $($action:ident),+ $(,)? ] ),+ $(,)? ) => {
         impl Permission<'static> {
@@ -104,7 +102,6 @@ macro_rules! define_permission_types {
     };
 }
 
-// Define all valid permission types.
 define_permission_types! {
     Page => [View, Edit, BypassLock, Create, Delete, Rename],
     ForumCategory => [Create],

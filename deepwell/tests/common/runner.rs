@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Helper functions and macros for running individual test cases.
-
 use deepwell::api::{
     ServerState, build_server_state_without_workers,
     build_server_state_without_workers_with_job_queue_namespace,
@@ -83,7 +81,6 @@ impl TestRunnerRequestContext {
     }
 
     fn transaction(&self) -> &DatabaseTransaction {
-        // Only should be unset in Drop
         self.transaction.as_ref().expect("Should never be None")
     }
 
@@ -96,8 +93,6 @@ impl TestRunnerRequestContext {
 
 impl Drop for TestRunnerRequestContext {
     fn drop(&mut self) {
-        // DatabaseTransaction rolls back on drop. Tests that need synchronous
-        // rollback before inspecting external state must call `teardown`.
         self.transaction.take();
     }
 }

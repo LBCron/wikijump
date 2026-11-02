@@ -18,26 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Scaling evidence for the batched ListPages view-permission path.
-//!
-//! Dimension: `R` = rows scanned by the ListPages render scan, bounded by
-//! `MAX_LISTPAGES_RENDER_SCAN_ROWS` (50_000).
-//!
-//! Before, each row cost a fixed handful of sequential database round trips:
-//! the site ban probe, the explicit-role join, the virtual-role scan, the
-//! membership probe, the page lookup, the attribution query and the
-//! category-scope probe. That is `Theta(R)` *checks* each costing `Theta(1)`
-//! round trips, so the round-trip count is `Theta(R)` with a large constant.
-//!
-//! After, a scan costs one attribution query, one permission derivation per
-//! distinct site, and one category probe per distinct `(site, category)`, plus
-//! the individually-checked pages the viewer authored. Round trips are therefore
-//! `O(1 + C + A)` in the number of distinct categories `C` and authored pages `A`,
-//! both independent of `R`.
-//!
-//! This test measures wall clock across a doubling series and asserts both the
-//! flatness of the new path and the agreement of the two paths at every size.
-
 #[macro_use]
 mod common;
 
@@ -61,8 +41,6 @@ use std::time::{Duration, Instant};
 use str_macro::str;
 use uuid::Uuid;
 
-/// A viewer with a site-wide page:view grant, so every row is viewable and the
-/// measurement is about query volume rather than about denials.
 async fn create_viewing_user(ctx: &ServiceContext<'_>, site_id: i64, tag: &str) -> i64 {
     let user_id = UserService::create(
         ctx,
@@ -194,8 +172,6 @@ async fn create_scaling_site(
         .expect("scaling page should be created")
         .page_id;
 
-        // Pages are spread across the categories so the category memo has a
-        // realistic number of distinct keys to resolve.
         let category_id = if categories.is_empty() {
             None
         } else {
@@ -280,34 +256,24 @@ async fn time_batched(
 
 #[tokio::test]
 async fn view_permission_scaling_is_flat_in_row_count() {
-    // Four distinct categories, so the batched path's per-category work is a
-    // visible constant rather than something that hides inside R.
     const CATEGORIES: usize = 4;
     let series = [10usize, 20, 40, 80, 160];
 
     let mut rows: Vec<(usize, Duration, Duration)> = Vec::new();
 
     for &r in &series {
-        // A fresh runner per round keeps each fixture in its own short
-        // transaction. Writing a few hundred pages inside one long-lived
-        // transaction on a shared database trips Postgres HOT-chain pruning.
         let runner = TestRunner::setup().await;
         let ctx = runner.context();
         let (_site_id, viewer, pages) = create_scaling_site(&runner, CATEGORIES, r).await;
 
-        // Warm the connection pool and the query plan cache for this shape, so
-        // the first timed round is not paying one-off costs.
         let mut warm_cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
         time_batched(ctx, Some(viewer), &pages[..r.min(8)], &mut warm_cache).await;
 
         let reference = time_reference(ctx, Some(viewer), &pages).await;
 
-        // A fresh cache per round: the render scan may start cold, and the
-        // category probe cost must not be attributed to an earlier size.
         let mut cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
         let batched = time_batched(ctx, Some(viewer), &pages, &mut cache).await;
 
-        // Correctness at every size: the two paths must agree row for row.
         let expected = reference_decisions(ctx, Some(viewer), &pages).await;
         let actual =
             view_decisions_for_scanned_pages(ctx, Some(viewer), &pages, &mut cache)
@@ -330,9 +296,6 @@ async fn view_permission_scaling_is_flat_in_row_count() {
     }
     eprintln!("{report}");
 
-    // The batched path must be flat in R. Growing R by 16x while the batched
-    // cost stays within a small constant factor is the observable signature of
-    // round trips going from Theta(R) to O(1 + C + A).
     let (r_small, _, batched_small) = rows[0];
     let (r_large, _, batched_large) = *rows.last().expect("series should not be empty");
     assert_eq!(r_large, r_small * 16, "series should span 16x");
@@ -348,8 +311,6 @@ async fn view_permission_scaling_is_flat_in_row_count() {
         "batched path scaled {growth:.1}x while rows grew 16x, so it is not flat"
     );
 
-    // The reference path is the thing being replaced: it must still be the slow
-    // one, otherwise this test is not measuring anything.
     let (_, reference_large, batched_large) =
         *rows.last().expect("series should not be empty");
     assert!(

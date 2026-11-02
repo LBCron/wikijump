@@ -1,5 +1,3 @@
-/* tests/mirror_file_reconcile.rs */
-
 #[macro_use]
 mod common;
 
@@ -185,7 +183,6 @@ async fn insert_local_file(
     name: &str,
     label: &str,
 ) -> i64 {
-    // cuid2 IDs are 24 characters, exactly what blob_pending_external_id_check requires.
     let pending_blob_id = cuid();
     blob_pending::ActiveModel {
         external_id: Set(pending_blob_id.clone()),
@@ -204,8 +201,6 @@ async fn insert_local_file(
     .insert(runner.context().transaction())
     .await
     .expect("pending blob fixture should insert");
-    // `CreateFile.direct_upload` is crate-private, so build the input the way
-    // the API does.
     let input: CreateFile = serde_json::from_value(json!({
         "site_id": site_id,
         "page_id": page_id,
@@ -321,7 +316,6 @@ async fn reconcile_tombstones_source_removed_files_but_keeps_inventory() {
         "tombstones must record their new revision numbers",
     );
 
-    // Tombstoned rows no longer resolve; kept rows do.
     for gone in [dropped_imported.0, _dropped_local] {
         assert!(
             FileService::get(
@@ -375,8 +369,6 @@ async fn reconcile_reports_changed_bytes_without_touching() {
             .expect("latest revision should resolve")
             .revision_number;
 
-    // The inventory records different bytes; reconcile must report, and
-    // must not create a revision or tombstone the row.
     let output = MirrorScopeService::reconcile_files(
         runner.context(),
         ADMIN_USER_ID,

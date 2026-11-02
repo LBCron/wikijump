@@ -20,23 +20,15 @@
 
 use regex::Regex;
 
-// General replacement
-
 // TODO: When https://doc.rust-lang.org/stable/std/str/pattern/trait.Pattern.html is stabilized,
 //       use it in the definition of replace_in_place() if possible.
 
-/// Replaces all instances of the given fixed string in the buffer, in-place.
-///
-/// # Panics
-/// Panics if `pattern` is an empty string.
 pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     assert!(
         !pattern.is_empty(),
         "Cannot call replace_in_place() with an empty string"
     );
 
-    // Resume each iteration of search after the last replacement.
-    // Avoids issues with infinite loops if the replacement contains the pattern.
     let mut start_index = 0;
     while let Some(substr_index) = &string[start_index..].find(pattern) {
         let index = start_index + substr_index;
@@ -46,7 +38,6 @@ pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     }
 }
 
-/// Replaces all matches for the given regex in the buffer, in-place.
 pub fn regex_replace_in_place(string: &mut String, pattern: &Regex, replacement: &str) {
     while let Some(mtch) = pattern.find(string) {
         let range = mtch.start()..mtch.end();
@@ -54,14 +45,12 @@ pub fn regex_replace_in_place(string: &mut String, pattern: &Regex, replacement:
     }
 }
 
-/// Removes the given prefix in the buffer, if it exists, in-place.
 pub fn trim_start_matches_in_place(string: &mut String, pattern: &str) {
     if string.starts_with(pattern) {
         string.drain(..pattern.len());
     }
 }
 
-/// Removes the given suffix in the buffer, if it exists, in-place.
 #[allow(dead_code)]
 pub fn trim_end_matches_in_place(string: &mut String, pattern: &str) {
     if string.ends_with(pattern) {
@@ -69,7 +58,6 @@ pub fn trim_end_matches_in_place(string: &mut String, pattern: &str) {
     }
 }
 
-// Specific replacement
 #[inline]
 pub fn trim_spaces_in_place(string: &mut String) {
     regex_replace_in_place(string, regex!(r"(^\s+)|(\s+$)"), "");
@@ -92,8 +80,6 @@ pub fn strip_fluent_control_chars(string: &mut String) {
     regex_replace_in_place(string, regex!("[\u{2068}\u{2069}]"), "");
 }
 
-// Tests
-
 #[test]
 fn test_replace_in_place() {
     macro_rules! test {
@@ -108,7 +94,6 @@ fn test_replace_in_place() {
     test!("apple banana cherry" => "pple bnn cherry", "a" => "");
     test!("apple banana cherry" => "appluxi banana chuxirry", "e" => "uxi");
     test!("class pass hassle dash" => "cly py hyle dash", "ass" => "y");
-    // should terminate despite replacement value
     test!("apple banana cherry" => "applexi banana chexirry", "e" => "exi");
     test!("e ee eee" => "eye eyeeye eyeeyeeye", "e" => "eye");
 }
@@ -182,7 +167,6 @@ fn test_trim_spaces_in_place() {
             assert_eq!(string, $output, "Trimmed contents did not match expected");
         }};
 
-        // Unmodified case, where no substition occurs
         ($input:expr $(,)?) => {
             test!($input => $input)
         };
@@ -207,7 +191,6 @@ fn test_strip_fluent_control_chars() {
             assert_eq!(string, $output, "Trimmed contents did not match expected");
         }};
 
-        // Unmodified case, where no substition occurs
         ($input:expr $(,)?) => {
             test!($input => $input)
         };

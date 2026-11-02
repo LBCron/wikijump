@@ -18,35 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! A representation of a way of referenceing an item, either by name or by ID.
-//!
-//! For instance, a page can be referenced via its ID, or in the context of a site,
-//! via its page slug.
-
 use std::borrow::Cow;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Hash, PartialEq, Eq)]
 #[serde(untagged)]
 pub enum Reference<'a> {
-    /// The `BIGINT` ID for this object.
     Id(i64),
 
-    /// The string name for the object, usually the slug.
-    ///
-    /// However (such as in the case of files) this is the filename instead.
-    /// Properties such as whether this is a normalized slug or not should not
-    /// be assumed.
-    ///
-    /// This enum is effectively just allowing either a string or an integer
-    /// to be passed in, and should be conceived of as such.
     Slug(Cow<'a, str>),
 }
 
 impl<'b, 'a: 'b> Reference<'a> {
-    /// Make a borrowed version of this `Reference` backed by it.
-    ///
-    /// For `Copy` cases, this is the same as a clone. For owned cases,
-    /// this makes a new borrowed case backed by `self` here.
     pub fn borrow(&'a self) -> Reference<'b> {
         match self {
             Reference::Id(id) => Reference::Id(*id),

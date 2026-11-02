@@ -3476,10 +3476,8 @@ async fn missing_page_view_reports_create_decision_per_actor() {
     .expect("registered non-member session should be created");
     let slug = "missing-create-decision-target:probe";
 
-    // Anonymous actors are never allowed to create, matching page_create.
     assert!(!missing_page_can_create(&runner, site_id, slug, "/edit/true", None).await);
     assert!(!missing_page_can_create(&runner, site_id, slug, "", None).await);
-    // A signed-in actor without a category grant is denied on both entry points.
     assert!(
         !missing_page_can_create(
             &runner,
@@ -3505,7 +3503,6 @@ async fn missing_page_view_reports_create_decision_per_actor() {
     )
     .await;
 
-    // The granted actor is allowed on both entry points; anonymous stays denied.
     assert!(
         missing_page_can_create(
             &runner,

@@ -36,8 +36,6 @@ async fn text() {
         ..Default::default()
     });
 
-    // The string to use
-
     const TEXT_TO_STORE: &str = "Greetings fine whale! 🐳";
     const TEXT_HASH: &str = "923f4eee1cc5651277830ce7802dafe0";
 
@@ -50,12 +48,8 @@ async fn text() {
         "Test hash value doesn't match, needs fix",
     );
 
-    // Doesn't exist yet
-
     let error = run_endpoint_err!(runner, text_get, json!([TEXT_HASH]));
     assert_contains_error!(error, ErrorType::TextNotFound);
-
-    // Insert
 
     let text_hash = run_endpoint!(runner, text_create, json!([TEXT_TO_STORE]));
 
@@ -65,17 +59,12 @@ async fn text() {
         "Actual text hash does not match expected",
     );
 
-    // Fetch
-
     let text_result = run_endpoint!(runner, text_get, json!([TEXT_HASH]));
     assert_eq!(
         text_result, TEXT_TO_STORE,
         "Actual text contents does not match expected",
     );
 
-    // Errors
-
-    // Not a hex hash
     let error = run_endpoint_err!(
         runner,
         text_get,
@@ -87,7 +76,6 @@ async fn text() {
         error,
     );
 
-    // Not the right length
     let error = run_endpoint_err!(runner, text_get, json!(["aaff0011"]));
     assert_contains_error!(error, ErrorType::BadRequest);
 }

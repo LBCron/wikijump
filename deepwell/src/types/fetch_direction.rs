@@ -37,10 +37,8 @@ use strum_macros::EnumIter;
 )]
 #[serde(rename_all = "kebab-case")]
 pub enum FetchDirection {
-    /// Retrieves items prior (earlier) to this one.
     Before,
 
-    /// Retrieves items after (later than) this one.
     After,
 }
 
@@ -65,7 +63,6 @@ impl FromStr for FetchDirection {
     }
 }
 
-/// Ensure `FetchDirection::name()` produces the same output as serde.
 #[test]
 fn name_serde() {
     use strum::IntoEnumIterator;

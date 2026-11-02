@@ -40,14 +40,9 @@ use strum_macros::{Display, EnumIter, EnumString};
 #[serde(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab_case", ascii_case_insensitive)]
 pub enum PageLockType {
-    // Only mods+ can edit, legacy lock type
     Wikidot,
-    // Only users with Page:BypassLock permission can edit
     PermissionOnly,
-    // Authors and users with Page:BypassLock can edit
     #[serde(alias = "author-only")]
-    // DeriveValueType delegates database strings to Display and FromStr.
-    // Accept known historical spellings while keeping writes canonical.
     #[strum(
         serialize = "author_only",
         serialize = "author-only",

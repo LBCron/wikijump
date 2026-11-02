@@ -243,7 +243,7 @@ async fn public_site_create_audits_authenticated_actor_and_supplied_ip_once() {
         .expect("site-create audit lookup should succeed");
     assert_eq!(events.len(), 1, "successful public creation audits once");
     assert_eq!(events[0].user_id, Some(actor_user_id));
-    assert_eq!(events[0].ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(events[0].ip_address.ip(), common::IP_ADDRESS);
 }
 
 #[tokio::test]
@@ -1036,7 +1036,7 @@ async fn public_site_update_audits_icon_set_clear_and_unset_states() {
     assert_eq!(events.len(), 3);
     for event in &events {
         assert_eq!(event.user_id, Some(user_id));
-        assert_eq!(event.ip_address, common::IP_ADDRESS.to_string());
+        assert_eq!(event.ip_address.ip(), common::IP_ADDRESS);
     }
 
     let before_set: serde_json::Value =

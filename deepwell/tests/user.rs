@@ -1451,7 +1451,7 @@ async fn user_delete_audits_the_authenticated_actor_target_and_request_ip_once()
     let event = &events[0];
     assert_eq!(event.user_id, Some(ADMIN_USER_ID));
     assert_eq!(event.extra_id_1, Some(target.user_id));
-    assert_eq!(event.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(event.ip_address.ip(), common::IP_ADDRESS);
     assert_eq!(event.site_id, None);
     assert_eq!(event.page_id, None);
     assert_eq!(event.extra_id_2, None);

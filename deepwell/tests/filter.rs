@@ -165,7 +165,7 @@ async fn filter_service_enforces_scope_conflicts_deletion_and_audit_contracts() 
         .await
         .expect("filter audit query should succeed")
         .expect("filter violation should write an audit event");
-    assert_eq!(audit.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(audit.ip_address.ip(), common::IP_ADDRESS);
     let metadata: Value = serde_json::from_str(
         audit
             .extra_string_1

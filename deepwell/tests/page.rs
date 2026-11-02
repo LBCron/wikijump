@@ -1717,7 +1717,7 @@ async fn page_revision_visibility_changes_are_audited_once_with_attribution() {
     assert_eq!(event.page_id, Some(created.page_id));
     assert_eq!(event.extra_id_1, Some(created.revision_id));
     assert_eq!(event.user_id, Some(ADMIN_USER_ID));
-    assert_eq!(event.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(event.ip_address.ip(), common::IP_ADDRESS);
 
     let stored = PageRevisionTable::find_by_id(created.revision_id)
         .one(runner.context().transaction())
@@ -20316,7 +20316,7 @@ async fn file_mutations_require_parent_page_edit_permission() {
     assert_eq!(event.page_id, Some(restored.page_id));
     assert_eq!(event.extra_id_1, Some(restored.file_id));
     assert_eq!(event.extra_id_2, Some(restored.file_revision_id));
-    assert_eq!(event.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(event.ip_address.ip(), common::IP_ADDRESS);
 
     let error = run_endpoint_err!(
         runner,
@@ -20664,7 +20664,7 @@ async fn file_edit_public_endpoint_audits_success_once_and_not_denial() {
     assert_eq!(event.page_id, Some(page.page_id));
     assert_eq!(event.extra_id_1, Some(file_id));
     assert_eq!(event.extra_id_2, Some(edited.file_revision_id));
-    assert_eq!(event.ip_address, supplied_ip.to_string());
+    assert_eq!(event.ip_address.ip(), supplied_ip);
 }
 
 #[tokio::test]
@@ -20955,7 +20955,7 @@ async fn file_rollback_public_endpoint_audits_only_created_revisions() {
     assert_eq!(event.extra_id_1, Some(file_id));
     assert_eq!(event.extra_id_2, Some(rolled_back.file_revision_id));
     assert_eq!(event.extra_number, Some(initial.revision_number));
-    assert_eq!(event.ip_address, supplied_ip.to_string());
+    assert_eq!(event.ip_address.ip(), supplied_ip);
 
     let error = run_endpoint_err!(
         runner,
@@ -21184,7 +21184,7 @@ async fn file_create_public_endpoint_audits_success_once_and_not_denial() {
     assert_eq!(event.page_id, Some(page.page_id));
     assert_eq!(event.extra_id_1, Some(created.file_id));
     assert_eq!(event.extra_id_2, Some(created.file_revision_id));
-    assert_eq!(event.ip_address, supplied_ip.to_string());
+    assert_eq!(event.ip_address.ip(), supplied_ip);
 
     let event_count_before_denial = AuditLogTable::find()
         .filter(AuditLogColumn::EventType.eq("file.create"))

@@ -678,7 +678,7 @@ async fn authorization_token_issue_uses_admin_request_actor() {
         .expect("authorization token audit lookup should succeed")
         .expect("authorization token issue should be audited");
     assert_eq!(audit_record.user_id, Some(ADMIN_USER_ID));
-    assert_eq!(audit_record.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(audit_record.ip_address.ip(), common::IP_ADDRESS);
     assert_eq!(audit_record.extra_string_1.as_deref(), Some("bot-user"));
     assert!(
         audit_record.extra_string_2.as_deref().is_some_and(

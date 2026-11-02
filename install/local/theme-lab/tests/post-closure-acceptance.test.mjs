@@ -11,6 +11,7 @@ import {candidateAssetDependencyState} from '../src/candidate-asset-dependencies
 import {CLOSURE_ANCHORS} from '../src/campaign-record-integrity.mjs';
 import {checkPostClosureAcceptance, computeInstrumentProperDigest, POST_CLOSURE_PATH, POST_CLOSURE_SCHEMA, V2_KEYS} from '../src/post-closure-acceptance.mjs';
 import {TARGET_ACCEPTANCE_CONTRACT} from '../src/target-acceptance-contract.mjs';
+import {ADMITTED_TARGET_ACCEPTANCE_CONTRACT_SHA256S} from '../src/target-acceptance-instruments.mjs';
 
 const digest = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const write = (root, relative, content) => {
@@ -309,7 +310,9 @@ test('a runtime-only change passes', () => {
     ...TARGET_ACCEPTANCE_CONTRACT,
     static_inputs: {...TARGET_ACCEPTANCE_CONTRACT.static_inputs, target_page_runtime_sha256: 'a'.repeat(64)},
   };
-  assert.equal(computeInstrumentProperDigest({contract: runtimeMovedContract}), CLOSURE_ANCHORS.targetAcceptanceContractSha256);
+  // Runtime substitution is total: moving the one runtime-derived field does
+  // not move the instrument-proper digest (pinned to the recorded successor).
+  assert.equal(computeInstrumentProperDigest({contract: runtimeMovedContract}), '1811b3b4bdb78d1d6a52584cd0f7c2bbaee39480498a9a017eb40498a4835131');
   withFixture({}, fixture => {
     const base = commit(fixture.repo, 'base');
     changeCandidate(fixture.root);
@@ -320,7 +323,16 @@ test('a runtime-only change passes', () => {
   });
 });
 
-test('C6: the live instrument-proper digest equals the closure anchor on this tree', () => {
-  assert.equal(computeInstrumentProperDigest(), 'df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a',
-    'this change edits the closure measurement instrument (see computeInstrumentProperDigest); every later post-closure admission would fail Check 2 as incomparable with the closure. Revert the instrument change, or treat it as new-campaign work.');
+test('C6: the live instrument-proper digest is the recorded successor of the closure anchor on this tree', () => {
+  // The closure instrument (df8e0b53…, the Check 1 anchor) measured the frozen
+  // campaign. This tree's instrument is its recorded successor: a
+  // teardown-only session change admitted in src/target-acceptance-instruments.mjs
+  // on 2026-11-02. The admitted set is closed and pinned here, so an
+  // unrecorded instrument change still fails this test.
+  assert.deepEqual([...ADMITTED_TARGET_ACCEPTANCE_CONTRACT_SHA256S], [
+    'df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a',
+    '1811b3b4bdb78d1d6a52584cd0f7c2bbaee39480498a9a017eb40498a4835131',
+  ]);
+  assert.equal(computeInstrumentProperDigest(), '1811b3b4bdb78d1d6a52584cd0f7c2bbaee39480498a9a017eb40498a4835131',
+    'this change edits the measurement instrument beyond its recorded successor (see src/target-acceptance-instruments.mjs); every later post-closure admission would fail Check 2 as incomparable with the closure. Revert the instrument change, or admit it as a further recorded successor with an equivalence basis.');
 });

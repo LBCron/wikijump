@@ -453,3 +453,16 @@ test("promotion accepts Sigma-9 canonical evidence produced under a task run con
   assert.ok(checkedDefault.failures.some(value=>value.includes("canonical scenario matrix is missing or stale")),checkedDefault.failures.join("\n"));
  }finally{fs.rmSync(mock.workspace,{recursive:true,force:true})}
 });
+
+test('completion accepts a result recorded under an admitted predecessor instrument and rejects an unrecorded one',()=>{
+ const mock=mockCampaign();try{
+  // The closure instrument's digest, admitted in
+  // src/target-acceptance-instruments.mjs as the live instrument's predecessor.
+  mock.full.target_acceptance_contract_sha256='df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a';
+  mock.document.packages[0].receipt=mock.write(packageResultPath,mock.full);mock.save();
+  assert.ok(!checkCampaignCompletion(mock.root).failures.some(value=>value.includes('superseded target acceptance contract')),checkCampaignCompletion(mock.root).failures.join('\n'));
+  mock.full.target_acceptance_contract_sha256='0'.repeat(64);
+  mock.document.packages[0].receipt=mock.write(packageResultPath,mock.full);mock.save();
+  assert.ok(checkCampaignCompletion(mock.root).failures.some(value=>value.includes('superseded target acceptance contract')),checkCampaignCompletion(mock.root).failures.join('\n'));
+ }finally{fs.rmSync(mock.workspace,{recursive:true,force:true})}
+});

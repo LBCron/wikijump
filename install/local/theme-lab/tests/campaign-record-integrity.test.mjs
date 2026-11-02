@@ -15,6 +15,10 @@ import {
   checkCampaignRecordIntegrity,
 } from '../src/campaign-record-integrity.mjs';
 import {TARGET_ACCEPTANCE_CONTRACT_SHA256} from '../src/target-acceptance-contract.mjs';
+import {
+  ADMITTED_TARGET_ACCEPTANCE_CONTRACT_SHA256S, TARGET_ACCEPTANCE_INSTRUMENT_CLOSURE_SHA256,
+  TARGET_ACCEPTANCE_INSTRUMENT_SUCCESSORS,
+} from '../src/target-acceptance-instruments.mjs';
 import {currentTargetRuntimeSourceSha} from '../src/target-runtime-identity.mjs';
 import {VISUAL_GATE_POLICY_SHA256} from '../src/visual-gate.mjs';
 import {mockBrowserVersions, mockCampaign} from './support/current-campaign-fixture.mjs';
@@ -48,6 +52,21 @@ test('closure anchors are pinned to their recorded values', () => {
   assert.equal(CLOSURE_PACKAGES.length, 36);
   assert.equal(new Set(CLOSURE_PACKAGES).size, 36);
   assert.ok(CLOSURE_PACKAGES.includes('classic'));
+});
+
+// Successor admission (2026-11-02): the admitted-instrument registry is
+// pinned the same way as the closure anchors, and its closure entry must
+// name the closure anchor itself, so the two records cannot drift apart.
+test('admitted target-acceptance instruments are pinned to their recorded values', () => {
+  assert.equal(TARGET_ACCEPTANCE_INSTRUMENT_CLOSURE_SHA256, 'df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a');
+  assert.equal(TARGET_ACCEPTANCE_INSTRUMENT_CLOSURE_SHA256, TARGET_ACCEPTANCE_CONTRACT_CLOSURE_SHA256);
+  assert.deepEqual(TARGET_ACCEPTANCE_INSTRUMENT_SUCCESSORS.map(entry => entry.sha256), [
+    '1811b3b4bdb78d1d6a52584cd0f7c2bbaee39480498a9a017eb40498a4835131',
+  ]);
+  assert.deepEqual([...ADMITTED_TARGET_ACCEPTANCE_CONTRACT_SHA256S], [
+    'df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a',
+    '1811b3b4bdb78d1d6a52584cd0f7c2bbaee39480498a9a017eb40498a4835131',
+  ]);
 });
 
 // Build a Check 1 fixture from the original checker's mock campaign: the

@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest import mock
 
@@ -181,6 +182,17 @@ class FakeStanding:
         )
         self.calls: list[tuple] = []
         self.switched = False
+        # Convergence fixtures for test_promote_catchup.py: staleness values
+        # are consumed in order (the last one repeats), and the catch-up
+        # primitives record into `calls` like every other fake step.
+        self.stale_sequence: list[int] = [0]
+        self.stale_page_ids: list[int] = []
+        self.catch_up_reader_ids: list[int] = []
+        self.known_reader_ids: list[int] = []
+        self.link_digest_sequence: list[dict[str, str]] = [{}]
+        self.recovery_probe_generator = "ftml v1; deepwell-render/v25"
+        self.fail_next_delta_ids: list[int] = []
+        self.link_digest_sleep = 0.0
 
     def containers(self, _home=None):
         generation = "new" if self.switched else "old"
@@ -214,6 +226,35 @@ class FakeStanding:
             self.switched = True
         return "config: {}"
 
+    def _staleness(self, *args, **kwargs):
+        self.calls.append(("staleness", self.switched, args[1] if len(args) > 1 else None))
+        if len(self.stale_sequence) > 1:
+            return self.stale_sequence.pop(0)
+        return self.stale_sequence[0]
+
+    def _render_delta(self, image, page_ids, log_path=None, **kwargs):
+        ids = tuple(page_ids) if page_ids is not None else ()
+        self.calls.append(("render-delta", image, ids, kwargs.get("dry_run", False)))
+        generator = self.recovery_probe_generator if kwargs.get("dry_run") else "ftml v1; deepwell-render/v26"
+        failed_ids: list[int] = []
+        if self.fail_next_delta_ids and not kwargs.get("dry_run"):
+            failed_ids, self.fail_next_delta_ids = self.fail_next_delta_ids, []
+        return {
+            "candidates": len(ids),
+            "rendered": len(ids) - len(failed_ids),
+            "failed": len(failed_ids), "failed_page_ids": failed_ids,
+            "failures": [{"page_id": p, "error": "deadline has elapsed"} for p in failed_ids],
+            "link_reader_page_ids": list(self.catch_up_reader_ids),
+            "compiled_generator": generator,
+        }
+
+    def _link_digests(self, *args, **kwargs):
+        if self.link_digest_sleep:
+            time.sleep(self.link_digest_sleep)
+        if len(self.link_digest_sequence) > 1:
+            return self.link_digest_sequence.pop(0)
+        return self.link_digest_sequence[0]
+
     def run(self, evidence: Path, render_ahead: dict, proof=None, *, missing_parked=False, gateway=None):
         new_images = {service: "sha256:" + ("b" + str(index)) * 32 for index, service in enumerate(("deepwell", "framerail", "wws"))}
         (evidence / "build").mkdir(parents=True, exist_ok=True)
@@ -232,10 +273,16 @@ class FakeStanding:
             )),
             mock.patch.object(promote.refresh, "resource_exists", return_value=not missing_parked),
             mock.patch.object(promote, "reload_gateway", side_effect=gateway or (lambda: (self.calls.append(("gateway", self.switched)), {"status": "pass", "attempts": 1, "config_sha256": "5" * 64})[1])),
-            mock.patch.object(promote, "saved_page_staleness", return_value=0),
-            mock.patch.object(promote, "http_canary", return_value={"url": "u", "status": "pass", "required_markers": ["scp-9506", "page-content"]}),
+            mock.patch.object(promote, "saved_page_staleness", side_effect=self._staleness),
+            mock.patch.object(promote, "saved_page_stale_ids", side_effect=lambda *a, **k: (self.calls.append(("stale-ids", a[1] if len(a) > 1 else None)), list(self.stale_page_ids))[1], create=True),
+            mock.patch.object(promote, "render_delta_pages", side_effect=self._render_delta, create=True),
+            mock.patch.object(promote, "restart_standing_deepwell", side_effect=lambda *a, **k: (self.calls.append(("restart-deepwell", self.switched)), {"deepwell": "healthy"})[1], create=True),
+            mock.patch.object(promote, "database_clock", side_effect=lambda *a, **k: (self.calls.append(("db-clock",)), "2026-11-02 00:00:00+00")[1], create=True),
+            mock.patch.object(promote, "mark_link_readers_stale", side_effect=lambda ids, *a, **k: self.calls.append(("mark-readers", tuple(ids))), create=True),
+            mock.patch.object(promote.render_ahead, "link_digests", side_effect=self._link_digests),
+            mock.patch.object(promote, "http_canary", side_effect=lambda *a, **k: (self.calls.append(("canary", self.switched)), {"url": "u", "status": "pass", "required_markers": ["scp-9506", "page-content"]})[1]),
             mock.patch.object(promote, "snapshot_saved_page_output", side_effect=lambda path: (self.calls.append(("snapshot",)), path.write_text("rows", encoding="utf-8"), 24573)[2]),
-            mock.patch.object(promote, "restore_saved_page_output", side_effect=lambda path, generator: (self.calls.append(("restore-pages", generator)), 24573)[1]),
+            mock.patch.object(promote, "restore_saved_page_output", side_effect=lambda path, generator, *a, **k: (self.calls.append(("restore-pages", generator, k.get("switch_started_at"))), 24573)[1]),
             mock.patch.object(promote, "browser_parity", side_effect=proof or (lambda *a: {"status": "pass"})),
             mock.patch.object(promote.subprocess, "run", side_effect=lambda args, **k: self.calls.append(("subprocess",) + tuple(args))),
         ]
@@ -314,7 +361,7 @@ class ActivationTest(unittest.TestCase):
         names = [call[0] for call in self.standing.calls]
         self.assertLess(names.index("snapshot"), names.index("park"), "the snapshot precedes the switch")
         self.assertLess(names.index("restore-pages"), names.index("restore-parked"), "pages are put back before the old build starts")
-        self.assertIn(("restore-pages", GENERATION_CHANGE["expected_compiled_generator"]), self.standing.calls)
+        self.assertIn(("restore-pages", GENERATION_CHANGE["expected_compiled_generator"], "2026-11-02 00:00:00+00"), self.standing.calls)
         new_containers_removed = [call for call in self.standing.calls if call[:4] == ("subprocess", "docker", "rm", "--force")]
         self.assertEqual(len(new_containers_removed), 3)
         env = (self.standing.home / ".env").read_text(encoding="utf-8")
@@ -342,7 +389,7 @@ class ActivationTest(unittest.TestCase):
         self.assertNotIn("--volumes", recovered[0])
         self.assertNotIn("database", recovered[0])
         self.assertNotIn("caddy", recovered[0])
-        self.assertIn(("restore-pages", GENERATION_CHANGE["expected_compiled_generator"]), self.standing.calls)
+        self.assertIn(("restore-pages", GENERATION_CHANGE["expected_compiled_generator"], "2026-11-02 00:00:00+00"), self.standing.calls)
         env = (self.standing.home / ".env").read_text(encoding="utf-8")
         self.assertIn("STANDING_DEEPWELL_IMAGE=sha256:" + "a0" * 32, env)
         self.assertNotIn("STANDING_WIKIJUMP_SHA=" + "1" * 40, env)
@@ -540,12 +587,18 @@ class ActivationSafetyTest(unittest.TestCase):
         self.assertNotIn("--volumes", source)
 
     def test_activation_requires_fresh_saved_pages_before_the_canary(self) -> None:
+        # The freshness check moved into converge_saved_pages (bounded
+        # catch-up loop); activation must still converge before the canary
+        # and keep the historical stale failure.
         source = inspect.getsource(promote.activate)
         self.assertLess(
-            source.index("saved_page_staleness(STANDING_DATABASE"),
+            source.index("converge_saved_pages("),
             source.index("http_canary(refresh.CANARY_URL)"),
         )
-        self.assertIn("standing serves {stale} stale saved pages", source)
+        self.assertIn(
+            "standing serves {stale} stale saved pages",
+            inspect.getsource(promote.converge_saved_pages),
+        )
 
     def test_rehearsal_teardown_only_names_rehearsal_resources(self) -> None:
         source = inspect.getsource(promote.rehearse)

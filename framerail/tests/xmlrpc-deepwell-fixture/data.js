@@ -475,6 +475,23 @@ x^2 + y^2 = z^2
     wikitext: "++ Permission probe section\nSection body.",
     compiled_body_html: '<h2 id="toc0">Permission probe section</h2><p>Section body.</p>'
   },
+  "edit-section-nested-probe": {
+    page_id: 3000501,
+    revision_id: 9000501,
+    page_created_at: "2026-10-10T00:00:00Z",
+    page_updated_at: null,
+    page_revision_count: 1,
+    revision_created_at: "2026-10-10T00:00:00Z",
+    revision_user_id: 123,
+    creator_user_id: 123,
+    title: "Edit Section Nested Probe",
+    slug: "edit-section-nested-probe",
+    tags: ["fixture"],
+    rating: 0,
+    wikitext: "[[div]]\n++ Nested probe section\n\nNested body.\n[[/div]]",
+    compiled_body_html:
+      '<div><h2 id="toc0">Nested probe section</h2><p>Nested body.</p></div>'
+  },
   "page-workflow-star-probe": {
     page_id: 3000341,
     revision_id: 9000341,

@@ -332,6 +332,7 @@
     const pageContent = document.querySelector<HTMLElement>("#page-content")
     if (!pageContent || showRevision) return
 
+    const hadControls = pageContent.querySelector(".edit-section-button") !== null
     const visible = toggleWikidotEditSections(pageContent, data.wikitext, (section) => {
       showSource = false
       pagePaneState = PagePane.None
@@ -339,6 +340,14 @@
       void ensureEditSectionPane()
     })
     if (!visible) closeEditSection()
+    if (!visible && !hadControls) {
+      errorPopupState.current = {
+        state: true,
+        title: data.internationalization?.error ?? "Error",
+        message: "There are no isolated sections to edit.",
+        data: null
+      }
+    }
   }
 
   const legacyRequestRuntime = { fetch, deserialize }

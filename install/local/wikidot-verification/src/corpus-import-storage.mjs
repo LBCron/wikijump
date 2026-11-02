@@ -60,6 +60,41 @@ export function parseHoldingSite(output) {
 }
 
 /**
+ * The holding view an import classifies with. Deepwell's own foreign
+ * classification (foreign_snapshot_exclusion_sql) compares a snapshot's
+ * source_site against the site's slug and the branches of its PERSISTED
+ * import runs, so the persisted set is the ground truth here too. The one
+ * addition is the branch the operator declared for this run
+ * (--source-branch): on a fresh site no runs exist yet, and the run this
+ * import records carries that branch.
+ *
+ * Manifest branch strings must never enter this set. A manifest whose
+ * source_branch is spelled like a site (e.g. "scpko" for the scpko corpus)
+ * would otherwise reclassify that site's rows as the holding site's own,
+ * and the apply would bind their revisions by fullname onto the holding
+ * site's colliding pages. Branch strings in a manifest are data, not a
+ * provenance declaration.
+ */
+export function holdingForImport(persistedHolding, sourceBranch) {
+  return {
+    siteSlug: persistedHolding.siteSlug,
+    runBranches: [...new Set([...persistedHolding.runBranches, sourceBranch])].sort(),
+  };
+}
+
+/**
+ * Whether a page's existing snapshot provenance is the same provenance a
+ * manifest row carries: the same source site (either spelling) or the same
+ * corpus branch. A row whose provenance differs in both is another site's
+ * capture of the same fullname; its revisions belong on that provenance's
+ * own page, never on this one.
+ */
+export function isSameSnapshotProvenance(provenance, row) {
+  if (provenance === null || provenance === undefined) return true;
+  return provenance.source_site === row.source_site || provenance.source_branch === row.source_branch;
+}
+
+/**
  * Every snapshot of `row.source_site` that shares the row's fullname or
  * entity, on any site. `UNIQUE(source_site, source_fullname)` and
  * `UNIQUE(source_site, source_entity_id)` are global, so a match anywhere

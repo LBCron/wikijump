@@ -3,7 +3,7 @@
   "source_identities": {
     "jsonrpc_registry": {
       "path": "deepwell/src/api.rs",
-      "sha256": "2ad9f8534fbd723b5ff110c82477a7434c10c9ebff1188992b9287499748bd45"
+      "sha256": "96efa6f4637f971eb64a4501687bae14b51d1a0e7e2b670873b7f680299c5422"
     },
     "request_context_middleware": {
       "path": "deepwell/src/middleware.rs",
@@ -26,7 +26,7 @@
       "classification": "historical"
     }
   ],
-  "method_count": 208,
+  "method_count": 210,
   "methods": [
     {
       "method": "account_delete_complete",
@@ -2110,6 +2110,65 @@
           "deepwell/tests/site.rs#category_navigation_update_requires_site_edit_and_supports_inheritance"
         ],
         "source_contract_reference": "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"
+      }
+    },
+    {
+      "method": "child_get_all",
+      "endpoint_owner": {
+        "component": "deepwell",
+        "handler": "child_get_all",
+        "source": "deepwell/src/endpoints/parent.rs#child_get_all",
+        "source_sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974",
+        "function_sha256": "75e19ea602481a30de8132027551a96bd3a5d41390e5c45fe391b472608dd6f9"
+      },
+      "params_schema": {
+        "transport": "jsonrpsee::types::params::Params<'static>",
+        "parameter_name": "params",
+        "decoder": "params.parse()"
+      },
+      "actor_context": {
+        "transport_authentication": {
+          "header_symbol": "AUTHORIZATION",
+          "header": "Authorization",
+          "scheme": "Bearer",
+          "token_format": "64 lowercase hexadecimal characters",
+          "duplicate_values": "rejected"
+        },
+        "request_context_headers": [
+          {
+            "header": "X-Deepwell-Session-Token",
+            "target": "session_token"
+          },
+          {
+            "header": "X-Deepwell-Site-Id",
+            "target": "site_id"
+          },
+          {
+            "header": "X-Deepwell-Page",
+            "target": "page_ref"
+          }
+        ],
+        "requirements": [],
+        "requirement_sources": [
+          "deepwell/src/endpoints/parent.rs#child_get_all"
+        ]
+      },
+      "mutation_class": {
+        "classification": "read_only",
+        "source_signals": []
+      },
+      "transaction_isolation": "default",
+      "test_witness": {
+        "kind": "source_contract_only",
+        "reference": "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract",
+        "coverage_gap": {
+          "searched_root": "deepwell/tests",
+          "reason": "no direct run_endpoint handler invocation or rpc_request method invocation was found",
+          "searched_invocations": [
+            "run_endpoint!(runner, handler, ...)",
+            "rpc_request(\"method\", ...)"
+          ]
+        }
       }
     },
     {
@@ -9145,7 +9204,7 @@
         "component": "deepwell",
         "handler": "parent_get",
         "source": "deepwell/src/endpoints/parent.rs#parent_get",
-        "source_sha256": "a8b6e94c25e33b9c859d03ac25fc949c6a38b1c3b2d2acfcdf0737b303200092",
+        "source_sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974",
         "function_sha256": "e15faaa9b9709ac301d0563fefdf26e2ff2cacd9197d3b89864490e74e962204"
       },
       "params_schema": {
@@ -9204,7 +9263,7 @@
         "component": "deepwell",
         "handler": "parent_get_all",
         "source": "deepwell/src/endpoints/parent.rs#parent_get_all",
-        "source_sha256": "a8b6e94c25e33b9c859d03ac25fc949c6a38b1c3b2d2acfcdf0737b303200092",
+        "source_sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974",
         "function_sha256": "c4e2000d26c9af32682e6b2887d2774bb5c8a1a373c68f9aee97979d1cd9d7de"
       },
       "params_schema": {
@@ -9261,7 +9320,7 @@
         "component": "deepwell",
         "handler": "parent_get_direct_metadata",
         "source": "deepwell/src/endpoints/parent.rs#parent_get_direct_metadata",
-        "source_sha256": "a8b6e94c25e33b9c859d03ac25fc949c6a38b1c3b2d2acfcdf0737b303200092",
+        "source_sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974",
         "function_sha256": "6aaedb4c63af3dc708fdc481e2db8010a507d81a7c474fcd21b08407084e4f27"
       },
       "params_schema": {
@@ -9321,7 +9380,7 @@
         "component": "deepwell",
         "handler": "parent_relationships_get",
         "source": "deepwell/src/endpoints/parent.rs#parent_relationships_get",
-        "source_sha256": "a8b6e94c25e33b9c859d03ac25fc949c6a38b1c3b2d2acfcdf0737b303200092",
+        "source_sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974",
         "function_sha256": "cf58bbdac5e305d4eace781d401c6a92d689fa394dc22e53eb4b0a86e0ad8ecc"
       },
       "params_schema": {
@@ -9380,7 +9439,7 @@
         "component": "deepwell",
         "handler": "parent_remove",
         "source": "deepwell/src/endpoints/parent.rs#parent_remove",
-        "source_sha256": "a8b6e94c25e33b9c859d03ac25fc949c6a38b1c3b2d2acfcdf0737b303200092",
+        "source_sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974",
         "function_sha256": "2f61f022674f8563c76347503bd43229bee93981f6a079208ee62545777eff3c"
       },
       "params_schema": {
@@ -9441,7 +9500,7 @@
         "component": "deepwell",
         "handler": "parent_set",
         "source": "deepwell/src/endpoints/parent.rs#parent_set",
-        "source_sha256": "a8b6e94c25e33b9c859d03ac25fc949c6a38b1c3b2d2acfcdf0737b303200092",
+        "source_sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974",
         "function_sha256": "765d6de4ed6fcc7cf7fe616dce980158af53e4a2a77f9a7b3e7effe9c5d1d34c"
       },
       "params_schema": {
@@ -9499,12 +9558,71 @@
       }
     },
     {
+      "method": "parent_trace",
+      "endpoint_owner": {
+        "component": "deepwell",
+        "handler": "parent_trace",
+        "source": "deepwell/src/endpoints/parent.rs#parent_trace",
+        "source_sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974",
+        "function_sha256": "e4f32de889781947d70c04b5e748ef1560815f84b5fb74dc7433297e24347c42"
+      },
+      "params_schema": {
+        "transport": "jsonrpsee::types::params::Params<'static>",
+        "parameter_name": "params",
+        "decoder": "params.parse()"
+      },
+      "actor_context": {
+        "transport_authentication": {
+          "header_symbol": "AUTHORIZATION",
+          "header": "Authorization",
+          "scheme": "Bearer",
+          "token_format": "64 lowercase hexadecimal characters",
+          "duplicate_values": "rejected"
+        },
+        "request_context_headers": [
+          {
+            "header": "X-Deepwell-Session-Token",
+            "target": "session_token"
+          },
+          {
+            "header": "X-Deepwell-Site-Id",
+            "target": "site_id"
+          },
+          {
+            "header": "X-Deepwell-Page",
+            "target": "page_ref"
+          }
+        ],
+        "requirements": [],
+        "requirement_sources": [
+          "deepwell/src/endpoints/parent.rs#parent_trace"
+        ]
+      },
+      "mutation_class": {
+        "classification": "read_only",
+        "source_signals": []
+      },
+      "transaction_isolation": "default",
+      "test_witness": {
+        "kind": "source_contract_only",
+        "reference": "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract",
+        "coverage_gap": {
+          "searched_root": "deepwell/tests",
+          "reason": "no direct run_endpoint handler invocation or rpc_request method invocation was found",
+          "searched_invocations": [
+            "run_endpoint!(runner, handler, ...)",
+            "rpc_request(\"method\", ...)"
+          ]
+        }
+      }
+    },
+    {
       "method": "parent_update",
       "endpoint_owner": {
         "component": "deepwell",
         "handler": "parent_update",
         "source": "deepwell/src/endpoints/parent.rs#parent_update",
-        "source_sha256": "a8b6e94c25e33b9c859d03ac25fc949c6a38b1c3b2d2acfcdf0737b303200092",
+        "source_sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974",
         "function_sha256": "5c3fa6480d9d72b1362660147aec25568e4dbb20155ffea651deece82ba2efed"
       },
       "params_schema": {

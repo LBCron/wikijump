@@ -554,7 +554,7 @@ async fn concurrent_registered_file_edits_promote_only_the_winning_blob() {
         assert_eq!(audit_event.page_id, Some(fixture.page_id));
         assert_eq!(audit_event.extra_id_1, Some(fixture.file_id));
         assert_eq!(audit_event.extra_id_2, Some(winner_revision.revision_id));
-        assert_eq!(audit_event.ip_address, "192.0.2.80");
+        assert_eq!(audit_event.ip_address.ip().to_string(), "192.0.2.80");
 
         let winner_hash = sha512_hash(&fixture.uploads[winner_index].data);
         let loser_hash = sha512_hash(&fixture.uploads[loser_index].data);

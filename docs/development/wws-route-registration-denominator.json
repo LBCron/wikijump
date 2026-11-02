@@ -5,13 +5,13 @@
     "inputs": [
       {
         "path": "deepwell/Cargo.lock",
-        "git_blob": "7edb632b59876a2bad2c509447952b132806d0df",
-        "sha256": "14b4111169ad7c26b0818a1d74c86b2287b7486ad90468a0280470cc33caf03b"
+        "git_blob": "0d2da293168cfc93f6ed14e077c979e1d8f84b18",
+        "sha256": "ca95f181495a3559734d21aaf59df4277c748b5a47fe2fca1bda1d3e306f5cd3"
       },
       {
         "path": "deepwell/Cargo.toml",
-        "git_blob": "ff992043e4a1fa02f9c9f0b98ee2b113c6b0d502",
-        "sha256": "2bcb03fd0315653d4757a3b300034c86a4458daf89766187591b2cd2e0392ff4"
+        "git_blob": "26248036c77608ebae107f1d2852475bbbdace51",
+        "sha256": "ee45395bab963cef18e552072aa24ba5616b25b930d7e43bc475bc62c4b7bd02"
       },
       {
         "path": "deepwell/migrations/20260815010000_text_block_wikidot_sha1.sql",
@@ -20,8 +20,8 @@
       },
       {
         "path": "deepwell/src/api.rs",
-        "git_blob": "63121963c7ca1b041b37614a31d9bbcb37abe530",
-        "sha256": "2ad9f8534fbd723b5ff110c82477a7434c10c9ebff1188992b9287499748bd45"
+        "git_blob": "1b128c7133bac5b4e32b7779fd99bafd7a354880",
+        "sha256": "96efa6f4637f971eb64a4501687bae14b51d1a0e7e2b670873b7f680299c5422"
       },
       {
         "path": "deepwell/src/endpoints/text_block.rs",
@@ -35,13 +35,13 @@
       },
       {
         "path": "deepwell/src/services/context.rs",
-        "git_blob": "33e996b8c0e9ae2162ea5e30d19d1c789cb81ce3",
-        "sha256": "4ae7be958939a434851549e71ff7e2757328a59a2c9366623d68e5d40f3286dc"
+        "git_blob": "000c7b1712db0affa72ee78186f12457f0868627",
+        "sha256": "c4fed3fc16bc876952bd3eb8af7bce4913d2e4474600d616ec4d2610dd3b8302"
       },
       {
         "path": "deepwell/src/services/text_block/service.rs",
-        "git_blob": "7af34cd8a755fec5918d21cdc15d2ad63f7020d1",
-        "sha256": "597d663efb768bea089fcf7cc90f451ade02dbc2b985764df3df3de3e0105003"
+        "git_blob": "8101350f8bbc65fa61349b9c7513a08ac0a53ec2",
+        "sha256": "e29d9971b05d727f7b94f78ced6e172712bd7ae23ee6d01ec5fc87ad10d484fa"
       },
       {
         "path": "deepwell/src/services/text_block/structs.rs",
@@ -50,8 +50,8 @@
       },
       {
         "path": "deepwell/tests/page.rs",
-        "git_blob": "2fb29525a811d55ecac08c550f28e626dbf5e4d9",
-        "sha256": "ce4d85d9d9836c88744f4163745b42ebae03969127935a372e68260df14ca581"
+        "git_blob": "65c615bf360f331a4540d516c7b1067ae51d4317",
+        "sha256": "67ceed1f7aa96f5903d049af6e27690519d5eacff1a4ab02f122b5729eb6c7f6"
       },
       {
         "path": "wws/Cargo.lock",
@@ -105,8 +105,8 @@
       },
       {
         "path": "wws/src/handler/text_block.rs",
-        "git_blob": "f9c1ad872e4fd5ead4002a5ba9f2e9517dff67d8",
-        "sha256": "56b6ad93f3632669c17ae9d1150fd4734a5f3c744c8bb00d761207315a0ebbed"
+        "git_blob": "3989af5373a2747fc84dc68cac77dfbc3685365d",
+        "sha256": "d398a5104af74044b744a8b41c789c59600671e1410e5b8806caa24773268116"
       },
       {
         "path": "wws/src/handler/well_known.rs",
@@ -389,7 +389,7 @@
       "registered_handler_symbol": "handle_code_block",
       "handler_definition_path": "wws/src/handler/text_block.rs",
       "route_registration_reference": "wws/src/route.rs#L95",
-      "handler_definition_reference": "wws/src/handler/text_block.rs#L135",
+      "handler_definition_reference": "wws/src/handler/text_block.rs#L165",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -422,7 +422,7 @@
       "registered_handler_symbol": "handle_html_block",
       "handler_definition_path": "wws/src/handler/text_block.rs",
       "route_registration_reference": "wws/src/route.rs#L97",
-      "handler_definition_reference": "wws/src/handler/text_block.rs#L45",
+      "handler_definition_reference": "wws/src/handler/text_block.rs#L55",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -488,7 +488,7 @@
       "registered_handler_symbol": "handle_html_terminal",
       "handler_definition_path": "wws/src/handler/text_block.rs",
       "route_registration_reference": "wws/src/route.rs#L50",
-      "handler_definition_reference": "wws/src/handler/text_block.rs#L67",
+      "handler_definition_reference": "wws/src/handler/text_block.rs#L77",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },

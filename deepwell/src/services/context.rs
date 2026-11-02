@@ -131,6 +131,28 @@ mod tests {
         assert!(context.site_id().is_err());
         assert!(context.page_reference().is_err());
     }
+
+    #[test]
+    fn text_block_cleanup_action_carries_exact_filenames() {
+        let action = PostCommitAction::delete_text_block_objects(vec![
+            str!("page-42_code_1.blk"),
+            str!("page-42_html_1.blk"),
+        ]);
+
+        match action {
+            Some(PostCommitAction::DeleteTextBlockObjects { filenames }) => {
+                assert_eq!(filenames, ["page-42_code_1.blk", "page-42_html_1.blk"]);
+            }
+            other => panic!("expected a DeleteTextBlockObjects action, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn text_block_cleanup_action_empty_filenames_queue_nothing() {
+        let action = PostCommitAction::delete_text_block_objects(Vec::new());
+
+        assert!(action.is_none());
+    }
 }
 
 #[derive(Debug)]
@@ -172,6 +194,19 @@ pub(crate) enum PostCommitAction {
 }
 
 impl PostCommitAction {
+    /// Builds the action which deletes hosted text block objects
+    /// once the surrounding transaction has committed.
+    ///
+    /// Returns `None` when there are no objects to delete, so
+    /// that callers queue nothing in that case.
+    pub(crate) fn delete_text_block_objects(filenames: Vec<String>) -> Option<Self> {
+        if filenames.is_empty() {
+            None
+        } else {
+            Some(Self::DeleteTextBlockObjects { filenames })
+        }
+    }
+
     pub(crate) fn is_page_rerender(&self) -> bool {
         matches!(
             self,
@@ -418,17 +453,13 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     pub(crate) fn defer_text_block_cleanup(&self, filenames: Vec<String>) -> Result<()> {
-        if filenames.is_empty() {
+        let Some(action) = PostCommitAction::delete_text_block_objects(filenames) else {
             return Ok(());
-        }
+        };
         let mut actions = self.post_commit_actions.lock().map_err(|_| {
-            Error::new(
-                "failed to queue replaced text block cleanup",
-                ErrorType::TextBlock,
-            )
-            .raise()
+            Error::new("failed to queue text block cleanup", ErrorType::TextBlock).raise()
         })?;
-        actions.push(PostCommitAction::DeleteTextBlockObjects { filenames });
+        actions.push(action);
         Ok(())
     }
 

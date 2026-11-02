@@ -604,9 +604,15 @@ impl TextBlockService {
     /// This is run when a page is deleted, since the page
     /// becomes inaccessible and storing this redundant information
     /// becomes unnecessary.
+    ///
+    /// The database rows are deleted within the caller's transaction,
+    /// but the S3 objects they name are only deleted after that
+    /// transaction commits, via a deferred post-commit action.
+    /// Deleting the objects here would be irreversible: if the
+    /// transaction rolled back, the restored rows would name
+    /// objects that no longer exist.
     pub async fn delete_blocks(ctx: &ServiceContext<'_>, page_id: i64) -> Result<()> {
         let txn = ctx.transaction();
-        let bucket = ctx.s3_tblocks_bucket();
         let make_error = || {
             Error::new(
                 format!("failed to delete text blocks on page ID {}", page_id),
@@ -618,17 +624,17 @@ impl TextBlockService {
             .await
             .or_raise(make_error)?;
 
-        for filename in &filenames {
-            debug!("Deleting text block {filename}");
-            bucket.delete_object(filename).await.or_raise(make_error)?;
-        }
-
-        // Now that S3 is cleared out, we can delete all the
-        // database rows in one sweep.
+        // Delete all the database rows in one sweep.
         TextBlockTable::delete_many()
             .filter(text_block::Column::PageId.eq(page_id))
             .exec(txn)
             .await
+            .or_raise(make_error)?;
+
+        // Queue the S3 objects for deletion once the transaction
+        // commits. If it rolls back instead, the queued action is
+        // discarded, nothing is deleted, and the rows remain valid.
+        ctx.defer_text_block_cleanup(filenames)
             .or_raise(make_error)?;
 
         Ok(())

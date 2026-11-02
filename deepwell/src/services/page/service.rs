@@ -23,7 +23,7 @@ use super::structs::{
     EditPageOutput, MovePage, MovePageOutput, PageLifecycleIdentity, RestorePage,
     RestorePageOutput, RollbackPage, SetPageLayout,
 };
-use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
+use crate::error::prelude::{Error, ErrorType, ExnError, Result, ResultExt};
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
 use crate::models::page_revision::Model as PageRevisionModel;
@@ -45,12 +45,13 @@ use crate::types::{
 };
 use crate::utils::now;
 use crate::utils::{get_category_name, trim_default};
+use exn::Frame;
 use paste::paste;
 use ref_map::OptionRefMap;
 use sea_orm::ActiveValue;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, EntityTrait,
-    FromQueryResult, IntoActiveModel, QueryFilter, QueryOrder, QuerySelect, Set,
+    ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DbErr, EntityTrait,
+    FromQueryResult, IntoActiveModel, QueryFilter, QueryOrder, QuerySelect, Set, SqlErr,
     Statement, Value,
 };
 use sea_query::Expr;
@@ -479,6 +480,9 @@ WHERE page.site_id = $1
         let persisted_revision =
             PageRevisionService::create(ctx, id, revision_input, last_revision)
                 .await
+                .map_err(|error| {
+                    raise_if_revision_insert_conflict(error, last_revision_id)
+                })
                 .or_raise(make_error)?;
 
         let revision_id =
@@ -689,6 +693,9 @@ WHERE page.site_id = $1
         let persisted_revision =
             PageRevisionService::create(ctx, id, revision_input, last_revision)
                 .await
+                .map_err(|error| {
+                    raise_if_revision_insert_conflict(error, last_revision_id)
+                })
                 .or_raise(make_error)?;
 
         let latest_revision_id = match persisted_revision {
@@ -813,6 +820,7 @@ WHERE page.site_id = $1
             last_revision,
         )
         .await
+        .map_err(|error| raise_if_revision_insert_conflict(error, last_revision_id))
         .or_raise(make_error)?;
 
         // Set deletion flag
@@ -1118,6 +1126,9 @@ WHERE page.site_id = $1
         let persisted_revision =
             PageRevisionService::create(ctx, id, revision_input, last_revision)
                 .await
+                .map_err(|error| {
+                    raise_if_revision_insert_conflict(error, last_revision_id)
+                })
                 .or_raise(make_error)?;
 
         let latest_revision_id = match persisted_revision {
@@ -1712,33 +1723,56 @@ fn check_last_revision(
     page_latest_revision_id: Option<i64>,
     arg_last_revision_id: i64,
 ) -> Result<()> {
-    // Only check if we have this model fetched anyways
-    if let Some(model) = last_revision_model {
-        assert_eq!(
-            model.revision_id,
-            page_latest_revision_id.expect("Page row has NULL latest_revision_id"),
-            "Page table has an inconsistent last_revision_id column value",
-        );
-    }
+    let latest_revision_id = match last_revision_model {
+        Some(model) => model.revision_id,
+        None => page_latest_revision_id.expect("Page row has NULL latest_revision_id"),
+    };
 
-    // Perform main check, ensure that the argument matches the latest
-    if page_latest_revision_id != Some(arg_last_revision_id) {
+    if latest_revision_id != arg_last_revision_id {
         error!(
-            "Latest revision ID in page struct is {}, but user argument has ID {}",
-            page_latest_revision_id.unwrap(),
-            arg_last_revision_id,
+            "Latest revision ID is {}, but user argument has ID {}",
+            latest_revision_id, arg_last_revision_id,
         );
         bail!(Error::new(
             format!(
                 "last revision verification failed, actual last revision ID {}, but user passed in ID {}",
-                page_latest_revision_id.unwrap(),
-                arg_last_revision_id,
+                latest_revision_id, arg_last_revision_id,
             ),
             ErrorType::NotLatestRevisionId,
         ));
     }
 
     Ok(())
+}
+
+fn raise_if_revision_insert_conflict(
+    error: ExnError,
+    arg_last_revision_id: i64,
+) -> ExnError {
+    fn is_revision_insert_conflict(frame: &Frame) -> bool {
+        frame
+            .error()
+            .downcast_ref::<DbErr>()
+            .is_some_and(|db_error| match db_error.sql_err() {
+                Some(SqlErr::UniqueConstraintViolation(message)) => {
+                    message.contains("page_revision_page_id_site_id_revision_number_key")
+                }
+                _ => db_error.to_string().contains("deadlock detected"),
+            })
+            || frame.children().iter().any(is_revision_insert_conflict)
+    }
+
+    if is_revision_insert_conflict(error.frame()) {
+        error.raise(Error::new(
+            format!(
+                "last revision verification failed, a revision newer than ID {} was created concurrently",
+                arg_last_revision_id,
+            ),
+            ErrorType::NotLatestRevisionId,
+        ))
+    } else {
+        error
+    }
 }
 
 /// Ensure that the page has a properly-set `latest_revision_id` column.

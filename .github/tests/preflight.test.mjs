@@ -383,3 +383,62 @@ test("explicit groups run without a change-set and unknown groups are refused", 
   assert.match(quiet.stdout, /nothing to check/)
   assert.deepEqual(idle.commands(), [])
 })
+
+test("Theme Lab test concurrency: scoped exception applies only to the theme_lab-only, archive-free, unset shape", (t) => {
+  // The concurrency line is part of the preflight header, printed
+  // before any check runs; the checks' own outcomes in this harness
+  // belong to the dedicated tests above, so only the header is
+  // asserted here.
+  const effective = (scope, overrides = {}, args = ["--base", remoteOid, "--groups", "theme_lab"]) => {
+    const harness = createHarness(t)
+    const result = harness.runPreflight(args, { PREFLIGHT_REMOTE_SCOPE: scope, ...overrides })
+    assert.match(result.stdout, /^preflight: groups: /mu)
+    const match = /^preflight: Theme Lab test concurrency: (\S+) \((.*)\)$/mu.exec(result.stdout)
+    assert.ok(match, result.stdout)
+    return { value: match[1], source: match[2] }
+  }
+
+  // The scoped exception: theme_lab is the only selected group, no
+  // Theme Lab path changed (so the archive checks stay unselected),
+  // and THEME_LAB_TEST_CONCURRENCY is unset.
+  const scoped = effective("deepwell")
+  assert.equal(scoped.value, "6")
+  assert.match(scoped.source, /scoped exception/)
+
+  // The value preflight prints is the value the tests check passes to
+  // the suite: one variable, named at the call site.
+  const source = readFileSync(path.join(root, "scripts/preflight.sh"), "utf8")
+  assert.match(
+    source,
+    /run "Theme Lab tests" scripts\/run-browser-test-no-external-network\.sh env THEME_LAB_TEST_CONCURRENCY="\$\{THEME_LAB_TEST_CONCURRENCY_EFFECTIVE\}" npm --prefix install\/local\/theme-lab test/u
+  )
+
+  // A change under install/local/theme-lab/ selects the archive
+  // checks, so the exception no longer applies.
+  const archived = effective("theme_lab")
+  assert.equal(archived.value, "4")
+  assert.match(archived.source, /default/)
+
+  // Promotion forces the archive checks with
+  // PREFLIGHT_THEME_LAB_ARCHIVE=always, so a promotion-shaped run keeps
+  // the default even when theme_lab is its only group.
+  const promotion = effective("deepwell", { PREFLIGHT_THEME_LAB_ARCHIVE: "always" })
+  assert.equal(promotion.value, "4")
+  assert.match(promotion.source, /default/)
+
+  // CI pins THEME_LAB_TEST_CONCURRENCY to 4: an explicit value always
+  // wins, even when the scoped conditions hold.
+  const ci = effective("deepwell", { THEME_LAB_TEST_CONCURRENCY: "4" })
+  assert.equal(ci.value, "4")
+  assert.match(ci.source, /from THEME_LAB_TEST_CONCURRENCY/)
+
+  // An explicit experimenter's value wins over the exception too.
+  const explicit = effective("deepwell", { THEME_LAB_TEST_CONCURRENCY: "8" })
+  assert.equal(explicit.value, "8")
+  assert.match(explicit.source, /from THEME_LAB_TEST_CONCURRENCY/)
+
+  // theme_lab beside another selected group is not the scoped shape.
+  const multi = effective("deepwell", {}, ["--base", remoteOid, "--groups", "theme_lab,workflow"])
+  assert.equal(multi.value, "4")
+  assert.match(multi.source, /default/)
+})

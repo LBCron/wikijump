@@ -64,3 +64,13 @@ test('test files default to the sorted tests directory and honor explicit args',
   assert.deepEqual(collectTestFiles([], root), ['tests/a.test.mjs', 'tests/b.test.mjs', 'tests/c.test.mjs']);
   assert.deepEqual(collectTestFiles(['tests/x.test.mjs'], root), ['tests/x.test.mjs']);
 });
+
+test('the concurrency default stays 4 and carries the scoped-exception note', () => {
+  const source = fs.readFileSync(new URL('../scripts/run-tests.mjs', import.meta.url), 'utf8');
+  // The default in code stays 4; the scoped exception arrives through
+  // the environment from scripts/preflight.sh, never from a changed
+  // default here.
+  assert.match(source, /const concurrency = process\.env\.THEME_LAB_TEST_CONCURRENCY \?\? '4';/);
+  assert.match(source, /Scoped exception \(2026-11-02, delegated authority/);
+  assert.match(source, /THEME_LAB_TEST_CONCURRENCY=6 when theme_lab is the only selected/);
+});

@@ -59,6 +59,21 @@ export function main(argv = process.argv.slice(2)) {
   // Suite speed comes from removing wasted work, not from widening
   // this knob. THEME_LAB_TEST_CONCURRENCY still overrides it for
   // experiments.
+  // Scoped exception (2026-11-02, delegated authority: the Theme Lab
+  // performance consult; step-4 evidence step4-concurrency.md in the
+  // campaign record): scripts/preflight.sh passes
+  // THEME_LAB_TEST_CONCURRENCY=6 when theme_lab is the only selected
+  // validation group, the archive checks are not selected, and the
+  // variable is otherwise unset — the forced theme_lab-only rerun,
+  // whose interleaved group-wall median measured 52.5 s at 6 against
+  // 69.0 s at 4 (n=20 each). That partly reverses the 2026-10-31
+  // decision above for that one run shape only: this default stays 4,
+  // the full gate and CI stay at 4 (CI pins the variable), promotion
+  // stays at 4 (it forces the archive checks), and an explicit
+  // THEME_LAB_TEST_CONCURRENCY always wins. The value arrives through
+  // the environment, exactly like an experimenter's, and preflight
+  // prints the effective value in the log the validation receipt
+  // hashes, so the exception is never silent.
   // --test-force-exit: a test file whose process outlives its tests (for
   // example a leaked browser) otherwise blocks the whole run with no timeout;
   // --test-timeout only bounds individual tests.

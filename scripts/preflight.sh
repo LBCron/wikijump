@@ -104,10 +104,68 @@ if [[ -n "${ONLY_GROUPS}" ]]; then
 fi
 group_selected() { grep -qx "$1=true" <<<"${SELECTED}"; }
 
+# True when theme_lab is the only group the change-set (or --groups)
+# selected.
+theme_lab_only_group_selected() {
+  group_selected theme_lab || return 1
+  local group value
+  while IFS='=' read -r group value; do
+    [[ "${group}" == "theme_lab" ]] && continue
+    [[ "${value}" == "true" ]] && return 1
+  done <<<"${SELECTED}"
+  return 0
+}
+
+# True when the archival Theme Lab checks will run in this invocation:
+# listed with --list, forced by PREFLIGHT_THEME_LAB_ARCHIVE=always
+# (promotion, scheduled runs), or selected by a change under
+# install/local/theme-lab/ or to this script. Quiet companion of
+# theme_lab_archive_selected below, which adds the skip message.
+theme_lab_archive_triggered() {
+  if "${LIST}" || [[ "${PREFLIGHT_THEME_LAB_ARCHIVE:-}" == "always" ]]; then return 0; fi
+  local changed
+  for changed in "${CHANGED_PATHS[@]}"; do
+    case "${changed}" in
+      install/local/theme-lab/*|scripts/preflight.sh) return 0 ;;
+    esac
+  done
+  return 1
+}
+
 echo "preflight: ${BASE}...HEAD"
 echo "preflight: mode: ${MODE}"
 echo "preflight: ${#CHANGED_PATHS[@]} changed path(s)"
 echo "preflight: groups: $(tr '\n' ' ' <<<"${SELECTED}")"
+
+# The Theme Lab suite's effective file-level concurrency for this run
+# (the default and its history live at the knob in
+# install/local/theme-lab/scripts/run-tests.mjs). Precedence: an
+# explicit THEME_LAB_TEST_CONCURRENCY always wins (CI pins it to 4);
+# the scoped exception — theme_lab the only selected group, the
+# archive checks not selected, the variable unset — yields 6, the
+# lowest level whose interleaved group-wall median reached 52.5 s
+# against 69.0 s at 4 in the 2026-11-02 step-4 measurement (delegated
+# authority: the Theme Lab performance consult; the exception partly
+# reverses the owner's 2026-10-31 decision for this run shape only);
+# anything else yields the default 4. The value printed here is the
+# value check_theme_lab_tests passes to the suite, and the
+# consolidated-validation receipt hashes this log, so the choice is
+# never silent.
+THEME_LAB_TEST_CONCURRENCY_EFFECTIVE=""
+THEME_LAB_TEST_CONCURRENCY_SOURCE=""
+if [[ -n "${THEME_LAB_TEST_CONCURRENCY:-}" ]]; then
+  THEME_LAB_TEST_CONCURRENCY_EFFECTIVE="${THEME_LAB_TEST_CONCURRENCY}"
+  THEME_LAB_TEST_CONCURRENCY_SOURCE="from THEME_LAB_TEST_CONCURRENCY"
+elif theme_lab_only_group_selected && ! theme_lab_archive_triggered; then
+  THEME_LAB_TEST_CONCURRENCY_EFFECTIVE="6"
+  THEME_LAB_TEST_CONCURRENCY_SOURCE="scoped exception: theme_lab is the only selected group, the archive checks are not selected, and THEME_LAB_TEST_CONCURRENCY is unset"
+else
+  THEME_LAB_TEST_CONCURRENCY_EFFECTIVE="4"
+  THEME_LAB_TEST_CONCURRENCY_SOURCE="the run-tests.mjs default"
+fi
+if group_selected theme_lab; then
+  echo "preflight: Theme Lab test concurrency: ${THEME_LAB_TEST_CONCURRENCY_EFFECTIVE} (${THEME_LAB_TEST_CONCURRENCY_SOURCE})"
+fi
 
 if [[ -z "${JOBS}" ]]; then
   if [[ "${MODE}" == "final" ]]; then JOBS=0; else JOBS=1; fi
@@ -259,7 +317,7 @@ group_contracts() {
 # chains run side by side (run_checks_concurrent, as in the
 # verification group); in list/serial mode they run in today's order.
 check_theme_lab_tests() {
-  run "Theme Lab tests" scripts/run-browser-test-no-external-network.sh npm --prefix install/local/theme-lab test
+  run "Theme Lab tests" scripts/run-browser-test-no-external-network.sh env THEME_LAB_TEST_CONCURRENCY="${THEME_LAB_TEST_CONCURRENCY_EFFECTIVE}" npm --prefix install/local/theme-lab test
 }
 
 # The archival Theme Lab checks (the frozen campaign record and the historical
@@ -269,13 +327,7 @@ check_theme_lab_tests() {
 # always when PREFLIGHT_THEME_LAB_ARCHIVE=always (promotion, scheduled runs).
 # A skipped run says so in the log; it does not appear as a check.
 theme_lab_archive_selected() {
-  if "${LIST}" || [[ "${PREFLIGHT_THEME_LAB_ARCHIVE:-}" == "always" ]]; then return 0; fi
-  local changed
-  for changed in "${CHANGED_PATHS[@]}"; do
-    case "${changed}" in
-      install/local/theme-lab/*|scripts/preflight.sh) return 0 ;;
-    esac
-  done
+  if theme_lab_archive_triggered; then return 0; fi
   echo "preflight: Theme Lab archive checks skipped (Sigma-10 historical evidence integrity, current campaign evidence restore, campaign record integrity): no change under install/local/theme-lab/ since ${MERGE_BASE:0:12}; set PREFLIGHT_THEME_LAB_ARCHIVE=always to run them"
   return 1
 }

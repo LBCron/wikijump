@@ -43,9 +43,9 @@ use crate::utils::ConvertToI16;
 use futures::{StreamExt, stream::FuturesUnordered};
 use s3::bucket::Bucket;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DeleteResult, EntityTrait,
-    JoinType, QueryFilter, QueryOrder, QuerySelect, RelationTrait, Set, Statement,
-    TransactionTrait,
+    ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseTransaction,
+    DbErr, EntityTrait, JoinType, QueryFilter, QueryOrder, QuerySelect, RelationTrait,
+    Set, SqlErr, Statement, TransactionTrait,
 };
 use sha1::{Digest, Sha1};
 use std::collections::HashSet;
@@ -56,6 +56,10 @@ const TEXT_BLOCK_INSERT_BATCH_SIZE: usize = 1_000;
 
 /// Bound concurrent object-store writes while avoiding one network round trip per block.
 const TEXT_BLOCK_UPLOAD_CONCURRENCY: usize = 16;
+
+/// How many times `add_blocks` attempts its row replacement when a
+/// concurrent replacement for the same page wins the commit race.
+const TEXT_BLOCK_REPLACE_ATTEMPTS: u32 = 3;
 
 const TEXT_BLOCK_WIKIDOT_SHA1_BACKFILL_BATCH_SIZE: u64 = 256;
 const MAX_TEXT_BLOCK_OBJECT_BYTES: usize = 16 * 1024 * 1024;
@@ -267,38 +271,50 @@ impl TextBlockService {
             return Err(error);
         }
 
-        // Then, delete the blocks from the database.
+        // Then, replace the blocks in the database.
         //
         // This doesn't require us to know which need to be kept
         // because we're just INSERTing over all of it.
-
+        //
+        // The replacement runs under a savepoint, with bounded retries.
+        // The DELETE and the INSERTs are separate statements at READ
+        // COMMITTED: if another replacement for the same page commits
+        // while our DELETE is blocked on its rows, our statement
+        // snapshot never sees the winner's rows, so our INSERT aborts
+        // the transaction on the (block_type, page_id, block_index)
+        // primary key (issue #3461). (That is also why no row-count
+        // assertion belongs here: a DELETE that waited legitimately
+        // deletes fewer rows than were read beforehand.) On that
+        // unique violation, roll back to the savepoint and retry: the
+        // retry re-reads the filenames that are actually there, and
+        // those displaced objects are what the post-commit cleanup
+        // below must delete. The winner's own cleanup covers the set
+        // that was current when we started.
+        let mut displaced_filenames = previous_filenames.clone();
         let database_result: Result<()> = async {
-            let DeleteResult { rows_affected, .. } = TextBlockTable::delete_many()
-                .filter(
-                    Condition::all()
-                        .add(text_block::Column::BlockType.eq(block_type))
-                        .add(text_block::Column::PageId.eq(page_id)),
-                )
-                .exec(txn)
-                .await
-                .or_raise(make_error)?;
-
-            debug_assert_eq!(
-                rows_affected,
-                previous_filenames.len() as u64,
-                "Deleted row count does not match previous text block filename count",
-            );
-
-            // Finally, insert the new text block rows in bounded batches. SeaORM
-            // emits one statement per insert_many call, so an unbounded batch can
-            // exceed PostgreSQL's bind limit after the S3 uploads have succeeded.
-            for range in text_block_insert_ranges(models.len()) {
-                TextBlockTable::insert_many(models[range].iter().cloned())
-                    .exec(txn)
-                    .await
-                    .or_raise(make_error)?;
+            let mut attempt = 0;
+            loop {
+                attempt += 1;
+                match Self::replace_block_rows(txn, page_id, block_type, &models).await {
+                    Ok(()) => break Ok(()),
+                    Err(error) => {
+                        let retryable = matches!(
+                            error.sql_err(),
+                            Some(SqlErr::UniqueConstraintViolation(_)),
+                        );
+                        if !retryable || attempt >= TEXT_BLOCK_REPLACE_ATTEMPTS {
+                            break Err(error).or_raise(make_error);
+                        }
+                        debug!(
+                            "Text block replacement for page ID {page_id} lost a concurrent-write race on attempt {attempt}; retrying",
+                        );
+                        displaced_filenames =
+                            Self::get_block_s3_filenames(ctx, page_id, Some(block_type))
+                                .await
+                                .or_raise(make_error)?;
+                    }
+                }
             }
-            Ok(())
         }
         .await;
         if let Err(error) = database_result {
@@ -306,12 +322,55 @@ impl TextBlockService {
             return Err(error);
         }
 
-        if let Err(error) = ctx.defer_text_block_cleanup(previous_filenames) {
+        if let Err(error) = ctx.defer_text_block_cleanup(displaced_filenames) {
             cleanup_uploaded_text_blocks(bucket, &new_filenames).await;
             return Err(error);
         }
 
         Ok(())
+    }
+
+    /// One attempt at replacing a page's block rows: delete the rows
+    /// that are there, then insert the new ones, under a savepoint so
+    /// that a failed attempt leaves the caller's transaction usable.
+    async fn replace_block_rows(
+        txn: &DatabaseTransaction,
+        page_id: i64,
+        block_type: TextBlockType,
+        models: &[text_block::ActiveModel],
+    ) -> StdResult<(), DbErr> {
+        let nested = txn.begin().await?;
+        let result: StdResult<(), DbErr> = async {
+            TextBlockTable::delete_many()
+                .filter(
+                    Condition::all()
+                        .add(text_block::Column::BlockType.eq(block_type))
+                        .add(text_block::Column::PageId.eq(page_id)),
+                )
+                .exec(&nested)
+                .await?;
+
+            // Insert the new text block rows in bounded batches. SeaORM
+            // emits one statement per insert_many call, so an unbounded batch can
+            // exceed PostgreSQL's bind limit after the S3 uploads have succeeded.
+            for range in text_block_insert_ranges(models.len()) {
+                TextBlockTable::insert_many(models[range].iter().cloned())
+                    .exec(&nested)
+                    .await?;
+            }
+            Ok(())
+        }
+        .await;
+        match result {
+            Ok(()) => {
+                nested.commit().await?;
+                Ok(())
+            }
+            Err(error) => {
+                let _ = nested.rollback().await;
+                Err(error)
+            }
+        }
     }
 
     /// Populate the identity for legacy HTML rows before the server accepts requests.

@@ -295,8 +295,6 @@ async function compareBundle(bundle, client) {
   const records = [];
   for (const row of bundle.rows) {
     if (row.reference.kind === "wikidot_deleted") {
-      // A deletion tombstone is a source-state observation at capture time.
-      // It is neither empty source nor authority to inspect a later local page.
       records.push(comparisonRecord(row, null, null));
       continue;
     }

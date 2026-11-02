@@ -1,2 +1,0 @@
-src/services/render/list_pages/scanner.rs:234:45: replace + with - in generated_gate_module_close
-src/services/render/list_pages/scanner.rs:236:67: replace + with - in generated_gate_module_close

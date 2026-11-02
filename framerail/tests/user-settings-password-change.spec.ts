@@ -43,7 +43,6 @@ test("account settings change the password with the current one", async ({ page 
     for (const secret of [CURRENT, NEW_PASSWORD]) expect(body).not.toContain(secret)
   }
 
-  // Mismatched confirmation stays inline on the confirmation field.
   await page.getByLabel("Current password").fill(CURRENT)
   await page.getByLabel("New password", { exact: true }).fill(NEW_PASSWORD)
   await page.getByLabel("Confirm new password").fill(`${NEW_PASSWORD}-x`)
@@ -54,7 +53,6 @@ test("account settings change the password with the current one", async ({ page 
   )
   await expect(form).toContainText("The new passwords do not match.")
 
-  // A wrong current password is refused by Deepwell.
   await page.getByLabel("Current password").fill("not-the-current-password")
   await page.getByLabel("New password", { exact: true }).fill(NEW_PASSWORD)
   await page.getByLabel("Confirm new password").fill(NEW_PASSWORD)

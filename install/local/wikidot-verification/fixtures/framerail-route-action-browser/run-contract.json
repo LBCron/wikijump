@@ -4,10 +4,6 @@
   "repository": "Rokurolize/wikijump",
   "status": "ready_for_capture",
   "source_revision": "e427ff0497235f84cf095bffc876c92103f396db",
-  "evidence_registry": {
-    "path": "docs/development/framerail-route-action-evidence.json",
-    "sha256": "46aacaefb72db42f81ba41646e767ad35443fa1dc9d655553743770526e15297"
-  },
   "historical_evidence": {
     "path": "install/local/wikidot-verification/artifacts/page-pane-lazy-browser-20260713.json",
     "sha256": "17b9b5215d40c32123ada66b43c5d5a37ea4a06a37bf2ebf99c0595e39c61ba9",
@@ -31,7 +27,7 @@
   ],
   "capture": {
     "script": "install/local/wikidot-verification/scripts/capture-framerail-route-action-temporal.mjs",
-    "script_sha256": "d52a4db45e324eeae0a5ef63858ac286eb6956c2ce41f56b1b4bf9858b923716",
+    "script_sha256": "80a2f5fb7ccc41c64d0fdecfff4aef1c0dabbfb6abd6d6f469a4c6d15a7efc6e",
     "scenarios": {
       "denial": {
         "result_oracle_source": "failure_control_identity",

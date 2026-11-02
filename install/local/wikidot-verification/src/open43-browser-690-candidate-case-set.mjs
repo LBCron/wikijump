@@ -39,7 +39,6 @@ export const OPEN43_B690_GEOMETRY_FIXTURE = Object.freeze({
     "/home/roku/wjlab/evidence/standing-promotion-20260812-organic-external-policy/live-completion-policy.json",
   capture_policy_sha256:
     "bb7133d92598c4c957f57f1b77e0ab24a10d0f4f044ae442d2b44cddd4246125",
-  // Pairing label sealed in the live reference above, never fetched (#2544).
   reference_local_origin: "https://scp-wiki.wikijump.localhost:18443",
   live_origin: "https://scp-wiki.wikidot.com",
   trace_canary_slugs: Object.freeze([

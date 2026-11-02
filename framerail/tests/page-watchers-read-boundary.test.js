@@ -105,11 +105,6 @@ test("Watchers handler delegates the posted page id to the typed Deepwell view",
     throw new Error(`Unexpected Deepwell method ${method}`)
   }
 
-  // What the pane actually submits is fetch("?/watchers", { method: "POST",
-  // body: JSON.stringify({ pageId }) }). The read carries no session: the
-  // site comes from the trusted request context server-side, so an
-  // anonymous viewer receives the roster (retained live Wikidot contract
-  // open43-q1032).
   const request = new Request("https://wikijump.test/fixture?/watchers", {
     method: "POST",
     body: JSON.stringify({ pageId: 42 }),

@@ -30,7 +30,6 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
-// Retained live cases: userinfo-target-routes-live-20260810.json.
 const foundTargets = [
   {
     user_id: 169306,

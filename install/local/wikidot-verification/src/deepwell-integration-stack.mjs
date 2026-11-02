@@ -1,8 +1,17 @@
 import {spawn} from "node:child_process";
+import {mkdir, mkdtemp, rename, rm, stat} from "node:fs/promises";
+import {tmpdir} from "node:os";
 import {dirname, join, resolve} from "node:path";
 import process from "node:process";
 import {fileURLToPath} from "node:url";
 
+import {
+  captureSeededStack,
+  computeSeedCaptureKey,
+  restoreSeedCapture,
+  verifySeedCapture,
+  withSeedCaptureFallback,
+} from "./deepwell-seed-capture.mjs";
 import {waitForPublishedPostgres} from "./postgres-published-readiness.mjs";
 
 const REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
@@ -12,6 +21,16 @@ export const DEFAULT_DEEPWELL_TEST_IMAGES = Object.freeze({
   cache: "wikijump-local-development-cache",
   files: "wikijump-local-development-files",
 });
+
+export const SEED_CAPTURE_ENV = "WIKIJUMP_DEEPWELL_SEED_CAPTURE";
+export const SEED_CAPTURE_ROOT_ENV = "WIKIJUMP_DEEPWELL_SEED_CAPTURE_ROOT";
+
+const SEED_ARGUMENTS = Object.freeze([
+  "--disable-log",
+  "--localizations", "locales",
+  "--seed", "deepwell/seeder",
+  "install/local/deepwell/config.toml",
+]);
 
 function fail(message) {
   throw new Error(message);
@@ -26,7 +45,6 @@ export function deepwellTestThreads(env = process.env) {
   return String(value);
 }
 
-/** How many nextest partitions run side by side, each on its own stack. */
 export function deepwellTestShards(env = process.env) {
   const raw = env.WIKIJUMP_DEEPWELL_TEST_SHARDS?.trim() || "1";
   const value = Number(raw);
@@ -147,10 +165,6 @@ export async function resolveDeepwellSeedBinary({cargo = "cargo", env = process.
   return join(metadata.target_directory, "debug", process.platform === "win32" ? "deepwell.exe" : "deepwell");
 }
 
-/** Run `body` on a provisioned stack. Provisioning (containers, migrations,
- * the seeder) is setup, not a test: on a saturated barrier the seeder's
- * renders can outlast Deepwell's 500 ms Valkey reply timeout. A failed
- * provisioning gets one fresh stack; a failure inside `body` is never retried. */
 export async function withProvisionedDeepwellStack(body, options = {}, {
   stack = withDeepwellIntegrationStack,
   log = (message) => console.error(message),
@@ -169,11 +183,28 @@ export async function withProvisionedDeepwellStack(body, options = {}, {
   }
 }
 
-export async function withDeepwellIntegrationStack(callback, {
+export async function withDeepwellIntegrationStack(callback, options = {}) {
+  const baseEnv = options.env ?? process.env;
+  const requested = options.seedCapture === undefined ? baseEnv[SEED_CAPTURE_ENV]?.trim() : options.seedCapture;
+  const capture = options.seed === false || !requested || requested === "off" ? null : requested;
+  return await withSeedCaptureFallback(
+    (activeCapture, markBodyEntered) => provisionStack(
+      async (context) => {
+        markBodyEntered?.();
+        return await callback(context);
+      },
+      options,
+      activeCapture,
+    ),
+    capture,
+  );
+}
+
+async function provisionStack(callback, {
   env: baseEnv = process.env,
   cargo = baseEnv.WIKIJUMP_OFFLINE_CARGO?.trim() || "cargo",
   seed = true,
-} = {}) {
+} = {}, capture = null) {
   const images = Object.fromEntries(
     Object.keys(DEFAULT_DEEPWELL_TEST_IMAGES).map((role) => [role, deepwellTestImageName(role, baseEnv)]),
   );
@@ -244,25 +275,133 @@ export async function withDeepwellIntegrationStack(callback, {
       ),
     ]);
 
-    await runValidationCommand("sqlx", ["migrate", "run", "--source", "deepwell/migrations"], {env});
-    if (seed) {
+    if (capture) {
+      const started = Date.now();
+      await restoreSeedCapture({
+        run: runValidationCommand,
+        containers,
+        ports: {database: databasePort, cache: cachePort, files: filesPort},
+        buckets: [env.S3_FILES_BUCKET, env.S3_TEXT_BLOCKS_BUCKET],
+        directory: capture,
+        expectedKey: capture.split("/").filter(Boolean).at(-1),
+      });
+      console.error(`Deepwell test stack restored from seed capture ${capture.split("/").filter(Boolean).at(-1).slice(0, 12)} in ${Date.now() - started} ms`);
+    } else {
+      await runValidationCommand("sqlx", ["migrate", "run", "--source", "deepwell/migrations"], {env});
+    }
+    if (seed && !capture) {
       await runValidationCommand(cargo, [
         "build", "--offline", "--locked",
         "--manifest-path", "deepwell/Cargo.toml", "--bin", "deepwell",
       ], {env});
       const seedBinary = await resolveDeepwellSeedBinary({cargo, env});
-      await runValidationCommand(seedBinary, [
-        "--disable-log",
-        "--localizations", "locales",
-        "--seed", "deepwell/seeder",
-        "install/local/deepwell/config.toml",
-      ], {env: {...env, DEEPWELL_RUNTIME_ACTION: "seeder"}});
+      await runValidationCommand(seedBinary, [...SEED_ARGUMENTS], {env: {...env, DEEPWELL_RUNTIME_ACTION: "seeder"}});
     }
 
-    return await callback({env, cargo, containers});
+    return await callback({env, cargo, containers, ports: {database: databasePort, cache: cachePort, files: filesPort}});
   } finally {
     process.removeListener("SIGINT", onSignal);
     process.removeListener("SIGTERM", onSignal);
     await cleanup();
+  }
+}
+
+async function imageId(image) {
+  const {stdout} = await runValidationCommand("docker", ["image", "inspect", "--format", "{{.Id}}", image], {capture: true});
+  return stdout.trim();
+}
+
+function staticSeedEnvironment() {
+  const {
+    DATABASE_URL: _database,
+    REDIS_URL: _cache,
+    S3_CUSTOM_ENDPOINT: _files,
+    CARGO_BUILD_JOBS: _jobs,
+    ...rest
+  } = testEnvironment({databasePort: 0, cachePort: 0, filesPort: 0}, {});
+  return rest;
+}
+
+export async function ensureDeepwellSeedCapture({
+  env: baseEnv = process.env,
+  cargo = baseEnv.WIKIJUMP_OFFLINE_CARGO?.trim() || "cargo",
+  root = REPOSITORY_ROOT,
+  captureRoot,
+  log = (message) => console.error(message),
+} = {}) {
+  const images = Object.fromEntries(
+    Object.keys(DEFAULT_DEEPWELL_TEST_IMAGES).map((role) => [role, deepwellTestImageName(role, baseEnv)]),
+  );
+  await Promise.all(Object.entries(images).map(([role, image]) => requireLocalImage(image, role)));
+  const imageIds = Object.fromEntries(await Promise.all(
+    Object.entries(images).map(async ([role, image]) => [role, await imageId(image)]),
+  ));
+
+  const buildEnv = {...baseEnv, CARGO_BUILD_JOBS: baseEnv.CARGO_BUILD_JOBS?.trim() || "1"};
+  await runValidationCommand(cargo, [
+    "build", "--offline", "--locked", "--manifest-path", "deepwell/Cargo.toml", "--bin", "deepwell",
+  ], {env: buildEnv, cwd: root});
+  const binaryPath = await resolveDeepwellSeedBinary({cargo, env: buildEnv});
+  const {key, inputs} = await computeSeedCaptureKey({
+    root, binaryPath, imageIds, staticEnv: staticSeedEnvironment(), seedArguments: [...SEED_ARGUMENTS],
+  });
+
+  await mkdir(captureRoot, {recursive: true});
+  const directory = join(captureRoot, key);
+  if (await stat(directory).then(() => true, () => false)) {
+    try {
+      await verifySeedCapture(directory, key);
+      log(`Deepwell seed capture ${key.slice(0, 12)} reused from ${captureRoot}`);
+      return {directory, key, reused: true};
+    } catch (error) {
+      log(`Deepwell seed capture ${key.slice(0, 12)} is unusable and will be rebuilt: ${error.message}`);
+    }
+  }
+
+  const staging = await mkdtemp(join(captureRoot, ".staging-"));
+  try {
+    const started = Date.now();
+    await withProvisionedDeepwellStack(async ({env, containers, ports}) => {
+      await captureSeededStack({
+        run: runValidationCommand,
+        containers,
+        ports,
+        buckets: [env.S3_FILES_BUCKET, env.S3_TEXT_BLOCKS_BUCKET],
+        directory: staging,
+        key,
+        inputs,
+      });
+    }, {env: baseEnv, cargo, seedCapture: null});
+    await verifySeedCapture(staging, key);
+    await rm(directory, {recursive: true, force: true});
+    await rename(staging, directory);
+    log(`Deepwell seed capture ${key.slice(0, 12)} built in ${Date.now() - started} ms`);
+    return {directory, key, reused: false};
+  } finally {
+    await rm(staging, {recursive: true, force: true});
+  }
+}
+
+export async function temporarySeedCaptureRoot() {
+  const directory = await mkdtemp(join(tmpdir(), "wikijump-deepwell-seed-"));
+  return {directory, dispose: () => rm(directory, {recursive: true, force: true})};
+}
+
+export async function prepareShardSeedCapture(env = process.env, {
+  ensure = ensureDeepwellSeedCapture,
+  log = (message) => console.error(message),
+} = {}) {
+  const named = env[SEED_CAPTURE_ENV]?.trim();
+  if (named) return {directory: named === "off" ? null : named, dispose: async () => {}};
+  const persistent = env[SEED_CAPTURE_ROOT_ENV]?.trim();
+  const temporary = persistent ? null : await temporarySeedCaptureRoot();
+  const dispose = async () => { await temporary?.dispose(); };
+  try {
+    const {directory} = await ensure({env, captureRoot: persistent || temporary.directory, log});
+    return {directory, dispose};
+  } catch (error) {
+    log(`Deepwell seed capture could not be prepared; every shard will seed its own stack: ${error?.message ?? error}`);
+    await dispose();
+    return {directory: null, dispose: async () => {}};
   }
 }

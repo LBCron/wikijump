@@ -1,10 +1,3 @@
-/*
- * services/render/replay/supervisor.rs
- *
- * Isolated worker lifecycle. A deadline always ends in a force-kill followed
- * by wait/reap; dropping the future is also guarded by kill_on_drop.
- */
-
 use super::features::timeout_signature;
 use super::model::{
     FailureSignature, ReplayOutcome, ReplayStage, ReplayWorkerRequest, WorkerEvent,
@@ -115,29 +108,22 @@ async fn supervise_command(
             Ok(status) => (Some(status), false, false, true),
             Err(_) => (None, false, false, false),
         },
-        Err(_) => {
-            // Account for the narrow race in which the process exits as the
-            // timer fires. Otherwise send SIGKILL (on Unix) and always reap.
-            match child.try_wait() {
-                Ok(Some(status)) => (Some(status), false, false, true),
-                _ => {
-                    let killed = child.start_kill().is_ok();
-                    let status = timeout(REAP_TIMEOUT, child.wait())
-                        .await
-                        .ok()
-                        .and_then(Result::ok);
-                    let reaped = status.is_some();
-                    (status, true, killed, reaped)
-                }
+        Err(_) => match child.try_wait() {
+            Ok(Some(status)) => (Some(status), false, false, true),
+            _ => {
+                let killed = child.start_kill().is_ok();
+                let status = timeout(REAP_TIMEOUT, child.wait())
+                    .await
+                    .ok()
+                    .and_then(Result::ok);
+                let reaped = status.is_some();
+                (status, true, killed, reaped)
             }
-        }
+        },
     };
 
     drop(child);
     if timed_out && !reaped {
-        // No task may keep a pipe to an unconfirmed process alive past the
-        // deadline. Dropping Child invokes kill_on_drop; aborting all pipe
-        // tasks makes this failure path bounded even if the OS kill failed.
         writer.abort();
         stdout_reader.abort();
         stderr_reader.abort();

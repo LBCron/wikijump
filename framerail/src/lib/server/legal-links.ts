@@ -30,7 +30,6 @@ const PLATFORM_LEGAL_PATHS = {
   privacyPolicy: "/legal:privacy-policy"
 }
 
-// The platform wiki (www) serves these as ordinary seeded pages.
 const PLATFORM_FOOTER_PATHS = {
   docs: "/docs",
   security: "/legal:security"

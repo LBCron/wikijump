@@ -1,0 +1,171 @@
+{
+  "slug": "theme:jakstyle",
+  "en_source_sha256": "001da31e6e309460792f950ba5bcb78eba3c8a7305efb7a3e21e05365615d270",
+  "en_updated_at": "2026-04-21T01:35:48+00:00",
+  "en_entity_uuid": "3f6bd0c2-2736-43bc-98d7-5ef44874650c",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "043a9ecd102a053c1d7daa538e293a147117f722cfe6e232c694f6107c48dae2",
+  "jp_previous_updated_at": "2023-02-20T06:32:47+00:00",
+  "jp_previous_entity_uuid": "62da1961-d87e-40a7-b433-b8782035cd19",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:jakstyle",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:jakstyle",
+    "title": "JAKSTYLE",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "001da31e6e309460792f950ba5bcb78eba3c8a7305efb7a3e21e05365615d270",
+      "updated_at": "2026-04-21T01:35:48+00:00",
+      "entity_uuid": "3f6bd0c2-2736-43bc-98d7-5ef44874650c",
+      "tags": [
+        "_cc",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 317,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:jakstyle"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "043a9ecd102a053c1d7daa538e293a147117f722cfe6e232c694f6107c48dae2",
+      "updated_at": "2023-02-20T06:32:47+00:00",
+      "entity_uuid": "62da1961-d87e-40a7-b433-b8782035cd19",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:jakstyle"
+      }
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:jakstyle",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:jakstyle",
+      "component:image-block name=https://nu-scptheme.github.io/Black-Highlighter/img/logo.svg",
+      ":scp-wiki:component:centered-header-bhl",
+      ":scp-wiki:component:toggle-sidebar-bhl",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "http://scp-wiki.wikidot.com/anomaly-classification-system-guide",
+      "http://www.google.com",
+      "http://www.scp-wiki.net/classification-committee-memo",
+      "https://fonts.google.com/specimen/Inter",
+      "https://fonts.google.com/specimen/Recursive",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/img/logo.svg",
+      "https://nu-scptheme.github.io/Black-Highlighter/img/logo.svg|caption=SCP",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Ajakstyle/1"
+    ],
+    "jp_includes": [
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:theme:jakstyle",
+      ":scp-jp:component:image-block name=https://scp-jp.github.io/Black-Highlighter/img/logo.svg",
+      ":scp-jp:component:centered-header-bhl",
+      ":scp-jp:component:toggle-sidebar-bhl",
+      ":scp-jp:component:interwiki-style"
+    ],
+    "jp_external_dependencies": [
+      "http://www.google.com",
+      "https://fonts.google.com/specimen/Inter",
+      "https://fonts.google.com/specimen/Recursive",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-jp.github.io/Black-Highlighter/img/logo.svg",
+      "https://scp-jp.github.io/Black-Highlighter/img/logo.svg|caption=SCP財団ロゴ|width=200px",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Ajakstyle/1"
+    ],
+    "base_family": "black-highlighter"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/jakstyle/assets.json",
+  "asset_dependency_decision_count": 38,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "d0eb8af160c74eb7d72792b78567756792857a6b7851ed196cc7233b1f960869",
+    "jp_overrides_sha256": "d4aef34367effcdf96ea0289e1f50b0f241103eb097b71f75c71393be7104323",
+    "semantic_css_sha256": "6d2dda2ae2d8c174da86ad02bd0da6297631abd05d14878615f7788d50e0652f",
+    "canonical_override_sha256": "1ebf6c00d9fed2e3620d85660b704ed2cf8147edc621cd78153b8cebf8a254c2",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "0f08e3e8186d8e58749a31c8da060a12b97508788c87b84c450e878882a5a0a9",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "234ee618f739d621479f9615f8bddcea1870eb83ea0880cac4f2035fff43e93b",
+      "active_tags": [],
+      "candidate_source_sha256": "89034fb9bc67ce6c1df63201c30c98ee546499015aaf44709dcf13e04ff57aff",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 2,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "08367e8d1364e6e976a4dc4acb0ccc4332dac24791e396fb0e508c091058e175",
+      "asset_receipt_path": "assets.json",
+      "assets": 32,
+      "imports": 6,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "875497dc164526da0940bc91a56d9b3cb6839e30cb02881e47245d662982a621",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

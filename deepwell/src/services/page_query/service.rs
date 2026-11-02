@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code, unused_variables)] // TEMP
+#![allow(dead_code, unused_variables)]
 
 use super::structs::{
     AuthorSelector, CategoriesSelector, ComparisonOperation, DataFormSelector,
@@ -42,7 +42,7 @@ use crate::types::{ConnectionType, Reference};
 use sea_orm::FromQueryResult;
 use sea_orm::{
     ColumnTrait, Condition, ConnectionTrait, EntityTrait, ExprTrait, JoinType,
-    QueryFilter, QueryOrder, QuerySelect, RelationTrait, Statement,
+    PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, RelationTrait, Statement,
 };
 use sea_query::extension::postgres::PgBinOper;
 use sea_query::{Expr, Query, SimpleExpr, Value};
@@ -96,6 +96,22 @@ use self::score_filter::{apply_score_filters, score_comparison_operator};
 
 #[derive(Debug)]
 pub struct PageQueryService;
+
+struct BuiltPageQuery<'a> {
+    query: sea_orm::Select<page::Entity>,
+    fields: FoundPageFields,
+    order: OrderBySelector,
+    offset: u32,
+    pagination: PaginationSelector,
+    data_form_fields: &'a [DataFormSelector<'a>],
+    candidate_limit: Option<u64>,
+    hard_candidate_limit: Option<u64>,
+    needs_tag_filter: bool,
+    projects_effective_revision_count: bool,
+    filtering_deferred_to_rust: bool,
+    ordering_deferred_to_rust: bool,
+    tag_custom_plan: bool,
+}
 
 impl PageQueryService {
     pub async fn find(
@@ -151,6 +167,69 @@ impl PageQueryService {
         score_filter_session: Option<&mut PageQueryScoreFilterSession>,
         hard_candidate_limit: Option<u64>,
     ) -> Result<PageQueryResultEnvelope> {
+        let built = Self::build_page_query(
+            ctx,
+            query,
+            score_filter_cache,
+            score_filter_session,
+            hard_candidate_limit,
+        )
+        .await?;
+        Self::fetch_built_page_query(ctx, built).await
+    }
+
+    pub async fn count_with_metadata(
+        ctx: &ServiceContext<'_>,
+        query: PageQuery<'_>,
+    ) -> Result<PageQueryResultEnvelope> {
+        let make_error =
+            || Error::new("failed to create ListPages query", ErrorType::PageQuery);
+        let built = Self::build_page_query(ctx, query, None, None, None).await?;
+        let txn = ctx.transaction();
+        if built.tag_custom_plan {
+            txn.execute_unprepared("SET LOCAL plan_cache_mode = force_custom_plan")
+                .await
+                .or_raise(make_error)?;
+        }
+        let total = built.query.count(txn).await.or_raise(make_error)?;
+        if built.tag_custom_plan {
+            txn.execute_unprepared("SET LOCAL plan_cache_mode TO DEFAULT")
+                .await
+                .or_raise(make_error)?;
+        }
+        let candidate_count = usize::try_from(total).ok();
+        let defer_offset_limit = built.ordering_deferred_to_rust
+            || built.filtering_deferred_to_rust
+            || built.hard_candidate_limit.is_some();
+        let cap_exceeded = defer_offset_limit
+            && built
+                .candidate_limit
+                .and_then(|limit| usize::try_from(limit).ok())
+                .is_some_and(|limit| candidate_count.is_some_and(|count| count >= limit));
+        Ok(PageQueryResultEnvelope {
+            pages: FoundPages { pages: Vec::new() },
+            metadata: PageQueryResultMetadata {
+                candidate_count,
+                cap_exceeded,
+                sql_limit_offset_applied: false,
+                filtering_deferred_to_rust: built.filtering_deferred_to_rust,
+                ordering_deferred_to_rust: built.ordering_deferred_to_rust,
+                exact_count_safe: !built.filtering_deferred_to_rust
+                    && !built.ordering_deferred_to_rust
+                    && !cap_exceeded
+                    && candidate_count.is_some(),
+                unsupported_reason: None,
+            },
+        })
+    }
+
+    async fn build_page_query<'a>(
+        ctx: &ServiceContext<'_>,
+        query: PageQuery<'a>,
+        score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
+        score_filter_session: Option<&mut PageQueryScoreFilterSession>,
+        hard_candidate_limit: Option<u64>,
+    ) -> Result<BuiltPageQuery<'a>> {
         let queried_site_id = query.queried_site_id.unwrap_or(query.current_site_id);
         let PageQuery {
             current_page_id,
@@ -254,9 +333,6 @@ impl PageQueryService {
 
         condition = condition.add(page::Column::SiteId.eq(queried_site_id));
 
-        // Foreign include-source snapshots are storage, not pages of this
-        // site (issue #2690): hide them from every ListPages selection the
-        // same way direct routes hide them.
         condition = condition.add(Expr::cust(foreign_snapshot_exclusion_sql(
             "page.page_id",
             queried_site_id,
@@ -276,10 +352,7 @@ impl PageQueryService {
             PageTypeSelector::All => {}
         }
 
-        // Categories (included and excluded)
         let page_category_condition = match included_categories {
-            // If all categories are selected (using an asterisk or by only specifying excluded categories),
-            // then filter only by site_id and exclude the specified excluded categories.
             IncludedCategories::All => page::Column::PageCategoryId.in_subquery(
                 Query::select()
                     .column(page_category::Column::CategoryId)
@@ -292,13 +365,6 @@ impl PageQueryService {
                     .to_owned(),
             ),
 
-            // If a specific list of categories is provided, filter by site_id, inclusion in the
-            // specified included categories, and exclude the specified excluded categories.
-            //
-            // NOTE: Exclusion can only have an effect in this query if it is *also* included.
-            //       Although by definition this is the same as not including the category in the
-            //       included categories to begin with, it is still accounted for to preserve
-            //       backwards-compatibility with poorly-constructed ListPages modules.
             IncludedCategories::List(included_categories) => page::Column::PageCategoryId
                 .in_subquery(
                     Query::select()
@@ -332,7 +398,6 @@ impl PageQueryService {
             condition = condition.add(parent_condition);
         }
 
-        // Slug
         if let Some(slug) = slug {
             if !slugs.is_empty() {
                 return Err(Error::new(
@@ -398,7 +463,6 @@ impl PageQueryService {
             condition = condition.add(vote_selectors_condition(&votes));
         }
 
-        // Build the final query
         let mut query = Page::find()
             .filter(page::Column::DeletedAt.is_null())
             .filter(condition);
@@ -417,8 +481,6 @@ impl PageQueryService {
             query = query.join(JoinType::LeftJoin, page::Relation::PageRevision.def());
         }
 
-        // Tag filtering. Tags live on the current page revision, so this joins through
-        // page.latest_revision_id -> page_revision.revision_id before applying array predicates.
         for tag in all_tags {
             query = query.filter(
                 Expr::col(page_revision::Column::Tags)
@@ -466,6 +528,49 @@ impl PageQueryService {
 
         let projects_effective_revision_count =
             needs_effective_revision_projection(&fields, &order);
+        let score_order = matches!(&order.property, OrderProperty::Score);
+        let data_form_order =
+            matches!(&order.property, OrderProperty::DataFormFieldName { .. });
+
+        Ok(BuiltPageQuery {
+            query,
+            fields,
+            order,
+            offset,
+            pagination,
+            data_form_fields,
+            candidate_limit,
+            hard_candidate_limit,
+            needs_tag_filter,
+            projects_effective_revision_count,
+            filtering_deferred_to_rust: !data_form_fields.is_empty(),
+            ordering_deferred_to_rust: score_order || data_form_order,
+            tag_custom_plan: needs_tag_filter && score_and_votes_empty,
+        })
+    }
+
+    async fn fetch_built_page_query(
+        ctx: &ServiceContext<'_>,
+        built: BuiltPageQuery<'_>,
+    ) -> Result<PageQueryResultEnvelope> {
+        let make_error =
+            || Error::new("failed to create ListPages query", ErrorType::PageQuery);
+        let txn = ctx.transaction();
+        let BuiltPageQuery {
+            mut query,
+            fields,
+            order,
+            offset,
+            pagination,
+            data_form_fields,
+            candidate_limit,
+            hard_candidate_limit,
+            needs_tag_filter,
+            projects_effective_revision_count,
+            filtering_deferred_to_rust,
+            ordering_deferred_to_rust,
+            tag_custom_plan,
+        } = built;
         if projects_effective_revision_count {
             query = query.column_as(
                 SimpleExpr::Custom(effective_revision_count_sql("page.page_id").into()),
@@ -473,14 +578,8 @@ impl PageQueryService {
             );
         }
 
-        // Add on at the query-level (ORDER BY, LIMIT)
-        let score_order = matches!(&order.property, OrderProperty::Score);
-        let data_form_order =
-            matches!(&order.property, OrderProperty::DataFormFieldName { .. });
         query = apply_sql_ordering(query, &order, needs_tag_filter);
 
-        let filtering_deferred_to_rust = !data_form_fields.is_empty();
-        let ordering_deferred_to_rust = score_order || data_form_order;
         let defer_offset_limit = ordering_deferred_to_rust
             || filtering_deferred_to_rust
             || hard_candidate_limit.is_some();
@@ -499,31 +598,17 @@ impl PageQueryService {
             query = query.limit(candidate_limit);
         }
 
-        // TODO pagination
-        //      the "reverse" field means that, for each page, it is reversed.
-        //
-        //      this does not affect the overall ORDER BY
-        //      for instance, imagine we are selecting from the positive integers
-        //      if the pagination limit is 5 and the order is ascending, but reverse = true,
-        //      then this means we get pages like:
-        //
-        //      1. [ 4,  3,  2,  1,  0]
-        //      2. [ 9,  8,  7,  6,  5]
-        //      3. [14, 13, 12, 11, 10]
-
         // Tag predicates have the same problem as the score selectors above:
         // a generic plan cannot see how rare a tag is, so after a few
         // executions PostgreSQL walks every page in order and probes each
         // revision's tags (a 4 ms query took 160 ms). Plan this query with its
         // values, then return the rest of the render to cached plans.
-        let tag_custom_plan = needs_tag_filter && score_and_votes_empty;
         if tag_custom_plan {
             txn.execute_unprepared("SET LOCAL plan_cache_mode = force_custom_plan")
                 .await
                 .or_raise(make_error)?;
         }
 
-        // Execute it!
         let (mut pages, effective_revision_count_by_page_id) =
             if projects_effective_revision_count {
                 let selected = query
@@ -559,10 +644,6 @@ impl PageQueryService {
             .into());
         }
         let candidate_count = Some(pages.len());
-        // Both deferred paths resolve in Rust over the fetched candidate set, so
-        // a scan that filled its bound may be missing rows that belong in the
-        // result. The caller preserves the module rather than rendering a list
-        // sorted or filtered from a truncated candidate set.
         let cap_exceeded = defer_offset_limit
             && candidate_limit
                 .and_then(|limit| usize::try_from(limit).ok())

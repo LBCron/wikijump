@@ -77,7 +77,6 @@ export const createOwnedTlsDirectory = (directory, token = randomUUID()) => {
     try {
       rmdirSync(tlsDirectory)
     } catch {
-      // Leave any directory that gained unexpected content untouched.
     }
     throw error
   }

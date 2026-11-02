@@ -1,0 +1,625 @@
+/* Korean SCP branch Dear Dictator theme, ported for SCP-JP; source and asset hashes are in PORT.md. */
+:root {
+  --towerleft: max(calc(50% - 675px), -40px);
+  --towerwidth: 280px;
+  --slogan1: "異常教化戦線を徹底構築し";
+  --slogan2: "祖国主体革命の力となれ!!";
+  --slogan1m: "異常教化戦線を";
+  --slogan2m: "徹底構築せよ!!";
+
+  --text: #222;
+  --red: #892B21;
+  --gold: #C6AF5F;
+  --bg: #FFF;
+  --paper: #EDEDEA;
+  --brown: #362622;
+}
+
+body, html, #container {
+  overflow-x: hidden;
+}
+
+body, h2, h3, h4, h5, h6 {
+  font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, "IPAPGothic", sans-serif;
+  color: var(--text);
+}
+
+a, a:visited, a.newpage, #side-bar a {
+  color: var(--gold); text-shadow: 0 0 1px var(--gold);
+}
+
+div#container-wrap { background: none; }
+#container { margin-bottom: 26px; }
+#footer, #footer a { background: none; color: var(--text); }
+#license-area {
+  display: block;
+  padding: 1rem;
+  color: var(--text);
+  background: var(--paper);
+}
+#license-area a { color: var(--red); text-decoration: underline; }
+#content-wrap, #main-content { position: static; }
+
+#header { background: none; height: 200px; }
+
+#header h1 {
+  margin-left: 0;
+  width: 100%;
+  text-align: center;
+}
+
+#header h1 a {
+  color: transparent;
+  text-shadow: none;
+  transform: scaleX(1.2) rotate(-5deg); }
+
+#header h1 a::before {
+  content: var(--slogan1) "　\A　" var(--slogan2) "\A";
+  color: var(--red);
+  text-shadow: 3px 3px var(--gold), 2px 2px 2px var(--bg), 2px -2px 2px var(--bg), -2px 2px 2px var(--bg), -2px -2px 2px var(--bg), 3px 0 2px var(--bg), 0 3px 2px var(--bg), -3px 0 2px var(--bg), 0 -3px 2px var(--bg), 5px 5px 2px var(--bg), 5px 1px 2px var(--bg), 1px 5px 2px var(--bg), 1px 1px 2px var(--bg), 6px 3px 2px var(--bg), 3px 6px 2px var(--bg), 0 3px 2px var(--bg), 3px 0 2px var(--bg);
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", "IPAMincho", serif;
+  font-style: italic;
+  white-space: pre;
+  line-height: 1.1;
+}
+
+#header h2 { display: none; }
+
+#login-status { position: fixed; right: unset; top: -3px; left: 10px; z-index: 14; font-size: 100%; }
+#login-status, #login-status a { color: var(--bg); }
+
+#login-status .printuser { font-size: 0; }
+#login-status .printuser img.small { transform: translate(5px, 5px); }
+
+#account-options { right: unset; left: 0; }
+#account-options li a:hover { color: var(--gold); }
+
+#top-bar { position: fixed; top: 0; right: unset; z-index: 13; font-size: 100%; }
+#top-bar .top-bar, #top-bar .mobile-top-bar { justify-content: center; width: 100%; }
+#top-bar ul { float: none !important; }
+
+#top-bar ul li.sfhover a, #top-bar ul li:hover a, #login-status ul a {
+  background: var(--red);
+  color: var(--bg);
+}
+
+#top-bar ul li:hover a:hover {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.c_topbar_arrow {
+  color: var(--gold);
+}
+
+#search-top-box { position: fixed; top: 0; z-index: 14;}
+#search-top-box-form input[type="submit"],
+#search-top-box-form input[type="submit"]:hover,
+#search-top-box-form input[type="submit"]:focus {
+  background: var(--red);
+  border: 2px solid var(--gold);
+  color: var(--bg);
+  box-shadow: none;
+  font-size: 100%;
+}
+
+#header-extra-div-1, #extra-div-1 {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 21px;
+  background: var(--red);
+  border: solid var(--gold);
+}
+
+#header-extra-div-1 {
+  top: 0;
+  border-width: 0 0 5px 0;
+  z-index: 12;
+}
+#extra-div-1 {
+  bottom: 0;
+  border-width: 5px 0 0 0;
+  z-index: 15;
+}
+#extra-div-1::before {
+  content: "⚠️ 創作上の政治風刺・CC BY-SA 3.0";
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  color: var(--bg);
+}
+#extra-div-1::after {
+  content: "このテーマは架空の独裁体制を扱う創作上の意匠です。\A実在する政権や政策を支持するものではありません。\A特記なき内容はCC BY-SA 3.0に従います。";
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  padding: 0.5em 1em;
+  box-sizing: border-box;
+  transform: scaleY(0) translateX(-50%);
+  transform-origin: bottom;
+  background: var(--red);
+  color: var(--bg);
+  text-align: center;
+  white-space: pre-wrap;
+  transition: all 0.3s;
+}
+#extra-div-1:hover::after {
+  transform: scaleY(1) translateX(-50%);
+  transition: all 0.3s;
+}
+
+#extra-div-2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1000px;
+  background: linear-gradient(var(--bg) 80%, transparent);
+  z-index: -1;
+}
+
+#extra-div-3 {
+  position: absolute;
+  inset: 0;
+  background: url('./assets/AEB-bg.png') right/100% repeat-y;
+  z-index: -2;
+}
+
+#extra-div-4 {
+  position: absolute;
+  top: 800px;
+  left: 0;
+  right: 0;
+  bottom: -26px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.15) 800px);
+  z-index: 20;
+  pointer-events: none;
+}
+
+#page-title, h1, #header, #search-top-box-form input[type="submit"], #side-bar, #extra-div-1::before, .yui-navset .yui-nav a {
+  font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, "IPAPGothic", sans-serif;
+}
+
+#side-bar .heading {
+  font-weight: normal;
+}
+
+#side-bar .side-block .menu-item {
+  letter-spacing: 0.5px !important;
+}
+
+#side-bar a, #side-bar .collapsible-block-link, #side-bar div.menu-item a {
+  text-shadow: 1px 1px 1px var(--text), 1px -1px 1px var(--text), -1px 1px 1px var(--text), -1px -1px 1px var(--text);
+  font-weight: normal;
+}
+
+#page-title, h1 {
+  font-weight: 700;
+}
+
+h1 { color: var(--text); }
+
+.page-rate-widget-box {
+  filter: brightness(1.2) saturate(1.2);
+  line-height: 1;
+  margin-bottom: 40px;
+}
+
+#page-content .rate-box-with-credit-button {
+  background-color: var(--red);
+  border-color: var(--red);
+  margin-bottom: 40px;
+}
+
+#page-content .creditButton p a:hover {
+  color: var(--gold);
+}
+
+#page-content .page-rate-widget-box::after {
+  content: "創作上の注意 ⚠️";
+  position: absolute;
+  top: 20px;
+  right: 0;
+  width: max-content;
+}
+#page-content .rate-box-with-credit-button .page-rate-widget-box::after { right: -20px; }
+#page-content .creditBottomRate .page-rate-widget-box::after { content: none; }
+
+#page-content .creditBottomRate { height: 70px; }
+#page-content .creditBottomRate::before {
+  content: "⚠️ このページは創作上の意匠であり、\A実在する政権や政策を支持するものではありません。";
+  white-space: pre-wrap;
+  line-height: 1.4;
+  position: absolute;
+  text-align: center;
+  bottom: 5px;
+  left: 0;
+  right: 0;
+}
+
+#u-credit-view { z-index: 20; }
+
+.chapter {
+  margin: 0.25em;
+  text-align: center;
+  font-size: 2.5em;
+  color: var(--red);
+  text-shadow: 2px 2px var(--gold);
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", "IPAMincho", serif;
+  font-style: italic;
+  word-break: keep-all;
+}
+
+span.kim {
+  display: inline-block;
+  font-size: 101%;
+  font-weight: 500;
+  font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, "IPAPGothic", sans-serif;
+  white-space: nowrap;
+}
+
+div.tower, div.towerline {
+  position: fixed;
+  top: calc(var(--towerwidth) + 25px);
+  left: var(--towerleft);
+  width: var(--towerwidth);
+  height: 650px;
+}
+
+div.tower {
+  clip-path: polygon(0% 0%, 0% 100%, 2% 100%, 2% 86.5%, 1% 86.5%, 1% 84.5%, 4% 84.5%, 4% 70.5%, 3% 70.5%, 3% 68.5%, 6% 68.5%, 6% 53.5%, 5% 53.5%, 5% 51.5%, 8% 51.5%, 8% 36.5%, 7% 36.5%, 7% 34.5%, 10% 34.5%, 10% 19.5%, 9% 19.5%, 9% 17.5%, 12% 17.5%, 12% 2.5%, 11% 2.5%, 11% 0.5%, 89% 0.5%, 89% 2.5%, 88% 2.5%, 88% 17.5%, 91% 17.5%, 91% 19.5%, 90% 19.5%, 90% 34.5%, 93% 34.5%, 93% 36.5%, 92% 36.5%, 92% 51.5%, 95% 51.5%, 95% 53.5%, 94% 53.5%, 94% 68.5%, 97% 68.5%, 97% 70.5%, 96% 70.5%, 96% 84.5%, 99% 84.5%, 99% 86.5%, 98% 86.5%, 98% 100%, 100% 100%, 100% 0%);
+
+  background: var(--bg);
+  z-index: 8;
+}
+
+div.towerline {
+  clip-path: polygon(0.5% 0.5%, 0.5% 100%, 3% 100%, 3% 86%, 2% 86%, 2% 85%, 5% 85%, 5% 70%, 4% 70%, 4% 69%, 7% 69%, 7% 53%, 6% 53%, 6% 52%, 9% 52%, 9% 36%, 8% 36%, 8% 35%, 11% 35%, 11% 19%, 10% 19%, 10% 18%, 13% 18%, 13% 2%, 12% 2%, 12% 1%, 88% 1%, 88% 2%, 87% 2%, 87% 18%, 90% 18%, 90% 19%, 89% 19%, 89% 35%, 92% 35%, 92% 36%, 91% 36%, 91% 52%, 94% 52%, 94% 53%, 93% 53%, 93% 69%, 96% 69%, 96% 70%, 95% 70%, 95% 85%, 98% 85%, 98% 86%, 97% 86%, 97% 100%, 99.5% 100%, 99.5% 0.5%);
+
+  background: var(--text);
+  z-index: 7;
+}
+
+div.toweron, div.toweroff {
+  top: calc(var(--towerwidth) + 25px);
+  left: calc(var(--towerleft) + 1px);
+  width: calc(var(--towerwidth) - 2px);
+}
+
+div.toweron {
+  position: absolute;
+  height: 120vh;
+  background: rgba(255,255,200,0.6);
+  backdrop-filter: brightness(2) blur(2px);
+  mask: linear-gradient(rgb(0, 0, 0) 20%, transparent);
+  z-index: 3;
+}
+
+div.toweroff {
+  position: fixed;
+  height: 650px;
+  background: #555;
+  z-index: 1;
+}
+
+div.light {
+  position: fixed;
+  top: 26px;
+  left: var(--towerleft);
+  width: var(--towerwidth);
+  height: var(--towerwidth);
+  background: url(./assets/AEB-header.png) center/cover no-repeat;
+  z-index: 9;
+}
+
+div.lighton {
+  position: absolute;
+  top: 27px;
+  left: calc(var(--towerleft) + 1px);
+  width: calc(var(--towerwidth) - 2px);
+  height: calc(var(--towerwidth) - 2px);
+  mask: linear-gradient(var(--text) 50%, transparent);
+  backdrop-filter: brightness(1.2) saturate(1.8) contrast(2);
+  z-index: 5;
+}
+
+div.lightoff {
+  position: fixed;
+  top: 27px;
+  left: calc(var(--towerleft) + 1px);
+  width: calc(var(--towerwidth) - 2px);
+  height: calc(var(--towerwidth) - 2px);
+  background: url(./assets/AEB-headerbg.png) center/contain no-repeat;
+  z-index: 4;
+}
+
+blockquote, div.blockquote {
+  border: 2px solid var(--text);
+  box-size: border-box;
+  background: var(--paper);
+}
+
+.yui-navset .yui-nav {
+  border: none;
+}
+
+.yui-navset .yui-nav a,
+.yui-navset .yui-nav a em,
+.yui-navset .yui-nav .selected a, .yui-navset .yui-nav .selected a em {
+  border: none;
+}
+
+.yui-navset .yui-nav a {
+  background: var(--gold);
+  padding: 0.25em 1.25em;
+  filter: brightness(1.1);
+  clip-path: polygon(10px 0%, 0% 100%, 100% 100%, calc(100% - 10px) 0%);
+  font-size: 110%;
+  color: var(--text);
+  position: relative;
+}
+
+.yui-navset .yui-nav .selected,
+.yui-navset .yui-nav li {
+  margin: -1px -0.5em -1px 0;
+  max-width: 100%;
+}
+
+.yui-navset .yui-nav a:hover, .yui-navset .yui-nav a:focus {
+  background: var(--gold);
+  filter: brightness(1.2);
+  z-index: 1;
+}
+
+.yui-navset .yui-nav .selected a, .yui-navset .yui-nav .selected a:focus, .yui-navset .yui-nav .selected a:hover {
+  background: var(--gold);
+  filter: brightness(1);
+  color: var(--red);
+  z-index: 2;
+}
+
+.yui-navset .yui-content {
+  border: 7px solid var(--gold);
+  box-size: border-box;
+  background: var(--paper);
+  padding: 0.5em 1em;
+  z-index: 3;
+}
+
+.yui-content blockquote,
+.yui-content div.blockquote,
+blockquote blockquote,
+blockquote div.blockquote,
+div.blockquote blockquote,
+div.blockquote div.blockquote {
+  background: #E5E5E2;
+}
+
+.yui-content a, blockquote a, div.blockquote a {
+  filter: brightness(0.9);
+}
+
+table.wiki-content-table th {
+  background-color: var(--gold);
+  color: var(--red);
+  font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, "IPAPGothic", sans-serif;
+}
+
+.thread-container .post .head {
+  background: var(--red);
+  color: var(--bg);
+}
+
+.thread-container .post .options a {
+  color: var(--gold);
+}
+
+@media (min-width: 768px) and (max-width: 979px) {
+  #top-bar ul li.sfhover ul li a, #top-bar ul li:hover ul li a {
+    width: 150px;
+  }
+  #top-bar ul li ul li ul {
+    left: 173px;
+  }
+}
+
+@media(min-width: 768px) {
+  #header h1 {
+    box-sizing: border-box;
+    padding-left: 10vw;
+  }
+
+  #top-bar .top-bar { display: flex; }
+
+  /* The Korean branch navigation positions are not stable SCP-JP selectors. */
+
+  #side-bar {
+    position: fixed;
+    z-index: 1;
+    top: 315px;
+    left: var(--towerleft);
+    bottom: 15px;
+    margin-left: 31px;
+    overflow-y: scroll;
+    z-index: 15;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  #side-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  #side-bar .side-block, #side-bar .red, #side-bar .green, #side-bar .blue {
+    /* Keep the Korean theme's pale labels readable against SCP-JP's light
+       article canvas while preserving its red navigation-panel identity. */
+    background: var(--red);
+    box-shadow: none;
+    border: none;
+    filter: brightness(1.2);
+  }
+
+  #page-content {
+    font-size: 105%;
+  }
+}
+
+@media(max-width: 767px) {
+  :root {
+    --towerleft: -100px;
+    --towerwidth: 160px;
+  }
+
+  #header h1 a::before {
+    content: var(--slogan1m) "　\A　" var(--slogan2m) "\A";
+    font-size: 150%;
+  }
+
+  #login-status, #login-status a { font-size: 0; }
+  #account-topbutton { display: none; }
+
+  #main-content {
+    padding-left: 50px;
+  }
+
+  #top-bar .mobile-top-bar { display: flex; }
+  #top-bar .open-menu a {
+    bottom: 1em;
+    left: 0.3em;
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  #side-bar:target { z-index: 20; }
+
+  #side-bar, #side-bar .side-block, #side-bar .red, #side-bar .green, #side-bar .blue {
+    background: var(--red);
+  }
+
+  #extra-div-1::after {
+    width: 100vw;
+  }
+
+  div.light {
+    background-position: 20px center;
+  }
+}
+
+@media (max-width: 580px) {
+  #header h1 a {
+    padding: 65px 0 25px;
+  }
+  #header {
+    height: 170px;
+  }
+}
+
+@media (max-width: 479px) {
+  #header h1 a {
+    font-size: 100%;
+  }
+  #header {
+    height: 150px;
+  }
+}
+
+@media (max-width: 385px) {
+  #top-bar .mobile-top-bar > ul > li:nth-child(3) > ul > li:nth-child(1) > a {
+    padding: 0.6rem 0.8rem 0.3rem 0.4rem;
+  }
+}
+
+@media (min-height: 932px) {
+  div.tower, div.towerline, div.toweroff {
+    height: unset;
+    min-height: 600px;
+    bottom: 0;
+  }
+}
+
+/* SCP-JP port: preserve the original graphic layers and allow Japanese article samples to use them without external assets. */
+.dd-introduction {
+  max-width: 38rem;
+  margin: 3rem auto;
+  padding: 1rem 1.3rem;
+  border: 2px solid var(--text);
+  background: var(--paper);
+}
+.dd-introduction h1 { font-size: 1.25rem; text-align: center; }
+.dd-emblem {
+  width: min(20rem, 75vw);
+  aspect-ratio: 1;
+  margin: 2rem auto;
+  background: url("./assets/AEB.png") center / contain no-repeat;
+}
+.dd-palette {
+  width: min(100%, 40rem);
+  margin: 2rem auto;
+  table-layout: fixed;
+  border-spacing: 0.5rem;
+  font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, "IPAPGothic", sans-serif;
+  text-align: center;
+}
+.dd-palette td {
+  width: 50%;
+  padding: 1.5rem 0.5rem;
+  overflow-wrap: anywhere;
+  box-shadow: 0 0 5px var(--text);
+}
+.dd-warning {
+  margin: 2rem auto;
+  padding: 0.75rem 1rem;
+  max-width: 38rem;
+  border-left: 5px solid var(--red);
+  background: var(--paper);
+}
+.dd-mobile-nav { display: none; }
+div.toweroff {
+  background: url("./assets/AEB-tower.png") center top / 100% auto no-repeat;
+  filter: brightness(0.5);
+}
+
+
+/* SCP-JP Wikidot Dear Dictator navigation correction: anchor only the overflowing rightmost menus at their mobile row endpoints. */
+@media (max-width: 359px) {
+  #top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul { left: auto; right: 0; }
+  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto; right: 0; }
+}
+@media (min-width: 360px) and (max-width: 767px) {
+  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto; right: 0; }
+}
+
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+
+/* SCP-JP Wikidot dear-dictator credit correction: keep the modal rating in document flow below the license control. */
+#u-credit-view .modalbox .modalbox-ratemodule { position: static; }
+
+
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+
+/* SCP-JP Wikidot Dear Dictator control correction: keep mobile navigation inside the viewport above the search layer. */
+@media (max-width: 767px) {
+  #top-bar { z-index: 20 !important; }
+  #top-bar .mobile-top-bar { position: fixed !important; inset: 0 0 auto 0 !important; z-index: 20 !important; }
+  #search-top-box { z-index: 14 !important; width: auto !important; max-width: calc(100vw - 7rem) !important; }
+  #search-top-box-form { width: auto !important; }
+}
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+/* SCP-JP Wikidot Dear Dictator mobile search correction: keep search below an unwrapped, readable navigation row. */
+@media (max-width: 979px) {
+  #search-top-box { top: 1.5rem !important; }
+}
+@media (max-width: 359px) {
+  #top-bar .mobile-top-bar > ul {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #top-bar .mobile-top-bar > ul > li {
+    flex: 0 0 auto !important;
+    white-space: nowrap;
+  }
+}

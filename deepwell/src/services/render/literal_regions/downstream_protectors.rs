@@ -48,9 +48,6 @@ fn take_collector_work() -> usize {
     COLLECTOR_WORK.with(|work| work.replace(0))
 }
 
-// These expressions intentionally mirror the downstream protectors in
-// render/service.rs. This module reports their original-source ownership
-// without changing those legacy transformation paths.
 static WIKIDOT_ANCHOR_MARKER_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"\[\[#\s+(?P<name>[^\]\n]+)\]\]")
         .expect("the Wikidot anchor marker regex is valid")
@@ -80,19 +77,9 @@ pub(in crate::services::render) enum DownstreamProtectorFamily {
 pub(in crate::services::render) struct DownstreamProtectorRange {
     pub(in crate::services::render) range: Range<usize>,
     pub(in crate::services::render) family: DownstreamProtectorFamily,
-    /// Whether captured content, excluding the protector's own opener and
-    /// closer, contains a token start that can change literal/text ownership.
     pub(in crate::services::render) contains_ownership_delimiter: bool,
 }
 
-/// Return the exact original-source ranges replaced by the page-syntax-enabled
-/// downstream compatibility-link pipeline.
-///
-/// Compatibility protectors run sequentially. CSS ranges are removed first,
-/// then accepted link ranges become nonempty delimiter-free markers before
-/// later regexes and literal guards run. The virtual source retains an origin
-/// map so matches created across removals and matches spanning earlier markers
-/// still report their full original-source ranges.
 pub(in crate::services::render) fn collect_downstream_protector_ranges(
     source: &str,
 ) -> Vec<DownstreamProtectorRange> {

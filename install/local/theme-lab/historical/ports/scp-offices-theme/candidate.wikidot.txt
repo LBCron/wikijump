@@ -1,0 +1,603 @@
+
+
+
+
+
+
+
+
+
+
+
+
+**タイトル:** SCPオフィステーマ
+**著者:** ©Woedenaz
+**原題:** SCP Offices Theme
+**作成年:** 2019
+
+
+[[=]]
++ テーマカラー
+[[/=]]
+
+[[div_ class="colors-container"]]
+[[div_ class="colors"]]
+[[div class="color" style="background-color: rgb(127,127,127);" data-variable="palette-color1" data-has-light-text="1"]]
+Jumbo[[span class="css-variable"]]@@--gray-monochrome@@[[/span]][[span class="css-variable"]](127,127,127)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(145,179,153);" data-variable="palette-color2" data-has-light-text="1"]]
+Envy[[span class="css-variable"]]@@--bright-accent@@[[/span]][[span class="css-variable"]](145,179,153)[[/span]]
+[[/div]]
+[[/div]]
+[[div_ class="subcolors"]]
+[[div class="color" style="background-color: rgb(233,231,204);" data-variable="palette-subcolor1" data-has-light-text="0"]]
+Orange White[[span class="css-variable"]]@@--pale-gray-monochrome@@[[/span]][[span class="css-variable"]](233,231,204)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(147,147,147);" data-variable="palette-subcolor2" data-has-light-text="0"]]
+Suva Gray[[span class="css-variable"]]@@--light-gray-monochrome@@[[/span]][[span class="css-variable"]](147,147,147)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(101,101,101);" data-variable="palette-subcolor3" data-has-light-text="1"]]
+Dove Gray[[span class="css-variable"]]@@--dark-gray-monochrome@@[[/span]][[span class="css-variable"]](101,101,101)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(238,238,216);" data-variable="palette-subcolor4" data-has-light-text="0"]]
+White Rock[[span class="css-variable"]]@@--white-monochrome@@[[/span]][[span class="css-variable"]](238,238,216)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(25,20,16);" data-variable="palette-subcolor5" data-has-light-text="1"]]
+Zeus[[span class="css-variable"]]@@--black-monochrome@@[[/span]][[span class="css-variable"]](25,20,16)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(105,133,111);" data-variable="palette-subcolor6" data-has-light-text="1"]]
+Viridian Green[[span class="css-variable"]]@@--dark-accent@@[[/span]][[span class="css-variable"]](105,133,111)[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+[[div class="scp-image-block block-right" style="max-width:300px;"]]
+[[image scpoffices_logo.svg width="300px"link="https://scp-jp.wikidot.com/local--files/theme:scp-offices-theme/scpoffices_logo.svg"]]
+[[div class="scp-image-caption" style="max-width: 300px;"]]
+SCPオフィステーマ
+[[/div]]
+[[/div]]
+
++ 使い方
+
+[[div_ style="display:flex;"]]
+[[image black-highlighter-logo.svg]]
+[[/div]]
+
+++ 注: これはBlack Highlighterベースのテーマです。このテーマを使用するにはBlack Highlighterテーマもインポートする必要があります。[[[theme:black-highlighter-theme|詳細については、ここを参照してください]]]。
+
+どんなウィキでも:
+
+[[div class="code"]]
+@@@@
+@@@@
+[[/div]]
+
++ 例
+
+罫線は、5つのハイフン「@@-----@@」を使用して作成でき、何かの内側（例: ブロック引用）に配置されていなければページ全体に適用されます。このドキュメントのセクションを区切る線は罫線です。
+
+-----
+
+見出しは、行の先頭に1～6文字の「+」を置くことで作成できます。
+
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブを作る]]
+これはタブです。
+
+[[/tab]]
+[[tab タブが作られた]]
+見てください、ここにもテキストがあります。
+
+なんと奇妙な。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックです。各行の先頭に半角の「> 」を置くことで作成されます。
+>
+> 追加のテキスト
+> -----
+> これは罫線です
+>
+>> 入れ子になった引用ブロック
+
+||~ これは ||~ テーブルです ||
+||もう || 作り方は ||
+
+[[=]]
+[[span style="font-family: var(--header-font);"]]Body、ヘッダー、見出し、等幅フォントはIBM Plex Mono[[footnote]]**訳注:** 原文ママ。実際にはJetBrains Monoが適用されている。おそらく文面の更新忘れか。[[/footnote]]。[[/span]]
+[[/=]]
+
+@@ @@
+[[collapsible show="+ テーマコードを表示" hide="- テーマコードを非表示"]]
+[[code type="CSS"]]
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+@supports(display: grid) {
+
+    :root {
+     /* S-CSS-P Integration */
+     /* If you're making a new CSS theme, please include the following three variables at minimum. */
+     --theme-base: "black-highlighter";
+     /* must be either "black-highlighter" or "sigma9" */
+     --theme-id: "SCP-Offices-theme";
+     /* set this to the URL of your theme's page - eg for "component:ar-theme", set it to "ar-theme" */
+     --theme-name: "SCP Offices Theme";
+     /* set this to your theme's full name */
+    
+     /* Typefaces */
+     --body-font: "JetBrains Mono", Recursive, Consolas, monaco, monospace;
+     --header-font: var(--header-font);
+     --title-font: var(--header-font);
+     --mono-font: var(--header-font);
+     --UI-font: var(--header-font);
+
+     /* Standard Colors */
+
+     --white-monochrome: 238, 238, 216;
+     --pale-gray-monochrome: 233, 231, 204;
+     --light-gray-monochrome: 147, 147, 147;
+     --gray-monochrome: 127, 127, 127;
+     --dark-gray-monochrome: 101, 101, 101;
+     --black-monochrome: 25, 20, 16;
+     --bright-accent: 145, 179, 153;
+     --medium-accent: 145, 179, 153;
+     --dark-accent: 105, 133, 111;
+
+     --swatch-text-general: var(--swatch-text-dark);
+
+     --logo-image: url("https://scp-jp.wdfiles.com/local--files/theme:scp-offices-theme/scpoffices_logo.svg");
+
+     --background-gradient-color: 215, 215, 215;
+     --background-gradient-distance: 40rem;
+
+     /* Link Colors */
+     --link-color: var(--bright-accent);
+     --visited-link-color: var(--dark-accent);
+     --hover-link-color: var(--dark-accent);
+     --newpage-color: 221, 102, 17;
+    }
+
+    #container-wrap-wrap {
+     background-image:
+     repeating-linear-gradient(180deg,
+     hsla(0, 0%, 100%, 0),
+     hsla(0, 0%, 100%, 0) 0.25vh,
+     rgba(88, 88, 88, 0.1) 0.35vh,
+     rgba(88, 88, 88, 0.2) 0.5vh),
+
+     linear-gradient(to bottom,
+     rgba(var(--black-monochrome), 1) var(--header-height-on-desktop),
+     rgba(var(--gray-monochrome), 1) calc(var(--header-height-on-desktop) + 0.125rem),
+     rgba(var(--gray-monochrome), 1) calc(100% - 0.125rem),
+     rgba(var(--gray-monochrome), 1) calc(100% - 0.125rem),
+     rgba(var(--black-monochrome), 1) 100%);
+     background-repeat: no-repeat;
+     background-size:
+     100% var(--header-height-on-desktop),
+     100% var(--final-header-height-on-desktop);
+    }
+
+    a {
+     --wght: 900;
+     font-weight: 900;
+    }
+
+    #header h2 span::before {
+     color: rgb(var(--bright-accent));
+    }
+
+    #header h1 *,
+    #top-bar *,
+    #page-title * {
+     will-change: opacity;
+     transition: opacity 0.2s ease-in-out;
+    }
+
+    #header h1 a:hover::before,
+    #header h1 a:hover::after,
+    #top-bar a:hover,
+    #page-title:hover,
+    #search-top-box-form input[type="submit"]:hover,
+    #search-top-box-form input[type="submit"]:focus {
+     -webkit-animation: flicker 20s linear infinite;
+     animation: flicker 20s linear infinite;
+    }
+
+    #side-bar .collapsible-block-unfolded {
+     background: unset;
+    }
+
+    #side-bar div.menu-item a.collapsible-block-link,
+    #side-bar .side-block>.collapsible-block a.collapsible-block-link {
+     background: rgba(var(--medium-accent), 0.5);
+    }
+
+    #side-bar .close-menu::before {
+     line-height: 0.85em !important;
+    }
+
+    #interwiki .heading p,
+    #side-bar .heading p,
+    #side-bar .collapsible-block .collapsible-block-link {
+     color: rgb(var(--swatch-primary-darkest))
+    }
+
+    #interwiki div.menu-item a,
+    #side-bar div.menu-item a,
+    #side-bar div.menu-item .text {
+     --wght: 900;
+     font-weight: 900;
+    }
+
+    #interwiki div.menu-item a:hover,
+    #interwiki div.menu-item a:active,
+    #side-bar div.menu-item a:hover,
+    #side-bar div.menu-item a:active {
+     -webkit-animation: flicker 20s linear infinite;
+     animation: flicker 20s linear infinite;
+     color: rgb(var(--swatch-text-tertiary-color));
+    }
+
+    #interwiki div.menu-item a:focus-within,
+    #side-bar div.menu-item a:focus-within {
+     -webkit-animation: flicker 20s linear infinite;
+     animation: flicker 20s linear infinite;
+     color: rgb(var(--swatch-text-tertiary-color));
+    }
+
+    .info-container .collapsible-block-folded,
+    .info-container .collapsible-block-unfolded-link {
+     background: rgb(var(--bright-accent)) !important;
+    }
+
+    div[id*="page-options-bottom"] {
+     --ui-wght: 600;
+     --ui-hvr-wght: 600;
+     font-size: calc(var(--base-font-size) * 0.75);
+    }
+
+    @media only screen and (max-width: 56.25rem) {
+     #header {
+     background-repeat: no-repeat, repeat;
+     background-position: left calc(5vw + 5.5rem - 10.4rem) top calc(4% - var(--offset-from-page-top) / 2), top center;
+     background-size: calc(8.75rem + var(--offset-from-page-top)), 100% var(--header-height-on-desktop);
+     }
+    }
+
+    @-webkit-keyframes flicker {
+     0% {
+     opacity: 1;
+     }
+
+     5% {
+     opacity: .9;
+     }
+
+     6% {
+     opacity: .8;
+     }
+
+     11% {
+     opacity: .4;
+     }
+
+     11.25% {
+     opacity: .6;
+     }
+
+     11.5% {
+     opacity: .4;
+     }
+
+     18% {
+     opacity: 1;
+     }
+
+     18.5% {
+     opacity: .9;
+     }
+
+     22% {
+     opacity: 1;
+     }
+
+     38.5% {
+     opacity: 1;
+     }
+
+     39% {
+     opacity: .8;
+     }
+
+     42% {
+     opacity: 1;
+     }
+
+     60% {
+     opacity: 1;
+     }
+
+     60.5% {
+     opacity: 0;
+     }
+
+     62% {
+     opacity: 0;
+     }
+
+     63% {
+     opacity: .2;
+     }
+
+     63.25% {
+     opacity: 0;
+     }
+
+     65% {
+     opacity: 1;
+     }
+
+     73% {
+     opacity: 1;
+     }
+
+     75% {
+     opacity: .8;
+     }
+
+     79% {
+     opacity: 1;
+     }
+
+     100% {
+     opacity: 1;
+     }
+    }
+
+    @keyframes flicker {
+     0% {
+     opacity: 1;
+     }
+
+     5% {
+     opacity: .9;
+     }
+
+     6% {
+     opacity: .8;
+     }
+
+     11% {
+     opacity: .4;
+     }
+
+     11.25% {
+     opacity: .6;
+     }
+
+     11.5% {
+     opacity: .4;
+     }
+
+     18% {
+     opacity: 1;
+     }
+
+     18.5% {
+     opacity: .9;
+     }
+
+     22% {
+     opacity: 1;
+     }
+
+     38.5% {
+     opacity: 1;
+     }
+
+     39% {
+     opacity: .8;
+     }
+
+     42% {
+     opacity: 1;
+     }
+
+     60% {
+     opacity: 1;
+     }
+
+     60.5% {
+     opacity: 0;
+     }
+
+     62% {
+     opacity: 0;
+     }
+
+     63% {
+     opacity: .2;
+     }
+
+     63.25% {
+     opacity: 0;
+     }
+
+     65% {
+     opacity: 1;
+     }
+
+     73% {
+     opacity: 1;
+     }
+
+     75% {
+     opacity: .8;
+     }
+
+     79% {
+     opacity: 1;
+     }
+
+     100% {
+     opacity: 1;
+     }
+    }
+}
+
+[[/code]]
+[[/collapsible]]
+[[footnoteblock]]
+
+
+
+
+
+
+[[module CSS]]
+td { vertical-align: top; }
+td strong { white-space: nowrap; }
+.options table.wiki-content-table td { border: none; padding: 0.7em 1em; }
+.colors-container {
+  width: 98%;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  font-weight: 700;
+  font-family: var(--title-font, Verdana);
+  color: black;
+}
+
+.colors-container .colors, .colors-container .subcolors {
+  width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.colors-container .color {
+  flex-grow: 2;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  color: rgb(var(--swatch-text-dark, 0, 0, 0));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.colors-container .colors .color {
+  height: 7rem;
+  flex-basis: calc((100% / 2) - 2rem);
+}
+
+.colors-container .subcolors .color {
+  height: 4rem;
+  font-size: 75%;
+  text-align: center;
+  flex-basis: calc((100% / 6) - 2rem);
+}
+
+.colors-container .css-variable {
+  font-size: 75%;
+  letter-spacing: 0.1em;
+  font-family: var(--body-font, Verdana);
+}
+
+/* Hide a colour that's not been provided by seeing if the variable starts with "{$" */
+.colors-container [data-variable^=\{\$] {
+  display: none;
+}
+
+.colors-container [data-has-light-text="1"] {
+  color: white;
+  color: rgb(var(--swatch-text-light, 255, 255, 255));
+}
+[[/module]]
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[module Rate]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

@@ -48,7 +48,6 @@ const fileEntry = (fileId: number, name: string, mime: string, size: number) => 
   hidden_fields: []
 })
 
-// Deliberately out of name order: the pane must list case-insensitively.
 const FILES = [
   fileEntry(3, "weathermap.gif", "image/gif", 1748073),
   fileEntry(1, "AFTER_FOG.png", "image/png", 204126),
@@ -125,7 +124,6 @@ test("wikidot files list matches the attachment contract", async ({ page }) => {
   const ids = await page
     .locator("table.page-files tr[id^='file-row-']")
     .evaluateAll((rows) => rows.map((row) => row.id))
-  // Case-insensitive name order, not file-id order.
   expect(ids).toEqual(["file-row-1", "file-row-2", "file-row-3"])
 
   const first = page.locator("#file-row-1")
@@ -151,11 +149,9 @@ test("options row exposes guarded rename, move, delete, and history", async ({
     await expect(options.locator(`button:has-text('${label}')`)).toBeVisible()
   }
 
-  // Anonymous move stays denied by the preserved guard flow.
   await options.locator("button:has-text('Move')").click()
   await expect(page.locator("#owindow-1")).toContainText("PERMISSION ERROR")
 
-  // Toggling again hides the row.
   await page.keyboard.press("Escape")
   await expect(page.locator("#owindow-1")).toHaveCount(0)
   await page.locator("#file-row-1 a:has-text('Options')").click()

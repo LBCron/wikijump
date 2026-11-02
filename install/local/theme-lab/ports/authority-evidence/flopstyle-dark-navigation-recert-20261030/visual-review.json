@@ -1,0 +1,157 @@
+{
+  "schema": "theme_lab_real_wikidot_authority_visual_review.v1",
+  "status": "reviewed",
+  "reviewed_at": "2026-10-30T07:37:47.000Z",
+  "reviewer": "Muse visual review",
+  "decision_authority": "REAL_WIKIDOT_TARGET_AB_VISUAL_REVIEW_ONLY",
+  "package": "flopstyle-dark",
+  "candidate_source_sha256": "4900476d5cf31e094370d52e8cb09ff1e24d939ef8edea00562658cacc07dbec",
+  "candidate_css_sha256": "4e9f17d162d5e0cf393e5a6d287c246b84efb0f82fdb97c05c56e3d537a8b446",
+  "capture_receipt": {
+    "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/receipt.json",
+    "sha256": "e679d09e3355975a77dc969b60185de7e5910a686469d303f8555f9160115621"
+  },
+  "review_scope": {
+    "url": "https://scp-jp.wikidot.com/scp-173-jp",
+    "engine": "chromium",
+    "browser_version": "156.0.8078.73",
+    "state": [
+      "navigation"
+    ],
+    "widths": [
+      320,
+      390
+    ]
+  },
+  "reviewed_screenshots": [
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/without-320-navigation-0.png",
+      "sha256": "9c14fe654fb5992dd709afe17856ffad9207a7380edc50cf851a07e4cbbc7077"
+    },
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/without-320-navigation-1.png",
+      "sha256": "9df6fa63190e17bff7feca91074d3ead7cf8f482a979c81f7203d1e2580930bf"
+    },
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/without-320-navigation-2.png",
+      "sha256": "a59869eb85dd7649072cd09e9a57573a24126b59fa74ad0315698293f2fa2160"
+    },
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/without-320-navigation-3.png",
+      "sha256": "0dcab5095143f3c17e8d511be27719cb2050b693506eae273e650cf1afdaf181"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/with-320-navigation-0.png",
+      "sha256": "9c14fe654fb5992dd709afe17856ffad9207a7380edc50cf851a07e4cbbc7077"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/with-320-navigation-1.png",
+      "sha256": "9df6fa63190e17bff7feca91074d3ead7cf8f482a979c81f7203d1e2580930bf"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/with-320-navigation-2.png",
+      "sha256": "0a7c5bdc37601514dfc11957134fcfe5c533115f9ea53876a145920daf10c9a3"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/with-320-navigation-3.png",
+      "sha256": "e404b539786884554d9532b5693cf5d476f1e84a6d3e8814d9831118f5ada54f"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/without-390-navigation-0.png",
+      "sha256": "7321ce0f2296e1ba0abc455225b5edb0212dffa3650d8b6802c2d506a581ce67"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/without-390-navigation-1.png",
+      "sha256": "c3997263c4a66d3033d83dadc63af7fdd8b9d6f8b15c04c5dff756565a40fd78"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/without-390-navigation-2.png",
+      "sha256": "ab8e2438ba4b976102b1be401996a23ba99eb8953876d6c78b7c6af2abcb4825"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/without-390-navigation-3.png",
+      "sha256": "2c79428480cd031c33be090e2934b7b2617f195dbc3a00e64b3baf90a1ad3abd"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/with-390-navigation-0.png",
+      "sha256": "7321ce0f2296e1ba0abc455225b5edb0212dffa3650d8b6802c2d506a581ce67"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/with-390-navigation-1.png",
+      "sha256": "c3997263c4a66d3033d83dadc63af7fdd8b9d6f8b15c04c5dff756565a40fd78"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/with-390-navigation-2.png",
+      "sha256": "da84b4d6629cd9f26878b460a413f3ca1f01b4d872d8d4d0e73fc3850054d05b"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-navigation-recert-20261030/with-390-navigation-3.png",
+      "sha256": "af13da3cfd325b4f2eb753537530a703eaf8724d845660eb4fc8fe25b04df588"
+    }
+  ],
+  "findings": "Re-issued binding capture for the unchanged generic navigation block against the V2b candidate; the block's CSS, marker and rationale are untouched. The navigation state force-displays the submenus for geometry probing, so the frames show overlapping blank panels by design. Directly inspected the with/without frames at 320px index 2 and 390px index 3: without the block, the measured panel is clipped at the right viewport edge and the document overflows (width 359 at 320px, 452 at 390px; off-right 39.44px and 62.08px, identical to the original certification); with the candidate, every panel sits inside the viewport and all 16 measured rows show off-left 0 and off-right 0. The generic block's certified geometry is unchanged under the new candidate."
+}

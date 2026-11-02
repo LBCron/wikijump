@@ -1,0 +1,124 @@
+{
+  "slug": "theme:yossistyle",
+  "en_source_sha256": "561228038e46e76ab45e61d95570e82519bceea1aa5233addbbec324601ca4d4",
+  "en_updated_at": "2021-09-11T01:27:54+00:00",
+  "en_entity_uuid": "34a1dfa4-f157-4b33-a460-a93686a61da4",
+  "jp_previous_status": "confirmed-absent-by-targeted-xmlrpc",
+  "jp_previous_source_sha256": null,
+  "jp_previous_updated_at": null,
+  "jp_previous_entity_uuid": null,
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:yossistyle",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": null,
+  "source_identity": {
+    "slug": "theme:yossistyle",
+    "title": "YOSSISTYLE CSS THEME",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "561228038e46e76ab45e61d95570e82519bceea1aa5233addbbec324601ca4d4",
+      "updated_at": "2021-09-11T01:27:54+00:00",
+      "entity_uuid": "34a1dfa4-f157-4b33-a460-a93686a61da4",
+      "tags": [
+        "joke",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 9,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:yossistyle"
+      }
+    },
+    "jp": {
+      "status": "confirmed-absent-by-targeted-xmlrpc",
+      "source_path": null,
+      "sha256": null,
+      "updated_at": null,
+      "entity_uuid": null,
+      "tags": [],
+      "absence_run": "theme-jp-absence-check-20260923"
+    },
+    "existing_jp_audit": "new-jp-candidate-verified",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:yossistyle",
+    "en_includes": [],
+    "en_external_dependencies": [
+      "@<https://scpwiki.com/theme:yossistyle/code/1>@",
+      "http://scp-wiki.wikidot.com/component:croqstyle",
+      "http://scp-wiki.wikidot.com/component:rso",
+      "http://scp-wiki.wikidot.com/theme:black-highlighter-theme",
+      "http://scp-wiki.wikidot.com/theme:blankstyle",
+      "http://scp-wiki.wikidot.com/theme:flopstyle",
+      "http://scp-wiki.wikidot.com/theme:magnus-web-format",
+      "http://scp-wiki.wikidot.com/theme:placestyle",
+      "https://scpwiki.com/theme:yossistyle/code/1>@",
+      "https://www.youtube.com/watch?v=rRPQs_kM_nw"
+    ],
+    "jp_includes": [],
+    "jp_external_dependencies": [],
+    "base_family": "black-highlighter"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "human-port-candidate.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "human-made shared translation workspace; no current official JP counterpart",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "new-jp-candidate-verified",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/yossistyle/assets.json",
+  "asset_dependency_decision_count": 0,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "c9987477d0e9079b7b15c55ac608b853e69c970484dc2b5b0e6f3cd6565c442c",
+    "jp_overrides_sha256": "3d0aa2796380209197347c70c8c2a6a09ea431530d0c493850fdcaf849ef4882",
+    "semantic_css_sha256": "2c4b9c608b7377ebdf3abb5331aafab15a7c17626ff9cedc0665304757f55539",
+    "canonical_override_sha256": "f2564149b7e1badc45469f5741677f34be64b49660b6ba9940cd1db22696e747",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "fbae38fb518b5c80a6b53596c8e5f3d3a2cbeec2984e8b4b2effed9cad584c0c",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "84a214fc85344d262727f624b6319e2a4bdfa6537bd49ebd8678d854f009faab",
+      "active_tags": [],
+      "candidate_source_sha256": "c8f06e137605ffe2ab8249cc2faa0d8d13f795b1574ec64079c96a53af7312ae",
+      "candidate_active_tags": [],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "c1c711959c75c57b769ef9bdbf294bf60e8b937dc2a6af86b8bd345191ada445",
+      "asset_receipt_path": "assets.json",
+      "assets": 0,
+      "imports": 0,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

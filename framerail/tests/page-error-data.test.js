@@ -76,8 +76,6 @@ test("restore availability is an optional server-computed boolean (Refs #2090)",
     compiled_body_html: "<p>missing page</p>"
   }
 
-  // Absent (for example anonymous or never-existing) must validate: the
-  // missing-page shell renders without a Restore control.
   assert.equal(isPageErrorData(base), true)
   assert.equal(isPageErrorData({ ...base, restore_available: true }), true)
   assert.equal(isPageErrorData({ ...base, restore_available: false }), true)

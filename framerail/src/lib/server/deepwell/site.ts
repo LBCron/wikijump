@@ -17,16 +17,6 @@ export interface NewSiteCreateOutcome {
   slug: string
 }
 
-/**
- * Call the already-registered `site_create` service for a validated www
- * new-site submission. The creator comes from the authenticated session in
- * the request context; this payload carries no actor identity.
- */
-/**
- * Resolve a site's canonical HTTPS origin through the deployment's own
- * domain source of truth (the same `site_domain` RPC the sitemap uses), so
- * cross-site links never duplicate host-assembly rules.
- */
 export async function siteOrigin(
   siteId: number,
   context: RequestContext = {}

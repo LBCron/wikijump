@@ -31,43 +31,209 @@ use crate::types::TextBlockType;
 use ftml::tree::CodeBlock;
 
 /// Replaces a page's hosted code blocks with their `/local--code/` text.
+///
+/// `include_comment_blocks` asks for Wikidot's comment recovery. FTML
+/// discards comment content before block parsing, so a `[[code]]` block
+/// inside `[!-- ... --]` never reaches `code_blocks`, but Wikidot hosts
+/// it anyway. When the caller renders the page's own source (rather
+/// than a fallback whose blocks already come from the raw scan), the
+/// scan's comment-wrapped blocks are merged in at their source
+/// positions so the numbering matches Wikidot's.
 pub(in crate::services::render) async fn persist_hosted_code_blocks(
     ctx: &ServiceContext<'_>,
     page_id: i64,
     code_blocks: &[CodeBlock<'_>],
     hosted_code_source: Option<&[CompatCodeBlock]>,
     current_site: Option<&SiteModel>,
+    include_comment_blocks: bool,
 ) -> Result<()> {
     let config = ctx.config();
-    let rendered = code_blocks
-        .iter()
-        .map(|block| block.contents.as_ref())
-        .collect::<Vec<_>>();
-    let hosted_texts = hosted_code_texts(&rendered, hosted_code_source, |code| {
+    let localize = |code: &str| {
         RenderService::restore_wikidot_code_block_compatibility(
             code,
             current_site,
             config,
         )
-    });
-    let blocks = code_blocks
+    };
+    let comment_source = include_comment_blocks
+        .then_some(hosted_code_source)
+        .flatten()
+        .filter(|raw| raw.iter().any(|block| block.comment_wrapped))
+        .filter(|raw| visible_scan_blocks_render_in_order(code_blocks, raw, &localize));
+    let owned = match comment_source {
+        Some(raw) => merged_hosted_code_blocks(code_blocks, raw, localize)
+            .into_iter()
+            .map(|block| OwnedHostedCodeBlock {
+                text: block.text,
+                language: block.language,
+                name: block.name,
+            })
+            .collect::<Vec<_>>(),
+        None => {
+            let rendered = code_blocks
+                .iter()
+                .map(|block| block.contents.as_ref())
+                .collect::<Vec<_>>();
+            let hosted_texts = hosted_code_texts(&rendered, hosted_code_source, localize);
+            code_blocks
+                .iter()
+                .zip(&hosted_texts)
+                .map(
+                    |(CodeBlock { language, name, .. }, text)| OwnedHostedCodeBlock {
+                        text: text.clone(),
+                        language: language.as_deref().map(str::to_owned),
+                        name: name.as_deref().map(str::to_owned),
+                    },
+                )
+                .collect::<Vec<_>>()
+        }
+    };
+    let blocks = owned
         .iter()
-        .zip(&hosted_texts)
-        .map(|(CodeBlock { language, name, .. }, text)| TextBlock {
-            text,
-            text_type: language.as_deref(),
-            mime: mime_for_language(language),
-            name: name.as_deref(),
+        .map(|block| TextBlock {
+            text: &block.text,
+            text_type: block.language.as_deref(),
+            mime: mime_for_language(&block.language),
+            name: block.name.as_deref(),
         })
         .collect::<Vec<_>>();
     TextBlockService::add_blocks(ctx, page_id, TextBlockType::Code, &blocks).await
 }
 
-/// The hosted text for each rendered code block.
-///
-/// `rendered` holds the restored FTML block contents in source order and
-/// `raw` the page's own source blocks, when they scanned cleanly. The blocks
-/// pair by position only when both lists have the same length.
+struct OwnedHostedCodeBlock {
+    text: String,
+    language: Option<String>,
+    name: Option<String>,
+}
+
+fn visible_scan_blocks_render_in_order(
+    rendered: &[CodeBlock<'_>],
+    raw: &[CompatCodeBlock],
+    localize: &impl Fn(&str) -> String,
+) -> bool {
+    let rendered_keys = rendered
+        .iter()
+        .map(|block| rendered_code_key(&block.contents))
+        .collect::<Vec<_>>();
+    let mut cursor = 0;
+    for block in raw.iter().filter(|block| !block.comment_wrapped) {
+        let key = rendered_code_key(&localize(&block.contents));
+        match (cursor..rendered_keys.len()).find(|&index| rendered_keys[index] == key) {
+            Some(found) => cursor = found + 1,
+            None => return false,
+        }
+    }
+    true
+}
+
+#[derive(Debug, Eq, PartialEq)]
+struct MergedHostedCodeBlock {
+    text: String,
+    language: Option<String>,
+    name: Option<String>,
+}
+
+fn merged_hosted_code_blocks<F>(
+    rendered: &[CodeBlock<'_>],
+    raw: &[CompatCodeBlock],
+    localize: F,
+) -> Vec<MergedHostedCodeBlock>
+where
+    F: Fn(&str) -> String,
+{
+    let rendered_keys = rendered
+        .iter()
+        .map(|block| rendered_code_key(&block.contents))
+        .collect::<Vec<_>>();
+    let raw_keys = raw
+        .iter()
+        .map(|block| rendered_code_key(&localize(&block.contents)))
+        .collect::<Vec<_>>();
+
+    let mut anchor = vec![None; raw.len()];
+    let mut claimed = vec![false; rendered.len()];
+    let mut cursor = 0;
+    for (index, block) in raw.iter().enumerate() {
+        if block.comment_wrapped {
+            continue;
+        }
+        if let Some(found) = (cursor..rendered.len())
+            .find(|&j| !claimed[j] && rendered_keys[j] == raw_keys[index])
+        {
+            anchor[index] = Some(found);
+            claimed[found] = true;
+            cursor = found + 1;
+        }
+    }
+    for (index, block) in raw.iter().enumerate() {
+        if !block.comment_wrapped {
+            continue;
+        }
+        let lower = anchor[..index].iter().flatten().copied().max();
+        let upper = anchor[index + 1..].iter().flatten().copied().min();
+        if let Some(found) = (0..rendered.len()).find(|&j| {
+            !claimed[j]
+                && rendered_keys[j] == raw_keys[index]
+                && lower.is_none_or(|low| j > low)
+                && upper.is_none_or(|high| j < high)
+        }) {
+            anchor[index] = Some(found);
+            claimed[found] = true;
+        }
+    }
+
+    let visible = raw
+        .iter()
+        .filter(|block| !block.comment_wrapped)
+        .cloned()
+        .collect::<Vec<_>>();
+    let rendered_contents = rendered
+        .iter()
+        .map(|block| block.contents.as_ref())
+        .collect::<Vec<_>>();
+    let rendered_texts = hosted_code_texts(&rendered_contents, Some(&visible), &localize);
+
+    let mut merged = Vec::new();
+    let mut next_rendered = 0;
+    for (index, block) in raw.iter().enumerate() {
+        match anchor[index] {
+            Some(found) => {
+                while next_rendered <= found {
+                    merged.push(MergedHostedCodeBlock {
+                        text: rendered_texts[next_rendered].clone(),
+                        language: rendered[next_rendered]
+                            .language
+                            .as_deref()
+                            .map(str::to_owned),
+                        name: rendered[next_rendered].name.as_deref().map(str::to_owned),
+                    });
+                    next_rendered += 1;
+                }
+            }
+            None if block.comment_wrapped => {
+                merged.push(MergedHostedCodeBlock {
+                    text: wikidot_hosted_code(&localize(&block.contents)),
+                    language: block.language.clone(),
+                    name: block.name.clone(),
+                });
+            }
+            None => {}
+        }
+    }
+    while next_rendered < rendered.len() {
+        merged.push(MergedHostedCodeBlock {
+            text: rendered_texts[next_rendered].clone(),
+            language: rendered[next_rendered]
+                .language
+                .as_deref()
+                .map(str::to_owned),
+            name: rendered[next_rendered].name.as_deref().map(str::to_owned),
+        });
+        next_rendered += 1;
+    }
+    merged
+}
+
 pub(in crate::services::render) fn hosted_code_texts<F>(
     rendered: &[&str],
     raw: Option<&[CompatCodeBlock]>,
@@ -92,7 +258,6 @@ where
         .collect()
 }
 
-/// Wikidot's hosted form of a block body.
 fn wikidot_hosted_code(body: &str) -> String {
     let mut hosted = body.trim_matches('\n').to_owned();
     hosted.push('\n');
@@ -145,7 +310,30 @@ mod tests {
             language: Some("css".to_owned()),
             name: None,
             contents: contents.to_owned(),
+            comment_wrapped: false,
         }
+    }
+
+    fn raw_comment(contents: &str) -> CompatCodeBlock {
+        CompatCodeBlock {
+            comment_wrapped: true,
+            ..raw(contents)
+        }
+    }
+
+    fn tree(contents: &str) -> CodeBlock<'static> {
+        CodeBlock {
+            contents: std::borrow::Cow::Owned(contents.to_owned()),
+            language: Some(std::borrow::Cow::Owned("css".to_owned())),
+            name: None,
+        }
+    }
+
+    fn merged_texts(merged: &[MergedHostedCodeBlock]) -> Vec<&str> {
+        merged
+            .iter()
+            .map(|block| block.text.as_str())
+            .collect::<Vec<_>>()
     }
 
     fn identity(text: &str) -> String {
@@ -191,8 +379,6 @@ mod tests {
 
     #[test]
     fn hosted_code_keeps_the_rendered_text_when_the_raw_body_differs() {
-        // A raw body that renders to something else (here: expanded include
-        // text in the rendered block) is not paired.
         let rendered = "expanded include\n";
         let source = [raw("[[include component:x]]")];
         assert_eq!(
@@ -207,6 +393,167 @@ mod tests {
         assert_eq!(
             hosted_code_texts(&["    a"], Some(&source), identity),
             ["    a\n"],
+        );
+    }
+
+    #[test]
+    fn merged_recovers_comment_only_pages_in_source_order() {
+        let source = [raw_comment("first"), raw_comment("second")];
+        let merged = merged_hosted_code_blocks(&[], &source, identity);
+        assert_eq!(merged_texts(&merged), ["first\n", "second\n"]);
+        assert_eq!(merged[0].language.as_deref(), Some("css"));
+    }
+
+    #[test]
+    fn merged_interleaves_comment_blocks_at_their_source_positions() {
+        let source = [raw("a"), raw_comment("hidden"), raw("b")];
+        let rendered = [tree("a"), tree("b")];
+        let merged = merged_hosted_code_blocks(&rendered, &source, identity);
+        assert_eq!(merged_texts(&merged), ["a\n", "hidden\n", "b\n"]);
+    }
+
+    #[test]
+    fn merged_keeps_an_included_pages_block_relative_to_the_anchors() {
+        let source = [raw_comment("hidden"), raw("a")];
+        let rendered = [tree("foreign"), tree("a")];
+        let merged = merged_hosted_code_blocks(&rendered, &source, identity);
+        assert_eq!(merged_texts(&merged), ["hidden\n", "foreign\n", "a\n"]);
+    }
+
+    #[test]
+    fn merged_counts_duplicate_contents_once_per_source_block() {
+        let rendered = [tree("x")];
+        let comment_first = [raw_comment("x"), raw("x")];
+        let merged = merged_hosted_code_blocks(&rendered, &comment_first, identity);
+        assert_eq!(merged_texts(&merged), ["x\n", "x\n"]);
+        let visible_first = [raw("x"), raw_comment("x")];
+        let merged = merged_hosted_code_blocks(&rendered, &visible_first, identity);
+        assert_eq!(merged_texts(&merged), ["x\n", "x\n"]);
+    }
+
+    #[test]
+    fn merged_does_not_recover_a_flagged_block_that_did_render() {
+        let source = [raw_comment("x")];
+        let rendered = [tree("x")];
+        let merged = merged_hosted_code_blocks(&rendered, &source, identity);
+        assert_eq!(merged_texts(&merged), ["x\n"]);
+    }
+
+    #[test]
+    fn merged_skips_visible_scan_blocks_the_render_never_produced() {
+        let source = [raw("unrendered"), raw_comment("hidden")];
+        let merged = merged_hosted_code_blocks(&[], &source, identity);
+        assert_eq!(merged_texts(&merged), ["hidden\n"]);
+    }
+
+    #[test]
+    fn merged_localizes_recovered_blocks_like_paired_raw_bodies() {
+        let localize = |text: &str| {
+            text.replace("https://x.wikidot.com/", "https://x.wjfiles.localhost/")
+        };
+        let source = [raw_comment(
+            "a { background: url('https://x.wikidot.com/local--files/t/l.svg'); }",
+        )];
+        let merged = merged_hosted_code_blocks(&[], &source, localize);
+        assert_eq!(
+            merged_texts(&merged),
+            [
+                "a { background: url('https://x.wjfiles.localhost/local--files/t/l.svg'); }\n"
+            ],
+        );
+    }
+
+    #[test]
+    fn recovery_requires_every_visible_block_to_render_in_order() {
+        assert!(visible_scan_blocks_render_in_order(
+            &[tree("a"), tree("b")],
+            &[raw("a"), raw_comment("hidden"), raw("b")],
+            &identity,
+        ));
+        assert!(!visible_scan_blocks_render_in_order(
+            &[tree("b")],
+            &[raw("a"), raw_comment("hidden"), raw("b")],
+            &identity,
+        ));
+        assert!(!visible_scan_blocks_render_in_order(
+            &[tree("a")],
+            &[raw("a"), raw_comment("hidden"), raw("b")],
+            &identity,
+        ));
+        assert!(!visible_scan_blocks_render_in_order(
+            &[tree("b"), tree("a")],
+            &[raw("a"), raw("b")],
+            &identity,
+        ));
+        assert!(!visible_scan_blocks_render_in_order(
+            &[tree("x")],
+            &[raw("x"), raw("x")],
+            &identity,
+        ));
+        assert!(visible_scan_blocks_render_in_order(
+            &[tree("x"), tree("x")],
+            &[raw("x"), raw("x")],
+            &identity,
+        ));
+        assert!(visible_scan_blocks_render_in_order(
+            &[tree("foreign"), tree("a")],
+            &[raw_comment("hidden"), raw("a")],
+            &identity,
+        ));
+    }
+
+    #[test]
+    fn merged_recovers_the_evidenced_comment_pages() {
+        // nav:interwiki-c404 (scp-jp): both blocks sit in one comment and
+        // the render produced none of them; the hosted bodies are the
+        // live-served first lines.
+        let nav = [
+            CompatCodeBlock {
+                language: Some("html".to_owned()),
+                ..raw_comment("<head>\n</head>")
+            },
+            CompatCodeBlock {
+                language: Some("JavaScript".to_owned()),
+                ..raw_comment(
+                    "// https://shitake-crude-production.wikidot.com/abbreviation-library\nwindow._abb = {};",
+                )
+            },
+        ];
+        let merged = merged_hosted_code_blocks(&[], &nav, identity);
+        assert_eq!(
+            merged_texts(&merged),
+            [
+                "<head>\n</head>\n",
+                "// https://shitake-crude-production.wikidot.com/abbreviation-library\nwindow._abb = {};\n",
+            ],
+        );
+        assert_eq!(merged[0].language.as_deref(), Some("html"));
+        assert_eq!(merged[1].language.as_deref(), Some("JavaScript"));
+
+        // theme:shushuin (scp-jp): three comment-wrapped CSS blocks, in
+        // source order, opening with the lines Wikidot serves for /1../3.
+        let shushuin = [
+            raw_comment(
+                "@import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP');\n/*header*/",
+            ),
+            raw_comment(
+                "@import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP');\n.shushuInner {",
+            ),
+            raw_comment("h1, #page-title {"),
+        ];
+        let merged = merged_hosted_code_blocks(&[], &shushuin, identity);
+        assert_eq!(
+            merged_texts(&merged),
+            [
+                "@import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP');\n/*header*/\n",
+                "@import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP');\n.shushuInner {\n",
+                "h1, #page-title {\n",
+            ],
+        );
+        assert!(
+            merged
+                .iter()
+                .all(|block| block.language.as_deref() == Some("css"))
         );
     }
 

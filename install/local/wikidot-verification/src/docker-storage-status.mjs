@@ -155,9 +155,6 @@ async function resolveDockerRootDir() {
 
 async function probeDisk({packageRoot}) {
   const startNs = process.hrtime.bigint();
-  // Rootless Docker, Docker Desktop, and custom data-root hosts store layers
-  // outside /var/lib/docker, so discover the live root; the literal path is
-  // only a fallback when discovery fails.
   const [packageRootEntry, dockerRootDir] = await Promise.all([statfsEntry(packageRoot), resolveDockerRootDir()]);
   const entries = [packageRootEntry];
   const dockerPath = dockerRootDir ?? (existsSync(DOCKER_ROOT) ? DOCKER_ROOT : null);
@@ -194,9 +191,6 @@ function firstFailure({dockerDf, disk, packageRoot}) {
   return null;
 }
 
-// A probed-but-failed disk entry (including the Docker root) degrades the
-// status; a Docker root that could not be discovered produces no entry and
-// does not degrade, since dockerDf covers daemon-level failures.
 function overallStatus({dockerDf, disk, packageRoot}) {
   const entries = disk.entries ?? [];
   return dockerDf.available && packageRootDiskEntry(disk, packageRoot)?.available === true && entries.every((entry) => entry.available === true)

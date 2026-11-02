@@ -522,7 +522,7 @@ div.page-rate-widget-box .rate-points{
 [[module CSS]]
 /* SCP-JP Wikidot Classic mobile endpoint correction: contain the last submenu above the wrapped narrow layout. */
 @media (min-width: 360px) and (max-width: 767px) {
-  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto; right: 0; }
+  #top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul, #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto; right: 0; }
 }
 [[/module]]
 
@@ -540,7 +540,7 @@ div.page-rate-widget-box .rate-points{
     padding-left: .7em;
     padding-right: .7em;
   }
-  #top-bar .mobile-top-bar > ul > li:last-child > ul {
+  #top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul, #top-bar .mobile-top-bar > ul > li:last-child > ul {
     left: auto;
     right: 0;
   }

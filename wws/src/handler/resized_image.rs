@@ -22,7 +22,9 @@ use axum::http::{Method, StatusCode};
 use axum::response::{IntoResponse, Response};
 use image::codecs::jpeg::JpegEncoder;
 use image::imageops::FilterType;
-use image::{ImageEncoder, ImageFormat, ImageReader, Limits};
+use image::{
+    DynamicImage, ImageBuffer, ImageEncoder, ImageFormat, ImageReader, Limits, Rgba,
+};
 use std::io::Cursor;
 
 const RESIZED_IMAGE_ENCODER_EPOCH: &str = "jpeg-v1";
@@ -73,6 +75,13 @@ impl ResizeVariant {
 enum ResizeError {
     FormatMismatch,
     Image(image::ImageError),
+    Svg(String),
+}
+
+impl From<resvg::usvg::Error> for ResizeError {
+    fn from(error: resvg::usvg::Error) -> Self {
+        Self::Svg(error.to_string())
+    }
 }
 
 impl From<image::ImageError> for ResizeError {
@@ -202,6 +211,13 @@ pub async fn handle_resized_image(
                     error = %image_error,
                     "Authorized resized image source could not be decoded",
                 ),
+                ResizeError::Svg(ref svg_error) => warn!(
+                    site_id,
+                    page_slug,
+                    filename,
+                    error = %svg_error,
+                    "Authorized resized image SVG source could not be rasterized",
+                ),
             }
             return resized_not_found(&state, &headers, site_id, &page_slug, &filename)
                 .await;
@@ -224,13 +240,20 @@ pub async fn handle_resized_image(
         .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response())
 }
 
-fn source_format(file_info: &FileData) -> Option<ImageFormat> {
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum SourceFormat {
+    Raster(ImageFormat),
+    Svg,
+}
+
+fn source_format(file_info: &FileData) -> Option<SourceFormat> {
     let media_type = file_info.mime.split(';').next()?.trim();
     match media_type {
-        "image/gif" => Some(ImageFormat::Gif),
-        "image/jpeg" => Some(ImageFormat::Jpeg),
-        "image/png" => Some(ImageFormat::Png),
-        "image/webp" => Some(ImageFormat::WebP),
+        "image/gif" => Some(SourceFormat::Raster(ImageFormat::Gif)),
+        "image/jpeg" => Some(SourceFormat::Raster(ImageFormat::Jpeg)),
+        "image/png" => Some(SourceFormat::Raster(ImageFormat::Png)),
+        "image/webp" => Some(SourceFormat::Raster(ImageFormat::WebP)),
+        "image/svg+xml" => Some(SourceFormat::Svg),
         _ => None,
     }
 }
@@ -268,19 +291,13 @@ fn resized_headers(status: StatusCode, etag: &str) -> axum::http::response::Buil
 
 fn resize_image(
     source: Vec<u8>,
-    expected_format: ImageFormat,
+    expected_format: SourceFormat,
     variant: ResizeVariant,
 ) -> Result<Vec<u8>, ResizeError> {
-    let mut reader = ImageReader::new(Cursor::new(source)).with_guessed_format()?;
-    if reader.format() != Some(expected_format) {
-        return Err(ResizeError::FormatMismatch);
-    }
-    let mut limits = Limits::default();
-    limits.max_image_width = Some(RESIZED_IMAGE_MAX_DIMENSION);
-    limits.max_image_height = Some(RESIZED_IMAGE_MAX_DIMENSION);
-    limits.max_alloc = Some(RESIZED_IMAGE_MAX_DECODE_ALLOC);
-    reader.limits(limits);
-    let image = reader.decode()?;
+    let image = match expected_format {
+        SourceFormat::Raster(format) => decode_raster(source, format)?,
+        SourceFormat::Svg => rasterize_svg(&source)?,
+    };
     let side = variant.longest_side();
     let resized = match variant {
         ResizeVariant::Square => image.resize_to_fill(side, side, FilterType::Lanczos3),
@@ -296,6 +313,69 @@ fn resize_image(
         image::ExtendedColorType::Rgb8,
     )?;
     Ok(output)
+}
+
+fn decode_raster(
+    source: Vec<u8>,
+    expected_format: ImageFormat,
+) -> Result<DynamicImage, ResizeError> {
+    let mut reader = ImageReader::new(Cursor::new(source)).with_guessed_format()?;
+    if reader.format() != Some(expected_format) {
+        return Err(ResizeError::FormatMismatch);
+    }
+    let mut limits = Limits::default();
+    limits.max_image_width = Some(RESIZED_IMAGE_MAX_DIMENSION);
+    limits.max_image_height = Some(RESIZED_IMAGE_MAX_DIMENSION);
+    limits.max_alloc = Some(RESIZED_IMAGE_MAX_DECODE_ALLOC);
+    reader.limits(limits);
+    Ok(reader.decode()?)
+}
+
+fn rasterize_svg(source: &[u8]) -> Result<DynamicImage, ResizeError> {
+    // The default options resolve no external resources: references to
+    // files or network URLs in the SVG are dropped, only data embedded
+    // in the document itself can render.
+    let options = resvg::usvg::Options::default();
+    let tree = resvg::usvg::Tree::from_data(source, &options)?;
+    let size = tree.size().to_int_size();
+    let (width, height) = (size.width(), size.height());
+    if width == 0
+        || height == 0
+        || width > RESIZED_IMAGE_MAX_DIMENSION
+        || height > RESIZED_IMAGE_MAX_DIMENSION
+        || u64::from(width) * u64::from(height) * 4 > RESIZED_IMAGE_MAX_DECODE_ALLOC
+    {
+        return Err(ResizeError::Svg(format!(
+            "SVG intrinsic size {width}x{height} is outside the resized image limits"
+        )));
+    }
+    let mut pixmap = resvg::tiny_skia::Pixmap::new(width, height).ok_or_else(|| {
+        ResizeError::Svg(format!("could not allocate a {width}x{height} pixmap"))
+    })?;
+    resvg::render(
+        &tree,
+        resvg::tiny_skia::Transform::default(),
+        &mut pixmap.as_mut(),
+    );
+    let mut rgba = Vec::with_capacity(pixmap.pixels().len() * 4);
+    for pixel in pixmap.pixels() {
+        let color = pixel.demultiply();
+        let alpha = u32::from(color.alpha());
+        let flatten = |channel: u8| {
+            ((u32::from(channel) * alpha + 255 * (255 - alpha)) / 255) as u8
+        };
+        rgba.extend_from_slice(&[
+            flatten(color.red()),
+            flatten(color.green()),
+            flatten(color.blue()),
+            255,
+        ]);
+    }
+    let buffer = ImageBuffer::<Rgba<u8>, Vec<u8>>::from_raw(width, height, rgba)
+        .ok_or_else(|| {
+            ResizeError::Svg("rasterized SVG did not fill its pixmap".to_owned())
+        })?;
+    Ok(DynamicImage::ImageRgba8(buffer))
 }
 
 async fn resized_not_found(
@@ -623,6 +703,13 @@ mod tests {
         output.into_inner()
     }
 
+    fn svg(width: u32, height: u32) -> Vec<u8> {
+        format!(
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{width}\" height=\"{height}\" viewBox=\"0 0 {width} {height}\"><rect width=\"{width}\" height=\"{height}\" fill=\"#3366cc\"/></svg>"
+        )
+        .into_bytes()
+    }
+
     fn file_requests(state: &MockState) -> Vec<Value> {
         state
             .rpc_requests
@@ -799,7 +886,7 @@ mod tests {
 
         app.mock.set_file_reply(FileReply::Found {
             revision_id: 11,
-            mime: "image/svg+xml",
+            mime: "image/bmp",
             size: 128,
             s3_hash: "blob-v1",
         });
@@ -877,6 +964,95 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(ranged.status(), StatusCode::RANGE_NOT_SATISFIABLE);
+    }
+
+    #[tokio::test]
+    async fn public_route_rasterizes_svg_sources_to_jpeg_variants() {
+        let source = svg(800, 400);
+        let app = TestApp::spawn(source.clone()).await;
+        app.mock.set_file_reply(FileReply::Found {
+            revision_id: 11,
+            mime: "image/svg+xml",
+            size: source.len() as i64,
+            s3_hash: "blob-v1",
+        });
+
+        for (variant, dimensions) in [
+            ("square", (75, 75)),
+            ("thumbnail", (100, 50)),
+            ("small", (240, 120)),
+            ("medium", (500, 250)),
+        ] {
+            let response = app
+                .request(reqwest::Method::GET, variant)
+                .send()
+                .await
+                .unwrap();
+            assert_eq!(response.status(), StatusCode::OK, "{variant}");
+            assert_eq!(response.headers()[CONTENT_TYPE], "image/jpeg");
+            let image = image::load_from_memory_with_format(
+                &response.bytes().await.unwrap(),
+                ImageFormat::Jpeg,
+            )
+            .unwrap();
+            assert_eq!(image.dimensions(), dimensions, "{variant}");
+            let center = image.get_pixel(dimensions.0 / 2, dimensions.1 / 2);
+            assert!(
+                center[0] < 110 && center[2] > 150,
+                "{variant} center pixel should be the SVG fill: {center:?}",
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn public_route_rejects_malformed_and_mismatched_svg_sources() {
+        let malformed = b"<svg xmlns=\"http://www.w3.org/2000/svg\"><rect".to_vec();
+        let app = TestApp::spawn(malformed.clone()).await;
+        app.mock.set_file_reply(FileReply::Found {
+            revision_id: 11,
+            mime: "image/svg+xml",
+            size: malformed.len() as i64,
+            s3_hash: "blob-v1",
+        });
+        let malformed = app
+            .request(reqwest::Method::GET, "thumbnail")
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(malformed.status(), StatusCode::NOT_FOUND);
+
+        let raster = png(800, 400, 17);
+        let app = TestApp::spawn(raster.clone()).await;
+        app.mock.set_file_reply(FileReply::Found {
+            revision_id: 11,
+            mime: "image/svg+xml",
+            size: raster.len() as i64,
+            s3_hash: "blob-v1",
+        });
+        let mismatched_mime = app
+            .request(reqwest::Method::GET, "thumbnail")
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(mismatched_mime.status(), StatusCode::NOT_FOUND);
+
+        let app = TestApp::spawn(svg(800, 400)).await;
+        let mismatched_bytes = app
+            .request(reqwest::Method::GET, "thumbnail")
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(mismatched_bytes.status(), StatusCode::NOT_FOUND);
+    }
+
+    #[test]
+    fn rasterize_svg_uses_view_box_size_and_enforces_dimension_limits() {
+        let view_box_only = b"<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 300 150\"><rect width=\"300\" height=\"150\" fill=\"#3366cc\"/></svg>";
+        let image = super::rasterize_svg(view_box_only).unwrap();
+        assert_eq!(image.dimensions(), (300, 150));
+
+        let oversized = svg(RESIZED_IMAGE_MAX_DIMENSION + 1, 10);
+        assert!(super::rasterize_svg(&oversized).is_err());
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 4)]

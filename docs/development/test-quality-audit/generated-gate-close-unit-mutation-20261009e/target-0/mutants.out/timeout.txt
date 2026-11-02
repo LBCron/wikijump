@@ -1,3 +1,0 @@
-src/services/render/list_pages/scanner.rs:263:24: replace += with *= in generated_gate_module_close
-src/services/render/list_pages/scanner.rs:269:24: replace + with - in generated_gate_module_close
-src/services/render/list_pages/scanner.rs:269:24: replace + with * in generated_gate_module_close

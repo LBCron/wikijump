@@ -10,14 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Regression tests for #2602: concurrent creates for a new attachment name
-//! must leave exactly one active file row.
-//!
-//! `UNIQUE (page_id, name, deleted_at)` treats NULLs as distinct, so the
-//! pre-insert lookup alone cannot stop two concurrent creates. The partial
-//! unique index `file_active_page_name_unique` (WHERE deleted_at IS NULL)
-//! is the arbiter, and the losing racer must see `ErrorType::FileExists`.
-
 use cuid2::cuid;
 use deepwell::api::{ServerState, build_server_at, build_server_state_without_workers};
 use deepwell::config::{Config, Secrets};
@@ -47,8 +39,6 @@ use time::{Duration as TimeDuration, OffsetDateTime};
 use tokio::sync::Barrier;
 use tokio::time::sleep;
 
-/// The loser's insert must name this index, which is what the service
-/// mapping matches on to return `ErrorType::FileExists`.
 const FILE_ACTIVE_UNIQUE_INDEX: &str = "file_active_page_name_unique";
 
 async fn test_state() -> ServerState {
@@ -86,13 +76,6 @@ fn is_active_unique_violation(error: &DbErr) -> bool {
     )
 }
 
-/// Two concurrent row inserts for the same new (page_id, name) must not
-/// both commit: the second insert blocks on the first transaction, then
-/// fails against the partial unique index once it commits.
-///
-/// This pins the index itself (including its name, which the service
-/// mapping depends on) without any timing assumptions: whether the second
-/// insert arrives before or after the first commit, it must fail.
 #[tokio::test]
 async fn concurrent_file_row_inserts_reject_the_second_active_name() {
     let state = test_state().await;
@@ -135,9 +118,6 @@ async fn concurrent_file_row_inserts_reject_the_second_active_name() {
         result
     };
     let release = async {
-        // The contender blocks on the holder's uncommitted insert if it
-        // arrives first, and fails immediately if it arrives after this
-        // commit. Either interleaving must report a unique violation.
         sleep(Duration::from_millis(300)).await;
         holder
             .commit()
@@ -393,10 +373,6 @@ async fn cleanup_fixture(
     }
 }
 
-/// Two concurrent `file_create` calls for the same new attachment name must
-/// leave exactly one active file row, and the loser must see the existing
-/// conflict error (`ErrorType::FileExists`), whether it loses in the
-/// pre-insert lookup or on the partial unique index.
 #[tokio::test]
 async fn concurrent_file_creates_leave_exactly_one_active_row() {
     let state = test_state().await;
@@ -517,14 +493,6 @@ async fn concurrent_file_creates_leave_exactly_one_active_row() {
             .expect("winner temporary blob state should be observable");
         assert_eq!(winner_permanent.status_code(), 200);
         assert_eq!(winner_temporary.status_code(), 404);
-        // No assertion on the loser's finalized blob: `create` promotes
-        // the upload to permanent storage before the row insert that
-        // rejects it, so the loser's bytes remain as an unreferenced
-        // orphan. That is pre-existing behavior for any post-finalize
-        // create failure, and blobs are content-addressed, so a
-        // compensating delete could remove bytes shared with the winner.
-        // #2602 guarantees a single active row plus a clean conflict
-        // error, both pinned above.
     })
     .catch_unwind()
     .await;

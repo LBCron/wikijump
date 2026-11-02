@@ -81,9 +81,6 @@ test("successful sign-in closes the surface in place and sets the session withou
   await expect(page.locator("dialog.wikidot-login-dialog")).toBeHidden()
   await expect(page).toHaveURL(WIKI_PAGE)
   expect(page.url()).not.toContain("fixture-member-password")
-  // The fixture article view hardcodes user_session to null, so the
-  // reconciled authenticated chrome is not provable here; the session cookie
-  // set by the native action is the hermetic signal.
   const cookies = await page.context().cookies()
   expect(cookies.find((cookie) => cookie.name === "wikijump_token")?.value).toBe(
     "fixture-authenticated-session-token"
@@ -115,8 +112,6 @@ test("MFA-required sign-in points to the native sign-in page without carrying a 
 
   await expect(page.getByRole("status")).toContainText("Two-step verification")
   const nativeLink = page.getByRole("link", { name: "Open the sign-in page" })
-  // The native page returns to this wiki page after sign-in; the MFA
-  // continuation token never travels in the link.
   await expect(nativeLink).toHaveAttribute(
     "href",
     `/-/login?return=${encodeURIComponent(new URL(WIKI_PAGE).pathname)}`
@@ -128,8 +123,6 @@ test("permission-denial sign-in links reuse the in-place surface", async ({ page
   await openAnonymousWikiPage(page)
   const historyLength = await page.evaluate(() => history.length)
 
-  // Permission-denial copy (NewPage/FileList) offers Wikidot's legacy
-  // `#action:login` link; it must open the same owner as Sign in.
   await page.evaluate(() => {
     const link = document.createElement("a")
     link.id = "login-action-probe"
@@ -137,9 +130,6 @@ test("permission-denial sign-in links reuse the in-place surface", async ({ page
     link.textContent = "Sign in as Wikidot user"
     document.body.append(link)
   })
-  // openAnonymousWikiPage already waited for hydration (the Sign in
-  // control's delegated handler), which runs after the layout onMount that
-  // installs the document-level login-action interceptor.
   await page.locator("#login-action-probe").click()
 
   const dialog = page.locator("dialog.wikidot-login-dialog")

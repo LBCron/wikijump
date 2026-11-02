@@ -1,0 +1,5 @@
+++ SCP-JP Theme Lab Backlink Fixture
+
+[[[run-owned:theme-lab-visual-acceptance-imported-20260924|テーマ受け入れfixtureへのリンク]]]
+
+このrun-owned pageは、実ページBacklinks一覧の空状態と通常状態を検証するための参照元です。

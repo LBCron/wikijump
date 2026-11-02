@@ -89,8 +89,9 @@ for private/sensitive data before any publication.
 After acquisition, `scripts/run-offline-authority-gate.sh
 /absolute/path/to/store` reconstructs and validates the current-head evidence
 inside a network namespace with no host/Internet egress, including all 36
-frozen package checks and the Python regression suite. It checks the pinned
-inventory hash and reports **input integrity**, never current Sigma-9/Sigma-10
+frozen package checks and the Python regression suite. It derives the
+inventory from the tracked ledger and the store, verifies every blob against
+it, and reports **input integrity**, never current Sigma-9/Sigma-10
 browser acceptance. The project's existing Wikidot verification GitHub
 workflow is intentionally local-only. An automatic trusted CI workflow must
 be connected to a real object store and supplied with sufficient disk space

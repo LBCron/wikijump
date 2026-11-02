@@ -1,0 +1,1638 @@
+{
+  "schema": "theme_lab_runtime_surface_parity.v2",
+  "updated_at": "2026-09-30",
+  "decision_rule": "Only a PARITY_CERTIFIED scope may support a theme-port requirement. All other and unclassified runtime findings are quarantined from port next_actions; independent asset/include findings remain actionable.",
+  "source_baseline": {
+    "generic_wikidot_base_css": {
+      "status": "FROZEN_SOURCE_ARTIFACT",
+      "source_identity": "Wikidot common theme Base stylesheet retained in the local Wikidot static asset tree",
+      "path": "framerail/static/wikidot/styles/wikidot-base-165bc434fd1d.css",
+      "sha256": "165bc434fd1da2092fee0ea6bdeb55aa38402aaaafd6d1e3303180d2b595b981",
+      "evidence_reference": [
+        "install/local/theme-lab/tests/integration.test.mjs",
+        "docs/wikidot-specifications/specifications/platform/site-themes.md#persisted-built-in-theme-ids-serve-exact-ordered-versioned-common--theme-stylesheets"
+      ]
+    },
+    "scp_en_theme_site": {
+      "status": "SOURCE_CONFIRMED",
+      "title": "Sigma-10 Theme",
+      "page": "https://scp-wiki.wikidot.com/theme:site",
+      "source_sha256": "17f5d83fc92f3f171fcdb790f78fe207db86203eeca1e34f508631fb36daca34",
+      "updated_at": "2026-05-22T09:04:20+00:00",
+      "import": "https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css",
+      "official_source_repository": "https://github.com/scpwiki/sigma",
+      "evidence_reference": [
+        "install/local/theme-lab/ports/site/manifest.json",
+        "install/local/theme-lab/ports/site/upstream-en.wikidot.txt",
+        "install/local/theme-lab/ports/en-theme-dependency-graph.json",
+        "install/local/theme-lab/ports/site/candidate-base.css"
+      ]
+    }
+  },
+  "inventories": {
+    "theme_css_surface_discovery": "install/local/theme-lab/src/theme-surface-contract.mjs:KNOWN_THEME_SURFACES",
+    "interactive_fixture_surfaces": "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+  },
+  "surfaces": [
+    {
+      "surface_id": "content.article",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": "ports/sigma/upstream-en.wikidot.txt#blink-demonstration; existing article contract remains local-only; ports/shared-fixtures/component-theme-squares.jp.wikidot.txt (frozen source-owned palette DOM; local-only, no parity certificate)",
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#page-title|#page-content|#page-info|#main-content",
+        "^\\.blink(?:$|[\\s>+~.#:\\[])",
+        "^\\.(?:colors-container|colors|color|subcolors|subcolor)(?:$|[\\s>+~.#:\\[])"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.blockquote",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "^blockquote(?:$|[\\s>+~.#:\\[])"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.code",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.code|\\bpre\\b"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.collapsible",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.collapsible-block"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.credit",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.creditButton|\\.creditRate|#u-credit-(?:view|otherwise)|\\.creditBottomRate"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.footnotes",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.footnotes-footer|\\.footnoteref"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.image-block",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.scp-image-block|\\bdiv\\.img"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.link",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "(?:^|\\s)a(?:$|[:.\\[])|#page-content\\s+a"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.links",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "(?:^|\\s)a(?:$|[:.\\[])|#page-content\\s+a"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.rating",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.page-rate-widget-box|\\.rate-points|\\.rateup|\\.ratedown"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.table",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "^(?:table|\\.wiki-content-table)(?:$|[\\s>+~.#:\\[])"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.tabview",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.yui-navset|\\.yui-nav|\\.yui-content|\\.picker\\s+(?:li|em)"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "content.toc",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#toc"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "credit.close-back",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.creditButton|\\.modalbox|\\.fader"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "credit.default",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.creditButton|\\.creditRate|\\.creditBottomRate"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "credit.otherwise",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#u-credit-otherwise|\\.modalbox"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "credit.view",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#u-credit-view|\\.modalbox"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "dialog.generic",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#odialog-container|\\.owindow|\\.odialog-shader"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "nav.desktop-top",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#top-bar|\\.top-bar"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "nav.mobile-top",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.mobile-top-bar|\\.open-menu"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "nav.mobile-top.forced-submenu-state",
+      "status": "THEME_LAB_ONLY_SYNTHETIC_SURFACE",
+      "scope": "synthetic Theme Lab fixture state only",
+      "evidence_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs"
+      ],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/runtime-surface-parity.test.mjs",
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "The state runner adds a Theme Lab-only class and style rule to force a submenu open; it is a local test device, not an observed Wikidot transition."
+      ],
+      "selector_patterns": [],
+      "theme_lab_activity": "SYNTHETIC_THEME_LAB_DIAGNOSTIC",
+      "conclusion_resolution": "SYNTHETIC_DIAGNOSTIC_ONLY",
+      "decision_authority": "THEME_LAB_SYNTHETIC_DIAGNOSTIC_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Synthetic fixture structure/state is diagnostic only and is excluded from both Wikidot parity conclusions and required SCP-JP acceptance states.",
+      "resolution_reason": "The capture harness creates this shape/state; it is not a source-observed Wikidot runtime contract."
+    },
+    {
+      "surface_id": "nav.sidebar",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#side-bar|\\.side-block|\\.close-menu"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "nav.tablet-top",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#top-bar|\\.top-bar|\\.mobile-top-bar"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "nav.top",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#top-bar|\\.top-bar"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.actions",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#page-options|#more-options-button"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.backlinks",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#backlinks|\\.backlinks"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.delete",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#delete|\\.delete-page"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.diff",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.revision-diff|#revision-diff"
+      ],
+      "theme_lab_activity": "NO_CURRENT_HARNESS_USE",
+      "conclusion_resolution": "NO_CURRENT_DEPENDENCY",
+      "decision_authority": "NONE_CURRENTLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "No independent page.diff CSS-discovery id or interactive capture state exists. Revision-diff selectors found by the CSS analyzer belong to the active page.history local-acceptance surface.",
+      "resolution_reason": "The current derivation set has no page.diff runtime probe; future activation requires a new explicit disposition before conclusion authority is granted."
+    },
+    {
+      "surface_id": "page.edit",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#editor|#edit-form|\\.editor-toolbar"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.files",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.page-files|\\.file-list|\\.file-row|\\.file-name|\\.file-attribute"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.history",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole History surface; see the separately scoped table DOM contract",
+      "evidence_reference": [
+        "install/local/theme-lab/evidence/wikidot-history-parity-20260929.json#sites[scp-wiki,scp-jp].history_contract",
+        "install/local/theme-lab/evidence/wikidot-history-parity-20260929.responses/en-02.json",
+        "install/local/theme-lab/evidence/wikidot-history-parity-20260929.responses/jp-02.json"
+      ],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": "2026-09-29",
+      "source_identity": {
+        "captured_at": "2026-09-29T06:35:07.588103+00:00",
+        "transport": "anonymous HTTPS via pinned wikidot.py 4.4.1",
+        "source_pages": [
+          {
+            "site": "scp-wiki.wikidot.com",
+            "slug": "scp-173",
+            "page_id": 1956234,
+            "module": "history/PageRevisionListModule"
+          },
+          {
+            "site": "scp-jp.wikidot.com",
+            "slug": "scp-173",
+            "page_id": 19439882,
+            "module": "history/PageRevisionListModule"
+          }
+        ]
+      },
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "The live AMC fragments prove seven-cell DOM and one file-deletion row; they do not prove other file-operation variants, action outcomes, mobile presentation, pagination transitions, focus/hover behavior, or .odate hydration.",
+        "Wikijump history actions for a file event resolve to the nearest page snapshot by timestamp; the corresponding Wikidot V/S action outcome is not established by AMC evidence."
+      ],
+      "selector_patterns": [
+        "\\.page-history|#revision-list|#action-area.*(?:history|revision)|\\.revision-diff|#history-subarea"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.history.file-revision-timeline",
+      "status": "PARITY_CERTIFIED",
+      "scope": "the observed file-deletion event in the combined page History list: F flag, seven-cell row, V/S affordances, descending event-time placement between page revisions, and shared history ordinal",
+      "evidence_reference": [
+        "install/local/theme-lab/evidence/wikidot-history-parity-20260929.json#timeline_observation",
+        "install/local/theme-lab/evidence/wikidot-history-parity-20260929.responses/jp-02.json"
+      ],
+      "implementation_reference": [
+        "framerail/src/lib/server/deepwell/page.ts:pageHistory",
+        "framerail/src/lib/server/deepwell/page-file.ts:pageFileRevisionHistory",
+        "deepwell/src/endpoints/file_revision.rs:file_revision_page_history",
+        "deepwell/src/services/file_revision/service.rs:get_page_history",
+        "framerail/src/lib/server/wikidot-history-timeline.js",
+        "framerail/src/routes/[slug]/[...extra]/HistoryPane.svelte",
+        "framerail/src/lib/server/ajax-module-connector-page-reads.js:renderWikidotPageRevisionList"
+      ],
+      "test_reference": [
+        "framerail/tests/wikidot-history-timeline.test.js",
+        "framerail/tests/ajax-module-connector-page-reads.test.js",
+        "install/local/theme-lab/tests/history-parity-evidence.test.mjs"
+      ],
+      "evidence_date": "2026-09-29",
+      "source_identity": {
+        "site": "scp-jp.wikidot.com",
+        "slug": "scp-173",
+        "page_id": 19439882,
+        "module": "history/PageRevisionListModule",
+        "observed_row_id": "revision-row-1460043942",
+        "observed_flag": "F",
+        "observed_row_number": 37,
+        "adjacent_row_ids": [
+          "revision-row-1518465386",
+          "revision-row-1460043932"
+        ],
+        "event_time_epoch_seconds": [
+          1708518860,
+          1649740525,
+          1649740471
+        ],
+        "response_sha256": "96c1115d31b3b645bd7efbc45abedcae14b6e7e9b14c2111b429523aaf440b4a"
+      },
+      "may_treat_differences_as_port_requirements": true,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "The retained live sample proves one file-deletion event. Upload/edit/move row variants and equal-timestamp ordering were not observed, so this certificate must not be widened to those cases.",
+        "The V/S action outcomes for file events are not established by the captured AMC response; broader History interactions remain quarantined by page.history."
+      ],
+      "selector_patterns": [
+        "\\.page-history",
+        "#revision-row-"
+      ],
+      "theme_lab_activity": "CERTIFIED_NARROW_SCOPE",
+      "conclusion_resolution": "CERTIFIED_PARITY_SCOPE",
+      "decision_authority": "WIKIDOT_RUNTIME_PARITY",
+      "port_conclusion_eligible": true,
+      "blocks_port_conclusion": false,
+      "decision_scope": "the observed file-deletion event in the combined page History list: F flag, seven-cell row, V/S affordances, descending event-time placement between page revisions, and shared history ordinal",
+      "resolution_reason": "The exact registered scope has source-backed Wikidot evidence and corresponding Wikijump regression coverage. Findings qualify only when they map to this exact scope."
+    },
+    {
+      "surface_id": "page.history.table-dom",
+      "status": "PARITY_CERTIFIED",
+      "scope": "only the observed History table DOM contract: seven ordered cells, row id prefix, from/to radios, flag/action cells, author/date/comment selectors; localization may change visible header/flag text",
+      "evidence_reference": [
+        "install/local/theme-lab/evidence/wikidot-history-parity-20260929.json#sites[scp-wiki,scp-jp].history_contract",
+        "install/local/theme-lab/evidence/wikidot-history-parity-20260929.responses/en-02.json",
+        "install/local/theme-lab/evidence/wikidot-history-parity-20260929.responses/jp-02.json"
+      ],
+      "implementation_reference": [
+        "framerail/src/routes/[slug]/[...extra]/HistoryPane.svelte",
+        "framerail/src/lib/wikidot-history-contract.js",
+        "framerail/src/lib/server/ajax-module-connector-page-reads.js"
+      ],
+      "test_reference": [
+        "framerail/tests/page-workflows.spec.ts",
+        "framerail/tests/ajax-module-connector-page-reads.test.js",
+        "install/local/theme-lab/tests/history-parity-evidence.test.mjs"
+      ],
+      "evidence_date": "2026-09-29",
+      "source_identity": {
+        "sites": [
+          "scp-wiki.wikidot.com/scp-173 (page 1956234)",
+          "scp-jp.wikidot.com/scp-173 (page 19439882)"
+        ],
+        "module": "history/PageRevisionListModule",
+        "transport": "anonymous HTTPS via pinned wikidot.py 4.4.1"
+      },
+      "may_treat_differences_as_port_requirements": true,
+      "intentional_differences": [
+        "Header labels and flag tooltip text are localized while cell order and selectors remain stable."
+      ],
+      "unresolved_evidence_gaps": [
+        "The narrow DOM certificate covers the observed seven-cell rows, including one file-deletion row. It does not establish date hydration/visibility, mobile styling, action outcomes, or pager states.",
+        "The captured file event is a deletion; upload/edit/move row variants and equal-timestamp ordering are not present in the retained live sample."
+      ],
+      "selector_patterns": [
+        "\\.page-history",
+        "#revision-row-"
+      ],
+      "theme_lab_activity": "CERTIFIED_NARROW_SCOPE",
+      "conclusion_resolution": "CERTIFIED_PARITY_SCOPE",
+      "decision_authority": "WIKIDOT_RUNTIME_PARITY",
+      "port_conclusion_eligible": true,
+      "blocks_port_conclusion": false,
+      "decision_scope": "only the observed History table DOM contract: seven ordered cells, row id prefix, from/to radios, flag/action cells, author/date/comment selectors; localization may change visible header/flag text",
+      "resolution_reason": "The exact registered scope has source-backed Wikidot evidence and corresponding Wikijump regression coverage. Findings qualify only when they map to this exact scope."
+    },
+    {
+      "surface_id": "page.normal",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#page-content|#main-content"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.options",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#page-options-container|#page-options-bottom|#more-options-button"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.parent",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#parent|\\.page-parent"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.rename",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#rename|#move-page|\\.move-page"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.source",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.page-source|#view-source-button"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "page.tags",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.page-tags|#page-tags"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "shell.container",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "^(?:html|body|#container-wrap|#content-wrap|#main-content)(?:$|[\\s>+~.#:\\[])"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "shell.footer",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#footer"
+      ],
+      "theme_lab_activity": "COVERED_ALIAS",
+      "conclusion_resolution": "COVERED_BY_ACTIVE_SURFACE",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "covered_by_surface": "shell.footer-license",
+      "decision_scope": "Alias selector scope evaluated as part of shell.footer-license; it has no independent Theme Lab state or conclusion.",
+      "resolution_reason": "The active shell.footer-license contract covers this selector. Keep the alias visible for diagnosis, but do not create a second parity dependency."
+    },
+    {
+      "surface_id": "shell.footer-license",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#footer|#license-area"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "shell.header",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [
+        "install/local/theme-lab/ports/authority-evidence/replay/objects/5c/5c92d7dc050a72ac4e130aab62f56fa70105a044aa610da940c17b7fe66d2fb6#header-and-extra-div-scaffolding"
+      ],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "^#header(?:$|[\\s>+~.#:\\[])",
+        "^#(?:header-)?extra-div-[1-6](?:$|[\\s>+~.#:\\[])"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified. The observed extra-div/header-extra-div scaffolding belongs to this existing shell observation scope; its styles remain local target acceptance only and confer no adaptation authority."
+    },
+    {
+      "surface_id": "shell.interwiki",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "\\.scpnet-interwiki|#interwiki"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "shell.interwiki.fixture",
+      "status": "THEME_LAB_ONLY_SYNTHETIC_SURFACE",
+      "scope": "synthetic Theme Lab fixture state only",
+      "evidence_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs"
+      ],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/runtime-surface-parity.test.mjs",
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "The state runner appends a local srcdoc iframe so candidate selectors can be exercised; it is not the source Interwiki document or a source-side interaction capture."
+      ],
+      "selector_patterns": [],
+      "theme_lab_activity": "SYNTHETIC_THEME_LAB_DIAGNOSTIC",
+      "conclusion_resolution": "SYNTHETIC_DIAGNOSTIC_ONLY",
+      "decision_authority": "THEME_LAB_SYNTHETIC_DIAGNOSTIC_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Synthetic fixture structure/state is diagnostic only and is excluded from both Wikidot parity conclusions and required SCP-JP acceptance states.",
+      "resolution_reason": "The capture harness creates this shape/state; it is not a source-observed Wikidot runtime contract."
+    },
+    {
+      "surface_id": "shell.license",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#license-area"
+      ],
+      "theme_lab_activity": "COVERED_ALIAS",
+      "conclusion_resolution": "COVERED_BY_ACTIVE_SURFACE",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "covered_by_surface": "shell.footer-license",
+      "decision_scope": "Alias selector scope evaluated as part of shell.footer-license; it has no independent Theme Lab state or conclusion.",
+      "resolution_reason": "The active shell.footer-license contract covers this selector. Keep the alias visible for diagnosis, but do not create a second parity dependency."
+    },
+    {
+      "surface_id": "shell.login",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#login-status|#account-topbutton"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "shell.search",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "whole surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/theme-surface-contract.mjs",
+        "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/theme-surface-contract.test.mjs",
+        "install/local/theme-lab/ports/SCP-JP-THEME-SURFACE-SPEC.md"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No source-side Wikidot capture currently binds the DOM, selectors, interaction states, and responsive behavior used by Theme Lab for this surface."
+      ],
+      "selector_patterns": [
+        "#search-top-box"
+      ],
+      "theme_lab_activity": "ACTIVE_CSS_OR_INTERACTION_SURFACE",
+      "conclusion_resolution": "LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "decision_authority": "SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": false,
+      "decision_scope": "Candidate CSS effects and screenshots on the SCP-JP/Wikijump runtime remain in target acceptance. They do not assert Wikidot parity and cannot create a parity-based port requirement, next action, or source-intent conclusion.",
+      "resolution_reason": "The complete Wikidot-facing DOM/state contract is not certified. The active local acceptance probes remain enabled, while runtime-parity findings are removed from port-decision authority until this exact scope is certified."
+    },
+    {
+      "surface_id": "unclassified-runtime-surface",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "scope": "fail-closed fallback for a runtime-related finding not matched to a registered surface",
+      "evidence_reference": [],
+      "implementation_reference": [
+        "install/local/theme-lab/src/runtime-surface-parity.mjs"
+      ],
+      "test_reference": [
+        "install/local/theme-lab/tests/runtime-surface-parity.test.mjs"
+      ],
+      "evidence_date": null,
+      "source_identity": null,
+      "may_treat_differences_as_port_requirements": false,
+      "intentional_differences": [],
+      "unresolved_evidence_gaps": [
+        "No registered source/runtime parity evidence was matched; add an explicit registry row and evidence before port promotion."
+      ],
+      "selector_patterns": [],
+      "theme_lab_activity": "FAIL_CLOSED_FALLBACK",
+      "conclusion_resolution": "BLOCK_IF_OBSERVED",
+      "decision_authority": "UNCLASSIFIED_RUNTIME_FAIL_CLOSED",
+      "port_conclusion_eligible": false,
+      "blocks_port_conclusion": true,
+      "decision_scope": "No currently observed surface. Any new/unmatched runtime finding blocks a port conclusion until the dependency is explicitly registered and certified or removed.",
+      "resolution_reason": "Fail-closed sentinel for future or unmapped runtime contracts; it is not counted as a current surface."
+    }
+  ],
+  "decision_authority_contract": {
+    "required_inventory": {
+      "css_discovery": "install/local/theme-lab/src/theme-surface-contract.mjs:KNOWN_THEME_SURFACES",
+      "interactive_capture": "install/local/theme-lab/ports/interactive-visual-fixture/capture-interactive.mjs"
+    },
+    "active_contract_count": 41,
+    "rule": "An active surface with no exact parity certificate is evaluated only for SCP-JP local target acceptance. Its runtime differences, local visual classification, and human review cannot establish a Wikidot parity claim or a parity-based port requirement. Exact PARITY_CERTIFIED scopes remain eligible. Any observed runtime contract with no registered disposition blocks the port conclusion.",
+    "source_observations_are_not_certificates": [
+      "install/local/theme-lab/evidence/wikidot-runtime-surface-20260930.states-v3/records.json",
+      "install/local/theme-lab/evidence/wikidot-runtime-surface-modules-20260930.json"
+    ]
+  }
+}

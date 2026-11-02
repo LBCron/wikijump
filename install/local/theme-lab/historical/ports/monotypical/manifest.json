@@ -1,0 +1,201 @@
+{
+  "slug": "theme:monotypical",
+  "en_source_sha256": "7584ab59275e4e7300966646f2f8b42a2833e3087fa8353c508f26c2a8f89bc4",
+  "en_updated_at": "2026-04-12T05:12:14+00:00",
+  "en_entity_uuid": "80ec8e62-0af1-493f-9e95-4e4592ae94ba",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "f9e1ea2563ba3963770c899068d58fd175d58824f0d3ffd4436ec8db5a60c156",
+  "jp_previous_updated_at": "2024-10-18T09:04:38+00:00",
+  "jp_previous_entity_uuid": "5c1fba7f-1159-4c39-87ab-db5165c7aab3",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:monotypical",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:monotypical",
+    "title": "Monotypical Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "7584ab59275e4e7300966646f2f8b42a2833e3087fa8353c508f26c2a8f89bc4",
+      "updated_at": "2026-04-12T05:12:14+00:00",
+      "entity_uuid": "80ec8e62-0af1-493f-9e95-4e4592ae94ba",
+      "tags": [
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 142,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:monotypical"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "f9e1ea2563ba3963770c899068d58fd175d58824f0d3ffd4436ec8db5a60c156",
+      "updated_at": "2024-10-18T09:04:38+00:00",
+      "entity_uuid": "5c1fba7f-1159-4c39-87ab-db5165c7aab3",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:monotypical"
+      }
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "warn"
+  },
+  "dependencies": {
+    "slug": "theme:monotypical",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:info:start",
+      ":scp-wiki:info:more",
+      ":scp-wiki:info:end",
+      ":scp-wiki:theme:monotypical",
+      "component:image-block name= https://scp-wiki.wikidot.com/local--files/theme:monotypical/mono.png"
+    ],
+    "en_external_dependencies": [
+      "http://www.w3.org/1999/xlink",
+      "http://www.w3.org/2000/svg",
+      "https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css",
+      "https://fonts.bunny.net/css2?family=Fira+Code:wght@400;700&display=swap",
+      "https://fonts.bunny.net/css2?family=Ubuntu&display=swap",
+      "https://fonts.bunny.net/css2?family=Urbanist:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap",
+      "https://scp-wiki.wdfiles.com/local--code/theme:monotypical/5",
+      "https://scp-wiki.wikidot.com/local--files/theme:monotypical/mono-dracula.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:monotypical/mono-nord.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:monotypical/mono-solarized.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:monotypical/mono.png|caption=Image.|width=240px"
+    ],
+    "jp_includes": [
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:theme:monotypical",
+      ":scp-jp:component:image-block name= https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-77-5jif/mono.png"
+    ],
+    "jp_external_dependencies": [
+      "http://www.w3.org/1999/xlink",
+      "http://www.w3.org/2000/svg",
+      "https://api.fonts.coollabs.io/css2?family=Fira+Code:wght@400;700&display=swap",
+      "https://api.fonts.coollabs.io/css2?family=Ubuntu&display=swap",
+      "https://api.fonts.coollabs.io/css2?family=Urbanist:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap",
+      "https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-77-5jif/mono.png|caption=画像。|width=240px",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-78-mugj/mono-nord.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-79-daqr/mono-solarized.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-80-rcg6/mono-dracula.png",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Amonotypical/5",
+      "https://scp-wiki.wikidot.com/theme:monotypical"
+    ],
+    "base_family": "basalt"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "candidate_source_hash": "c8c957fb0ca4619abefd288af33d6f7030218ebc7053fff84297e580223fec74",
+  "page_assets": [
+    {
+      "filename": "mono-dracula.png",
+      "sha256": "695f4ad3654ba9a63585e61a94d740df4d340608842e93ce55e1940e6929d34a",
+      "bytes": 38179,
+      "asset_file": "695f4ad3654ba9a63585e61a94d740df4d340608842e93ce55e1940e6929d34a.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-80-rcg6/mono-dracula.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-80-rcg6/mono-dracula.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "mono-nord.png",
+      "sha256": "6a0c47c302004321e8f7bf7df6e04e18f14ac037664e1ef8b194b235616de200",
+      "bytes": 37494,
+      "asset_file": "6a0c47c302004321e8f7bf7df6e04e18f14ac037664e1ef8b194b235616de200.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-78-mugj/mono-nord.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-78-mugj/mono-nord.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "mono-solarized.png",
+      "sha256": "0830d0c7c6e4bcecb0863f88b35302c549167b41f171f2c4f9f263b49fed3b11",
+      "bytes": 37054,
+      "asset_file": "0830d0c7c6e4bcecb0863f88b35302c549167b41f171f2c4f9f263b49fed3b11.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-79-daqr/mono-solarized.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-79-daqr/mono-solarized.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "warn",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/monotypical/assets.json",
+  "asset_dependency_decision_count": 40,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "9293fdfd3ee9faf3b644dc690c9abe8c2ce71f49d08fff711446edae8d45035a",
+    "jp_overrides_sha256": "9f4098d406425e39f976091a053968610fc8a4ba32cc986f11ae23bb5bf362f3",
+    "semantic_css_sha256": "2da251478a190349c9000025f124596dd1144d8924246ea8722b23183b2af856",
+    "canonical_override_sha256": "3f893bc312638c63f2e3fe4f393aedbdc41577ad2a32124dcf74da6e70bcdfda",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "4b93f8e0316e0f11b2c0911af4d6b5118378ab87af69ced9657245236bba5590",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "c68c0419d7151c59226543e14eb46ff021fc9f3b972c55f03bbf4401777d1d0c",
+      "active_tags": [],
+      "candidate_source_sha256": "2b1757725694a02df9618f21e2e4326f37500b6f751d005558199df72f9913e5",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "f2883666196dd7cad910db816eba36924273e206d35ef01c410443f3b48bfd23",
+      "asset_receipt_path": "assets.json",
+      "assets": 32,
+      "imports": 5,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "warn",
+    "port_verdict": "pass",
+    "target_status": "warn"
+  }
+}

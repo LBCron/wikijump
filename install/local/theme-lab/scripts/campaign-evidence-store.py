@@ -13,6 +13,19 @@ path of content-addressed-authority-store.py with a campaign-specific inventory
 reader, then verifies the restored receipt and run contracts against the
 inventory. Unlike the authority restore, it never reads the source worktree.
 
+Successor-bound exception (LA-34): LA-33a made the black-highlighter-theme
+targeted evidence per-runtime, so a successor admission re-captures the
+option-scenario receipts and screenshots on its own runtime and commits
+them over the closure-era files at the same paths. For inventoried files
+under SUCCESSOR_BOUND_PREFIXES whose checkout bytes differ from the
+inventory, campaign-restore accepts the checkout bytes only when they are
+hash-bound by the committed candidate freeze (the receipts and the visual
+review via targeted_evidence_bindings, the screenshots via the bound
+receipts' own rows) and the frozen blob for the path is still archived
+and verified in the store. Anything else keeps failing closed on the
+byte comparison, and the frozen record stays verifiable from the store.
+When the #3381 LIVING_FILES exception (PR #3399) lands at the next
+campaign freeze, it sits beside this mechanism, not in place of it.
 Exception: paths in LIVING_FILES are living disposition records whose contents
 legitimately move after the campaign closes (the exemption ledger's contract
 bindings track the current acceptance instrument). Restore accepts the
@@ -48,6 +61,14 @@ RECEIPT = 'current-campaign-acceptance.json'
 SIGMA9_DEFAULT = 'ports/current-acceptance/run-contract.json'
 SIGMA10_DEFAULT = 'sigma10-migration/current-campaign/run-contract.json'
 PROBE = HERE / 'campaign-completion-probe.mjs'
+FREEZE_REL = 'publication/frozen-candidate-set.json'
+# Inventoried trees whose files a successor admission legitimately replaces
+# with runtime-bound successors (LA-34). Paths outside these prefixes never
+# qualify for the successor-bound exception, even if a binding matches.
+SUCCESSOR_BOUND_PREFIXES = ('ports/black-highlighter-theme/option-scenarios/runs/', 'ports/black-highlighter-theme/option-scenarios/captures/')
+_SUCCESSOR_RUNS_PREFIX = SUCCESSOR_BOUND_PREFIXES[0]
+_SUCCESSOR_CAPTURES_PREFIX = SUCCESSOR_BOUND_PREFIXES[1]
+_SUCCESSOR_SCREENSHOT_SEPARATOR = '/install/local/theme-lab/'
 # Post-closure living files (owner decision, 2026-10-30, issue #3381). See the
 # module docstring: restore accepts the checkout's current version of these
 # paths instead of verifying them against the frozen inventory.
@@ -297,6 +318,128 @@ def campaign_inventory_files(destination, inventory_path, expected_sha):
     return entries, objects
 
 
+def canonical_successor_screenshot(recorded):
+    """Mirror canonicalBhlScreenshotPath: the theme-lab relative capture
+    path for a recorded screenshot, or None when it is not a confined PNG
+    under the frozen capture directory."""
+    if not isinstance(recorded, str) or not recorded:
+        return None
+    if recorded.startswith(_SUCCESSOR_CAPTURES_PREFIX):
+        relative = recorded
+    elif recorded.startswith('/') and _SUCCESSOR_SCREENSHOT_SEPARATOR in recorded:
+        relative = recorded.rsplit(_SUCCESSOR_SCREENSHOT_SEPARATOR, 1)[-1]
+    else:
+        return None
+    if not relative.startswith(_SUCCESSOR_CAPTURES_PREFIX) or not relative.endswith('.png'):
+        return None
+    if any(part in ('', '.', '..') for part in relative.split('/')):
+        return None
+    return relative
+
+
+def successor_freeze_bindings(theme_lab):
+    """(receipt SHA-256 by path, visual-review SHA-256 by path) recorded in
+    the candidate freeze's targeted_evidence_bindings.
+
+    The freeze is read through authority.safe_file, so a symlinked or
+    non-regular freeze fails closed here; a malformed freeze simply
+    yields no bindings, which also fails closed downstream."""
+    target = authority.safe_file(theme_lab, FREEZE_REL)
+    doc = json.loads(target.read_text())
+    receipts, reviews = {}, {}
+    if not isinstance(doc, dict):
+        return receipts, reviews
+    bindings = doc.get('targeted_evidence_bindings')
+    if not isinstance(bindings, list):
+        return receipts, reviews
+    for item in bindings:
+        if not isinstance(item, dict):
+            continue
+        for row in item.get('receipts') or []:
+            if isinstance(row, dict) and isinstance(row.get('path'), str) and valid_sha(row.get('sha256')):
+                receipts[row['path']] = row['sha256']
+        review = item.get('visual_review')
+        if isinstance(review, dict) and isinstance(review.get('path'), str) and valid_sha(review.get('sha256')):
+            reviews[review['path']] = review['sha256']
+    return receipts, reviews
+
+
+def successor_bound_plan(theme_lab, store_root, entries):
+    """Plan the LA-34 successor-bound exception for one restore.
+
+    Returns one row per inventoried file under SUCCESSOR_BOUND_PREFIXES
+    whose checkout bytes differ from the inventory yet are fully bound:
+    the frozen blob is archived and verified in the store, and the
+    checkout SHA-256 is the one the candidate freeze binds for that exact
+    path (receipts and the visual review directly; screenshots through a
+    row of a receipt that is itself bound in this same plan, with a
+    unique path match). Differing files that fail any condition are left
+    out of the plan, so the shared transfer keeps failing closed on them
+    with the existing mismatch error."""
+    differing = {}
+    for rel, (digest, size) in entries.items():
+        if not rel.startswith(SUCCESSOR_BOUND_PREFIXES):
+            continue
+        target = authority.safe_file(theme_lab, rel, existing=False)
+        if not target.exists():
+            continue
+        checkout_sha = authority.checksum(target)
+        if checkout_sha != digest or target.stat().st_size != size:
+            differing[rel] = checkout_sha
+    if not differing:
+        return []
+    store_input = Path(store_root)
+    if store_input.is_symlink():
+        raise ValueError('store root cannot be a symlink')
+    if not store_input.exists():
+        return []  # the transfer itself reports the unavailable store
+    store_real = store_input.resolve(strict=True)
+    frozen_verified = set()
+    for rel in differing:
+        digest, size = entries[rel]
+        blob = store.blob_path(store_real, digest)
+        if blob.exists():
+            store.verify_file(blob, digest, size, 'stored blob')
+            frozen_verified.add(rel)
+    receipt_bindings, review_bindings = successor_freeze_bindings(theme_lab)
+    bound = {}
+    bound_receipts = set()
+    for rel, checkout_sha in differing.items():
+        if rel not in frozen_verified or not rel.startswith(_SUCCESSOR_RUNS_PREFIX):
+            continue
+        if receipt_bindings.get(rel) == checkout_sha:
+            bound[rel] = 'targeted_evidence_bindings.receipts'
+            bound_receipts.add(rel)
+        elif review_bindings.get(rel) == checkout_sha:
+            bound[rel] = 'targeted_evidence_bindings.visual_review'
+    if bound_receipts:
+        rows_by_path = {}
+        for receipt_rel in sorted(bound_receipts):
+            try:
+                doc = json.loads(authority.safe_file(theme_lab, receipt_rel).read_text())
+            except (ValueError, json.JSONDecodeError):
+                continue
+            rows = doc.get('rows') if isinstance(doc, dict) else None
+            if not isinstance(rows, list):
+                continue
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                canonical = canonical_successor_screenshot(row.get('screenshot'))
+                if canonical is None or not valid_sha(row.get('screenshot_sha256')):
+                    continue
+                rows_by_path.setdefault(canonical, []).append((receipt_rel, row['screenshot_sha256']))
+        for rel, checkout_sha in differing.items():
+            if rel not in frozen_verified or not rel.startswith(_SUCCESSOR_CAPTURES_PREFIX):
+                continue
+            matches = rows_by_path.get(rel) or []
+            if len(matches) == 1 and matches[0][1] == checkout_sha:
+                bound[rel] = f'targeted_evidence_bindings.receipt:{matches[0][0]}'
+    return [{'path': rel, 'inventory_sha256': entries[rel][0],
+             'checkout_sha256': differing[rel], 'bound_by': bound[rel]}
+            for rel in sorted(bound)]
+
+
 def verify_bindings(theme_lab, inventory_path, *, required):
     doc = json.loads(Path(inventory_path).read_text())
     rows = [('receipt', doc['receipt']), ('sigma9 run contract', doc['run_contracts']['sigma9']),
@@ -320,17 +463,25 @@ def restore(checkout_root, store_root, inventory_path, expected_sha, *, apply=Fa
     if info is None or not stat.S_ISDIR(info.st_mode):
         raise ValueError('restore destination is not a checkout with a Theme Lab directory')
     theme_lab = checkout / THEME_LAB_REL
-    inventoried, _objects = campaign_inventory_files(theme_lab, inventory_path, expected_sha)
-    living = {rel: inventoried[rel] for rel in LIVING_FILES if rel in inventoried}
+    entries, _objects = campaign_inventory_files(theme_lab, Path(inventory_path), expected_sha)
+    living = {rel: entries[rel] for rel in LIVING_FILES if rel in entries}
+    bound = successor_bound_plan(theme_lab, store_root, entries)
+    bound_paths = {row['path'] for row in bound}
 
-    def frozen_reader(destination, path, sha):
-        entries, objects = campaign_inventory_files(destination, path, sha)
-        for rel in living:
-            entries.pop(rel, None)
-        return entries, objects
+    def reader(destination, inventory, sha):
+        filtered, objects = campaign_inventory_files(destination, inventory, sha)
+        drop = bound_paths | set(living)
+        if drop:
+            filtered = {rel: value for rel, value in filtered.items() if rel not in drop}
+            objects = {}
+            for digest, size in filtered.values():
+                if digest in objects and objects[digest] != size:
+                    raise ValueError(f'inconsistent size for content-addressed object: {digest}')
+                objects[digest] = size
+        return filtered, objects
 
     result = store.transfer(store_root, theme_lab, inventory_path, expected_sha, mode='restore',
-                            apply=apply, link=link, reader=frozen_reader)
+                            apply=apply, link=link, reader=reader)
     result['living_files'] = []
     for rel, (digest, size) in sorted(living.items()):
         target = authority.safe_file(theme_lab, rel, existing=False)
@@ -347,6 +498,8 @@ def restore(checkout_root, store_root, inventory_path, expected_sha, *, apply=Fa
         store.transfer(store_root, theme_lab, inventory_path, expected_sha, mode='restore',
                        apply=True, link=link, reader=living_reader)
         result['living_files'].append({'path': rel, 'treatment': 'frozen-copy-restored'})
+    result['successor_bound'] = bound
+    result['successor_bound_count'] = len(bound)
     result['bindings_verified'] = verify_bindings(theme_lab, inventory_path, required=apply)
     result['mode'] = 'campaign-restore'
     return result

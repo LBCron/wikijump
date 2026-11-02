@@ -1,5 +1,3 @@
-/* tests/mirror_reconcile.rs */
-
 #[macro_use]
 mod common;
 
@@ -84,8 +82,6 @@ async fn import_mirror_page(
     )
     .await
     .expect("mirror page should import");
-    // Production import adds the page row first and its first revision
-    // second; the reconcile tests address pages through that revision.
     ImportService::add_page_revision(
         runner.context(),
         ImportPageRevision {
@@ -172,7 +168,6 @@ async fn reconcile_tombstones_source_removed_pages() {
     assert_eq!(output.applied_renames, 0);
     assert_eq!(output.failed, 0);
 
-    // The tombstoned page no longer resolves; the kept page does.
     assert!(
         PageService::get(runner.context(), site_id, Reference::Id(gone),)
             .await
@@ -214,7 +209,6 @@ async fn reconcile_moves_source_renamed_pages_and_consumes_old_slug() {
     assert_eq!(output.applied_renames, 1);
     assert_eq!(output.failed, 0);
 
-    // The page lives on under the new slug with its history.
     let page = PageService::get(
         runner.context(),
         site_id,
@@ -224,8 +218,6 @@ async fn reconcile_moves_source_renamed_pages_and_consumes_old_slug() {
     .expect("moved page must resolve under its new slug");
     assert_eq!(page.page_id, moved);
 
-    // The renamed-away slug is consumed: it stays absent and later
-    // passes must not recreate it.
     let old_slug = format!("reconcile-old-name-{tag}");
     assert!(
         PageService::get(
@@ -278,8 +270,6 @@ async fn reconcile_rerun_records_failures_without_duplicates() {
     .expect("first reconciliation should apply");
     assert_eq!(first.failed, 0);
 
-    // Re-running the same pass must not duplicate anything: every item
-    // fails and is recorded instead of aborting the pass.
     let second = MirrorScopeService::reconcile(
         runner.context(),
         ADMIN_USER_ID,
@@ -342,7 +332,6 @@ async fn reconcile_endpoint_requires_platform_staff() {
     let site_id = import_mirror_site(&runner, &tag).await;
     set_scope(&runner, site_id).await;
 
-    // Anonymous callers are refused before any reconciliation runs.
     let error = run_endpoint_err!(
         runner,
         mirror_scope_reconcile,
@@ -355,7 +344,6 @@ async fn reconcile_endpoint_requires_platform_staff() {
     );
     assert_contains_error!(error, ErrorType::PermissionDenied);
 
-    // Platform staff reaches the service: an empty pass applies nothing.
     set_admin_context(&mut runner, site_id);
     let output = run_endpoint!(
         runner,

@@ -9,14 +9,19 @@ set -euo pipefail
 HERE="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd -- "${HERE}/../../../../" && pwd)"
 STORE="${THEME_LAB_AUTHORITY_STORE:-${HOME}/.local/state/wikijump/theme-lab/authority-object-store-v1}"
-MANIFEST="${HERE}/../publication/current-head-authority-supplement.json"
-# Same reviewed pin as run-offline-authority-gate.sh.
-MANIFEST_SHA=1c06a3aae872588663d95999dec769b29714d3ef16c7d014a42b294f11dc7b20
 
 if [[ ! -d "${STORE}" ]]; then
   echo "Theme Lab authority store not found: ${STORE} (set THEME_LAB_AUTHORITY_STORE)" >&2
   exit 1
 fi
-exec python3 -I "${HERE}/content-addressed-authority-store.py" \
+
+# The inventory is derived from the tracked ledger and the store on every run,
+# so an adaptation-ledger rebind needs no inventory edit and no re-pinning.
+INVENTORY="$(mktemp)"
+trap 'rm -f "${INVENTORY}"' EXIT
+node "${HERE}/derive-authority-inventory.mjs" --store "${STORE}" --checkout "${REPO}" --output "${INVENTORY}"
+INVENTORY_SHA="$(sha256sum "${INVENTORY}" | cut -d' ' -f1)"
+python3 -I "${HERE}/content-addressed-authority-store.py" \
   --mode restore --store-root "${STORE}" --destination-root "${REPO}" \
-  --inventory "${MANIFEST}" --inventory-sha256 "${MANIFEST_SHA}" --apply --link
+  --inventory "${INVENTORY}" --inventory-sha256 "${INVENTORY_SHA}" --apply --link
+"${HERE}/exclude-restored-authority-evidence.sh" "${REPO}" "${INVENTORY}"

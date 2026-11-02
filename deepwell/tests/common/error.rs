@@ -18,18 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Functions and macros for processing (expected) error values in tests.
-
 #![allow(unused_macros)]
 
 use deepwell::error::prelude::*;
 use exn::{Exn, Frame};
 
 #[allow(dead_code)]
-/// Extract the deepwell error from the `Exn<Error>` which matches a condition.
-///
-/// This walks the error tree until it finds the first `Error` type which
-/// matches the `ErrorType`-based condition passed in.
 pub fn extract_error<F>(exn_error: &Exn<Error>, condition: F) -> Option<&Error>
 where
     F: Fn(&ErrorType) -> bool + Copy,
@@ -50,10 +44,6 @@ where
     walk(exn_error.frame(), condition)
 }
 
-/// Extract the deepwell error from the `Exn<Error>` which matches an error type pattern.
-///
-/// This is a wrapper macro for `extract_error()` which allows you to pass in a pattern
-/// to be evaluated in `matches!`.
 macro_rules! extract_error {
     ($exn_error:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {
         crate::common::extract_error(
@@ -63,7 +53,6 @@ macro_rules! extract_error {
     };
 }
 
-/// Asserts that there exists an error type matching the given pattern within the `Exn<Error>`.
 macro_rules! assert_contains_error {
     ($exn_error:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {{
         let exn_error = &$exn_error;
@@ -77,7 +66,6 @@ macro_rules! assert_contains_error {
     }};
 }
 
-/// Asserts that there are no errors within the `Exn<Error>` matching the given pattern.
 macro_rules! assert_no_error {
     ($exn_error:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {{
         let exn_error = &$exn_error;
@@ -86,7 +74,7 @@ macro_rules! assert_no_error {
             extracted.is_none(),
             "Found error within trace matching '{}': {:?}\n{:?}",
             stringify!($pattern),
-            extracted.unwrap(), // known to exist at this point
+            extracted.unwrap(),
             exn_error,
         );
     }};

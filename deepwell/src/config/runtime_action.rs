@@ -18,12 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Perform a "runtime action" instead of normal server execution.
-//!
-//! This is useful in contexts such as CI, where we want DEEPWELL to
-//! not run as a daemon, but instead perform a special action or check,
-//! as if motivated by a script.
-
 use super::{Config, SetupConfig};
 use crate::services::render::{
     CorpusRenderFinalizerService, CorpusRenderInventoryService, RenderFinalizerSettings,
@@ -38,13 +32,10 @@ use std::path::PathBuf;
 use std::{env, process};
 
 pub async fn run_runtime_action() {
-    // Get action name, if specified.
-    // Otherwise return and perform normal execution.
     let Ok(action_name) = env::var("DEEPWELL_RUNTIME_ACTION") else {
         return;
     };
 
-    // Run appropriate runtime action.
     let return_code = match action_name.as_str() {
         "config" | "validate-config" => validate_config(),
         "seeder" | "run-seeder" => run_seeder().await,
@@ -59,7 +50,6 @@ pub async fn run_runtime_action() {
         }
     };
 
-    // Exit, don't perform normal server execution.
     process::exit(return_code);
 }
 

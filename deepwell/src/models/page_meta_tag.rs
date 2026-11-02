@@ -1,5 +1,3 @@
-//! `SeaORM` Entity for page and site metadata tags.
-
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 

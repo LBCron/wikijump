@@ -32,7 +32,13 @@ test("corpus snapshot SQL preserves first-class Wikidot page size in serial and 
   });
   assert.equal(row.wikidot_size, 123);
 
-  const serialSql = upsertSnapshotSql({}, row, 101, 201, 301);
+  const serialSql = upsertSnapshotSql(
+    { holding: { siteSlug: "sandbox-for-codex", runBranches: ["synchronized"] } },
+    row,
+    101,
+    201,
+    301,
+  );
   assert.match(
     serialSql,
     /source_revision_count,\n  wikidot_size,\n  imported_rating,/u,

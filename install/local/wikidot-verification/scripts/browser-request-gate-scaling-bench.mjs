@@ -1,6 +1,3 @@
-// Compares concurrent distinct persistent cache misses with the Git baseline.
-// Network work is simulated by a fixed delay after the durable barrier; the
-// production cache and lock implementations perform every disk operation.
 import assert from "node:assert/strict";
 import {execFileSync} from "node:child_process";
 import fs from "node:fs/promises";

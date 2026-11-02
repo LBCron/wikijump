@@ -26,10 +26,11 @@ impl RenderService {
         let ListPagesPageContext {
             site_id: current_site_id,
             page_id: current_page_identity,
-            // CountPages renders a total, so the requested page does not apply.
             url: _,
         } = page_context;
         let current_page_id = current_page_identity.unwrap_or(0);
+        let unbounded_all_category_shape =
+            count_pages_unbounded_all_category_shape(&arguments);
         let ListPagesArguments {
             current_page_only,
             category_selector_present,
@@ -99,11 +100,6 @@ impl RenderService {
         {
             return Ok(CountPagesBlockRenderResult::PreserveOriginal);
         }
-        if offset_beyond_render_window.is_some() {
-            return Ok(CountPagesBlockRenderResult::Expanded(
-                substitute_count_pages_variables(body, 0),
-            ));
-        }
         let count_pages_query_limit = count_pages_explicit_limit
             .map(|limit| {
                 limit
@@ -138,8 +134,6 @@ impl RenderService {
             current_page_id,
             &authors,
             author_filter_present,
-            // CountPages keeps its existing literal behavior for the exclusion
-            // sentinel, which `unsupported_count_pages_filter` already drives.
             false,
         )
         .await?;
@@ -192,6 +186,24 @@ impl RenderService {
                 ..Default::default()
             },
         };
+
+        if unbounded_all_category_shape && !current_page_only {
+            return Self::render_count_pages_exact_total(
+                ctx,
+                current_site_id,
+                query,
+                body,
+                exclude_current_page,
+                offset > 0 || offset_beyond_render_window.is_some(),
+                permission_cache,
+            )
+            .await;
+        }
+        if offset_beyond_render_window.is_some() {
+            return Ok(CountPagesBlockRenderResult::Expanded(
+                substitute_count_pages_variables(body, 0),
+            ));
+        }
 
         let mut count_pages_metadata = None;
         let mut raw_scan_completion = CountPagesRawScanCompletion::Complete;
@@ -265,5 +277,58 @@ impl RenderService {
         Ok(CountPagesBlockRenderResult::Expanded(
             substitute_count_pages_variables(body, total),
         ))
+    }
+
+    async fn render_count_pages_exact_total(
+        ctx: &ServiceContext<'_>,
+        current_site_id: i64,
+        mut query: PageQuery<'_>,
+        body: &str,
+        exclude_current_page: bool,
+        post_query_offset_applied: bool,
+        permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
+    ) -> Result<CountPagesBlockRenderResult> {
+        let categories = CategoryService::get_all(ctx, current_site_id).await?;
+        let category_ids = categories
+            .iter()
+            .map(|category| Some(category.category_id))
+            .collect::<Vec<_>>();
+        let viewable = PermissionService::batch_check_page_view_without_page_roles(
+            ctx,
+            None,
+            current_site_id,
+            &category_ids,
+            permission_cache,
+        )
+        .await?;
+        let viewable_slugs = categories
+            .iter()
+            .zip(viewable.iter())
+            .filter(|(_, viewable)| **viewable)
+            .map(|(category, _)| Cow::Owned(category.slug.clone()))
+            .collect::<Vec<_>>();
+        if viewable_slugs.len() != categories.len() {
+            query.categories.included_categories =
+                IncludedCategories::List(&viewable_slugs);
+        }
+        let envelope = PageQueryService::count_with_metadata(ctx, query).await?;
+        let metadata = envelope.metadata;
+        let diagnostics = count_pages_exact_count_render_diagnostics(
+            metadata.clone(),
+            false,
+            exclude_current_page,
+            post_query_offset_applied,
+            None,
+            0,
+        );
+        debug!("CountPages exact count eligibility diagnostics: {diagnostics:?}");
+        if diagnostics.allowed
+            && let Some(total) = metadata.candidate_count
+        {
+            return Ok(CountPagesBlockRenderResult::Expanded(
+                substitute_count_pages_variables(body, total),
+            ));
+        }
+        Ok(CountPagesBlockRenderResult::PreserveOriginal)
     }
 }

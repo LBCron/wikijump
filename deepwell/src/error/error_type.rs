@@ -29,7 +29,6 @@ use serde_json::Value as JsonValue;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ErrorType {
-    // 1000
     ApplicationStart,
     Request,
     DatabaseSeeder,
@@ -51,13 +50,11 @@ pub enum ErrorType {
     Render,
     PageLock,
 
-    // 1100
     ServerSetup,
     DatabaseSetup,
     RedisSetup,
     ConfigSetup,
 
-    // 1200
     DatabaseQuery,
     RedisQuery,
     RenderTimeout,
@@ -69,7 +66,6 @@ pub enum ErrorType {
     FluentParser(Vec<FluentParserError>),
     Cryptography(String),
 
-    // 1300
     Text,
     Blob,
     Message,
@@ -92,20 +88,19 @@ pub enum ErrorType {
     CustomDomain,
     Alias,
     AuthorizationToken,
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     Forum,
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     ForumGroup,
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     ForumCategory,
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     ForumThread,
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     ForumPost,
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     ForumPostRevision,
 
-    // 2000
     #[allow(dead_code)]
     GeneralNotFound,
     AliasNotFound,
@@ -131,7 +126,6 @@ pub enum ErrorType {
     ForumPostNotFound,
     ForumPostRevisionNotFound,
 
-    // 2100
     UserExists,
     UserMfaExists,
     SiteExists,
@@ -142,7 +136,6 @@ pub enum ErrorType {
     CustomDomainExists,
     PageLockExists,
 
-    // 3000
     InvalidAuthentication,
     InvalidSessionToken,
     CreateSession,
@@ -154,7 +147,6 @@ pub enum ErrorType {
     EmptyPassword,
     InvalidAuthorizationToken,
 
-    // 3100
     Permission,
     Role,
     AddRolePermission,
@@ -178,10 +170,8 @@ pub enum ErrorType {
     },
     DeleteRoleWithChildren,
 
-    // 4000
     BadRequest,
 
-    // 4100
     UserNameTooShort,
     UserSlugEmpty,
     UserEmailEmpty,
@@ -202,16 +192,13 @@ pub enum ErrorType {
         was_user: WikijumpUserModel,
     },
 
-    // 4200
     SiteSlugEmpty,
 
-    // 4300
     PageSlugEmpty,
     PageNotDeleted,
     CannotHideLatestRevision,
     NotLatestRevisionId,
 
-    // 4400
     FileNameEmpty,
     FileNameTooLong {
         length: usize,
@@ -221,10 +208,8 @@ pub enum ErrorType {
     FileMimeEmpty,
     FileNotDeleted,
 
-    // 4500
     ForumPostNotDeleted,
 
-    // 5000
     LocaleInvalid {
         locale: String,
     },
@@ -243,7 +228,6 @@ pub enum ErrorType {
     },
     NoLocalesSpecified,
 
-    // 5100
     FilterViolation {
         field: String,
         value: String,
@@ -254,7 +238,6 @@ pub enum ErrorType {
     },
     FilterNotDeleted,
 
-    // 5200
     BlobNotUploaded,
     BlobTooBig,
     BlobSizeMismatch {
@@ -265,7 +248,6 @@ pub enum ErrorType {
     BlobCannotBlacklistExisting,
     BlobBackend,
 
-    // 5300
     MessageSubjectEmpty,
     MessageSubjectTooLong,
     MessageBodyEmpty,
@@ -273,7 +255,6 @@ pub enum ErrorType {
     MessageNoRecipients,
     MessageTooManyRecipients,
 
-    // 5400
     CustomDomainSubdomain,
     CustomDomainWrongSite,
     CustomDomainUsePunycode {
@@ -283,7 +264,6 @@ pub enum ErrorType {
         domain: String,
     },
 
-    // 6000
     Relation,
     UserBlockRelation,
     UserBotOwnerRelation,
@@ -295,7 +275,6 @@ pub enum ErrorType {
     PageStarRelation,
     PageWatchRelation,
 
-    // 6100
     UserBlockedUser,
     SiteBannedUser,
 }
@@ -332,11 +311,6 @@ impl ErrorType {
     ///   * 6100 - Relation Conflicts
     pub fn code(&self) -> i32 {
         match self {
-            //
-            // 1000 -- High-Level
-            //
-
-            // 1000 - Common
             ErrorType::ApplicationStart => 1000,
             ErrorType::Request => 1001,
             ErrorType::DatabaseSeeder => 1002,
@@ -358,13 +332,11 @@ impl ErrorType {
             ErrorType::Render => 1018,
             ErrorType::PageLock => 1019,
 
-            // 1100 - Intermediate Setup
             ErrorType::ServerSetup => 1100,
             ErrorType::DatabaseSetup => 1101,
             ErrorType::RedisSetup => 1102,
             ErrorType::ConfigSetup => 1103,
 
-            // 1200 - Intermediate Operations
             ErrorType::DatabaseQuery => 1200,
             ErrorType::RedisQuery => 1201,
             ErrorType::RenderTimeout => 1202,
@@ -376,7 +348,6 @@ impl ErrorType {
             ErrorType::FluentParser(_) => 1208,
             ErrorType::Cryptography(_) => 1209,
 
-            // 1300 - Other / Uncommon
             ErrorType::Text => 1300,
             ErrorType::Blob => 1301,
             ErrorType::Message => 1302,
@@ -408,11 +379,6 @@ impl ErrorType {
             ErrorType::Permission => 1328,
             ErrorType::Role => 1329,
 
-            //
-            // 2000 -- Data Consistency
-            //
-
-            // 2000 - Not Found
             ErrorType::GeneralNotFound => 2000,
             ErrorType::AliasNotFound => 2001,
             ErrorType::RelationNotFound => 2002,
@@ -437,7 +403,6 @@ impl ErrorType {
             ErrorType::ForumPostNotFound => 2021,
             ErrorType::ForumPostRevisionNotFound => 2022,
 
-            // 2100 - Already Exists
             ErrorType::UserExists => 2100,
             ErrorType::UserMfaExists => 2101,
             ErrorType::SiteExists => 2102,
@@ -448,11 +413,6 @@ impl ErrorType {
             ErrorType::CustomDomainExists => 2107,
             ErrorType::PageLockExists => 2108,
 
-            //
-            // 3000 -- Client / Protocol Errors
-            //
-
-            // 3000 - Authentication
             ErrorType::InvalidAuthentication => 3000,
             ErrorType::InvalidSessionToken => 3001,
             ErrorType::CreateSession => 3002,
@@ -461,7 +421,6 @@ impl ErrorType {
             ErrorType::EmptyPassword => 3005,
             ErrorType::InvalidAuthorizationToken => 3006,
 
-            // 3100 - Permissions
             ErrorType::AddRolePermission => 3100,
             ErrorType::RemoveRolePermission => 3101,
             ErrorType::GrantUserRole => 3102,
@@ -473,22 +432,8 @@ impl ErrorType {
             ErrorType::RoleHierarchyViolation { .. } => 3108,
             ErrorType::DeleteRoleWithChildren => 3109,
 
-            //
-            // 4000, 5000, 6000 -- Client / Request Errors
-            //
-
-            //
-            // 4000 -- Client / Request Errors - Core Data Objects
-            //
-
-            // 4000 - General
-            //
-            // Some of these requests are pretty general, unless it is a rare edge case,
-            // consider adding a new error case when code to handle new fail states are
-            // introduced.
             ErrorType::BadRequest => 4000,
 
-            // 4100 - User
             ErrorType::UserNameTooShort => 4100,
             ErrorType::UserSlugEmpty => 4101,
             ErrorType::UserEmailEmpty => 4102,
@@ -502,30 +447,21 @@ impl ErrorType {
             ErrorType::ExpectedWikidotUser { .. } => 4108,
             ErrorType::UserPasswordTooShort { .. } => 4109,
 
-            // 4200 - Site
             ErrorType::SiteSlugEmpty => 4200,
 
-            // 4300 - Page
             ErrorType::PageSlugEmpty => 4300,
             ErrorType::PageNotDeleted => 4301,
             ErrorType::CannotHideLatestRevision => 4302,
             ErrorType::NotLatestRevisionId => 4303,
 
-            // 4400 - File
             ErrorType::FileNameEmpty => 4400,
             ErrorType::FileNameTooLong { .. } => 4401,
             ErrorType::FileNameInvalidCharacters => 4402,
             ErrorType::FileMimeEmpty => 4403,
             ErrorType::FileNotDeleted => 4404,
 
-            // 4500 - Forum
             ErrorType::ForumPostNotDeleted => 4500,
 
-            //
-            // 5000 -- Client / Request Errors - Ancillary Data Objects
-            //
-
-            // 5000 - Locale
             ErrorType::LocaleInvalid { .. } => 5000,
             ErrorType::LocaleMissing { .. } => 5001,
             ErrorType::LocaleMessageMissing { .. } => 5002,
@@ -533,12 +469,10 @@ impl ErrorType {
             ErrorType::LocaleMessageAttributeMissing { .. } => 5004,
             ErrorType::NoLocalesSpecified => 5005,
 
-            // 5100 - Filter
             ErrorType::FilterViolation { .. } => 5100,
             ErrorType::FilterRegexInvalid { .. } => 5101,
             ErrorType::FilterNotDeleted => 5102,
 
-            // 5200 - Blob
             ErrorType::BlobNotUploaded => 5200,
             ErrorType::BlobTooBig => 5202,
             ErrorType::BlobSizeMismatch { .. } => 5204,
@@ -546,7 +480,6 @@ impl ErrorType {
             ErrorType::BlobCannotBlacklistExisting => 5206,
             ErrorType::BlobBackend => 5207,
 
-            // 5300 - Message
             ErrorType::MessageSubjectEmpty => 5300,
             ErrorType::MessageSubjectTooLong => 5301,
             ErrorType::MessageBodyEmpty => 5302,
@@ -554,47 +487,32 @@ impl ErrorType {
             ErrorType::MessageNoRecipients => 5304,
             ErrorType::MessageTooManyRecipients => 5305,
 
-            // 5400 - Domains
             ErrorType::CustomDomainWrongSite => 5400,
             ErrorType::CustomDomainSubdomain => 5401,
             ErrorType::CustomDomainUsePunycode { .. } => 5402,
             ErrorType::InvalidDomainValue { .. } => 5403,
 
-            //
-            // 6000 -- Client / Request Errors - Composite Data
-            //
-
-            // 6000 - Relation Types
             ErrorType::Relation => 6000,
 
-            //  6010 - User
             ErrorType::UserBlockRelation => 6010,
             ErrorType::UserBotOwnerRelation => 6011,
             ErrorType::UserFollowRelation => 6012,
 
-            //  6020 - Site
             ErrorType::SiteBanRelation => 6020,
             ErrorType::SiteMemberRelation => 6021,
             ErrorType::SiteUserRelation => 6022,
 
-            //  6030 - Page
             ErrorType::PageAttributionRelation => 6030,
             ErrorType::PageStarRelation => 6031,
             ErrorType::PageWatchRelation => 6032,
 
-            // 6100 - Relation Conflicts
             ErrorType::UserBlockedUser => 6100,
             ErrorType::SiteBannedUser => 6101,
         }
     }
 
-    /// Returns a basic summary of what this error is meant to represent.
-    ///
-    /// This is always a `&'static str`, so this lookup is cheap and has
-    /// no effect of memory consumption.
     pub fn summary(&self) -> &'static str {
         match self {
-            // 1000
             ErrorType::ApplicationStart => "Application failed to start",
             ErrorType::Request => "This request returned an error",
             ErrorType::DatabaseSeeder => "Database seeding failed",
@@ -616,13 +534,11 @@ impl ErrorType {
             ErrorType::Render => "Wikitext parsing and rendering failed",
             ErrorType::PageLock => "Failed to act on a page lock",
 
-            // 1100
             ErrorType::ServerSetup => "Failed to set up server internal state",
             ErrorType::DatabaseSetup => "Failed to set up the database connection",
             ErrorType::RedisSetup => "Failed to set up the Redis connection",
             ErrorType::ConfigSetup => "Failed to load application configuration",
 
-            // 1200
             ErrorType::DatabaseQuery => "Database query failed",
             ErrorType::RedisQuery => "Redis query failed",
             ErrorType::RateLimited => "An external API has ratelimited us",
@@ -634,7 +550,6 @@ impl ErrorType {
             ErrorType::FluentParser(_) => "Fluent parser error",
             ErrorType::Cryptography(_) => "Cryptographic operation failed",
 
-            // 1300
             ErrorType::Text => "Failed to act on a text entry",
             ErrorType::Blob => "Failed to act on a file blob",
             ErrorType::Message => "Failed to act on a message",
@@ -668,7 +583,6 @@ impl ErrorType {
             ErrorType::Permission => "Failed to act on a permission",
             ErrorType::Role => "Failed to act on a role",
 
-            // 2000
             ErrorType::GeneralNotFound => "Unspecified entity does not exist",
             ErrorType::AliasNotFound => "Alias does not exist",
             ErrorType::RelationNotFound => "Relation value does not exist",
@@ -693,7 +607,6 @@ impl ErrorType {
             ErrorType::ForumPostNotFound => "Forum post does not exist",
             ErrorType::ForumPostRevisionNotFound => "Forum post revision does not exist",
 
-            // 2100
             ErrorType::UserExists => "Cannot perform, user already exists",
             ErrorType::UserMfaExists => "Cannot set up user MFA, already set up",
             ErrorType::SiteExists => "Cannot perform, site already exists",
@@ -706,7 +619,6 @@ impl ErrorType {
             }
             ErrorType::PageLockExists => "Cannot perform, page lock already exists",
 
-            // 3000
             ErrorType::InvalidAuthentication => {
                 "Invalid username, password, or TOTP code"
             }
@@ -723,7 +635,6 @@ impl ErrorType {
                 "Provided authorization token was invalid"
             }
 
-            // 3100
             ErrorType::AddRolePermission => "Failed to add a permission to a role",
             ErrorType::RemoveRolePermission => {
                 "Failed to remove a permission from a role"
@@ -745,10 +656,8 @@ impl ErrorType {
                 "Cannot delete a role which has child roles, you must reparent or delete the child roles first"
             }
 
-            // 4000
             ErrorType::BadRequest => "The request is in some way malformed or incorrect",
 
-            // 4100
             ErrorType::UserNameTooShort => "User name is too short",
             ErrorType::UserSlugEmpty => "User slug cannot be empty",
             ErrorType::UserEmailEmpty => "User email cannot be empty",
@@ -764,10 +673,8 @@ impl ErrorType {
             ErrorType::ExpectedWikijumpUser { .. } => "Expected to be a real user",
             ErrorType::ExpectedWikidotUser { .. } => "Expected to be a Wikidot-only user",
 
-            // 4200
             ErrorType::SiteSlugEmpty => "Site slug cannot be empty",
 
-            // 4300
             ErrorType::PageSlugEmpty => "Page slug cannot be empty",
             ErrorType::PageNotDeleted => "Cannot restore a non-deleted page",
             ErrorType::CannotHideLatestRevision => {
@@ -777,7 +684,6 @@ impl ErrorType {
                 "Revision ID passed for this operation is not the latest"
             }
 
-            // 4400
             ErrorType::FileNameEmpty => "File name cannot be empty",
             ErrorType::FileNameTooLong { .. } => "File name too long",
             ErrorType::FileNameInvalidCharacters => {
@@ -786,10 +692,8 @@ impl ErrorType {
             ErrorType::FileMimeEmpty => "File MIME type cannot be empty",
             ErrorType::FileNotDeleted => "Cannot restore a non-deleted file",
 
-            // 4500
             ErrorType::ForumPostNotDeleted => "Cannot restore a non-deleted forum post",
 
-            // 5000
             ErrorType::LocaleInvalid { .. } => "Invalid locale name",
             ErrorType::LocaleMissing { .. } => {
                 "No messages are available for this locale"
@@ -805,7 +709,6 @@ impl ErrorType {
             }
             ErrorType::NoLocalesSpecified => "No locales were specified in the request",
 
-            // 5100
             ErrorType::FilterViolation { .. } => {
                 "The request violates a configured content filter"
             }
@@ -814,7 +717,6 @@ impl ErrorType {
             }
             ErrorType::FilterNotDeleted => "Cannot restore a non-deleted filter",
 
-            // 5200
             ErrorType::BlobNotUploaded => "Blob not uploaded",
             ErrorType::BlobTooBig => "Uploaded blob is too big for this operation",
             ErrorType::BlobSizeMismatch { .. } => {
@@ -826,7 +728,6 @@ impl ErrorType {
             }
             ErrorType::BlobBackend => "S3 operation failed",
 
-            // 5300
             ErrorType::MessageSubjectEmpty => "Message subject cannot be empty",
             ErrorType::MessageSubjectTooLong => "Message subject too long",
             ErrorType::MessageBodyEmpty => "Message body cannot be empty",
@@ -834,7 +735,6 @@ impl ErrorType {
             ErrorType::MessageNoRecipients => "Message cannot have no recipients",
             ErrorType::MessageTooManyRecipients => "Message has too many recipients",
 
-            // 5400
             ErrorType::CustomDomainSubdomain => {
                 "Custom domains may not be subdomains of the Wikijump main or file domains"
             }
@@ -848,29 +748,24 @@ impl ErrorType {
                 "Domain value contains unexpected characters"
             }
 
-            // 6000
             ErrorType::Relation => "Cannot perform relation operation",
 
-            //  6010 - User
             ErrorType::UserBlockRelation => "Failed to act on a user block",
             ErrorType::UserBotOwnerRelation => {
                 "Failed to act on a bot user's ownership information"
             }
             ErrorType::UserFollowRelation => "Failed to act on a user follow",
 
-            //  6020 - Site
             ErrorType::SiteBanRelation => "Failed to act on a site ban",
             ErrorType::SiteMemberRelation => "Failed to act on a site membership",
             ErrorType::SiteUserRelation => "Failed to act on a site user",
 
-            //  6030 - Page
             ErrorType::PageAttributionRelation => {
                 "Failed to act on a page attribution entry"
             }
             ErrorType::PageStarRelation => "Failed to act on a page star",
             ErrorType::PageWatchRelation => "Failed to act on a page watch",
 
-            // 6100
             ErrorType::UserBlockedUser => {
                 "Cannot perform this action because you are blocked by the user"
             }
@@ -880,12 +775,6 @@ impl ErrorType {
         }
     }
 
-    /// Returns auxiliary data for this error.
-    ///
-    /// In effect, this serializes any contents of this error.
-    /// For instance, if it refers to a particular user ID
-    /// which caused an issue then this value would be
-    /// returned in the JSON output.
     pub fn data(&self) -> JsonValue {
         use crate::hash::blob_hash_to_hex;
         use serde_json::json;
@@ -965,10 +854,6 @@ impl ErrorType {
         }
     }
 
-    /// Indicates if this error type is high-level.
-    ///
-    /// Such errors are not useful to return to end users and exist
-    /// to indicate the overall kind of operation being performed.
     pub fn is_high_level(&self) -> bool {
         matches!(self.code(), 1000..2000)
     }

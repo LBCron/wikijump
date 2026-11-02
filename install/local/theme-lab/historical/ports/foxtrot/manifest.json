@@ -1,0 +1,597 @@
+{
+  "slug": "theme:foxtrot",
+  "en_source_sha256": "04407aa0cfb8cf27b6066cd994b7b1ae7d2c867f187aacbd90639423f7c78b5d",
+  "en_updated_at": "2026-03-26T17:29:48+00:00",
+  "en_entity_uuid": "7fd79b9e-99cb-4840-8eba-ae7b1765fe6e",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "d342ea8a6503fe16f975d74ff6646ff285ab8a382538e54c3e863d70bd055634",
+  "jp_previous_updated_at": "2026-09-24T19:03:04+00:00",
+  "jp_previous_entity_uuid": "30ba8be2-1dab-4b61-9232-01ff1334a5e3",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:foxtrot",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:foxtrot",
+    "title": "Foxtrot Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "04407aa0cfb8cf27b6066cd994b7b1ae7d2c867f187aacbd90639423f7c78b5d",
+      "updated_at": "2026-03-26T17:29:48+00:00",
+      "entity_uuid": "7fd79b9e-99cb-4840-8eba-ae7b1765fe6e",
+      "tags": [
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 171,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:foxtrot"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "d342ea8a6503fe16f975d74ff6646ff285ab8a382538e54c3e863d70bd055634",
+      "updated_at": "2026-09-24T19:03:04+00:00",
+      "entity_uuid": "30ba8be2-1dab-4b61-9232-01ff1334a5e3",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:foxtrot"
+      },
+      "revisions": 8
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive",
+    "existing_jp_rebase": {
+      "previous_sha256": "93f5876476041e7bc3f28e52fc7da233f1f78733f1ff687157086a64b05eb925",
+      "previous_snapshot": "existing-jp-pre-rebase-20261005.wikidot.txt",
+      "current_revision": 8,
+      "current_updated_at": "2026-09-24T19:03:04+00:00",
+      "current_sha256": "d342ea8a6503fe16f975d74ff6646ff285ab8a382538e54c3e863d70bd055634",
+      "diff_assessment": "provenance refresh; source freshness audit found no theme CSS/runtime behavior delta"
+    }
+  },
+  "dependencies": {
+    "slug": "theme:foxtrot",
+    "en_includes": [
+      ":scp-wiki:component:toggle-sidebar",
+      ":scp-wiki:component:fade-in speed=1",
+      ":scp-wiki:component:betterfootnotes",
+      "component:image-block",
+      ":scp-wiki:theme:foxtrot",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:theme:foxtrot@@ ##green",
+      ":scp-wiki:component:acs-animation"
+    ],
+    "en_external_dependencies": [
+      "http://www.w3.org/2000/svg",
+      "https://fonts.bunny.net/css2?family=Creepster&display=swap",
+      "https://fonts.bunny.net/css2?family=Figtree:wght@800;900&display=swap",
+      "https://fonts.bunny.net/css2?family=Fira+Code:wght@400;700&display=swap",
+      "https://fonts.bunny.net/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap",
+      "https://fonts.bunny.net/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+      "https://fonts.bunny.net/css2?family=Lexend:wght@700;800&display=swap",
+      "https://fonts.bunny.net/css2?family=Montserrat:ital,wght@0,800;1,800&display=swap",
+      "https://fonts.bunny.net/css2?family=Russo+One&display=swap",
+      "https://fonts.bunny.net/css2?family=Sofia+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+      "https://fonts.bunny.net/css?family=Saira+Stencil+One&display=swap",
+      "https://scp-wiki.wdfiles.com/local--files/fragment%3Ascp-6500-13/overwatchheaderthreshold.svg",
+      "https://scp-wiki.wdfiles.com/local--files/fragment%3Ascp-6500-2/overwatchheader.svg",
+      "https://scp-wiki.wdfiles.com/local--files/jerden-insignia/Site-184.svg",
+      "https://scp-wiki.wdfiles.com/local--files/liryn/ATOM.svg",
+      "https://scp-wiki.wdfiles.com/local--files/nightfall-hub/moon1.png",
+      "https://scp-wiki.wdfiles.com/local--files/secure-facility-dossier-site-120/120.png",
+      "https://scp-wiki.wdfiles.com/local--files/secure-facility-dossier-site-120/ontologonew2.png",
+      "https://scp-wiki.wdfiles.com/local--files/the-s-c-plastics-hub/Big87.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Awar-on-all-fronts-bhl/mksjr3.png",
+      "https://scp-wiki.wikidot.com/anomaly-classification-system-guide",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/fxtrt-canada.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/fxtrt-canada_darkmode.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/fxtrt-hybrasil_lightmode.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/fxtrt-nightfall_lightmode.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/fxtrt-scp_logo_darkmode.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/fxtrt-scp_logo_lightmode.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/fxtrt-spc_lightmode.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/fxtrt-vanguard_logo.webp",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/fxtrt_scp_logo_darkmode.svg@@__",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/fxtrt_scp_logo_lightmode.svg@@__",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/inter.css",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/wl_border.webp",
+      "https://scp-wiki.wikidot.com/local--files/theme:foxtrot/wl_hr.webp",
+      "https://scp-wiki.wikidot.com/local--files/theme:shark-punching-centre-bhl/spc-header.png",
+      "https://scp-wiki.wikidot.com/theme:basalt|Basalt",
+      "https://scp-wiki.wikidot.com/theme:blankstyle|Blankstyle",
+      "https://scp-wiki.wikidot.com/theme:penumbra|Penumbra",
+      "https://upload.wikimedia.org/wikipedia/commons/f/fc/Twemoji2_1f383.svg"
+    ],
+    "jp_includes": [
+      ":scp-jp:component:toggle-sidebar",
+      ":scp-jp:component:acs-animation",
+      ":scp-jp:component:fade-in speed=1",
+      ":scp-jp:component:betterfootnotes",
+      ":scp-jp:component:image-block",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-wiki:component:author-label-source start=--",
+      ":scp-wiki:component:author-label-source end=--",
+      ":scp-jp:theme:foxtrot",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:theme:foxtrot@@ ##green",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style"
+    ],
+    "jp_external_dependencies": [
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A2963469-4-z8c6/overwatchheader.svg",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A2963469-55-celk/overwatchheaderthreshold.svg",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A3995762-105-gvkd/120.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-46-ec6z/wl_hr.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-47-mqmb/wl_border.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-58-kjwu/fxtrt-scp_logo_lightmode.svg",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-59-l1ls/fxtrt-scp_logo_darkmode.svg",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-60-vjf1/fxtrt-canada.svg",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-61-9brj/fxtrt-canada_darkmode.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-62-tcqn/fxtrt-vanguard_logo.webp",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-63-471a/fxtrt-spc_lightmode.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-63-qfcj/fxtrt-hybrasil_lightmode.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-63-tlne/fxtrt-nightfall_lightmode.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-77-o0tg/ontologonew2.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-78-0n3j/ATOM.svg",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-79-by5e/spc-header.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-80-85w5/Site-184.svg",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-81-p6yq/moon1.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-82-8r1s/mksjr3.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-83-zz31/fxtrt-spooky_logo.svg",
+      "http://scp-jp-storage.wdfiles.com/local--files/file:5722815-57-3pfp/fxtrt.png|",
+      "http://scp-jp-storage.wdfiles.com/local--files/file:5722815-58-kjwu/fxtrt-scp_logo_lightmode.svg@@__",
+      "http://scp-jp-storage.wdfiles.com/local--files/file:5722815-59-l1ls/fxtrt-scp_logo_darkmode.svg@@__",
+      "http://scp-jp-storage.wikidot.com/local--files/file%3A5722815-48-k39z/Big87.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file%3A5722815-92-n9nj/threshold_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-100-vd38/nightfall_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-101-t3p2/nightfall_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-102-yhl7/hybrasil_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-103-f7xn/hybrasil_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-104-s61v/goc_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-105-hrgt/goc_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-106-g20u/spooky_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-107-fk3e/spooky_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-84-cvcw/canada_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-85-6k0m/canada_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-86-9vrb/slothspit_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-87-iriu/slothspit_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-88-5988/poland_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-89-40fu/poland_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-90-h0l3/vanguard_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-91-ps8h/vanguard_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-93-mf91/threshold_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-94-9j68/overwatch_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-95-mgaw/overwatch_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-96-88ic/spc_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-97-wj4h/spc_dark-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-98-f31h/fishing_light-JP.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:5722815-99-ct6y/fishing_dark-JP.png",
+      "http://scp-jp.wikidot.com/local--files/nav:side/expand.png",
+      "http://www.w3.org/2000/svg",
+      "https://fonts.googleapis.com/css2?family=Creepster&display=swap",
+      "https://fonts.googleapis.com/css2?family=Figtree:wght@800;900&display=swap",
+      "https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Lexend:wght@700;800&display=swap",
+      "https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@700;800&display=swap",
+      "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,800;1,800&display=swap",
+      "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;800&display=swap",
+      "https://fonts.googleapis.com/css2?family=Russo+One&display=swap",
+      "https://fonts.googleapis.com/css2?family=Sofia+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+      "https://fonts.googleapis.com/css?family=Saira+Stencil+One&display=swap",
+      "https://rsms.me/inter/inter.css",
+      "https://scp-wiki.wikidot.com/admonition-hub",
+      "https://scp-wiki.wikidot.com/azamo",
+      "https://scp-wiki.wikidot.com/metafoundation",
+      "https://scp-wiki.wikidot.com/theme:basalt",
+      "https://scp-wiki.wikidot.com/theme:foxtrot",
+      "https://twitter.com/wispfinder"
+    ],
+    "base_family": "basalt"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "candidate_source_hash": "968474b532afaefa36ce4e5a605dd7fb85a33cc8ca5cc54883af585f5d2edcb2",
+  "page_assets": [
+    {
+      "filename": "canada_dark-JP.png",
+      "sha256": "5b21d465f3108d573b11d651d11ded55751b99e63195d272530651ba23726ba0",
+      "bytes": 67295,
+      "asset_file": "5b21d465f3108d573b11d651d11ded55751b99e63195d272530651ba23726ba0.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-85-6k0m/canada_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-85-6k0m/canada_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "canada_light-JP.png",
+      "sha256": "7557a168960706abff94ffa6023a5ae977649d5e8ae0905fcc662dd3b4ed5e3d",
+      "bytes": 66220,
+      "asset_file": "7557a168960706abff94ffa6023a5ae977649d5e8ae0905fcc662dd3b4ed5e3d.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-84-cvcw/canada_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-84-cvcw/canada_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "fishing_dark-JP.png",
+      "sha256": "58c241c1bf7914e763334443cef3a23444ec4c1252bcb539a01ae01c7077c54d",
+      "bytes": 66696,
+      "asset_file": "58c241c1bf7914e763334443cef3a23444ec4c1252bcb539a01ae01c7077c54d.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-99-ct6y/fishing_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-99-ct6y/fishing_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "fishing_light-JP.png",
+      "sha256": "bde8bf5d2c40f3b2b7b6b440f5d9cf136275e28688fece77ae2e5743a5903565",
+      "bytes": 61957,
+      "asset_file": "bde8bf5d2c40f3b2b7b6b440f5d9cf136275e28688fece77ae2e5743a5903565.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-98-f31h/fishing_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-98-f31h/fishing_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "goc_dark-JP.png",
+      "sha256": "29d24f580ebc75cacd907119395368075ca63d04f19807db4c6476b84f95bf75",
+      "bytes": 67949,
+      "asset_file": "29d24f580ebc75cacd907119395368075ca63d04f19807db4c6476b84f95bf75.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-105-hrgt/goc_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-105-hrgt/goc_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "goc_light-JP.png",
+      "sha256": "ae136ebd2d5e00dded63907f373bbb29c3bb67ab15dd7c4b261e636837efed4c",
+      "bytes": 66505,
+      "asset_file": "ae136ebd2d5e00dded63907f373bbb29c3bb67ab15dd7c4b261e636837efed4c.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-104-s61v/goc_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-104-s61v/goc_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "hybrasil_dark-JP.png",
+      "sha256": "a62e82cfc8b8721b8ed93ece934cc9ca58a882ceaa19db6a47d5e78e1b0b647a",
+      "bytes": 93569,
+      "asset_file": "a62e82cfc8b8721b8ed93ece934cc9ca58a882ceaa19db6a47d5e78e1b0b647a.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-103-f7xn/hybrasil_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-103-f7xn/hybrasil_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "hybrasil_light-JP.png",
+      "sha256": "739a8f6f2c6eecfe275d6d7b8d32fb36d7caced4ed5dc977cbb429fcf50919fa",
+      "bytes": 97774,
+      "asset_file": "739a8f6f2c6eecfe275d6d7b8d32fb36d7caced4ed5dc977cbb429fcf50919fa.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-102-yhl7/hybrasil_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-102-yhl7/hybrasil_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "nightfall_dark-JP.png",
+      "sha256": "4d7b21765130662fc1127eb0bd8657ab74ea10039967e0e1b95dd27563dec631",
+      "bytes": 54725,
+      "asset_file": "4d7b21765130662fc1127eb0bd8657ab74ea10039967e0e1b95dd27563dec631.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-101-t3p2/nightfall_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-101-t3p2/nightfall_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "nightfall_light-JP.png",
+      "sha256": "a48444c067a9b8f8eb7169175a9651e8d4563e3ca632a7062c5de156ad5497ee",
+      "bytes": 18673,
+      "asset_file": "a48444c067a9b8f8eb7169175a9651e8d4563e3ca632a7062c5de156ad5497ee.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-100-vd38/nightfall_light-JP.png"
+      ],
+      "acquired_from": "https://scp-wiki.wdfiles.com/local--files/theme:foxtrot/nightfall_light.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; the JP-hosted counterpart returned HTTP 500, so the current EN image with the same theme showcase role is bundled."
+    },
+    {
+      "filename": "overwatch_dark-JP.png",
+      "sha256": "a1c43f76d90909b4e0d88465c4c38077ab22f4134e79b3bf49b64d04c4e17760",
+      "bytes": 54778,
+      "asset_file": "a1c43f76d90909b4e0d88465c4c38077ab22f4134e79b3bf49b64d04c4e17760.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-95-mgaw/overwatch_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-95-mgaw/overwatch_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "overwatch_light-JP.png",
+      "sha256": "8fedc09672684735671d09fa6940808553fe80d27eccaf0a043b337b310c143d",
+      "bytes": 14163,
+      "asset_file": "8fedc09672684735671d09fa6940808553fe80d27eccaf0a043b337b310c143d.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-94-9j68/overwatch_light-JP.png"
+      ],
+      "acquired_from": "https://scp-wiki.wdfiles.com/local--files/theme:foxtrot/overwatch_light.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; the JP-hosted counterpart returned HTTP 500, so the current EN image with the same theme showcase role is bundled."
+    },
+    {
+      "filename": "poland_dark-JP.png",
+      "sha256": "ed55e8d4f13187a45a065914d4c756d360dea4fdbc7594b6c3db2bd9c3f644a3",
+      "bytes": 71846,
+      "asset_file": "ed55e8d4f13187a45a065914d4c756d360dea4fdbc7594b6c3db2bd9c3f644a3.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-89-40fu/poland_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-89-40fu/poland_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "poland_light-JP.png",
+      "sha256": "ba64644d32f217fd57b7777ed7a8aa1dbd1e24dd7ad4d21f61ddc44781589a54",
+      "bytes": 60908,
+      "asset_file": "ba64644d32f217fd57b7777ed7a8aa1dbd1e24dd7ad4d21f61ddc44781589a54.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-88-5988/poland_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-88-5988/poland_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "slothspit_dark-JP.png",
+      "sha256": "060e75de6b3488c5bfcab1e1362dded4dfaecc1d0875b06f0f5583726f365305",
+      "bytes": 85314,
+      "asset_file": "060e75de6b3488c5bfcab1e1362dded4dfaecc1d0875b06f0f5583726f365305.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-87-iriu/slothspit_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-87-iriu/slothspit_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "slothspit_light-JP.png",
+      "sha256": "d8e40b36106b3bb1525775bc6dc12b71441348dd80fe4eba4ff13e930c57ab42",
+      "bytes": 82144,
+      "asset_file": "d8e40b36106b3bb1525775bc6dc12b71441348dd80fe4eba4ff13e930c57ab42.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-86-9vrb/slothspit_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-86-9vrb/slothspit_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "spc_dark-JP.png",
+      "sha256": "8ddc3500d4375fc6dfab44bc9b318817acbc8955f42afa8ed5b653be6f84e54d",
+      "bytes": 68745,
+      "asset_file": "8ddc3500d4375fc6dfab44bc9b318817acbc8955f42afa8ed5b653be6f84e54d.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-97-wj4h/spc_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-97-wj4h/spc_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "spc_light-JP.png",
+      "sha256": "05c8d142b7ac7a752804aa65ff738ece4592ebbb827ce85a6e7ea96544519844",
+      "bytes": 68351,
+      "asset_file": "05c8d142b7ac7a752804aa65ff738ece4592ebbb827ce85a6e7ea96544519844.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-96-88ic/spc_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-96-88ic/spc_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "spooky_dark-JP.png",
+      "sha256": "37ce528638b7f5bc5334d691ce5e5b6a6ad9c13736d22136943f6dee6a0e2908",
+      "bytes": 74095,
+      "asset_file": "37ce528638b7f5bc5334d691ce5e5b6a6ad9c13736d22136943f6dee6a0e2908.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-107-fk3e/spooky_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-107-fk3e/spooky_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "spooky_light-JP.png",
+      "sha256": "4a8557fde9fe00f2f840bbbe3dccbda38c49d6cf9b1ab6c02ecd12ad07b1200b",
+      "bytes": 77430,
+      "asset_file": "4a8557fde9fe00f2f840bbbe3dccbda38c49d6cf9b1ab6c02ecd12ad07b1200b.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-106-g20u/spooky_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-106-g20u/spooky_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "threshold_dark-JP.png",
+      "sha256": "ccbdcd07ac6f1592973a81c4045d269cdbdbf9aa931ac8deafbe1377c7d877ce",
+      "bytes": 54586,
+      "asset_file": "ccbdcd07ac6f1592973a81c4045d269cdbdbf9aa931ac8deafbe1377c7d877ce.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-93-mf91/threshold_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-93-mf91/threshold_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "threshold_light-JP.png",
+      "sha256": "3bccd3bbf06f609a0b20e106855a2562a10cd6ad394f8d558e27ef8ae336f991",
+      "bytes": 46540,
+      "asset_file": "3bccd3bbf06f609a0b20e106855a2562a10cd6ad394f8d558e27ef8ae336f991.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-92-n9nj/threshold_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-92-n9nj/threshold_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "vanguard_dark-JP.png",
+      "sha256": "077589c0ff6c4c77bf7b72ffefc820ec46078163bee12d3a0c5f71669766451c",
+      "bytes": 81498,
+      "asset_file": "077589c0ff6c4c77bf7b72ffefc820ec46078163bee12d3a0c5f71669766451c.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-91-ps8h/vanguard_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-91-ps8h/vanguard_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "vanguard_light-JP.png",
+      "sha256": "85d57f2d3421928fbaf94af29707d4707bbfeb5a7d8ab51b60fd71e0d43f7303",
+      "bytes": 86195,
+      "asset_file": "85d57f2d3421928fbaf94af29707d4707bbfeb5a7d8ab51b60fd71e0d43f7303.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-90-h0l3/vanguard_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-90-h0l3/vanguard_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/foxtrot/assets.json",
+  "asset_dependency_decision_count": 96,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "8dce692cf0194c44ad84690e4da0765c6c8d24248bb7206602deff66c6486262",
+    "jp_overrides_sha256": "017656830e9bcea6c0e01fbaff63701da6f70da030b14a6fc329496d543e0166",
+    "semantic_css_sha256": "185091b29b86d2623085059101f9392c08627039621c09250dc6cd39166008bb",
+    "canonical_override_sha256": "430baa8eec4dc02422cd33fc97a8cbcfdcb4d6abe3253f7eed4306820bfa7094",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "ba45cc8fc88bdb469a5974d924538b68ce9d419540a8ce631b33f99b65dd4f24",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "204ba9991e64a43359ce626e5b6f775e709a1c482974f44896cd6c11326c7e73",
+      "active_tags": [],
+      "candidate_source_sha256": "94bec2085323e08e9fe302fa86df5a051c3d21f93dd57c9986a750cc591845f0",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 1,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "97f8003415d8cc463fc82677a4c2b35b1078985e945f73aca7fee09f70ba095b",
+      "asset_receipt_path": "assets.json",
+      "assets": 63,
+      "imports": 9,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "121f2e2e964f4ac8dca716c18f531a69518e2321fb84122849ab28193080571b",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

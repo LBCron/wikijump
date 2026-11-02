@@ -34,6 +34,13 @@ impl WikidotCompatibilityFallbackOutput {
     }
 }
 
+#[derive(Clone, Copy, Default)]
+pub(in crate::services::render) struct WikidotHtmlBlockEmission<'a> {
+    pub owner_page_slug: Option<&'a str>,
+    pub root_page_slug: Option<&'a str>,
+    pub page_language: Option<&'a str>,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(in crate::services::render) struct CompatCodeBlock {
     pub(in crate::services::render) start_line: usize,
@@ -41,6 +48,7 @@ pub(in crate::services::render) struct CompatCodeBlock {
     pub(in crate::services::render) language: Option<String>,
     pub(in crate::services::render) name: Option<String>,
     pub(in crate::services::render) contents: String,
+    pub(in crate::services::render) comment_wrapped: bool,
 }
 
 impl CompatCodeBlock {
@@ -53,9 +61,6 @@ impl CompatCodeBlock {
     }
 }
 
-/// Locates complete Wikidot code blocks without consuming ambiguous input.
-///
-/// This is a compatibility boundary rather than a second wikitext parser. If a code-looking marker is malformed, nested, unmatched, or exceeds the bounded representation below, the entire scan fails closed. The caller must then render the original source literally so no text can disappear. FTML should eventually expose this as a delayed structure; Deepwell only retains the metadata here because hosted `/local--code/` resources require runtime persistence today.
 pub(in crate::services::render) fn scan_compat_code_blocks(
     wikitext: &str,
 ) -> Result<Vec<CompatCodeBlock>, CompatCodeScanError> {
@@ -76,6 +81,7 @@ pub(in crate::services::render) fn scan_compat_code_blocks(
                     language: marker.language,
                     name: marker.name,
                     contents: contents.trim_end_matches('\n').to_owned(),
+                    comment_wrapped: false,
                 });
             } else if looks_like_code_open(trimmed) {
                 return Err(CompatCodeScanError);
@@ -95,6 +101,61 @@ pub(in crate::services::render) fn scan_compat_code_blocks(
         return Err(CompatCodeScanError);
     }
     Ok(blocks)
+}
+
+/// Flags scanned blocks whose opener sits inside a Wikidot comment.
+///
+/// FTML discards `[!-- ... --]` comment content before block parsing, so
+/// a code block inside a comment never reaches the syntax tree, while
+/// Wikidot hosts the block anyway: it extracts blocks from the raw
+/// source, comment or not. This pass re-walks the source tracking
+/// comment state outside code-block spans -- markers inside a block's
+/// span are block content, not comment delimiters -- and flags each
+/// block whose opener line begins inside a comment. An unclosed comment
+/// runs to the end of the source, as FTML's discard does.
+pub(in crate::services::render) fn mark_comment_wrapped_code_blocks(
+    wikitext: &str,
+    blocks: &mut [CompatCodeBlock],
+) {
+    if blocks.is_empty() {
+        return;
+    }
+
+    let line_count = wikitext.lines().count();
+    let mut code_span_lines = vec![false; line_count];
+    for block in blocks.iter() {
+        code_span_lines[block.start_line..=block.end_line].fill(true);
+    }
+
+    let mut starts_in_comment = vec![false; line_count];
+    let mut in_comment = false;
+    for (line_index, line) in wikitext.lines().enumerate() {
+        starts_in_comment[line_index] = in_comment;
+        if code_span_lines[line_index] {
+            continue;
+        }
+        let mut rest = line;
+        loop {
+            if in_comment {
+                match rest.find("--]") {
+                    Some(at) => {
+                        in_comment = false;
+                        rest = &rest[at + "--]".len()..];
+                    }
+                    None => break,
+                }
+            } else if let Some(at) = rest.find("[!--") {
+                in_comment = true;
+                rest = &rest[at + "[!--".len()..];
+            } else {
+                break;
+            }
+        }
+    }
+
+    for block in blocks.iter_mut() {
+        block.comment_wrapped = starts_in_comment[block.start_line];
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -189,7 +250,18 @@ fn parse_code_open_inner(inner: &str) -> Option<CodeMarker> {
 
 #[cfg(test)]
 mod tests {
-    use super::{MAX_COMPAT_CODE_BLOCKS, scan_compat_code_blocks};
+    use super::{
+        MAX_COMPAT_CODE_BLOCKS, mark_comment_wrapped_code_blocks, scan_compat_code_blocks,
+    };
+
+    fn marked(source: &str) -> Vec<bool> {
+        let mut blocks = scan_compat_code_blocks(source).unwrap();
+        mark_comment_wrapped_code_blocks(source, &mut blocks);
+        blocks
+            .iter()
+            .map(|block| block.comment_wrapped)
+            .collect::<Vec<_>>()
+    }
 
     #[test]
     fn preserves_multiple_blocks_and_source_order() {
@@ -258,6 +330,101 @@ mod tests {
         ] {
             assert!(scan_compat_code_blocks(&source).is_err(), "{source:?}");
         }
+    }
+
+    #[test]
+    fn comment_wrapped_blocks_are_flagged_in_source_order() {
+        let source = concat!(
+            "[!--\n[[code type=\"css\"]]\na{}\n[[/code]]\n",
+            "[[code type=\"css\"]]\nb{}\n[[/code]]\n--]\n",
+            "[[code]]\nvisible\n[[/code]]\n",
+        );
+        assert_eq!(marked(source), [true, true, false]);
+    }
+
+    #[test]
+    fn comment_markers_inside_code_contents_do_not_open_comments() {
+        let source = concat!(
+            "[[code]]\nvar s = \"[!-- not a comment\";\n[[/code]]\n",
+            "[[code]]\nvisible\n[[/code]]\n",
+        );
+        assert_eq!(marked(source), [false, false]);
+    }
+
+    #[test]
+    fn unclosed_comment_wraps_through_the_end_of_the_source() {
+        let source = concat!(
+            "[[code]]\nvisible\n[[/code]]\n",
+            "[!--\n[[code]]\nhidden\n[[/code]]\n",
+        );
+        assert_eq!(marked(source), [false, true]);
+    }
+
+    #[test]
+    fn closed_comments_and_stray_closers_do_not_wrap_later_blocks() {
+        let source = "[!-- note --] stray --]\n[[code]]\nvisible\n[[/code]]\n";
+        assert_eq!(marked(source), [false]);
+    }
+
+    #[test]
+    fn several_comments_each_wrap_their_blocks() {
+        let source = concat!(
+            "[!--\n[[code]]\na\n[[/code]]\n--]\nbetween\n",
+            "[!--\n[[code]]\nb\n[[/code]]\n--]\n",
+        );
+        assert_eq!(marked(source), [true, true]);
+    }
+
+    #[test]
+    fn comment_closers_inside_code_contents_do_not_close_comments() {
+        let source = concat!(
+            "[[code]]\nvar s = \"--]\";\n[[/code]]\n",
+            "[!--\n[[code]]\nhidden\n[[/code]]\n--]\n",
+        );
+        assert_eq!(marked(source), [false, true]);
+    }
+
+    #[test]
+    fn evidenced_comment_sources_are_flagged() {
+        let nav = concat!(
+            "[[iframe https://scp-jp.wdfiles.com/local--code/nav:interwiki-c404/1]]\n",
+            "[!--\n",
+            "[[code type=\"html\"]]\n",
+            "<head>\n",
+            "<!-- C-take's resizing iframe method -->\n",
+            "<script src=\"https://scp-jp.wdfiles.com/local--code/nav:interwiki-c404/2\"></script>\n",
+            "</head>\n",
+            "[[/code]]\n",
+            "\n",
+            "[[code type=\"JavaScript\"]]\n",
+            "// https://shitake-crude-production.wikidot.com/abbreviation-library\n",
+            "window._abb = {};\n",
+            "[[/code]]\n",
+            "--]\n",
+        );
+        let mut blocks = scan_compat_code_blocks(nav).unwrap();
+        mark_comment_wrapped_code_blocks(nav, &mut blocks);
+        assert_eq!(
+            blocks
+                .iter()
+                .map(|block| block.comment_wrapped)
+                .collect::<Vec<_>>(),
+            [true, true],
+        );
+        assert!(blocks[0].contents.starts_with("<head>"));
+        assert_eq!(blocks[0].language.as_deref(), Some("html"));
+        assert_eq!(blocks[1].language.as_deref(), Some("JavaScript"));
+
+        let shushuin = concat!(
+            "[!--\n[[code type=\"css\"]]\n",
+            "@import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP');\n/*header*/\n",
+            "[[/code]]\n--]\n",
+            "[!--\n[[code type=\"css\"]]\n",
+            "@import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP');\n.shushuInner {\n",
+            "[[/code]]\n--]\n",
+            "[!--\n[[code type=\"css\"]]\nh1, #page-title {\n[[/code]]\n--]\n",
+        );
+        assert_eq!(marked(shushuin), [true, true, true]);
     }
 
     #[test]

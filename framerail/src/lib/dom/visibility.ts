@@ -9,19 +9,12 @@ export interface DisplayOpts {
  * effected by the `display` CSS property, among other things.
  */
 export class DisplayObserver {
-  /** Options for the observer. */
   declare private opts: DisplayOpts
 
-  /**
-   * Internal `ResizeObserver` that fires a callback when the element
-   * displayed state changes.
-   */
   declare private observer: ResizeObserver
 
-  /** The last state that was set. */
   private last: boolean | null = null
 
-  /** The target being observed. */
   declare target: HTMLElement
 
   /**
@@ -34,17 +27,14 @@ export class DisplayObserver {
     this.observer = new ResizeObserver(this.handler.bind(this))
     this.observer.observe(target)
 
-    // fixes edge case - 0 size element is already invisible
     if (!this.visible) this.handler()
   }
 
-  /** True if the target element is visible. */
   get visible() {
     // per the spec, this value is `null` if the element is not being displayed
     return this.target.offsetParent !== null
   }
 
-  /** Internal handler for the resize observer events. */
   private handler() {
     const state = this.visible
 
@@ -55,10 +45,6 @@ export class DisplayObserver {
     if (state) this.opts.visible?.()
     else this.opts.hidden?.()
 
-    // in order for this ResizeObserver trick to work,
-    // the element being observed needs to have a minimum size.
-    // so we'll set it to 1px when it's hidden, which will
-    // trigger a resize event when the element is shown again.
 
     if (state) {
       this.target.style.minHeight = ""
@@ -71,12 +57,10 @@ export class DisplayObserver {
     }
   }
 
-  /** Updates the options for the observer. */
   update(opts: DisplayOpts = {}) {
     this.opts = opts
   }
 
-  /** Destroys the observer. */
   destroy() {
     this.observer.disconnect()
   }

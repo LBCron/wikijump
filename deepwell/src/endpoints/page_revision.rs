@@ -245,8 +245,6 @@ pub async fn page_revision_diff(
         .or_raise(make_error)
 }
 
-// Helper functions
-
 async fn ensure_page_view_permission(
     ctx: &ServiceContext<'_>,
     site_id: i64,
@@ -312,11 +310,6 @@ async fn filter_and_populate_revision(
         tags,
     } = model;
 
-    // Wikidot displays an anonymous revision's author together with the
-    // masked IP recorded for that revision ("Anonymous (67.142.130.x)").
-    // The IP belongs to the individual revision's attribution, so it is
-    // folded into the resolved identity's display name here, the one
-    // place that has both the revision and its author in hand.
     let author = match (author, anonymous_author_ip) {
         (Some(mut author), Some(ip))
             if user_id == crate::constants::ANONYMOUS_USER_ID =>
@@ -334,10 +327,8 @@ async fn filter_and_populate_revision(
         )
     };
 
-    // Strip hidden fields
     let mut comments = Some(comments);
     let mut title = Some(title);
-    // alt-title is already Option and we're not doubling up
     let mut slug = Some(slug);
     let mut tags = Some(tags);
 
@@ -364,7 +355,6 @@ async fn filter_and_populate_revision(
         tags = None;
     }
 
-    // Get text data, if requested
     let (
         wikitext,
         compiled_body_html,

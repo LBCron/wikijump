@@ -1,5 +1,3 @@
-//! Safe source projection for Wikidot ListPages content sections.
-
 use std::ops::Range;
 
 use super::super::include_attachment_owners::find_wikidot_directive_end;
@@ -81,7 +79,6 @@ fn boundary_is_inside_wikidot_head(
     false
 }
 
-/// Return one source section only when include expansion cannot observe syntax context crossing either section boundary.
 pub(in crate::services::render) fn isolate_wikidot_content_section(
     wikitext: &str,
     section: usize,
@@ -124,10 +121,6 @@ mod tests {
 
     #[test]
     fn section_zero_is_empty_and_missing_section_is_passthrough() {
-        // Basis of the generated section-zero composition (#1383): the
-        // %%content{0}%% opener substitutes empty content, while a missing
-        // section selector leaves the source whole. Synthetic separator
-        // source only; no captured page content.
         let source = "first\n=====\nsecond\n";
         assert_eq!(wikidot_content_section(source, Some(0)), "");
         assert_eq!(wikidot_content_section("", Some(0)), "");

@@ -18,18 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Manages sessions for authenticated users.
-//!
-//! Once a user has been authenticated (password, MFA, etc)
-//! then a session can be created for them, which will enable
-//! them to interact with the platform.
-//!
-//! The session token is the only means through which a session
-//! is validated. It is a unique, securely randomly generated value
-//! which represents the current session. It has a somewhat short
-//! expiry (30 minutes) which needs to be renewed by the client
-//! periodically.
-
 use super::structs::{CreateSession, RenewSession};
 use crate::config::Config;
 use crate::error::prelude::{Error, ErrorType, OptionExt, Result, ResultExt};
@@ -39,6 +27,7 @@ use crate::services::ServiceContext;
 use crate::utils::assert_is_csprng;
 use crate::utils::now;
 use rand::distr::{Alphanumeric, SampleString};
+use sea_orm::prelude::IpNetwork;
 use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, DeleteResult, EntityTrait, ExprTrait,
@@ -70,10 +59,6 @@ impl SessionService {
         User::find_by_id(user_id).lock_exclusive()
     }
 
-    /// Creates a new session with the given parameters.
-    ///
-    /// # Returns
-    /// The generated session token.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         CreateSession {
@@ -110,7 +95,7 @@ impl SessionService {
             user_id: Set(user_id),
             created_at: Set(now),
             expires_at: Set(expiry),
-            ip_address: Set(str!(ip_address)), // TODO inet type?
+            ip_address: Set(IpNetwork::from(ip_address)),
             user_agent: Set(user_agent),
             restricted: Set(restricted),
             mfa_failed_attempts: Set(0),
@@ -123,9 +108,6 @@ impl SessionService {
         Ok(session_token)
     }
 
-    /// Securely generates a new session token.
-    ///
-    /// Example generated token: `wj:T9iF6vfjoYYE20QzrybV2C1V4K0LchHXsNVipX8G1GZ9vSJf0rvQpJ4YC8c8MAQ3`.
     fn new_token(config: &Config) -> String {
         debug!("Generating a new session token");
         let mut rng = rand::rng();
@@ -137,8 +119,6 @@ impl SessionService {
         token
     }
 
-    /// Gets a session model from its token.
-    /// Yields an error if the given session token does not exist or is expired.
     pub async fn get(
         ctx: &ServiceContext<'_>,
         session_token: &str,
@@ -191,12 +171,6 @@ impl SessionService {
         Ok(session)
     }
 
-    /// Locks an active restricted session for one MFA verification attempt.
-    ///
-    /// The row lock is held by the request transaction through verification and
-    /// either renewal or failure accounting, serializing attempts across all
-    /// processes that share the database. Missing, expired, and exhausted
-    /// sessions are returned as an expected authentication rejection.
     pub async fn get_user_for_mfa_attempt(
         ctx: &ServiceContext<'_>,
         session_token: &str,
@@ -217,9 +191,6 @@ impl SessionService {
             return Ok(None);
         };
 
-        // MFA attempts can arrive on distinct restricted sessions. Lock the
-        // user row as well as the session row so recovery-code verification
-        // and consumption serialize across every session for this account.
         let user = Self::mfa_attempt_user_query(session.user_id)
             .one(ctx.transaction())
             .await
@@ -234,8 +205,6 @@ impl SessionService {
         Ok(Some(user))
     }
 
-    /// Consumes one failed MFA attempt on the row locked by
-    /// `get_user_for_mfa_attempt`.
     pub async fn record_failed_mfa_attempt(
         ctx: &ServiceContext<'_>,
         session_token: &str,
@@ -272,12 +241,6 @@ impl SessionService {
         Ok(())
     }
 
-    /// Gets the associated `UserModel` from an active session.
-    ///
-    /// Fetches the session first, then loads the associated user by `user_id`.
-    /// Yields an error if the given session token does not exist or is expired.
-    ///
-    /// The `restricted` status must match the argument passed.
     pub async fn get_user(
         ctx: &ServiceContext<'_>,
         session_token: &str,
@@ -320,9 +283,6 @@ impl SessionService {
         }
     }
 
-    /// Gets the associated `UserModel` from a session, and checks it against a user ID.
-    ///
-    /// This performs `get_user()` then ensures that the user matches the provided user ID.
     pub async fn get_user_with_id(
         ctx: &ServiceContext<'_>,
         session_token: &str,
@@ -363,8 +323,6 @@ impl SessionService {
         Ok(user)
     }
 
-    /// Gets all active sessions for a user.
-    /// For instance, useful for listing all sessions and their information.
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
         user_id: i64,
@@ -392,16 +350,10 @@ impl SessionService {
         Ok(sessions)
     }
 
-    /// Renews a session, invalidating the old one and creating a new one.
-    ///
-    /// # Returns
-    /// The new session token.
-    /// After this point, the previous session token will be invalid.
     pub async fn renew(ctx: &ServiceContext<'_>, input: RenewSession) -> Result<String> {
         Self::renew_matching_restricted(ctx, input, false).await
     }
 
-    /// Renews a restricted MFA-in-progress session after MFA verification.
     pub async fn renew_restricted(
         ctx: &ServiceContext<'_>,
         input: RenewSession,
@@ -428,7 +380,6 @@ impl SessionService {
             )
         };
 
-        // Get existing session to ensure the token matches the passed user ID.
         let old_session =
             Self::get_optional_matching_restricted(ctx, &old_session_token, restricted)
                 .await
@@ -457,7 +408,6 @@ impl SessionService {
             ));
         }
 
-        // Invalid and recreate
         let (result1, session_token_result) = join!(
             Self::invalidate(ctx, old_session_token),
             Self::create(
@@ -476,7 +426,6 @@ impl SessionService {
         Ok(session_token)
     }
 
-    /// Invalidates the given session, causing it to be deleted.
     pub async fn invalidate(
         ctx: &ServiceContext<'_>,
         session_token: String,
@@ -503,14 +452,6 @@ impl SessionService {
         Ok(())
     }
 
-    /// Invalidates all others sessions _except_ the one listed.
-    /// This enables a user to "log out all other sessions",
-    /// a useful security feature. See [WJ-364].
-    ///
-    /// # Returns
-    /// The number of invalidated sessions.
-    ///
-    /// [WJ-364]: https://scuttle.atlassian.net/browse/WJ-364
     pub async fn invalidate_others(
         ctx: &ServiceContext<'_>,
         session_token: &str,
@@ -548,7 +489,6 @@ impl SessionService {
             ));
         }
 
-        // Delete all sessions from user_id, except if it's this session_token
         let DeleteResult { rows_affected, .. } = Session::delete_many()
             .filter(
                 Condition::all()
@@ -563,11 +503,6 @@ impl SessionService {
         Ok(rows_affected)
     }
 
-    /// Invalidates every session of an account, including any current one.
-    ///
-    /// Password recovery has no surviving session to keep, so unlike
-    /// [`Self::invalidate_others`] this deletes unconditionally. Used only
-    /// after token-proofed recovery.
     pub async fn invalidate_all(ctx: &ServiceContext<'_>, user_id: i64) -> Result<u64> {
         info!("Invalidating all session IDs for user ID {user_id}");
 
@@ -588,10 +523,6 @@ impl SessionService {
         Ok(rows_affected)
     }
 
-    /// Prunes all expired sessions from the database.
-    ///
-    /// # Returns
-    /// The number of pruned sessions.
     pub async fn prune(ctx: &ServiceContext<'_>) -> Result<u64> {
         info!("Pruning all expired sessions");
 

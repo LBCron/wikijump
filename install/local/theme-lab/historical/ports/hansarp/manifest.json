@@ -1,0 +1,174 @@
+{
+  "slug": "theme:hansarp",
+  "en_source_sha256": "d8484393306d5ae7ded365f3a0a611258213a0dc9cb011829015802bbfbaa01e",
+  "en_updated_at": "2026-09-03T13:21:03+00:00",
+  "en_entity_uuid": "656941e4-01cc-474a-bc40-ea9c09b84741",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "f398f2ab409800a156552d37382cbd396a6745d6bbdd794f3f39ab17c5fa78dd",
+  "jp_previous_updated_at": "2024-09-06T10:28:57+00:00",
+  "jp_previous_entity_uuid": "b14f758e-8b4b-4b6e-a0df-ea3414df9f8b",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:hansarp",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:hansarp",
+    "title": "HANSARP Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "d8484393306d5ae7ded365f3a0a611258213a0dc9cb011829015802bbfbaa01e",
+      "updated_at": "2026-09-03T13:21:03+00:00",
+      "entity_uuid": "656941e4-01cc-474a-bc40-ea9c09b84741",
+      "tags": [
+        "_cc",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 14,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:hansarp"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "f398f2ab409800a156552d37382cbd396a6745d6bbdd794f3f39ab17c5fa78dd",
+      "updated_at": "2024-09-06T10:28:57+00:00",
+      "entity_uuid": "b14f758e-8b4b-4b6e-a0df-ea3414df9f8b",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:hansarp"
+      }
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:hansarp",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:theme-squares -=-",
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:hansarp",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "https://fonts.bunny.net/css2?family=Azeret+Mono&display=swap",
+      "https://fonts.bunny.net/css2?family=Klee+One:wght@600&display=swap",
+      "https://fonts.bunny.net/css2?family=Mali:wght@400;700&display=swap",
+      "https://fonts.bunny.net/css2?family=Permanent+Marker&display=swap",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Ahansarp/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ahansarp/hansarplogo.png"
+    ],
+    "jp_includes": [
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:component:theme-squares -=-",
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:theme:hansarp",
+      ":scp-jp:component:interwiki-style"
+    ],
+    "jp_external_dependencies": [
+      "https://fonts.googleapis.com/css2?family=Azeret+Mono&display=swap",
+      "https://fonts.googleapis.com/css2?family=Klee+One:wght@600&display=swap",
+      "https://fonts.googleapis.com/css2?family=Mali:wght@400;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-42-9f6d/hansarplogo.png",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Ahansarp/1"
+    ],
+    "base_family": "black-highlighter"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "candidate_source_hash": "475f53c64dea9d1aa3fe7f6f1dbde95dab3b964b81cbe91e7513fe84541cb971",
+  "page_assets": [
+    {
+      "filename": "hansarplogo.png",
+      "sha256": "7606a8868385d21bbad3105808e7c117017ddbdd91b719f2063471de7b0a5503",
+      "bytes": 20766,
+      "asset_file": "7606a8868385d21bbad3105808e7c117017ddbdd91b719f2063471de7b0a5503.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-42-9f6d/hansarplogo.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-42-9f6d/hansarplogo.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/hansarp/assets.json",
+  "asset_dependency_decision_count": 49,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "f49cccac6491e3330dc936559810cd41a9b260ff8f97caad58de5d06f6ff8e98",
+    "jp_overrides_sha256": "a93e9a7f6471a4b83af3db6a910757046a1499040f4e5250253259069d0a93f5",
+    "semantic_css_sha256": "835366d5081b6e30b293826323131cc6d34119479ac90577b64cb874b0474fb5",
+    "canonical_override_sha256": "0db87ff9ca31f99906e52aa591223d05faf1fc34d6c10b190347491fa14feb57",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "fcfe0c19ed02c8e75d03a2c164fc9192ceb97bd6161c5682ccb5065f08c7e69f",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "de74faf9920df398c3582b4a8d810130a744ab9e8657645c4c1cdc030d626cad",
+      "active_tags": [],
+      "candidate_source_sha256": "ccf5f58cc71f0e9a6f7b988e5a74bbc889dd369625075c33da06773b57bc8f45",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 1,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "018358256020cce5ad1e0930293fb3839986a945dae59a93e07e2915e0cf8b3c",
+      "asset_receipt_path": "assets.json",
+      "assets": 38,
+      "imports": 10,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

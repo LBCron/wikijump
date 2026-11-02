@@ -1,0 +1,911 @@
+
+
+
+
+
+
+
+
+
+
+
+
+**タイトル:** JAKSTYLE
+**著者:** ©︎JakdragonX
+**原題:** JAKSTYLE
+**作成年:** 2021
+
+
++ ここはどこ?
+[[=]]
+地獄だ。
+@@ @@
+(ただ、本当じゃない)
+
+> これはJAKSTYLEだ。[[[theme:placestyle|PLACESTYLE]]]と[[[theme:blankstyle|BLANKSTYLE]]]、そしてお前が知ってるだいたい全部のスタイルをJakdragonX[[footnote]]クソバカで草[[/footnote]]が勝手にパクったやつ。ユニバース内のどのグループ、カノン、GoI、もしくは他のなんかとは関係ない(俺はそんなに天才じゃない。なんだと思う、HarryBlank?)
+>
+> 誰でも自由に使っていいが、俺は5分前に何を食べたかすら覚えてないから、お前が「超クール」だと思ったならユーザーのやりたいようにしてくれ。
+[[/=]]
+
++ どう使う?
+
+このテーマをインポートするには、このコードのスペニットをページの上に追加して、ちゃんと動かなくなるやつがないことを祈るだけだ。
+[[=]]
+> 
+> 
+ヘッダー、サブヘッダー、そして背景画像を編集するには、上のやつをincludeした後に下のコードを使ってくれ:
+[[/=]]
+> 
+**注:** これは**ダーク**テーマなのをわかって欲しい。このテーマを編集して本当に暗い色やとても明るい色を使うと、目を痛めたり、合計評価を痛めたりするかもしれない(後でお前は俺に感謝するぞ。)
+
++ 何が違う?
+
+お前は何なんだ、目が無いのか? いろいろ違うぞ。ただ、俺が変えたのの細かいリストが必要なら、これを見てくれ:
+* めっちゃ真っ黒。
+* めっちゃ真っ白。
+* なんとなく、//まあ//10年前ぐらいを境として決めた。
+* [[[theme:penumbra|Penumbra]]]から昼食代を盗んだ。
+* [[[component:toggle-sidebar-bhl|トグルサイドバー]]]をデフォルトで追加した。
+* [[[component:centered-header-bhl|中央寄せヘッダー]]]がそう、めっちゃいいと思った。
+* [[[theme:extra-black-highlighter-theme|Extra Black Highlighter]]]を冒涜するためにコミュニティーサービスに行った。
+* ハイパーリンクと折りたたみの見た目を変えた。
+* 色の恐さを強くした。
+* 心変わりした後、[[[theme:penumbra|Penumbra]]]の昼食代を返した。
+* [[[component:info-ayers|エアーズ情報モジュール]]]や[[[/component:anomaly-class-bar|ACS]]]とかのコンポーネントの見た目を変えた。
+
+もっと詳しく知りたいなら、次は普通のWikidotのフォーマットの例を出そう。
+
++ 例
+
+
+
+分割線は5個のハイフン"@@-----@@"で作れて、何かの中じゃない限り(引用ブロックとか)ページいっぱいに広がる。この文章を区切る線が分割線だ。[[footnote]]これは脚注[[/footnote]]
+
+-----
+
+[http://www.google.com 多分一度はアクセスしたリンク、知らんけど]
+
+見出しは行の先頭に1から6個のプラス(+)を置くと作れる
+
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブ]]
+シャベルの何が革新的なんだい?
+
+そいつは[[span class="ruby"]]未知[[span class="rt"]]道[[/span]][[/span]]を切り開いた道具なのさ。
+[[/tab]]
+[[tab タブが作られた]]
+ここにも文章が。
+
+奇妙なり。
+[[/tab]]
+[[tab 長いタブ]]
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+
+長いタブだ。たくさん文章が詰まってる。
+[[/tab]]
+[[tab この空っぽのタブにはとても長い名前が付いてる。]]
+[[/tab]]
+[[tab 空っぽのタブ]]
+[[/tab]]
+[[tab 空っぽのタブ]]
+[[/tab]]
+[[tab 空っぽのタブ]]
+[[/tab]]
+[[tab 空っぽのタブ]]
+[[/tab]]
+[[tab 空っぽのタブ]]
+[[/tab]]
+[[/tabview]]
+@@ @@
+> これは引用ブロックだ。各行の先頭に大なり記号と半角スペース"> "を置けば作れる。
+>
+> 追加の文章
+> -----
+> 分割線
+>
+>> 入れ子になった引用ブロック
+
+||~ これは ||~ テーブルだ ||
+||もう既に || 作り方は ||
+||||知ってるよな ||
+
+[[=]]
+[[span style="font-family:var(--body-font); font-size: calc(var(--base-font-size) * 1.25);"]]bodyフォントは[https://fonts.google.com/specimen/Inter Inter]。[[/span]]
+[[span style="font-family:var(--header-font); font-size: calc(var(--base-font-size) * 1.25);"]]ヘッダーと見出しのフォントは[https://fonts.google.com/specimen/Inter Inter]。[[/span]]
+[[span style="font-family:var(--mono-font); font-size: calc(var(--base-font-size) * 1.25);"]]等幅フォントは[https://fonts.google.com/specimen/Recursive Recursive]。[[/span]]
+[[/=]]
+
+[[footnoteblock]]
+
+[[collapsible show="+ テーマコードを表示" hide="- テーマコードを非表示"]]
+[[code type="CSS"]]
+:root {
+    --header-title: "SCP FOUNDATION";
+	--header-subtitle: "SECURE, CONTAIN, PROTECT";
+
+    --dark-accent: 33, 35, 37;
+    --pale-accent: 205, 205, 209;
+    --bright-accent: 205, 205, 209;
+    --light-gray-monochrome: 84, 84, 84;
+    --dark-gray-monochrome: 56, 56, 60;
+    --black-monochrome: 33, 35, 37;
+    --medium-accent: var(--bright-accent);
+    --tab-border-color: var(--dark-accent);
+    --rating-module-button-color: var(--bright-accent);
+    --rating-module-button-credit-color: var(--bright-accent);
+    --swatch-background: var(--dark-accent);
+    --swatch-menutxt-general-color: var(--bright-accent);
+    --swatch-menubg-black-color: var(--dark-gray-monochrome);
+    --barColour: #232527;
+
+    --logo-image: url("https://scp-jp.github.io/Black-Highlighter/img/logo.svg");
+    --lgurl: var(--logo-image);
+
+    --ui-wght: 400;
+    --ui-hvr-wght: 500;
+
+    /* Background and Header Colors */
+    --background-color: var(--dark-accent);
+    /* Primary Text Colors */
+    --swatch-text-light: var(--bright-accent);
+    --swatch-text-general: var(--bright-accent);
+    /* Primary Menu Colors */
+    --swatch-menubg-color: var(--dark-accent);
+    /* Colors for Secondary & Tertiary items like Blockquote and YUI Tabs */
+    --swatch-secondary-color: var(--swatch-menubg-dark-color);
+    --swatch-tertiary-color: var(--swatch-menubg-medium-dark-color);
+    --swatch-alternate-color: var(--swatch-menubg-medium-color);
+    --sidebar-links-hover-text-color: var(--dark-accent);
+
+    /* Text Colors for Secondary & Tertiary items like Sidebar Headers and Top-Bar Menu Text */
+    --swatch-text-tertiary-color: var(--swatch-menutxt-light-color);
+
+    /* Primary Header Colors */
+    --swatch-topmenu-border-color: var(--swatch-menubg-black-color);
+    --swatch-topmenu-bg-color: var(--swatch-menubg-extra-dark-color);
+
+    --rating-module-text-color: var(--bright-accent);
+    --rating-module-button-cancel-color: var(--gray-monochrome);
+    ;
+
+    --gradient-header: linear-gradient(to bottom,
+     rgb(var(--header-gradient-color-bottom)) 0%,
+     rgb(var(--header-gradient-color-middle)) 90%,
+     rgb(var(--header-gradient-color-top)) 100%);
+
+    --diagonal-stripes: repeating-linear-gradient(45deg,
+     hsla(0, 0%, 100%, 0),
+     hsla(0, 0%, 100%, 0) 0.25vh,
+     rgba(var(--swatch-menubg-extra-dark-color), 0.1) 0.35vh,
+     rgba(var(--swatch-menubg-extra-dark-color), 0.2) 0.5vh);
+
+    --toggle-button-bg: rgb(var(--dark-accent));
+    --toggle-border-color: rgb(var(--dark-gray-monochrome));
+    --toggle-icon-color: rgb(var(--bright-accent));
+}
+
+#header {
+    /* Focus is when the search box has been clicked on */
+    --search-icon-focus-bg-color: var(--swatch-primary-darkest);
+    --search-focus-textbox-bg-color: var(--swatch-primary-darkest);
+
+    /* ===LOGIN BOX ELEMENT=== */
+    /* Dropdown Box when arrow is clicked */
+    --login-dropdown-bg-image: none;
+    --login-dropdown-border-color: var(--swatch-primary-darkest), 0.9;
+    --login-dropdown-text-hover-color: var(--swatch-menutxt-dark-color);
+}
+
+#header::before {
+    background-image: var(--lgurl);
+    opacity: 0.20;
+}
+
+#header h1 a::before {
+    color: rgb(var(--bright-accent));
+    -webkit-text-stroke: 0.325rem rgb(var(--dark-accent));
+}
+
+#header h1 a::after {
+    color: rgb(var(--light-accent));
+}
+
+#header h2 span::before {
+    -webkit-text-stroke: 0.25rem rgb(var(--dark-accent));
+}
+
+#top-bar {
+    /* ===TOPBAR ELEMENTS=== */
+
+    /* ===TOPBAR CATEGORIES=== */
+    --topmenu-hover-border-color: var(--swatch-primary), 0.5;
+
+    /* ===DROPDOWN MENU=== */
+    --dropdown-bg-color: var(--dark-gray-monochrome);
+    --dropdown-border-color: var(--swatch-primary-darkest), 0.9;
+}
+
+#side-bar {
+    --sidebar-links-hover-text-color: var(--swatch-primary-darkest);
+}
+
+#main-content {
+    /* ===MAIN CONTENT UI ELEMENTS */
+    /* ===UI ICONS=== */
+    /* ===PAGE OPTIONS ICONS=== */
+    --ui-icon-hover-bg: var(--swatch-primary-darkest);
+
+    /* ===TABS=== */
+    --tabs-hover-bg: var(--swatch-primary-darkest);
+    --tabs-bottom-border-color: var(--swatch-primary-darkest);
+}
+
+:root {
+    /* ===UI BUTTONS=== */
+    --ui-button-hover-bg: var(--swatch-primary-darkest);
+    --ui-button-hover-txt: var(--swatch-text-tertiary-color);
+    --ui-button-hover-outline: var(--swatch-primary-darker);
+
+    /* ===MODALS=== */
+    --modal-header-stripe: var(--swatch-menubg-dark-color);
+}
+
+.modalbox {
+    padding: 0.25rem;
+    border-radius: 0rem !important;
+    border-color: transparent !important;
+    background: rgb(var(--dark-accent)) !important;
+    box-shadow: none !important;
+    pointer-events: auto !important;
+}
+
+body {
+    color: rgb(var(--bright-accent));
+}
+
+#search-top-box form[id="search-top-box-form"]:not(:focus-within) input[type="text"] {
+    color: rgba(var(--swatch-primary), 0);
+}
+
+@media (min-width: 36rem) {
+    #search-top-box form[id="search-top-box-form"]:not(:focus-within) input[type="text"] {
+     box-shadow: 0 0 0 0.125rem rgba(var(--swatch-primary), 0.2);
+     color: rgba(var(--swatch-primary), 0.7);
+    }
+}
+
+@supports (display:grid) {
+    div.page-rate-widget-box .rate-points {
+     border: rgb(var(--dark-accent));
+     border-right: rgb(var(--dark-accent));
+    }
+}
+
+#page-content a:not([href*="user"]):not([href*="javascript:;"]):not(.fa-info):not([href*="classification-committee-memo"]):not([href*="anomaly-classification-system-guide"]):not([href="/classification-committee-memo"]):not(.cc) {
+    padding: 0.15em;
+    margin: -0.15em;
+    color: inherit;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    box-shadow: inset 0 -0.125rem 0 0rem rgba(var(--bright-accent));
+    transition: box-shadow 200ms cubic-bezier(0.4, 0.0, 0.2, 1), color 200ms cubic-bezier(0.4, 0.0, 0.2, 1), padding 200ms cubic-bezier(0.4, 0.0, 0.2, 1), margin 200ms cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+#page-content a:not([href*="user"]):not([href*="javascript:;"]):not([href*="classification-committee-memo"]):not([href*="anomaly-classification-system-guide"]):not([href="/classification-committee-memo"]):not(.fa-info):not(.cc):hover {
+    padding: 0.3em 0.25em 0.2em 0.25em;
+    margin: -0.25em;
+    box-shadow: inset 0 -1.5em 0 0 rgba(var(--bright-accent));
+    text-decoration: none;
+    color: rgb(var(--dark-accent))
+}
+
+a {
+    color: inherit;
+}
+
+a:hover {
+    color: inherit;
+}
+
+a.close-menu {
+    background-color: transparent;
+}
+
+a:visited {
+    color: inherit;
+}
+
+.scp-image-block a {
+    box-shadow: none;
+}
+
+a.collapsible-block-link {
+    padding: 0.15em;
+    margin: -0.15em;
+    color: inherit;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    box-shadow: inset 0 -0.125rem 0 0rem rgba(var(--bright-accent));
+    transition: box-shadow 200ms cubic-bezier(0.4, 0.0, 0.2, 1), color 200ms cubic-bezier(0.4, 0.0, 0.2, 1), padding 200ms cubic-bezier(0.4, 0.0, 0.2, 1), margin 200ms cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+a.collapsible-block-link:hover {
+    padding: 0.3em 0.25em 0.2em 0.25em;
+    margin: -0.25em;
+    box-shadow: inset 0 -1.5em 0 0 rgba(var(--bright-accent));
+    text-decoration: none;
+    color: rgb(var(--dark-accent))
+}
+
+#breadcrumbs a,
+#breadcrumbs a:visited,
+.pseudocrumbs a,
+.pseudocrumbs a:visited {
+    background-color: transparent;
+    color: rgb(var(--bright-accent));
+}
+
+#breadcrumbs a:active,
+#breadcrumbs a:hover,
+.pseudocrumbs a:active,
+.pseudocrumbs a:hover {
+    color: rgb(var(--dark-accent));
+}
+
+a:hover {
+    background-color: transparent;
+    color: var(--bright-accent);
+    text-decoration: none;
+}
+
+a.close-menu {
+    background-color: transparent;
+}
+
+
+::-moz-selection {
+    background: rgb(var(--bright-accent), 0.25);
+}
+
+::selection {
+    background: rgb(var(--bright-accent), 0.25);
+}
+
+#page-title::after,
+.meta-title::after,
+#page-title::before,
+.meta-title::before {
+    background: rgba(var(--swatch-primary), 0.5);
+}
+
+.creditButton p a {
+    background-color: rgb(var(--black-accent));
+}
+
+#page-content .rate-box-with-credit-button {
+    display: inline-flex;
+    height: var(--rating-module-height);
+    margin-bottom: .75rem;
+    padding: 0 .125rem;
+    overflow: hidden;
+    border: .0625rem solid rgba(var(--gray-monochrome));
+    border-radius: 0;
+    background: rgb(var(--dark-accent));
+    background-color: rgb(var(--dark-accent));
+}
+
+#top-bar div.mobile-top-bar>ul>li>ul>li:hover>a,
+#top-bar div.top-bar>ul>li>ul>li:hover>a {
+    color: rgb(var(--dark-accent));
+    text-decoration: none;
+}
+
+#interwiki .heading,
+#side-bar .heading {
+    background: rgb(var(--dark-gray-monochrome));
+}
+
+#side-bar .side-block {
+    background-color: rgb(var(--dark-accent));
+}
+
+#side-bar .side-block.resources {
+    background: rgb(var(--dark-accent)) !important;
+}
+
+#side-bar .side-block.media {
+    background-color: rgba(var(--dark-gray-monochrome)) !important;
+}
+
+#side-bar div.menu-item>a,
+#side-bar div.menu-item>a:visited {
+    color: rgb(var(--bright-accent));
+}
+
+#side-bar div.menu-item>a:hover {
+    color: rgb(var(--dark-accent));
+}
+
+.side-block.media a {
+    background: transparent
+}
+
+#side-bar .collapsible-block .collapsible-block-folded,
+#side-bar .heading {
+    background: rgb(var(--dark-gray-monochrome));
+}
+
+
+#search-top-box-input {
+    background-color: rgb(var(--dark-gray-monochrome));
+}
+
+#account-options {
+    border-color: var(--bright-accent);
+    background: var(--dark-accent);
+    color: var(--bright-accent);
+}
+
+#login-status {
+    color: rgba(var(--swatch-menutxt-light-color), 0.5);
+}
+
+#login-status ul a {
+    color: rgb(var(--bright-accent));
+}
+
+
+#login-status .printuser {
+    background-color: transparent;
+    color: rgb(var(--bright-accent));
+}
+
+.page-rate-widget-box {
+    border: 0.0625rem solid rgba(var(--swatch-menubg-dark-color));
+    background: rgb(var(--dark-accent));
+}
+
+#top-bar div.mobile-top-bar {
+    background: rgb(var(--dark-accent));
+}
+
+#top-bar div.top-bar>ul>li:hover {
+    background: rgb(var(--swatch-menubg-black-color));
+}
+
+#top-bar div.mobile-top-bar>ul>li.sfhover>ul,
+#top-bar div.mobile-top-bar>ul>li:hover>ul,
+#top-bar div.top-bar>ul>li.sfhover>ul,
+#top-bar div.top-bar>ul>li:hover>ul {
+    color: rgb(var(--dark-accent));
+}
+
+blockquote,
+div.blockquote {
+    border: none;
+    background-color: rgb(var(--dark-gray-monochrome));
+    --swatch-border-color: var(--gray-monochrome);
+    box-shadow: 0rem 0.095rem 0.25rem 0.125rem rgb(var(--dark-accent));
+}
+
+.yui-navset .yui-nav li,
+.yui-navset .yui-navset-top .yui-nav li {
+    box-shadow: none;
+}
+
+.yui-navset .yui-nav,
+.yui-navset .yui-navset-top .yui-nav {
+    --box-shadow: none;
+}
+
+.yui-navset .yui-nav,
+.yui-navset .yui-navset-top .yui-nav hover a {
+    border-color: rgb(var(--dark-accent));
+}
+
+.yui-navset .yui-nav .selected a {
+    border-color: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent)) !important;
+}
+
+.yui-navset .yui-content,
+.yui-navset .yui-navset-top .yui-content {
+    background: rgb(var(--dark-accent));
+    color: rgb(var(--bright-accent));
+}
+
+.yui-navset .yui-nav li,
+.yui-navset .yui-navset-top .yui-nav li {
+    background: rgb(var(--dark-accent));
+}
+
+.yui-navset .yui-nav a,
+.yui-navset .yui-navset-top .yui-nav a {
+    background-color: rgb(var(--swatch-menubg-dark-color));
+    color: rgb(var(--dark-accent));
+}
+
+.yui-navset-bottom .yui-nav li a,
+.yui-navset-top .yui-nav li a,
+.yui-navset .yui-nav li a {
+    background: rgb(var(--dark-gray-monochrome));
+    color: rgb(var(--bright-accent));
+}
+
+#page-content .blockquote div.b-tables table.wiki-content-table th,
+#page-content .blockquote table.wiki-content-table th {
+    background: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+    border: 0.0625rem solid rgba(var(--bright-accent)) !important;
+}
+
+#page-content .blockquote table.wiki-content-table td {
+    border: 0.0625rem solid rgba(var(--bright-accent)) !important;
+}
+
+#page-content div.b-tables table.wiki-content-table th,
+#page-content table.wiki-content-table th {
+    background: rgb(var(--dark-gray-monochrome));
+    color: rgb(var(--white-accent));
+    --tables-border: var(--dark-gray-monochrome);
+}
+
+textarea,
+input.text,
+input.checkbox,
+div.note,
+#lock-info {
+    border: 0.0625rem solid rgba(var(--swatch-menubg-light-color), 0.25);
+    background-color: rgb(var(--swatch-menubg-extra-dark-color));
+    color: rgb(var(--swatch-text-light));
+}
+
+.code pre span[class*="hl-"] {
+    -webkit-filter: invert(1) hue-rotate(180deg);
+    filter: invert(1) hue-rotate(180deg);
+}
+
+.owindow .modal-body img {
+    background-color: transparent !important;
+}
+
+#odialog-container div.owindow {
+    background-color: rgb(var(--dark-accent));
+}
+
+.hovertip {
+    border: .0625rem solid rgb(var(--dark-gray-monochrome));
+    color: rgb(var(--swatch-text-light));
+}
+
+.hovertip .content {
+    padding: 0;
+}
+
+#footer {
+    color: rgb(var(--bright-accent));
+}
+
+.image-block .image-caption,
+.scp-image-block .scp-image-caption {
+    box-shadow: none;
+    border: none;
+    background-color: rgb(var(--dark-gray-monochrome));
+    color: rgb(var(--bright-accent));
+}
+
+.scp-image-block a {
+    background-color: transparent;
+}
+
+.scp-image-block {
+    box-shadow: .0225rem .0835rem .0725rem .0925rem rgb(var(--dark-accent));
+}
+
+.footnote {
+    padding: .625em;
+    background-color: rgb(var(--dark-gray-monochrome));
+}
+
+.footnotes-footer {
+    border-left: none;
+    background-color: rgba(var(--dark-gray-monochrome));
+}
+
+.hovertip .f-heading {
+    background-color: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+.bibitems .title,
+.footnotes-footer .title {
+    background-color: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+.bibitems,
+.footnotes-footer {
+    box-shadow: inset .5em 0 0 0 rgba(var(--bright-accent));
+}
+
+.licensebox .collapsible-block-link {
+    background: none;
+}
+
+table.page-history tr:nth-of-type(2) td:not(:nth-of-type(7)):before {
+    background-color: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+.pager .current,
+.pager .current:before {
+    background-color: rgb(var(--dark-accent));
+}
+
+.pager .current {
+    color: rgb(var(--bright-accent));
+}
+
+.paged a:visited,
+.pager a {
+    color: rgb(var(--bright-accent));
+}
+
+.printuser img.small {
+    width: 1.25rem;
+    height: 1.25rem;
+    vertical-align: -0.4em;
+}
+
+#who-rated-page-area .printuser a {
+    font-size: 100%;
+}
+
+#who-rated-page-area .printuser {
+    background-color: transparent;
+}
+
+#search-top-box input.empty {
+    color: rgba(var(--bright-accent));
+}
+
+.page-tags a:hover {
+    color: rgb(var(--dark-accent));
+}
+
+#main-content .page-tags:before {
+    background-color: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+#main-content .page-tags {
+    box-shadow: 0 -.125rem 0 0 rgb(var(--bright-accent));
+}
+
+.footnotes-footer a[href*=javascript],
+.footnotes-footer a[href*=javascript]:visited {
+    background-color: transparent;
+}
+
+#license-area {
+    background-color: rgb(var(--dark-gray-monochrome));
+}
+
+#page-content .rate-box-with-credit-button>.creditButton>p>a:after {
+    background-color: rgba(var(--dark-accent));
+}
+
+[id*=u-credit] .credit.first,
+[id*=u-credit] .credit.otherwise {
+    padding: 5px;
+}
+
+[id*=u-credit] div.creditBottomRate {
+    padding: 0.5rem 0 0;
+}
+
+.acs-hybrid-text-bar>.acs-clear>.clearance-level-text::before {
+    color: rgba(var(--bright-accent), 1);
+}
+
+.acs-hybrid-text-bar>.acs-disrupt .disruption-class-number::before {
+    color: rgba(var(--bright-accent), 1);
+}
+
+.acs-hybrid-text-bar>.acs-risk .risk-class-number::before {
+    color: rgba(var(--bright-accent, 12, 12, 12), 1);
+}
+
+.contain-class .class-text::before {
+    color: rgb(228 228 228);
+}
+
+.anom-bar-container.esoteric .text-part>.main-class>.second-class>.class-text::after {
+    color: #e4e4e4;
+}
+
+.info-container .collapsible-block-folded,
+.info-container .collapsible-block-unfolded-link {
+    background: rgb(var(--bright-accent));
+}
+
+.info-container .collapsible-block-folded .collapsible-block-link,
+.info-container .collapsible-block-link {
+    background: rgb(var(--dark-accent));
+}
+
+#page-content .info-container a.collapsible-block-link:hover {
+    box-shadow: inset 0 -1.5em 0 0 rgba(var(--dark-accent));
+}
+
+.acs-hybrid-text-bar>a {
+    background-color: transparent;
+    color: transparent;
+}
+
+.acs-hybrid-text-bar>.acs-clear>.clearance-level-text::after {
+    padding-top: 0.1rem;
+    color: rgba(var(--bright-accent), 1);
+}
+
+.acs-hybrid-text-bar>.acs-risk .risk-class-number::after {
+    color: rgba(var(--bright-accent));
+}
+
+.acs-hybrid-text-bar>.acs-disrupt .disruption-class-number::after {
+    color: rgba(var(--bright-accent), 1);
+}
+
+.danger-diamond a,
+.danger-diamond a:hover {
+    background-color: transparent;
+    color: rgba(0, 0, 0, 0);
+}
+
+.authorlink-wrapper>a {
+    background-color: transparent;
+    color: rgb(var(--bright-accent));
+    --author-right-adjust: 0rem;
+}
+
+.authorlink-wrapper>a::before {
+    color: darkgrey;
+}
+
+.authorbox {
+    -webkit-filter: drop-shadow(0 0 3px rgba(228, 228, 228));
+    filter: drop-shadow(0 0 3px rgba(228, 228, 228));
+}
+
+.printuser a {
+    margin-right: -0.0625rem;
+    background-color: none;
+    font-size: 0.875rem;
+}
+
+.printuser img.small {
+    width: 1.1875rem;
+    height: 1.1563rem;
+    vertical-align: -0.4em;
+}
+
+.printuser:hover {
+    background-color: transparent;
+}
+
+.page-tags a {
+    background-color: transparent;
+    color: rgb(var(--bright-accent));
+}
+
+table.page-files tr>td>a:not(.btn),
+table.page-files tr>td>a:visited:not(.btn) {
+    color: rgb(var(--bright-accent));
+}
+
+table.page-files th {
+    color: rgb(var(--dark-accent));
+}
+
+@media (min-width: 36rem) {
+    #login-status:not(:focus-within) *:not(#account-topbutton):not([href*="account/messages"]) {
+     --clip-path: none;
+    }
+}
+
+/* LOCALIZATION FOR JP */
+#page-content .creditRate.creditModule .rate-box-with-credit-button>.page-rate-widget-box,
+.creditRate.creditModule ~ [id*=u-credit] .page-rate-widget-box,
+#page-content .creditRate.creditModule .rate-box-with-credit-button .creditButton {
+	background-color: rgb(var(--dark-accent));
+	border: 0.0625rem solid rgba(var(--gray-monochrome));
+	padding: 0 0.125rem;
+}
+[[/code]]
+[[/collapsible]]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

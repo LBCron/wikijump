@@ -1,0 +1,199 @@
+{
+  "slug": "theme:turbo-vision",
+  "en_source_sha256": "c28a37187cdc6bcb768921c8a05f805b18d153a929411db17971dd8e9019f97f",
+  "en_updated_at": "2026-04-12T05:37:45+00:00",
+  "en_entity_uuid": "689bd4b6-e02e-4d95-ae64-912d90131e03",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "ca80e76ee545e00f11d7d2145aa43942b83910dea9b5db2a854b9aabed6e7e0b",
+  "jp_previous_updated_at": "2026-09-24T10:35:51+00:00",
+  "jp_previous_entity_uuid": "3e8c0107-1599-489b-a6e6-3cad3ab9d0e0",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:turbo-vision",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:turbo-vision",
+    "title": "Turbo Vision Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "c28a37187cdc6bcb768921c8a05f805b18d153a929411db17971dd8e9019f97f",
+      "updated_at": "2026-04-12T05:37:45+00:00",
+      "entity_uuid": "689bd4b6-e02e-4d95-ae64-912d90131e03",
+      "tags": [
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 54,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:turbo-vision"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "ca80e76ee545e00f11d7d2145aa43942b83910dea9b5db2a854b9aabed6e7e0b",
+      "updated_at": "2026-09-24T10:35:51+00:00",
+      "entity_uuid": "3e8c0107-1599-489b-a6e6-3cad3ab9d0e0",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:turbo-vision"
+      },
+      "revisions": 6
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive",
+    "existing_jp_rebase": {
+      "previous_sha256": "325801b1dd4a3d1fb23f216c08a0ea56519d32da234638a8b5022c45a30d982c",
+      "previous_snapshot": "existing-jp-pre-rebase-20261005.wikidot.txt",
+      "current_revision": 6,
+      "current_updated_at": "2026-09-24T10:35:51+00:00",
+      "current_sha256": "ca80e76ee545e00f11d7d2145aa43942b83910dea9b5db2a854b9aabed6e7e0b",
+      "diff_assessment": "provenance refresh; source freshness audit found no theme CSS/runtime behavior delta"
+    }
+  },
+  "dependencies": {
+    "slug": "theme:turbo-vision",
+    "en_includes": [
+      ":scp-wiki:component:toggle-sidebar",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:theme:turbo-vision",
+      ":scp-wiki:theme:turbo-vision blocks=-",
+      "component:image-block",
+      ":scp-wiki:component:image-block@@"
+    ],
+    "en_external_dependencies": [
+      "https://developer.mozilla.org/en-US/docs/Web/CSS/clear",
+      "https://developer.mozilla.org/en-US/docs/Web/CSS/float",
+      "https://en.wikipedia.org/wiki/Box-drawing_character",
+      "https://en.wikipedia.org/wiki/Turbo_Vision",
+      "https://fonts.bunny.net/css2?family=IBM+Plex+Mono&display=swap",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Aturbo-vision/2",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/logo%20%281%29.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:turbo-vision/Mx437_IBM_VGA_8x16.css",
+      "https://scp-wiki.wikidot.com/local--files/theme:turbo-vision/border_black2.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:turbo-vision/border_white.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:turbo-vision/border_white2.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:turbo-vision/scpimage.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:turbo-vision/small%20%281%29.png",
+      "https://scp-wiki.wikidot.com/theme:turbo-vision/code/1",
+      "https://www.wikidot.com/doc-wiki-syntax:block-formatting-elements"
+    ],
+    "jp_includes": [
+      ":scp-jp:component:toggle-sidebar",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:theme:turbo-vision",
+      ":scp-jp:theme:turbo-vision blocks=-",
+      "component:image-block",
+      ":scp-jp:component:image-block@@"
+    ],
+    "jp_external_dependencies": [
+      "http://jikasei.me/font/jf-dotfont/",
+      "http://scp-jp-storage.wikidot.com/file:9042763-13-vzwf",
+      "http://scp-jp-storage.wikidot.com/file:9042763-26-mn41",
+      "http://scp-jp.wikidot.com/component:toggle-sidebar|component:toggle-sidebar",
+      "http://scp-jp.wikidot.com/scp-0110-j|LIGMA",
+      "http://www.w3.org/2000/svg",
+      "https://developer.mozilla.org/ja/docs/Web/CSS/clear",
+      "https://developer.mozilla.org/ja/docs/Web/CSS/float",
+      "https://en.wikipedia.org/wiki/Turbo_Vision",
+      "https://fonts.google.com/noto/specimen/Noto+Sans+JP",
+      "https://fonts.google.com/specimen/IBM+Plex+Mono",
+      "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap",
+      "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300..700&display=swap",
+      "https://openfontlicense.org/open-font-license-official-text/|SIL",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-13-vzwf/jfdot-mp12.css",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-26-mn41/scpimage-small.webp",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-26-mn41/scpimage-small.webp@@",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Aturbo-vision/1",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Aturbo-vision/2",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/border_black2.svg",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/border_white.svg",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/border_white2.svg",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/scpimage.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/small%20%281%29.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme:turbo-vision/logo%20(1",
+      "https://scp-wiki.wikidot.com/theme:turbo-vision",
+      "https://www.aozora.gr.jp/cards/000081/card1935.html"
+    ],
+    "base_family": "independent"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/turbo-vision/assets.json",
+  "asset_dependency_decision_count": 26,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "b43f1d79215dab57e1a03bfe9c7250db9f25a5467e1429627f114b9dfa750340",
+    "jp_overrides_sha256": "ba3b88029c1b0d260684287829fcfe0450e9e95abafec497b0b0d2427073c546",
+    "semantic_css_sha256": "8ae0bd6f93a93bce57a6a1fc54fcdb533cc9a77f0a534fe9cff5e9eb89a4a195",
+    "canonical_override_sha256": "f3f628145fa7ca6a2aac3f71543234cd45ad64e1305b1edb2b42b055e608695d",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "4b9ee9e2f1ec56cc6ec210d5b20609fa12984bc9f05eee5e3b1a20373faf58de",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "277f938a1ab759664945e72cf4d5a1a5adc249e5c7d0cc234343711ab27116e6",
+      "active_tags": [],
+      "candidate_source_sha256": "e8acd56ebfe4e28b14825c26db3980a1d584e5b2532a9c9b818ec70aa9013647",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 1,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "b9e8c63b787dc95314a26d81fd6dc61ed99470cddb7fb5470985fef95b2dc402",
+      "asset_receipt_path": "assets.json",
+      "assets": 20,
+      "imports": 6,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "d4d80ebcc0e2afb61490420a96b3f0b4cc29dfc9de532029e062af1ee80028ae",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

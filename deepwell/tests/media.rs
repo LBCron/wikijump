@@ -179,6 +179,33 @@ async fn embedvideo_preview_resolves_only_allowlisted_typed_media() {
             ),
             r#"<p><iframe src="https://embed.acast.com/620152ffa0b55c00129a3b8d" frameborder="0" allow="autoplay" width="100%" height="110"></iframe></p>"#,
         ),
+        (
+            "display-hunt-rookies-ep3-trailing-space-head",
+            concat!(
+                "[[embedvideo]] \n",
+                r#"<iframe width="787" height="443" src="https://www.youtube.com/embed/gcWjpXuc3Fk" title="Zombie Plague | SCP-008 | Rookies (E3)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>"#,
+                "\n[[/embedvideo]]",
+            ),
+            r#"<p><iframe width="787" height="443" src="https://www.youtube.com/embed/gcWjpXuc3Fk" title="Zombie Plague | SCP-008 | Rookies (E3)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="allowfullscreen"></iframe></p>"#,
+        ),
+        (
+            "display-hunt-essodeer-allow-url-parameters",
+            concat!(
+                "[[embedvideo]]\n",
+                r#"<iframe width="703" height="396" src="https://www.youtube.com/embed/Z-SZ2JNSOEw" title="essodeer" frameborder="0" allow="accelerometer; autoplay; rel=0; modestbranding; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>"#,
+                "\n[[/embedvideo]]",
+            ),
+            r#"<p><iframe width="703" height="396" src="https://www.youtube.com/embed/Z-SZ2JNSOEw" title="essodeer" frameborder="0" allow="accelerometer; autoplay; rel=0; modestbranding; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="allowfullscreen"></iframe></p>"#,
+        ),
+        (
+            "display-hunt-fifty3dragons-referrerpolicy",
+            concat!(
+                "[[embedvideo]]\n",
+                r#"<iframe width="787" height="443" src="https://www.youtube.com/embed/hNRMR4Wh6R8" title="SCP Rookies - The Complete Red Series" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>"#,
+                "\n[[/embedvideo]]",
+            ),
+            r#"<p><iframe width="787" height="443" src="https://www.youtube.com/embed/hNRMR4Wh6R8" title="SCP Rookies - The Complete Red Series" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></p>"#,
+        ),
     ] {
         let preview = run_endpoint!(
             runner,
@@ -246,6 +273,22 @@ async fn embedvideo_preview_fails_closed_for_unsupported_media() {
         (
             "open43-m-media-malformed",
             r#"<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen>nested</iframe>"#,
+        ),
+        (
+            "display-hunt-allow-powerful-feature",
+            r#"<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="x" frameborder="0" allow="camera; autoplay" allowfullscreen></iframe>"#,
+        ),
+        (
+            "display-hunt-referrerpolicy-unknown",
+            r#"<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" referrerpolicy="sometimes" allowfullscreen></iframe>"#,
+        ),
+        (
+            "display-hunt-multiple-iframes",
+            r#"<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe><iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>"#,
+        ),
+        (
+            "display-hunt-script-payload",
+            r#"<script>alert(1)</script>"#,
         ),
     ] {
         let preview = run_endpoint!(

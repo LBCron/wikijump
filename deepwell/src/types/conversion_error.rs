@@ -50,8 +50,6 @@ impl Display for EnumConversionError {
 
 impl StdError for EnumConversionError {}
 
-// Helpers for types from external crates
-
 pub fn parse_layout(value: &str) -> StdResult<Layout, EnumConversionError> {
     match value.parse() {
         Ok(layout) => Ok(layout),

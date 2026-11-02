@@ -53,49 +53,19 @@ impl fmt::Debug for RpcToken {
 
 #[derive(Debug, Clone)]
 pub struct Secrets {
-    /// The service token used to authenticate to DEEPWELL.
-    ///
-    /// Set using environment variable `DEEPWELL_RPC_TOKEN`.
     pub deepwell_rpc_token: RpcToken,
 
-    /// The URL of the DEEPWELL server to connect to.
-    ///
-    /// Set using environment variable `DEEPWELL_URL`.
     pub deepwell_url: String,
 
-    /// The URL of the Redis cache to connect to.
-    ///
-    /// Set using environment variable `REDIS_URL`.
     pub redis_url: String,
 
-    /// The name of the S3 bucket that file blobs are kept in.
-    /// The bucket must already exist prior to program invocation.
-    ///
-    /// Set using environment variable `S3_FILES_BUCKET`.
     pub s3_files_bucket: String,
 
-    /// The name of the S3 bucket that hosted text blocks are kept in.
-    /// The bucket must already exist prior to program invocation.
-    ///
-    /// Set using environment variable `S3_TEXT_BLOCKS_BUCKET`.
     pub s3_tblocks_bucket: String,
 
-    /// The region to use for S3.
-    ///
-    /// Set using environment variable `S3_AWS_REGION` if standard,
-    /// or `S3_REGION_NAME` and `S3_CUSTOM_ENDPOINT` if custom.
     pub s3_region: Region,
 
-    /// Whether to use path style for S3.
-    ///
-    /// Set using environment variable `S3_PATH_STYLE`.
     pub s3_path_style: bool,
 
-    /// The credentials to use for S3.
-    ///
-    /// Set using environment variable `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY`.
-    ///
-    /// Alternatively you can have it read from the AWS credentials file.
-    /// The profile to read from can be set in the `AWS_PROFILE_NAME` environment variable.
     pub s3_credentials: Credentials,
 }

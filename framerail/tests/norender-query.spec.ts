@@ -6,9 +6,6 @@ const SITE_HEADERS = {
 }
 const PAGE = "scp-173"
 const RENDERED_TEXT = "SCP-173"
-// The hermetic fixture echoes unknown translation keys, so the observed
-// no-render placeholder is the message key (the English copy is
-// "Content not shown.").
 const NO_RENDER_MARKER = "wiki-page-no-render"
 
 async function openPage(page: import("@playwright/test").Page, path: string) {
@@ -21,7 +18,6 @@ async function expectNoRenderContent(page: import("@playwright/test").Page) {
   const content = page.locator("#page-content")
   await expect(content).toContainText(NO_RENDER_MARKER)
   await expect(content.locator("textarea.page-source")).toHaveValue("**Item #:** SCP-173")
-  // The compiled article body is never shown in no-render mode.
   await expect(content.locator("p")).toHaveCount(0)
   await expect(content.locator("strong")).toHaveCount(0)
 }

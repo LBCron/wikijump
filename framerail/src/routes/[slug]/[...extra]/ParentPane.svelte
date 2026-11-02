@@ -4,6 +4,7 @@
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { getPageLayoutContext } from "$lib/layout/page-layout-context"
   import { Layout, PagePane } from "$lib/types"
+  import ParentGraph from "./ParentGraph.svelte"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"
 
@@ -14,8 +15,11 @@
   let parentsEdited = false
   let parentFetchGeneration = 0
 
-  let { pagePaneState = $bindable(), data }: PageProps & { pagePaneState: PagePane } =
-    $props()
+  let {
+    pagePaneState = $bindable(),
+    data,
+    ...props
+  }: PageProps & { pagePaneState: PagePane } = $props()
 
   const pageLayoutContext = getPageLayoutContext()
 
@@ -168,6 +172,8 @@
     </div>
   {/if}
 </form>
+
+<ParentGraph {data} {...props} />
 
 <style lang="scss">
   .page-parent {

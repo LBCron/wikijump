@@ -1,0 +1,155 @@
+{
+  "slug": "theme:y2k",
+  "en_source_sha256": "c2c102c15afbf03460f7045110a8d70c0615020e459c647a4ad82651ab649c8a",
+  "en_updated_at": "2025-12-20T09:19:59+00:00",
+  "en_entity_uuid": "9358f5bb-6820-4760-b978-88e271dfbe78",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "49187df24c3c7c454aa0a01eeec6f33e2f625074495bbb91c1f2d7b811705aab",
+  "jp_previous_updated_at": "2026-09-24T20:25:44+00:00",
+  "jp_previous_entity_uuid": "cf6a12ae-6c88-4f41-8d9d-8e7a3acf4895",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:y2k",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:y2k",
+    "title": "Y2K Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "c2c102c15afbf03460f7045110a8d70c0615020e459c647a4ad82651ab649c8a",
+      "updated_at": "2025-12-20T09:19:59+00:00",
+      "entity_uuid": "9358f5bb-6820-4760-b978-88e271dfbe78",
+      "tags": [
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 16,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:y2k"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "49187df24c3c7c454aa0a01eeec6f33e2f625074495bbb91c1f2d7b811705aab",
+      "updated_at": "2026-09-24T20:25:44+00:00",
+      "entity_uuid": "cf6a12ae-6c88-4f41-8d9d-8e7a3acf4895",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:y2k"
+      },
+      "revisions": 3
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive",
+    "existing_jp_rebase": {
+      "previous_sha256": "da489a08caa3f51ed73125e40b823a1e5e647a711769d6962721ef4a958191d5",
+      "previous_snapshot": "existing-jp-pre-rebase-20261005.wikidot.txt",
+      "current_revision": 3,
+      "current_updated_at": "2026-09-24T20:25:44+00:00",
+      "current_sha256": "49187df24c3c7c454aa0a01eeec6f33e2f625074495bbb91c1f2d7b811705aab",
+      "diff_assessment": "provenance refresh; source freshness audit found no theme CSS/runtime behavior delta"
+    }
+  },
+  "dependencies": {
+    "slug": "theme:y2k",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:info:start",
+      ":scp-wiki:info:more",
+      ":scp-wiki:info:end",
+      ":scp-wiki:theme:y2k",
+      "component:image-block name= https://scp-wiki.wdfiles.com/local--files/theme%3Ay2k/logo.png"
+    ],
+    "en_external_dependencies": [
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Ay2k/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ay2k/bg.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ay2k/logo.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ay2k/logo.png|caption=Y2K|width=200px"
+    ],
+    "jp_includes": [
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:theme:y2k",
+      "component:image-block name= http://scp-jp-storage.wikidot.com/local--files/file:4094174-4-k55r/logo.png"
+    ],
+    "jp_external_dependencies": [
+      "http://scp-jp-storage.wikidot.com/local--files/file:4094174-4-k55r/logo.png|caption=Y2K|width=200px",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A4094174-4-k55r/logo.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A4094174-5-12sw/bg.png",
+      "https://scp-jp.wdfiles.com/local--code/theme:y2k/1"
+    ],
+    "base_family": "sigma"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/y2k/assets.json",
+  "asset_dependency_decision_count": 3,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "de3113777c594f85a686e5cff3a31f22252448db1a5fc70f980bbcce0bf263a1",
+    "jp_overrides_sha256": "087739d27258faa8e585a730095933b86c117e47281fa7c9839ecbd3cb75698f",
+    "semantic_css_sha256": "7fe86478df5ad18b86a3eaa01b84ed42199ccd0dfdeb95c249673454af9703d4",
+    "canonical_override_sha256": "722638a9c69b72321390bb3b78bc3d86de8ffb8a3673f2ca51cf76d6635ae471",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "8b09fb6e674e1b2b85dddc0ef03d0d5f7522eb0cf8abd87c2bf68135ae88969c",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "dc35e32bb86337edae2f7014fde37e03dfeffb2265a3d72e284ea19c7acc361f",
+      "active_tags": [],
+      "candidate_source_sha256": "8e350e9f2a3444e2e8abd1d5a26e2618f91db4ace75e1bcb574a2903d25027f2",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "450d8184621bdf1a9245790b2b3b32fa388e7e7fe61e7115eb898b0891fe7a6c",
+      "asset_receipt_path": "assets.json",
+      "assets": 2,
+      "imports": 1,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

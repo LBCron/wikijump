@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wikidot `NextPage` and `PreviousPage` legacy module rendering.
-
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
@@ -77,14 +75,8 @@ static NEXT_PREVIOUS_ARGUMENT_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     .expect("NextPreviousPage argument regular expression should compile")
 });
 
-/// Keep authored pages from expanding an unbounded number of legacy modules
-/// in one render. The frozen corpus contains at most eight occurrences in a
-/// page, so this leaves room for ordinary authored pages while bounding work.
 pub(super) const MAX_NEXT_PREVIOUS_PAGE_MODULES_PER_RENDER: usize = 64;
 
-/// Bound the database scans performed by NextPage and PreviousPage. A module
-/// whose query would exceed this budget remains literal instead of running an
-/// extra scan.
 pub(super) const MAX_NEXT_PREVIOUS_PAGE_QUERIES_PER_RENDER: usize = 32;
 
 fn next_previous_page_module_budget_exceeded(module_count: usize) -> bool {
@@ -510,11 +502,7 @@ fn parse_next_previous_page_arguments(
                     }
                 }
             }
-            _ => {
-                // Live Wikidot ignores unknown NextPage / PreviousPage
-                // attributes while applying the recognized ones in the same
-                // invocation.
-            }
+            _ => {}
         }
     }
 
@@ -670,10 +658,6 @@ async fn select_next_previous_page(
         fields,
     };
 
-    // Live Wikidot resolves the neighboring row without actor-scoped view
-    // filtering: a private adjacent page is named in the module output for
-    // every viewer. The selected row still renders through the shared
-    // ListPages block path.
     let found = PageQueryService::find_with_metadata_cached(
         ctx,
         query,
@@ -726,9 +710,6 @@ fn select_title_neighbor(
     current_key: &CurrentPageSortKey,
 ) -> Option<FoundPageRow> {
     match module {
-        // Live Wikidot's title-mode PreviousPage is inclusive and therefore
-        // returns the current page itself when the current page matches the
-        // candidate selector.
         NextPreviousModule::Previous => rows.into_iter().find(|row| {
             matches!(
                 compare_row_to_current_title(row, current_key),

@@ -18,15 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! This service manages configurable filters.
-//!
-//! These encompass both platform filters (applies to all sites)
-//! and site filters (applies only to a particular site).
-//!
-//! For instance, a user platform filter prevents a name from being
-//! registered, where a user site filter would prevent the user from
-//! joining.
-
 mod matcher;
 mod service;
 mod structs;

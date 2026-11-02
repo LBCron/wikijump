@@ -1,9 +1,3 @@
-//! Site-scoped identity and membership rows for Wikidot directory modules.
-//!
-//! The caller checks page visibility before this read-only module runs. This
-//! query never leaves the requested site, and it removes missing or deleted
-//! identities before sorting, counting, or pagination.
-
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 use std::sync::LazyLock;
@@ -280,13 +274,6 @@ fn members_ajax_response(status: &str, body: String) -> WikidotMembersListModule
     }
 }
 
-/// Loads one page of the member directory plus the total number of
-/// directory rows across all pages.
-///
-/// Membership deduplication, identity filtering, role filtering, ordering,
-/// counting, and pagination all happen in the database, so a render only
-/// ever materializes the requested page (`MEMBERS_PAGE_SIZE` rows), no
-/// matter how many members the site has.
 async fn load_directory_page(
     ctx: &ServiceContext<'_>,
     site_id: i64,

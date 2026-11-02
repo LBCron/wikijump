@@ -3092,6 +3092,11 @@
       "target": "wikijump.deepwell"
     },
     {
+      "source": "deepwell-jsonrpc:child_get_all",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
       "source": "deepwell-jsonrpc:config",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
@@ -3293,6 +3298,11 @@
     },
     {
       "source": "deepwell-jsonrpc:logout",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
+      "source": "deepwell-jsonrpc:mail_form_submit",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
     },
@@ -3673,6 +3683,11 @@
     },
     {
       "source": "deepwell-jsonrpc:parent_set",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
+      "source": "deepwell-jsonrpc:parent_trace",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
     },
@@ -4522,6 +4537,11 @@
       "target": "wikijump.framerail"
     },
     {
+      "source": "framerail-server-action:/?/childrenGet",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
       "source": "framerail-server-action:/?/createPermission",
       "type": "implemented_by",
       "target": "wikijump.framerail"
@@ -4672,6 +4692,11 @@
       "target": "wikijump.framerail"
     },
     {
+      "source": "framerail-server-action:/?/parentTrace",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
       "source": "framerail-server-action:/?/restore",
       "type": "implemented_by",
       "target": "wikijump.framerail"
@@ -4718,6 +4743,11 @@
     },
     {
       "source": "framerail-server-action:/{slug}/{*extra}?/backlinks",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/{slug}/{*extra}?/childrenGet",
       "type": "implemented_by",
       "target": "wikijump.framerail"
     },
@@ -4868,6 +4898,11 @@
     },
     {
       "source": "framerail-server-action:/{slug}/{*extra}?/parentSet",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/{slug}/{*extra}?/parentTrace",
       "type": "implemented_by",
       "target": "wikijump.framerail"
     },
@@ -7380,8 +7415,8 @@
   "ftml_raw_surface_manifest": {
     "schema": "wikijump.ftml_raw_surface_manifest.v1",
     "source": {
-      "commit": "3f8be45c12532d981652edf4343e02f36f1380db",
-      "tree": "8b36f0524b4d536ce717c882a8f3b65c63c06c03"
+      "commit": "bcfd17dbc2bf734d29370c1b398a3386d978b874",
+      "tree": "f796876ababf6c24b00370fb6d4cae87bf56817b"
     },
     "registries": [
       {
@@ -7391,8 +7426,8 @@
       },
       {
         "path": "src/delayed.rs",
-        "blob": "77bd60357b2e1586e1fdba92d0dd116469072024",
-        "sha256": "3bb342895168acba804f2f6b6ae3f0d1d2c12b69ccf462bc1f8d2cb991c1243b"
+        "blob": "ea5b0ca740baa61d814b9865ca0ef572d0afae6e",
+        "sha256": "9a59b0ded03cadf02fcc9ac7a7895c20573c929b40172135083e1e3510725353"
       },
       {
         "path": "src/parsing/lexer.pest",
@@ -11731,36 +11766,36 @@
   },
   "provenance": {
     "wikijump": {
-      "source_input_set_sha256": "2e85d2492db889dd23e1fa7d16dc38673a3a5b2f03003652de0f59d3d47e7821"
+      "source_input_set_sha256": "87bfc4eb7dc9f60ed2851e9434c994d12338ee579cd94f061a052a28b92dd62d"
     },
     "ftml": {
-      "commit": "3f8be45c12532d981652edf4343e02f36f1380db",
-      "tree": "8b36f0524b4d536ce717c882a8f3b65c63c06c03"
+      "commit": "bcfd17dbc2bf734d29370c1b398a3386d978b874",
+      "tree": "f796876ababf6c24b00370fb6d4cae87bf56817b"
     },
     "registries": [
       {
         "path": "deepwell/Cargo.lock",
-        "sha256": "677d43fc4721bd6140c6775ca0100a50fd05454ff88c7ef4bd2421cced301888"
+        "sha256": "ca95f181495a3559734d21aaf59df4277c748b5a47fe2fca1bda1d3e306f5cd3"
       },
       {
         "path": "deepwell/Cargo.toml",
-        "sha256": "c145bc0d77ffd7810683bd59505463717790e767f2f95a64a6a5a48455d08cd1"
+        "sha256": "ee45395bab963cef18e552072aa24ba5616b25b930d7e43bc475bc62c4b7bd02"
       },
       {
         "path": "deepwell/src/api.rs",
-        "sha256": "0592a6fa6182ea64764575cf788e4363d58976767367b5d45fb3c0ab4a0c5d41"
+        "sha256": "96efa6f4637f971eb64a4501687bae14b51d1a0e7e2b670873b7f680299c5422"
       },
       {
         "path": "deepwell/src/endpoints/auth.rs",
-        "sha256": "2096a2bc7ffeffacdfc4af5f94604c0f810b0adddea673414a727845a2e04d32"
+        "sha256": "39c93f69ddec99f314a4a20dee387c77cf5019663dd75a1af40327e1e7285ee7"
       },
       {
         "path": "deepwell/src/endpoints/basic_error.rs",
-        "sha256": "8cd98f2d75a34c273e639a9826117c0ff5982d55a3e6ebdf2c895ac6cbe079e4"
+        "sha256": "6395a84ae483111ebfbb579910ec560a546e51af9951401279dc4d7931efc45e"
       },
       {
         "path": "deepwell/src/endpoints/blob.rs",
-        "sha256": "382491303ed4c38ff65643bdc866929e533804b4518cb012b7377a003662e2a2"
+        "sha256": "172c1189d51b910674367f3287cf5839edf706e85dae4255e61bd8d3f1c4fd5e"
       },
       {
         "path": "deepwell/src/endpoints/category.rs",
@@ -11768,23 +11803,23 @@
       },
       {
         "path": "deepwell/src/endpoints/diagnostics.rs",
-        "sha256": "5bf539cb403f697225caf6e10a26b0b5b3b754924b35bacdea05f1a4ac98709c"
+        "sha256": "b5c141be19637f78b20b0ce595a858ba226293abf0b25dd2c61a0fa87f89bdc3"
       },
       {
         "path": "deepwell/src/endpoints/domain.rs",
-        "sha256": "de30b748f3eeb7f50a506b2820f99ec8d034aa1ea2986bbadb38d6a9a1bd01b3"
+        "sha256": "10b4d2a7a5b21b9783d2f43e77a4b76d43212bc82a01feac80dd6d581e8b05ac"
       },
       {
         "path": "deepwell/src/endpoints/email.rs",
-        "sha256": "055c63c0233a174de808e5eb6cc1b92f337b405a62d7df4f16c24852133aefb6"
+        "sha256": "ee577745a194cc7d4719149c8ad4dd0b15318975fff6dc665fce9155b6e409e1"
       },
       {
         "path": "deepwell/src/endpoints/file_revision.rs",
-        "sha256": "c33aa99210e43f8efe49643923e04c4cb7f1e77cfeeb6858fbd5fb37a2aece95"
+        "sha256": "f770e8b8d1712ac770975ea1b30d7572cf8cdd4f0b8032b5ba73c2311c00ec11"
       },
       {
         "path": "deepwell/src/endpoints/file.rs",
-        "sha256": "9f8a1260ee24a71a99b974b8caf4804b48dd4e7e5e07ab8b33f81d46865c1d09"
+        "sha256": "cfa96dd1fabe0903e121a8443937a247904ba41b5c04e3ffa05f0c8d63bc416a"
       },
       {
         "path": "deepwell/src/endpoints/forum_post.rs",
@@ -11792,7 +11827,7 @@
       },
       {
         "path": "deepwell/src/endpoints/health.rs",
-        "sha256": "0c871bc2f97a9f303c9e5e65d69e01199015b8cd11675cfa104a32f6eb607194"
+        "sha256": "10637715f0fcc5ce8c226e830c4ade9997cebaf466cc3b170d34cdbf994b5db0"
       },
       {
         "path": "deepwell/src/endpoints/import.rs",
@@ -11800,7 +11835,7 @@
       },
       {
         "path": "deepwell/src/endpoints/info.rs",
-        "sha256": "0861c8ef5255bc2d4e9fbdcb2d668f682d2b46a820f87ecd57ce6e60bfba0ae0"
+        "sha256": "448e0db8dd472c90ef88ec003d3afe44d7bfa20a014f4f81915b756faeca08ac"
       },
       {
         "path": "deepwell/src/endpoints/link.rs",
@@ -11808,7 +11843,11 @@
       },
       {
         "path": "deepwell/src/endpoints/locale.rs",
-        "sha256": "a7727e0dbac698ad3ed149b66814305b70a012a4b33355e786b17588726ccfe1"
+        "sha256": "8d330a9e2e7dc79bb8605cc685130ffb7a960281d8c56865482962e9dcde9e2a"
+      },
+      {
+        "path": "deepwell/src/endpoints/mail_form.rs",
+        "sha256": "2190fc7e5c55088f2b9cca11a7e5aac29d27df64423ffc63a6a5d912bb01cb2f"
       },
       {
         "path": "deepwell/src/endpoints/message.rs",
@@ -11836,19 +11875,19 @@
       },
       {
         "path": "deepwell/src/endpoints/page_revision.rs",
-        "sha256": "44ae7698d0816ad22737e63fed8425cde839f5faaf0c18e39b1b3d72deebd0f6"
+        "sha256": "660bee17bd1a60b883af0d7c1a55b800ca4f40f4c5cb0f52ef6207f310e6efad"
       },
       {
         "path": "deepwell/src/endpoints/page.rs",
-        "sha256": "f7f4aced7fe3f8af2edc3be9ac6122d0370cf06512457d58a2449061169c2f0d"
+        "sha256": "5b82f987ee9522d0c1231139eb281f846ebdfe905c314b254e54abe61e37be4e"
       },
       {
         "path": "deepwell/src/endpoints/page/permissions.rs",
-        "sha256": "763f7d87bb93d62bdcfc87202040672e3d42ad0096d0ede82e62592601ae14ce"
+        "sha256": "e7ad33e62146129494220f2ff6ddd1d1a3eae869c62acfc8c784f9a28de7816b"
       },
       {
         "path": "deepwell/src/endpoints/parent.rs",
-        "sha256": "a8b6e94c25e33b9c859d03ac25fc949c6a38b1c3b2d2acfcdf0737b303200092"
+        "sha256": "5243661cb2b3edbaba7e5c0d77235c805d5da9d279fc30acc26829409d498907"
       },
       {
         "path": "deepwell/src/endpoints/routing.rs",
@@ -11864,7 +11903,7 @@
       },
       {
         "path": "deepwell/src/endpoints/site.rs",
-        "sha256": "48dc8abb7049cfad6d7ccc30a2837f2fbf42b7ffd6bb927f6114eea97d5078e3"
+        "sha256": "2c4031db4efd12441860666fa8e0047badd1271be2a451229bbfc0bd68b8d5d1"
       },
       {
         "path": "deepwell/src/endpoints/text_block.rs",
@@ -11876,23 +11915,23 @@
       },
       {
         "path": "deepwell/src/endpoints/user_bot.rs",
-        "sha256": "07b0caebac592603ae777965cb29a3646c4f9b8eac89f6665fed6e5dfdab625d"
+        "sha256": "0154e668bf4521ea5092724805de81e5100e14a4c0455bef3632353fa95552c7"
       },
       {
         "path": "deepwell/src/endpoints/user.rs",
-        "sha256": "e7ac2f98c2de1b72454776219617557f0a225f4f6aebe72ceffde60b6174ade5"
+        "sha256": "7afe510d55961cae52fcb780fb89762305f9b4635bd5a9f8b6f11967ccc0d2e2"
       },
       {
         "path": "deepwell/src/endpoints/view.rs",
-        "sha256": "9eee39bd6947186da479b5a997e6527b11b64a79ae7dd573c0bcbd43fdcb20c7"
+        "sha256": "e7aca1a075f49bcf1659a11288fdbd4f25be9ee8d4730fd235d9ebfbff355e02"
       },
       {
         "path": "deepwell/src/endpoints/vote.rs",
-        "sha256": "3d78d46e17a94cc8812d887e7852c888bc63eb4695968c757fdda32e8782af49"
+        "sha256": "ccf47e95de9fc4cdac0f35b10d5af4567be239736342c141beedc04f155d5f29"
       },
       {
         "path": "docs/development/compatibility-catalog-source-attribution.json",
-        "sha256": "6631cd03a9a737d5e678bf6b7a66ad653f965efdb7698df3627bc95222ac3164"
+        "sha256": "f6b916ab216efbd4570a1e87a4777b289d89ed777f42dc9e1fcfd28c3901e7fe"
       },
       {
         "path": "docs/development/compatibility-surface-semantics.json",
@@ -11900,15 +11939,11 @@
       },
       {
         "path": "docs/development/deepwell-jsonrpc-contract-manifest.json",
-        "sha256": "5b83deadf5ca89f3993f20fd398e855d53c4db8a90f4d7ce3b6e7ee45a029a6d"
+        "sha256": "38f2e1585ca8abaa014e852a3b401b079a9bbc31754541effbe42214dc706da6"
       },
       {
         "path": "docs/development/framerail-amc-wire-contracts.json",
         "sha256": "38a346b4367e3a454f94ff00d879020a90aa6646d3188feef43e24e3b164da3f"
-      },
-      {
-        "path": "docs/development/framerail-route-action-evidence.json",
-        "sha256": "d3f5fb5398958bdb33ea882a42f524f22b4fe1c1039eac023ad20bb039700660"
       },
       {
         "path": "docs/development/open43-a-actions-membership-closure-audit.json",
@@ -11964,7 +11999,7 @@
       },
       {
         "path": "docs/development/wws-route-registration-denominator.json",
-        "sha256": "434532c3d614c579773fe8b4ddda4689958c14e37e2f34ab26410c4c51422c16"
+        "sha256": "cdee418467b4eb7e1507fad1beb74b0873b830c698abdb6a925fec633afdb158"
       },
       {
         "path": "docs/wikidot-specifications/catalog.json",
@@ -11984,23 +12019,23 @@
       },
       {
         "path": "framerail/src/lib/server/ajax-module-connector.js",
-        "sha256": "738c27871f8e49009ccbcc786431a29090ac0da6c6e7c4b1a2ff9d16ecab6811"
+        "sha256": "6abb06bcf4175b4da91f953fe4a516d58657943ad0de27f85f974095432de1f3"
       },
       {
         "path": "framerail/src/lib/server/load/page/page-actions.ts",
-        "sha256": "397df976d2643f49b18921d6318fe6d9b46e03469ba3b9003751c05e2e5fd44d"
+        "sha256": "b91973ccac3c153407edb69a3dfaed09a01819ffdde37100c1dc4cbc04dcc744"
       },
       {
         "path": "framerail/src/lib/server/load/page/page-revision-actions.ts",
-        "sha256": "6dbbb85a91b21863e3dd45f8c0d3691bd37525a7c03ab96c5e590bb2dfac5517"
+        "sha256": "0c3e3d2561c73777890a0cc16567ce85334c1f9eef64439c422364f447fbd6da"
       },
       {
         "path": "framerail/src/lib/server/load/page/page.ts",
-        "sha256": "f69aa39070a732bfe5c3222bbc1874379d682e034324f35beec634fceae3c12c"
+        "sha256": "3e1da4b7d9002c46e426503914ba25d32e7e9520cd73c486becfe93ad72c573c"
       },
       {
         "path": "framerail/src/lib/server/wikidot-site-changes.js",
-        "sha256": "2faf6bebd3d9481b4fe1ba865adc3f23b2ecfea08fac988eac08d975bdb4ee4d"
+        "sha256": "190f8bed8c3ae5b51ee50b5985238bfed647962ee8f030502c9b2f7e528425ab"
       },
       {
         "path": "framerail/src/lib/server/xmlrpc/methods.ts",
@@ -12028,11 +12063,11 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/[slug]/[...extra]/+page.server.ts",
-        "sha256": "fb17333af088a633b8d3bba806860809d4c6bd00ed01bb51424108adddb63576"
+        "sha256": "cffadee6ab175ee6b0dcb6145749822b9bca6c8e201505254dc97ba4d0760ccd"
       },
       {
         "path": "framerail/src/routes/[x+2d]/+page.server.ts",
-        "sha256": "4bccfd7d48ca30a787f5a267b5568da7d31ce85eddd579895f66fc8712342243"
+        "sha256": "33b68f92d1e48aa9c10e2ed51c11e67d1eb89bde6cbd952c12486175e074fe30"
       },
       {
         "path": "framerail/src/routes/[x+2d]/about/+page.server.ts",
@@ -12040,7 +12075,7 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/about/+page.svelte",
-        "sha256": "cea601987892135ccb2c7d4ed9cb3561a3c8aa7ad7ed0e6a933e293e560a42b6"
+        "sha256": "f4f16cc563f74dd97eb91e483b22077d15cb8501e3d06706406beb4d1cb262a1"
       },
       {
         "path": "framerail/src/routes/[x+2d]/admin/+page.server.ts",
@@ -12080,7 +12115,7 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/login/+page.svelte",
-        "sha256": "c6d74064d25a4197cba3e580c2e57aaf5b412a1dcc5219a79d761e7c9edf6dc2"
+        "sha256": "923791bd495310b6f20695210575c22c765ad0773931c5fd193a159846c7ace0"
       },
       {
         "path": "framerail/src/routes/[x+2d]/logout/+page.server.ts",
@@ -12096,7 +12131,7 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/register/+page.svelte",
-        "sha256": "af6290c1fd269cae1cacd4114bce04588eeb0f5ac563ab18d72bcf166f86325a"
+        "sha256": "3552eeb4a5a32c3d11df2dfe745bf0379ed00ec5079c480eebf54f8e66f73538"
       },
       {
         "path": "framerail/src/routes/[x+2d]/reset/[token]/+page.server.ts",
@@ -12128,7 +12163,7 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/user/+page.svelte",
-        "sha256": "8a331c248b726fca68f0eff0e465dcb332346ff22adca680b8c2ff582dcaf7ff"
+        "sha256": "b6c7c339dea01a4332aa90d0591d0556b72b5f9896f81c5e146ec18ca2306748"
       },
       {
         "path": "framerail/src/routes/[x+2d]/verify-email/[token]/+page.server.ts",
@@ -12172,7 +12207,7 @@
       },
       {
         "path": "framerail/src/routes/ajax-module-connector.php/+server.ts",
-        "sha256": "802aae45ef7f8acfd19dd8eb5fe7c58edf874b26fc0e146d3896f78c97753a14"
+        "sha256": "1236b2fbb694402cdafb4add24fae6d545a15658bbab42b9a6b1894de0964dca"
       },
       {
         "path": "framerail/src/routes/common--images/jquery-raty/[asset]/+server.ts",
@@ -12180,7 +12215,7 @@
       },
       {
         "path": "framerail/src/routes/common--theme/base/images/feed/feed-icon-14x14.png/+server.ts",
-        "sha256": "957ffd131ebaa76cfadc8e673fd37dd14666b421d9591d2f641e6f4bbcd4aa22"
+        "sha256": "33d8902d0af0d0a92e47ad9dc3324a6b643bf1cbdb9212f2797ae8e2dc1bfe6d"
       },
       {
         "path": "framerail/src/routes/feed/forum/[feed]/+server.ts",
@@ -12192,7 +12227,7 @@
       },
       {
         "path": "framerail/src/routes/feed/site-changes.xml/+server.ts",
-        "sha256": "0f506ec9e48a53987e65d557de2f3594388497c4f2205107228162ad471a1f0e"
+        "sha256": "bda1238f78accf195699de37390ea44c81400ed5c3c6b4a278f961517bdb9b67"
       },
       {
         "path": "framerail/src/routes/forum/[fallback]/[...extra]/+page.server.ts",
@@ -12240,19 +12275,19 @@
       },
       {
         "path": "framerail/src/routes/printer--friendly/[...path]/+page.server.ts",
-        "sha256": "97c6bdefdace4c341e8309f91a8d9ea24eaf20f760f61699bf429f76adccd546"
+        "sha256": "43b63d8ddee2b1532edabdc758919a345919e77b6f16b95a607144486d7551cd"
       },
       {
         "path": "framerail/src/routes/printer--friendly/[...path]/+page.svelte",
-        "sha256": "48ea625cdf3e2eeb0dece65b257e1c2d806dde855391125bcd82cf677fa66478"
+        "sha256": "d78185c2f322644bb5b8fc40ac2404eb2f1ae9c749c1c5c0b7abb3a696aa2279"
       },
       {
         "path": "framerail/src/routes/sitemap_page_[n].xml/+server.ts",
-        "sha256": "ea04b21938572828fafedaabaeb66d557a2e5fa1e5dfb465417e74bc7f836ba1"
+        "sha256": "d70becd19768530a6f277b14e01f82208c8359bc3cba91ebb201fe4c6a230f99"
       },
       {
         "path": "framerail/src/routes/sitemap.xml/+server.ts",
-        "sha256": "738527aa0b2612a3b7ecab0f3d7123bb656e1539edadc5f8018f2ad507229ecf"
+        "sha256": "df014b37562a7a8d852376c107ff39f4d4130b5fd99cb45288955d804af2b211"
       },
       {
         "path": "framerail/src/routes/user[x+3a]info/[target]/+page.server.ts",
@@ -12264,7 +12299,7 @@
       },
       {
         "path": "framerail/src/routes/WikiPageError.svelte",
-        "sha256": "fe20a4367423b53a28b3e91fce30edbd5a8f0db441715c49266974e41cc54bb1"
+        "sha256": "1e3bd4d97d593b57acb07e41ac7cf41b822955e43308c195dd71477919cb921e"
       },
       {
         "path": "framerail/src/routes/xml-rpc-api.php/+server.ts",
@@ -12296,7 +12331,7 @@
       },
       {
         "path": "install/local/wikidot-verification/scripts/build-wws-route-registration-denominator.mjs",
-        "sha256": "1ed1f1af82d70881cc9b771743878fec1ed3890be4f943b34ec172f632637706"
+        "sha256": "e28657ec2a3a32803c0c1ed32359fc5ef4745309eb5ec778a5ebfb045e3d29e2"
       },
       {
         "path": "scripts/data/wikidot-implementation-ledger.json",
@@ -12304,7 +12339,7 @@
       },
       {
         "path": "wws/src/route.rs",
-        "sha256": "fd80900327a6212c39feebacd10d55a2b414bb848569f5fab4ddb3762121b924"
+        "sha256": "b3d53985800bf48114c13323cb0953d85590652a6eee58a2b79b064d822e2e39"
       }
     ]
   },
@@ -12391,14 +12426,14 @@
     ]
   },
   "counts": {
-    "total": 1012,
+    "total": 1019,
     "by_kind": {
       "catalog_feature": 210,
-      "deepwell_jsonrpc_method": 207,
+      "deepwell_jsonrpc_method": 210,
       "framerail_amc_action_shape": 2,
       "framerail_amc_module_shape": 27,
       "framerail_route": 41,
-      "framerail_server_action": 124,
+      "framerail_server_action": 128,
       "framerail_xmlrpc_method": 17,
       "missing_page_control": 2,
       "open43_audit_case": 285,
@@ -14806,7 +14841,7 @@
         "status": "implemented",
         "references": [
           "deepwell/src/services/data_form/layout.rs#pub fn substitute_wikidot_data_form_layout_variables_with_display(",
-          "deepwell/src/services/render/service.rs#pub(in crate::services::render) fn rewrite_wikidot_html_block_iframe_urls(",
+          "deepwell/src/services/render/service/wikidot_direct_iframe.rs#pub(in crate::services::render) fn rewrite_wikidot_html_block_iframe_urls(",
           "framerail/src/routes/[slug]/[...extra]/DataFormEditor.svelte#field.field_type === \"wiki\""
         ]
       },
@@ -17451,7 +17486,9 @@
         ],
         "cases": [],
         "tests": [
-          "deepwell/tests/page.rs#mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views"
+          "deepwell/tests/page.rs#mailform_renders_form_in_preview_and_saved_views",
+          "deepwell/tests/page.rs#mailform_submission_answers_wikidot_shaped_field_errors",
+          "deepwell/tests/page.rs#mailform_submission_success_is_recorded_not_delivered"
         ]
       },
       "evidence": {
@@ -20473,7 +20510,7 @@
       "source": {
         "status": "implemented",
         "references": [
-          "deepwell/src/services/render/service.rs#render_nav_page(top_bar_page_wikitext, CorpusRenderScope::TopNav)",
+          "deepwell/src/services/render/service.rs#render_nav_page(\n                top_bar_page_wikitext,\n                &top_bar_page,\n                CorpusRenderScope::TopNav\n            )",
           "deepwell/src/services/site/service.rs#if let Maybe::Set(top_bar_page) = input.top_bar_page"
         ]
       },
@@ -20745,9 +20782,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/bibliography.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/bibliography.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -20791,10 +20828,10 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/clear_float.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/container.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/clear_float.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/container.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -20838,9 +20875,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/container.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/container.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -20929,9 +20966,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/text.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/text.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -21023,7 +21060,7 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest"
         ]
       },
       "candidate": {
@@ -21067,9 +21104,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/date.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/date.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -21113,9 +21150,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/definition_list.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/definition_list.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -21257,7 +21294,7 @@
       "source": {
         "status": "implemented",
         "references": [
-          "deepwell/Cargo.toml#ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"3f8be45c12532d981652edf4343e02f36f1380db\" }",
+          "deepwell/Cargo.toml#ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"bcfd17dbc2bf734d29370c1b398a3386d978b874\" }",
           "deepwell/src/services/render/page_preview.rs#WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);",
           "deepwell/src/services/render/service.rs#pub async fn render("
         ]
@@ -21303,7 +21340,7 @@
       "source": {
         "status": "implemented",
         "references": [
-          "deepwell/Cargo.toml#ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"3f8be45c12532d981652edf4343e02f36f1380db\" }",
+          "deepwell/Cargo.toml#ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"bcfd17dbc2bf734d29370c1b398a3386d978b874\" }",
           "deepwell/src/services/render/page_preview.rs#WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);"
         ]
       },
@@ -21349,9 +21386,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/footnotes.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/footnotes.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -21395,9 +21432,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/container.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/container.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -21441,9 +21478,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/mod.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/mod.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -21488,7 +21525,7 @@
         "status": "implemented",
         "references": [
           "deepwell/src/services/render/page_preview.rs#settings.enable_html_blocks = false;",
-          "deepwell/src/services/render/service.rs#pub(in crate::services::render) fn rewrite_wikidot_html_block_iframe_urls("
+          "deepwell/src/services/render/service/wikidot_direct_iframe.rs#pub(in crate::services::render) fn rewrite_wikidot_html_block_iframe_urls("
         ]
       },
       "candidate": {
@@ -21682,10 +21719,10 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/container.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/text.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/container.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/text.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -21776,7 +21813,7 @@
       "source": {
         "status": "implemented",
         "references": [
-          "deepwell/Cargo.toml#ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"3f8be45c12532d981652edf4343e02f36f1380db\" }",
+          "deepwell/Cargo.toml#ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"bcfd17dbc2bf734d29370c1b398a3386d978b874\" }",
           "deepwell/src/services/render/compat/wikidot_link_protection.rs#pub(in crate::services::render) fn build_wikidot_wikipedia_link(",
           "deepwell/src/services/render/compat/wikidot_link_protection.rs#pub(in crate::services::render) fn protect_wikidot_compat_links("
         ]
@@ -21823,10 +21860,10 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/list.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/list.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -21873,10 +21910,10 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/text.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/text.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -21920,10 +21957,10 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/math.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/math.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -21967,9 +22004,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/container.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/container.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -22013,11 +22050,11 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/container.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/mod.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/container.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/mod.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -22115,9 +22152,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/toc.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/toc.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -22161,10 +22198,10 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/table.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/table.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -22254,9 +22291,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:conf/blocks.toml",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/container.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:conf/blocks.toml",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/container.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -22300,9 +22337,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/text.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/text.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -22346,9 +22383,9 @@
       "source": {
         "status": "implemented",
         "references": [
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/parsing/lexer.pest",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/render/html/element/text.rs",
-          "Rokurolize/ftml@3f8be45c12532d981652edf4343e02f36f1380db:src/tree/element/object.rs"
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/parsing/lexer.pest",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/render/html/element/text.rs",
+          "Rokurolize/ftml@bcfd17dbc2bf734d29370c1b398a3386d978b874:src/tree/element/object.rs"
         ]
       },
       "candidate": {
@@ -24264,6 +24301,51 @@
       ]
     },
     {
+      "surface_id": "deepwell-jsonrpc:child_get_all",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:child_get_all",
+        "deepwell/src/endpoints/parent.rs#child_get_all"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/parent.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
       "surface_id": "deepwell-jsonrpc:config",
       "kind": "deepwell_jsonrpc_method",
       "public_reference": [
@@ -26089,6 +26171,51 @@
         "status": "implemented",
         "references": [
           "deepwell/src/endpoints/auth.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:mail_form_submit",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:mail_form_submit",
+        "deepwell/src/endpoints/mail_form.rs#mail_form_submit"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "deepwell/tests/page.rs#mailform_submission_answers_wikidot_shaped_field_errors"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/mail_form.rs"
         ]
       },
       "candidate": {
@@ -29497,6 +29624,51 @@
         "cases": [],
         "tests": [
           "deepwell/tests/list_pages.rs#child_listpages_expands_site_domain_and_parent_fullname"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/parent.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:parent_trace",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:parent_trace",
+        "deepwell/src/endpoints/parent.rs#parent_trace"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"
         ]
       },
       "evidence": {
@@ -33156,9 +33328,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33197,9 +33367,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#serves the legacy admin route through the same rendered page and action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33237,9 +33405,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/corpus-route-ownership.test.js#platform information remains available under the reserved application prefix"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33277,9 +33443,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/corpus-route-ownership.test.js#platform information remains available under the reserved application prefix"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33318,9 +33482,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/corpus-route-ownership.test.js#platform information remains available under the reserved application prefix"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33359,9 +33521,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33400,9 +33560,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#delete start page needs a session, then requests the copy keys"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33441,9 +33599,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#delete link load pre-fills the token form without calling Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33482,9 +33638,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#forgot load requests the recovery copy keys"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33523,9 +33677,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#account route loads expose their public SvelteKit page data"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33564,9 +33716,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#account route loads expose their public SvelteKit page data"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33605,9 +33755,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#account route loads expose their public SvelteKit page data"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33646,9 +33794,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#reset page exchanges the link for a grant only on POST"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33687,9 +33833,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#account route loads expose their public SvelteKit page data"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33728,9 +33872,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#account route loads expose their public SvelteKit page data"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33769,9 +33911,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#legacy user slug route fails closed for imported profiles"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33810,9 +33950,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#verify resend page requests the verification copy keys"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33851,9 +33989,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#verify link load pre-fills the token form without calling Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33891,9 +34027,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-interwiki.test.js#builds SCP interwiki language links from Crom translations"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33931,9 +34065,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-interwiki.test.js#serves Wikidot's static styleFrame document without echoing its query"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33971,9 +34103,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#reserved compatibility routes expose their public fail-closed responses"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34011,9 +34141,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#reserved compatibility routes expose their public fail-closed responses"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34052,9 +34180,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34092,9 +34218,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/ajax-module-connector.test.js#dispatches ListPages forms and returns the Wikidot JSON envelope"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34132,9 +34256,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#reserved compatibility routes expose their public fail-closed responses"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34172,9 +34294,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-feed-icon.test.ts#the icon route sets an explicit cache policy and image type without a proxy"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34212,10 +34332,7 @@
           2091
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-feed.test.ts#forum RSS uses local identifiers, public channel metadata, and safe CDATA",
-          "framerail/tests/forum-feed.test.ts#scoped category and thread RSS links resolve legacy Wikidot feed names"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34253,9 +34370,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/feed-pages-route.test.js#anonymous exact feed/pages renders the generic missing-page shell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34293,9 +34408,7 @@
           2087
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-changes-feed.test.ts#site changes RSS reports the frozen channel and newest-first bounded rows"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34334,9 +34447,7 @@
           1034
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-routes.test.js#unobserved forum suffixes terminate at the public 404 boundary"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34375,9 +34486,7 @@
           1034
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-routes.test.js#the observed category pager suffix reaches the exact AMC page"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34416,9 +34525,7 @@
           1034
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-routes.test.js#forum route loads use the exact sealed read-only module requests"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34457,9 +34564,7 @@
           1034
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-routes.test.js#forum route loads use the exact sealed read-only module requests"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34497,9 +34602,7 @@
           756
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-icon-source.test.js#local site icons redirect only to same-origin file routes"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34537,9 +34640,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-icons.test.js#iOS touch icons reproduce the three filenames and sizes Wikidot declares"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34577,9 +34678,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-icons.test.js#Windows 8 tile declaration keeps Wikidot's local route rather than the configured source"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34618,10 +34717,7 @@
           777
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/hooks-reroute.test.ts#printer-friendly doubled slash resolves to the single-slash route",
-          "framerail/tests/wikidot-print-view.test.js#printer-friendly URL preserves the live doubled slash"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34659,10 +34755,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/sitemap.test.ts#builds a shard urlset with escaped locations and lastmod dates",
-          "framerail/tests/sitemap.test.ts#parses shard numbers starting at 1 and rejects anything else"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34700,9 +34793,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/sitemap.test.ts#builds a sitemap index pointing at each shard page"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34741,9 +34832,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-user-info-target-route.test.js#GET /user:info/<target> has an encoded public route"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34781,9 +34870,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/xmlrpc-url-swap-public-boundary.test.js#the standard Python XML-RPC client resolves the documented API through the public route"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34822,9 +34909,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34863,9 +34948,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34904,9 +34987,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#discussion updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34945,9 +35026,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#forum nesting updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34986,9 +35065,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/admin-license.test.js#returns explicit and inherited custom licenses as stable sanitizer input"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35027,9 +35104,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#renders membership policy without exposing a configured password and binds review actions"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35068,9 +35143,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#renders membership policy without exposing a configured password and binds review actions"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35109,9 +35182,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/admin-navigation.test.js#maps the inheritance control to nullable category overrides"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35150,9 +35221,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#rating updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35191,9 +35260,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35232,9 +35299,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#site icon updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35273,9 +35338,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35314,9 +35377,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#page template settings bind the category mutation to the trusted site actor"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35355,9 +35416,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35396,9 +35455,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35436,9 +35493,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35476,9 +35531,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35516,9 +35569,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#discussion updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35556,9 +35607,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#forum nesting updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35596,9 +35645,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/admin-license.test.js#returns explicit and inherited custom licenses as stable sanitizer input"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35636,9 +35683,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#renders membership policy without exposing a configured password and binds review actions"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35676,9 +35721,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#renders membership policy without exposing a configured password and binds review actions"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35716,9 +35759,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/admin-navigation.test.js#maps the inheritance control to nullable category overrides"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35756,9 +35797,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#rating updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35796,9 +35835,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35836,9 +35873,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#site icon updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35876,9 +35911,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35916,9 +35949,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#page template settings bind the category mutation to the trusted site actor"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35956,9 +35987,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35996,9 +36025,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36036,9 +36063,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#delete issue binds the session actor and sends no identity"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36076,9 +36101,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#delete completion deletes on grant plus password and clears both"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36116,9 +36139,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#delete redemption exchanges the link for a grant only on POST"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36156,9 +36177,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#forgot issue trims the address and always reports success"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36196,9 +36215,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#login shares a session across native Wikijump wiki hosts but not custom domains"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36236,9 +36253,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#logout and user-edit route actions bind mutations to the server session"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36276,9 +36291,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#register binds account creation to the request address and redacts submitted passwords"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36316,9 +36329,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#reset page exchanges the link for a grant only on POST"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36356,9 +36367,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#reset completion sets the password, clears it, and reports revocation"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36396,9 +36405,7 @@
           1063
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/user-settings-action-boundary.test.js#user settings bind persistence to the server session actor"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36436,9 +36443,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/user-settings-password-change.spec.ts#account settings change the password with the current one"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36476,9 +36481,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#logout and user-edit route actions bind mutations to the server session"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36516,9 +36519,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#verify issue uses the verify RPC, never the reset RPC"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36556,9 +36557,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#verify redemption POSTs the token; malformed tokens never reach Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36597,9 +36596,46 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-append-backlinks-public-boundary.test.js#Backlinks handler delegates the current route to the typed public Deepwell view"
-        ]
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/?/childrenGet",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:childrenGet",
+        "framerail/src/routes/+page.server.ts#action:childrenGet"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36638,9 +36674,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36679,9 +36713,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-delete-action-boundary.test.js#native Wikidot delete accepts an omitted comment"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36720,9 +36752,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-deleted-authorization.test.js#deleted-page actions use the authenticated route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36761,9 +36791,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-option-form-permission.spec.ts#Delete answers with the delete-permission dialog and opens no form"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36802,9 +36830,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-append-backlinks-public-boundary.test.js#Append submission preserves metadata and commits only the appended source at the revision-bound edit action"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36843,9 +36869,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36884,9 +36908,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file delete and move actions bind the actor and routed page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36925,9 +36947,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36966,9 +36986,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file revision reads forward the routed request context to Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37007,9 +37025,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-list-public-boundary.test.js#Files SSR isolates filename cells from imported themes that style .name"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37048,9 +37064,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file delete and move actions bind the actor and routed page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37089,9 +37103,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37130,9 +37142,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37171,9 +37181,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-action-serialization.test.js#anonymous file upload failures remain serializable action results"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37212,9 +37220,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37253,9 +37259,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37294,9 +37298,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-legacy-action-request.test.js#Rate requests submit only the server registry binding"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37335,9 +37337,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-legacy-action-request.test.js#set-tags submits only the server registry index and revision binding"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37376,9 +37376,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37417,9 +37415,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37458,9 +37454,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37499,9 +37493,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#application and password actions preserve actor-bound page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37540,9 +37532,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#email invitation action derives the opaque hash from the trusted route, not the request body"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37581,9 +37571,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#root and slug page routes bind actor-verified membership Join"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37622,9 +37610,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#application and password actions preserve actor-bound page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37663,9 +37649,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-move-action-boundary.test.js#native page move resolves the routed page before moving it"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37704,9 +37688,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-option-form-permission.spec.ts#Move answers with the move-permission dialog and opens no form"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37745,11 +37727,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/new-site-submission.test.js#a created site redirects to its canonical origin",
-          "framerail/tests/new-site-submission.test.js#pageActions exposes newSite for the compat form post",
-          "framerail/tests/newsite-create-journey.spec.ts#an authenticated submission creates the site and redirects to its origin"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37788,9 +37766,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-parent-action-boundary.test.js#page form initialization gives ParentPane only its parents field"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37829,9 +37805,46 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-parent-action-boundary.test.js#root and slug parentSet actions accept the parent pane JSON payload"
-        ]
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/?/parentTrace",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:parentTrace",
+        "framerail/src/routes/+page.server.ts#action:parentTrace"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37870,9 +37883,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-deleted-authorization.test.js#deleted-page actions use the authenticated route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37911,9 +37922,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37952,9 +37961,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37993,9 +38000,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38034,9 +38039,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#page score actions use only trusted route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38075,9 +38078,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#vote mutation actions forward the trusted route request context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38116,9 +38117,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#vote mutation actions forward the trusted route request context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38157,9 +38156,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#page score actions use only trusted route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38198,9 +38195,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-watchers-public-boundary.test.js#Watchers action derives the site from trusted context and remains anonymous"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38239,9 +38234,46 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-append-backlinks-public-boundary.test.js#Backlinks handler delegates the current route to the typed public Deepwell view"
-        ]
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/childrenGet",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:childrenGet",
+        "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:childrenGet"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38280,9 +38312,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38321,9 +38351,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-delete-action-boundary.test.js#native Wikidot delete accepts an omitted comment"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38362,9 +38390,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-deleted-authorization.test.js#deleted-page actions use the authenticated route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38403,9 +38429,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-option-form-permission.spec.ts#Delete answers with the delete-permission dialog and opens no form"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38444,9 +38468,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-append-backlinks-public-boundary.test.js#Append submission preserves metadata and commits only the appended source at the revision-bound edit action"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38485,9 +38507,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38526,9 +38546,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file delete and move actions bind the actor and routed page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38567,9 +38585,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38608,9 +38624,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file revision reads forward the routed request context to Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38649,9 +38663,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-list-public-boundary.test.js#Files SSR isolates filename cells from imported themes that style .name"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38690,9 +38702,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file delete and move actions bind the actor and routed page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38731,9 +38741,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38772,9 +38780,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38813,9 +38819,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-action-serialization.test.js#anonymous file upload failures remain serializable action results"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38854,9 +38858,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38895,9 +38897,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38936,9 +38936,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-legacy-action-request.test.js#Rate requests submit only the server registry binding"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38977,9 +38975,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-legacy-action-request.test.js#set-tags submits only the server registry index and revision binding"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39018,9 +39014,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39059,9 +39053,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39100,9 +39092,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39141,9 +39131,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#application and password actions preserve actor-bound page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39182,9 +39170,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#email invitation action derives the opaque hash from the trusted route, not the request body"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39223,9 +39209,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#root and slug page routes bind actor-verified membership Join"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39264,9 +39248,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#application and password actions preserve actor-bound page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39305,9 +39287,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-move-action-boundary.test.js#native page move resolves the routed page before moving it"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39346,9 +39326,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-option-form-permission.spec.ts#Move answers with the move-permission dialog and opens no form"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39387,11 +39365,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/new-site-submission.test.js#a created site redirects to its canonical origin",
-          "framerail/tests/new-site-submission.test.js#pageActions exposes newSite for the compat form post",
-          "framerail/tests/newsite-create-journey.spec.ts#an authenticated submission creates the site and redirects to its origin"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39430,9 +39404,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-parent-action-boundary.test.js#page form initialization gives ParentPane only its parents field"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39471,9 +39443,46 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-parent-action-boundary.test.js#root and slug parentSet actions accept the parent pane JSON payload"
-        ]
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/parentTrace",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:parentTrace",
+        "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:parentTrace"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39512,9 +39521,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-deleted-authorization.test.js#deleted-page actions use the authenticated route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39553,9 +39560,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39594,9 +39599,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39635,9 +39638,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39676,9 +39677,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#page score actions use only trusted route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39717,9 +39716,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#vote mutation actions forward the trusted route request context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39758,9 +39755,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#vote mutation actions forward the trusted route request context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39799,9 +39794,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#page score actions use only trusted route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39840,9 +39833,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-watchers-public-boundary.test.js#Watchers action derives the site from trusted context and remains anonymous"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -40586,7 +40577,7 @@
       "source_identities": [
         {
           "path": "framerail/src/routes/WikiPageError.svelte",
-          "sha256": "fe20a4367423b53a28b3e91fce30edbd5a8f0db441715c49266974e41cc54bb1"
+          "sha256": "1e3bd4d97d593b57acb07e41ac7cf41b822955e43308c195dd71477919cb921e"
         },
         {
           "path": "framerail/src/routes/+error.svelte",
@@ -40594,7 +40585,7 @@
         },
         {
           "path": "framerail/src/lib/server/load/page/page-actions.ts",
-          "sha256": "397df976d2643f49b18921d6318fe6d9b46e03469ba3b9003751c05e2e5fd44d"
+          "sha256": "b91973ccac3c153407edb69a3dfaed09a01819ffdde37100c1dc4cbc04dcc744"
         }
       ],
       "specification_owner": "wikijump.registry:missing-page-control",
@@ -40686,7 +40677,7 @@
       "source_identities": [
         {
           "path": "framerail/src/routes/WikiPageError.svelte",
-          "sha256": "fe20a4367423b53a28b3e91fce30edbd5a8f0db441715c49266974e41cc54bb1"
+          "sha256": "1e3bd4d97d593b57acb07e41ac7cf41b822955e43308c195dd71477919cb921e"
         },
         {
           "path": "framerail/src/routes/+error.svelte",
@@ -40694,15 +40685,15 @@
         },
         {
           "path": "framerail/src/lib/server/load/page/page-actions.ts",
-          "sha256": "397df976d2643f49b18921d6318fe6d9b46e03469ba3b9003751c05e2e5fd44d"
+          "sha256": "b91973ccac3c153407edb69a3dfaed09a01819ffdde37100c1dc4cbc04dcc744"
         },
         {
           "path": "framerail/src/lib/server/load/page/page.ts",
-          "sha256": "f69aa39070a732bfe5c3222bbc1874379d682e034324f35beec634fceae3c12c"
+          "sha256": "3e1da4b7d9002c46e426503914ba25d32e7e9520cd73c486becfe93ad72c573c"
         },
         {
           "path": "framerail/src/lib/server/load/page/page-revision-actions.ts",
-          "sha256": "6dbbb85a91b21863e3dd45f8c0d3691bd37525a7c03ab96c5e590bb2dfac5517"
+          "sha256": "0c3e3d2561c73777890a0cc16567ce85334c1f9eef64439c422364f447fbd6da"
         }
       ],
       "specification_owner": "wikijump.registry:missing-page-control",
@@ -41846,9 +41837,7 @@
         "cases": [
           "A1037_MAILFORM_READ_ONLY_FAIL_CLOSED"
         ],
-        "tests": [
-          "deepwell/tests/page.rs::mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "available",

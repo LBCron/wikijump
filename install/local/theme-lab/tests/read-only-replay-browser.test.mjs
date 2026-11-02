@@ -8,9 +8,9 @@ test('read-only replay blocks HTTP mutations, other origins and WebSocket write 
   let writes=0,sockets=0;
   const server=http.createServer((request,response)=>{if(request.method!=='GET')writes++;response.end('<!doctype html><html><body>Replay</body></html>')});
   server.on('upgrade',(request,socket)=>{sockets++;socket.destroy()});
+  const browser=await loadChromium().launch({headless:true});
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const origin=`http://127.0.0.1:${server.address().port}`;
-  const browser=await loadChromium().launch({headless:true});
   try {
     const context=await browser.newContext(),blocked=[];
     await confineReadOnlyReplay(context,origin,blocked);

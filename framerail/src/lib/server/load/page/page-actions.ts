@@ -21,7 +21,9 @@ import {
 import {
   pageBacklinksAction,
   pageParentGetAction,
+  pageChildrenGetAction,
   pageParentSetAction,
+  pageParentTraceAction,
   pageScoreAction,
   pageWatchersAction,
   pageVoteCastAction,
@@ -78,6 +80,8 @@ export const pageActions = {
   move: pageMoveAction,
   parentSet: pageParentSetAction,
   parentGet: pageParentGetAction,
+  parentTrace: pageParentTraceAction,
+  childrenGet: pageChildrenGetAction,
   voteGet: pageVoteListAction,
   voteCast: pageVoteCastAction,
   voteCancel: pageVoteRemoveAction,

@@ -86,9 +86,6 @@ export const handleSiteRpc = ({ rpcRequest }) => {
                   user_type: "regular",
                   name: "Fixture Member",
                   slug: "fixture-member",
-                  // The authenticated preload follows the live fixture
-                  // user so a saved display-language order survives a
-                  // reload, matching Deepwell. Reset restores ["en"].
                   locales: [...fixtureState.authenticatedUser.locales]
                 }
               }
@@ -229,8 +226,6 @@ export const handleSiteRpc = ({ rpcRequest }) => {
     typeof rpcRequest.params.locale === "string" &&
     typeof rpcRequest.params.ip_address === "string"
   ) {
-    // Refs #2052. Records the framerail newSite submission at the public
-    // service boundary and answers like a fresh creation.
     fixtureState.siteCreateRequests.push({
       slug: rpcRequest.params.slug,
       name: rpcRequest.params.name,
@@ -253,9 +248,6 @@ export const handleSiteRpc = ({ rpcRequest }) => {
     Array.isArray(rpcRequest.params) &&
     rpcRequest.params[0] === 6000099
   ) {
-    // Answers the canonical origin for the freshly recorded site. The
-    // `.localhost` authority keeps the hermetic suite loopback-contained;
-    // specs assert the redirect Location, never fetch it.
     result = `${fixtureState.lastCreatedSiteSlug ?? "newsite-journey"}.localhost`
   } else if (
     rpcRequest.method === "site_get" &&
@@ -287,7 +279,6 @@ export const handleSiteRpc = ({ rpcRequest }) => {
     )
     const authLabels = isJapanese
       ? {
-          // The Japanese catalog currently uses the English fallback here.
           "error-api.GENERIC": "Something went wrong with your request.",
           "error-form.password-mismatch": "パスワードが一致しません。",
           "error-form.password-too-short": "パスワードは15文字以上で入力してください。",

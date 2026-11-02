@@ -204,7 +204,6 @@ function isHealthyContainer(container) {
   return container.state === "running" && (container.health === null || container.health === "healthy");
 }
 
-// Known limit: services defined in compose but never created have no container to observe; URL and DB probes cover them functionally.
 function failedService(detectedProject, containers) {
   const services = new Map();
   for (const container of containers) {

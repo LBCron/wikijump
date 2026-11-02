@@ -1,0 +1,69 @@
+これはSCP Wikiのテーマ、Sigma-10用ディレクトリです。
+
+ソースコードは[https://github.com/scpwiki/sigma GitHub]でホストされ、配信されています。
+
+サイトテーマの前バージョン（SCP Sigma-9）のコードは[[[component:theme|こちら]]]で確認できます。
+
+[[div class="blockquote"]]
++ 英語サンドボックス向け手順
+
+# 自分のサイトに{{theme:site}}という名前のページを作成してください。このページはロックするべきです。
+# 自分のサイトのサイトマネージャーで**外観と動作**、**テーマ**へ移動し、**外部**タブを選択して、"{{@@https://@@}}**your-site-name**{{@@.wdfiles.com/local--code/theme:site/1@@}}"を入力してください。
+# 必要なら、その形式を使うために[[[nav:side|サイドバー]]]および/または[[[nav:top|トップバー]]]をコピーしてください。
+# 添付ファイルを含め、[[[main|フロントページ]]]テンプレートをコピーしてください。
+# モバイル表示を有効化するには、あなたのWiki上の任意のページへ移動し、下部の[# + Options]をクリックしてください。
+# [# Edit Meta]をクリックしてください。
+# "Add a new meta tag"をクリックしてください。nameには"{{viewport}}"（引用符なし）を使い、contentには"{{width=device-width, initial-scale=1.0}}"（こちらも引用符なし）を使ってください。
+
+{{theme:site}}ページの内容:
+
+[[div class="code"]]
+@<[[code type="css"]]>@
+@<@import url("https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css");>@
+@<[[/code]]>@
+[[/div]]
+
+コードブロック内には、異なるヘッダー画像など、サンドボックス向けのカスタムスタイルを含めても構いません。
+[[/div]]
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

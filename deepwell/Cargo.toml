@@ -9,7 +9,7 @@ keywords = ["wikijump", "api", "backend", "wiki"]
 categories = ["asynchronous", "database", "web-programming::http-server"]
 exclude = [".gitignore", ".editorconfig"]
 
-version = "2026.8.20"
+version = "2026.10.27"
 authors = ["Emmie Smith <emmie.maeda@gmail.com>"]
 edition = "2024"
 rust-version = "1.95.0"
@@ -33,7 +33,7 @@ femme = "2"
 filemagic = "0.13"
 fluent = "0.17"
 fluent-syntax = "0"
-ftml = { git = "https://github.com/Rokurolize/ftml", rev = "3f8be45c12532d981652edf4343e02f36f1380db" }
+ftml = { git = "https://github.com/Rokurolize/ftml", rev = "bcfd17dbc2bf734d29370c1b398a3386d978b874" }
 futures = { version = "0.3", features = ["async-await"], default-features = false }
 hex = { version = "0.4", features = ["serde"] }
 hostname = "0.4"
@@ -53,7 +53,7 @@ reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-feature
 rsmq_async = "18"
 rust-s3 = { version = "0.38", features = ["with-tokio", "tokio-rustls-tls"], default-features = false }
 rust-otp = "3"
-sea-orm = { version = "2", features = ["sqlx-postgres", "runtime-tokio-rustls", "postgres-array", "stream", "macros", "with-json", "with-time"], default-features = false }
+sea-orm = { version = "2", features = ["sqlx-postgres", "runtime-tokio-rustls", "postgres-array", "stream", "macros", "with-json", "with-time", "with-ipnetwork"], default-features = false }
 sea-query = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -78,6 +78,7 @@ arrayvec = "0.7.6"
 
 # Local crates
 deepwell-relation-impl-derive = { path = "relation-impl-derive" }
+parking_lot = "0.13.0"
 
 [dev-dependencies]
 maplit = "1"
@@ -120,6 +121,12 @@ debug = "line-tables-only"
 
 [profile.dev.package."*"]
 debug = false
+# Test runs render large documents and hash passwords; unoptimized
+# dependencies (ftml, argon2) dominate the integration suite.
+opt-level = 3
+
+[profile.dev.package.deepwell]
+opt-level = 1
 
 [profile.debugging]
 inherits = "dev"

@@ -113,7 +113,7 @@ const previewFinding=(findings.findings??[]).find(f=>f.id==='SIGMA10-MOB-001');
 try{validateSigmaPreviewFinding(previewFinding,root)}catch(error){fail.push(error.message)}
 const report=await fs.readFile(path.join(root,'REPORT.md'),'utf8');
 if(previewFinding?.classification==='UNVERIFIED_PREVIEW_HYPOTHESIS'&&/Resolve `SIGMA10-MOB-001`.*before migration|Promotion remains contingent on the Technical Staff credit-rule change/iu.test(report))fail.push('report promotes an unverified preview hypothesis to a migration prerequisite');
-for(const name of Object.keys(authorityLedger.packages))try{assertPublishablePackage(name,{checkOutputs:true})}catch(error){fail.push(error.message)}
+for(const name of Object.keys(authorityLedger.packages))try{assertPublishablePackage(name,{checkOutputs:true,verifyAuthorityEvidence:process.env.THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED!=='1'})}catch(error){fail.push(error.message)}
 for(const f of findings.findings??[])if(f.blocker===true&&!String(f.owner??'').trim())fail.push(`ownerless blocker ${f.id}`);
 for(const f of findings.findings??[])if(f.actionable===true&&!String(f.classification??'').trim())fail.push(`unclassified actionable finding ${f.id}`);
 if(findings.decision_authority_policy?.schema!=='theme_lab_decision_authority.v1'||findings.decision_authority_policy.decision_authority!=='SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY'||findings.decision_authority_policy.port_conclusion_eligible!==false)fail.push('findings document lacks local-only decision-authority policy');

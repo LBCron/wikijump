@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "slug": "theme:aesthetic-theme",
+  "mode": "Wikidot page attachments; upload each named file to this theme page before publication",
+  "assets": [
+    {
+      "filename": "AESTHETIC_logo.svg",
+      "sha256": "64ca862d41f0aebc7f0fc6c9f0af82bc93b0dba29fc87e83bf18e9a8ba58c8e7",
+      "bytes": 15578,
+      "asset_file": "64ca862d41f0aebc7f0fc6c9f0af82bc93b0dba29fc87e83bf18e9a8ba58c8e7.svg",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-57-rycj/AESTHETIC_logo.svg"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-57-rycj/AESTHETIC_logo.svg",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615,
+      "asset_file": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593.svg",
+      "source_urls": [
+        "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg"
+      ],
+      "acquired_from": "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "dependency_decisions": [
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "AESTHETIC_logo.svg",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-57-rycj/AESTHETIC_logo.svg"
+      ],
+      "sha256": "64ca862d41f0aebc7f0fc6c9f0af82bc93b0dba29fc87e83bf18e9a8ba58c8e7",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "black-highlighter-logo.svg",
+      "source_urls": [
+        "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg"
+      ],
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ]
+}

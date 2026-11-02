@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wikidot `ChildPages` runtime module rendering.
-
 use std::collections::HashMap;
 use std::future::Future;
 use std::sync::{Arc, LazyLock};
@@ -93,9 +91,6 @@ fn parse_child_pages_module_arguments(head: &str) -> Option<()> {
         return None;
     }
 
-    // Live Wikidot accepts and ignores unknown ChildPages attributes. Running
-    // the ordinary parser here still rejects malformed heads so we fail closed
-    // instead of widening unverified syntax.
     let _ = wikidot_module_arguments(head)?;
     Some(())
 }

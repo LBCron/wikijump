@@ -36,9 +36,6 @@ test("the served CSP allowlists the audited classified-decoration font origin", 
     AUDITED_FONT_ORIGIN
   )
 
-  // The audited origin serves CSS and font bytes only. It must never appear
-  // in a directive that would make it an executable or framing dependency,
-  // and no directive may fall back to a scheme-wide external source.
   for (const directive of ["script-src", "connect-src", "frame-src", "worker-src"]) {
     expect(
       cspDirectiveSources(policy, directive),

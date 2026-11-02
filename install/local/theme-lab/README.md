@@ -510,3 +510,30 @@ Current browser runs use `ports/current-acceptance/run-contract.json`, including
 the frozen production SCP-JP Sigma-9 baseline and hash-bound header/navigation
 markup. The runtime asset previously labelled Sigma-9 contains English Sigma-10
 CSS; its historical measurements remain archived under their original identity.
+
+## Which Theme Lab checks the pre-merge gate runs
+
+`scripts/preflight.sh --final` splits the Theme Lab evidence checks in two.
+
+- **Every run.** The Theme Lab tests, authority evidence restore, adaptation
+  authority, Python tests, maintainable sources, deterministic packages,
+  Sigma-10 source evidence, post-closure changes, and the runtime drift
+  report. These verify the live themes and guard the frozen instrument.
+- **Only when Theme Lab changed.** Sigma-10 historical evidence integrity, the
+  current campaign evidence restore, and campaign record integrity. They verify
+  the finished campaign against the Theme Lab tree and the evidence store, so
+  their verdict can only change when a tracked path under
+  `install/local/theme-lab/` (or `scripts/preflight.sh`) changes. A syscall
+  trace of both checks shows no other repository input, and changing a
+  framerail source file leaves the integrity output byte-identical. When
+  skipped, the validation log says so and the checks are absent from the
+  receipt.
+
+Set `PREFLIGHT_THEME_LAB_ARCHIVE=always` to run the archival checks regardless.
+`install/standing/promote.py` does, and so should any scheduled run that also
+needs to notice evidence-store corruption, which no pull request can cause.
+
+The authority evidence is verified once per run, by the adaptation authority
+check. The deterministic-packages and Sigma-10 historical checks skip
+re-verifying it when `THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED=1`, which preflight
+sets only after the restore and that check both passed.

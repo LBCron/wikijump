@@ -1,9 +1,3 @@
-// Deviation-log and merge-readiness reporting for the local rendering lab.
-//
-// The iteration policy requires a deviation log during implementation: every
-// intentional divergence from spec/plan is recorded with a reason and review
-// state. A branch is merge-ready only when its validators pass and no
-// deviation is unreviewed.
 
 export const DEVIATION_LOG_SCHEMA = 'wikijump_local_lab.deviation_log.v1';
 export const MERGE_READINESS_SCHEMA = 'wikijump_local_lab.merge_readiness.v1';
@@ -33,14 +27,6 @@ export function parseDeviationLog(text) {
   return { entries, errors };
 }
 
-/**
- * Compute merge readiness from validator verdict files and the deviation log.
- *
- * @param {object} input
- * @param {object[]} input.validators  [{name, exitCode, summary}] from prior runs
- * @param {object[]} input.deviations  parsed deviation entries
- * @param {object[]} [input.logErrors] deviation-log parse errors
- */
 export function buildMergeReadiness({ runId, branch, validators, deviations, logErrors = [], frozenCandidateCommit = null, prHead = null, candidateReviewFreeze = null }) {
   const candidateRunId = candidateReviewFreeze?.run_id ?? null;
   const blockers = [];

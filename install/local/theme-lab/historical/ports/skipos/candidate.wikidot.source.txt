@@ -1,0 +1,77 @@
+[[iftags +テーマ]]
+SkipOSは、情報技術部門が主導する財団全体の移行段階の一環として、時代遅れのDotSystemを置き換えるためにEstrellaYoshteが開発した新しいオペレーティングシステムです。
+既存の財団支給デバイスへインストールするには、端末に以下のコマンドを入力してください。
+@@[[include :scp-jp:theme:bedrock]]@@
+@@[[include :scp-jp:theme:skipos]]@@
+ローカル時刻や壁紙を変更するには、以下のコマンドを入力してください。
+SkipOSは[[[theme:bedrock|Bedrock]]]カーネルをベースにしています。
++ 例
+[[include :scp-jp:component:image-block name=https://scp-wiki.wdfiles.com/local--files/theme%3Askipos/skipos.png|caption=画像。|width=300px]]
+見出しは、行頭に1個から6個のプラス記号「+」を置くと作成できます。
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 第一見出し
+++ 第二見出し
++++ 第三見出し
+++++ 第四見出し
++++++ 第五見出し
+++++++ 第六見出し
+[[tab タブレーター]]
+これはタブ表示です。
+[[tab タブ化]]
+見てください。ここにもテキストがあります。
+なんと古風な。
+[[tab 長いタブ]]
+これは長いタブです。大量のテキストが入っています。[[footnote]] これは脚注です。 [[/footnote]]
+これは長いタブです。大量のテキストが入っています。
+これは長いタブです。大量のテキストが入っています。
+これは長いタブです。大量のテキストが入っています。
+これは長いタブです。大量のテキストが入っています。
+これは長いタブです。大量のテキストが入っています。
+これは長いタブです。大量のテキストが入っています。
+これは長いタブです。大量のテキストが入っています。
+[[tab 空のタブ]]
+[[tab 空のタブ]]
+[[tab スーパー・メガ・タブ]]
+こんにちは
+[[tab 超特大・超長尺メガタブII アルティメット: 清算]]
+こんにちは2
+> これは引用ブロックです。各行の先頭に「> 」を置くと作成できます。
+> 追加テキスト
+> これは水平線です
+>> 入れ子の引用ブロック
+||~ これは ||~ 表です ||
+||これを作る方法は || もう分かっているはずです ||
+||||すでに ||
+||分からなければ||ガイドを調べてください ||
++++* ヘッダーフォントはRed Hat Displayです。
+本文フォントはInterです。
+[[span style="font-family: var(--UI-font)"]]UIと等幅フォントはFira Codeです。[[/span]]
+++ ソースコード
+[[collapsible show="表示" hide="折り畳む"]]
+    --header-font-primary: "Red Hat Display", "Noto Sans JP";
+    --UI-font-primary: "Fira Code", "Noto Sans Mono CJK JP";
+    --mono-font-primary: "Fira Code", "Noto Sans Mono CJK JP";
+    /*----SkipOS固有変数----*/
+/*----レイアウト----*/
+/* iOSでfixed background-attachmentが壊れる問題への回避策 */
+    height: 100%; /* フォールバック */
+    height: 100lvh; /* 動的ビューポート向け修正 */
+/* 入れ子のblurを許可するため、backdrop filterをここへ逃がす */
+/*----サイドバー----*/
+/*----本文----*/
+/*----画像ブロック----*/
+/*----評価モジュール----*/
+/*----引用ブロック----*/
+/*----表----*/
+/*----タブ----*/
+/*----脚注----*/
+/*----カスタム構文----*/
+    content: "端末";
+@import url('https://scp-jp.wdfiles.com/local--code/theme%3Askipos/1');
+[[include :scp-jp:component:interwiki-style
+| theme=https://scp-jp.wdfiles.com/local--code/theme%3Askipos/1
+
+[[module CSS]]
+/* SCP-JP Wikidot skipos action-area pane: give the opened action-area pane the theme's own dark glass ground at every width so pane content stays readable over the page. */
+#action-area{background-color:rgb(25 25 39 / .686);backdrop-filter:blur(.75rem) saturate(1.05)}
+[[/module]]

@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Resolution of the current page as a ListPages query row.
-
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::page_query::{
     DataFormSelector, FoundPageFields, FoundPageRow, FoundPages, PageQueryResultMetadata,
@@ -41,9 +39,6 @@ pub(in crate::services::render) fn count_pages_unbounded_total(
 ) -> Option<usize> {
     match raw_scan_completion {
         CountPagesRawScanCompletion::Complete => Some(scanned_total),
-        // A random-order scan is deliberately bounded to one render window.
-        // Returning its permission-filtered sample count would reveal the
-        // hidden-page ratio in that window, so retain the original module.
         CountPagesRawScanCompletion::RandomSampleCapped
         | CountPagesRawScanCompletion::Capped => None,
     }
@@ -70,11 +65,6 @@ pub(in crate::services::render) fn list_pages_row_scan_target(
     offset: u32,
     exclude_current_page: bool,
 ) -> u64 {
-    // The pager is based on the complete selected row count after the module's
-    // overall limit. Scanning only through the requested page loses that count
-    // and can incorrectly suppress the pager or understate its page total.
-    // Keep explicit modules bounded by their own limit and unbounded modules by
-    // the existing render safety ceiling.
     let rows = overall_limit.unwrap_or(u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS));
     rows.saturating_add(u64::from(offset))
         .saturating_add(u64::from(exclude_current_page))

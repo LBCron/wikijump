@@ -1,12 +1,4 @@
 #!/usr/bin/env node
-/**
- * Avatar expiry and delete live drill (offline preparation for #2556).
- *
- * THIS DRILL HAS NOT BEEN RUN. Executing it mutates standing (creates a
- * probe account, uploads and removes an avatar, deletes the account) and
- * needs the user's approval first. The default `--dry-run` prints the
- * ordered plan without performing any mutation.
- */
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import { runCliIfMain } from "../src/cli-entry.mjs";
@@ -137,12 +129,6 @@ async function runRpc(url, stepId, method, params, env) {
   return payload.result;
 }
 
-/**
- * Executor (UNTESTED — it shells docker and fetches standing, so it only
- * runs in an approved live drill, never in CI). Kept next to the plan so
- * the approved run executes exactly the reviewed steps. Every request is
- * deep-resolved from runtime bindings just before it runs.
- */
 export async function executeStep(step, context, env) {
   const request = resolveRequest(step.request, context, env);
   if (request.kind === "wait") {

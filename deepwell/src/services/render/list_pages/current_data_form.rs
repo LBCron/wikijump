@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Current-page data-form values used by ListPages module-head selectors.
-
 use super::data_forms::{
     ListPagesDataFormDefinition, load_list_pages_data_form_definitions,
 };

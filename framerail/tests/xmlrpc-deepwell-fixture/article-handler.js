@@ -10,7 +10,6 @@ const LISTPAGES_NAVIGATION_EXTRA = /^p\/[1-9][0-9]*$/u
 const SEARCH_SITE_EXTRA = /^q\/.+$/u
 const NEW_PAGE_EDIT_EXTRA = /^edit(?:\/true)?(?:\/.*)?$/u
 const DATA_FORM_CREATE_SLUG = "data-form-create-flow:example"
-// Missing-page probes for page-create-permission.spec.ts (no edit route).
 const MISSING_PAGE_PROBE_SLUGS = new Set([
   "site-404-template-probe",
   "create-permission-denied-probe",
@@ -543,9 +542,6 @@ const optionValue = (extra, name) => {
   return null
 }
 
-// Mirrors Deepwell's PageOptions no-render argument: a route whose extra is
-// exactly `norender/<value>` looks up the page as if it had no extra. The
-// value is truthy unless it is `0` or `false`.
 const NORENDER_ONLY_EXTRA = /^norender\/([^/]+)$/u
 const noRenderOptionFromExtra = (extra) => {
   const match = NORENDER_ONLY_EXTRA.exec(extra)
@@ -596,8 +592,6 @@ const pageForArticleRoute = (requestRoute) => {
   ) {
     return page
   }
-  // The `/edit` route loads the same page through article_view with the edit
-  // extra, so ordinary fixture pages model the editor's page data too.
   if (route.extra === "edit") return page
   return route.extra === "" ? resolvedPage : null
 }
@@ -670,7 +664,6 @@ const missingPageArticleViewResult = (route, sessionToken) => ({
       },
       redirect_page: null,
       wikitext: "",
-      // A site `_404` template replaces the default missing-page state.
       missing_template: route.slug === "site-404-template-probe",
       compiled_body_html:
         route.slug === "site-404-template-probe"
@@ -861,9 +854,6 @@ export const handleArticleRpc = ({ rpcRequest, request }) => {
           }
         }
       } else if (articleRoute.extra === "edit") {
-        // Catch-all for ordinary pages opened through the `/edit` route; the
-        // DATA_FORM_* arms above must stay first because they also attach
-        // their data-form definitions.
         result.page.data.options.edit = true
       }
     } else {

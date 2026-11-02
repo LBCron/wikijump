@@ -349,9 +349,6 @@ def main() -> None:
                 "holder": observe_holder(http_client, holder, None, marker, created_marker, edited_marker, recreated_marker, args.max_refresh_seconds, "created"),
             }
 
-            # The wrapper starts actor B before forwarding the edit request. The
-            # saved windows prove overlap and preserve whichever committed state
-            # that concurrent read actually received.
             original_amc_request = site.amc_request
 
             concurrent_reads: list[dict[str, Any]] = []
@@ -378,7 +375,7 @@ def main() -> None:
                     }
                     with concurrent_reads_lock:
                         concurrent_reads.append(observation)
-                except Exception as error:  # noqa: BLE001
+                except Exception as error:
                     with concurrent_reads_lock:
                         concurrent_reads.append({
                             "reader_id": reader_id,
@@ -422,7 +419,7 @@ def main() -> None:
                         record_mutation(str(body.get("event")), body, response)
                 return responses
 
-            site.amc_request = recorded_amc_request  # type: ignore[method-assign]
+            site.amc_request = recorded_amc_request
             post = site.get_thread(THREAD_ID).posts.find(created_post_ids[0])
             if post is None:
                 raise RuntimeError("created post disappeared before edit")
@@ -446,15 +443,13 @@ def main() -> None:
                 "holder": observe_holder(http_client, holder, None, marker, created_marker, edited_marker, recreated_marker, args.max_refresh_seconds, "absent"),
             }
             record["status"] = "captured_non_closing"
-    except Exception as error:  # noqa: BLE001
+    except Exception as error:
         record["status"] = "aborted"
         record["error"] = {"type": type(error).__name__, "message": str(error)[:1000]}
     finally:
         cleanup = record["cleanup"]
         try:
             if site is not None and actor_a is not None:
-                # Delete every currently visible marker post, including a post
-                # created before a failure reached the normal delete stage.
                 for post in list(site.get_thread(THREAD_ID).posts):
                     if marker in str(post.title):
                         request = {"action": "ForumAction", "event": "deletePost", "postId": int(post.id), "moduleName": ""}
@@ -474,14 +469,14 @@ def main() -> None:
                     "body_sha256": final_public_thread["body_sha256"],
                 }
                 cleanup["public_thread_marker_absent"] = not final_public_thread["marker_present"]
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:
             cleanup["thread_cleanup_error"] = {"type": type(error).__name__, "message": str(error)[:500]}
         try:
             if holder_page is not None:
                 holder_page.destroy()
                 cleanup["holder_delete_attempted"] = True
             cleanup["holder_absent"] = site is not None and site.page.get(holder, raise_when_not_found=False) is None
-        except Exception as error:  # noqa: BLE001
+        except Exception as error:
             cleanup["holder_cleanup_error"] = {"type": type(error).__name__, "message": str(error)[:500]}
         cleanup["live_state_debt"] = not (
             cleanup.get("marker_posts_remaining") == []

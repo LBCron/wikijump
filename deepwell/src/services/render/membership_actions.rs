@@ -42,12 +42,6 @@ impl MembershipActionKind {
     }
 }
 
-/// Typed source-to-browser registry for runtime-owned membership controls.
-///
-/// The source scan reuses the exact Join-module recognizer used by the
-/// renderer. The registry emits actions only when the rendered exact controls
-/// have the same cardinality, so includes, authored lookalikes, or stale
-/// compiled output disable the complete surface instead of shifting ordinals.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct MembershipActionRegistry {
     join_count: usize,
@@ -267,12 +261,6 @@ mod tests {
 
     #[test]
     fn join_render_argument_matrix_counts_each_live_variant_as_one_action() {
-        // Fixture-backed residual for the A1029_JOIN_RENDER_ARGUMENT_MATRIX
-        // gap: every V7 matrix variant renders a Join control live, so the
-        // registry must count exactly one action each. The inline/block line
-        // boundary row is excluded here because FTML owns module line syntax;
-        // Deepwell only binds the registry matches the renderer expands.
-        // No captured page text or user identity is used below.
         for source in [
             "[[module Join]]\n",
             "[[module JOIN]]\n",

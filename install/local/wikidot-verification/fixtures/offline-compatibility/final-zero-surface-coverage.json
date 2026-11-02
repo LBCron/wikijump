@@ -1780,7 +1780,7 @@
         "products"
       ],
       "anchors": [
-        "deepwell/tests/page.rs#mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views"
+        "deepwell/tests/page.rs#mailform_renders_form_in_preview_and_saved_views"
       ],
       "migrated_from_campaign_only": false
     },
@@ -10230,7 +10230,7 @@
       ],
       "anchors": [
         "deepwell/src/services/view/redirect.rs::noredirect_notice_escapes_destination_text",
-        "deepwell/tests/page.rs::mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views",
+        "deepwell/tests/page.rs::mailform_renders_form_in_preview_and_saved_views",
         "framerail/tests/new-page-helper.spec.ts",
         "install/local/wikidot-verification/tests/open43-a1037-forms-candidate-case-set.test.mjs",
         "install/local/wikidot-verification/tests/open43-mailform-candidate-case-set.test.mjs"
@@ -10253,7 +10253,7 @@
       ],
       "anchors": [
         "deepwell/src/services/view/redirect.rs::noredirect_notice_escapes_destination_text",
-        "deepwell/tests/page.rs::mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views",
+        "deepwell/tests/page.rs::mailform_renders_form_in_preview_and_saved_views",
         "framerail/tests/new-page-helper.spec.ts",
         "install/local/wikidot-verification/tests/open43-a1037-forms-candidate-case-set.test.mjs",
         "install/local/wikidot-verification/tests/open43-mailform-candidate-case-set.test.mjs"
@@ -10276,7 +10276,7 @@
       ],
       "anchors": [
         "deepwell/src/services/view/redirect.rs::noredirect_notice_escapes_destination_text",
-        "deepwell/tests/page.rs::mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views",
+        "deepwell/tests/page.rs::mailform_renders_form_in_preview_and_saved_views",
         "framerail/tests/new-page-helper.spec.ts",
         "install/local/wikidot-verification/tests/open43-a1037-forms-candidate-case-set.test.mjs",
         "install/local/wikidot-verification/tests/open43-mailform-candidate-case-set.test.mjs"
@@ -10297,7 +10297,7 @@
         "products"
       ],
       "anchors": [
-        "deepwell/tests/page.rs#mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views"
+        "deepwell/tests/page.rs#mailform_renders_form_in_preview_and_saved_views"
       ],
       "migrated_from_campaign_only": false
     },
@@ -10317,7 +10317,7 @@
       ],
       "anchors": [
         "deepwell/src/services/view/redirect.rs::noredirect_notice_escapes_destination_text",
-        "deepwell/tests/page.rs::mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views",
+        "deepwell/tests/page.rs::mailform_renders_form_in_preview_and_saved_views",
         "framerail/tests/new-page-helper.spec.ts",
         "install/local/wikidot-verification/tests/open43-a1037-forms-candidate-case-set.test.mjs",
         "install/local/wikidot-verification/tests/open43-mailform-candidate-case-set.test.mjs"
@@ -10359,7 +10359,7 @@
       ],
       "anchors": [
         "deepwell/src/services/view/redirect.rs::noredirect_notice_escapes_destination_text",
-        "deepwell/tests/page.rs::mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views",
+        "deepwell/tests/page.rs::mailform_renders_form_in_preview_and_saved_views",
         "framerail/tests/new-page-helper.spec.ts",
         "install/local/wikidot-verification/tests/open43-a1037-forms-candidate-case-set.test.mjs",
         "install/local/wikidot-verification/tests/open43-mailform-candidate-case-set.test.mjs"
@@ -10419,7 +10419,7 @@
       ],
       "anchors": [
         "deepwell/src/services/view/redirect.rs::noredirect_notice_escapes_destination_text",
-        "deepwell/tests/page.rs::mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views",
+        "deepwell/tests/page.rs::mailform_renders_form_in_preview_and_saved_views",
         "framerail/tests/new-page-helper.spec.ts",
         "install/local/wikidot-verification/tests/open43-a1037-forms-candidate-case-set.test.mjs",
         "install/local/wikidot-verification/tests/open43-mailform-candidate-case-set.test.mjs"

@@ -54,6 +54,17 @@ import {
   getCorpusImportPage,
   rerenderCorpusImportPage,
 } from '../src/corpus-import-page-rpc.mjs';
+import {
+  assertNotReservedFullname,
+  classifyForeignSnapshotHolders,
+  foreignSnapshotHoldersSql,
+  holdingSiteSql,
+  holdingForImport,
+  isForeignSource,
+  isSameSnapshotProvenance,
+  parseHoldingSite,
+  storageSlug,
+} from '../src/corpus-import-storage.mjs';
 
 const DEFAULT_API_URL = 'http://localhost:2747/jsonrpc';
 const DEFAULT_DB_CONTAINER = 'local-database-1';
@@ -421,9 +432,14 @@ ON CONFLICT (hash) DO NOTHING;
   await flush();
 }
 
-function buildPrecreateDbShellCategoriesSql(args, selectedRows) {
-  const categories = [...new Set(selectedRows.map((row) => categoryName(row.fullname)))].sort();
-  if (args.createMode !== 'db' || categories.length === 0) return null;
+export function dbShellCategorySlug(holding, row) {
+  return categoryName(storageSlug(holding, row));
+}
+
+export function buildPrecreateDbShellCategoriesSql(args, selectedRows) {
+  if (args.createMode !== 'db') return null;
+  const categories = [...new Set(selectedRows.map((row) => dbShellCategorySlug(args.holding, row)))].sort();
+  if (categories.length === 0) return null;
   const values = categories.map((category) => `(${sqlInt(args.siteId)}, ${sqlQuote(category)})`).join(',\n  ');
   return `
 WITH requested(site_id, slug) AS (
@@ -451,7 +467,7 @@ async function precreateDbShellCategories(args, sqlExecutor, selectedRows) {
   const sql = buildPrecreateDbShellCategoriesSql(args, selectedRows);
   if (sql === null) return;
   const ids = parsePrecreatedCategoryIds(await sqlExecutor.runSql(sql, { capture: true }));
-  const expected = new Set(selectedRows.map((row) => categoryName(row.fullname)));
+  const expected = new Set(selectedRows.map((row) => dbShellCategorySlug(args.holding, row)));
   if (ids.size !== expected.size || [...expected].some((slug) => !ids.has(slug))) {
     throw new Error('category precreate output did not contain every requested category');
   }
@@ -570,13 +586,13 @@ function materializeRowAttachments(args, row, pageId) {
 const createPage = (args, row) => createCorpusImportPage(args, rpc, row, sourceText(row));
 const categoryName = corpusImportCategoryName;
 
-async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision = false } = {}) {
+async function shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision = false, slug = row.fullname } = {}) {
   const sourceTextPrecreated = precreatedSourceTextHashes.has(sourceEntityCacheKey(row));
   const wikitext = sourceTextPrecreated ? '' : sourceText(row);
   const wikitextHash = textHashHex(args, wikitext, sourceEntityCacheKey(row));
   const bodyHash = shellBodyHashHex(args);
   const title = fallbackTitle(row);
-  const category = categoryName(row.fullname);
+  const category = categoryName(slug);
   const precreatedCategoryId = precreatedCategoryIds.get(category);
   const categorySql = precreatedCategoryId === undefined
     ? `category AS (
@@ -620,10 +636,11 @@ CREATE TEMP TABLE corpus_shell_import_result (
 WITH ${wikitextSql}${bodyTextSql}, ${categorySql}, target_page AS (
   SELECT
     p.page_id,
-    p.page_category_id,
+    category.category_id AS page_category_id,
     COALESCE(p.latest_revision_id, latest_revision.revision_id) AS latest_revision_id,
     true AS existed
   FROM page p
+  CROSS JOIN category
   LEFT JOIN LATERAL (
     SELECT revision_id
     FROM page_revision pr
@@ -632,7 +649,7 @@ WITH ${wikitextSql}${bodyTextSql}, ${categorySql}, target_page AS (
     LIMIT 1
   ) latest_revision ON true
   WHERE p.site_id = ${sqlInt(args.siteId)}
-    AND p.slug = ${sqlQuote(row.fullname)}
+    AND p.slug = ${sqlQuote(slug)}
     AND p.deleted_at IS NULL
     AND ${canUseExisting ? 'TRUE' : 'FALSE'}
   ORDER BY p.page_id
@@ -640,7 +657,7 @@ WITH ${wikitextSql}${bodyTextSql}, ${categorySql}, target_page AS (
   FOR UPDATE OF p
 ), inserted_page AS (
   INSERT INTO page (created_at, updated_at, from_wikidot, site_id, page_category_id, slug)
-  SELECT ${sqlTimestamp(row.created_at)}, ${sqlTimestamp(row.updated_at)}, true, ${sqlInt(args.siteId)}, category_id, ${sqlQuote(row.fullname)}
+  SELECT ${sqlTimestamp(row.created_at)}, ${sqlTimestamp(row.updated_at)}, true, ${sqlInt(args.siteId)}, category_id, ${sqlQuote(slug)}
   FROM category
   WHERE NOT EXISTS (SELECT 1 FROM target_page)
   RETURNING page_id, page_category_id, latest_revision_id, false AS existed
@@ -707,7 +724,7 @@ WITH new_revision AS (
     ARRAY[]::text[],
     ${sqlQuote(title)},
     NULL,
-    ${sqlQuote(row.fullname)},
+    ${sqlQuote(slug)},
     ${sqlTextArray(row.tags)}
   FROM corpus_shell_import_result
   WHERE latest_revision_id IS NULL
@@ -757,6 +774,8 @@ const rerenderPage = (args, pageId, categoryId) => rerenderCorpusImportPage(args
 export function upsertSnapshotSql(args, row, pageId, revisionId, importRunId) {
   const metaText = metaJsonText(row);
   const title = fallbackTitle(row);
+  const rowIsOwn = !isForeignSource(args.holding, row.source_site);
+  const ownSources = [args.holding.siteSlug, ...args.holding.runBranches].map(sqlQuote).join(', ');
   return `
 UPDATE page
 SET
@@ -839,7 +858,20 @@ ON CONFLICT (page_id) DO UPDATE SET
   meta_sha256 = EXCLUDED.meta_sha256,
   meta_json = EXCLUDED.meta_json,
   last_import_run_id = EXCLUDED.last_import_run_id,
-  imported_at = NOW();
+  imported_at = NOW()
+WHERE wikidot_page_snapshot.source_site = EXCLUDED.source_site
+   OR (${rowIsOwn ? 'TRUE' : 'FALSE'} AND wikidot_page_snapshot.source_site IN (${ownSources}));
+
+DO $provenance_guard$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM wikidot_page_snapshot
+    WHERE page_id = ${sqlInt(pageId)} AND source_site = ${sqlQuote(row.source_site)}
+  ) THEN
+    RAISE EXCEPTION 'page % already holds a snapshot of another source; refusing to give it the provenance of %', ${sqlInt(pageId)}, ${sqlQuote(`${row.source_site}:${row.fullname}`)};
+  END IF;
+END
+$provenance_guard$;
 `;
 }
 
@@ -899,6 +931,19 @@ FROM active_page p;
     throw new Error(`invalid matching snapshot page status output: ${output}`);
   }
   return { page_id: pageId, page_category_id: categoryId, revision_id: revisionId, render_complete: renderComplete };
+}
+
+async function existingPageSnapshotProvenance(sqlExecutor, pageId) {
+  const sql = `
+SELECT source_site || '|' || source_branch
+FROM wikidot_page_snapshot
+WHERE page_id = ${sqlInt(pageId)}
+LIMIT 1;
+`;
+  const output = await sqlExecutor.runSql(sql, { capture: true });
+  if (!output) return null;
+  const [sourceSite, sourceBranch] = output.split('|');
+  return { source_site: sourceSite, source_branch: sourceBranch };
 }
 
 async function existingActivePage(args, sqlExecutor, slug) {
@@ -1354,10 +1399,31 @@ async function importRow(args, sqlExecutor, row, importRunId) {
   let action;
 
   if (args.createMode === 'db') {
-    const existing = args.assumeEmptyDbImport ? null : await existingActivePage(args, sqlExecutor, row.fullname);
+    const foreign = isForeignSource(args.holding, row.source_site);
+    let existing = null;
+    if (foreign) {
+      const holders = classifyForeignSnapshotHolders(
+        args.siteId,
+        row,
+        await sqlExecutor.runSql(foreignSnapshotHoldersSql(row), { capture: true }),
+      );
+      if (holders.kind === 'conflict') {
+        if (!args.dryRun) await sqlExecutor.runSql(recordItemSql(row, null, importRunId, 'failed', { collision: holders.reason, holders: holders.holders }));
+        return { slug: row.fullname, action: 'collision_existing_snapshot_mismatch', collision: holders.reason, holders: holders.holders };
+      }
+      existing = holders.kind === 'held' ? holders.page : null;
+    } else if (!args.assumeEmptyDbImport) {
+      existing = await existingActivePage(args, sqlExecutor, row.fullname);
+    }
+    const slug = existing?.slug ?? storageSlug(args.holding, row);
     let replaceExistingRevision = false;
     if (existing !== null) {
       const existingSnapshotStatus = await pageSnapshotStatus(args, sqlExecutor, row, existing.page_id);
+      const existingProvenance = await existingPageSnapshotProvenance(sqlExecutor, existing.page_id);
+      if (!isSameSnapshotProvenance(existingProvenance, row)) {
+        if (!args.dryRun) await sqlExecutor.runSql(recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_other_provenance', existing_provenance: existingProvenance, row_provenance: { source_site: row.source_site, source_branch: row.source_branch } }));
+        return { slug: row.fullname, action: 'collision_existing_page_other_provenance', page_id: existing.page_id };
+      }
       const existingSourceStatus = await existingPageSourceStatus(args, sqlExecutor, row, existing.revision_id);
       const contentMatches = existingSourceStatus === 'matching';
       const needsReplacement = existingSnapshotStatus !== 'matching' || !contentMatches;
@@ -1378,8 +1444,8 @@ async function importRow(args, sqlExecutor, row, importRunId) {
         return { slug: row.fullname, action: replaceExistingRevision ? 'would_replace_existing' : 'would_adopt', page_id: existing.page_id, snapshot_status: existingSnapshotStatus, source_status: existingSourceStatus };
       }
     }
-    if (args.dryRun) return { slug: row.fullname, action: 'would_db_create' };
-    const created = await shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision });
+    if (args.dryRun) return { slug: row.fullname, action: 'would_db_create', storage_slug: slug };
+    const created = await shellCreatePage(args, sqlExecutor, row, { replaceExistingRevision, slug });
     pageId = created.page_id;
     revisionId = created.revision_id;
     categoryId = created.page_category_id;
@@ -1452,10 +1518,6 @@ async function importRow(args, sqlExecutor, row, importRunId) {
 }
 
 async function upsertParentLinks(args, sqlExecutor, selectedRows) {
-  // Attachment-only imports do not change page snapshots or page topology. The
-  // selected rows can include existing pages whose include graph is outside
-  // this run, so parent-link work must not rerender those pages after the file
-  // rows have already been committed.
   if (args.attachmentsOnlyExisting) {
     return {
       parent_link_requested: 0,
@@ -1476,6 +1538,40 @@ async function upsertParentLinks(args, sqlExecutor, selectedRows) {
     };
   }
   return parseParentLinkSummary(await sqlExecutor.runSql(sql, { capture: true }));
+}
+
+export function assertForeignStoragePlan(args, selectedRows) {
+  for (const row of selectedRows) assertNotReservedFullname(row);
+  for (const row of selectedRows) {
+    if (row.source_branch === row.source_site && isForeignSource(args.holding, row.source_site)) {
+      throw new Error(`${row.source_site}:${row.fullname}: manifest source_branch equals its source_site; recording this run would add the site name itself to the holding site's import-run branches, reclassifying that site's snapshots as the holding site's own for both this tool and Deepwell. Name the corpus branch instead (e.g. 'ko' for scpko), or pass --source-branch ${row.source_branch} if this provenance is deliberately the holding site's own corpus.`);
+    }
+  }
+  const foreignRows = selectedRows.filter((row) => isForeignSource(args.holding, row.source_site));
+  if (foreignRows.length === 0) return;
+  const [first] = foreignRows;
+  const identity = `${first.source_site}:${first.fullname}`;
+  if (args.createMode !== 'db') {
+    throw new Error(`${identity}: foreign include-source rows require --create-mode db, because Deepwell's page RPCs hide foreign snapshots (#2690)`);
+  }
+  if (args.rerenderAfterDbCreate) {
+    throw new Error(`${identity}: foreign include-source rows are never served, so --rerender-after-db-create does not apply; rerender the pages that include them`);
+  }
+  if (args.attachmentsOnlyExisting) {
+    throw new Error(`${identity}: --attachments-only-existing does not support foreign include-source rows`);
+  }
+  const withFiles = foreignRows.find((row) => Array.isArray(row.attachments) && row.attachments.length > 0);
+  if (withFiles !== undefined) {
+    throw new Error(`${withFiles.source_site}:${withFiles.fullname}: foreign include-source rows with attachments are not supported, because file URLs address pages by their natural slug`);
+  }
+  if (canBatchCreateDbShellPages(args)) {
+    throw new Error(`${identity}: batched DB shell import does not support foreign include-source rows`);
+  }
+}
+
+async function loadHoldingSite(args, sqlExecutor) {
+  const persisted = parseHoldingSite(await sqlExecutor.runSql(holdingSiteSql(args.siteId), { capture: true }));
+  return holdingForImport(persisted, args.sourceBranch);
 }
 
 async function rerenderParentLinkPages(args, sqlExecutor, selectedRows) {
@@ -1526,6 +1622,9 @@ export async function main(argv) {
       return 0;
     }
 
+    args.holding = await timePhase(phaseTimingsMs, 'load_holding_site', () => loadHoldingSite(args, sqlExecutor));
+    assertForeignStoragePlan(args, selectedRows);
+    const ownRows = selectedRows.filter((row) => !isForeignSource(args.holding, row.source_site));
     timePhaseSync(phaseTimingsMs, 'precompute_db_text_hashes', () => precomputeDbTextHashes(args, selectedRows));
     await timePhase(phaseTimingsMs, 'verify_empty_db_import_target', () => assertEmptyDbImportTarget(args, sqlExecutor));
     const importRunId = await timePhase(phaseTimingsMs, 'create_import_run', () => createImportRun(args, sqlExecutor, manifestText, allRows, selectedRows, completeInventory));
@@ -1605,8 +1704,8 @@ export async function main(argv) {
           ));
         }
       }
-      Object.assign(summary, await timePhase(phaseTimingsMs, 'upsert_parent_links', () => upsertParentLinks(args, sqlExecutor, selectedRows)));
-      Object.assign(summary, await timePhase(phaseTimingsMs, 'rerender_parent_link_pages', () => rerenderParentLinkPages(args, sqlExecutor, selectedRows)));
+      Object.assign(summary, await timePhase(phaseTimingsMs, 'upsert_parent_links', () => upsertParentLinks(args, sqlExecutor, ownRows)));
+      Object.assign(summary, await timePhase(phaseTimingsMs, 'rerender_parent_link_pages', () => rerenderParentLinkPages(args, sqlExecutor, ownRows)));
       finalState = summary.failed > 0 ? 'failed' : 'done';
     } finally {
       recordPhaseTiming(phaseTimingsMs, 'total_before_finish_run', totalStartedAt);

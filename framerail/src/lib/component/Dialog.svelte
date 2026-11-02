@@ -21,64 +21,35 @@
     children,
     ...rest
   }: {
-    /**
-     * The Svelte component to slot. This is provided as an option in case
-     * you are manually constructing this component, and can't use slots.
-     */
     component?: Component | null
 
-    /**
-     * A prop object passed to the {@link component}, if one has been
-     * provided.
-     */
     detail?: Record<string, unknown>
 
-    /** If true, the dialog is displayed. */
     open?: boolean
 
-    /**
-     * If true, slotted content will only be inserted into the DOM when the
-     * dialog is open. True by default.
-     */
     lazy?: boolean
 
     children?: Snippet
     [key: string]: unknown
   } = $props()
 
-  /**
-   * Function passed to a provided {@link component} that closes the dialog
-   * when called.
-   */
   const closeDialog = () => void (open = false)
 
   let state = $state(open)
   let previousFocus: HTMLElement | null = null
 
-  /**
-   * Event handler for preventing the main page from scrolling if the user
-   * tries to scroll inside of the dialog.
-   */
   function preventPageScrolling(evt: WheelEvent) {
     if (!dialog || !evt.target) evt.preventDefault()
     const target = evt.target as HTMLElement
-    // check if target is inside of the dialog
     if (target === dialog || dialog.contains(target)) {
-      // figure out if our scrolling element is inside of the dialog
-      // if it isn't, prevent the scroll
       const scroll = scrollElement(evt.target as HTMLElement)
       if (target !== scroll && !dialog.contains(scroll)) evt.preventDefault()
     }
-    // target outside of dialog, we can prevent scrolling for sure
     else {
       evt.preventDefault()
     }
   }
 
-  /**
-   * Cleans up after the dialog has been closed, e.g. by restoring the
-   * previous focus.
-   */
   function cleanup() {
     document.removeEventListener("wheel", preventPageScrolling)
     if (previousFocus) {
@@ -87,7 +58,6 @@
     }
   }
 
-  /** Show the modal and save the previous focus. */
   function show() {
     previousFocus = document.activeElement as HTMLElement
     dialog.showModal()
@@ -95,7 +65,6 @@
     dispatch("open")
   }
 
-  /** Hide the modal and restore the previous focus. */
   function close() {
     dialog.close()
     cleanup()
@@ -111,7 +80,6 @@
   })
 
   onMount(() => {
-    // dialogPolyfill.registerDialog(dialog)
     if (open) show()
     dialog.addEventListener("cancel", () => cleanup())
     return cleanup

@@ -1,0 +1,129 @@
+{
+  "slug": "theme:bedrock",
+  "en_source_sha256": "7f62a64c055d179d4b51746812fc8f288fd479661219bc3e607036c69dc86da5",
+  "en_updated_at": "2024-01-08T13:14:12+00:00",
+  "en_entity_uuid": "65b58d51-e8e2-416f-9628-123d90baaea6",
+  "jp_previous_status": "confirmed-absent-by-targeted-xmlrpc",
+  "jp_previous_source_sha256": null,
+  "jp_previous_updated_at": null,
+  "jp_previous_entity_uuid": null,
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:bedrock",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": null,
+  "source_identity": {
+    "slug": "theme:bedrock",
+    "title": "Bedrock Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "7f62a64c055d179d4b51746812fc8f288fd479661219bc3e607036c69dc86da5",
+      "updated_at": "2024-01-08T13:14:12+00:00",
+      "entity_uuid": "65b58d51-e8e2-416f-9628-123d90baaea6",
+      "tags": [
+        "_cc",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 21,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:bedrock"
+      }
+    },
+    "jp": {
+      "status": "confirmed-absent-by-targeted-xmlrpc",
+      "source_path": null,
+      "sha256": null,
+      "updated_at": null,
+      "entity_uuid": null,
+      "tags": [],
+      "absence_run": "theme-jp-absence-check-20260923"
+    },
+    "existing_jp_audit": "new-jp-candidate-verified",
+    "technical_spec_version": "1.4",
+    "final_verdict": "warn"
+  },
+  "dependencies": {
+    "slug": "theme:bedrock",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:theme-squares -=-",
+      ":scp-wiki:theme:bedrock",
+      ":scp-wiki:component:image-block name=https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg"
+    ],
+    "en_external_dependencies": [
+      "http://www.w3.org/2000/svg",
+      "https://basalt-team.github.io/Basalt/",
+      "https://cdn.scpwiki.com/theme/en/basalt/basalt-bedrock-min.css",
+      "https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg",
+      "https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg|caption=Image",
+      "https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css"
+    ],
+    "jp_includes": [],
+    "jp_external_dependencies": [],
+    "base_family": "basalt"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "human-port-candidate.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "human-made shared translation workspace; no current official JP counterpart",
+  "final_verdict": "warn",
+  "existing_jp_audit": "new-jp-candidate-verified",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/bedrock/assets.json",
+  "asset_dependency_decision_count": 52,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "c077ff195b55327cd0de0e3310c39ed078045a87cc75f8ebe48dabaff594e423",
+    "jp_overrides_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "semantic_css_sha256": "967007365c3788e67f86073b867b15d4d61c365a2de0611bb534f140fcd62509",
+    "canonical_override_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "c077ff195b55327cd0de0e3310c39ed078045a87cc75f8ebe48dabaff594e423",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "c24bad7d056ed84e0e3dfe0762e599ca5a62bb414cc6659597bd89e59348a747",
+      "active_tags": [],
+      "candidate_source_sha256": "c077ff195b55327cd0de0e3310c39ed078045a87cc75f8ebe48dabaff594e423",
+      "candidate_active_tags": [
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 1,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "210621c337510276613df2496a6fcc1ee98843d5175b0cc07404d82c416236ea",
+      "asset_receipt_path": "assets.json",
+      "assets": 49,
+      "imports": 3,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "warn",
+    "port_verdict": "pass",
+    "target_status": "warn"
+  }
+}

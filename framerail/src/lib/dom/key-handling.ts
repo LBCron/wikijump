@@ -15,9 +15,7 @@ export interface InputHandler {
    * @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
    */
   key: string
-  /** If true, fires `evt.preventDefault()` for the keystroke. */
   preventDefault?: boolean
-  /** Callback to fire. */
   do?: () => unknown
 }
 
@@ -43,7 +41,6 @@ export class KeyObserver {
   }
 
   private keyHandler(evt: KeyboardEvent) {
-    // run through each handler and check if the keystroke matches
     this.handlers.forEach((handler) => {
       if (evt.key === handler.key) {
         if (handler.preventDefault) evt.preventDefault()
@@ -56,13 +53,10 @@ export class KeyObserver {
     this.handlers.forEach((handler) => {
       let fire = false
 
-      // we don't want left-click or right-click to repeatedly fire
-      // for other events, so this event is handled differently
       if (evt.type === "mousedown") {
         if (evt.button === 0 && handler.key === "left-click") fire = true
         if (evt.button === 2 && handler.key === "right-click") fire = true
       }
-      // for everything else we can just check if the evt type matches
       else {
         fire = evt.type === handler.key
       }

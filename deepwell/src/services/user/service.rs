@@ -55,9 +55,6 @@ use std::cmp;
 use std::collections::{BTreeMap, BTreeSet};
 use std::net::IpAddr;
 
-/// Notes that this user account does not have a password set.
-/// It is not possible for any password hash to match this value,
-/// so no password can possibly match.
 pub const DISABLED_PASSWORD_HASH: &str = "!";
 
 const VERIFIED_EMAIL_UNIQUE_INDEX: &str = "user_verified_email_active_unique_idx";
@@ -113,13 +110,6 @@ impl UserService {
         Ok(identities)
     }
 
-    /// Public identities for list endpoints that mirror Wikidot's
-    /// deleted-account placeholders (page WhoRated, for one). Every
-    /// requested ID maps to `Some(identity)`, or to `None` when the
-    /// account is deleted in either user table: deleted accounts
-    /// have no public identity, but the list still has to render
-    /// their tombstone row. An ID that was never imported is absent
-    /// from the map, so callers can keep failing closed on it.
     pub async fn get_public_identities_or_tombstones(
         ctx: &ServiceContext<'_>,
         user_ids: &BTreeSet<i64>,
@@ -249,7 +239,6 @@ impl UserService {
                         ));
                     }
                 } else {
-                    // Insert user ID into known_user for foreign key.
                     known_user::ActiveModel {
                         user_id: ActiveValue::Set(user_id),
                     }
@@ -269,7 +258,6 @@ impl UserService {
 
         check_user_name(ctx.config(), &slug, &name)?;
 
-        // Perform filter validation
         if should_check_filter(bypass_filter, user_type, None) {
             let object = ObjectScope::User(user_id);
             let (result1, result2) = join!(
@@ -279,14 +267,9 @@ impl UserService {
             raise_multiple!(result1, result2; make_error);
         }
 
-        // Validate locales for this type
         validate_locales(user_type, &locales).or_raise(make_error)?;
 
         match override_user_id {
-            // If an ID is being specified for a normal creation, adding a new
-            // user here is legal if the Wikidot user behind it (if it exists)
-            // has a matching slug. Import activation uses the Wikidot ID as
-            // the identity and may choose a new Wikijump name.
             Some(user_id) => {
                 let wikidot_user_id = i32::try_from(user_id).map_err(|_| {
                     Error::new(
@@ -306,7 +289,6 @@ impl UserService {
                     .await
                     .or_raise(make_error)?;
 
-                // We only care if it exists, if it's missing it's fine.
                 if let Some(found_user) = result
                     && let Some(found_user_slug) = found_user.slug
                     && found_user_slug != slug
@@ -326,9 +308,6 @@ impl UserService {
                 }
             }
 
-            // If no override_user_id, we are inserting a new user
-            // Fail if there's an existing Wikidot record (they should be
-            // importing from Wikidot instead)
             None => {
                 let result = WikidotUser::find()
                     .filter(
@@ -344,7 +323,6 @@ impl UserService {
                     .await
                     .or_raise(make_error)?;
 
-                // Any existing user is a conflict
                 if let Some(found_user) = result {
                     error!(
                         "Wikidot user with conflicting name or slug already exists, cannot create"
@@ -366,7 +344,6 @@ impl UserService {
             }
         }
 
-        // Check for name conflicts
         let result = WikijumpUser::find()
             .filter(
                 Condition::all()
@@ -396,7 +373,6 @@ impl UserService {
             ));
         }
 
-        // Email must be specified for humans and bots
         if matches!(user_type, UserType::Regular | UserType::Bot) && email.is_empty() {
             error!("Attempting to create user with empty email");
             bail!(Error::new(
@@ -405,15 +381,6 @@ impl UserService {
             ));
         }
 
-        // Check for email conflicts, if a regular user.
-        //
-        // Only email addresses whose ownership has been verified are uniqueness
-        // blockers. MailCheck validation records deliverability metadata, but it
-        // does not prove the registrant controls the address; treating an
-        // unverified account as a blocker would let public registration reserve
-        // somebody else's email address.
-        //
-        // Other kinds of accounts do not need unique emails.
         if user_type == UserType::Regular {
             let result = WikijumpUser::find()
                 .filter(
@@ -433,8 +400,6 @@ impl UserService {
                     "Email conflict detected, found existing user ID {} with slug '{}'",
                     found_user.user_id, found_user.slug,
                 );
-                // *don't* return the colliding user, as emails are non-public information
-                // and should not be shared
                 bail!(Error::new(
                     "cannot create user, another with a conflicting email already exists",
                     ErrorType::UserExists,
@@ -442,7 +407,6 @@ impl UserService {
             }
         }
 
-        // Check for alias conflicts
         let alias_exists = AliasService::exists(ctx, AliasType::User, &slug)
             .await
             .or_raise(make_error)?;
@@ -456,7 +420,6 @@ impl UserService {
             ));
         }
 
-        // Set up password field depending on type
         let password = match user_type {
             UserType::Regular => {
                 info!("Creating regular user '{slug}' with password");
@@ -477,31 +440,16 @@ impl UserService {
                     ));
                 }
 
-                // Disabled password
                 str!(DISABLED_PASSWORD_HASH)
             }
             UserType::Bot => {
                 info!("Creating bot user '{slug}'");
-                // TODO assign bot token
                 format!("TODO bot token: {password}")
             }
         };
 
-        // Perform email verification.
-        //
-        // If the email is either disposable or invalid, propogate the error upwards and
-        // stop the account creation. If the email passes validation, mark if it's an alias
-        // or not.
-        //
-        // The assigned variable is also used to check whether email validation occurred, as it
-        // will always be `Some` if validation occurred and `None` otherwise.
-        //
-        // Also bypass email verification if it's empty (obviously invalid).
-        // We've already checked for empty emails above (e.g. system users can have empty emails).
         let (email_validation_json, email_validation_at) =
             if !bypass_email_verification && !email.is_empty() {
-                // MailCheck being unavailable leaves the email recorded as
-                // not validated instead of refusing the account.
                 match EmailService::validate_when_available(ctx, &email)
                     .await
                     .or_raise(make_error)?
@@ -516,11 +464,9 @@ impl UserService {
                     None => (None, None),
                 }
             } else {
-                // Skipping email validation
                 (None, None)
             };
 
-        // Insert new model
         let user = user::ActiveModel {
             user_id: Set(user_id),
             user_type: Set(user_type),
@@ -651,8 +597,6 @@ impl UserService {
             .await
             .or_raise(make_error)?;
 
-        // Run normal method to create the user
-        // So we're reusing common logic like filters, etc
         Self::import_wikidot(
             ctx,
             CreateUser {
@@ -670,25 +614,20 @@ impl UserService {
         .await
         .or_raise(make_error)?;
 
-        // Update other fields
-
         Self::update(
             ctx,
             Reference::Id(user_id),
             ip_address,
             UpdateUserBody {
-                // set in initial user creation
                 name: Maybe::Unset,
                 email: Maybe::Unset,
                 email_verified: Maybe::Unset,
                 password: Maybe::Unset,
                 locales: Maybe::Unset,
 
-                // set manually, down below
                 avatar_uploaded_blob_id: Maybe::Unset,
                 forum_signature: Maybe::Unset,
 
-                // bio fields
                 real_name: Maybe::Set(real_name),
                 gender: Maybe::Set(gender),
                 birthday: Maybe::Set(birthday),
@@ -696,22 +635,13 @@ impl UserService {
                 biography: Maybe::Set(biography),
                 website: Maybe::Set(website),
 
-                // not a wikidot field
                 user_page: Maybe::Unset,
 
-                // miscellaneous
                 bypass_filter,
             },
         )
         .await
         .or_raise(make_error)?;
-
-        // Update account creation time and avatar
-        //
-        // The creation time is not something we can fix
-        // with Self::update(), and the second involves
-        // unnecessary steps since the avatar is already
-        // uploaded.
 
         let model = user::ActiveModel {
             user_id: Set(user_id),
@@ -760,7 +690,6 @@ impl UserService {
             .map(|user| user.is_some())
     }
 
-    /// Optional version of `get()`.
     pub async fn get_optional(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
@@ -770,18 +699,12 @@ impl UserService {
         let reference = Self::resolve_user_reference(ctx, reference).await?;
         let wikijump_user = Self::get_real_optional_resolved(ctx, &reference).await?;
 
-        // An authenticatable local account is the authoritative identity
-        // for its slug and keeps precedence over everything else.
         if let Some(user) = wikijump_user {
             if matches!(user.user_type, UserType::Regular | UserType::Bot) {
                 debug!("Found Wikijump user '{}' (ID {})", user.slug, user.user_id);
                 return Ok(Some(User::Wikijump(user)));
             }
 
-            // A non-authenticatable native placeholder (system or site
-            // user) must not shadow an imported Wikidot identity that
-            // owns the same slug. Placeholders only satisfy foreign-key
-            // ownership; they are never source identities.
             if let Reference::Slug(slug) = &reference {
                 let wikidot_user = WikidotUser::find()
                     .filter(
@@ -801,19 +724,14 @@ impl UserService {
             return Ok(Some(User::Wikijump(user)));
         }
 
-        // No Wikijump user found, check Wikidot users and return what we find
-
         fn i64_to_i32(value: i64) -> Option<i32> {
             value.try_into().ok()
         }
 
         let wikidot_user = match &reference {
             Reference::Id(id) => match i64_to_i32(*id) {
-                // If it doesn't fit into a 32-bit int,
-                // there's no way it's a real Wikidot user.
                 None => None,
 
-                // Could be a valid ID
                 Some(id) => WikidotUser::find_by_id(id)
                     .filter(wikidot_user::Column::IsDeleted.eq(false))
                     .one(txn)
@@ -875,13 +793,11 @@ impl UserService {
         }
     }
 
-    /// Fetches a Wikijump user, or Wikidot user record as fallback.
     #[inline]
     pub async fn get(ctx: &ServiceContext<'_>, reference: Reference<'_>) -> Result<User> {
         find_or_error!(Self::get_optional(ctx, reference), "user", User)
     }
 
-    /// Optional version of `get_real()`.
     #[inline]
     pub async fn get_real_optional(
         ctx: &ServiceContext<'_>,
@@ -891,11 +807,6 @@ impl UserService {
         Self::get_real_optional_resolved(ctx, &reference).await
     }
 
-    /// Fetches the real (Wikidot-excluded) regular user holding the given
-    /// email address, if any. Recovery and verification must never resolve
-    /// imported non-authenticatable identities (#2081 boundary), so those
-    /// flows look users up only through here: exact address match, regular
-    /// accounts, ignoring deleted rows.
     pub async fn get_real_optional_by_email(
         ctx: &ServiceContext<'_>,
         email: &str,
@@ -912,8 +823,6 @@ impl UserService {
             .or_raise(|| Error::new("failed to look up user by email", ErrorType::User))
     }
 
-    /// Fetches the real (Wikijump) user associated with the given reference, if any.
-    /// This method ignores any Wikidot user records.
     #[inline]
     pub async fn get_real(
         ctx: &ServiceContext<'_>,
@@ -930,7 +839,6 @@ impl UserService {
     ) -> Result<WikijumpUserModel> {
         use crate::services::audit::UserFields;
 
-        // Wikidot user records are fixed, so this must be for a Wikijump user.
         let txn = ctx.transaction();
         let user = Self::get_real(ctx, reference)
             .await
@@ -950,7 +858,6 @@ impl UserService {
             validate_forum_signature(signature)?;
         }
 
-        // Gather data for audit log entry
         {
             let mut previous_fields = UserFields::default();
             let mut changed_fields = UserFields::default();
@@ -1031,8 +938,6 @@ impl UserService {
             .or_raise(make_error)?;
         }
 
-        // Add fields to update
-
         let should_check_filter =
             should_check_filter(input.bypass_filter, user.user_type, Some(user.user_id));
 
@@ -1041,9 +946,7 @@ impl UserService {
             ..Default::default()
         };
 
-        // Add each field
         if let Maybe::Set(name) = input.name {
-            // NOTE: Name filter validation occurs in update_name(), not here
             Self::update_name(
                 ctx,
                 name,
@@ -1074,7 +977,6 @@ impl UserService {
                 .or_raise(make_error)?;
             }
 
-            // Validate email
             let email_validation_json =
                 match EmailService::validate_when_available(ctx, &email)
                     .await
@@ -1092,17 +994,10 @@ impl UserService {
                 Set(email_validation_json.as_ref().map(|_| now()));
             model.email_validation_info = Set(email_validation_json);
 
-            // Deliverability validation does not prove ownership of the new
-            // address. A separate verification step must establish that.
             if email_changed {
                 model.email_verified_at = Set(None);
             }
 
-            // Rotating the address revokes every outstanding email token
-            // bound to the old mailbox: a reset or verification link issued
-            // for the old address must not survive the move (#2693). Same
-            // transaction as the address change, so either both land or
-            // neither does.
             if email_changed {
                 EmailTokenService::revoke_all_for_user(ctx, user.user_id)
                     .await
@@ -1118,11 +1013,6 @@ impl UserService {
                 ));
             }
 
-            // Verification proves mailbox ownership, so a mailbox-owning
-            // account (regular or bot) must actually hold an address.
-            // (Displaced pending claims end up with an empty address;
-            // they must set a new one before verifying.) System and site
-            // accounts have no mailbox; verifying them stays a no-op stamp.
             if email_verified
                 && matches!(user.user_type, UserType::Regular | UserType::Bot)
                 && updated_email.is_empty()
@@ -1149,13 +1039,6 @@ impl UserService {
                 ));
             }
 
-            // First verified proof wins the mailbox: every other live
-            // regular account still showing this address loses it, so the
-            // mailbox ends up with exactly one claimant. Registration
-            // stays open for unverified claims (blocking there would let
-            // anyone squat an address they do not own); arbitration
-            // happens here, at proof time. Displaced accounts keep
-            // name login and can set a new address afterwards.
             if email_verified && user.user_type == UserType::Regular {
                 Self::displace_pending_email_claims(ctx, &updated_email, user.user_id)
                     .await
@@ -1233,7 +1116,6 @@ impl UserService {
             model.forum_signature = Set(signature.filter(|value| !value.is_empty()));
         }
 
-        // Update user
         model.updated_at = Set(Some(now()));
         let new_user = match model.update(txn).await {
             Ok(user) => user,
@@ -1251,7 +1133,6 @@ impl UserService {
                 .or_raise(make_error)?;
         }
 
-        // Run verification afterwards if the slug changed
         if user.slug != new_user.slug {
             let (result1, result2) = join!(
                 AliasService::verify(ctx, AliasType::User, &user.slug),
@@ -1308,8 +1189,6 @@ impl UserService {
                 Error::new("failed to list pending email claims", ErrorType::User)
             })?;
 
-        // Any other verified owner was rejected before we get here, so every
-        // row found is an unverified pending claim on the now-proven mailbox.
         for other in displaced {
             let model = user::ActiveModel {
                 user_id: Set(other.user_id),
@@ -1328,14 +1207,6 @@ impl UserService {
         Ok(())
     }
 
-    /// Updates the user's name, and performs the relevant accounting for it.
-    ///
-    /// This calculates if a name change token deduction is needed,
-    /// arranges the user alias changes as needed.
-    ///
-    /// No alias row checks are performed because of a dependency order requiring
-    /// the user's slug to have been updated before aliases can be added.
-    /// Instead, alias row verification occurs manually afterwards.
     async fn update_name(
         ctx: &ServiceContext<'_>,
         new_name: String,
@@ -1344,11 +1215,6 @@ impl UserService {
         should_check_filter: bool,
         ip_address: IpAddr,
     ) -> Result<()> {
-        // Regardless of the number of name change tokens,
-        // the user can always change their name if the slug is
-        // unaltered, or if the slug is a prior name of theirs
-        // (i.e. they have a user alias for it).
-
         let new_slug = get_user_slug(&new_name, user.user_type);
         let old_slug = &user.slug;
 
@@ -1359,7 +1225,6 @@ impl UserService {
             )
         };
 
-        // Perform filter validation
         if should_check_filter {
             Self::run_name_filter(
                 ctx,
@@ -1375,8 +1240,6 @@ impl UserService {
         if new_slug == user.slug {
             debug!("User slug is the same, rename is free");
 
-            // Set model, but return early, we don't deduct a
-            // name change token or create a new user alias.
             model.name = Set(new_name);
             return Ok(());
         }
@@ -1387,23 +1250,17 @@ impl UserService {
         {
             debug!("User slug is a past alias, rename is free");
 
-            // Swap user alias for old slug
             AliasService::swap(ctx, alias.alias_id, old_slug)
                 .await
                 .or_raise(make_error)?;
 
-            // Set model, but return early, we don't deduct a name change token
             model.name = Set(new_name);
             model.slug = Set(new_slug);
 
-            // Don't create user alias after
             return Ok(());
         }
 
         check_user_name(ctx.config(), &new_slug, &new_name)?;
-
-        // All changes beyond this point involve creating a new alias, so
-        // a name change token must be consumed. Check if there are any remaining tokens.
 
         if user.name_changes_left == 0 {
             error!("User ID {} has no remaining name changes", user.user_id);
@@ -1415,15 +1272,6 @@ impl UserService {
                 ErrorType::InsufficientNameChanges,
             ));
         }
-
-        // Deduct name change token and add user alias for old slug.
-        //
-        // The "created by" is the user themselves, since
-        // they initiatived the rename.
-        //
-        // We don't verify here because the user row hasn't been
-        // updated yet, so we instead run AliasService::verify()
-        // ourselves at the end of user updating.
 
         debug!(
             "Creating user alias for '{old_slug}' -> '{new_slug}', deducting name change"
@@ -1486,10 +1334,6 @@ impl UserService {
         Ok(())
     }
 
-    /// Adds an additional rename token, up to the cap.
-    ///
-    /// # Returns
-    /// The current number of rename tokens the user has.
     pub async fn add_name_change_token(
         ctx: &ServiceContext<'_>,
         user: &WikijumpUserModel,
@@ -1521,7 +1365,6 @@ impl UserService {
         Ok(name_changes)
     }
 
-    /// Set the MFA secret fields for a user.
     pub async fn set_mfa_secrets(
         ctx: &ServiceContext<'_>,
         user_id: i64,
@@ -1529,7 +1372,6 @@ impl UserService {
         multi_factor_recovery_codes: ActiveValue<Option<Vec<String>>>,
     ) -> Result<()> {
         info!("Setting MFA secret fields for user ID {user_id}");
-        // NOTE: Audit log events are set in MfaService, not here
 
         let txn = ctx.transaction();
         let model = user::ActiveModel {
@@ -1549,7 +1391,6 @@ impl UserService {
         Ok(())
     }
 
-    /// Removes a recovery code from the list provided for a user.
     pub async fn remove_recovery_code(
         ctx: &ServiceContext<'_>,
         user: &WikijumpUserModel,
@@ -1558,16 +1399,13 @@ impl UserService {
         let txn = ctx.transaction();
         info!("Removing recovery code from user ID {}", user.user_id);
 
-        // Only update if there are recovery codes set for the user
         if let Some(current_codes) = &user.multi_factor_recovery_codes {
-            // Clone list, but without the removed code
             let updated_codes = current_codes
                 .iter()
                 .filter(|code| code.as_str() != recovery_code)
                 .map(String::from)
                 .collect::<Vec<_>>();
 
-            // Update with the new list
             let model = user::ActiveModel {
                 user_id: Set(user.user_id),
                 multi_factor_recovery_codes: Set(Some(updated_codes)),
@@ -1590,8 +1428,6 @@ impl UserService {
     ) -> Result<WikijumpUserModel> {
         let txn = ctx.transaction();
 
-        // Wikidot user records aren't deletable in Wikijump,
-        // so this must be a Wikijump user.
         let user = Self::get_real(ctx, reference)
             .await
             .or_raise(|| Error::new("failed to delete user", ErrorType::User))?;
@@ -1608,13 +1444,10 @@ impl UserService {
             )
         };
 
-        // Remove all user aliases
         AliasService::remove_all(ctx, AliasType::User, user.user_id)
             .await
             .or_raise(make_error)?;
 
-        // Atomically claim the active-to-deleted transition. A concurrent or
-        // repeated request observes zero affected rows and must not audit it.
         let deletion = WikijumpUser::update_many()
             .col_expr(user::Column::DeletedAt, Expr::value(Some(now())))
             .filter(
@@ -1704,7 +1537,6 @@ impl UserService {
 
         Ok(())
     }
-    /// Adds a record for the `known_user` table, if it doesn't already exist.
     pub(crate) async fn insert_known_user_id(
         ctx: &ServiceContext<'_>,
         user_id: i64,
@@ -1728,7 +1560,6 @@ impl UserService {
         Ok(())
     }
 
-    /// Gets the next user ID from the `known_user` sequence.
     async fn get_next_user_id(ctx: &ServiceContext<'_>) -> Result<i64> {
         let txn = ctx.transaction();
         let KnownUserModel { user_id } = known_user::ActiveModel { user_id: NotSet }
@@ -1786,7 +1617,6 @@ fn get_user_slug(name: &str, user_type: UserType) -> String {
 }
 
 fn check_user_name(config: &Config, slug: &str, name: &str) -> Result<()> {
-    // Empty slug check
     if slug.is_empty() {
         error!("Cannot create user with empty slug");
         bail!(Error::new(
@@ -1795,7 +1625,6 @@ fn check_user_name(config: &Config, slug: &str, name: &str) -> Result<()> {
         ));
     }
 
-    // Check if username contains the minimum amount of required bytes and chars.
     if name.len() < config.minimum_name_bytes {
         error!(
             "User's name is not long enough ({} < {} bytes)",
@@ -1899,12 +1728,10 @@ fn should_check_filter(
         ADMIN_USER_ID, ANONYMOUS_USER_ID, SAMPLE_USER_ID, SYSTEM_USER_ID,
     };
 
-    // If bypass_filter flag is set, never check
     if bypass_filter {
         return false;
     }
 
-    // Don't check for seeded users
     if let Some(user_id) = user_id
         && matches!(
             user_id,
@@ -1914,11 +1741,5 @@ fn should_check_filter(
         return false;
     }
 
-    // Check for all non-system, non-site user types
-    //
-    // We exclude site users because those are created automatically
-    // based on the characteristics of a site, so filtering for its
-    // name isn't relevant - if the site was allowed to be created,
-    // so should its site user.
     !matches!(user_type, UserType::Site | UserType::System)
 }

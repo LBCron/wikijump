@@ -11,7 +11,6 @@ export async function readCachedResponseWithFallback({
     const response = await readPrimary()
     if (response) return response
   } catch {
-    // Continue to the authoritative backend-backed lookup.
   }
 
   try {

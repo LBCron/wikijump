@@ -519,9 +519,6 @@ function parseJavaScriptTestDeclaration(source, start) {
   return title.value;
 }
 
-// A `/` begins a regex literal unless the previous significant token can end
-// an expression. Without this, quotes inside a regex desynchronize the string
-// state machine and hide every later `test(...)`/`it(...)` declaration.
 const JAVASCRIPT_REGEX_PREFIX_KEYWORDS = new Set([
   "await",
   "case",
@@ -690,11 +687,6 @@ function extractJavaScriptTestDeclarations(source) {
     index += 1;
   }
 
-  // A malformed or unusually complex expression earlier in a test file must
-  // not hide later top-level Node/Playwright declarations. Re-scan physical
-  // line starts as a narrow recovery path and feed every candidate through
-  // the same declaration/callback parser. This deliberately accepts only
-  // `test(...)` / `it(...)` at the first non-whitespace token on a line.
   let lineStart = 0;
   while (lineStart < source.length) {
     const lineEnd = source.indexOf("\n", lineStart);

@@ -5,12 +5,6 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 
-// The pinned Wikidot CSS and yossistyle fixture are not interchangeable with
-// the current public article (whose content/theme has changed since capture).
-// Current 2026-10-11 live per-engine browser observations independently
-// corroborate the 2x title, 1.5x paragraph leading, and 0.9x mobile paragraph
-// relationships. This verifies those relationships and stylesheet delivery,
-// not full same-page pixel or font-family parity with the current article.
 test("imported Wikidot typography CSS survives HTTPS across browser engines", async ({
   page
 }, testInfo) => {
@@ -69,8 +63,6 @@ test("imported Wikidot typography CSS survives HTTPS across browser engines", as
     expect(resource.status(), url).toBe(200)
   }
   const mobile = testInfo.project.name.startsWith("mobile-")
-  // Browser CSSOM rounding varies (Firefox quantizes to ~1/64px, WebKit may
-  // report 19.200001px); assert the authored ratios, never literal strings.
   expect(styles.body).toBeGreaterThan(12.78)
   expect(styles.body).toBeLessThan(12.82)
   expect(styles.title / styles.body).toBeCloseTo(2, 2)

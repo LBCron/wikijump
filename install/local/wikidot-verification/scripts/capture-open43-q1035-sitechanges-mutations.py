@@ -187,7 +187,7 @@ def main() -> int:
             parent.destroy()
             parent = None
             artifact["cleanup"]["parent_absent"] = absent(site, parent_name)
-    except BaseException as error:  # preserve cleanup evidence on failed live probes
+    except BaseException as error:
         failure = error
         artifact["error"] = {"type": type(error).__name__, "message": str(error)}
         try:

@@ -1,5 +1,3 @@
-//! Compatibility-local provenance for text hidden from FTML.
-
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 use uuid::Uuid;
@@ -41,8 +39,6 @@ impl CompatTextFragments {
         self.push_owned(text.to_owned()).0
     }
 
-    /// Keep a source-authored runtime-shaped literal verbatim when rendered
-    /// output is swept for unresolved protection markers.
     pub(in crate::services::render) fn push_authored_runtime_marker_literal(
         &mut self,
         text: &str,
@@ -130,9 +126,6 @@ impl CompatTextFragments {
         output
     }
 
-    /// Clean runtime tokens in rendered text while restoring this registry's
-    /// contents. Fragments explicitly marked as source text retain authored
-    /// marker-shaped strings verbatim.
     pub(in crate::services::render) fn restore_with_cleanup(
         &self,
         text: &str,
@@ -141,10 +134,6 @@ impl CompatTextFragments {
         self.restore_with_resolver_and_cleanup(text, str::to_owned, cleanup)
     }
 
-    /// Resolve markers owned by another registry inside each fragment before
-    /// cleaning unresolved runtime tokens. Escaped source fragments retain
-    /// their literal marker-shaped text, while registered nested runtime
-    /// fragments still get a chance to resolve through their owner.
     pub(in crate::services::render) fn restore_with_resolver_and_cleanup(
         &self,
         text: &str,
@@ -178,8 +167,6 @@ impl CompatTextFragments {
         output
     }
 
-    /// Like `restore`, but also matches markers that were lowercased, as in
-    /// page link targets FTML has already slug-normalized.
     pub(in crate::services::render) fn restore_ignoring_case(
         &self,
         text: &str,

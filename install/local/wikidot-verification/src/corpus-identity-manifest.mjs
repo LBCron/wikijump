@@ -4,9 +4,6 @@ import path from 'node:path';
 export const CORPUS_IDENTITY_MANIFEST_SCHEMA =
   'wikijump.corpus_identity_manifest.v1';
 
-// Author reference fields in corpus page meta.json. Display-name strings
-// only: the shared corpus records no numeric Wikidot user IDs and no
-// public profile snapshots.
 const AUTHOR_FIELDS = ['created_by', 'updated_by', 'commented_by'];
 
 function readJsonFile(filePath) {
@@ -25,11 +22,6 @@ function assertNonEmptyString(value, field) {
   }
 }
 
-/**
- * Collect every author display-name reference in one corpus branch.
- * Returns a Map of display name -> { pages: [fullname], roles: [field] },
- * both sorted for determinism. Null/empty author fields are skipped.
- */
 export function collectReferencedAuthorNames({ branchPagesRoot }) {
   const entries = fs.readdirSync(branchPagesRoot, { withFileTypes: true });
   const referenced = new Map();
@@ -86,19 +78,6 @@ function normalizeObservations(observations) {
   });
 }
 
-/**
- * Dry-run identity manifest over the existing corpus only. Joins
- * referenced author display names (from page meta.json) against banked
- * identity observations (numeric source ID + name/slug + provenance, the
- * shape of wikidot_identity_observation rows and discussion actors).
- *
- * Matching is exact and ID-authoritative: a referenced string matches an
- * observation only when it equals the observed name or slug exactly, and
- * one name matching several IDs is reported as ambiguous, never merged.
- * Profiles are supplied separately ({ user_id } entries); every observed
- * ID without one is listed as ids_without_profiles. Nothing is fetched,
- * nothing is fabricated.
- */
 export function buildCorpusIdentityManifest({
   corpusRoot,
   branch,

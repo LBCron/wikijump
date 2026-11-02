@@ -30,7 +30,6 @@
   $tablet-max-width: 767px;
 
   :root {
-    /* Fallback colors */
     --text: #111;
     --background: #fff;
     --border: #0006;
@@ -244,7 +243,6 @@
 
   @media (prefers-color-scheme: light) {
     :root {
-      /* Fallback colors */
       --text: #111;
       --background: #fff;
       --border: #0006;
@@ -255,7 +253,6 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      /* Fallback colors */
       --text: #b6c2cf;
       --background: #222;
       --border: #b6c2cf;
@@ -267,6 +264,14 @@
   @media (max-width: $tablet-max-width) {
     .header {
       height: initial;
+    }
+
+    .action-row {
+      flex-wrap: wrap;
+      align-items: stretch;
+      .action-button {
+        flex: 1;
+      }
     }
   }
 </style>

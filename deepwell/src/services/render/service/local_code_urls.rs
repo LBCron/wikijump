@@ -1,5 +1,3 @@
-//! Stylesheet `url(...)` values that name Wikidot's page-code route.
-
 use super::{
     Config, Cow, LazyLock, Regex, RenderService, SiteModel, percent_encode_path_segment,
 };
@@ -23,8 +21,6 @@ pub(super) fn localize_wikidot_page_code_css_urls(
     WIKIDOT_PAGE_CODE_CSS_URL_REGEX
         .replace_all(html, |captures: &regex::Captures<'_>| {
             let original = captures.get(0).map_or("", |m| m.as_str()).to_owned();
-            // Only the exact route: anything after the block index (other
-            // than a query or fragment) is not the code route.
             let tail = &captures["tail"];
             if !(tail.is_empty() || tail.starts_with('?') || tail.starts_with('#')) {
                 return original;

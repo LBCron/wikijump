@@ -46,6 +46,7 @@ avatar = Avatar
 breadcrumbs = Breadcrumbs
 cancel = Cancel
 change = Change
+children = Children
 clear = clear
 close = Close
 confirm = Confirm

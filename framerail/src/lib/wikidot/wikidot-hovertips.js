@@ -295,7 +295,6 @@ export const installWikidotHovertips = (document) => {
   }
   attachPending()
 
-  // Attach tips for compatible controls that are added after initialization.
   const observer = new window.MutationObserver(() => {
     if (pending.length) attachPending()
   })

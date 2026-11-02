@@ -1,11 +1,5 @@
 #!/usr/bin/env node
 
-// This bootstrap deliberately imports only Node built-ins. Its sole authority is
-// to materialize the exact coordinator closure before any coordinator module can
-// publish a receipt, observe credentials, start a worker, or make a request.
-// Its trust root is the Node and Git executables, the supplied immutable Git
-// identity, and same-UID host-process integrity; it is not a privilege boundary
-// against a malicious process that already controls that trust root.
 import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import { constants as fsConstants } from "node:fs";

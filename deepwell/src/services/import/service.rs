@@ -18,14 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Importer service, for ingesting data from Wikidot.
-//!
-//! This does not perform checks such as name / slug correspodnence,
-//! uniqueness (this will get blocked by the database probably),
-//! inconsistency, or perform filter validation.
-//!
-//! It is for limited use during initial setup only.
-
 use super::structs::{
     ImportFile, ImportFileDelete, ImportFileDeleteOutput, ImportFileOutput,
     ImportMetaTag, ImportPage, ImportPageFilesVerify, ImportPageFilesVerifyOutput,
@@ -89,37 +81,16 @@ use time::OffsetDateTime;
 
 const SYNC_PAGE_REVISION_SEQUENCE_SQL: &str = "SELECT setval('page_revision_revision_id_seq', GREATEST(COALESCE((SELECT MAX(revision_id) FROM page_revision), 1), CASE WHEN seq.is_called THEN seq.last_value ELSE 1 END), COALESCE((SELECT MAX(revision_id) FROM page_revision), 0) > 0 OR seq.is_called) FROM page_revision_revision_id_seq AS seq";
 
-/// Partial unique index over live file rows (see #2602).
-///
-/// Concurrent `add_file` calls can both pass the active-row lookup before
-/// either writes, so this index is the arbiter. Unique violations naming
-/// it map to `ErrorType::DatabaseImport`.
 const FILE_ACTIVE_UNIQUE_INDEX: &str = "file_active_page_name_unique";
 
-/// Largest attachment `add_file` stages in one call, in bytes.
-///
-/// `ImportFile.data` travels as a JSON number array (roughly 3.5-4x raw
-/// size), so 2 MiB stays comfortably below jsonrpsee's default ~10 MiB body
-/// cap. Larger source attachments need chunked upload, which is not
-/// implemented here; they fail with a clear error instead of failing
-/// opaquely at the transport layer.
 pub const MAX_IMPORT_FILE_BYTES: usize = 2 * 1024 * 1024;
 
-/// The source-recorded provenance one import snapshot carries.
-///
-/// Grouped so file-creation helpers take one provenance argument instead of
-/// parallel user/timestamp/comment parameters.
 struct SourceProvenance {
     user_id: i64,
     created_at: OffsetDateTime,
     revision_comments: String,
 }
 
-/// Requires the named page to be an imported Wikidot page.
-///
-/// Imported file rows carry source provenance, so planting them on native
-/// pages would falsely attribute local content to Wikidot. This also scopes
-/// the page to the site the caller named.
 async fn require_imported_page(
     ctx: &ServiceContext<'_>,
     site_id: i64,
@@ -163,11 +134,6 @@ async fn sync_page_revision_sequence(txn: &DatabaseTransaction) -> Result<()> {
     })
 }
 
-/// Records the source attachment time on an imported file revision.
-///
-/// Revision creation stamps `now()`; like page revision import, file import
-/// overwrites it with the source time so provenance reflects Wikidot, not the
-/// materialization run.
 async fn set_file_revision_created_at(
     ctx: &ServiceContext<'_>,
     revision_id: i64,
@@ -200,11 +166,6 @@ async fn set_file_revision_created_at(
     Ok(())
 }
 
-/// Corrects a revision's source provenance in place.
-///
-/// Used when a re-imported snapshot carries identical bytes but corrected
-/// uploader/timestamp/comments: the attachment is the same, so its history
-/// gains no new revision, but the wrong provenance must not stand.
 async fn correct_file_revision_provenance(
     ctx: &ServiceContext<'_>,
     revision_id: i64,
@@ -244,8 +205,6 @@ async fn correct_file_revision_provenance(
     Ok(())
 }
 
-/// One banked display identity for a stable source user ID, read back from
-/// `wikidot_identity_observation` (which has no SeaORM entity).
 #[derive(FromQueryResult)]
 struct ObservedIdentity {
     name: String,
@@ -280,9 +239,6 @@ impl ImportService {
             website,
             karma,
             is_pro,
-            // Our add_user is already insert-or-refresh-if-strictly-newer,
-            // which is the behavior the import scripts request with
-            // `upsert`; a plain insert-or-error mode has no caller here.
             upsert: _,
             delete_old_if_same_name,
             importing_user_id,
@@ -336,9 +292,6 @@ impl ImportService {
                 karma,
                 is_pro,
             ),
-            // A deleted source account is a tombstone. Discard its public
-            // profile and avatar fields so stale/private data cannot survive
-            // a deletion refresh.
             ImportedUserType::Deleted => (
                 true,
                 None,
@@ -384,9 +337,6 @@ impl ImportService {
                 return Ok(ImportUserOutput { user_id });
             }
 
-            // Stable source ID is authoritative. Accept a changed snapshot
-            // only when it is strictly newer; same-time contradictions and
-            // stale replays are not identity evidence.
             if fetched_at <= existing.fetched_at {
                 return Err(make_error().into());
             }
@@ -404,12 +354,6 @@ impl ImportService {
                 .await
                 .or_raise(make_error)?;
             if let Some(conflicting) = conflicting_identity {
-                // Upstream #3123: when the import scripts set
-                // `delete_old_if_same_name` and the colliding row is
-                // strictly older, tombstone it and proceed instead of
-                // erroring. (Upstream's own collision query compared the
-                // slug column against the *name* value; the query above
-                // compares name-to-name and slug-to-slug.)
                 let can_tombstone = delete_old_if_same_name
                     && !conflicting.is_deleted
                     && conflicting.fetched_at < fetched_at;
@@ -449,14 +393,10 @@ impl ImportService {
                     .await
                     .or_raise(make_error)?;
 
-                // We don't check the avatar size, just keep whatever it was for Wikidot
-                // which will have a limited size anyways, so it's probably fine.
-
                 Some(s3_hash.to_vec())
             }
         };
 
-        // Add to audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -469,12 +409,10 @@ impl ImportService {
         .await
         .or_raise(make_error)?;
 
-        // Add known user ID
         UserService::insert_known_user_id(ctx, i64::from(user_id))
             .await
             .or_raise(make_error)?;
 
-        // Now add the actual Wikidot record itself
         let avatar_s3_hash = if is_deleted {
             None
         } else {
@@ -528,10 +466,6 @@ impl ImportService {
         Ok(ImportUserOutput { user_id })
     }
 
-    /// Record imported `<META>` tags through the page-meta-tag service.
-    /// Site tags apply to all pages; page tags to one page. Validation
-    /// (name/content limits) lives in the service; failures here fail the
-    /// import rather than silently dropping head metadata.
     async fn record_meta_tags(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -557,18 +491,6 @@ impl ImportService {
         Ok(())
     }
 
-    /// Promotes one already-observed Wikidot identity into an imported user.
-    ///
-    /// The observation (stable numeric source ID plus observed display
-    /// name/slug and its provenance) is banked idempotently alongside the
-    /// `known_user` foreign-key entry. A profile row is written only when
-    /// the caller supplies a complete evidence-backed profile snapshot,
-    /// in which case the call delegates to [`Self::add_user`] so every
-    /// identity rule (stable-ID authority, no slug merging, deleted
-    /// tombstones, strictly-newer snapshots, avatar finalization) applies
-    /// unchanged. Observations alone never rename a materialized row and
-    /// never fabricate profile fields: the call then succeeds with the
-    /// blocking fields listed in `missing_profile_fields`.
     pub async fn promote_observed_identity(
         ctx: &ServiceContext<'_>,
         PromoteObservedIdentity {
@@ -598,19 +520,11 @@ impl ImportService {
             return Err(make_error().into());
         }
 
-        // All reads before any write, so contradictions fail closed
-        // without banking anything.
         let existing = WikidotUser::find_by_id(user_id)
             .one(txn)
             .await
             .or_raise(make_error)?;
 
-        // A materialized row settles coexistence: activation creates a
-        // native account sharing this ID and slug, so the collision guards
-        // below apply only on the first-materialization path. Observations
-        // alone never rename a live row: contradicting one fails closed.
-        // Profile snapshots always go through add_user, whose created_at,
-        // strictly-newer, and conflict rules govern renames and revivals.
         if let Some(ref row) = existing
             && profile.is_none()
             && !row.is_deleted
@@ -620,12 +534,7 @@ impl ImportService {
             return Err(make_error().into());
         }
 
-        // First-materialization guards. Any existing row (checked above)
-        // already settles coexistence, including the native account
-        // activation creates, so these run only when no row exists at all.
         if existing.is_none() {
-            // A local account owning this ID is a genuine collision.
-            // (Matches the activation guard in UserService::activate_from_wikidot.)
             if WikijumpUser::find_by_id(i64::from(user_id))
                 .one(txn)
                 .await
@@ -635,10 +544,6 @@ impl ImportService {
                 return Err(make_error().into());
             }
 
-            // A local account owning this name or slug is a genuine
-            // collision unless it is a non-authenticatable placeholder,
-            // which the user lookup order already ranks below imported
-            // identities.
             if WikijumpUser::find()
                 .filter(
                     Condition::any()
@@ -655,9 +560,6 @@ impl ImportService {
                 return Err(make_error().into());
             }
 
-            // Another imported identity owning this name or slug is a
-            // genuine collision. Stable source ID is the authority;
-            // display names and slugs are never merged.
             if WikidotUser::find()
                 .filter(wikidot_user::Column::UserId.ne(user_id))
                 .filter(
@@ -673,10 +575,6 @@ impl ImportService {
                 return Err(make_error().into());
             }
 
-            // Prior observations for this ID that disagree on the display
-            // identity are a contradiction, not rename evidence. The
-            // observation table keys on (user_id, source), so this check is
-            // done in code.
             let prior =
                 ObservedIdentity::find_by_statement(Statement::from_sql_and_values(
                     DatabaseBackend::Postgres,
@@ -691,10 +589,6 @@ impl ImportService {
             }
         }
 
-        // Bank the foreign-key entry before the observation: the
-        // observation row references known_user(user_id), so the stable
-        // source ID must exist first. Then bank the observation
-        // idempotently (one row per source) and delegate or report the gap.
         UserService::insert_known_user_id(ctx, i64::from(user_id))
             .await
             .or_raise(make_error)?;
@@ -716,9 +610,6 @@ impl ImportService {
         .or_raise(make_error)?;
 
         let Some(profile) = profile else {
-            // An observation alone materializes nothing. A live row is
-            // already complete; a tombstone or a missing row still needs
-            // every blocking profile field.
             let complete = existing.as_ref().is_some_and(|row| !row.is_deleted);
             return Ok(PromoteObservedIdentityOutput {
                 user_id,
@@ -750,8 +641,6 @@ impl ImportService {
             });
         }
 
-        // A new row, or a tombstone revival, materializes here. A refresh
-        // of a live row delegates to add_user but reports no promotion.
         let materialized = match &existing {
             None => true,
             Some(row) => row.is_deleted,
@@ -770,7 +659,6 @@ impl ImportService {
                 location: profile.location,
                 biography: profile.biography,
                 website: profile.website,
-                // Checked non-empty above
                 karma: profile.karma.unwrap_or(KarmaLevel::Zero),
                 is_pro: profile.is_pro.unwrap_or(false),
                 upsert: false,
@@ -816,7 +704,6 @@ impl ImportService {
             )
         };
 
-        // Insert site row
         let txn = ctx.transaction();
         let site = site::ActiveModel {
             site_id: Set(site_id),
@@ -832,10 +719,8 @@ impl ImportService {
         };
         Site::insert(site).exec(txn).await.or_raise(make_error)?;
 
-        // Record site-wide metadata tags (page_id is ignored for site scope)
         Self::record_meta_tags(ctx, site_id, 0, true, &meta_tags, &make_error).await?;
 
-        // Add to audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -851,18 +736,6 @@ impl ImportService {
         Ok(ImportSiteOutput { site_id })
     }
 
-    /// Synchronizes one imported site's public membership/role roster
-    /// with a source snapshot (see [`ImportSiteRoster`] for the exact
-    /// semantics). The directory renderer reads `SiteMember` relations
-    /// plus `admin` / `moderator` site-role assignments, so this writes
-    /// exactly those rows, keyed by the stable Wikidot user IDs.
-    ///
-    /// Relations are written directly (like the other importers write
-    /// their models) rather than through the interactive membership
-    /// service: the source join time must be preserved as the relation
-    /// `created_at`, and one batch audit event covers the sync instead
-    /// of one join event per member. Imported identities have no local
-    /// account, so no permission-cache state can exist for them.
     pub async fn sync_site_roster(
         ctx: &ServiceContext<'_>,
         ImportSiteRoster {
@@ -888,8 +761,6 @@ impl ImportService {
             )
         };
 
-        // The roster receiver only governs imported (Wikidot) sites;
-        // locally owned sites own their membership state.
         let site = Site::find_by_id(site_id)
             .one(txn)
             .await
@@ -900,8 +771,6 @@ impl ImportService {
             bail!(make_error());
         }
 
-        // Resolve the site's staff roles up-front so a snapshot asking
-        // for a role the site does not define fails before any writes.
         let staff_roles = Role::find()
             .filter(
                 Condition::all()
@@ -919,8 +788,6 @@ impl ImportService {
             .collect();
         let staff_role_ids: Vec<i64> = staff_roles.iter().map(|r| r.role_id).collect();
 
-        // Every roster identity must already be imported, so the stable
-        // Wikidot identity mapping exists before relations reference it.
         let mut snapshot: std::collections::HashMap<i64, &ImportSiteMember> =
             std::collections::HashMap::new();
         for member in &members {
@@ -951,7 +818,6 @@ impl ImportService {
             snapshot.insert(i64::from(member.user_id), member);
         }
 
-        // Load the currently active member relations for this site.
         let active_members = Relation::find()
             .filter(
                 Condition::all()
@@ -971,10 +837,6 @@ impl ImportService {
                 .map(|rel| (rel.from_id, rel))
                 .collect();
 
-        // Imported scope: identities with a Wikidot profile row and no
-        // local account row. Only those may be retired by absence;
-        // snapshot upserts apply by stable ID either way, so an
-        // activated identity reconciles onto the same relation.
         let candidate_ids: Vec<i64> = active_by_user.keys().copied().collect();
         let mut imported_scope: std::collections::HashSet<i64> = Default::default();
         if !candidate_ids.is_empty() {
@@ -1008,7 +870,6 @@ impl ImportService {
         };
         let sync_time = now();
 
-        // Upsert memberships with the source join time.
         for (user_id, member) in &snapshot {
             let user_id = *user_id;
             match active_by_user.get(&user_id) {
@@ -1046,7 +907,6 @@ impl ImportService {
                 }
             }
 
-            // Reconcile this member's staff role assignments.
             let desired: std::collections::HashSet<i64> = member
                 .roles
                 .iter()
@@ -1099,8 +959,6 @@ impl ImportService {
             }
         }
 
-        // Retire imported members absent from the snapshot, together
-        // with their staff role assignments on this site.
         for (user_id, relation) in &active_by_user {
             if snapshot.contains_key(user_id) || !imported_scope.contains(user_id) {
                 continue;
@@ -1139,7 +997,6 @@ impl ImportService {
             }
         }
 
-        // Master Administrator identity, when the snapshot exposes one.
         if let Some(master_admin_id) = master_admin_user_id {
             let master_admin_id = i64::from(master_admin_id);
             if site.master_admin_user_id != Some(master_admin_id) {
@@ -1217,13 +1074,11 @@ impl ImportService {
             )
         };
 
-        // Create category if not already present
         let PageCategoryModel { category_id, .. } =
             CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
                 .await
                 .or_raise(make_error)?;
 
-        // Insert page row into table
         let page = page::ActiveModel {
             page_id: Set(page_id),
             site_id: Set(site_id),
@@ -1236,7 +1091,6 @@ impl ImportService {
         };
         Page::insert(page).exec(txn).await.or_raise(make_error)?;
 
-        // If locked, add that too
         if locked {
             PageLockService::create(
                 ctx,
@@ -1257,11 +1111,9 @@ impl ImportService {
             .or_raise(make_error)?;
         }
 
-        // Record page-scoped metadata tags
         Self::record_meta_tags(ctx, site_id, page_id, false, &meta_tags, &make_error)
             .await?;
 
-        // Add to audit log
         AuditService::log(
             ctx,
             ip_address,
@@ -1296,10 +1148,6 @@ impl ImportService {
             tags,
         }: ImportPageRevision,
     ) -> Result<ImportPageRevisionOutput> {
-        // A null user ID means the source author is Wikidot's Anonymous
-        // pseudo-user, who has no Wikidot account (and so no source user
-        // ID). Attribute the revision to the platform's own Anonymous
-        // system user, never to a real account.
         if user_id.is_some() && anonymous_ip.is_some() {
             bail!(Error::new(
                 format!(
@@ -1327,19 +1175,11 @@ impl ImportService {
             )
         };
 
-        // Get page category
         let PageCategoryModel { category_id, .. } =
             CategoryService::get_or_create(ctx, site_id, get_category_name(&slug))
                 .await
                 .or_raise(make_error)?;
 
-        // Get prior revision
-        //
-        // Import operations don't require an initial page revision on page import,
-        // so it's possible that this is None.
-        //
-        // Then we check that the revision_number being inserted is one more than the
-        // prior revision (or 0 if None, i.e. this is the first).
         let prev_revision = PageRevision::find()
             .filter(
                 Condition::all()
@@ -1354,8 +1194,6 @@ impl ImportService {
         let mut first_followups = None;
         let mut persisted_revision = None;
         let output_revision_id = match prev_revision {
-            // No prior revisions
-            // First revision for the page
             None => {
                 if revision_number != 0 {
                     bail!(Error::new(
@@ -1396,8 +1234,6 @@ impl ImportService {
                 output_revision_id
             }
 
-            // Prior revisions
-            // Second revision or later
             Some(prev_revision) => {
                 if revision_number != prev_revision.revision_number + 1 {
                     bail!(Error::new(
@@ -1428,8 +1264,6 @@ impl ImportService {
                             title: Maybe::Set(title),
                             alt_title: Maybe::Unset,
                             slug: Maybe::Set(slug),
-                            // NOTE: We set tags here so the "changes" value
-                            //       is correct for this revision.
                             tags: Maybe::Set(tags.clone()),
                             parent_changed: false,
                         },
@@ -1440,7 +1274,6 @@ impl ImportService {
                 .or_raise(make_error)?;
 
                 let output = match output {
-                    // There should always be an output, if not, raise an error
                     Some(output) => output,
                     None => bail!(Error::new(
                         format!(
@@ -1462,16 +1295,10 @@ impl ImportService {
             }
         };
 
-        // Update database fields that we can't set via PageRevisionService
-        //
-        // We need to use update_many since this changes the primary key,
-        // but only one row should be modified by this.
-
         let UpdateResult { rows_affected, .. } = PageRevision::update_many()
             .col_expr(page_revision::Column::RevisionId, Expr::value(revision_id))
             .col_expr(page_revision::Column::CreatedAt, Expr::value(created_at))
             .col_expr(page_revision::Column::UpdatedAt, Expr::value(updated_at))
-            // not settable on page create
             .col_expr(page_revision::Column::Tags, Expr::value(tags))
             .col_expr(
                 page_revision::Column::AnonymousAuthorIp,
@@ -1487,7 +1314,6 @@ impl ImportService {
             "More than one row updated in page_revision after revision creation",
         );
 
-        // Imported IDs replace generated BIGSERIAL values; keep the next normal insert above them.
         sync_page_revision_sequence(txn)
             .await
             .or_raise(make_error)?;
@@ -1505,12 +1331,6 @@ impl ImportService {
             category_id,
             page_id,
         };
-        // Imported revisions outdate their dependents one rerender depth
-        // deeper than interactive edits, queuing background rerenders
-        // instead of re-rendering every dependent inside this request: a
-        // component included by thousands of pages would otherwise make a
-        // single imported revision cost one render per includer before the
-        // import could respond.
         if let Some(followups) = first_followups {
             PageRevisionService::apply_first_followups_for_import(ctx, id, followups)
                 .await
@@ -1522,8 +1342,6 @@ impl ImportService {
                 .or_raise(make_error)?;
         }
 
-        // Return output
-
         Ok(ImportPageRevisionOutput {
             site_id,
             page_id,
@@ -1532,30 +1350,6 @@ impl ImportService {
         })
     }
 
-    // TODO forum
-
-    /// Imports one source attachment onto a page.
-    ///
-    /// This is the single path by which source attachments enter the
-    /// canonical inventory: the blob bytes are content-addressed into storage
-    /// and the file row plus its first (or next) file revision are created
-    /// from that same snapshot.
-    ///
-    /// Validation gates the commit: the declared source `size` and `s3_hash`
-    /// are checked against the bytes before anything is staged, so a
-    /// metadata mismatch never stages bytes or rows. Once staged, a later
-    /// database failure can leave an inert content-addressed orphan
-    /// (deduplicated by hash, invisible to inventory verification, which
-    /// never enumerates storage); storage is the commit point, not a
-    /// transaction.
-    ///
-    /// Re-importing an identical snapshot — same bytes and same provenance
-    /// (uploader, source time, comments) — is a no-op returning the existing
-    /// rows. Identical bytes with corrected provenance update the latest
-    /// revision in place instead of forking history. Changed bytes append
-    /// one replacement revision on the same file row. Re-adding a tombstoned
-    /// source name revives that row, keeping its file ID and history.
-    /// Names held by local-origin files are refused rather than claimed.
     pub async fn add_file(
         ctx: &ServiceContext<'_>,
         ImportFile {
@@ -1593,14 +1387,10 @@ impl ImportService {
             )
         };
 
-        // The parent page must be an imported Wikidot page; planting
-        // source-provenance rows on native pages would misattribute them.
         require_imported_page(ctx, site_id, page_id)
             .await
             .or_raise(make_error)?;
 
-        // Reject oversized snapshots before hashing or staging: they could
-        // never have arrived intact through the JSON-RPC transport.
         if data.len() > MAX_IMPORT_FILE_BYTES {
             bail!(Error::new(
                 format!(
@@ -1611,8 +1401,6 @@ impl ImportService {
             ));
         }
 
-        // Decode the source-observed digest before touching storage, so a
-        // malformed snapshot cannot stage bytes.
         let expected_hash_bytes =
             hex::decode(expected_hash_hex.trim()).or_raise(make_error)?;
         if expected_hash_bytes.len() != BLOB_HASH_LENGTH {
@@ -1627,8 +1415,6 @@ impl ImportService {
         }
         let expected_hash = slice_to_blob_hash(&expected_hash_bytes);
 
-        // Validate the declared metadata against the bytes before staging,
-        // so a mismatch never stages anything.
         let actual_size = i64::try_from(data.len()).or_raise(make_error)?;
         if actual_size != expected_size || sha512_hash(&data) != expected_hash {
             bail!(Error::new(
@@ -1639,8 +1425,6 @@ impl ImportService {
             ));
         }
 
-        // Materialize the blob from the same validated snapshot. Content
-        // addressing derives the stored identity from these bytes alone.
         let FinalizeBlobUploadOutput {
             s3_hash,
             mime,
@@ -1651,8 +1435,6 @@ impl ImportService {
             .await
             .or_raise(make_error)?;
 
-        // Belt and braces: staging derives from the bytes just validated,
-        // so this only trips if staging itself misreports.
         if size != expected_size || s3_hash != expected_hash {
             bail!(Error::new(
                 format!(
@@ -1662,11 +1444,6 @@ impl ImportService {
             ));
         }
 
-        // Reconcile against the row holding this source identity. A
-        // tombstoned source row is revived under its original file ID so
-        // delete/re-add cycles keep one row and one history. Deleted
-        // local-origin rows never block: the name is still free for source
-        // data, and reviving one as source would misattribute it.
         let active = File::find()
             .filter(
                 Condition::all()
@@ -1685,8 +1462,6 @@ impl ImportService {
                 from_wikidot,
                 ..
             }) => {
-                // A local-origin file owns this name. Claiming it as a source
-                // attachment would falsely attribute local scaffolding to Wikidot.
                 if !from_wikidot {
                     bail!(Error::new(
                         format!(
@@ -1714,9 +1489,6 @@ impl ImportService {
 
                 match tombstoned {
                     Some(FileModel { file_id, .. }) => {
-                        // Revive the newest tombstoned source row: record the
-                        // undeletion, clear the tombstone, then reconcile the
-                        // snapshot against the restored state below.
                         let previous = FileRevisionService::get_latest(
                             ctx, site_id, page_id, file_id,
                         )
@@ -1750,9 +1522,6 @@ impl ImportService {
                             deleted_at: Set(None),
                             ..Default::default()
                         };
-                        // Reviving this row races a concurrent add that won
-                        // the name: the index is the arbiter, and the loser
-                        // reports the usual import conflict.
                         match model.update(txn).await {
                             Ok(_) => {}
                             Err(error) if is_file_active_unique_violation(&error) => {
@@ -1802,7 +1571,6 @@ impl ImportService {
                 && latest.size == size
                 && latest.mime == mime;
 
-            // Identical snapshot: converge without new rows.
             if bytes_match
                 && latest.user_id == user_id
                 && latest.created_at == created_at
@@ -1817,9 +1585,6 @@ impl ImportService {
                 });
             }
 
-            // Identical bytes with corrected provenance: the attachment is
-            // the same, so fix the latest revision in place instead of
-            // forking history with a content-identical revision.
             if bytes_match {
                 correct_file_revision_provenance(
                     ctx,
@@ -1862,7 +1627,6 @@ impl ImportService {
                 });
             }
 
-            // Replacement bytes: one new revision on the same row.
             let output = FileRevisionService::create(
                 ctx,
                 CreateFileRevision {
@@ -1920,14 +1684,11 @@ impl ImportService {
                         file_revision_number: output.file_revision_number,
                     })
                 }
-                // The blob changed, so a revision must have been recorded.
-                // Converging here would hide the replacement.
                 None => bail!(make_error()),
             }
         }
     }
 
-    /// Creates the file row and first revision for a new source attachment.
     async fn create_imported_file(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1960,10 +1721,6 @@ impl ImportService {
             created_at: Set(created_at),
             ..Default::default()
         };
-        // The pre-insert lookup cannot see a concurrent uncommitted insert,
-        // so the losing racer reaches this insert. Map the partial unique
-        // violation to the usual import conflict rather than leaking a raw
-        // database error.
         let FileModel { file_id, .. } = match file.insert(txn).await {
             Ok(file) => file,
             Err(error) if is_file_active_unique_violation(&error) => {
@@ -2022,11 +1779,6 @@ impl ImportService {
         })
     }
 
-    /// Imports a source attachment deletion onto a page.
-    ///
-    /// Only rows previously imported as source attachments are tombstoned, so
-    /// explicitly allowed local-origin files survive re-import. Deleting an
-    /// already-absent source name converges without creating new rows.
     pub async fn delete_file(
         ctx: &ServiceContext<'_>,
         ImportFileDelete {
@@ -2085,8 +1837,6 @@ impl ImportService {
             ..
         } = match active {
             Some(file) => file,
-            // No active row: converge against the tombstone left by an
-            // earlier import, if this name was ever a source attachment.
             None => {
                 let tombstoned = File::find()
                     .filter(
@@ -2121,8 +1871,6 @@ impl ImportService {
             }
         };
 
-        // Local-origin files are explicitly allowed additions, never source
-        // deletions. Refuse rather than erasing them.
         if !from_wikidot {
             bail!(Error::new(
                 format!(
@@ -2184,19 +1932,6 @@ impl ImportService {
         })
     }
 
-    /// Verifies one page's canonical file inventory against a source snapshot.
-    ///
-    /// Every expected attachment must resolve to an active source-origin file
-    /// row whose latest revision matches the expected size and digest, and
-    /// whose blob is materialized in storage. No other source-origin rows may
-    /// exist. Local-origin files are explicitly allowed additions and are
-    /// ignored, so source and local provenance stay distinguishable.
-    ///
-    /// Any split-brain state — a relation-less staged blob for an expected
-    /// attachment, a relation without its blob, metadata disagreeing with
-    /// either side, or an extraneous source relation — fails instead of
-    /// certifying the page. Storage is never enumerated: a staged blob no
-    /// snapshot expects is invisible here by design.
     pub async fn verify_page_files(
         ctx: &ServiceContext<'_>,
         ImportPageFilesVerify {
@@ -2224,9 +1959,6 @@ impl ImportService {
             .await
             .or_raise(|| make_error(str!("page is not an imported Wikidot page")))?;
 
-        // Normalized snapshot names: both sides of the extraneous sweep
-        // compare through filename normalization, so padding that the row
-        // lookup tolerates cannot false-fail the sweep.
         let mut expected_names = HashSet::new();
         for expectation in &expected {
             let mut name = expectation.name.clone();
@@ -2312,8 +2044,6 @@ impl ImportService {
             }
         }
 
-        // No other source-origin rows may exist. Local-origin rows are
-        // allowed additions and stay out of this comparison.
         let source_rows = File::find()
             .filter(
                 Condition::all()
@@ -2346,14 +2076,6 @@ impl ImportService {
         })
     }
 
-    /// Imports the source Who-Rated roster of one imported page.
-    ///
-    /// Each source vote becomes a current `page_vote` row flagged
-    /// `from_wikidot`. When the imported aggregate baseline is present, score
-    /// evaluation already counts only local rows, so the roster and the
-    /// aggregate do not add the same votes twice. The import is idempotent:
-    /// a row that already matches the source is left alone, while a conflicting
-    /// local or differing row fails the import instead of being overwritten.
     pub async fn add_page_votes(
         ctx: &ServiceContext<'_>,
         ImportPageVotes {
@@ -2386,9 +2108,6 @@ impl ImportService {
             bail!(make_error(detail));
         }
 
-        // The aggregate baseline is only authoritative once it has been
-        // imported; a missing snapshot skips the cross-check rather than
-        // guessing at the source total.
         if let Some(imported_rating) =
             ScoreService::imported_rating(ctx, page_id)
                 .await
@@ -2452,13 +2171,6 @@ impl ImportService {
         })
     }
 
-    /// Replace one imported page's `<META>` tags with the source set.
-    ///
-    /// The supplied set is authoritative for the page's scope: tags the
-    /// page currently has that are absent from the set are deleted, and
-    /// every supplied tag is written through the page-meta-tag service
-    /// (so validation and cache invalidation apply exactly as for site
-    /// and page imports). Site-scope tags are never touched.
     pub async fn add_page_meta_tags(
         ctx: &ServiceContext<'_>,
         ImportPageMetaTags {
@@ -2486,11 +2198,6 @@ impl ImportService {
             .await
             .or_raise(make_error)?;
 
-        // Meta tags are multi-valued: the same name may legitimately
-        // appear several times with different content (for example
-        // repeated og:locale:alternate values). Only an exact
-        // (name, content) pair twice in one payload is a producer bug;
-        // reject it rather than storing the pair twice.
         let mut new_pairs = HashSet::new();
         for tag in &meta_tags {
             if !new_pairs.insert((tag.name.clone(), tag.content.clone())) {
@@ -2512,10 +2219,6 @@ impl ImportService {
             .await
             .or_raise(make_error)?;
 
-        // The supplied set is authoritative for the page's scope: remove
-        // every stored pair the set no longer carries, then record the
-        // set itself. Removal is pair-precise, so a pair that remains in
-        // the set is never deleted and re-inserted.
         let mut removed = 0;
         for row in existing_rows {
             if !new_pairs.contains(&(row.name.clone(), row.content.clone())) {
@@ -2547,9 +2250,6 @@ impl ImportService {
     }
 }
 
-/// Checks a source roster before any row is written. Only the plus/minus
-/// rating (`points`) is evidenced by the source roster, so other systems are
-/// rejected rather than guessed.
 fn validate_imported_votes(
     rating_system: &str,
     votes: &[ImportPageVote],
@@ -2584,8 +2284,6 @@ mod tests {
     };
     use serde::Deserialize;
 
-    /// A captured anonymous Who-Rated roster (see the artifact's capture
-    /// script). Only the fields the import reads are declared.
     #[derive(Deserialize)]
     struct CapturedRoster {
         rating: i64,
@@ -2638,8 +2336,6 @@ mod tests {
 
     #[test]
     fn captured_scp_9506_roster_validates_and_sums_to_the_source_aggregate() {
-        // #2205: 486 individual voters (475 plus, 11 minus) whose sum is the
-        // page's displayed rating of 464.
         let roster = captured_roster(include_str!(
             "../../../../install/local/wikidot-verification/artifacts/votes-scp-9506.json"
         ));

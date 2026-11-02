@@ -19,6 +19,7 @@ error-form =
 
 ## Wiki page action terms
 cancel = キャンセル
+children = 子ページ
 close = 閉じる
 confirm = 確認
 delete = 削除

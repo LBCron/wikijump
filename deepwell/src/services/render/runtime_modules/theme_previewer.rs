@@ -1,14 +1,8 @@
-//! Source-owned ThemePreviewer presentation selection.
-
 use super::{
     LiteralRegionIndex, STATIC_ACCOUNT_MODULE_REGEX, WikidotModuleArgumentValueKind,
     wikidot_module_arguments,
 };
 
-/// Recognize the source-owned ThemePreviewer path that permits the browser to
-/// consume `theme_url`. Literal and malformed/unknown argument surfaces stay
-/// disabled so examples and unsupported module shapes cannot authorize a
-/// stylesheet request.
 pub(crate) fn has_theme_previewer_no_ui(wikitext: &str) -> bool {
     if !STATIC_ACCOUNT_MODULE_REGEX.is_match(wikitext) {
         return false;
@@ -43,9 +37,6 @@ pub(crate) fn has_theme_previewer_no_ui(wikitext: &str) -> bool {
         })
 }
 
-/// Native anonymous PagePreview and retained saved-page source evidence bind
-/// this exact blank-theme form. Unknown heads remain literal; this recognizes
-/// module output only, independently of the saved-page stylesheet side effect.
 pub(in crate::services::render) fn has_theme_previewer_blank(wikitext: &str) -> bool {
     let literal_regions = LiteralRegionIndex::new_wikidot_module_recognition(wikitext);
     STATIC_ACCOUNT_MODULE_REGEX

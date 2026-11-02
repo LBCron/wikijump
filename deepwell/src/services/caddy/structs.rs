@@ -25,68 +25,26 @@ use std::fmt;
 
 #[derive(Deserialize, Clone)]
 pub struct CaddyfileOptions<'a> {
-    /// Whether to enable debug logging in Caddy.
-    ///
-    /// Corresponds to the Caddy option `debug`.
     #[serde(default)]
     pub debug: bool,
 
-    /// Whether to operate in local mode.
-    ///
-    /// This uses local self-signed certificates and
-    /// attempts no ACME challenges because the server
-    /// is not running in an environment where it actually
-    /// owns a domain name.
-    ///
-    /// Corresponds to Caddy options `local_certs` and `skip_install_trust`.
     #[serde(default)]
     pub local: bool,
 
-    /// The HTTP port to use.
-    ///
-    /// Corresponds to the Caddy option `http_port`.
     #[serde(default)]
     pub http_port: Option<u16>,
 
-    /// The HTTPS port to use.
-    ///
-    /// Corresponds to the Caddy option `https_port`.
     #[serde(default)]
     pub https_port: Option<u16>,
 
-    /// TLS wildcard certificate settings.
-    ///
-    /// This option, if `Some(_)`, instructs Caddy to perform
-    /// a DNS ACME challenge to generate a wildcard certificate
-    /// for the fallback cases.
-    ///
-    /// The value here is used in a `dns` directive to instruct
-    /// Caddy which provider to use to perform the ACME challenge.
-    ///
-    /// For instance, the value might be `digitalocean {env.DIGITALOCEAN_TOKEN}`
-    /// to use the [DigitalOcean provider](https://github.com/caddy-dns/digitalocean).
-    ///
-    /// If this option is `None`, then it means that no wildcard
-    /// certificates should be fetched for this server. In this case,
-    /// all unknown domains and `wjfiles` are handled as HTTP.
     #[serde(default)]
     pub wildcard_cert: Option<Cow<'a, str>>,
 
-    /// Enables a `deploy` subdomain redirect.
-    ///
-    /// If this is running in an environment where a system
-    /// like [Komodo](https://komo.do/) is responsible for
-    /// deploying Wikijump.
-    ///
-    /// This should have the host of the deployment system's
-    /// web server to reverse proxy to.
     #[serde(default)]
     pub deploy_host: Option<Cow<'a, str>>,
 
-    /// Specifies the framerail host to reverse proxy to.
     pub framerail_host: Cow<'a, str>,
 
-    /// Specifies the WWS host to reverse proxy to.
     pub wws_host: Cow<'a, str>,
 }
 

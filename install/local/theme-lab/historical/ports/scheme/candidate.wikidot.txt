@@ -1,0 +1,1205 @@
+
+
+
+
+
+
+
+[[>]]
+
+**評価: @@     @@**
+
+[[module rate]]
+[[/>]]
+
+[[>]]
+**クレジットモジュール付き評価: @@     @@**
+[[/>]]
+
+
+こんにちは
+
+
+
+これはshaftmetal、thd-glasses、Denevola、Fluxmanによる**Schemeテーマ**です。
+
+使用するには、記事の冒頭に以下を置いてください。
+
+[[div class="code"]]
+@@@@
+[[/div]]
+
+このテーマは、[[[church-of-the-broken-god-hub|歯車仕掛正教]]]関連の記事のために設計されています。
+
+以下は、歯車仕掛正教のGoIフォーマット、//総主教の図式//の形式です。
+----
+++ 総主教の図式
+
+[[div style="float:right;width:45%;font-size:90%;padding:5px;"]]
+##red|a.## 意図なき意匠は周縁の美を満たすのみであり、規格化を内包できない。ゆえに聖バッフルはLorem Ipsumを真に価値なきものと述べた。
+
+##red|b.## 機械を設計するにあたり、美だけを追って美を得ることはできない。真の美は、十分な効率と明晰さの改善から自然に導かれる。
+
+##red|c.## 噛み合う歯車と吹き上がる蒸気を見よ。その美を誰が否定できようか。- 聖レース、産業大聖堂を見て
+
+##red|d.## 平明な色は目の負担を軽くする。単純な文字は読む負担を軽くする。- 聖スキームプレイサー・プラトン、『意匠の印刷』
+[[/div]]
+
+
+**第99.99.ζ9-99巻**
+**1.** Lorem ipsum##red|^^a^^## dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+**2.** Ut enim ad minim##red|^^b^^## veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+**3.** Duis aute irure dolor in reprehenderit in voluptate velit esse##red|^^c^^## cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id##red|^^d^^## est laborum.
+
+~~~~
+----
+
+コード:
+
+[[code]]
+[[div style="float:right;width:45%;font-size:90%;padding:5px;"]]
+##red|a.## 傍注divの幅とフォントサイズは変更できます。
+
+##red|b.## 傍注2
+[[/div]]
+
+**第XX.XX.XX-XX巻**
+**1.** 内容1
+**2.** 内容2
+~~~~
+[[/code]]
+
+----
+
+[[collapsible show="+ コードを表示" hide="- コードを隠す" hideLocation="both"]]
+[[code type="css"]]
+/*
+    Schemeテーマ
+    [2021年Wikidotテーマ]
+    shaftmetal、thd-glasses、Denevola作成
+    team Rapid Nomenclature Shiftの歯車仕掛正教に着想を得た
+    ロゴ原案はSunnyClockwork
+
+    CC BY-SA 3.0
+
+    https://pixabay.com/images/id-1711946/
+    https://pixabay.com/images/id-282404/
+    https://pixabay.com/images/id-201499/
+    https://pixabay.com/images/id-70893/
+
+    サイドバーコードはDrMacroのtheme:dustjacket-sigmaより
+    アニメーションコードはLt Flopsのtheme:pataphysicsより
+*/
+
+@import url('https://fonts.bunny.net/css2?family=Song+Myung&display=swap'); @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700&display=swap');
+@font-face {
+    font-family: ELAND_Nice_M;
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts-20-12@1.0/ELAND_Nice_M.woff') format('woff');
+    font-weight: 700;
+    font-style: normal
+}
+
+:root {
+    /*
+    和文代替 - FOR JAPANESE
+    --title: "総主教の図式";
+    --short_title: "図式";
+    --subtitle: "忠実なる我ら、神の意匠に鋳込まれん";
+    --short_subtitle: "神の意匠に鋳込まれん";
+    */
+    
+    --title: "総主教の図式";
+    --short_title: "図式";
+    --subtitle: "忠実なる我ら、神の意匠に鋳込まれん";
+    --short_subtitle: "神の意匠に鋳込まれん";
+
+    --dark-accent: 185, 150, 17
+}
+
+div#container-wrap {
+    z-index :-5;
+    background: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/line.png'), url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/header_cogs.jpg');
+    background-repeat: repeat-x, repeat-x;
+    background-position: top 11.25rem right, top;
+    background-size: auto 14em, auto 11.25rem
+}
+
+/* ---- ヘッダー - HEADER ---- */
+
+#header {
+    background: 0 0;
+    height: 180px
+}
+
+#header h1 {
+    padding-left: 2.5em
+}
+
+#header h1 a {
+    padding: 100px 0 25px;
+    font-family: ELAND_Nice_M, 'Noto Serif JP', BauhausLTDemi, sans-serif
+}
+
+#header h1 a span {
+    font-size: 0
+}
+
+#header h1 a:before {
+    content: var(--title);
+    color: #eee;
+    text-shadow: 2px 2px 2px #000
+}
+
+#header h2 {
+    padding-left: 4.5em;
+    font-family: ELAND_Nice_M, 'Noto Serif JP', BauhausLTDemi, sans-serif;
+    -webkit-transform: translateY(5px);
+    -ms-transform: translateY(5px);
+    transform: translateY(5px)
+}
+
+#header h2 span {
+    font-size: 0;
+    padding: 14px
+}
+
+#header h2:after {
+    content: var(--subtitle);
+    font-weight: 700;
+    color: #f0f0c0;
+    padding: 19px 0;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, .8);
+    white-space: pre
+}
+
+/* ---- 検索欄 - SEARCH-BOX ---- */
+
+#search-top-box {
+    top: 99px
+}
+
+#search-top-box-input, #search-top-box-input:hover {
+    padding: 2px 5px;
+    border: 2px solid;
+    -o-border-image: -o-linear-gradient(left, #e9df95, #917b3c);
+    border-image: -webkit-gradient(linear, left top, right top, from(#e9df95), to(#917b3c));
+    border-image: linear-gradient(to right, #e9df95, #917b3c);
+    border-image-slice: 1;
+    border-radius: 0
+}
+
+#search-top-box-input {
+    background-color: #7b6a33
+}
+
+#search-top-box-input:focus, #search-top-box-input:hover {
+    background-color: #554920
+}
+
+#search-top-box-form input[type=submit], #search-top-box-form input[type=submit]:hover {
+    border: none;
+    border-radius: 0;
+    padding: 4px;
+    background: -webkit-gradient(linear, left top, right top, color-stop(0, #d9ca88), color-stop(50%, #63521c), color-stop(80%, #7b6a33), to(#d9ca88));
+    background: -o-linear-gradient(left, #d9ca88 0, #63521c 50%, #7b6a33 80%, #d9ca88 100%);
+    background: linear-gradient(to right, #d9ca88 0, #63521c 50%, #7b6a33 80%, #d9ca88 100%);
+    -webkit-box-shadow: inset -2px -2px 5px #63521c;
+    box-shadow: inset -2px -2px 5px #63521c
+}
+
+#search-top-box-form input[type=submit] {
+    color: #e3dfd4
+}
+
+#search-top-box-form input[type=submit]:hover {
+    -webkit-filter: brightness(.8);
+    filter: brightness(.8)
+}
+
+/* ---- 上部メニュー - TOP-NAVIGATION ---- */
+
+#top-bar {
+    top: 179px
+}
+
+#top-bar ul li ul li ul {
+    left: 159px
+}
+
+/* ---- サイドバー - SIDE-BAR ---- */
+/* DrMacroのSigma-9 Wanderers' DustJacket Themeから一部コピー */
+
+#side-bar .side-block,
+#interwiki .side-block {
+    border-color: rgb(var(--dark-accent));
+    background-color: #fff;
+    -webkit-box-shadow: 0 2px 6px rgba(var(--dark-accent), .5);
+    box-shadow: 0 2px 6px rgba(var(--dark-accent), .5)
+}
+
+#side-bar .side-block.media, #interwiki .side-block.media {
+    background-color: #f8f1da !important
+}
+
+#side-bar .side-block.resources, #interwiki .side-block.resources {
+    background-color: #f6eac4 !important
+}
+
+#side-bar .heading,
+#interwiki .heading {
+    font-size: 1rem;
+    color: rgb(126, 103, 44,80%);
+    background: linear-gradient(to right, rgb(206, 193, 133,70%), transparent);
+    border-bottom-color: rgb(126, 103, 44);
+    font-family: 'Song Myung', 'Noto Serif JP', 'Nanum Gothic', serif;
+}
+
+/* ---- 評価モジュール - RATE-MODULE ---- */
+
+.page-rate-widget-box {
+    background: -webkit-gradient(linear, left top, right top, color-stop(5%, #bc9744), color-stop(25%, #fbd076), color-stop(50%, #fff6aa), color-stop(75%, #f0c86d), color-stop(80%, #eac068), to(#bb9645));
+    background: -o-linear-gradient(left, #bc9744 5%, #fbd076 25%, #fff6aa 50%, #f0c86d 75%, #eac068 80%, #bb9645 100%);
+    background: linear-gradient(to right, #bc9744 5%, #fbd076 25%, #fff6aa 50%, #f0c86d 75%, #eac068 80%, #bb9645 100%);
+    border: 1px solid #bdaa79;
+    border-radius: 0;
+    -webkit-box-shadow: 1px 1px 0 rgb(12 12 12 / 15%);
+    box-shadow: 1px 1px 0 rgb(12 12 12 / 15%);
+    color: #6b5829;
+    font-size: .9rem;
+}
+ 
+div.page-rate-widget-box .rate-points {
+    background-color: transparent;
+    border: none;
+    color: #6b5829;
+}
+ 
+.page-rate-widget-box .rateup,
+.page-rate-widget-box .ratedown {
+    background-color: transparent;
+    border: none;
+    font-weight: normal;
+}
+ 
+.page-rate-widget-box .rateup a,
+.page-rate-widget-box .ratedown a {
+    color: inherit;
+}
+ 
+.page-rate-widget-box .cancel {
+    background-color: transparent;
+    border: none;
+}
+ 
+.page-rate-widget-box .cancel a {
+    color: inherit;
+}
+ 
+.page-rate-widget-box .cancel a:hover {
+    border-radius: 0;
+}
+
+/* ---- 情報モジュール - INFO-MODULE ---- */
+
+.rate-box-with-credit-button {
+    background: -o-linear-gradient(left, #bc9744 5%, #fbd076 25%, #fff6aa 50%, #f0c86d 75%, #eac068 80%, #bb9645 100%);
+    background: -webkit-gradient(linear, left top, right top, color-stop(5%, #bc9744), color-stop(25%, #fbd076), color-stop(50%, #fff6aa), color-stop(75%, #f0c86d), color-stop(80%, #eac068), to(#bb9645));
+    background: linear-gradient(to right, #bc9744 5%, #fbd076 25%, #fff6aa 50%, #f0c86d 75%, #eac068 80%, #bb9645 100%);
+    border: 1px solid #bdaa79 !important;
+    border-radius: 0 !important;
+    -webkit-box-shadow: 1px 1px 0 rgb(12 12 12 / 15%) !important;
+    box-shadow: 1px 1px 0 rgb(12 12 12 / 15%) !important;
+    color: #6b5829;
+    font-size: .9rem;
+}
+
+.rate-box-with-credit-button .page-rate-widget-box {
+    background: none;
+    border: none;
+}
+
+.rate-box-with-credit-button .fa-info {
+    border-color: #6b5829;
+    color: #6b5829;
+}
+
+.rate-box-with-credit-button .fa-info:hover {
+     color: #fff;
+}
+
+#u-credit-view:target,
+#u-credit-otherwise:target {
+    z-index: 31;
+}
+
+.modalbox {
+    border: 1px solid #af9a1c !important;
+    box-shadow: 0 2px 6px rgb(173 162 31 / 50%) !important;
+}
+
+/* ---- インターウィキ - INTERWIKI ---- */
+
+iframe.scpnet-interwiki-frame {
+    filter: drop-shadow(0 2px 1 rgba(var(--dark-accent), 0.5));
+    -webkit-filter: drop-shadow(0 2px 1 rgba(var(--dark-accent), 0.5));
+}
+
+/* ---- ロゴ - LOGO ---- */
+
+/* ロゴベース */
+div#extra-div-2 {
+    display: block;
+    z-index: 20;
+    background: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/base.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    position: absolute;
+    top: 48px;
+    left: 50%;
+    -webkit-transform: translateX(-485px);
+    -ms-transform: translateX(-485px);
+    transform: translateX(-485px);
+    width: 130px;
+    height: 130px
+}
+
+/* 小歯車 */
+div#extra-div-3 {
+    z-index: 10;
+    width: 13px;
+    height: 13px;
+    display: block;
+    position: absolute;
+    top: 78px;
+    left: 50%;
+    -webkit-transform: translateX(-431px);
+    -ms-transform: translateX(-431px);
+    transform: translateX(-431px)
+}
+
+div#extra-div-3::before {
+    content: "";
+    width: 22px;
+    height: 22px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extra-div-3::before {
+    background-image: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/cogS.png');
+    -webkit-animation: spin 5s linear infinite;
+    -webkit-animation-direction: reverse;
+    animation: spin 5s linear infinite;
+    animation-direction: reverse;
+}
+
+/* 中歯車 */
+div#extra-div-4 {
+    z-index: 30;
+    width: 13px;
+    height: 13px;
+    display: block;
+    position: absolute;
+    top: 125px;
+    left: 50%;
+    -webkit-transform: translateX(-395px);
+    -ms-transform: translateX(-395px);
+    transform: translateX(-395px)
+}
+
+div#extra-div-4::before {
+    content: "";
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extra-div-4::before {
+    background-image: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/cogM.png');
+    -webkit-animation: spin 8s linear infinite;
+    animation: spin 8s linear infinite;
+    animation-direction: reverse
+}
+
+/* 大歯車 */
+div#extra-div-5 {
+    z-index: 10;
+    width: 13px;
+    height: 13px;
+    display: block;
+    position: absolute;
+    top: 48px;
+    left: 50%;
+    -webkit-transform: translateX(-485px);
+    -ms-transform: translateX(-485px);
+    transform: translateX(-485px)
+}
+
+div#extra-div-5::before {
+    content: "";
+    width: 130px;
+    height: 130px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extra-div-5::before {
+    background-image: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/cogL.png');
+    -webkit-animation: spin 24s linear infinite;
+    animation: spin 24s linear infinite
+}
+
+/* ラック歯車 */
+/*
+::-webkit-scrollbar {
+  display: none;
+}
+*/
+html {
+  scrollbar-width: thin !important;  /* Firefox用 */
+}
+
+div#extra-div-6 {
+    z-index: 10;
+    width: 4px;
+    height: 4px;
+    display: block;
+    position: absolute;
+    top: 173.5px;
+    left: 0;
+    -webkit-transform: translateX(-18px);
+    -ms-transform: translateX(-18px);
+    transform: translateX(-18px);
+}
+
+div#extra-div-6::before {
+    content: "";
+    width: calc( 100vw + 18px );
+    height: 270%;
+    position: absolute;
+    background-repeat: repeat-x;
+    background-position: center center;
+    background-size: 18px 10px;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    -webkit-transform: translateX(18px);
+    -ms-transform: translateX(18px);
+    transform: translateX(18px);
+}
+
+div#extra-div-6::before {
+    background-image: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/rack.png');
+    -webkit-animation: line 1s linear infinite;
+    animation: line 1s linear infinite;
+    -webkit-animation-delay: -.25s;
+    animation-delay: -.25s
+}
+
+/* レバーと棒のアニメーション */
+#header #header-extra-div-2::before {
+    -webkit-animation-duration: 5s;
+    animation-duration: 5s;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-delay: -1s;
+    animation-delay: -1s;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out
+}
+
+#header #header-extra-div-1::before, #header #header-extra-div-3::before {
+    -webkit-animation-duration: 5s;
+    animation-duration: 5s;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out
+}
+
+/* レバー */
+#header #header-extra-div-1 {
+    z-index: -1;
+    width: 13px;
+    height: 13px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    position: absolute;
+    top: 47px;
+    left: 57px;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%)
+}
+
+#header #header-extra-div-1::before {
+    z-index: -1;
+    content: "";
+    width: 85px;
+    height: 85px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+#header #header-extra-div-1::before {
+    z-index: -1;
+    background-image: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/lever.png');
+    -webkit-animation-name: cont-spin;
+    animation-name: cont-spin
+}
+
+/* 棒 */
+#header #header-extra-div-2 {
+    z-index: -2;
+    width: 13px;
+    height: 13px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    position: absolute;
+    left: 53px;
+    top: 105px;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+    margin-top: 0
+}
+
+#header #header-extra-div-2::before {
+    z-index: -2;
+    content: "";
+    width: 20px;
+    height: 35px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+#header #header-extra-div-2::before {
+    z-index: -1;
+    background-image: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/stick.png');
+    -webkit-animation-name: dir;
+    animation-name: dir;
+    animation-direction: reverse
+}
+
+/* 棒2 */
+#header #header-extra-div-3 {
+    z-index: -2;
+    width: 13px;
+    height: 13px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    position: absolute;
+    left: 128px;
+    top: 105px;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+    margin-top: 0
+}
+
+#header #header-extra-div-3::before {
+    z-index: -1;
+    content: "";
+    width: 15px;
+    height: 40px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 15px 40px;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+#header #header-extra-div-3::before {
+    z-index: -1;
+    background-image: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/stick.png');
+    -webkit-animation-name: dir;
+    animation-name: dir
+}
+
+body {
+    overflow-x: hidden
+}
+
+/* 蒸気 */
+div#extrac-div-1::before, div#extrac-div-2::before, div#extrac-div-3::before {
+    -webkit-filter: blur(4px);
+    filter: blur(4px);
+    -webkit-animation-name: dir2;
+    animation-name: dir2;
+    -webkit-animation-duration: 5s;
+    animation-duration: 5s
+}
+
+div#extrac-div-1::before {
+    -webkit-animation-delay: .3s;
+    animation-delay: .3s
+}
+
+div#extrac-div-2::before {
+    -webkit-animation-delay: -.5s;
+    animation-delay: -.5s
+}
+
+div#extrac-div-3::before {
+    -webkit-animation-delay: -1s;
+    animation-delay: -1s
+}
+
+div#extrac-div-1 {
+    z-index: 10;
+    width: 140px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: -60px;
+    left: calc(50% + 10px);
+    -webkit-transform: translateX(-525px);
+    -ms-transform: translateX(-525px);
+    transform: translateX(-525px)
+}
+
+div#extrac-div-1::before {
+    content: "";
+    width: 100px;
+    height: 200px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extrac-div-1::before {
+    z-index: -1;
+    background-image: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/steam1.png');
+    background-size: 70px;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite
+}
+
+div#extrac-div-2 {
+    z-index: 10;
+    width: 140px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: -80px;
+    left: calc(50% + 10px);
+    -webkit-transform: translateX(-545px);
+    -ms-transform: translateX(-545px);
+    transform: translateX(-545px)
+}
+
+div#extrac-div-2::before {
+    content: "";
+    width: 100px;
+    height: 200px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extrac-div-2::before {
+    z-index: -1;
+    background-image: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/steam2.png');
+    background-size: 70px;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out
+}
+
+div#extrac-div-3 {
+    z-index: 10;
+    width: 140px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: -60px;
+    left: calc(50% + 10px);
+    -webkit-transform: translateX(-545px);
+    -ms-transform: translateX(-545px);
+    transform: translateX(-545px)
+}
+
+div#extrac-div-3::before {
+    content: "";
+    width: 100px;
+    height: 200px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extrac-div-3::before {
+    z-index: -1;
+    background-image: url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/steam3.png');
+    background-size: 70px;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out
+}
+
+/* アニメーション */
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0);
+        transform: rotate(0)
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg)
+    }
+}
+
+@keyframes spin {
+    from {
+        -webkit-transform: rotate(0);
+        transform: rotate(0)
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg)
+    }
+}
+
+@-webkit-keyframes cont-spin {
+    0% {
+        -webkit-transform: rotate(195deg);
+        transform: rotate(195deg)
+    }
+
+    80% {
+        -webkit-transform: rotate(165deg);
+        transform: rotate(165deg)
+    }
+
+    100% {
+        -webkit-transform: rotate(195deg);
+        transform: rotate(195deg)
+    }
+}
+
+@keyframes cont-spin {
+    0% {
+        -webkit-transform: rotate(195deg);
+        transform: rotate(195deg)
+    }
+
+    80% {
+        -webkit-transform: rotate(165deg);
+        transform: rotate(165deg)
+    }
+
+    100% {
+        -webkit-transform: rotate(195deg);
+        transform: rotate(195deg)
+    }
+}
+
+@-webkit-keyframes dir {
+    0% {
+        -webkit-transform: translateY(18px);
+        transform: translateY(18px)
+    }
+
+    80% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0)
+    }
+
+    100% {
+        -webkit-transform: translateY(18px);
+        transform: translateY(18px)
+    }
+}
+
+@keyframes dir {
+    0% {
+        -webkit-transform: translateY(18px);
+        transform: translateY(18px)
+    }
+
+    80% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0)
+    }
+
+    100% {
+        -webkit-transform: translateY(18px);
+        transform: translateY(18px)
+    }
+}
+
+@-webkit-keyframes dir2 {
+    0% {
+        -webkit-transform: translateY(60px);
+        transform: translateY(60px);
+        opacity: 0;
+        -webkit-transform: scale(.4);
+        transform: scale(.4)
+    }
+
+    20% {
+        opacity: .6;
+        -webkit-transform: scale(.7);
+        transform: scale(.7)
+    }
+
+    40% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        opacity: .7;
+        -webkit-transform: scale(.8);
+        transform: scale(.8)
+    }
+
+    100% {
+        -webkit-transform: translateY(-80px);
+        transform: translateY(-80px);
+        opacity: .5
+    }
+}
+
+@keyframes dir2 {
+    0% {
+        -webkit-transform: translateY(60px);
+        transform: translateY(60px);
+        opacity: 0;
+        -webkit-transform: scale(.4);
+        transform: scale(.4)
+    }
+
+    20% {
+        opacity: .6;
+        -webkit-transform: scale(.7);
+        transform: scale(.7)
+    }
+
+    40% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        opacity: .7;
+        -webkit-transform: scale(.8);
+        transform: scale(.8)
+    }
+
+    100% {
+        -webkit-transform: translateY(-80px);
+        transform: translateY(-80px);
+        opacity: .5
+    }
+}
+
+@-webkit-keyframes line {
+    from {
+        -webkit-transform: translateX(18px);
+        transform: translateX(18px)
+    }
+
+    to {
+        -webkit-transform: translateX(0);
+        transform: translateX(0)
+    }
+}
+
+@keyframes line {
+    from {
+        -webkit-transform: translateX(18px);
+        transform: translateX(18px)
+    }
+
+    to {
+        -webkit-transform: translateX(0);
+        transform: translateX(0)
+    }
+}
+
+/* ---- レスポンシブ - RESPONSIVE-DESIGN ---- */
+@media (min-width: 1104px){
+    #header h1 {
+        padding-left: 1.5em
+    }
+    #header h2 {
+        padding-left: 3em
+    }
+}
+
+@media (min-width: 1104px) and (min-height: 2079px) {
+    div#extra-div-6::before {
+        -webkit-animation-delay:-.05s;
+        animation-delay: -.05s;
+    }
+}
+
+@media (max-width: 1149px) {
+    #header h1, #header h2 {
+        margin-left:120px
+    }
+
+    #header h1 a:before {
+        content: var(--short_title)
+    }
+
+    div#extra-div-2, div#extra-div-5 {
+        left: calc(51px + 5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extra-div-3 {
+        left: calc(51px + 59px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extra-div-4 {
+        left: calc(51px + 95px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extra-div-6::before {
+        background-position: left center;
+        -webkit-animation-delay:-.97s;
+        animation-delay: -.97s;
+    }
+
+    #header #header-extra-div-1 {
+        left: calc(-4.9vw + 51px + 27.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    #header #header-extra-div-2 {
+        left: calc(-4.9vw + 51px + 24.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    #header #header-extra-div-3 {
+        left: calc(-4.9vw + 51px + 97.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extrac-div-1 {
+        left: calc(51px - 25px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extrac-div-2 {
+        left: calc(51px - 45px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extrac-div-3 {
+        left: calc(51px - 45px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+}
+
+@media (max-width: 767px) {
+
+    #top-bar .open-menu a {
+        border: .2em solid #ba9e57;
+        color: #ba9e57;
+        position: fixed;
+        bottom: 0.6em;
+        top : auto;
+        left: 0.5em;
+    }
+
+    #side-bar, #side-bar:target {
+        z-index: 50;
+    }
+    #side-bar {
+  background: linear-gradient(to bottom, #726969 0%, #d3cdcd 30%, #ececec 50%, #898383 100%);
+    }
+}
+
+@media (max-width: 385px) {
+    #header h1, #header h2 {
+        margin-left:80px
+    }
+
+    #header h2:after {
+        content: var(--short_subtitle)
+    }
+
+    div#extra-div-2, div#extra-div-5 {
+        left: 5px;
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extra-div-3 {
+        left: 59px;
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extra-div-4 {
+        left: 95px;
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    #header #header-extra-div-1 {
+        left: calc(27.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    #header #header-extra-div-2 {
+        left: calc(24.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    #header #header-extra-div-3 {
+        left: calc(97.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extrac-div-1 {
+        left: -25px
+    }
+
+    div#extrac-div-2 {
+        left: -45px
+    }
+
+    div#extrac-div-3 {
+        left: -45px
+    }
+
+    div#extra-div-6::before {
+        -webkit-animation-delay: -.81s;
+        animation-delay: -.81s;
+    }
+}
+
+ 
+/* ---- 動きを減らすアクセシビリティ ----
+ * SMLT作
+**/
+ @media (prefers-reduced-motion: reduce){
+     *, *::before, *::after{
+         animation-duration: .001s !important;
+         animation-iteration-count: 1 !important;
+         transition-duration: .001s !important;
+    }
+}
+[[/code]]
+[[/collapsible]]
+
+
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

@@ -46,12 +46,7 @@ pub(in crate::services::render::literal_regions) struct ExactEffect {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(in crate::services::render::literal_regions) enum CandidateEffect {
     Exact(ExactEffect),
-    /// Fail closed through a deterministic recovery boundary without claiming
-    /// the source as successfully parsed FTML.
-    RecoveryBarrier {
-        hard_sync: usize,
-    },
-    /// Runtime fail-closed protection emits a range without claiming parser input.
+    RecoveryBarrier { hard_sync: usize },
     PolicyEmit(EmitSetId),
 }
 
@@ -135,11 +130,6 @@ pub(in crate::services::render::literal_regions) struct CandidateSelection {
         HashSet<DelimiterIdentity>,
 }
 
-/// Select final literal ownership after compatibility candidates are present.
-///
-/// Original-source effects must not survive when compatibility parsing makes
-/// their owning candidate unreachable. Later output protectors are merged by
-/// the caller after parser ownership has been resolved.
 pub(in crate::services::render::literal_regions) fn select_two_phase_candidates(
     arena: &EmitSetArena,
     original_streams: &[Vec<ParserCandidate>],

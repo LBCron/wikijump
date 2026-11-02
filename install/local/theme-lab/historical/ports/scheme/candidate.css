@@ -1,0 +1,1920 @@
+/*
+    Scheme Theme
+    [2021 Wikidot Theme]
+    Created by shaftmetal, thd-glasses and Denevola
+    Inspired by team Rapid Nomenclature Shift's Cogwork Orthodox Church
+    Logo originally from SunnyClockwork
+
+    CC BY-SA 3.0
+
+    https://pixabay.com/images/id-1711946/
+    https://pixabay.com/images/id-282404/
+    https://pixabay.com/images/id-201499/
+    https://pixabay.com/images/id-70893/
+
+    sidebar code from theme:dustjacket-sigma by DrMacro
+    animation code from theme:pataphysics by Lt Flops
+*/
+
+/* 2 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("c358e2e7651717f7e0355ae869843164478628cd92cb2933b6dd3ca835bbc0ca.woff2") format('woff2'), url("71a24af351250cd4ad386ececdb060b3571308cf83cd487e2b68996bbaead24e.woff") format('woff');
+}
+
+/* 3 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("d9835380f6752b4d3d2c4e0292c3ce30f3e74852f02fd73aa27c64dd36f08900.woff2") format('woff2'), url("564b7433819a7254ae2f206e3d11d04bc3f51e1a5a23eb8e49f41640c59cc282.woff") format('woff');
+}
+
+/* 4 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("8b301beca97801218f62704692693073029fcfa54a56356b30143fb60d52e686.woff2") format('woff2'), url("a561b62a59f156ee9f13848e6620f9bdb2eb6417f6cc1d8dd26f0876c3c2ed75.woff") format('woff');
+}
+
+/* 5 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("543b50bd63479f9f028eeda1121f36a2d71e514c981508b0f8cdaeddc653d2f6.woff2") format('woff2'), url("91926c74b9b14bf0bb69566a57f5c49440d2ae727a2f9ba458f66b8f5f4fbad4.woff") format('woff');
+}
+
+/* 6 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("f048563743244d656487d4d08a7e663d7aad355aaa9800060d3ad181b215fe63.woff2") format('woff2'), url("6b889b804cda4dafe2809ce41480100ad96adb27e0c5091315e2e0472c089571.woff") format('woff');
+}
+
+/* 7 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("d8e08bd4e306f054e50e974455b22c57569a5d4423c8040dad69c672b1caeca4.woff2") format('woff2'), url("469157ad5323f306895ae14ac5aff5730cf8f2d15425496debc956c958e5f412.woff") format('woff');
+}
+
+/* 8 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("b87f99e325e98fd03be9f14d5ee8f999370383c8e687596a6e3065fb12107a57.woff2") format('woff2'), url("2d0895e7387f06c251a022cc7626b179bba89e3ac14b46316878dbc687ec1f64.woff") format('woff');
+}
+
+/* 9 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("9e7313352ee2e7a89c4c0990829ec87b60556fc4e738da0b0745f27701af09a5.woff2") format('woff2'), url("bfca0007b3090efcd0c5989e69712e652513b5930ca966137fd8a20625718402.woff") format('woff');
+}
+
+/* 10 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("160225fc0343c4cec99ae31b8809817dba252ce954445396a5e2c7bc13a7d6e3.woff2") format('woff2'), url("69b5350e9c4d11b8885da683c1dc6010d38d033f371a3d07fac970ee1e382771.woff") format('woff');
+}
+
+/* 11 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("cc1a6af7be43e319143e28b79f56b5442b59d2072b299eecc8a73f76b36cdabf.woff2") format('woff2'), url("9799f163cdc0656ff784a35edb53a95aebb0ff10d339d5f0cf48cd7cd1b820cc.woff") format('woff');
+}
+
+/* 12 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("1c87f3b56aac05a5e92efafe0151574158c4108d65fb77b893802713657e4d17.woff2") format('woff2'), url("f40c250abb4d7bde3518fe096fc8bccf11371d594cdb54deb37dc4b1ba61de40.woff") format('woff');
+}
+
+/* 13 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("976830782766b251db5c56a4e6f61f6397b2cd3a6c38bf9fe1d4b6014da0a6c0.woff2") format('woff2'), url("7e1a438f360f7df9bbe4dd3c62278647c5a5d05aae9edbcb115a7ea29dad9bb4.woff") format('woff');
+}
+
+/* 14 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("6dd8b757e5e1878a835bc9faffcb8c3515ab13117fefecd48015ed7e7d3ec8cc.woff2") format('woff2'), url("49c1416f96a00d115d1b84d20058d4095dc26db28eeb2f82257b22542f4f75f5.woff") format('woff');
+}
+
+/* 15 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("28587a483d26e15afea05bdc4ad95939d4862fc4eada357acd8766f0c1d881db.woff2") format('woff2'), url("63e9c6f1396adc274e99fd5e18104095e9a6112ee6d459c9be34210b705bf74e.woff") format('woff');
+}
+
+/* 16 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("7b7a7e46fd6f6d1b094d628c1d4aa93abf354becbc2cb0382048374166b3f3f3.woff2") format('woff2'), url("c8744d23722efcc1286037248a9c563839e27452bd99a91368f0ddf126b8573d.woff") format('woff');
+}
+
+/* 17 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("1d9f79d2601bf5fbf592830d228a14611c966ef9cb576c7bc2b07eea1550433c.woff2") format('woff2'), url("e1e9217e806e276a3fb24933314996cd8c2044dfa3f9307e745be8435de72456.woff") format('woff');
+}
+
+/* 18 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("89db046edbb29f8b044a7cfb2df2691af3fdaac86fc08771e38a538fc3c2ed0e.woff2") format('woff2'), url("7e2bac93b3162487aea00b3ee94202a28f6a0f54d0294eff191d51edcd827285.woff") format('woff');
+}
+
+/* 19 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("a4fcc12fbc4436e818e87306b06e4312f56dfb7bdeb4e3263751a11f4c67a464.woff2") format('woff2'), url("932fd9a49a8627616635185c2d684a84b4eac784a1b706b26c1833f6bd4ae6c3.woff") format('woff');
+}
+
+/* 20 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("7fafb91bd3ff1178c67f10b7a2b6bd9c0cfdc4c0966d7566b2322831c1afdcc1.woff2") format('woff2'), url("b11c9053bd4e7641ccb69a9fd81dc797efd8b689ba39a9b5323ac44e6d23bfb2.woff") format('woff');
+}
+
+/* 21 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("f4a287ad072c1ba1df9769a7226a072c61e4f4de285e71948649dbd0574272f3.woff2") format('woff2'), url("13bfba751c809942a0b02c795c425f99e2f04ff51153c879664ec0ae78ba2916.woff") format('woff');
+}
+
+/* 22 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("d2cf7a4aed75c472acf32fb40b4215d5b00ea93e3030767bf86b8173f6eb1cb9.woff2") format('woff2'), url("1c5c439f84429d8309b4b501508a170ca7f17a59aab2711cf60b4fa05f015675.woff") format('woff');
+}
+
+/* 23 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3bcee90dcf9f8633651fcecd7385c2b9ef1bdde515e4ca3b18f7e3eb5493b5ff.woff2") format('woff2'), url("32b9ed6914c8c1e029eac033e93cf98932dc5830b722d4be3cd8086f6b197b6e.woff") format('woff');
+}
+
+/* 24 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("db1c59fc9157c3ab47d1ce1026d8c5834663fd7b3fa796a84a58b128508b9193.woff2") format('woff2'), url("e16862c10a8b66f8f8d557bccb22c30b73d82663ffe2a22c9e0945b17182e601.woff") format('woff');
+}
+
+/* 25 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("a31e58e9284e9d90d6f21c924168bcc70e69de72df9b74a5f3d13be905013f05.woff2") format('woff2'), url("aceb69ba3c59406e96e3bcbdd73f4e39abc5d3195b889a6f23ccd094e8069630.woff") format('woff');
+}
+
+/* 26 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("ea9cc4e8b150469dd019c6be916d246befb60102edb47ec5c1b12bf3fcbb15ed.woff2") format('woff2'), url("ead775d23df1b567aae38ee172424ab5b7cb0b90e5101a1a068b92e1fd1d04e8.woff") format('woff');
+}
+
+/* 27 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("1caa00900b6b5f68b988f95c37b850260dcaa5832b1c10dd192ff824d6745db5.woff2") format('woff2'), url("e6554d34b65bbd97e73ea0ff9974c8bd122fea4d42b913d647dbfac9802ca184.woff") format('woff');
+}
+
+/* 28 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("ddb68e30227d9035f072b06c82cf388ad20d82dfa68b9a08fe96873f6cdeab7d.woff2") format('woff2'), url("0dd04fefe56e110e48eae9717d95852d853db30850cd59153afb19925c9ef15d.woff") format('woff');
+}
+
+/* 29 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("abc2aff08192436b2d4bee0381efde0632ce4ed4d5fc9266319c3970202410fd.woff2") format('woff2'), url("e0cd6ea78aa45535eb06ce1b0e3085bae9575a728e7bf0afb446fe7a2059c59c.woff") format('woff');
+}
+
+/* 30 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("287fde7daf6e5811a976bf1e361591d02f5205ea1dfeeb40f5c9b458d94c047d.woff2") format('woff2'), url("6c712eca8be0795bcd9629ecd5f385a98fabbd8b7064cfa2880ac1f37d1dc65b.woff") format('woff');
+}
+
+/* 31 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("ce26ff963e4701f8e08375528a58af3a1bb1c2265cdab7c43f95961ac54dabdd.woff2") format('woff2'), url("a280dcda6e11d10344a094560a40625f32854d2f423f6b3645979864a41b7851.woff") format('woff');
+}
+
+/* 32 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("9854dc66f2b36e019d84d2cf39bff8f9052ba94bd11b4d804160c8c3f50eb7b2.woff2") format('woff2'), url("c6e2798bc3446504d61c692b1f9a495691217bac30078448c31d3512b304e48d.woff") format('woff');
+}
+
+/* 33 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("af031059e6b441f4717e5c995e2d8ab97974f7ea67828fdee9983cdb94e2aead.woff2") format('woff2'), url("97c2dcb27baf32ddf529c3c10bc74f48a130bf4a1021977afdda48ac8abaae31.woff") format('woff');
+}
+
+/* 34 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("109569b8217a79a560903753422b4dee22fc25e767812c32afc006f97f99b392.woff2") format('woff2'), url("86aa82bbdb50c88f5fab859ff1eefba54cf07f4c719c307f5897e5a240e1a17f.woff") format('woff');
+}
+
+/* 35 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("5f89b806b92cfd8bcfa52c3544d345c8fcd1b07807903618227851eaf5c43098.woff2") format('woff2'), url("559e3eddf87b194161e89f8943fbb51ddfc2eb9cbaddbbd4df2904ec8df55ca2.woff") format('woff');
+}
+
+/* 36 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("6f045e5011c91203dfff975c6809f0d3bb971e0718e437ab0ea23a2229f191dd.woff2") format('woff2'), url("4c01bfa65ea0db0424a4a334fd136aace4d830b1cbcdb36347a776a5e0cfd155.woff") format('woff');
+}
+
+/* 37 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("4800a54245749e82d2865db3368c5d8bcece29aeb75343b03d04e9d069fc3d25.woff2") format('woff2'), url("9dd80c9f028596563e5342b43c06b76fb20e2e5e3778730ccb62a29810a68f7b.woff") format('woff');
+}
+
+/* 38 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("207b63f83be24b23c07f8a19004b245a25abc7d0bc8d5bdb2468ad7b7f67c8f9.woff2") format('woff2'), url("a18bdf70a86a31cf50c05840d65d605107450308cb784d612426d98e2d6cb642.woff") format('woff');
+}
+
+/* 39 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("22982b528a98a2c895e648c73bed82426ee3a036be8fce9b34f821795272e734.woff2") format('woff2'), url("ac02b6d893cd75c46750da0eaa18a096a285ac21028a02d531554d064a1b05e8.woff") format('woff');
+}
+
+/* 40 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("4a65e5ba13079e8350a656ba4647ea33de65e26a05a42db2ece43d8ef2a0272d.woff2") format('woff2'), url("d5254c25417e993ff8fc2971f69017e961c4473165ac5c61bd35470239cb4496.woff") format('woff');
+}
+
+/* 41 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("33a5743895b455a2c3a69b9497b8a7dc97797fab87de09d6cbf8085410a8143e.woff2") format('woff2'), url("ca0beb847ed02c156155a7b45ffc5051c87256a835495111ed163bde4199eccf.woff") format('woff');
+}
+
+/* 42 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("c307c6905126b13ff76cbdf0be6cf2ae2bdfab87025dd5f78722c2cab3a88a5f.woff2") format('woff2'), url("13d88e32cc4402b4ab1018bada65d2ad2c268efe8a89abea1856c5588917e911.woff") format('woff');
+}
+
+/* 43 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("92edb80fffa3b2c5ca2768b2d7fe85a96dfef22654ba22424bcb4682be0e2b86.woff2") format('woff2'), url("0f68ea87409831b497f5d8201aba47cb364d4c46d017ffba3001865893740d88.woff") format('woff');
+}
+
+/* 44 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("e39613f3cedf4355b5398cd074d635a09500a72acfd53946a871aa1175f13952.woff2") format('woff2'), url("8de2bb508b9b97b1c958887973dc6f5c5ddcedb6ea0669d0c0b9777ce59de656.woff") format('woff');
+}
+
+/* 45 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("901c3ecdbce409b2e367a37662cc1de754763c7a826a2f13659e8d2a3b52de7c.woff2") format('woff2'), url("28dbdc1fd747b2f5f119b0a958b72e57b05fb169444fa1839725c336580560c5.woff") format('woff');
+}
+
+/* 46 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("c51726fa62bb475ecfeeec8e3a8225148f325898d157e42902e6579bccf5c0db.woff2") format('woff2'), url("8a7896fa16bb9713bc7dac5b4b23f2d67a15b0a01d32231c1416f34360ef199d.woff") format('woff');
+}
+
+/* 47 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("67406099cf4cf42ad5cff983bcd54d4735e2dde152ad9ba6ffcc4e35a91fa0fe.woff2") format('woff2'), url("362a91a67ae3debcf1f5d6a46d254c66af73199eee42f79ede4e87d0c582cdf0.woff") format('woff');
+}
+
+/* 48 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("4575ded620b4955a35116482ee7b88a2dec23e517aee4633b35efa525240dda3.woff2") format('woff2'), url("7aeaaeae904558254beaa4f4c89d213a14a6adfee22d24b37b36549b4e352554.woff") format('woff');
+}
+
+/* 49 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("d3d9601465910b01a7562a56d8705d456ad222bc02bd1943481cd90f0cc614df.woff2") format('woff2'), url("e70993fc87b897906663fb5f0567a4559a925542d06d20ea0a9ca80ca8a859cb.woff") format('woff');
+}
+
+/* 50 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("cd32bd8d48a015fa8da8fc88b3c362ed30438fd1adeac88979c5330d7c2b1208.woff2") format('woff2'), url("9b50c625c581d2db51a0eb2ba8511e6ed1462ccb4895f4dd10eade23d712d2ed.woff") format('woff');
+}
+
+/* 51 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3edff73fcc71e11ff10c180586c3b2791d900758cffd2d14ef9348fb5b5403bb.woff2") format('woff2'), url("7b6395d5c30a40227f1691505bacb8100376454fedbbb24a05b15efce12c10f0.woff") format('woff');
+}
+
+/* 52 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("498933d54536eb00872aea218ed9344004c8a43ce80086757119eff2fc27c9f5.woff2") format('woff2'), url("b272a08280ad378a7cfbc2c3901dca7317a6a8f368b2f30936ac9f7c61bac563.woff") format('woff');
+}
+
+/* 53 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("541545e073d965e320725edd722694e677b2bfaeb2efffe9ab7a73530a6f806b.woff2") format('woff2'), url("eca75ed2355f656318628d5f79bcb3a43b112e000a6c8a2b67b50f945b066e22.woff") format('woff');
+}
+
+/* 54 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("7e78d228c0cd80bcabd30aacbcb732265c5be7b030507b8be1ac11e13cc02b8c.woff2") format('woff2'), url("c1fd407922b914a9d8dc05508adff6121a43b1a3976210c673542c164342cef7.woff") format('woff');
+}
+
+/* 55 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("519ca8811314edbab9aba3962b96e268207d37803938a66f48a02bf73a039f86.woff2") format('woff2'), url("813d886394aca8e2a7d1748f7c3891a8d55c329f163869620f7f0c5c7497a552.woff") format('woff');
+}
+
+/* 56 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("7b458028eb95f7c723eaf25df7ff51b9a9f4f1fd70cbfaec0610c40599ffd28a.woff2") format('woff2'), url("3478f2f2b4a63e79b8c77e92f31d91f6780e9868d26a4505f3a150807ddc6bd9.woff") format('woff');
+}
+
+/* 57 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("509faab0cdbddd8a3f969c7ed35b24cb78dbfeb21f2898665764de44923ff386.woff2") format('woff2'), url("47465b4e69362be625e54982b2efe5f414e84768dec36a7a77bd9c09ffd69ac5.woff") format('woff');
+}
+
+/* 58 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("1ac758626e4b2522f74d3e1398d474169348cf5e984e4bc5251cf4826d2f760f.woff2") format('woff2'), url("00fef46d9135cb8797cb0fcb18f873df874c51d349c883839c70e998c76d067e.woff") format('woff');
+}
+
+/* 59 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("4f1797f02bb0d692baa3c6c91cf3b49571f2cd6a110e1dc3b48b3d6e3b244ed8.woff2") format('woff2'), url("75b7c46ebaa888f04a9d851d0999319a30791b033f67f84fc986d313eee49627.woff") format('woff');
+}
+
+/* 60 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("549a180611f7eb535e56180555ae23746a3f83073cb756a7aa727fd128c47346.woff2") format('woff2'), url("245fe75302e8f817d4a377ec3be6b121d501743090c237f887c95d9b6da08ebd.woff") format('woff');
+}
+
+/* 61 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("9ce36437a6462d6d1e8061b981bce83daede53803aa9c257fddcda09ca9e0b77.woff2") format('woff2'), url("acedbb80b343ba813aff54d1ea7dabc944d5cdd0aa83613bc98cafa4d23ee8e9.woff") format('woff');
+}
+
+/* 62 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("554797bc1479dc33fe1a7af0172d20530ccb770fde8cb714761753b63dee1c2c.woff2") format('woff2'), url("d69fb1b863db9bb918ab44314e04b6ff0f0838a4f12e1822b9b0b74c959bcd82.woff") format('woff');
+}
+
+/* 63 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3c9e41ac3af7ffaffe5457abb32cd218dea50e066c79e5376830269a15876395.woff2") format('woff2'), url("82d756a57d6309bb91359091fcc83675756fd27d0cd0ac17a8669ef6366de8f6.woff") format('woff');
+}
+
+/* 64 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3fb9c4bc70750df673611cf1cd05a837c21efd5141dabd0860fda0aa07e14c70.woff2") format('woff2'), url("0813e29f79c69be510abaf826e12e6c411d69b826fcdaa5dfb11524f21fc8344.woff") format('woff');
+}
+
+/* 65 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("36376ea836f913cc3b39feec61c10e3f21c73a3fa094a7fc9606441e08fb6462.woff2") format('woff2'), url("d523e1e34b778f8b263df50924982c943672cc415710efa031433b1a6f001fde.woff") format('woff');
+}
+
+/* 94 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("229672666b61e43df41d98c3bd60902d472aee417d9ba1d2260cd6fcb49d1448.woff2") format('woff2'), url("df647826293b71042773c4ed0c8a0e4b1c022ed87f7d2fe254e2273c40f16130.woff") format('woff');
+}
+
+/* 95 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("073d2342a6881edb6f33fe3f0e0e1fc34bdaca4109b128f7aa599670d35bc45a.woff2") format('woff2'), url("6253e9b79b71402d116e393c352fd365818e09f834643c36a39c26ce34da2ba1.woff") format('woff');
+}
+
+/* 98 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("a4a952e61dc157c3cc3a2bc4a5689031c2fe8ed77c8cf979285034104fe2cef7.woff2") format('woff2'), url("cf1ee5d7c91963c0843d11abd0387f4869e627b3b34d3189bee7c9d96583be03.woff") format('woff');
+}
+
+/* 99 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("d4cfb6a741e3f9429e71149d279fe31d967d0b669c7595e8c95e343302c99996.woff2") format('woff2'), url("11f270a0f5a3532e36187ca6465e42b262ef214e34cf93c8304320a6fd43271a.woff") format('woff');
+}
+
+/* 100 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("2af30daef94bd9bc67eaee6c82c42a242c1525561257674d6751c8368f8dfac6.woff2") format('woff2'), url("a8b5faafd1d42bc0eee9ec9c5dffaa59b0bc64748f9d370c95869414d6c98091.woff") format('woff');
+}
+
+/* 101 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("c49a60b0ddd0630c942b4501d1016438a038194e8e59fca6bc3b4ae4edfa2cdb.woff2") format('woff2'), url("fb89d0edbf26a5da6382c98afdf4ad29389176300ca51ba0b217a7e7a1ed2db6.woff") format('woff');
+}
+
+/* 102 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("6e7d8207df784bed1b25e8d8e5f21168b7f8872051458ba7218759d5cd8dccda.woff2") format('woff2'), url("ce3bbdb769d03cbe01390cf471c48a5bdcf64a448aeffe69c0b5232b8f31b371.woff") format('woff');
+}
+
+/* 103 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("cb1a8a00a8bc7ca32df1d373bf372ce0fee2e0662e41aa1ac9947187bc42c721.woff2") format('woff2'), url("518e83b5d23baeed4ab0d3db878c8de29a98ba2d96df086e086130026524b81a.woff") format('woff');
+}
+
+/* 104 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("724d8936986074d4482deb5c4b1ff3ca98044a2e2bf2519072af0a9f03d0ed26.woff2") format('woff2'), url("7830a83f616ce1706ae834455817ce1f4c28e64089ab18685076f7d4148a76c6.woff") format('woff');
+}
+
+/* 105 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("8fadbcbc1480186ad0eab153ed43b106f37f478133e630390dc5585e2dbac6a8.woff2") format('woff2'), url("e15468209037c28d16dd45027420eccbe4071abb318cc411e67eea3c255f1572.woff") format('woff');
+}
+
+/* 106 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("64e187acf656d046c50ccb95d716b1170c4950bca059c2f13c6477af5de2910f.woff2") format('woff2'), url("c7916b9d5350483b06c78f0e2dea414f38eacc5d5f5acc26d607d933529b6c5f.woff") format('woff');
+}
+
+/* 107 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3fccf7645b5f21b29a1e8a1e14c8cf576abf3be4faabb5b68604e84efc5d8a29.woff2") format('woff2'), url("d849ce8c57bfb3d766a14317a8affea30547fb8565aef14cac51d861ec11005a.woff") format('woff');
+}
+
+/* 108 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("e202271c124e685061b0c512e02f6df12e0f17a611dc21b80330a32fa16ea5e8.woff2") format('woff2'), url("818aa16aebd22595188e2517e78edab3a62c894f2bb5f3aa3558cfb5214116ec.woff") format('woff');
+}
+
+/* 109 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("06ef2ffc14457f663aeb4811eab56d36aa04017ebff839e25e0f1bfd799843f2.woff2") format('woff2'), url("1318579517ee80689e8a968078e04e6feb57164c4f893a104b0174ac95955bfb.woff") format('woff');
+}
+
+/* 110 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3de5a725194c740fd8174f9c3ded741dc2cef1eee032003d97682380b2b1da28.woff2") format('woff2'), url("f292d5de91467bd84e45829b811d0c22cfb0d6a39129dcd10c79f74b482b930c.woff") format('woff');
+}
+
+/* 111 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("120ba5ce081e45ca8425cf8da3d5b546af16acfe24f4744a72f1266f94e21fc7.woff2") format('woff2'), url("28ccc191483f95432c1db5776ed940ea9e377115c86c4ac48b234c92657ebf8a.woff") format('woff');
+}
+
+/* 112 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("87c5a8b3f3da269177cb115299c705a31e22689bea7f89d2eab388358f40c764.woff2") format('woff2'), url("168c7b378b24b48c6634ea6cc7e839364069bad807a02508a417f4b6f8359e4f.woff") format('woff');
+}
+
+/* 113 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("8cf0ae8ddbccee5ab032e4ab114d9ebe46a02a62dada4c52a5a082a86d1c2dc1.woff2") format('woff2'), url("38f52f32a02ac15c984169b65b4d0f3b023039176afd173535e7e3c2b4604fbb.woff") format('woff');
+}
+
+/* 114 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("dd1b61e61c6eb0e1c8fbf87ca014b036f5d22e4ce97144c9e59048a1caf7ea56.woff2") format('woff2'), url("713632848479cb3752a11fb2d1764e8a009c31d2dad80b0a6bb35286b9b39dae.woff") format('woff');
+}
+
+/* 115 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("c6859c81ef6336ba80f25510b6b81111adf0b60244001659509b78a75d28a569.woff2") format('woff2'), url("4086e8af98c7662d159e6550d69464d73fd135ca9593cb4382857b66774e5baf.woff") format('woff');
+}
+
+/* 116 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3a2e309bd8aa40e1a4c097dc58517798faaac05c5a4894bbb33470f1a35beffc.woff2") format('woff2'), url("a73241398ace026ad90e33d705902363ec0f7a06505a6f5353691e9dbd3893ee.woff") format('woff');
+}
+
+/* 117 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("d4386779a015b44a944ef1b27b012d949f68e3242ede5b8ffa119dcd140e62d9.woff2") format('woff2'), url("4de678c40aed83932f038eeb32ed8d2e2334a21a01ff399d862ecff6f80b4d3e.woff") format('woff');
+}
+
+/* 118 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("aa3930eaf6cb49425d77bcffe0fc5d7b8aa77014b7a16d740e071c267bbfb59a.woff2") format('woff2'), url("8a6c1fd38acfcb1491adbd51d4c535f6231798349f6e6910600e469d13426edb.woff") format('woff');
+}
+
+/* 119 */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("f0bc9adb3bea249861f66641bcaa8087c48c9fcf127b1dea72f7ef12224d804a.woff2") format('woff2'), url("8aaded4c35d178f47df4e33e05a47322969cf4d045ffedc0fe80a7a89e25dd9e.woff") format('woff');
+}
+
+/* latin */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("90a8c2830d6325553e4a368178df7363349cf8501dc2f6a36e84604b1cdedf06.woff2") format('woff2'), url("1c613e88bebb9244add830613bd7590d46df55b47a79c7395ea0ee8a7da59a6c.woff") format('woff');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* korean */
+@font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("1c7f07f8df65282cef37dd0f1d5db036b4cba2ed67f7292179f470a51e4086de.woff2") format('woff2'), url("7b39d569e020e1826973e3c6c2da344e339ad5c97bde79b917981fcf171b9b1c.woff") format('woff');
+}
+
+
+@font-face {
+    font-family: ELAND_Nice_M;
+    src: url("4edbadcdd331d0ac1df97410e833631c87273ae3a21b14ada876c36b24d4ebdd.woff") format('woff');
+    font-weight: 700;
+    font-style: normal
+}
+
+:root {
+    /*
+    한글 대용 - FOR KOREAN
+    --title: "총대주교들의 도식";
+    --short_title: "도식";
+    --subtitle: "충실한 우리, 신의 주물을 뜬다";
+    --short_subtitle: "신의 주물을 뜬다";
+    */
+
+    --title: "Schema of the Patriarchs";
+    --short_title: "Schema";
+    --subtitle: "Cast in the Design of God, We Faithful";
+    --short_subtitle: "Cast in the Design of God";
+
+    --dark-accent: 185, 150, 17
+}
+
+div#container-wrap {
+    z-index :-5;
+    background: url("e99bf26d825a3bc7c4fe5fa5f12c3c12a86a72c0547d3881c09c7b65432fef01.png"), url("35fd20a33910e339a60f6e5de54830ad1403b29f11a7315772ac5d0c003a0f21.jpg");
+    background-repeat: repeat-x, repeat-x;
+    background-position: top 11.25rem right, top;
+    background-size: auto 14em, auto 11.25rem
+}
+
+/* ---- 헤더 - HEADER ---- */
+
+#header {
+    background: 0 0;
+    height: 180px
+}
+
+#header h1 {
+    padding-left: 2.5em
+}
+
+#header h1 a {
+    padding: 100px 0 25px;
+    font-family: ELAND_Nice_M, BauhausLTDemi, sans-serif
+}
+
+#header h1 a span {
+    font-size: 0
+}
+
+#header h1 a:before {
+    content: var(--title);
+    color: #eee;
+    text-shadow: 2px 2px 2px #000
+}
+
+#header h2 {
+    padding-left: 4.5em;
+    font-family: ELAND_Nice_M, BauhausLTDemi, sans-serif;
+    -webkit-transform: translateY(5px);
+    -ms-transform: translateY(5px);
+    transform: translateY(5px)
+}
+
+#header h2 span {
+    font-size: 0;
+    padding: 14px
+}
+
+#header h2:after {
+    content: var(--subtitle);
+    font-weight: 700;
+    color: #f0f0c0;
+    padding: 19px 0;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, .8);
+    white-space: pre
+}
+
+/* ---- 검색창 - SEARCH-BOX ---- */
+
+#search-top-box {
+    top: 99px
+}
+
+#search-top-box-input, #search-top-box-input:hover {
+    padding: 2px 5px;
+    border: 2px solid;
+    -o-border-image: -o-linear-gradient(left, #e9df95, #917b3c);
+    border-image: -webkit-gradient(linear, left top, right top, from(#e9df95), to(#917b3c));
+    border-image: linear-gradient(to right, #e9df95, #917b3c);
+    border-image-slice: 1;
+    border-radius: 0
+}
+
+#search-top-box-input {
+    background-color: #7b6a33
+}
+
+#search-top-box-input:focus, #search-top-box-input:hover {
+    background-color: #554920
+}
+
+#search-top-box-form input[type=submit], #search-top-box-form input[type=submit]:hover {
+    border: none;
+    border-radius: 0;
+    padding: 4px;
+    background: -webkit-gradient(linear, left top, right top, color-stop(0, #d9ca88), color-stop(50%, #63521c), color-stop(80%, #7b6a33), to(#d9ca88));
+    background: -o-linear-gradient(left, #d9ca88 0, #63521c 50%, #7b6a33 80%, #d9ca88 100%);
+    background: linear-gradient(to right, #d9ca88 0, #63521c 50%, #7b6a33 80%, #d9ca88 100%);
+    -webkit-box-shadow: inset -2px -2px 5px #63521c;
+    box-shadow: inset -2px -2px 5px #63521c
+}
+
+#search-top-box-form input[type=submit] {
+    color: #e3dfd4
+}
+
+#search-top-box-form input[type=submit]:hover {
+    -webkit-filter: brightness(.8);
+    filter: brightness(.8)
+}
+
+/* ---- 상단 메뉴 - TOP-NAVIGATION ---- */
+
+#top-bar {
+    top: 179px
+}
+
+#top-bar ul li ul li ul {
+    left: 159px
+}
+
+/* ---- 사이드바 - SIDE-BAR ---- */
+/* partially copied from Sigma-9 Wanderers' DustJacket Theme by DrMacro */
+
+#side-bar .side-block,
+#interwiki .side-block {
+    border-color: rgb(var(--dark-accent));
+    background-color: #fff;
+    -webkit-box-shadow: 0 2px 6px rgba(var(--dark-accent), .5);
+    box-shadow: 0 2px 6px rgba(var(--dark-accent), .5)
+}
+
+#side-bar .side-block.media {
+    background-color: #f8f1da !important
+}
+
+#side-bar .side-block.resources {
+    background-color: #f6eac4 !important
+}
+
+#side-bar .heading,
+#interwiki .heading {
+    font-size: 1rem;
+    color: rgb(126, 103, 44,80%);
+    background: linear-gradient(to right, rgb(206, 193, 133,70%), transparent);
+    border-bottom-color: rgb(126, 103, 44);
+    font-family: 'Song Myung', 'Nanum Gothic', serif;
+}
+
+/* ---- 평가 모듈 - RATE-MODULE ---- */
+
+.page-rate-widget-box {
+    background: -webkit-gradient(linear, left top, right top, color-stop(5%, #bc9744), color-stop(25%, #fbd076), color-stop(50%, #fff6aa), color-stop(75%, #f0c86d), color-stop(80%, #eac068), to(#bb9645));
+    background: -o-linear-gradient(left, #bc9744 5%, #fbd076 25%, #fff6aa 50%, #f0c86d 75%, #eac068 80%, #bb9645 100%);
+    background: linear-gradient(to right, #bc9744 5%, #fbd076 25%, #fff6aa 50%, #f0c86d 75%, #eac068 80%, #bb9645 100%);
+    border: 1px solid #bdaa79;
+    border-radius: 0;
+    -webkit-box-shadow: 1px 1px 0 rgb(12 12 12 / 15%);
+    box-shadow: 1px 1px 0 rgb(12 12 12 / 15%);
+    color: #6b5829;
+    font-size: .9rem;
+}
+
+div.page-rate-widget-box .rate-points {
+    background-color: transparent;
+    border: none;
+    color: #6b5829;
+}
+
+.page-rate-widget-box .rateup,
+.page-rate-widget-box .ratedown {
+    background-color: transparent;
+    border: none;
+    font-weight: normal;
+}
+
+.page-rate-widget-box .rateup a,
+.page-rate-widget-box .ratedown a {
+    color: inherit;
+}
+
+.page-rate-widget-box .cancel {
+    background-color: transparent;
+    border: none;
+}
+
+.page-rate-widget-box .cancel a {
+    color: inherit;
+}
+
+.page-rate-widget-box .cancel a:hover {
+    border-radius: 0;
+}
+
+/* ---- 정보 모듈 - INFO-MODULE ---- */
+
+.rate-box-with-credit-button {
+    background: -o-linear-gradient(left, #bc9744 5%, #fbd076 25%, #fff6aa 50%, #f0c86d 75%, #eac068 80%, #bb9645 100%);
+    background: -webkit-gradient(linear, left top, right top, color-stop(5%, #bc9744), color-stop(25%, #fbd076), color-stop(50%, #fff6aa), color-stop(75%, #f0c86d), color-stop(80%, #eac068), to(#bb9645));
+    background: linear-gradient(to right, #bc9744 5%, #fbd076 25%, #fff6aa 50%, #f0c86d 75%, #eac068 80%, #bb9645 100%);
+    border: 1px solid #bdaa79 !important;
+    border-radius: 0 !important;
+    -webkit-box-shadow: 1px 1px 0 rgb(12 12 12 / 15%) !important;
+    box-shadow: 1px 1px 0 rgb(12 12 12 / 15%) !important;
+    color: #6b5829;
+    font-size: .9rem;
+}
+
+.rate-box-with-credit-button .page-rate-widget-box {
+    background: none;
+    border: none;
+}
+
+.rate-box-with-credit-button .fa-info {
+    border-color: #6b5829;
+    color: #6b5829;
+}
+
+.rate-box-with-credit-button .fa-info:hover {
+     color: #fff;
+}
+
+#u-credit-view:target,
+#u-credit-otherwise:target {
+    z-index: 31;
+}
+
+.modalbox {
+    border: 1px solid #af9a1c !important;
+    box-shadow: 0 2px 6px rgb(173 162 31 / 50%) !important;
+}
+
+/* ---- 인터위키 - INTERWIKI ---- */
+
+iframe.scpnet-interwiki-frame {
+    filter: drop-shadow(0 2px 1 rgba(var(--dark-accent), 0.5));
+    -webkit-filter: drop-shadow(0 2px 1 rgba(var(--dark-accent), 0.5));
+}
+
+/* ----  로고 - LOGO ---- */
+
+/* LOGO-BASE */
+div#extra-div-2 {
+    display: block;
+    z-index: 20;
+    background: url("5f47d54aa28666537f5ac3793ac6d9017e2ce217a1af6a6cbc1dc860e820aeb4.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    position: absolute;
+    top: 48px;
+    left: 50%;
+    -webkit-transform: translateX(-485px);
+    -ms-transform: translateX(-485px);
+    transform: translateX(-485px);
+    width: 130px;
+    height: 130px
+}
+
+/* GEAR-SMALL */
+div#extra-div-3 {
+    z-index: 10;
+    width: 13px;
+    height: 13px;
+    display: block;
+    position: absolute;
+    top: 78px;
+    left: 50%;
+    -webkit-transform: translateX(-431px);
+    -ms-transform: translateX(-431px);
+    transform: translateX(-431px)
+}
+
+div#extra-div-3::before {
+    content: "";
+    width: 22px;
+    height: 22px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extra-div-3::before {
+    background-image: url("7fbf7c0da482cde3da43680e07433134935342dcedc9d9143997da46b9143ac3.png");
+    -webkit-animation: spin 5s linear infinite;
+    -webkit-animation-direction: reverse;
+    animation: spin 5s linear infinite
+    animation-direction: reverse;
+}
+
+/* GEAR-MEDIUM */
+div#extra-div-4 {
+    z-index: 30;
+    width: 13px;
+    height: 13px;
+    display: block;
+    position: absolute;
+    top: 125px;
+    left: 50%;
+    -webkit-transform: translateX(-395px);
+    -ms-transform: translateX(-395px);
+    transform: translateX(-395px)
+}
+
+div#extra-div-4::before {
+    content: "";
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extra-div-4::before {
+    background-image: url("febb4219c5a84db4f1ac34c4e5fa8205e8fbf1c851cc21d3cc61533223df269b.png");
+    -webkit-animation: spin 8s linear infinite;
+    animation: spin 8s linear infinite;
+    animation-direction: reverse
+}
+
+/* GEAR-LARGE */
+div#extra-div-5 {
+    z-index: 10;
+    width: 13px;
+    height: 13px;
+    display: block;
+    position: absolute;
+    top: 48px;
+    left: 50%;
+    -webkit-transform: translateX(-485px);
+    -ms-transform: translateX(-485px);
+    transform: translateX(-485px)
+}
+
+div#extra-div-5::before {
+    content: "";
+    width: 130px;
+    height: 130px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extra-div-5::before {
+    background-image: url("4c887457cb018b80d41e40846bff801e3c21ac6f48976edd5f98db2ae86569ed.png");
+    -webkit-animation: spin 24s linear infinite;
+    animation: spin 24s linear infinite
+}
+
+/* RACK-GEAR */
+/*
+::-webkit-scrollbar {
+  display: none;
+}
+*/
+html {
+  scrollbar-width: thin !important;  /* Firefox */
+}
+
+div#extra-div-6 {
+    z-index: 10;
+    width: 4px;
+    height: 4px;
+    display: block;
+    position: absolute;
+    top: 173.5px;
+    left: 0;
+    -webkit-transform: translateX(-18px);
+    -ms-transform: translateX(-18px);
+    transform: translateX(-18px);
+}
+
+div#extra-div-6::before {
+    content: "";
+    width: calc( 100vw + 18px );
+    height: 270%;
+    position: absolute;
+    background-repeat: repeat-x;
+    background-position: center center;
+    background-size: 18px 10px;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    -webkit-transform: translateX(18px);
+    -ms-transform: translateX(18px);
+    transform: translateX(18px);
+}
+
+div#extra-div-6::before {
+    background-image: url("data:,");
+    -webkit-animation: line 1s linear infinite;
+    animation: line 1s linear infinite;
+    -webkit-animation-delay: -.25s;
+    animation-delay: -.25s
+}
+
+/* LEVER & STICK ANIMATION */
+#header #header-extra-div-2::before {
+    -webkit-animation-duration: 5s;
+    animation-duration: 5s;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-delay: -1s;
+    animation-delay: -1s;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out
+}
+
+#header #header-extra-div-1::before, #header #header-extra-div-3::before {
+    -webkit-animation-duration: 5s;
+    animation-duration: 5s;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out
+}
+
+/* LEVER */
+#header #header-extra-div-1 {
+    z-index: -1;
+    width: 13px;
+    height: 13px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    position: absolute;
+    top: 47px;
+    left: 57px;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%)
+}
+
+#header #header-extra-div-1::before {
+    z-index: -1;
+    content: "";
+    width: 85px;
+    height: 85px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+#header #header-extra-div-1::before {
+    z-index: -1;
+    background-image: url("d59f206d7fbcb29781b247842f80e9289aba2ebb3dd753d9101ef1dd7474feae.png");
+    -webkit-animation-name: cont-spin;
+    animation-name: cont-spin
+}
+
+/* STICK */
+#header #header-extra-div-2 {
+    z-index: -2;
+    width: 13px;
+    height: 13px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    position: absolute;
+    left: 53px;
+    top: 105px;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+    margin-top: 0
+}
+
+#header #header-extra-div-2::before {
+    z-index: -2;
+    content: "";
+    width: 20px;
+    height: 35px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+#header #header-extra-div-2::before {
+    z-index: -1;
+    background-image: url("0f2146f3440af46c3255f6df3ff265061d3c061c63656abb113553143de29074.png");
+    -webkit-animation-name: dir;
+    animation-name: dir;
+    animation-direction: reverse
+}
+
+/* STICK-2 */
+#header #header-extra-div-3 {
+    z-index: -2;
+    width: 13px;
+    height: 13px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    position: absolute;
+    left: 128px;
+    top: 105px;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+    margin-top: 0
+}
+
+#header #header-extra-div-3::before {
+    z-index: -1;
+    content: "";
+    width: 15px;
+    height: 40px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 15px 40px;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+#header #header-extra-div-3::before {
+    z-index: -1;
+    background-image: url("0f2146f3440af46c3255f6df3ff265061d3c061c63656abb113553143de29074.png");
+    -webkit-animation-name: dir;
+    animation-name: dir
+}
+
+body {
+    overflow-x: hidden
+}
+
+/* STEAM */
+div#extrac-div-1::before, div#extrac-div-2::before, div#extrac-div-3::before {
+    -webkit-filter: blur(4px);
+    filter: blur(4px);
+    -webkit-animation-name: dir2;
+    animation-name: dir2;
+    -webkit-animation-duration: 5s;
+    animation-duration: 5s
+}
+
+div#extrac-div-1::before {
+    -webkit-animation-delay: .3s;
+    animation-delay: .3s
+}
+
+div#extrac-div-2::before {
+    -webkit-animation-delay: -.5s;
+    animation-delay: -.5s
+}
+
+div#extrac-div-3::before {
+    -webkit-animation-delay: -1s;
+    animation-delay: -1s
+}
+
+div#extrac-div-1 {
+    z-index: 10;
+    width: 140px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: -60px;
+    left: calc(50% + 10px);
+    -webkit-transform: translateX(-525px);
+    -ms-transform: translateX(-525px);
+    transform: translateX(-525px)
+}
+
+div#extrac-div-1::before {
+    content: "";
+    width: 100px;
+    height: 200px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extrac-div-1::before {
+    z-index: -1;
+    background-image: url("05ec28bc8a44e8571623805bd3ef22da558b37645e272a5af96b0d0c875277a6.png");
+    background-size: 70px;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite
+}
+
+div#extrac-div-2 {
+    z-index: 10;
+    width: 140px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: -80px;
+    left: calc(50% + 10px);
+    -webkit-transform: translateX(-545px);
+    -ms-transform: translateX(-545px);
+    transform: translateX(-545px)
+}
+
+div#extrac-div-2::before {
+    content: "";
+    width: 100px;
+    height: 200px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extrac-div-2::before {
+    z-index: -1;
+    background-image: url("800de79ea63f7ac3a2baba1504cb18d6dfb10d735f6b6ec7545e3337911cc12a.png");
+    background-size: 70px;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out
+}
+
+div#extrac-div-3 {
+    z-index: 10;
+    width: 140px;
+    height: 15px;
+    display: block;
+    position: absolute;
+    top: -60px;
+    left: calc(50% + 10px);
+    -webkit-transform: translateX(-545px);
+    -ms-transform: translateX(-545px);
+    transform: translateX(-545px)
+}
+
+div#extrac-div-3::before {
+    content: "";
+    width: 100px;
+    height: 200px;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1
+}
+
+div#extrac-div-3::before {
+    z-index: -1;
+    background-image: url("5f738d02882759deff188f8d8adadb1f32d5525df294b0558b194aa08f389823.png");
+    background-size: 70px;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out
+}
+
+/* ANIMATION */
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0);
+        transform: rotate(0)
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg)
+    }
+}
+
+@keyframes spin {
+    from {
+        -webkit-transform: rotate(0);
+        transform: rotate(0)
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg)
+    }
+}
+
+@-webkit-keyframes cont-spin {
+    0% {
+        -webkit-transform: rotate(195deg);
+        transform: rotate(195deg)
+    }
+
+    80% {
+        -webkit-transform: rotate(165deg);
+        transform: rotate(165deg)
+    }
+
+    100% {
+        -webkit-transform: rotate(195deg);
+        transform: rotate(195deg)
+    }
+}
+
+@keyframes cont-spin {
+    0% {
+        -webkit-transform: rotate(195deg);
+        transform: rotate(195deg)
+    }
+
+    80% {
+        -webkit-transform: rotate(165deg);
+        transform: rotate(165deg)
+    }
+
+    100% {
+        -webkit-transform: rotate(195deg);
+        transform: rotate(195deg)
+    }
+}
+
+@-webkit-keyframes dir {
+    0% {
+        -webkit-transform: translateY(18px);
+        transform: translateY(18px)
+    }
+
+    80% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0)
+    }
+
+    100% {
+        -webkit-transform: translateY(18px);
+        transform: translateY(18px)
+    }
+}
+
+@keyframes dir {
+    0% {
+        -webkit-transform: translateY(18px);
+        transform: translateY(18px)
+    }
+
+    80% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0)
+    }
+
+    100% {
+        -webkit-transform: translateY(18px);
+        transform: translateY(18px)
+    }
+}
+
+@-webkit-keyframes dir2 {
+    0% {
+        -webkit-transform: translateY(60px);
+        transform: translateY(60px);
+        opacity: 0;
+        -webkit-transform: scale(.4);
+        transform: scale(.4)
+    }
+
+    20% {
+        opacity: .6;
+        -webkit-transform: scale(.7);
+        transform: scale(.7)
+    }
+
+    40% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        opacity: .7;
+        -webkit-transform: scale(.8);
+        transform: scale(.8)
+    }
+
+    100% {
+        -webkit-transform: translateY(-80px);
+        transform: translateY(-80px);
+        opacity: .5
+    }
+}
+
+@keyframes dir2 {
+    0% {
+        -webkit-transform: translateY(60px);
+        transform: translateY(60px);
+        opacity: 0;
+        -webkit-transform: scale(.4);
+        transform: scale(.4)
+    }
+
+    20% {
+        opacity: .6;
+        -webkit-transform: scale(.7);
+        transform: scale(.7)
+    }
+
+    40% {
+        -webkit-transform: translateY(0);
+        transform: translateY(0);
+        opacity: .7;
+        -webkit-transform: scale(.8);
+        transform: scale(.8)
+    }
+
+    100% {
+        -webkit-transform: translateY(-80px);
+        transform: translateY(-80px);
+        opacity: .5
+    }
+}
+
+@-webkit-keyframes line {
+    from {
+        -webkit-transform: translateX(18px);
+        transform: translateX(18px)
+    }
+
+    to {
+        -webkit-transform: translateX(0);
+        transform: translateX(0)
+    }
+}
+
+@keyframes line {
+    from {
+        -webkit-transform: translateX(18px);
+        transform: translateX(18px)
+    }
+
+    to {
+        -webkit-transform: translateX(0);
+        transform: translateX(0)
+    }
+}
+
+/* ---- 반응형 - RESPONSIVE-DESIGN ---- */
+@media (min-width: 1104px){
+    #header h1 {
+        padding-left: 1.5em
+    }
+    #header h2 {
+        padding-left: 3em
+    }
+}
+
+@media (min-width: 1104px) and (min-height: 2079px) {
+    div#extra-div-6::before {
+        -webkit-animation-delay:-.05s;
+        animation-delay: -.05s;
+    }
+}
+
+@media (max-width: 1149px) {
+    #header h1, #header h2 {
+        margin-left:120px
+    }
+
+    #header h1 a:before {
+        content: var(--short_title)
+    }
+
+    div#extra-div-2, div#extra-div-5 {
+        left: calc(51px + 5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extra-div-3 {
+        left: calc(51px + 59px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extra-div-4 {
+        left: calc(51px + 95px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extra-div-6::before {
+        background-position: left center;
+        -webkit-animation-delay:-.97s;
+        animation-delay: -.97s;
+    }
+
+    #header #header-extra-div-1 {
+        left: calc(-4.9vw + 51px + 27.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    #header #header-extra-div-2 {
+        left: calc(-4.9vw + 51px + 24.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    #header #header-extra-div-3 {
+        left: calc(-4.9vw + 51px + 97.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extrac-div-1 {
+        left: calc(51px - 25px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extrac-div-2 {
+        left: calc(51px - 45px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extrac-div-3 {
+        left: calc(51px - 45px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+}
+
+@media (max-width: 767px) {
+
+    #top-bar .open-menu a {
+        border: .2em solid #ba9e57;
+        color: #ba9e57
+        position: fixed;
+        bottom: 0.6em;
+        top : auto;
+        left: 0.5em;
+    }
+
+    #side-bar, #side-bar:target {
+        z-index: 50;
+    }
+    #side-bar {
+  background: linear-gradient(to bottom, #726969 0%, #d3cdcd 30%, #ececec 50%, #898383 100%);
+    }
+}
+
+@media (max-width: 385px) {
+    #header h1, #header h2 {
+        margin-left:80px
+    }
+
+    #header h2:after {
+        content: var(--short_subtitle)
+    }
+
+    div#extra-div-2, div#extra-div-5 {
+        left: 5px;
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extra-div-3 {
+        left: 59px;
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extra-div-4 {
+        left: 95px;
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    #header #header-extra-div-1 {
+        left: calc(27.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    #header #header-extra-div-2 {
+        left: calc(24.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    #header #header-extra-div-3 {
+        left: calc(97.5px);
+        -webkit-transform: none;
+        -ms-transform: none;
+        transform: none
+    }
+
+    div#extrac-div-1 {
+        left: -25px
+    }
+
+    div#extrac-div-2 {
+        left: -45px
+    }
+
+    div#extrac-div-3 {
+        left: -45px
+    }
+
+    div#extra-div-6::before {
+        -webkit-animation-delay: -.81s;
+        animation-delay: -.81s;
+    }
+}
+
+
+/* ---- REDUCED MOTION ACCESSIBILITY ----
+ * By SMLT
+**/
+ @media (prefers-reduced-motion: reduce){
+     *, *::before, *::after{
+         animation-duration: .001s !important;
+         animation-iteration-count: 1 !important;
+         transition-duration: .001s !important;
+    }
+}
+
+
+
+/* SCP-JP Wikidot Scheme header correction: wrap the masthead and separate the visible JP search control. */
+@media (max-width: 767px) {
+  #header h2 { display: block; max-width: calc(100% - 200px); margin-left: 200px; padding-left: 0; }
+  #header h2::after { display: block; white-space: normal; font-size: .65em; padding: 0; }
+  #search-top-box { top: 30px; }
+}
+div#extra-div-6 { width: 100%; left: 18px; overflow-x: clip; }
+
+
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+
+/* SCP-JP Wikidot Scheme navigation correction: keep decorative gears out of pointer hit tests and contain row endpoint submenus. */
+@media (max-width: 767px) {
+  #extra-div-2, #extra-div-5 { pointer-events: none !important; }
+  #top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul { left: auto !important; right: 0 !important; }
+}
+@media (min-width: 360px) and (max-width: 767px) {
+  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto !important; right: 0 !important; }
+}
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+/* SCP-JP Wikidot scheme narrow header: shrink the fixed gear emblem clear of the wordmark and the top bar. */
+@media (max-width:480px){div#extra-div-2{width:4.5rem;height:4.5rem;background-size:contain}}

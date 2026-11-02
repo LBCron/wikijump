@@ -7,10 +7,7 @@ import type { RequestHandler } from "./$types"
 
 export const GET: RequestHandler = async ({ request }) => {
   const { siteId } = loadSiteInfo(request.headers)
-  // This is a public crawler resource even when a signed-in user requests it.
   const output = await wikidotSitemap(siteId, 0, { siteId })
-  // A site the viewer cannot see has no public sitemap, so the route answers
-  // the same way as any other missing page.
   if (!output) return new Response("Not found", { status: 404 })
 
   if (output.shard_count === null)

@@ -71,10 +71,6 @@ after(async () => {
 })
 
 test("imported page with a baseline but no local votes answers the honest unavailable roster", async () => {
-  // Recorded live on Standing: scp-9506 carries rating 461 with zero local
-  // per-voter rows. The pinned empty roster would falsely claim nobody
-  // voted (issue #2205), so the connector must answer the unavailable
-  // notice instead — the same honesty contract as the watchers pane.
   client.request = async (method) => {
     if (method === "page_who_rated") return []
     if (method === "page_get_score") {

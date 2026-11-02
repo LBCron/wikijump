@@ -28,8 +28,6 @@
     })
   }
 
-  // The create decision comes from Deepwell's missing view. A denied viewer gets
-  // the permission dialog on the missing page and no editor, and never navigates.
   const createDenied = (): boolean => errorData.can_create !== true
 
   function showCreateDenied() {
@@ -167,8 +165,6 @@
       }
     } else if (result.type === "success" && result.data?.res) {
       deletedPages = result.data.res
-      // An empty recoverable set means nothing is restorable; keep the
-      // control surface closed rather than opening an empty restore form.
       showRestoreAction = deletedPages.length > 0
     }
   }

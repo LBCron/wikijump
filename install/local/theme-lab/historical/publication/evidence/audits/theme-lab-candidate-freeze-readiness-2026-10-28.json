@@ -1,0 +1,735 @@
+{
+  "schema": "theme_lab_candidate_freeze_readiness_audit.v1",
+  "generated_at": "2026-10-28T23:13:08.000Z",
+  "decision": "identity-bound-evidence-pending",
+  "scope": "Freeze readiness only; Sigma-9, Sigma-10, and final theme visual acceptance are not part of this record.",
+  "counts": {
+    "theme_nodes": 36,
+    "shared_component_fragment_nodes": 12,
+    "total_nodes": 48,
+    "explicit_publication_edges": 19,
+    "unique_attachment_entries": 50,
+    "publication_sources_verified": 40,
+    "theme_candidate_css_verified": 34,
+    "dependency_observations": 209,
+    "unique_included_pages": 44
+  },
+  "checks": {
+    "inventory": "pass",
+    "source_css_identities": {
+      "status": "pass",
+      "source_pages_verified": 36,
+      "css_files_verified": 34
+    },
+    "attachments": {
+      "status": "pass",
+      "count": 50
+    },
+    "authority": {
+      "status": "pass",
+      "artifacts": [
+        "adaptation-authority",
+        "bhl-option-authority",
+        "source-dependency-audit",
+        "foreign-dependency-policy-audit"
+      ]
+    },
+    "identity_findings": 0,
+    "pending_evidence": [
+      "targeted-evidence-stale bhl-options-toggle-header-dark visual review",
+      "targeted-evidence-stale bhl-options-toggle-header-dark receipt",
+      "targeted-evidence-stale bhl-options-toggle-header-dark receipt",
+      "targeted-evidence-stale bhl-options-toggle-header-dark receipt",
+      "targeted-evidence-stale bhl-options-toggle-header-dark receipt",
+      "targeted-evidence-stale bhl-options-toggle-header-dark receipt",
+      "targeted-evidence-stale bhl-options-toggle-header-dark receipt",
+      "targeted-evidence-stale bhl-options-collapsible-sidebar visual review",
+      "targeted-evidence-stale bhl-options-collapsible-sidebar receipt",
+      "targeted-evidence-stale bhl-options-collapsible-sidebar receipt",
+      "targeted-evidence-stale bhl-options-collapsible-sidebar receipt",
+      "targeted-evidence-stale bhl-options-collapsible-sidebar receipt",
+      "targeted-evidence-stale bhl-options-collapsible-sidebar receipt",
+      "targeted-evidence-stale bhl-options-collapsible-sidebar receipt",
+      "validator bhl-options-toggle-header-dark: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
+      "validator bhl-options-toggle-header-dark: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-firefox.json",
+      "validator bhl-options-toggle-header-dark: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-webkit.json",
+      "validator bhl-options-toggle-header-dark: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
+      "validator bhl-options-toggle-header-dark: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-firefox.json",
+      "validator bhl-options-toggle-header-dark: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-webkit.json",
+      "validator bhl-options-toggle-header-dark: visual review is not bound to the frozen candidate/source authority",
+      "validator bhl-options-collapsible-sidebar: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma9-chromium.json",
+      "validator bhl-options-collapsible-sidebar: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma9-firefox.json",
+      "validator bhl-options-collapsible-sidebar: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma9-webkit.json",
+      "validator bhl-options-collapsible-sidebar: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-chromium.json",
+      "validator bhl-options-collapsible-sidebar: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-firefox.json",
+      "validator bhl-options-collapsible-sidebar: targeted receipt is not bound to the frozen candidate set: ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-webkit.json",
+      "validator bhl-options-collapsible-sidebar: visual review is not bound to the frozen candidate/source authority"
+    ]
+  },
+  "source_artifacts": [
+    {
+      "node": "component:betterfootnotes",
+      "action": "update",
+      "path": "components/betterfootnotes/source.wikidot.txt",
+      "source_sha256": "84aa43f24ed32e2953abacc1b81804f284235b3afcdcee2b56f908525e45d46d",
+      "candidate_css_sha256": null
+    },
+    {
+      "node": "component:bhl-dark-sidebar",
+      "action": "update",
+      "path": "components/bhl-dark-sidebar/source.wikidot.txt",
+      "source_sha256": "a00d21e5e4272ba0b598b59609f50523c7f0b7961f86d53f9d00a66566f72b7e",
+      "candidate_css_sha256": null
+    },
+    {
+      "node": "component:fade-in",
+      "action": "update",
+      "path": "components/fade-in/source.wikidot.txt",
+      "source_sha256": "a4882c56f2c0be3af6f9c4d1d0b6d6054ddbf86c16e6fa584342e2a6adb71f90",
+      "candidate_css_sha256": null
+    },
+    {
+      "node": "component:sigma-plus",
+      "action": "create",
+      "path": "components/sigma-plus/source.wikidot.txt",
+      "source_sha256": "dccfb8c281e6bf0268f7f472ef86690aa64181d3d916d1385838886bd89eafbf",
+      "candidate_css_sha256": null
+    },
+    {
+      "node": "theme:aesthetic-theme",
+      "action": "update",
+      "path": "../ports/aesthetic-theme/candidate.wikidot.source.txt",
+      "source_sha256": "f2c421f4711c9fac2bae3cc5aaa6e656247599a22182aef2892002b99d6a278f",
+      "candidate_css_sha256": "05f0a7bfbd9581f913a87093e70ec51d5133efba15b07e34ba1c2f107f797b09"
+    },
+    {
+      "node": "theme:al-slop",
+      "action": "create",
+      "path": "../ports/al-slop/candidate.wikidot.source.txt",
+      "source_sha256": "4954b888b502397c1e8612addfc74dda5c6da91c8fb260ed19f8cdc323f73122",
+      "candidate_css_sha256": "0fb7e246567d58220ee4c98ff4009fa7fad14b2c0a685c0edffeb6a2738a7677"
+    },
+    {
+      "node": "theme:basalt",
+      "action": "create",
+      "path": "../ports/basalt/candidate.wikidot.source.txt",
+      "source_sha256": "7167897315929a07f31f9008682a529351686d51ddab7a8569f6e6d06ca021d5",
+      "candidate_css_sha256": "059a0e4ff9dc0071e1c13e0bb17578722f46c783ff9227edaa9b0215649afba0"
+    },
+    {
+      "node": "theme:bedrock",
+      "action": "create",
+      "path": "../ports/bedrock/candidate.wikidot.source.txt",
+      "source_sha256": "c077ff195b55327cd0de0e3310c39ed078045a87cc75f8ebe48dabaff594e423",
+      "candidate_css_sha256": "210621c337510276613df2496a6fcc1ee98843d5175b0cc07404d82c416236ea"
+    },
+    {
+      "node": "theme:black-highlighter-theme",
+      "action": "update",
+      "path": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+      "source_sha256": "ed339b72f5d04e7e11f6d419596b7449ca397f549ef1e73f1d1e349c0c0e1bf8",
+      "candidate_css_sha256": "78954600d05073df1461599a2b73cc656d379f0289d798d6e2ad65c76df1ccca"
+    },
+    {
+      "node": "theme:classic",
+      "action": "update",
+      "path": "../ports/classic/candidate.wikidot.source.txt",
+      "source_sha256": "9aa209eaeec59753e2f6dba8e0299281fb58793c720f4495559e2a1adbd48e09",
+      "candidate_css_sha256": "8d37bcdf89e9fd69aa69d369da18eb75e388106b088187de457d45c2d7342376"
+    },
+    {
+      "node": "theme:cosmonaut",
+      "action": "update",
+      "path": "../ports/cosmonaut/candidate.wikidot.source.txt",
+      "source_sha256": "155fd2fa7eba52281b87c34e446bf6ad1b587936efdadd291dff0081c59da179",
+      "candidate_css_sha256": "7f9e282e6cff16e19473549be91d979cf9f1037a8510ebe9bf318a6fd1a527ce"
+    },
+    {
+      "node": "theme:dear-dictator-jp",
+      "action": "create",
+      "path": "themes/dear-dictator-jp/source.wikidot.txt",
+      "source_sha256": "32739731fe39263816ea42f378f2541286186b93d477938feb6d489279e42022",
+      "candidate_css_sha256": null
+    },
+    {
+      "node": "theme:extra-black-highlighter-theme",
+      "action": "update",
+      "path": "../ports/extra-black-highlighter-theme/candidate.wikidot.source.txt",
+      "source_sha256": "b8753485c88e904e91db1e1d54659aca2542ad3cdb9353667d38af1527bc44f6",
+      "candidate_css_sha256": "31e5af9285e5643840ab5f205e6d5d3a4a33726a4649383abc7eb1392c5ed3e9"
+    },
+    {
+      "node": "theme:flopstyle-dark",
+      "action": "create",
+      "path": "../ports/flopstyle-dark/candidate.wikidot.source.txt",
+      "source_sha256": "a3702c545d95bd13b7ce148c343f482b52f13e3b589933e26682031d4052203d",
+      "candidate_css_sha256": "be744e1d57f1028199f07f0aee70fbd7a96a724c3627dc7a3affdbc23d99108c"
+    },
+    {
+      "node": "theme:foxtrot",
+      "action": "update",
+      "path": "../ports/foxtrot/candidate.wikidot.source.txt",
+      "source_sha256": "94bec2085323e08e9fe302fa86df5a051c3d21f93dd57c9986a750cc591845f0",
+      "candidate_css_sha256": "97f8003415d8cc463fc82677a4c2b35b1078985e945f73aca7fee09f70ba095b"
+    },
+    {
+      "node": "theme:hansarp",
+      "action": "update",
+      "path": "../ports/hansarp/candidate.wikidot.source.txt",
+      "source_sha256": "ccf5f58cc71f0e9a6f7b988e5a74bbc889dd369625075c33da06773b57bc8f45",
+      "candidate_css_sha256": "018358256020cce5ad1e0930293fb3839986a945dae59a93e07e2915e0cf8b3c"
+    },
+    {
+      "node": "theme:inkblot",
+      "action": "create",
+      "path": "../ports/inkblot/candidate.wikidot.source.txt",
+      "source_sha256": "679a88f60fb72ac72743a09380e121bfbb03207800e41b1ad74e59b1f66bc9ac",
+      "candidate_css_sha256": "fd7e2ae9c01c3d31160b1e7017e441b3abcd8d5eab309c631ef2ebf139fc3406"
+    },
+    {
+      "node": "theme:isolated-terminal",
+      "action": "update",
+      "path": "../ports/isolated-terminal/candidate.wikidot.source.txt",
+      "source_sha256": "528f4a52a34ac4dd3de8133a2fff4dd6c0b56da8be0b4b10c8b6c3b21a4e1e26",
+      "candidate_css_sha256": "4b8fb8dd0aca57923f47143d4e2dc55192b35d2173b54b93dfc25785ed1511d8"
+    },
+    {
+      "node": "theme:jakstyle",
+      "action": "update",
+      "path": "../ports/jakstyle/candidate.wikidot.source.txt",
+      "source_sha256": "89034fb9bc67ce6c1df63201c30c98ee546499015aaf44709dcf13e04ff57aff",
+      "candidate_css_sha256": "08367e8d1364e6e976a4dc4acb0ccc4332dac24791e396fb0e508c091058e175"
+    },
+    {
+      "node": "theme:minimalist-bhl",
+      "action": "update",
+      "path": "../ports/minimalist-bhl/candidate.wikidot.source.txt",
+      "source_sha256": "0ae6dfa09094ed2db9512c085ecffd3c7513464ef799da00e7186a52c9f5df73",
+      "candidate_css_sha256": "f35aec8f29c8ab4cf5a0a24d27b3ad31f504103404a76fd17a1b149da7f306ab"
+    },
+    {
+      "node": "theme:monotypical",
+      "action": "update",
+      "path": "../ports/monotypical/candidate.wikidot.source.txt",
+      "source_sha256": "2b1757725694a02df9618f21e2e4326f37500b6f751d005558199df72f9913e5",
+      "candidate_css_sha256": "f2883666196dd7cad910db816eba36924273e206d35ef01c410443f3b48bfd23"
+    },
+    {
+      "node": "theme:much-cool",
+      "action": "update",
+      "path": "../ports/much-cool/candidate.wikidot.source.txt",
+      "source_sha256": "799c546f83e7d257fa8b56067a9779eeebe6bda8e6bbc72a4ccbac100f6d9570",
+      "candidate_css_sha256": "c8b4d4ae7d31b4d9f1f5b2c75f7b898db8371db46ee53781dc4c24b069d4acdb"
+    },
+    {
+      "node": "theme:night-rush-theme",
+      "action": "update",
+      "path": "../ports/night-rush-theme/candidate.wikidot.source.txt",
+      "source_sha256": "5d0cc657cd638addbb28f8278832126dc863b1ae0ae339f216dceff45ef2f98c",
+      "candidate_css_sha256": "6ecbb80fc4aa2e7fbf948a2ced01153aa816bd2911cfcb6cfa398bc3f534245b"
+    },
+    {
+      "node": "theme:ouroborous-theme",
+      "action": "update",
+      "path": "../ports/ouroborous-theme/candidate.wikidot.source.txt",
+      "source_sha256": "ec5eadaa0d7f13636259c8209ad6f5ab2f20c52a882ed92a59ebcd2f7469299d",
+      "candidate_css_sha256": "0102ff1156947176ae4bca48829e758982331d11c45df6b7b8f8ef5d453d402e"
+    },
+    {
+      "node": "theme:paperstack",
+      "action": "update",
+      "path": "../ports/paperstack/candidate.wikidot.source.txt",
+      "source_sha256": "15eebfa9eecd99a5201589d70f239b5f2ab5945936f537c0f53f589e00a8e773",
+      "candidate_css_sha256": "ccc0e9df9f727e6c4ab5c3507839e88b15c75fa216b5a9ccecbdf32ca83f20f7"
+    },
+    {
+      "node": "theme:pataphysics",
+      "action": "update",
+      "path": "../ports/pataphysics/candidate.wikidot.source.txt",
+      "source_sha256": "626144809c1f3056382d7e0a2af1a8bdaafdf221477536add3cc0eaddc7bcf5d",
+      "candidate_css_sha256": "0be6fc9252a367bd01997ed80d6f454c7cb6cdf19ab202307a9178b84ad53010"
+    },
+    {
+      "node": "theme:penumbra",
+      "action": "update",
+      "path": "../ports/penumbra/candidate.wikidot.source.txt",
+      "source_sha256": "439b21910d1a4363c35845490fdc2585a286b26577c2d692f130c2f790681b9e",
+      "candidate_css_sha256": "2d8436acd87691323a742583e715e7f69c96bfd53c355dac5b2fe27b8ceeb5da"
+    },
+    {
+      "node": "theme:quand-le-soleil-se-couche",
+      "action": "update",
+      "path": "themes/quand-le-soleil-se-couche/source.wikidot.txt",
+      "source_sha256": "c44ef95cf9a648f5b2eb9bc3854e95cb4e7005d5c9f656078e795508c7c7c47a",
+      "candidate_css_sha256": null
+    },
+    {
+      "node": "theme:redtape",
+      "action": "update",
+      "path": "../ports/redtape/candidate.wikidot.source.txt",
+      "source_sha256": "585e429f8a4fd472aed4e190461a23fba689aba968ebc38195971509fffa304e",
+      "candidate_css_sha256": "291cd47505fcdae005459e6ad82f9485cc1a803d32a2d802c6c4721ad7a586d7"
+    },
+    {
+      "node": "theme:scheme",
+      "action": "create",
+      "path": "../ports/scheme/candidate.wikidot.source.txt",
+      "source_sha256": "dab1d3ddc8805b0e4c3977dbe49876e04e975f43151aa3fb3e70165291599b58",
+      "candidate_css_sha256": "274f0149d9d1d695fd0555d28de09ceb7a0439a310bdd67e3b44c12ba23b2c55"
+    },
+    {
+      "node": "theme:scp-offices-theme",
+      "action": "update",
+      "path": "../ports/scp-offices-theme/candidate.wikidot.source.txt",
+      "source_sha256": "1fb480f19fd71c9d78ba365e5d88d5668ce46b722546f514b795a83b74eb82c8",
+      "candidate_css_sha256": "f3d5d0cec11e9092bed5913399d302ed8a19dea98a4e43ee71845afe4e803545"
+    },
+    {
+      "node": "theme:scpedia",
+      "action": "create",
+      "path": "../ports/scpedia/candidate.wikidot.source.txt",
+      "source_sha256": "7cad349274e80a9710e32526e5366b85e4cec268d04a80fc5b6e80bdc806d41c",
+      "candidate_css_sha256": "137675ef1fc201189336334bde5d9c88b8d38012a1c2d193cfbe5632338f556f"
+    },
+    {
+      "node": "theme:sigma",
+      "action": "create",
+      "path": "../ports/sigma/candidate.wikidot.source.txt",
+      "source_sha256": "2bc461f3a212385d4588debb88de6f20a7f9c1a739b41053f6fb6f95e503bb23",
+      "candidate_css_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "node": "theme:site",
+      "action": "create",
+      "path": "../ports/site/candidate.wikidot.source.txt",
+      "source_sha256": "6538b37accac65ba5c9ae78c88244b48ca447963251ac7e99b58e3d27334b1fc",
+      "candidate_css_sha256": "fa49d12c7af28d6001cccb36f6763b5539b2909a322aaf47e140a3aaf9a2ceae"
+    },
+    {
+      "node": "theme:skipos",
+      "action": "create",
+      "path": "../ports/skipos/candidate.wikidot.source.txt",
+      "source_sha256": "5422f618f60c010cf39c702b8d70aff2dd1a889aca66751b27cf887396ca5ea7",
+      "candidate_css_sha256": "db7104e8a069325316c07b8d20b0b1211abfe3b3fe34bc2aea1551a63c38b8cc"
+    },
+    {
+      "node": "theme:space",
+      "action": "update",
+      "path": "../ports/space/candidate.wikidot.source.txt",
+      "source_sha256": "df6265436b06703f428f4df2ee6809634177378d104332f05e252ee77bae26f7",
+      "candidate_css_sha256": "9050a943386e3975914248717c6a354ea8c88dc45eb06120ae2f58625e3eb70e"
+    },
+    {
+      "node": "theme:turbo-vision",
+      "action": "update",
+      "path": "../ports/turbo-vision/candidate.wikidot.source.txt",
+      "source_sha256": "e8acd56ebfe4e28b14825c26db3980a1d584e5b2532a9c9b818ec70aa9013647",
+      "candidate_css_sha256": "b9e8c63b787dc95314a26d81fd6dc61ed99470cddb7fb5470985fef95b2dc402"
+    },
+    {
+      "node": "theme:wikifot",
+      "action": "create",
+      "path": "../ports/wikifot/candidate.wikidot.source.txt",
+      "source_sha256": "fd0fa6d765b149fc5a1b60a179435d6e20eb34fbf581de3dfb96cb7a8912243e",
+      "candidate_css_sha256": "0516edb1e9f34d5d07175b3e3212ffb0852cddc00531ff09d3ede9854162efe7"
+    },
+    {
+      "node": "theme:y2k",
+      "action": "update",
+      "path": "../ports/y2k/candidate.wikidot.source.txt",
+      "source_sha256": "8e350e9f2a3444e2e8abd1d5a26e2618f91db4ace75e1bcb574a2903d25027f2",
+      "candidate_css_sha256": "450d8184621bdf1a9245790b2b3b32fa388e7e7fe61e7115eb898b0891fe7a6c"
+    },
+    {
+      "node": "theme:yossistyle",
+      "action": "create",
+      "path": "../ports/yossistyle/candidate.wikidot.source.txt",
+      "source_sha256": "c8f06e137605ffe2ab8249cc2faa0d8d13f795b1574ec64079c96a53af7312ae",
+      "candidate_css_sha256": "c1c711959c75c57b769ef9bdbf294bf60e8b937dc2a6af86b8bd345191ada445"
+    }
+  ],
+  "attachments": [
+    {
+      "node": "theme:aesthetic-theme",
+      "filename": "AESTHETIC_logo.svg",
+      "path": "ports/aesthetic-theme/page-assets/AESTHETIC_logo.svg",
+      "sha256": "64ca862d41f0aebc7f0fc6c9f0af82bc93b0dba29fc87e83bf18e9a8ba58c8e7",
+      "bytes": 15578
+    },
+    {
+      "node": "theme:aesthetic-theme",
+      "filename": "black-highlighter-logo.svg",
+      "path": "ports/aesthetic-theme/page-assets/black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615
+    },
+    {
+      "node": "theme:basalt",
+      "filename": "basalt-theme-logo.svg",
+      "path": "ports/basalt/page-assets/basalt-theme-logo.svg",
+      "sha256": "3baf62c62621629c69f22433651572da5fd917e276e5953ae4eebd75b7ca99b2",
+      "bytes": 5451
+    },
+    {
+      "node": "theme:black-highlighter-theme",
+      "filename": "black-highlighter-logo.svg",
+      "path": "ports/black-highlighter-theme/page-assets/black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615
+    },
+    {
+      "node": "theme:classic",
+      "filename": "base_image_frame.png",
+      "path": "ports/classic/page-assets/base_image_frame.png",
+      "sha256": "c5a79a414173aa6ccd5013fea65aae666b35826b53c30e0a20b4534f475e5a6f",
+      "bytes": 2283
+    },
+    {
+      "node": "theme:classic",
+      "filename": "scp_foundation_logo.png",
+      "path": "ports/classic/page-assets/scp_foundation_logo.png",
+      "sha256": "975a510eefe55e44930b50076b7c4e729c202e0d7f4c9049cd90e38a70516ed0",
+      "bytes": 9225
+    },
+    {
+      "node": "theme:extra-black-highlighter-theme",
+      "filename": "black-highlighter-logo.svg",
+      "path": "ports/extra-black-highlighter-theme/page-assets/black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615
+    },
+    {
+      "node": "theme:flopstyle-dark",
+      "filename": "alt_logo_tyrian.png",
+      "path": "ports/flopstyle-dark/page-assets/alt_logo_tyrian.png",
+      "sha256": "0d1e21c24a9092515ec777ee45760bc711f85a4ad5049d4d62b0a987f81ac407",
+      "bytes": 17814
+    },
+    {
+      "node": "theme:flopstyle-dark",
+      "filename": "scp_foundation_logo.png",
+      "path": "ports/flopstyle-dark/page-assets/scp_foundation_logo.png",
+      "sha256": "975a510eefe55e44930b50076b7c4e729c202e0d7f4c9049cd90e38a70516ed0",
+      "bytes": 9225
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "canada_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/canada_dark-JP.png",
+      "sha256": "5b21d465f3108d573b11d651d11ded55751b99e63195d272530651ba23726ba0",
+      "bytes": 67295
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "canada_light-JP.png",
+      "path": "ports/foxtrot/page-assets/canada_light-JP.png",
+      "sha256": "7557a168960706abff94ffa6023a5ae977649d5e8ae0905fcc662dd3b4ed5e3d",
+      "bytes": 66220
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "fishing_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/fishing_dark-JP.png",
+      "sha256": "58c241c1bf7914e763334443cef3a23444ec4c1252bcb539a01ae01c7077c54d",
+      "bytes": 66696
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "fishing_light-JP.png",
+      "path": "ports/foxtrot/page-assets/fishing_light-JP.png",
+      "sha256": "bde8bf5d2c40f3b2b7b6b440f5d9cf136275e28688fece77ae2e5743a5903565",
+      "bytes": 61957
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "goc_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/goc_dark-JP.png",
+      "sha256": "29d24f580ebc75cacd907119395368075ca63d04f19807db4c6476b84f95bf75",
+      "bytes": 67949
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "goc_light-JP.png",
+      "path": "ports/foxtrot/page-assets/goc_light-JP.png",
+      "sha256": "ae136ebd2d5e00dded63907f373bbb29c3bb67ab15dd7c4b261e636837efed4c",
+      "bytes": 66505
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "hybrasil_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/hybrasil_dark-JP.png",
+      "sha256": "a62e82cfc8b8721b8ed93ece934cc9ca58a882ceaa19db6a47d5e78e1b0b647a",
+      "bytes": 93569
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "hybrasil_light-JP.png",
+      "path": "ports/foxtrot/page-assets/hybrasil_light-JP.png",
+      "sha256": "739a8f6f2c6eecfe275d6d7b8d32fb36d7caced4ed5dc977cbb429fcf50919fa",
+      "bytes": 97774
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "nightfall_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/nightfall_dark-JP.png",
+      "sha256": "4d7b21765130662fc1127eb0bd8657ab74ea10039967e0e1b95dd27563dec631",
+      "bytes": 54725
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "nightfall_light-JP.png",
+      "path": "ports/foxtrot/page-assets/nightfall_light-JP.png",
+      "sha256": "a48444c067a9b8f8eb7169175a9651e8d4563e3ca632a7062c5de156ad5497ee",
+      "bytes": 18673
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "overwatch_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/overwatch_dark-JP.png",
+      "sha256": "a1c43f76d90909b4e0d88465c4c38077ab22f4134e79b3bf49b64d04c4e17760",
+      "bytes": 54778
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "overwatch_light-JP.png",
+      "path": "ports/foxtrot/page-assets/overwatch_light-JP.png",
+      "sha256": "8fedc09672684735671d09fa6940808553fe80d27eccaf0a043b337b310c143d",
+      "bytes": 14163
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "poland_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/poland_dark-JP.png",
+      "sha256": "ed55e8d4f13187a45a065914d4c756d360dea4fdbc7594b6c3db2bd9c3f644a3",
+      "bytes": 71846
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "poland_light-JP.png",
+      "path": "ports/foxtrot/page-assets/poland_light-JP.png",
+      "sha256": "ba64644d32f217fd57b7777ed7a8aa1dbd1e24dd7ad4d21f61ddc44781589a54",
+      "bytes": 60908
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "slothspit_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/slothspit_dark-JP.png",
+      "sha256": "060e75de6b3488c5bfcab1e1362dded4dfaecc1d0875b06f0f5583726f365305",
+      "bytes": 85314
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "slothspit_light-JP.png",
+      "path": "ports/foxtrot/page-assets/slothspit_light-JP.png",
+      "sha256": "d8e40b36106b3bb1525775bc6dc12b71441348dd80fe4eba4ff13e930c57ab42",
+      "bytes": 82144
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "spc_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/spc_dark-JP.png",
+      "sha256": "8ddc3500d4375fc6dfab44bc9b318817acbc8955f42afa8ed5b653be6f84e54d",
+      "bytes": 68745
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "spc_light-JP.png",
+      "path": "ports/foxtrot/page-assets/spc_light-JP.png",
+      "sha256": "05c8d142b7ac7a752804aa65ff738ece4592ebbb827ce85a6e7ea96544519844",
+      "bytes": 68351
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "spooky_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/spooky_dark-JP.png",
+      "sha256": "37ce528638b7f5bc5334d691ce5e5b6a6ad9c13736d22136943f6dee6a0e2908",
+      "bytes": 74095
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "spooky_light-JP.png",
+      "path": "ports/foxtrot/page-assets/spooky_light-JP.png",
+      "sha256": "4a8557fde9fe00f2f840bbbe3dccbda38c49d6cf9b1ab6c02ecd12ad07b1200b",
+      "bytes": 77430
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "threshold_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/threshold_dark-JP.png",
+      "sha256": "ccbdcd07ac6f1592973a81c4045d269cdbdbf9aa931ac8deafbe1377c7d877ce",
+      "bytes": 54586
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "threshold_light-JP.png",
+      "path": "ports/foxtrot/page-assets/threshold_light-JP.png",
+      "sha256": "3bccd3bbf06f609a0b20e106855a2562a10cd6ad394f8d558e27ef8ae336f991",
+      "bytes": 46540
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "vanguard_dark-JP.png",
+      "path": "ports/foxtrot/page-assets/vanguard_dark-JP.png",
+      "sha256": "077589c0ff6c4c77bf7b72ffefc820ec46078163bee12d3a0c5f71669766451c",
+      "bytes": 81498
+    },
+    {
+      "node": "theme:foxtrot",
+      "filename": "vanguard_light-JP.png",
+      "path": "ports/foxtrot/page-assets/vanguard_light-JP.png",
+      "sha256": "85d57f2d3421928fbaf94af29707d4707bbfeb5a7d8ab51b60fd71e0d43f7303",
+      "bytes": 86195
+    },
+    {
+      "node": "theme:hansarp",
+      "filename": "hansarplogo.png",
+      "path": "ports/hansarp/page-assets/hansarplogo.png",
+      "sha256": "7606a8868385d21bbad3105808e7c117017ddbdd91b719f2063471de7b0a5503",
+      "bytes": 20766
+    },
+    {
+      "node": "theme:inkblot",
+      "filename": "pancakes.png",
+      "path": "ports/inkblot/page-assets/pancakes.png",
+      "sha256": "8eb0eabe37b5c0fcd4f402861b8634a4505224d5bfdaccb12af1a4d739735f0a",
+      "bytes": 353234
+    },
+    {
+      "node": "theme:isolated-terminal",
+      "filename": "black-highlighter-logo.svg",
+      "path": "ports/isolated-terminal/page-assets/black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615
+    },
+    {
+      "node": "theme:monotypical",
+      "filename": "mono-dracula.png",
+      "path": "ports/monotypical/page-assets/mono-dracula.png",
+      "sha256": "695f4ad3654ba9a63585e61a94d740df4d340608842e93ce55e1940e6929d34a",
+      "bytes": 38179
+    },
+    {
+      "node": "theme:monotypical",
+      "filename": "mono-nord.png",
+      "path": "ports/monotypical/page-assets/mono-nord.png",
+      "sha256": "6a0c47c302004321e8f7bf7df6e04e18f14ac037664e1ef8b194b235616de200",
+      "bytes": 37494
+    },
+    {
+      "node": "theme:monotypical",
+      "filename": "mono-solarized.png",
+      "path": "ports/monotypical/page-assets/mono-solarized.png",
+      "sha256": "0830d0c7c6e4bcecb0863f88b35302c549167b41f171f2c4f9f263b49fed3b11",
+      "bytes": 37054
+    },
+    {
+      "node": "theme:ouroborous-theme",
+      "filename": "black-highlighter-logo.svg",
+      "path": "ports/ouroborous-theme/page-assets/black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615
+    },
+    {
+      "node": "theme:ouroborous-theme",
+      "filename": "ouroborous_logo.png",
+      "path": "ports/ouroborous-theme/page-assets/ouroborous_logo.png",
+      "sha256": "6ce2cde35401f36f7d44966903821ee9df970033eb22d77979d21195dbaeabac",
+      "bytes": 172768
+    },
+    {
+      "node": "theme:paperstack",
+      "filename": "lgtrans.png",
+      "path": "ports/paperstack/page-assets/lgtrans.png",
+      "sha256": "85bb999e3a059b8686f0b18df73636242976531b5991c2d3ca395d7dd6d6b12e",
+      "bytes": 28725
+    },
+    {
+      "node": "theme:quand-le-soleil-se-couche",
+      "filename": "header-logo.png",
+      "path": "publication/themes/quand-le-soleil-se-couche/assets/header-logo.png",
+      "sha256": "e242245d05519a8b2b8d672837f580ce483ded9691f8f14c1c7653fc4c2a336a",
+      "bytes": 368742
+    },
+    {
+      "node": "theme:quand-le-soleil-se-couche",
+      "filename": "body_bg_grey.png",
+      "path": "publication/themes/quand-le-soleil-se-couche/assets/body_bg_grey.png",
+      "sha256": "bec371b36d3f250ca4b45a03ab46d6a31a5536481ba334cd4ec06eb985db7b0a",
+      "bytes": 4099
+    },
+    {
+      "node": "theme:redtape",
+      "filename": "black-highlighter-logo.svg",
+      "path": "ports/redtape/page-assets/black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615
+    },
+    {
+      "node": "theme:redtape",
+      "filename": "newtempest.png",
+      "path": "ports/redtape/page-assets/newtempest.png",
+      "sha256": "1a1be495a9cf1908e6ee84146afdbcea551d917185cd757b79188dc3dd82ebea",
+      "bytes": 224475
+    },
+    {
+      "node": "theme:redtape",
+      "filename": "redtapeexample.png",
+      "path": "ports/redtape/page-assets/redtapeexample.png",
+      "sha256": "d8a7b428d6d94523681d22f4955e71e415f8a2347e0b2a58972a254367b4a6f5",
+      "bytes": 1410267
+    },
+    {
+      "node": "theme:scp-offices-theme",
+      "filename": "black-highlighter-logo.svg",
+      "path": "ports/scp-offices-theme/page-assets/black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615
+    },
+    {
+      "node": "theme:scp-offices-theme",
+      "filename": "scpoffices_logo.svg",
+      "path": "ports/scp-offices-theme/page-assets/scpoffices_logo.svg",
+      "sha256": "83529fbd5981bfa3e339b2487469def8c31b242e89154f5af95a7798e01b6706",
+      "bytes": 9665
+    },
+    {
+      "node": "theme:wikifot",
+      "filename": "table.png",
+      "path": "ports/wikifot/page-assets/table.png",
+      "sha256": "61d58db78f6aec50335ca228add57a43332a69a01078beb3235b39645452057a",
+      "bytes": 17211
+    }
+  ],
+  "authority_artifacts": [
+    {
+      "id": "adaptation-authority",
+      "path": "ports/adaptation-authority.json",
+      "sha256": "81940287b03b0e32dcf0114a127b9c0b4ccb97fcac2d678775c49904a0cfd941"
+    },
+    {
+      "id": "bhl-option-authority",
+      "path": "ports/black-highlighter-theme/option-scenarios/authority.json",
+      "sha256": "900eac424c3c64c7fa2ad14dae6648dd25cdfff4509d2a6fc5a264031929a86e"
+    },
+    {
+      "id": "source-dependency-audit",
+      "path": "publication/evidence/audits/theme-lab-source-dependency-freeze-audit-2026-10-29.json",
+      "sha256": "1fe16e8dc187419436c7badab5b92f9180ba89035e9f169bfb73b7677c0f335e"
+    },
+    {
+      "id": "foreign-dependency-policy-audit",
+      "path": "publication/evidence/audits/theme-lab-foreign-dependency-policy-audit-20261005.json",
+      "sha256": "a5a3516aaa578c5c61dcb4c1cb248bfe4bcd90dbb54e5bfba574a92b7d6842c6"
+    }
+  ],
+  "freeze_record": {
+    "state": "frozen-before-final-acceptance",
+    "candidate_set_sha256": "a9163f7adba5906bd49b4e19b7d8db78ee9478ae1543a4c34cbcad20d3348051",
+    "final_acceptance": {
+      "sigma9": "pending",
+      "sigma10": "pending",
+      "visual_review": "pending"
+    }
+  },
+  "errors": []
+}

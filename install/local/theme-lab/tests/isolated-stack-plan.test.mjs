@@ -54,7 +54,7 @@ const config = {
         },
         {
           type: "volume",
-          source: "local-rust-1-95-0-target",
+          source: "local-rust-1-99-1-target",
           target: "/src/target",
         },
       ],

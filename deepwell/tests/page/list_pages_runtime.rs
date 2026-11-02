@@ -2530,6 +2530,136 @@ async fn listpages_imported_creator_identity_uses_structured_corpus_provenance()
 }
 
 #[tokio::test]
+async fn listpages_rating_votes_fall_back_to_imported_roster_without_snapshot_votes_count()
+ {
+    const IMPORT_RUN_ID: i64 = 944_778;
+    const ROSTER_SLUG: &str = "fixture-listpages-votes-fallback-roster";
+    const ROSTER_INDEX_SLUG: &str = "fixture-listpages-votes-fallback-roster-index";
+    const KEYED_SLUG: &str = "fixture-listpages-votes-fallback-keyed";
+    const KEYED_INDEX_SLUG: &str = "fixture-listpages-votes-fallback-keyed-index";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (ROSTER_SLUG, "Fixture ListPages Votes Fallback Roster"),
+        (KEYED_SLUG, "Fixture ListPages Votes Fallback Keyed"),
+    ] {
+        create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "Rating votes fallback target.",
+        )
+        .await;
+    }
+    let roster_id = listpages_test_page_id(&runner, site_id, ROSTER_SLUG).await;
+    let keyed_id = listpages_test_page_id(&runner, site_id, KEYED_SLUG).await;
+
+    create_listpages_test_import_run(&runner, site_id, IMPORT_RUN_ID, 1).await;
+    for (page_id, slug, suffix) in [
+        (roster_id, ROSTER_SLUG, 944_781),
+        (keyed_id, KEYED_SLUG, 944_782),
+    ] {
+        mark_imported_page_with_author_snapshot(
+            &runner,
+            site_id,
+            IMPORT_RUN_ID,
+            (page_id, slug, suffix, "Imported Vote Author"),
+        )
+        .await;
+    }
+
+    // Roster page: four active imported votes (+1, +1, +1, -1) whose sum
+    // is the imported baseline (+2), and a snapshot meta with no
+    // votes_count key -- the shape the corpus import actually writes.
+    // Keyed page: two imported votes (+1, +1; baseline +2), one local
+    // vote (+1), and a snapshot votes_count figure of 7.
+    let transaction = runner.context().transaction();
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES \
+             (true, $1, $3, 1), \
+             (true, $1, $4, 1), \
+             (true, $1, $5, 1), \
+             (true, $1, $6, -1), \
+             (true, $2, $3, 1), \
+             (true, $2, $4, 1), \
+             (false, $2, $5, 1)",
+            [
+                Value::from(roster_id),
+                Value::from(keyed_id),
+                Value::from(ADMIN_USER_ID),
+                Value::from(SAMPLE_USER_ID),
+                Value::from(SYSTEM_USER_ID),
+                Value::from(UNKNOWN_USER_ID),
+            ],
+        ))
+        .await
+        .expect("rating votes fallback fixtures should be inserted");
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE wikidot_page_snapshot SET imported_rating = 2 WHERE page_id IN ($1, $2)",
+            [Value::from(roster_id), Value::from(keyed_id)],
+        ))
+        .await
+        .expect("rating votes fallback baselines should be set");
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE wikidot_page_snapshot SET meta_json = jsonb_build_object('votes_count', '7') WHERE page_id = $1",
+            [Value::from(keyed_id)],
+        ))
+        .await
+        .expect("keyed rating votes fixture should receive snapshot votes");
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        ROSTER_INDEX_SLUG,
+        "Fixture ListPages Votes Fallback Roster Index",
+        concat!(
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-votes-fallback-roster\" separate=\"no\" wrapper=\"no\"]]\n",
+            "votes=[%%rating_votes%%] rating=[%%rating%%] ",
+            "up=[[#expr ((%%rating%%+%%rating_votes%%)/2)]] ",
+            "down=[[#expr ((%%rating_votes%%-%%rating%%)/2)]]\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+    let roster_html =
+        load_listpages_test_compiled_html(&runner, site_id, ROSTER_INDEX_SLUG).await;
+    assert!(
+        roster_html.contains("votes=[4] rating=[2] up=3 down=1"),
+        "an imported page whose snapshot lacks votes_count must render its roster count and the true +/- breakdown:\n{roster_html}",
+    );
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        KEYED_INDEX_SLUG,
+        "Fixture ListPages Votes Fallback Keyed Index",
+        concat!(
+            "[[module ListPages category=\"*\" fullname=\"fixture-listpages-votes-fallback-keyed\" separate=\"no\" wrapper=\"no\"]]\n",
+            "votes=[%%rating_votes%%] rating=[%%rating%%]\n",
+            "[[/module]]",
+        ),
+    )
+    .await;
+    let keyed_html =
+        load_listpages_test_compiled_html(&runner, site_id, KEYED_INDEX_SLUG).await;
+    assert!(
+        keyed_html.contains("votes=[8] rating=[3]"),
+        "a present votes_count figure must keep combining with local votes only:\n{keyed_html}",
+    );
+}
+
+#[tokio::test]
 async fn listpages_imported_empty_title_uses_wikidot_page_name_label() {
     const IMPORT_RUN_ID: i64 = 944_005;
     const TARGET_SLUG: &str = "fixtureemptytitle:dfui-a-dfuixp04";

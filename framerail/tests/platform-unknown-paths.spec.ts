@@ -25,7 +25,6 @@ test("unknown /-/ platform paths answer 404 and stay on the requested URL", asyn
 })
 
 test("the bare /-/ prefix redirects home with an HTTP 302", async ({ request }) => {
-  // SvelteKit's trailing-slash normalization answers /-/ with a 308 to /-.
   const normalized = await request.get(`${APP_URL}/-/`, {
     headers: SITE_HEADERS,
     maxRedirects: 0

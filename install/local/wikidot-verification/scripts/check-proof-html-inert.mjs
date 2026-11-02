@@ -165,7 +165,6 @@ async function main() {
         if (Date.now() > deadline) throw new Error("proof page did not finish loading");
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
-      // One extra beat so any inline script in the artifact has run already.
       await new Promise((resolve) => setTimeout(resolve, 500));
       const evaluation = await cdp(
         socket,
@@ -196,7 +195,6 @@ async function main() {
       try {
         socket.close();
       } catch {
-        // Already closed; the browser shutdown below is authoritative.
       }
     }
   } finally {

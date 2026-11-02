@@ -54,17 +54,17 @@ test("local Docker development pins tools and keeps Rust caches scoped", () => {
     "utf8",
   );
 
-  assert.match(deepwellDockerfile, /FROM rust:1\.95\.0@sha256:[0-9a-f]{64}/u);
-  assert.match(wwsDockerfile, /FROM rust:1\.95\.0@sha256:[0-9a-f]{64}/u);
+  assert.match(deepwellDockerfile, /FROM rust:1\.99\.1@sha256:[0-9a-f]{64}/u);
+  assert.match(wwsDockerfile, /FROM rust:1\.99\.1@sha256:[0-9a-f]{64}/u);
   assert.match(framerailDockerfile, /FROM node:24\.22\.1-alpine@sha256:[0-9a-f]{64}/u);
   assert.match(framerailDockerfile, /npm install --global pnpm@11\.10\.0/u);
   assert.doesNotMatch(`${deepwellDockerfile}\n${wwsDockerfile}\n${framerailDockerfile}`, /:latest\b/u);
   assert.match(compose, /CARGO_BUILD_JOBS=\$\{CARGO_BUILD_JOBS:-2\}/gu);
   assert.equal((compose.match(/CARGO_BUILD_JOBS=\$\{CARGO_BUILD_JOBS:-2\}/gu) ?? []).length, 2);
   assert.match(compose, /CARGO_INCREMENTAL=1/u);
-  assert.match(compose, /local-rust-1-95-0-target:\/src\/target/u);
-  assert.match(compose, /local-rust-1-95-0-cargo-registry:\/usr\/local\/cargo\/registry/u);
-  assert.match(compose, /local-rust-1-95-0-cargo-git:\/usr\/local\/cargo\/git/u);
+  assert.match(compose, /local-rust-1-99-1-target:\/src\/target/u);
+  assert.match(compose, /local-rust-1-99-1-cargo-registry:\/usr\/local\/cargo\/registry/u);
+  assert.match(compose, /local-rust-1-99-1-cargo-git:\/usr\/local\/cargo\/git/u);
   assert.doesNotMatch(devCompose, /source: .*\/target\s*$/mu);
   assert.match(devCompose, /source: \.\.\/\.\.\/\.cargo\/config\.toml/u);
 });

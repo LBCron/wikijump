@@ -260,7 +260,11 @@
     {
       "surface_id": "catalog-feature:module-mailform",
       "sources": [{ "path": "deepwell/src/services/render/runtime_modules.rs", "anchor": "finalize_runtime_module_residuals" }],
-      "tests": [{ "path": "deepwell/tests/page.rs", "anchor": "mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views" }]
+      "tests": [
+        { "path": "deepwell/tests/page.rs", "anchor": "mailform_renders_form_in_preview_and_saved_views" },
+        { "path": "deepwell/tests/page.rs", "anchor": "mailform_submission_answers_wikidot_shaped_field_errors" },
+        { "path": "deepwell/tests/page.rs", "anchor": "mailform_submission_success_is_recorded_not_delivered" }
+      ]
     },
     {
       "surface_id": "catalog-feature:module-managesite",
@@ -552,7 +556,7 @@
       "surface_id": "catalog-feature:data-forms-youtube",
       "sources": [
         { "path": "deepwell/src/services/data_form/layout.rs", "anchor": "pub fn substitute_wikidot_data_form_layout_variables_with_display(" },
-        { "path": "deepwell/src/services/render/service.rs", "anchor": "pub(in crate::services::render) fn rewrite_wikidot_html_block_iframe_urls(" },
+        { "path": "deepwell/src/services/render/service/wikidot_direct_iframe.rs", "anchor": "pub(in crate::services::render) fn rewrite_wikidot_html_block_iframe_urls(" },
         { "path": "framerail/src/routes/[slug]/[...extra]/DataFormEditor.svelte", "anchor": "field.field_type === \"wiki\"" }
       ],
       "tests": [
@@ -904,7 +908,7 @@
     {
       "surface_id": "catalog-feature:syntax-engine",
       "sources": [
-        { "path": "deepwell/Cargo.toml", "anchor": "ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"3f8be45c12532d981652edf4343e02f36f1380db\" }" },
+        { "path": "deepwell/Cargo.toml", "anchor": "ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"bcfd17dbc2bf734d29370c1b398a3386d978b874\" }" },
         { "path": "deepwell/src/services/render/service.rs", "anchor": "pub async fn render(" },
         { "path": "deepwell/src/services/render/page_preview.rs", "anchor": "WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);" }
       ],
@@ -917,7 +921,7 @@
     {
       "surface_id": "catalog-feature:syntax-html-blocks",
       "sources": [
-        { "path": "deepwell/src/services/render/service.rs", "anchor": "pub(in crate::services::render) fn rewrite_wikidot_html_block_iframe_urls(" },
+        { "path": "deepwell/src/services/render/service/wikidot_direct_iframe.rs", "anchor": "pub(in crate::services::render) fn rewrite_wikidot_html_block_iframe_urls(" },
         { "path": "deepwell/src/services/render/page_preview.rs", "anchor": "settings.enable_html_blocks = false;" }
       ],
       "tests": [{ "path": "deepwell/tests/page.rs", "anchor": "wikidot_page_preview_keeps_html_blocks_literal_while_saved_pages_execute_them" }]
@@ -930,7 +934,7 @@
     {
       "surface_id": "catalog-feature:syntax-foldable-list",
       "sources": [
-        { "path": "deepwell/Cargo.toml", "anchor": "ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"3f8be45c12532d981652edf4343e02f36f1380db\" }" },
+        { "path": "deepwell/Cargo.toml", "anchor": "ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"bcfd17dbc2bf734d29370c1b398a3386d978b874\" }" },
         { "path": "deepwell/src/services/render/page_preview.rs", "anchor": "WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);" }
       ],
       "tests": [{ "path": "deepwell/tests/page.rs", "anchor": "foldable_list_initial_dom_matches_frozen_live_page_preview" }]
@@ -938,7 +942,7 @@
     {
       "surface_id": "catalog-feature:syntax-links",
       "sources": [
-        { "path": "deepwell/Cargo.toml", "anchor": "ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"3f8be45c12532d981652edf4343e02f36f1380db\" }" },
+        { "path": "deepwell/Cargo.toml", "anchor": "ftml = { git = \"https://github.com/Rokurolize/ftml\", rev = \"bcfd17dbc2bf734d29370c1b398a3386d978b874\" }" },
         { "path": "deepwell/src/services/render/compat/wikidot_link_protection.rs", "anchor": "pub(in crate::services::render) fn protect_wikidot_compat_links(" },
         { "path": "deepwell/src/services/render/compat/wikidot_link_protection.rs", "anchor": "pub(in crate::services::render) fn build_wikidot_wikipedia_link(" }
       ],
@@ -1088,7 +1092,7 @@
       "surface_id": "catalog-feature:site-navigation",
       "sources": [
         { "path": "deepwell/src/services/site/service.rs", "anchor": "if let Maybe::Set(top_bar_page) = input.top_bar_page" },
-        { "path": "deepwell/src/services/render/service.rs", "anchor": "render_nav_page(top_bar_page_wikitext, CorpusRenderScope::TopNav)" }
+        { "path": "deepwell/src/services/render/service.rs", "anchor": "render_nav_page(\n                top_bar_page_wikitext,\n                &top_bar_page,\n                CorpusRenderScope::TopNav\n            )" }
       ],
       "tests": [{ "path": "deepwell/tests/page.rs", "anchor": "rerender_uses_latest_navigation_page_revision" }]
     },

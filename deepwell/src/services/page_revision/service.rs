@@ -73,24 +73,15 @@ const MAX_REVISION_DIFF_LINES: usize = 20_000;
 const MAX_REVISION_DIFF_CELLS: usize = 4_000_000;
 const MAX_REVISION_DIFF_COMPARISON_BYTES: usize = 64 * 1024 * 1024;
 
-/// Which include-expansion ceiling a saved-page rerender may use.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum RerenderIncludeCeiling {
-    /// Ordinary rerenders keep the public safety limit.
     Public,
 
-    /// The corpus finalizer renders an imported page it owns.
     Corpus,
 
-    /// A corpus finalizer dependent uses the corpus ceiling only when its own
-    /// latest revision was imported from Wikidot.
     CorpusForImportedRevision,
 }
 
-/// The changes for the first revision.
-/// The first revision is always considered to have changed everything.
-///
-/// See `services/file_revision/service.rs`.
 static ALL_CHANGES: LazyLock<Vec<String>> = LazyLock::new(|| {
     vec![
         str!("wikitext"),
@@ -465,29 +456,6 @@ impl PageRevisionService {
         Ok(parsed)
     }
 
-    /// Creates a new revision on an existing page.
-    ///
-    /// For the given page, look at the changes to make. If there are none,
-    /// or they are all equivalent to the previous revision's, then no
-    /// revision is committed and `Ok(None)` is returned.
-    ///
-    /// If there are changes, the revision is rendered and persisted together with typed follow-up work. The caller must update the page aggregate and then pass the result to [`Self::apply_followups`].
-    ///
-    /// For page renames, this does not explicitly check if the target slug
-    /// already exists. If so, the database will fail with a uniqueness error.
-    /// This is checked in `PageService::rename()`, where renames should be done from.
-    ///
-    /// The revision number is subject to an invariant:
-    /// * For a new page, then the value must be `0` (this corresponds with a `previous` of `None`).
-    /// * For an existing page, then the value must be precisely one greater than the previous
-    ///   revision's number. No holes are permitted in the revision count, for some maximum
-    ///   revision number `n`, there must be revisions for each revision number from `0` to `n`
-    ///   inclusive.
-    ///
-    /// This is enforced by requiring the previous revision be passed in during creation.
-    ///
-    /// # Panics
-    /// If the given previous revision is for a different page or site, this method will panic.
     pub(crate) async fn create(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -533,7 +501,6 @@ impl PageRevisionService {
             .await
             .or_raise(make_error)?;
 
-        // If nothing has changed, then don't create a new revision
         if draft.changes.is_empty() {
             debug!("No changes in edit, only rerendering the page");
             ctx.defer_public_content_cache_invalidate_site(site_id)
@@ -548,15 +515,12 @@ impl PageRevisionService {
         ctx.defer_public_content_cache_invalidate_site(site_id)
             .or_raise(make_error)?;
 
-        // Get ancillary page data
         let (score_result, layout_result) = join!(
             ScoreService::score(ctx, page_id),
             SettingsService::get_layout(ctx, site_id, Some(page_id)),
         );
         let (score, layout) = raise_multiple!(score_result, layout_result; make_error);
 
-        // Run tasks based on changes:
-        // See PageRevisionTasks struct for more information.
         let tasks = PageRevisionTasks::determine(&draft.changes);
 
         if tasks.render_and_update_links {
@@ -602,13 +566,6 @@ impl PageRevisionService {
         Ok(revision.output)
     }
 
-    /// Applies the follow-up work for a revision created by a page import.
-    ///
-    /// Identical to [`Self::apply_followups`], except dependent outdating
-    /// runs one rerender depth deeper, so dependents are queued as deferred
-    /// background rerenders instead of being re-rendered immediately inside
-    /// this request. A bulk import of a widely-included page must not
-    /// synchronously re-render every includer before the import can respond.
     pub(crate) async fn apply_followups_for_import(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -624,13 +581,6 @@ impl PageRevisionService {
         Ok(revision.output)
     }
 
-    /// Creates the first revision for a newly-inserted page.
-    ///
-    /// The first revision of a page is special.
-    /// A revision change cannot be missing any fields (since there is
-    /// not a previous revision to take prior data from), and always
-    /// inserts, since it's not possible for it to be an empty revision
-    /// (since there's no prior revision for it to be equal to).
     pub async fn create_first(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -677,6 +627,7 @@ impl PageRevisionService {
         let NavigationPageWikitext {
             top_bar_page_wikitext,
             side_bar_page_wikitext,
+            ..
         } = SettingsService::get_nav_page_wikitext(ctx, site_id, Some(category_id))
             .await
             .or_raise(make_error)?;
@@ -688,8 +639,6 @@ impl PageRevisionService {
             side_bar_page_wikitext.as_deref(),
         );
 
-        // If the page creation doesn't specify a preferred layout,
-        // use the effective layout for the inserted destination page.
         let layout = match layout {
             Some(layout) => layout,
             None => SettingsService::get_layout(ctx, site_id, Some(page_id))
@@ -697,7 +646,6 @@ impl PageRevisionService {
                 .or_raise(make_error)?,
         };
 
-        // Get ancillary page data
         let (wikitext_hash_result, score_result) = join!(
             TextService::create(ctx, wikitext.clone()),
             ScoreService::score(ctx, page_id),
@@ -705,7 +653,6 @@ impl PageRevisionService {
         let (wikitext_hash, score) =
             raise_multiple!(wikitext_hash_result, score_result; make_error);
 
-        // Render first revision
         let render_input = RenderPageInfo {
             layout,
             slug: &slug,
@@ -716,7 +663,6 @@ impl PageRevisionService {
         };
 
         let RenderPageOutput {
-            // TODO: use html_output
             html_output: _,
             errors,
             compiled_body_html_hash,
@@ -729,7 +675,6 @@ impl PageRevisionService {
             .await
             .or_raise(make_error)?;
 
-        // Insert the first revision into the table
         let model = page_revision::ActiveModel {
             revision_type: Set(PageRevisionType::Create),
             revision_number: Set(0),
@@ -772,13 +717,6 @@ impl PageRevisionService {
             .await
     }
 
-    /// Applies the follow-up work for the first revision of an imported page.
-    ///
-    /// Identical to [`Self::apply_first_followups`], except dependent
-    /// outdating runs one rerender depth deeper, so dependents are queued
-    /// as deferred background rerenders instead of being re-rendered
-    /// immediately inside this request. See
-    /// [`Self::apply_followups_for_import`].
     pub(crate) async fn apply_first_followups_for_import(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -811,13 +749,6 @@ impl PageRevisionService {
         Ok(())
     }
 
-    /// Creates a revision marking a page as deleted.
-    ///
-    /// This revision is called a "tombstone" in that
-    /// its only purpose is to mark that the page has been deleted.
-    ///
-    /// # Panics
-    /// If the given previous revision is for a different page or site, this method will panic.
     pub async fn create_tombstone(
         ctx: &ServiceContext<'_>,
         CreateTombstonePageRevision {
@@ -859,7 +790,6 @@ impl PageRevisionService {
         ctx.defer_public_content_cache_invalidate_site(site_id)
             .or_raise(make_error)?;
 
-        // Run outdater
         OutdateService::process_page_delete(
             ctx,
             site_id,
@@ -870,12 +800,10 @@ impl PageRevisionService {
         .await
         .or_raise(make_error)?;
 
-        // Delete parent-child relationships, if any
         ParentService::remove_all(ctx, page_id)
             .await
             .or_raise(make_error)?;
 
-        // Insert the tombstone revision into the table
         let model = page_revision::ActiveModel {
             revision_type: Set(PageRevisionType::Delete),
             revision_number: Set(revision_number),
@@ -909,21 +837,6 @@ impl PageRevisionService {
         })
     }
 
-    /// Creates a revision marking a pages as restored (i.e., undeleted).
-    ///
-    /// Similar to `create_tombstone`, this method creates
-    /// a revision whose only purpose is to mark that the page
-    /// has been restored.
-    ///
-    /// Note that page parenting information is removed during deletion
-    /// and is not restored here.
-    ///
-    /// Remember that, like `create_first()`, this method assumes
-    /// the caller has already verified that undeleting the page here
-    /// will not cause conflicts.
-    ///
-    /// # Panics
-    /// If the given previous revision is for a different page or site, this method will panic.
     pub(crate) async fn create_resurrection(
         ctx: &ServiceContext<'_>,
         CreateResurrectionPageRevision {
@@ -976,14 +889,12 @@ impl PageRevisionService {
         ctx.defer_public_content_cache_invalidate_site(site_id)
             .or_raise(make_error)?;
 
-        // Get ancillary page data
         let (score_result, layout_result) = join!(
             ScoreService::score(ctx, page_id),
             SettingsService::get_layout(ctx, site_id, Some(page_id)),
         );
         let (score, layout) = raise_multiple!(score_result, layout_result; make_error);
 
-        // Re-render page
         let render_input = RenderPageInfo {
             layout,
             slug: &new_slug,
@@ -1008,6 +919,7 @@ impl PageRevisionService {
         let NavigationPageWikitext {
             top_bar_page_wikitext,
             side_bar_page_wikitext,
+            ..
         } = SettingsService::get_nav_page_wikitext(ctx, site_id, Some(category_id))
             .await
             .or_raise(make_error)?;
@@ -1020,7 +932,6 @@ impl PageRevisionService {
         )
         .rerender_after_latest_revision;
         let RenderPageOutput {
-            // TODO: use html_output
             html_output: _,
             errors,
             compiled_body_html_hash: new_body_html_hash,
@@ -1049,7 +960,6 @@ impl PageRevisionService {
         replace_hash_opt(&mut compiled_top_bar_html_hash, new_top_bar_html_hash);
         replace_hash_opt(&mut compiled_side_bar_html_hash, new_side_bar_html_hash);
 
-        // Run outdater
         OutdateService::process_page_create(
             ctx,
             site_id,
@@ -1060,7 +970,6 @@ impl PageRevisionService {
         .await
         .or_raise(make_error)?;
 
-        // Insert the resurrection revision into the table
         let model = page_revision::ActiveModel {
             revision_type: Set(PageRevisionType::Undelete),
             revision_number: Set(revision_number),
@@ -1108,11 +1017,6 @@ impl PageRevisionService {
         Ok(revision.output)
     }
 
-    /// Helper method for performing rendering for a revision.
-    ///
-    /// Makes all the changes associated with rendering, such as
-    /// committing the new wikitext, calling ftml, and updating
-    /// backlinks.
     async fn render_and_update_links(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -1128,7 +1032,6 @@ impl PageRevisionService {
         allow_corpus_dense_includes: bool,
         trace: Option<&CorpusRenderTrace>,
     ) -> Result<RenderPageOutput> {
-        // Get site
         let PageId {
             site_id,
             category_id,
@@ -1149,7 +1052,6 @@ impl PageRevisionService {
             .await
             .or_raise(make_error)?;
 
-        // Set up parse context
         let (category_slug, page_slug) = split_category(slug);
         let current_page_data_form_values =
             parse_static_wikidot_data_form_values(&wikitext);
@@ -1201,7 +1103,6 @@ impl PageRevisionService {
             language: cow!(locale_for_ftml(&site.locale)),
         };
 
-        // Parse and render
         let mut output = if let Some(trace) = trace {
             debug_assert!(allow_corpus_dense_includes);
             RenderService::render_corpus_page_traced(
@@ -1211,8 +1112,6 @@ impl PageRevisionService {
         } else if allow_corpus_dense_includes {
             RenderService::render_corpus_page(ctx, wikitext, &page_info, layout, id).await
         } else {
-            // A stored revision render answers no particular request, so it
-            // carries no URL arguments.
             RenderService::render_page_with_candidate_data_form_values(
                 ctx,
                 wikitext,
@@ -1231,7 +1130,6 @@ impl PageRevisionService {
             .internal_links
             .extend(pagepath_backlinks.into_iter().map(PageRef::page_only));
 
-        // Update backlinks
         {
             let _stage = StageGuard::new(
                 trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
@@ -1245,13 +1143,6 @@ impl PageRevisionService {
         Ok(output)
     }
 
-    /// Re-renders a page.
-    ///
-    /// This fetches the latest revision for a page, and re-renders it.
-    ///
-    /// The `depth` parameter describes the number of layers of prior rerendering
-    /// automatically leading to other updates. For a manual rerender this value
-    /// should be 0.
     pub async fn rerender(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -1270,12 +1161,6 @@ impl PageRevisionService {
         .await
     }
 
-    /// Re-renders a dependent of a page the corpus finalizer just rendered.
-    ///
-    /// The finalizer's own render of an imported page uses the corpus include
-    /// ceiling, so a dependent it outdates must render the same way when its
-    /// latest revision was also imported from Wikidot. Locally authored
-    /// dependents keep the public safety limit.
     pub(crate) async fn rerender_dependent_for_corpus_finalizer(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -1294,10 +1179,6 @@ impl PageRevisionService {
         .await
     }
 
-    /// Re-renders a trusted imported page for the corpus finalizer.
-    ///
-    /// The finalizer needs a corpus-provenanced include ceiling while normal
-    /// user-controlled renders retain the lower public safety limit.
     #[allow(dead_code)]
     pub(crate) async fn rerender_for_corpus_finalizer(
         ctx: &ServiceContext<'_>,
@@ -1318,7 +1199,6 @@ impl PageRevisionService {
         .await
     }
 
-    /// Re-renders a trusted imported page and records corpus stage diagnostics.
     pub(crate) async fn rerender_for_corpus_finalizer_traced(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -1339,11 +1219,6 @@ impl PageRevisionService {
         .await
     }
 
-    /// Renders a stored revision from its source and the page's current
-    /// score and layout, and records the links the output contains.
-    ///
-    /// This writes the compiled text and the page's link rows but leaves the
-    /// revision itself unchanged; callers decide where the output is stored.
     pub(super) async fn render_revision(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -1355,7 +1230,6 @@ impl PageRevisionService {
             site_id, page_id, ..
         } = id;
 
-        // Get data for page
         let (wikitext, score, layout) = {
             let _stage = StageGuard::new(
                 trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
@@ -1368,8 +1242,6 @@ impl PageRevisionService {
             )?
         };
 
-        // This is necessary until we are able to replace the
-        // 'tags' column with TEXT[] instead of JSON.
         let render_input = RenderPageInfo {
             layout,
             slug: &revision.slug,
@@ -1379,7 +1251,7 @@ impl PageRevisionService {
             tags: &revision.tags,
         };
 
-        Self::render_and_update_links(
+        let output = Self::render_and_update_links(
             ctx,
             id,
             wikitext,
@@ -1387,7 +1259,20 @@ impl PageRevisionService {
             allow_corpus_dense_includes,
             trace,
         )
-        .await
+        .await?;
+
+        let latest = Self::get_latest(ctx, id.site_id, id.page_id).await?;
+        if latest.revision_id != revision.revision_id {
+            bail!(Error::new(
+                format!(
+                    "revision {} of page ID {} was superseded by revision {} during render; discarding the stale render",
+                    revision.revision_id, id.page_id, latest.revision_id,
+                ),
+                ErrorType::PageRevision,
+            ));
+        }
+
+        Ok(output)
     }
 
     async fn rerender_inner(
@@ -1436,18 +1321,13 @@ impl PageRevisionService {
             RerenderIncludeCeiling::CorpusForImportedRevision => revision.from_wikidot,
         };
 
-        // Check that this rerender request / job is not blocked by the
-        // specified anti-loop/excessive rerender rules.
         macro_rules! updated_recently {
             ($offset:expr) => {
                 match ($offset, revision.updated_at) {
-                    (None, _) => true, // no update offset, skip check
-                    (_, None) => true, // revision has never been updated before, check is irrelevant
+                    (None, _) => true,
+                    (_, None) => true,
 
-                    // check that at least [duration] time since [updated_at] has elapsed
-                    (Some(duration), Some(updated_at)) => {
-                        now() > updated_at + duration
-                    }
+                    (Some(duration), Some(updated_at)) => now() > updated_at + duration,
                 }
             };
         }
@@ -1465,7 +1345,6 @@ impl PageRevisionService {
         ctx.defer_public_content_cache_invalidate_site(site_id)
             .or_raise(make_error)?;
 
-        // TODO use html_output
         let RenderPageOutput {
             html_output: _,
             errors: _,
@@ -1481,8 +1360,6 @@ impl PageRevisionService {
 
         let model = match rerender_type {
             RerenderType::Full => {
-                // Outdate all descendent pages and update body and nav pages
-
                 if outdate_dependents {
                     let _stage = StageGuard::new(
                         trace.map(|trace| (trace, CorpusRenderScope::Rerender)),
@@ -1517,25 +1394,18 @@ impl PageRevisionService {
                     ..Default::default()
                 }
             }
-            RerenderType::NavigationOnly => {
-                // Update nav pages only
-                page_revision::ActiveModel {
-                    revision_id: Set(revision.revision_id),
-                    updated_at: Set(Some(now())),
-                    compiled_body_styles_hash: Set(Some(
-                        compiled_body_styles_hash.to_vec(),
-                    )),
-                    compiled_top_bar_html_hash: Set(
-                        compiled_top_bar_html_hash.map(Vec::from)
-                    ),
-                    compiled_side_bar_html_hash: Set(
-                        compiled_side_bar_html_hash.map(Vec::from)
-                    ),
-                    compiled_at: Set(compiled_at),
-                    compiled_generator: Set(compiled_generator),
-                    ..Default::default()
-                }
-            }
+            RerenderType::NavigationOnly => page_revision::ActiveModel {
+                revision_id: Set(revision.revision_id),
+                updated_at: Set(Some(now())),
+                compiled_body_styles_hash: Set(Some(compiled_body_styles_hash.to_vec())),
+                compiled_top_bar_html_hash: Set(compiled_top_bar_html_hash.map(Vec::from)),
+                compiled_side_bar_html_hash: Set(
+                    compiled_side_bar_html_hash.map(Vec::from)
+                ),
+                compiled_at: Set(compiled_at),
+                compiled_generator: Set(compiled_generator),
+                ..Default::default()
+            },
         };
 
         {
@@ -1548,13 +1418,6 @@ impl PageRevisionService {
         Ok(())
     }
 
-    /// Modifies an existing revision.
-    ///
-    /// Normally you should think of revisions as being immutable
-    /// entries in an append-only log. This however is not always
-    /// true. In addition to `rerender()`, staff are able to change
-    /// the `hidden` column, causing some fields of the revision to be hidden,
-    /// for instance, if it contains spam, abuse, or harassment.
     pub async fn update(
         ctx: &ServiceContext<'_>,
         UpdatePageRevision {
@@ -1577,11 +1440,6 @@ impl PageRevisionService {
                 ErrorType::PageRevision,
             )
         };
-
-        // The wikitext changes to a page are visible even if that part
-        // of the revision is hidden, so current revisions are not allowed
-        // to have that field hidden. It should be reverted first, and then
-        // the diff can be hidden like any other.
 
         let latest = Self::get_latest(ctx, site_id, page_id)
             .await
@@ -1614,13 +1472,10 @@ impl PageRevisionService {
             return Ok(());
         }
 
-        // Update the revision
-
         let mut model = revision.into_active_model();
         model.updated_at = Set(Some(now()));
         model.hidden = Set(hidden);
 
-        // Update and return
         model.update(txn).await.or_raise(make_error)?;
 
         AuditService::log(
@@ -1638,15 +1493,11 @@ impl PageRevisionService {
         Ok(())
     }
 
-    /// Get the latest revision of this page.
     pub async fn get_latest(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         page_id: i64,
     ) -> Result<PageRevisionModel> {
-        // NOTE: There is no optional variant of this method,
-        //       since all extant pages must have at least one revision.
-
         let make_error = || {
             Error::new(
                 format!(
@@ -1681,9 +1532,6 @@ impl PageRevisionService {
         }
     }
 
-    /// Gets the earliest available revision of a page.
-    ///
-    /// Normal pages start at revision 0, but repaired or imported data may retain only a later revision number. Creation-author queries use the same earliest-available semantics.
     pub async fn get_earliest_optional(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1712,7 +1560,6 @@ impl PageRevisionService {
             .or_raise(make_error)
     }
 
-    /// Internal method for getting a text column for the latest revision of a page.
     async fn get_latest_text_optional(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1760,12 +1607,6 @@ impl PageRevisionService {
         Ok(text)
     }
 
-    /// Gets the wikitext from the latest revision of a page or null if it doesn't exist.
-    /// This is a specific helper method since it requires a join.
-    ///
-    /// NOTE: This accepts page slugs with an explicit `_default:` category, but
-    ///       does *not* handle non-normalized page slugs. In such a case, it
-    ///       won't find the appropriate page!
     pub async fn get_wikitext_optional(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1780,7 +1621,6 @@ impl PageRevisionService {
         .await
     }
 
-    /// Gets the latest wikitext for several page IDs in one query.
     pub async fn get_wikitext_optional_batch(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1821,9 +1661,6 @@ impl PageRevisionService {
         Ok(wikitext)
     }
 
-    /// Gets the latest revision title and wikitext for several page IDs in one
-    /// query. Prefer this over calling [`Self::get_latest`] plus
-    /// [`TextService::get`] once per page inside a loop.
     pub async fn get_latest_title_and_wikitext_batch(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1870,7 +1707,6 @@ impl PageRevisionService {
         Ok(summaries)
     }
 
-    /// Gets the latest compiled body HTML for several page IDs in one query.
     pub async fn get_compiled_body_html_optional_batch(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1911,11 +1747,6 @@ impl PageRevisionService {
         Ok(compiled_html)
     }
 
-    /// Gets the Wikidot-compatible page size for several page IDs.
-    ///
-    /// Imported pages retain Wikidot's own ListPages `size` metadata because it
-    /// is not reliably derivable from ViewSourceModule's normalized source.
-    /// Native pages fall back to the latest source's Unicode scalar-value count.
     pub async fn get_wikitext_scalar_count_optional_batch(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1972,10 +1803,6 @@ impl PageRevisionService {
         Ok(page_sizes)
     }
 
-    /// Gets the number of stored revisions for several page IDs.
-    ///
-    /// Pages with no stored revision are absent from the result rather than
-    /// present with a zero, so callers can distinguish missing history.
     pub async fn get_revision_count_batch(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -2017,7 +1844,6 @@ impl PageRevisionService {
             .collect()
     }
 
-    /// Gets the wikitext from the latest revision of a page.
     pub async fn get_wikitext(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -2030,10 +1856,6 @@ impl PageRevisionService {
         )
     }
 
-    /// Gets the compiled body HTML from the latest revision of a page.
-    /// This is a specific helper method since it requires a join.
-    ///
-    /// NOTE: The same caveats apply to this method as `get_wikitext_optional()`.
     pub async fn get_compiled_html_optional(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -2231,6 +2053,30 @@ impl PageRevisionService {
         Ok(revision)
     }
 
+    pub async fn get_revisions(
+        ctx: &ServiceContext<'_>,
+        revision_ids: Vec<i64>,
+    ) -> Result<Vec<PageRevisionModel>> {
+        let txn = ctx.transaction();
+        let revisions = PageRevision::find()
+            .filter(
+                Condition::all()
+                    .add(page_revision::Column::RevisionId.is_in(revision_ids.clone())),
+            )
+            .all(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to get page revisions ID {:?} directly",
+                        revision_ids
+                    ),
+                    ErrorType::PageRevision,
+                )
+            })?;
+        Ok(revisions)
+    }
+
     pub async fn count(
         ctx: &ServiceContext<'_>,
         CountPageRevisions { site_id, page_id }: CountPageRevisions,
@@ -2258,8 +2104,6 @@ impl PageRevisionService {
             .try_into_i32()
             .or_raise(make_error)?;
 
-        // All pages have at least one revision, so if there are none
-        // that means this page does not exist, and we should return an error.
         match NonZeroI32::new(row_count) {
             Some(count) => Ok(count),
             None => bail!(Error::new(
@@ -2299,15 +2143,12 @@ impl PageRevisionService {
         let revision_condition = {
             use page_revision::Column::RevisionNumber;
 
-            // Treat any negative revision number as "the most recent revision";
-            // otherwise keep it as-is.
             let revision_number = if revision_number >= 0 {
                 revision_number
             } else {
                 i32::MAX
             };
 
-            // Get correct database condition based on requested ordering
             match revision_direction {
                 FetchDirection::Before => RevisionNumber.lte(revision_number),
                 FetchDirection::After => RevisionNumber.gte(revision_number),
@@ -2394,10 +2235,6 @@ mod revision_diff_tests {
 
     #[test]
     fn empty_sources_produce_exact_typed_empty_edges() {
-        // #1063 diff boundary: empty inputs must reduce to exact typed
-        // edges (no lines, or only unchanged) without errors, so an empty
-        // revision pair never fabricates added/removed lines. No live claim
-        // is made for empty revisions beyond this local typed contract.
         use PageRevisionDiffLineKind::{Added, Removed, Unchanged};
 
         let both_empty_diff =
@@ -2458,33 +2295,25 @@ fn replace_hash(dest: &mut Vec<u8>, src: &[u8]) {
 }
 
 fn replace_hash_opt<B: AsRef<[u8]>>(dest: &mut Option<Vec<u8>>, src: Option<B>) {
-    // NOTE: We aren't using "match (dest, src)" here because of
-    //       borrow checker issues.
-
     let src = match src {
-        // We only need to overwrite and we're done
         None => {
             *dest = None;
             return;
         }
 
-        // Otherwise, extract the data to be written
         Some(ref bytes) => bytes.as_ref(),
     };
 
-    // We can borrow the buffer and overwrite it
     if let Some(dest) = dest {
         replace_hash(dest, src);
         return;
     }
 
-    // It's empty, we have to allocate a new buffer
     debug_assert!(dest.is_none(), "Destination not None after check");
     *dest = Some(src.to_vec());
 }
 
 fn next_revision_number(previous: &PageRevisionModel, site_id: i64, page_id: i64) -> i32 {
-    // Check for basic consistency
     assert_eq!(
         previous.site_id, site_id,
         "Previous revision has an inconsistent site ID",
@@ -2494,7 +2323,6 @@ fn next_revision_number(previous: &PageRevisionModel, site_id: i64, page_id: i64
         "Previous revision has an inconsistent page ID",
     );
 
-    // Get the new revision number
     previous.revision_number + 1
 }
 

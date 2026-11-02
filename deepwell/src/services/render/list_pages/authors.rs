@@ -18,13 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Resolving the people behind ListPages rows.
-//!
-//! A row can name its creator, its last editor, or an imported Wikidot author
-//! who has no local user. Turning those into display names means batching
-//! lookups across a page of rows and caching them for the rest of the render,
-//! which is what these functions do for `rendering.rs`.
-
 use super::super::service::RenderService;
 use super::{
     Cow, CurrentPageAuthorSource, ListPagesAuthorCacheKey, ListPagesRuntimeDisplay,
@@ -416,7 +409,13 @@ impl RenderService {
                      WHERE vote.page_id = input.page_id \
                        AND vote.deleted_at IS NULL \
                        AND vote.disabled_at IS NULL \
-                       AND (snapshot.page_id IS NULL OR vote.from_wikidot = FALSE) \
+                       AND (snapshot.page_id IS NULL \
+                            OR vote.from_wikidot = FALSE \
+                            OR NOT COALESCE( \
+                                snapshot.meta_json ->> 'votes_count' ~ '^[0-9]{{1,19}}$' \
+                                AND (length(snapshot.meta_json ->> 'votes_count') < 19 \
+                                     OR snapshot.meta_json ->> 'votes_count' <= '9223372036854775807'), \
+                                FALSE)) \
                        AND vote.rating_system = CASE \
                            WHEN COALESCE(category.rating_type, \
                                          default_category.rating_type, \
@@ -556,8 +555,6 @@ impl RenderService {
 
         user_ids.extend(Self::load_wikidot_author_ids(ctx, &snapshot_names).await?);
         if exclude_current_page_author {
-            // An exclusion that resolved to nobody would silently widen the
-            // query back to every page, so the caller preserves the module.
             return Ok(ResolvedListPagesAuthors::NotAny {
                 user_ids: user_ids.into_iter().collect(),
                 wikidot_snapshot_names: snapshot_names

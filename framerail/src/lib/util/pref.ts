@@ -1,9 +1,5 @@
 import { writable, type Updater, type Writable } from "svelte/store"
 
-/**
- * `localStorage`-based smart preference handler, with support for
- * observables or proxied objects.
- */
 export class PreferenceHandler {
   /**
    * @param prefix - The namespace to use for the preference handler.
@@ -11,10 +7,6 @@ export class PreferenceHandler {
    */
   constructor(private prefix = "_user-pref_") {}
 
-  /**
-   * Returns the name given with a prefix namespace, to prevent collisions
-   * with other items in `localStorage`.
-   */
   private processName(name: string) {
     if (name.startsWith(this.prefix)) return name
     return this.prefix + name
@@ -75,7 +67,6 @@ export class PreferenceHandler {
     return Boolean(localStorage.getItem(name))
   }
 
-  /** Returns the list of preferences currently stored. */
   stored() {
     const len = localStorage.length
     const keys = new Set<string>()
@@ -113,7 +104,6 @@ export class PreferenceHandler {
     return {
       subscribe: store.subscribe,
       set: (val: T) => {
-        // make a new object so we don't mutate old ones
         store.set(typeof val === "object" && !Array.isArray(val) ? { ...val } : val)
         handlerSet(name, val)
       },
@@ -123,31 +113,15 @@ export class PreferenceHandler {
     }
   }
 
-  /**
-   * Retrieves a 'wrapped' proxy object, or creates one if needed. Setting
-   * items on this object will automatically cause the object to be stored.
-   * This can be used to store a record of preferences without needing to
-   * use an observable store.
-   *
-   * @example
-   *   ;```ts
-   *   type Settings = { foo: true; bar: { foo: false } }
-   *   const settings = Pref.wrap<Settings>("settings")
-   *   settings.foo = false // updates localStorage
-   *   settings.bar.foo = true // also updates localStorage, despite deeply accessing
-   *   ```
-   */
   wrap<T extends JSONObject>(name: string, fallback: T): T {
     const wrapped = this.get(name, fallback)
     const handler: ProxyHandler<T> = {
-      // handle nested objects by proxying them with the same handler
       get: (target, prop) => {
         const val = Reflect.get(target, prop)
         return val !== null && typeof val === "object"
           ? new Proxy(val as unknown as T, handler)
           : val
       },
-      // fire setter function whenever the object has a property set (even recursively)
       set: (target, prop, val) => {
         Reflect.set(target, prop, val)
         this.set(name, wrapped)
@@ -158,10 +132,4 @@ export class PreferenceHandler {
   }
 }
 
-/**
- * Pre-made {@link PreferenceHandler} with the default `"_user-pref_"`
- * prefix set.
- *
- * @see {@link PreferenceHandler}
- */
 export const Pref = new PreferenceHandler()

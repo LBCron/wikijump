@@ -55,7 +55,6 @@ async fn resolve_page_category_slug<'slug>(
     }
 }
 
-/// Helper function to resolve a category reference to an ID based on resource type.
 pub async fn resolve_category_reference(
     ctx: &ServiceContext<'_>,
     site_id: i64,

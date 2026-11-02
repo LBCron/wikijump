@@ -1,0 +1,105 @@
+[[iftags +theme]]
+
+[[>]]
+[[module Rate]]
+[[/>]]
+
+~~~~
+
+[[include :scp-wiki:info:start]]
+**Fogwalker Theme**
+Made by [[*user thd-glasses]]
+
+Image License:
+# https://commons.wikimedia.org/wiki/File:Lady_Liberty-New_Year%27s_Day-2022-0661_-_Flickr_-_Pat_Bianculli.jpg
+# https://commons.wikimedia.org/wiki/File:John_o%27Groats_lighthouse_fog_1.jpeg
+
+Used Font:
+# https://noonnu.cc/font_page/51
+[[include :scp-wiki:info:end]]
+
++ How to use: Fogwalker CSS THEME
+
+* This is the original theme for the [[[mujin-yarn|Mujin Yarn]]] canon.
+* Add the following code on the top of your page.
+
+> @@[[include :scp-wiki:theme:fogwalker]]@@
+
+> @@[[include :scp-wiki:theme:fogwalker dark=a]]@@
+
+[[/iftags]]
+
+[[div [[iftags -theme]]style="display: none"[[/iftags]]]]
+[[include :scpko:theme:fogwalker dark={$dark}]]
+
+To read full CSS code, see [https://scpko.wikidot.com/theme:fogwalker the original theme page].
+
+[[module CSS show="true"]]
+#header h1 a{
+  padding: 70px 0 25px;
+}
+#header h1 a::before {
+  content: "Mujin Yarn";
+}
+#header h2 span::before {
+  content: "“Just out of the town, there's a jetty pointing seaward...”";
+}
+
+div.page-rate-widget-box .rate-points {
+  background-color: #CBCBCB;
+  border: solid 1px #CBCBCB;
+}
+[[/module]]
+
++ INT porting code
+
+[[module CSS show="true"]]
+#top-bar {
+  top: 150px;
+}
+
+:where(#page-content) :is(h1, .h1) {
+  font-family: 'Jeju Hallasan', cursive;
+}
+
+.page-rate-widget-box,
+.page-rate-widget-box .number,
+.creditButton {
+  background-color: transparent !important;
+  border: none !important;
+}
+.creditButton {
+  box-shadow: none;
+}
+div.page-rate-widget-box .rate-points {
+  background-color: #CBCBCB !important;
+}
+
+@media (max-width: 580px) {
+  #search-top-box {
+    top: 74px;
+  }
+}
+[[/module]]
+[[/div]]
+
+[[div class="licensebox"]]
+[[collapsible show="‡ Licensing / Citation" hide="‡ Hide Licensing / Citation"]]
+Cite this page as:
+> "[https://scpko.wikidot.com/theme:fogwalker 안개를 거니는 테마]" made by thd-glasses, "[http://scp-wiki.wikidot.com/theme:fogwalker Fogwalker Theme]" translated by thd-glasses, from the [https://scpko.wikidot.com SCP-KO] and [https://scpwiki.com SCP wiki]. Source: http://scpko.wikidot.com/theme:fogwalker / http://scpwiki.com/theme:fogwalker. Licensed under [https://creativecommons.org/licenses/by-sa/3.0/ CC-BY-SA].
+For more information, see [https://scp-wiki.wikidot.com/licensing-guide Licensing Guide].
+**Licensing Disclosures**
+
+> **Filename:** bg.png
+> **Author:** [[*user thd-glasses]]
+> **License:** CC BY-SA 3.0
+> **Source Link:** https://scpko.wdfiles.com/local--files/theme%3Afogwalker/bg.jpg
+> **Derivative of:** https://commons.wikimedia.org/wiki/File:John_o%27Groats_lighthouse_fog_1.jpeg & https://commons.wikimedia.org/wiki/File:Lady_Liberty-New_Year%27s_Day-2022-0661_-_Flickr_-_Pat_Bianculli.jpg
+
+> **Filename:** bg_d.png
+> **Author:** [[*user thd-glasses]]
+> **License:** CC BY-SA 3.0
+> **Source Link:** https://scpko.wdfiles.com/local--files/theme%3Afogwalker/bg_d.png
+> **Derivative of:** https://commons.wikimedia.org/wiki/File:John_o%27Groats_lighthouse_fog_1.jpeg & https://commons.wikimedia.org/wiki/File:Lady_Liberty-New_Year%27s_Day-2022-0661_-_Flickr_-_Pat_Bianculli.jpg
+
+[[include :scp-wiki:component:license-box-end]]

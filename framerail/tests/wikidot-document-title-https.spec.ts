@@ -5,10 +5,6 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 
-// Reference: retained live Wikidot yossistyle browser capture (2026-10-11)
-// and the sealed SCP-9506 HTTP response (2026-10-10), both use `page - site`.
-// The fixture uses a separate imported marker: do NOT pin a modern live page's
-// content against the older synthetic 2026-07-13 yossistyle fixture.
 test("imported pages have the Wikidot browser tab title in SSR and after hydration", async ({
   page
 }) => {

@@ -6,9 +6,6 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Id": "6000005",
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
-// The browser-support matrix declares more than one web server, so it does
-// not infer a base URL: navigate against the app origin explicitly, and use
-// the HTTPS fixture origin for the WebKit acceptance project.
 const APP_URL = `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 const HTTPS_APP_URL = `https://localhost:${process.env.PLAYWRIGHT_HTTPS_APP_PORT ?? "4373"}`
 const AUTHENTICATED_HEADERS = {
@@ -42,9 +39,6 @@ const devalue = (value: unknown): string => {
 const successBody = (value: unknown) =>
   JSON.stringify({ type: "success", status: 200, data: devalue(value) })
 
-// A wide, realistic revision row: a long unbroken file name, a multibyte
-// comment and a full timestamp, which is what pushes the intrinsic width of
-// the revision table past a 320px phone.
 const file = {
   file_id: 26,
   file_created_at: "2026-10-01T00:00:00Z",
@@ -79,8 +73,6 @@ const revision = {
   mime: "image/gif",
   size: 2431188,
   changes: [],
-  // Long multibyte content must stay in the DOM and in the scroll region,
-  // never be truncated away to keep the table narrow.
   comments:
     "添付ファイルの置き換え：スキャン画像の再アップロードと注記の追加 その他の注記 その他の注記",
   hidden: []
@@ -186,7 +178,6 @@ test("File History stays contained in a local scroll region on phones", async ({
     await expect(region).toHaveAttribute("role", "region")
     await expect(region).toHaveAttribute("tabindex", "0")
     await expect(region).not.toHaveAttribute("aria-label", "")
-    // Every source column label is still rendered.
     await expect(region.locator(".revision-header .revision-attribute")).toHaveCount(10)
 
     const geometry = await regionGeometry(page)
@@ -198,15 +189,12 @@ test("File History stays contained in a local scroll region on phones", async ({
       geometry.regionClientWidth,
       `${width}px viewport: ${JSON.stringify(geometry)}`
     ).toBeLessThanOrEqual(geometry.viewportWidth)
-    // The table really is wider than the pane, so scrolling is the access
-    // path rather than a hidden overflow.
     expect(
       geometry.regionContentWidth,
       `${width}px viewport: ${JSON.stringify(geometry)}`
     ).toBeGreaterThan(geometry.regionClientWidth)
     expect(geometry.regionOverflowX).toBe("auto")
 
-    // Metadata is preserved in full, not truncated to fit.
     await expect(page.locator(".revision-row")).toContainText(file.name)
     await expect(page.locator(".revision-row .revision-attribute.comments")).toHaveText(
       revision.comments
@@ -218,7 +206,6 @@ test("File History stays contained in a local scroll region on phones", async ({
       String(revision.size)
     )
 
-    // Reopening for the next width must not compound the layout.
     await page.locator("#files-button").click()
   }
 })
@@ -235,12 +222,9 @@ test("File History keeps the Files list scroll region and reaches every column",
   await page.setViewportSize({ width: 320, height: 844 })
   await openFileHistory(page, testInfo.project.name, rollbackRequests)
 
-  // The existing Files list containment is unaffected.
   const fileListScroll = page.locator(".file-list-scroll").first()
   await expect(fileListScroll).toHaveCSS("overflow-x", "auto")
 
-  // Both the first and the last column are brought into the region's
-  // visible box by scrolling that the region itself owns.
   const columns = page.locator("#file-history-list .revision-row .revision-attribute")
   await expect(columns).toHaveCount(10)
   const columnCount = await columns.count()
@@ -279,8 +263,6 @@ test("File History keeps the Files list scroll region and reaches every column",
   await revertControl.focus()
   await expect(revertControl).toBeFocused()
 
-  // Exploring the contained region must not move the document, and a
-  // read-only history visit submits no file mutation.
   const documentWidth = await page.evaluate(() => document.documentElement.scrollWidth)
   expect(documentWidth).toBeLessThanOrEqual(321)
   expect(rollbackRequests).toHaveLength(0)

@@ -1,0 +1,90 @@
+{
+  "schema": "scp_jp_interactive_acceptance_run.v1",
+  "expected_runtime_source_sha256": "73917c99b07d846cac41c92b7a0b9041b51f9578d275e05921d4eeb0c13e7ef1",
+  "expected_backend_runtime_identity": {
+    "schema": "wikijump_deepwell_runtime_identity.v1",
+    "source_sha256": "2a84ce2e9905e6f1871f3d0732e61f3370500a92bf37cbb2d8825d08366bea4e",
+    "ftml_git_revision": "ef502b8af7cd9a58f7f1b1edf3639f35f48bd982",
+    "container_id": "2d13667a9f60be6f5eb811c50c3be95c6474e9a02f41933c4c07a4d763628b5b",
+    "image_id": "sha256:db7927fa45edfb29992712e3fb33bd7abcf0a294262116da150a6e70f0b133e8",
+    "binary_sha256": "d9f1697f97fce220f6d1004bd86c62a385dfd4327d6165501c20269a95c63618",
+    "config_sha256": "6eeb5715be1ac0d72784a10eb2a821b14995e9d0e29cd886a146e489ff16f638",
+    "identity_sha256": "53c7476f81925cc5d3886606334fae4697c4ea413bc7e932a2762696d9a0baf8"
+  },
+  "target_site": {
+    "slug": "scpaiueouiuiuiui",
+    "origin": "https://scpaiueouiuiuiui.wikijump.localhost:3410",
+    "locale": "ja"
+  },
+  "baseline_theme": {
+    "name": "Sigma-9",
+    "runtime_stylesheet_href": "/wikidot/styles/sigma-fe5388a32e12.css",
+    "replacement_css_path": "../../fixtures/scp-jp-sigma9-offline.css",
+    "replacement_css_sha256": "2f58982dffd2a57f911971f7d7cd9706838c7a512bd8ffaaa0daea7c216517ba"
+  },
+  "fixture_contract": {
+    "page_family": "run-owned SCP-JP current-campaign acceptance pages",
+    "identity_manifest": "source-identity.json",
+    "source_snapshots_directory": "source-snapshots"
+  },
+  "viewports": {
+    "desktop": {
+      "width": 1440,
+      "height": 1000
+    },
+    "laptop": {
+      "width": 1024,
+      "height": 900
+    },
+    "tablet": {
+      "width": 768,
+      "height": 1024
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844
+    },
+    "narrow-mobile": {
+      "width": 320,
+      "height": 800
+    }
+  },
+  "browser_engines": [
+    "chromium",
+    "firefox",
+    "webkit"
+  ],
+  "network_policy": "block external requests before send",
+  "header_fixture": {
+    "path": "../../fixtures/scp-jp-header.html",
+    "sha256": "797caf30903a44c24e7cacdee3709a402a7ae9cc443194f0aa9380daf758c872"
+  },
+  "navigation_fixture": {
+    "path": "../../fixtures/scp-jp-navigation.html",
+    "sha256": "28a313884b25d4b88a9a3216ff2d4df68e2390cee3fb11ba5a88f127fdd66cf3"
+  },
+  "sidebar_fixture": {
+    "path": "../../fixtures/scp-jp-sidebar.html",
+    "sha256": "e4ec133d51cfc843e65478a80ffcb82b161c1cc8209a80a42fa7f1b31dd7e032"
+  },
+  "interwiki_fixture": {
+    "path": "../../fixtures/scp-jp-interwiki.html",
+    "sha256": "b9c58104c2aa3e1aece7ce3eeada8b55d318075de9a67a4fbbc2ae16fcdbca0b",
+    "contract": "Local placement only; remote resize/content is bounded external."
+  },
+  "artifact_namespace": "current-acceptance/sigma9/campaign-20261028-s9",
+  "audit_path": "runs/campaign-20261028-s9/interactive-visual-audit.json",
+  "additional_candidates": {
+    "quand-le-soleil-se-couche": {
+      "directory": "../quand-le-soleil-se-couche",
+      "candidate_sha256": "6b82140e1f875394bb5ceb7e2e6be6e9805157dd18c04fc7c63c6eea72eb49a8",
+      "source_sha256": "242dcf54d6b52cea946b65f1c38b508479d255853810d8d7cee3ed3be42815eb"
+    }
+  },
+  "visual_gate_policy": {
+    "path": "visual-gate-policy.json",
+    "sha256": "3f26c321e2c510d08dc7cf85b1367d882b8f52e5a7b5fe1bc30a9ade6415d1af"
+  },
+  "candidate_set_sha256": "a9163f7adba5906bd49b4e19b7d8db78ee9478ae1543a4c34cbcad20d3348051",
+  "candidate_set_validation": "identity"
+}

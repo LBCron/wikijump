@@ -1,0 +1,194 @@
+{
+  "slug": "theme:basalt",
+  "en_source_sha256": "df4b78d344536f5b7c363ac86b2ddc6f3c31b3647693f473169550e03fca17c5",
+  "en_updated_at": "2026-07-22T01:52:12+00:00",
+  "en_entity_uuid": "eb88fa91-c4ae-4969-bc97-a86c8661f4a5",
+  "jp_previous_status": "confirmed-absent-by-targeted-xmlrpc",
+  "jp_previous_source_sha256": null,
+  "jp_previous_updated_at": null,
+  "jp_previous_entity_uuid": null,
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:basalt",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": null,
+  "source_identity": {
+    "slug": "theme:basalt",
+    "title": "Basalt Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "df4b78d344536f5b7c363ac86b2ddc6f3c31b3647693f473169550e03fca17c5",
+      "updated_at": "2026-07-22T01:52:12+00:00",
+      "entity_uuid": "eb88fa91-c4ae-4969-bc97-a86c8661f4a5",
+      "tags": [
+        "co-authored",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 304,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:basalt"
+      }
+    },
+    "jp": {
+      "status": "confirmed-absent-by-targeted-xmlrpc",
+      "source_path": null,
+      "sha256": null,
+      "updated_at": null,
+      "entity_uuid": null,
+      "tags": [],
+      "absence_run": "theme-jp-absence-check-20260923"
+    },
+    "existing_jp_audit": "new-jp-candidate-verified",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:basalt",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:betterfootnotes",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:acs-animation",
+      "@@[[span style=\"opacity: 70%;\"",
+      "@@[[span style=\"opacity: 70%;\"",
+      "@@[[span style=\"opacity: 70%;\"",
+      ":scp-wiki:component:image-block name=https://scp-wiki.wikidot.com/local--files/theme:basalt/basalt_scp_logo-for_lightmode.svg",
+      ":scp-wiki:component:image-block name=https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg",
+      ":scp-wiki:component:image-block name=https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg",
+      ":scp-wiki:component:image-block name=https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg",
+      ":scp-wiki:component:image-block name=https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg",
+      ":scp-wiki:component:image-block name=https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg",
+      ":scp-wiki:component:image-block name=https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg"
+    ],
+    "en_external_dependencies": [
+      "https://basalt-team.github.io/Basalt|its",
+      "https://cdn.scpwiki.com/theme/en/basalt/basalt-bedrock-min.css",
+      "https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg|caption=**{{.table1",
+      "https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg|caption=**{{.table2",
+      "https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg|caption=**{{.table3",
+      "https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg|caption=**{{.table4",
+      "https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg|caption=**{{.table5",
+      "https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg|caption=**{{.table6",
+      "https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css",
+      "https://fonts.bunny.net/css2?family=Sofia+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Abasalt/1",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Abasalt/2",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Abasalt/3",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Abasalt/4",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Abasalt/5",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Abasalt/6",
+      "https://scp-wiki.wikidot.com/anomaly-classification-system-guide",
+      "https://scp-wiki.wikidot.com/anomaly-classification-system-guide|ACS",
+      "https://scp-wiki.wikidot.com/component:acs-animation|ACS",
+      "https://scp-wiki.wikidot.com/component:betterfootnotes|BetterFootnotes",
+      "https://scp-wiki.wikidot.com/desk-of-junior-designer-s-yvonne|see",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/CLASSIFICATION_DARKLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/CLASSIFICATION_LIGHTLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/DELTA_T_DARKLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/DELTA_T_LIGHTLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/ETHICS_DARKLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/ETHICS_LIGHTLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/ETTRA_DARKLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/ETTRA_LIGHTLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/MISCOMM_DARKLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/MISCOMM_LIGHTLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/O5_DARKLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/O5_LIGHTLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/RAISA_DARKLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/RAISA_LIGHTLOGO.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/basalt-theme-logo.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/basalt_scp_logo-for_darkmode.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/basalt_scp_logo-for_lightmode.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:basalt/basalt_scp_logo-for_lightmode.svg|caption=Image",
+      "https://scp-wiki.wikidot.com/theme:bedrock|Bedrock"
+    ],
+    "jp_includes": [],
+    "jp_external_dependencies": [],
+    "base_family": "basalt"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "human-port-candidate.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "human-made shared translation workspace; no current official JP counterpart",
+  "candidate_source_hash": "3eb87f338afda27c375380741a83c2854730b55cf72088314b8e6e5c3c435466",
+  "page_assets": [
+    {
+      "filename": "basalt-theme-logo.svg",
+      "sha256": "3baf62c62621629c69f22433651572da5fd917e276e5953ae4eebd75b7ca99b2",
+      "bytes": 5451,
+      "asset_file": "3baf62c62621629c69f22433651572da5fd917e276e5953ae4eebd75b7ca99b2.svg",
+      "source_urls": [
+        "https://scp-wiki.wdfiles.com/local--files/theme:basalt/basalt-theme-logo.svg"
+      ],
+      "acquired_from": "https://scp-wiki.wdfiles.com/local--files/theme:basalt/basalt-theme-logo.svg",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "new-jp-candidate-verified",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/basalt/assets.json",
+  "asset_dependency_decision_count": 244,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "b3dc264fd62d29c3202e3e3db90a2461e27f04426e657c66c648284be558f4df",
+    "jp_overrides_sha256": "a882f453b7397899b41fcf2e031a86856d395c8d2e7c4e1c545d200ee8e69a63",
+    "semantic_css_sha256": "f36d05298f9f2b89fe2271810e68519c713567b4866166e33d1ca13f3d863257",
+    "canonical_override_sha256": "db87b30380e50e2948b4146d11cea59913f09ffbc71534c91e8087cd0473e362",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "6c07597c4d066a2dc36f1bbb4309aed9663ee705627df251f81a866914b0796f",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 1,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "0a40d1b821a9f77c875da059e36c9d089a1250b9911d50d4ea6e944098baa7d0",
+      "active_tags": [],
+      "candidate_source_sha256": "7167897315929a07f31f9008682a529351686d51ddab7a8569f6e6d06ca021d5",
+      "candidate_active_tags": [
+        "theme"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 1,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 4,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "059a0e4ff9dc0071e1c13e0bb17578722f46c783ff9227edaa9b0215649afba0",
+      "asset_receipt_path": "assets.json",
+      "assets": 237,
+      "imports": 6,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "a3b020cf413cb0b48f125a3dda4a20d61565e3cf5d1e376e23f94102c298baea",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

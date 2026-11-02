@@ -39,7 +39,6 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use tokio::sync::OnceCell;
 
-/// Per-request context derived from HTTP headers by the middleware layer.
 #[derive(Debug, Clone, Default)]
 pub struct RequestContext {
     pub session: Option<SessionModel>,
@@ -97,7 +96,7 @@ mod tests {
             user_id: 42,
             created_at: OffsetDateTime::UNIX_EPOCH,
             expires_at: OffsetDateTime::UNIX_EPOCH,
-            ip_address: str!("127.0.0.1"),
+            ip_address: "127.0.0.1".parse().expect("test IP"),
             user_agent: str!("test"),
             restricted: false,
             mfa_failed_attempts: 0,
@@ -130,6 +129,28 @@ mod tests {
         assert!(context.user_id().is_err());
         assert!(context.site_id().is_err());
         assert!(context.page_reference().is_err());
+    }
+
+    #[test]
+    fn text_block_cleanup_action_carries_exact_filenames() {
+        let action = PostCommitAction::delete_text_block_objects(vec![
+            str!("page-42_code_1.blk"),
+            str!("page-42_html_1.blk"),
+        ]);
+
+        match action {
+            Some(PostCommitAction::DeleteTextBlockObjects { filenames }) => {
+                assert_eq!(filenames, ["page-42_code_1.blk", "page-42_html_1.blk"]);
+            }
+            other => panic!("expected a DeleteTextBlockObjects action, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn text_block_cleanup_action_empty_filenames_queue_nothing() {
+        let action = PostCommitAction::delete_text_block_objects(Vec::new());
+
+        assert!(action.is_none());
     }
 }
 
@@ -172,6 +193,14 @@ pub(crate) enum PostCommitAction {
 }
 
 impl PostCommitAction {
+    pub(crate) fn delete_text_block_objects(filenames: Vec<String>) -> Option<Self> {
+        if filenames.is_empty() {
+            None
+        } else {
+            Some(Self::DeleteTextBlockObjects { filenames })
+        }
+    }
+
     pub(crate) fn is_page_rerender(&self) -> bool {
         matches!(
             self,
@@ -180,21 +209,14 @@ impl PostCommitAction {
     }
 }
 
-/// Who committed the transaction whose post-commit actions are running.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum PostCommitRerenderTrust {
-    /// An ordinary request or job.
     Public,
 
-    /// The trusted corpus render finalizer.
     CorpusFinalizer,
 }
 
 impl<'txn> ServiceContext<'txn> {
-    // NOTE: It is the responsibility of the caller to manage commit / rollback
-    //       for transactions.
-    //
-    //       For our endpoints, this is managed in the wrapper macro in api.rs
     pub fn new(state: &ServerState, transaction: &'txn DatabaseTransaction) -> Self {
         ServiceContext {
             state: Arc::clone(state),
@@ -214,7 +236,6 @@ impl<'txn> ServiceContext<'txn> {
         self
     }
 
-    // Getters
     #[inline]
     pub fn state(&self) -> ServerState {
         Arc::clone(&self.state)
@@ -260,12 +281,6 @@ impl<'txn> ServiceContext<'txn> {
         self.transaction
     }
 
-    /// Requests that the current transaction be committed before returning an
-    /// expected authentication rejection to the caller.
-    ///
-    /// Authentication endpoints use this only after persisting expected
-    /// password or MFA rejection accounting. Internal failures must leave this
-    /// unset so the normal rollback path is used.
     pub(crate) fn commit_expected_authentication_rejection(&self) {
         self.commit_authentication_rejection
             .store(true, Ordering::Relaxed);
@@ -275,10 +290,6 @@ impl<'txn> ServiceContext<'txn> {
         self.commit_authentication_rejection.load(Ordering::Relaxed)
     }
 
-    /// Records that a render in this context read the page link graph
-    /// (`page_connection`, `page_connection_missing`), whose rows other renders
-    /// write. Render-ahead uses it to know which pages to render again once
-    /// every other page's links are current.
     pub(crate) fn note_link_graph_read(&self) {
         self.link_graph_read.store(true, Ordering::Relaxed);
     }
@@ -418,17 +429,13 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     pub(crate) fn defer_text_block_cleanup(&self, filenames: Vec<String>) -> Result<()> {
-        if filenames.is_empty() {
+        let Some(action) = PostCommitAction::delete_text_block_objects(filenames) else {
             return Ok(());
-        }
+        };
         let mut actions = self.post_commit_actions.lock().map_err(|_| {
-            Error::new(
-                "failed to queue replaced text block cleanup",
-                ErrorType::TextBlock,
-            )
-            .raise()
+            Error::new("failed to queue text block cleanup", ErrorType::TextBlock).raise()
         })?;
-        actions.push(PostCommitAction::DeleteTextBlockObjects { filenames });
+        actions.push(action);
         Ok(())
     }
 
@@ -455,10 +462,6 @@ impl<'txn> ServiceContext<'txn> {
         .await
     }
 
-    /// Runs the post-commit actions of a corpus render-finalizer commit.
-    ///
-    /// Immediate dependent rerenders keep the finalizer's corpus include
-    /// ceiling for dependents imported from Wikidot.
     pub(crate) async fn run_post_commit_actions_for_corpus_finalizer(
         state: &ServerState,
         actions: Vec<PostCommitAction>,
@@ -561,7 +564,6 @@ impl<'txn> ServiceContext<'txn> {
     }
 
     pub async fn user_permissions(&self) -> Result<&HashSet<Permission<'static>>> {
-        // Lazily fetch and cache user permissions for the duration of the request.
         self.user_permissions
             .get_or_try_init(|| async {
                 let user_id = self.request_ctx.user_id;

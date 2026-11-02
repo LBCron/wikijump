@@ -357,8 +357,6 @@ async fn public_page_view_resolves_observed_url_aliases_to_the_canonical_page() 
         }),
     );
 
-    // Imported rows can contain a slug that aliases another page. An exact
-    // stored slug must keep precedence over the alias target.
     let canonical_page = PageTable::find_by_id(created.page_id)
         .one(runner.context().transaction())
         .await
@@ -1717,7 +1715,7 @@ async fn page_revision_visibility_changes_are_audited_once_with_attribution() {
     assert_eq!(event.page_id, Some(created.page_id));
     assert_eq!(event.extra_id_1, Some(created.revision_id));
     assert_eq!(event.user_id, Some(ADMIN_USER_ID));
-    assert_eq!(event.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(event.ip_address.ip(), common::IP_ADDRESS);
 
     let stored = PageRevisionTable::find_by_id(created.revision_id)
         .one(runner.context().transaction())
@@ -2718,8 +2716,6 @@ async fn initial_page_creation_uses_destination_category_layout() {
         }),
     );
 
-    // Fixture-only setup: category layout has no registered update endpoint.
-    // This immutable precondition must not be used to observe create behavior.
     let category =
         CategoryService::get_or_create(runner.context(), site_id, CATEGORY_SLUG)
             .await
@@ -2810,8 +2806,6 @@ async fn initial_page_creation_explicit_layout_beats_destination_category_layout
         }),
     );
 
-    // Fixture-only setup: category layout has no registered update endpoint.
-    // This immutable precondition must not be used to observe create behavior.
     let category =
         CategoryService::get_or_create(runner.context(), site_id, CATEGORY_SLUG)
             .await
@@ -2958,23 +2952,18 @@ async fn basic_edit() {
     const SITE_SLUG: &str = "test";
     const PAGE_SLUG: &str = "my-page";
 
-    // Get site
-
     let output = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
         .expect("Seeded site not found");
 
     let site_id = output.site.site_id;
     assert_eq!(output.site.slug, SITE_SLUG, "Site slug doesn't match");
 
-    // Set request context to populate params for the internal permission check.
     runner.set_request_context(RequestContext {
         session: None,
         user_id: Some(ADMIN_USER_ID),
         site_id: Some(site_id),
         page_reference: Some(Reference::Slug(PAGE_SLUG.into())),
     });
-
-    // Create page
 
     let output = run_endpoint!(
         runner,
@@ -2996,8 +2985,6 @@ async fn basic_edit() {
     assert_eq!(output.slug, PAGE_SLUG);
     assert!(output.parser_errors.is_empty());
 
-    // Get page (by slug)
-
     let page = run_endpoint!(
         runner,
         page_get,
@@ -3015,8 +3002,6 @@ async fn basic_edit() {
     assert_eq!(page.revision_type, PageRevisionType::Create);
     assert_eq!(page.revision_user_id, ADMIN_USER_ID);
     assert_eq!(page.page_category_slug, "_default");
-
-    // Edit page contents (by slug)
 
     let output = run_endpoint!(
         runner,
@@ -3041,8 +3026,6 @@ async fn basic_edit() {
         .expect("No parser errors list with wikitext change");
     assert!(parser_errors.is_empty());
 
-    // Edit page contents (by ID)
-
     let output = run_endpoint!(
         runner,
         page_edit,
@@ -3060,8 +3043,6 @@ async fn basic_edit() {
     assert_eq!(output.revision_number, 2);
     assert!(output.revision_id > revision_id);
     let revision_id = output.revision_id;
-
-    // Edit with no changes
 
     let output = run_endpoint!(
         runner,
@@ -3081,8 +3062,6 @@ async fn basic_edit() {
         output.is_none(),
         "Revision created when there were no changes"
     );
-
-    // Get page (by ID)
 
     let page = run_endpoint!(
         runner,
@@ -4609,7 +4588,6 @@ async fn category_theme_change_invalidates_article_view_cache() {
         "locales": ["en-US", "en"],
     });
 
-    // First view populates the anonymous article-view cache.
     let metadata_before =
         run_endpoint!(runner, article_view_cache_metadata, input.clone());
     let key_before = metadata_before
@@ -4635,8 +4613,6 @@ async fn category_theme_change_invalidates_article_view_cache() {
     assert_eq!(served_key_before, key_before);
     assert!(!matches!(theme_before, ThemeSetting::External { .. }));
 
-    // Change the `_default` category theme (the page has no category prefix,
-    // so its theme resolves through `_default`).
     let default_category = CategoryService::get(
         runner.context(),
         site_id,
@@ -4661,8 +4637,6 @@ async fn category_theme_change_invalidates_article_view_cache() {
     .await
     .expect("category theme update should be stored");
 
-    // The cache key must change, and the next view must serve the new theme
-    // instead of the previously cached view (issue #2764).
     let metadata_after =
         run_endpoint!(runner, article_view_cache_metadata, input.clone());
     let key_after = metadata_after
@@ -4997,8 +4971,6 @@ async fn sitemap_never_publishes_authenticated_only_site_pages() {
         .site
         .site_id;
 
-    // A page in a category with admin-only view permission must not enter a
-    // public sitemap even when the requester is logged in as its author.
     let private_category = "sitemap-visibility-private";
     let private_slug = "sitemap-visibility-private:author-only";
     let private_category_id =
@@ -5127,8 +5099,6 @@ async fn sitemap_never_publishes_authenticated_only_site_pages() {
         "logging in must not expand a crawler-visible page inventory"
     );
 
-    // An earlier response must not be reused after a category permission
-    // grant or revocation. No shared snapshot can keep newly private URLs.
     let guest_role = RoleService::get(
         runner.context(),
         site_id,
@@ -8963,8 +8933,6 @@ async fn wikidot_files_saved_view_requires_page_view_and_complete_descriptors() 
         .expect("seeded SCP Wiki site should exist")
         .site;
 
-    // A page the anonymous viewer cannot see must leave the module literal:
-    // no page id, file name, container, or refresh script may escape.
     make_listpages_test_category_admin_only(&runner, site.site_id, DENIED_CATEGORY).await;
     create_listpages_test_page(
         &mut runner,
@@ -9023,8 +8991,6 @@ async fn wikidot_files_saved_view_requires_page_view_and_complete_descriptors() 
     assert!(!denied.contains("denied-must-not-leak.png"), "{denied}");
     assert!(!denied.contains("updateFileSimpleList"), "{denied}");
 
-    // A missing page fails closed the same way and has no file inventory to
-    // query at all.
     let missing_page_info = PageInfo {
         page: Cow::Borrowed("fixture-files-module-missing-page"),
         category: None,
@@ -9553,10 +9519,6 @@ async fn wikidot_set_tags_action_resolves_server_descriptor_and_is_revision_idem
     );
     assert!(repeated.is_none(), "same action should be idempotent");
 
-    // The forged descriptor above must not consume the local action bucket.
-    // The state-changing activation plus nine valid idempotent repeats are
-    // accepted without leaking page or actor state through the throttle; the
-    // next valid renderer-bound activation is denied.
     for _ in 0..8 {
         let repeated = run_endpoint!(
             runner,
@@ -10130,8 +10092,6 @@ async fn saved_rate_sidecar_binds_exact_revision_and_mutates_idempotently() {
             "locales": ["en-US", "en"],
         }),
     );
-    // Anonymous viewers receive the same descriptors so their clicks reach the
-    // authoritative vote endpoint; they have no current vote of their own.
     let anonymous_registry = match anonymous {
         GetPageViewOutput::Found {
             rate_actions: Some(registry),
@@ -13150,8 +13110,6 @@ async fn wikidot_site_changes_ajax_endpoint_filters_before_pagination_and_matche
         page_bodies[2],
     );
 
-    // client-page-one-default and client-later-page: browser-only host fields are
-    // absent, and page 2 remains the second 1000-row page.
     let wikidot_py_page_one = run_endpoint!(
         runner,
         wikidot_site_changes_module,
@@ -13183,7 +13141,6 @@ async fn wikidot_site_changes_ajax_endpoint_filters_before_pagination_and_matche
     assert!(wikidot_py_page_two.body.contains("(rev. 106)"));
     assert!(!wikidot_py_page_two.body.contains("(rev. 1106)"));
 
-    // control-bad-perpage must not run an unbounded query.
     let malformed_perpage = run_endpoint!(
         runner,
         wikidot_site_changes_module,
@@ -13663,10 +13620,6 @@ async fn foldable_list_initial_dom_matches_frozen_live_page_preview() {
     );
 
     let html = preview.body;
-    // Wikidot inserts serialization-only newlines between adjacent tags at
-    // this boundary. Compare the DOM-bearing tag/text sequence rather than
-    // requiring those non-visible whitespace text nodes from the raw AJAX
-    // response.
     let normalized = html.replace(">\n<", "><");
     assert!(
         normalized.contains(concat!(
@@ -14425,7 +14378,6 @@ async fn hardened_www_special_modules_execute_only_on_their_system_pages() {
             "What is Wikidot",
             "[[module FrontSpecialMini]]",
         ),
-        // The seeder already creates www/new-site with this source (#2052).
         (
             "search",
             "Search sites",
@@ -14710,8 +14662,7 @@ async fn simpletodo_and_sendinvitations_modules_match_live_preview_basics() {
 }
 
 #[tokio::test]
-async fn mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views()
- {
+async fn mailform_renders_form_in_preview_and_saved_views() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
@@ -14719,11 +14670,11 @@ async fn mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_
     let source = concat!(
         "BEFORE\n",
         "[[module MailForm to=\"dummy\" button=\"Send\"]]\n",
-        "* first-field\n",
+        "# first-field\n",
         " * title: First field\n",
         " * default: harmless\n",
         " * type: text\n",
-        "* second-field\n",
+        "# second-field\n",
         " * title: Second field\n",
         " * type: textarea\n",
         "[[/module]]\n",
@@ -14741,17 +14692,17 @@ async fn mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_
         wikidot_page_preview,
         json!({
             "site_id": site_id,
-            "title": "MailForm fail-closed preview",
+            "title": "MailForm render preview",
             "wikitext": source,
         }),
     );
-    assert_mailform_is_literal_and_inert(&preview.body);
+    assert_mailform_renders_form(&preview.body);
 
     create_listpages_test_page(
         &mut runner,
         site_id,
-        "fixture-mailform-fail-closed",
-        "Fixture MailForm Fail Closed",
+        "fixture-mailform-render",
+        "Fixture MailForm Render",
         source,
     )
     .await;
@@ -14767,7 +14718,7 @@ async fn mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_
         json!({
             "site_id": site_id,
             "session_token": null,
-            "route": {"slug": "fixture-mailform-fail-closed", "extra": ""},
+            "route": {"slug": "fixture-mailform-render", "extra": ""},
             "locales": ["en-US", "en"],
         }),
     );
@@ -14777,29 +14728,254 @@ async fn mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_
         } => compiled_body_html,
         other => panic!("expected found MailForm view, got {other:?}"),
     };
-    assert_mailform_is_literal_and_inert(&body);
+    assert_mailform_renders_form(&body);
 }
 
-fn assert_mailform_is_literal_and_inert(body: &str) {
-    assert!(
-        body.contains("BEFORE")
-            && body.contains("<em>MailForm</em>")
-            && body.contains("No such module")
-            && body.contains("AFTER"),
-        "MailForm without a trusted action contract must fail closed between authored boundaries:\n{body}",
-    );
-    for forbidden in [
-        r#"<div class="mailform-box""#,
-        "<form",
-        "javascript:",
-        "mailformdef-",
-        "MailFormModule.listeners",
+fn assert_mailform_renders_form(body: &str) {
+    for expected in [
+        "BEFORE",
+        "AFTER",
+        r#"<div class="mailform-box" id="mailform-box-1">"#,
+        r#"<form id="mailform-1" action="javascript:WIKIDOT.modules.MailFormModule.listeners.send(null, '1')">"#,
+        r#"<tr id="mailform-row-1-first-field"><td>First field</td>"#,
+        r#"<div class="field-error-message"></div>"#,
+        r#"<div id="mailformdef-1" style="display: none;">"#,
     ] {
         assert!(
-            !body.contains(forbidden),
-            "fail-closed MailForm output must not expose active control {forbidden:?}:\n{body}",
+            body.contains(expected),
+            "MailForm should render Wikidot's form markup, missing {expected:?}:\n{body}",
         );
     }
+    assert!(
+        !body.contains("No such module"),
+        "MailForm must not degrade to the unavailable-module error:\n{body}",
+    );
+}
+
+fn mailform_rendered_definition_handle(body: &str, instance: usize) -> String {
+    let marker = format!(r#"<div id="mailformdef-{instance}" style="display: none;">"#);
+    let start = body
+        .find(&marker)
+        .expect("rendered page should carry a mailformdef handle")
+        + marker.len();
+    let end = body[start..]
+        .find("</div>")
+        .expect("mailformdef handle div should close")
+        + start;
+    body[start..end].to_owned()
+}
+
+async fn mailform_fixture_handle(
+    runner: &mut TestRunner,
+    site_id: i64,
+    slug: &str,
+    title: &str,
+    source: &str,
+) -> String {
+    create_listpages_test_page(runner, site_id, slug, title, source).await;
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": slug, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let body = match view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found MailForm view, got {other:?}"),
+    };
+    mailform_rendered_definition_handle(&body, 1)
+}
+
+#[tokio::test]
+async fn mailform_submission_answers_wikidot_shaped_field_errors() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let source = concat!(
+        "[[module MailForm to=\"aaaa (DUMMY)\" button=\"\"]]\n",
+        "# name\n",
+        " * title: ID\n",
+        " * type: text\n",
+        " * default: driosua\n",
+        " * rules:\n",
+        "  * required: true\n",
+        "  * maxLength: 10\n",
+        "  * minLength: 100\n",
+        "[[/module]]\n",
+    );
+    let handle = mailform_fixture_handle(
+        &mut runner,
+        site_id,
+        "fixture-mailform-form-errors",
+        "Fixture MailForm Form Errors",
+        source,
+    )
+    .await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+
+    let empty = run_endpoint!(
+        runner,
+        mail_form_submit,
+        json!({"site_id": site_id, "formdef": handle, "values": {}}),
+    );
+    assert_eq!(empty.status, "form_errors");
+    assert_eq!(empty.errors.len(), 1);
+    assert_eq!(empty.errors[0].field, "name");
+    assert_eq!(empty.errors[0].message, "This field is required.");
+
+    let short = run_endpoint!(
+        runner,
+        mail_form_submit,
+        json!({"site_id": site_id, "formdef": handle, "values": {"name": "abc"}}),
+    );
+    assert_eq!(short.status, "form_errors");
+    assert_eq!(short.errors.len(), 1);
+    assert_eq!(short.errors[0].field, "name");
+    assert_eq!(short.errors[0].message, "This field is too short.");
+
+    let long = run_endpoint!(
+        runner,
+        mail_form_submit,
+        json!({
+            "site_id": site_id,
+            "formdef": handle,
+            "values": {"name": "x".repeat(105)},
+        }),
+    );
+    assert_eq!(long.status, "form_errors");
+    assert_eq!(long.errors.len(), 1);
+    assert_eq!(long.errors[0].field, "name");
+    assert_eq!(long.errors[0].message, "This field is too long.");
+
+    let page_id = handle.rsplit('_').next().expect("handle has a page suffix");
+    let forged = format!("00000000000000000000000000000000_{page_id}");
+    run_endpoint_err!(
+        runner,
+        mail_form_submit,
+        json!({"site_id": site_id, "formdef": forged, "values": {}}),
+    );
+}
+
+#[tokio::test]
+async fn mailform_submission_success_is_recorded_not_delivered() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let source = concat!(
+        "[[module MailForm to=\"site-admin\" title=\"Contact\" successPage=\"form-thanks\"]]\n",
+        "# name\n",
+        " * title: Your name\n",
+        " * type: text\n",
+        " * rules:\n",
+        "  * required: true\n",
+        "# comments\n",
+        " * title: Extra comments\n",
+        " * type: textarea\n",
+        "[[/module]]\n",
+    );
+    let handle = mailform_fixture_handle(
+        &mut runner,
+        site_id,
+        "fixture-mailform-success",
+        "Fixture MailForm Success",
+        source,
+    )
+    .await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let output = run_endpoint!(
+        runner,
+        mail_form_submit,
+        json!({
+            "site_id": site_id,
+            "formdef": handle,
+            "values": {"name": "Roku", "comments": "hello"},
+        }),
+    );
+    assert_eq!(output.status, "ok");
+    assert!(output.errors.is_empty());
+    assert_eq!(output.success_page.as_deref(), Some("form-thanks"));
+    assert!(
+        output
+            .success_msg
+            .as_deref()
+            .is_some_and(|message| message.contains("The form has been sent")),
+        "success should carry Wikidot's sent message: {output:?}",
+    );
+    assert_eq!(output.delivery.as_deref(), Some("not_delivered"));
+    let message = output
+        .message
+        .expect("a successful submission should record the sink message");
+    assert_eq!(message.recipients, "site-admin");
+    assert_eq!(message.title, "Contact");
+    assert_eq!(message.body, "Your name: Roku\nExtra comments: hello\n");
+
+    let default_source = concat!(
+        "[[module MailForm]]\n",
+        "# note\n",
+        " * type: text\n",
+        "[[/module]]\n",
+    );
+    let default_handle = mailform_fixture_handle(
+        &mut runner,
+        site_id,
+        "fixture-mailform-success-default",
+        "Fixture MailForm Success Default",
+        default_source,
+    )
+    .await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let output = run_endpoint!(
+        runner,
+        mail_form_submit,
+        json!({
+            "site_id": site_id,
+            "formdef": default_handle,
+            "values": {"note": "hi"},
+        }),
+    );
+    assert_eq!(output.status, "ok");
+    assert_eq!(output.success_page, None);
+    assert_eq!(output.delivery.as_deref(), Some("not_delivered"));
+    let message = output
+        .message
+        .expect("a successful submission should record the sink message");
+    assert_eq!(message.recipients, "site administrators");
+    assert_eq!(message.title, "Wikidot.com - MailForm form data");
+    assert_eq!(message.body, "note: hi\n");
 }
 
 #[tokio::test]
@@ -15823,9 +15999,6 @@ async fn hosted_code_blocks_serve_the_source_body_like_wikidot_local_code() {
         site_id,
         Reference::Slug(Cow::Borrowed(slug)),
     );
-    // Wikidot's /local--code/ drops the newlines around the body, ends it
-    // with one newline, and keeps tabs, whitespace-only lines and blank-line
-    // runs, all of which the rendered <pre> normalizes.
     let page = run_endpoint!(
         runner,
         page_create,
@@ -16549,8 +16722,6 @@ async fn page_who_rated_returns_only_current_typed_votes_in_creation_order() {
     assert_eq!(output[0]["value"], 1);
     assert_eq!(output[1]["user"]["user-name"], "User");
     assert_eq!(output[1]["value"], -1);
-    // Each vote also carries its raw user ID: the deleted-account
-    // placeholder Wikidot renders is keyed by it (as in page history).
     assert_eq!(output[0]["user_id"], ADMIN_USER_ID);
     assert_eq!(output[1]["user_id"], SAMPLE_USER_ID);
 
@@ -16565,9 +16736,6 @@ async fn page_who_rated_returns_only_current_typed_votes_in_creation_order() {
         malformed,
     );
 
-    // A voter whose source account is deleted renders as a tombstone
-    // (null identity), exactly as Wikidot's "(account deleted)" rows,
-    // instead of failing the whole list.
     let transaction = runner.context().transaction();
     transaction
         .execute_raw(Statement::from_string(
@@ -17376,8 +17544,6 @@ async fn file_revision_reads_require_parent_page_view_permission_and_tuple_bindi
     assert_eq!(private_revisions.len(), 1);
     assert_eq!(private_revisions[0].revision.file_id, private_file_id);
 
-    // Issue #2199: an attached author must be the revision's own uploader,
-    // never another file's identity.
     for entry in public_revisions.iter().chain(private_revisions.iter()) {
         if let Some(author) = &entry.author {
             assert_eq!(author.user_id, entry.revision.user_id);
@@ -20081,7 +20247,7 @@ async fn file_mutations_require_parent_page_edit_permission() {
     assert_eq!(event.page_id, Some(restored.page_id));
     assert_eq!(event.extra_id_1, Some(restored.file_id));
     assert_eq!(event.extra_id_2, Some(restored.file_revision_id));
-    assert_eq!(event.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(event.ip_address.ip(), common::IP_ADDRESS);
 
     let error = run_endpoint_err!(
         runner,
@@ -20429,7 +20595,7 @@ async fn file_edit_public_endpoint_audits_success_once_and_not_denial() {
     assert_eq!(event.page_id, Some(page.page_id));
     assert_eq!(event.extra_id_1, Some(file_id));
     assert_eq!(event.extra_id_2, Some(edited.file_revision_id));
-    assert_eq!(event.ip_address, supplied_ip.to_string());
+    assert_eq!(event.ip_address.ip(), supplied_ip);
 }
 
 #[tokio::test]
@@ -20720,7 +20886,7 @@ async fn file_rollback_public_endpoint_audits_only_created_revisions() {
     assert_eq!(event.extra_id_1, Some(file_id));
     assert_eq!(event.extra_id_2, Some(rolled_back.file_revision_id));
     assert_eq!(event.extra_number, Some(initial.revision_number));
-    assert_eq!(event.ip_address, supplied_ip.to_string());
+    assert_eq!(event.ip_address.ip(), supplied_ip);
 
     let error = run_endpoint_err!(
         runner,
@@ -20949,7 +21115,7 @@ async fn file_create_public_endpoint_audits_success_once_and_not_denial() {
     assert_eq!(event.page_id, Some(page.page_id));
     assert_eq!(event.extra_id_1, Some(created.file_id));
     assert_eq!(event.extra_id_2, Some(created.file_revision_id));
-    assert_eq!(event.ip_address, supplied_ip.to_string());
+    assert_eq!(event.ip_address.ip(), supplied_ip);
 
     let event_count_before_denial = AuditLogTable::find()
         .filter(AuditLogColumn::EventType.eq("file.create"))
@@ -22677,8 +22843,6 @@ async fn listpages_plain_content_shares_the_outer_include_budget() {
     const INCLUDES_PER_SOURCE: usize = 128;
 
     let mut runner = TestRunner::setup().await;
-    // The local test site keeps the ordinary include ceiling (mirror
-    // sites use the corpus ceiling).
     let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .expect("seeded test site should exist");
     let site_id = site.site.site_id;
@@ -23359,10 +23523,6 @@ async fn listpages_template_body_over_the_render_budget_remains_literal() {
     let template_body = |sentinel: &str, bytes: usize| {
         let variable = "%%title%%";
         assert!(sentinel.len() + variable.len() <= bytes);
-        // The render budget counts bytes while the page-source limit
-        // counts characters (200,001 max), so the filler is multibyte:
-        // the body reaches the byte budget while the page itself stays
-        // within the source limit.
         let fill_bytes = bytes - sentinel.len() - variable.len();
         let fill = format!(
             "{}{}",
@@ -24131,8 +24291,6 @@ async fn mirror_and_corpus_renders_support_dense_includes() {
         page_id: page.page_id,
     };
 
-    // scp-wiki is a Wikidot mirror: its source-owned pages render with the
-    // corpus ceiling, as Wikidot renders them.
     let mirror_output = RenderService::render_page(
         runner.context(),
         wikitext.clone(),
@@ -26124,10 +26282,6 @@ INNER_TOTAL=%%total%%; INNER_COUNT=%%count%%; [[[start|start link]]]
         );
     }
 
-    // Frozen oracle control: the same selector renders an ordinary ListPages
-    // body. The parser function is evidenced by the ListPages expression
-    // observation, and the commented CountPages spelling remains literal per
-    // syntax-comments.md's ListPages literal-owner contract.
     create_listpages_test_page(
         &mut runner,
         site_id,
@@ -26870,34 +27024,84 @@ async fn countpages_current_page_category_filters_remain_literal() {
 }
 
 #[tokio::test]
-async fn countpages_broad_category_without_limit_remains_literal() {
+async fn countpages_broad_category_without_limit_expands_to_exact_count() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");
-    let html = render_countpages_test_fixture_with_targets(
+    let site_id = site.site.site_id;
+
+    let parse_total = |html: &str| -> i64 {
+        let marker = "BROAD_CATEGORY_COUNT=";
+        let start = html
+            .find(marker)
+            .expect("expanded CountPages should print its total")
+            + marker.len();
+        let digits: String = html[start..]
+            .chars()
+            .take_while(|c| c.is_ascii_digit())
+            .collect();
+        digits
+            .parse()
+            .expect("expanded CountPages total should be numeric")
+    };
+
+    let first_html = render_countpages_test_fixture_with_targets(
         &mut runner,
-        site.site.site_id,
-        "fixture-countpages-broad-category-literal",
-        "verification-count-broad-category-literal",
+        site_id,
+        "fixture-countpages-broad-category-exact",
+        "verification-count-broad-category-exact",
         r#"category="*""#,
         "BROAD_CATEGORY_COUNT=%%total%%",
         &[(
             "target-a",
-            "Fixture CountPages Broad Category Literal Target",
-            "Fixture CountPages broad category literal marker.",
+            "Fixture CountPages Broad Category Exact Target",
+            "Fixture CountPages broad category exact marker.",
         )],
     )
     .await;
 
     assert!(
-        html.contains("BROAD_CATEGORY_COUNT=%%total%%")
-            || html.contains("[[module CountPages")
-            || html.contains("module CountPages"),
-        "CountPages category=* without a limit should remain literal/degraded:\n{html}"
+        !first_html.contains("%%total%%") && !first_html.contains("[[module CountPages"),
+        "CountPages category=* without a limit should expand, not remain literal:\n{first_html}"
     );
+    let first_total = parse_total(&first_html);
     assert!(
-        !html.contains("BROAD_CATEGORY_COUNT=1"),
-        "CountPages category=* without a limit must not materialize the whole site:\n{html}"
+        first_total > 1,
+        "CountPages category=* without a limit should count the whole site, got {first_total}"
+    );
+
+    let second_html = render_countpages_test_fixture_with_targets(
+        &mut runner,
+        site_id,
+        "fixture-countpages-broad-category-exact-more",
+        "verification-count-broad-category-exact-more",
+        r#"category="*""#,
+        "BROAD_CATEGORY_COUNT=%%total%%",
+        &[
+            (
+                "target-a",
+                "Fixture CountPages Broad Category Exact More Target A",
+                "Fixture CountPages broad category exact more marker A.",
+            ),
+            (
+                "target-b",
+                "Fixture CountPages Broad Category Exact More Target B",
+                "Fixture CountPages broad category exact more marker B.",
+            ),
+            (
+                "target-c",
+                "Fixture CountPages Broad Category Exact More Target C",
+                "Fixture CountPages broad category exact more marker C.",
+            ),
+        ],
+    )
+    .await;
+
+    let second_total = parse_total(&second_html);
+    assert_eq!(
+        second_total,
+        first_total + 6,
+        "CountPages category=* total must track every created page exactly"
     );
 }
 
@@ -28668,7 +28872,6 @@ async fn wikidot_site_changes_feed_is_bounded_newest_first_and_hides_private_pag
     set_listpages_test_category_slug(&runner, site_id, PRIVATE_PAGE, PRIVATE_CATEGORY)
         .await;
 
-    // Enough source revisions to cross the bounded feed window.
     insert_site_changes_feed_source_revisions(&runner, public_revision_id, 25, 100).await;
     insert_site_changes_feed_source_revisions(&runner, private_revision_id, 25, 1_000)
         .await;
@@ -28687,8 +28890,6 @@ async fn wikidot_site_changes_feed_is_bounded_newest_first_and_hides_private_pag
     .expect("public site changes feed should be viewable");
 
     assert_eq!(feed.site_name, site.site.name);
-    // A feed reports one bounded recent window, and the private page's
-    // revisions must not fill it.
     assert_eq!(feed.items.len(), 20);
     assert!(
         feed.items
@@ -28717,9 +28918,6 @@ async fn wikidot_site_changes_feed_is_empty_for_a_site_without_visible_revisions
         .expect("seeded test site should exist");
     let site_id = site.site.site_id;
 
-    // The seeded site carries page revisions. Soft-deleting every page inside
-    // this test's transaction leaves a viewable site whose revisions all
-    // belong to deleted pages, so none of them may surface in the feed.
     let deleted = runner
         .context()
         .transaction()
@@ -28749,8 +28947,6 @@ async fn wikidot_site_changes_feed_is_empty_for_a_site_without_visible_revisions
     .expect("an empty site still exposes the feed channel");
 
     assert_eq!(feed.site_name, site.site.name);
-    // Revisions of other sites, including their file revisions, must never
-    // fill this site's feed.
     assert!(
         feed.items.is_empty(),
         "no visible revisions should produce no feed rows: {:?}",
@@ -28801,8 +28997,6 @@ async fn insert_site_changes_feed_source_revisions(
         .expect("site changes feed source fixtures should be inserted");
 }
 
-/// Long bullet runs render through FTML (#2575): no Wikijump-only list markup,
-/// and Wikidot typography and nested inline syntax inside the items.
 #[tokio::test]
 async fn page_render_long_bullet_lists_through_ftml() {
     let runner = TestRunner::setup().await;
@@ -28841,10 +29035,6 @@ async fn page_render_long_bullet_lists_through_ftml() {
     assert!(html.contains("<li>Item 7</li>"), "{html}");
 }
 
-/// Wikidot shows an existing target's title for an empty link label
-/// (`[[[scp-series|]]]` renders "SCP Series 1"; record `empty-label-titles` in
-/// wikidot-list-rendering-preview-20261019.json) and the normalized target for
-/// a missing page.
 #[tokio::test]
 async fn empty_link_labels_show_the_target_page_title() {
     let mut runner = TestRunner::setup().await;
@@ -28901,9 +29091,6 @@ async fn empty_link_labels_show_the_target_page_title() {
     );
 }
 
-/// Color spans inside native list runs (`scp-series-10`) and nested inline
-/// syntax inside color spans (#2567) must restore to markup, with no internal
-/// compatibility markers left in the page.
 #[tokio::test]
 async fn page_render_restores_color_spans_in_lists_and_their_nested_syntax() {
     let runner = TestRunner::setup().await;

@@ -102,7 +102,6 @@ const baseStylesheet = () => {
 
 const styleFrame = (search) => ({ isStyleFrame: true, location: { search } })
 
-/** A frame window whose parent document must never be touched. */
 const fakeFrameWindow = ({ siblings = [], readyState = "loading" } = {}) => {
   const listeners = new Map()
   const parent = new Proxy(

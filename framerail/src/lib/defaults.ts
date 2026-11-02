@@ -1,11 +1,9 @@
 const defaults = {
   fallbackLocale: "en",
   translateKeys: {
-    // Error
     "error": {},
     "close": {},
 
-    // Footer
     "footer-powered-by": {},
     "terms-conditions": {},
     "privacy": {},
@@ -13,14 +11,12 @@ const defaults = {
     "security": {},
     "footer-license-unless": {},
 
-    // Spinny
     "spinny-label.active": {},
     "spinny-label.error": {},
     "spinny-label.success": {},
     "spinny-label.warning": {},
     "message-loading": {},
 
-    // Form fields
     "field-required": {},
     "hold-to-show-password": {}
   },

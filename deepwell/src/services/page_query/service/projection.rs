@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Projection of selected page-query models into public result rows.
-
 use super::{
     BTreeMap, ColumnTrait, EntityTrait, Error, ErrorType, FoundPageFields, FoundPageRow,
     FoundPages, OrderBySelector, OrderProperty, Ordering, PageQueryResultEnvelope,
@@ -46,8 +44,6 @@ pub(super) struct PageQuerySelectedPage {
     pub(super) effective_revision_count: Option<i64>,
 }
 
-// Resolving this list ahead of the main query avoids the full sequential scan produced by
-// PostgreSQL's equivalent page_parent self-join.
 pub(super) async fn current_parent_ids(
     ctx: &ServiceContext<'_>,
     current_site_id: i64,

@@ -24,12 +24,6 @@ interface WikidotPagePresentationContext {
   hasSession: boolean
   siteLocale: string
   now?: number
-  /**
-   * Live combined score (imported baseline plus local votes) for the page
-   * actions row. Falls back to the imported baseline snapshot when no
-   * score was fetched, so a failed lookup keeps the baseline instead of
-   * breaking the page.
-   */
   combinedRating?: number | null
 }
 
@@ -185,6 +179,9 @@ const foundPageTranslateKeys = (
     "wiki-page-lock.remove": {},
     "wiki-page-edit": {},
     "wiki-page-parent": {},
+    "children": {},
+    "wiki-page-children": {},
+    "wiki-page-children.no-children": {},
     "wiki-page-delete": {},
     "wiki-page-move": {},
     "wiki-page-move.new-slug": {},

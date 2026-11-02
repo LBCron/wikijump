@@ -1,0 +1,510 @@
+[[iftags +테마]]
+
+[[>]]
+[[module Rate]]
+[[/>]]
+
+[[include :scpko:info:start]]
+**안개를 거니는 테마**
+**제작:** [[*user thd-glasses]]
+
+이미지 출처:
+# https://commons.wikimedia.org/wiki/File:Lady_Liberty-New_Year%27s_Day-2022-0661_-_Flickr_-_Pat_Bianculli.jpg
+# https://commons.wikimedia.org/wiki/File:John_o%27Groats_lighthouse_fog_1.jpeg
+
+폰트 출처:
+# https://noonnu.cc/font_page/1777
+# https://noonnu.cc/font_page/733
+
+[[include :scpko:info:end]]
+
++ 사용 방법: 안개를 거니는 CSS 테마
+
+* [[[mujin-yarn|무진기담]]] 카논을 위한 전용 테마입니다.
+* 본 테마를 적용할 페이지 최상단에 다음 구문을 삽입하세요.
+
+> @@[[include :scpko:theme:fogwalker]]@@
+
+[[tabview]]
+[[tab 미리보기]]
+
+[[include component:image-block
+|name=https://scpko.wdfiles.com/local--files/secure-facility-dossier-site-64k/site-64k.jpg
+|caption=제64K기지 지상 시설 전경.
+|link=https://scpko.wikidot.com/secure-facility-dossier-site-64k
+]]
+
++ 제목 H1
+++ 제목 H2
++++ 제목 H3
+++++ 제목 H4
++++++ 제목 H5
+++++++ 제목 H6
+
+----
+
+[[collapsible show="활성 링크" hide="활성 링크"]]
+[[/collapsible]]
+
+[[[main|방문한 링크]]]
+
+[[[빈 링크]]]
+
+||||~ Table example - Header Cell ||
+|| Cell 1 || Cell 2 ||
+||||= Centered Cell||
+
+~~~~
+[[/tab]]
+[[tab 다크모드]]
+
+[[=image https://scpko.wdfiles.com/local--files/theme%3Afogwalker/fogwalker-light.png]]
+> @@[[include :theme:fogwalker]]@@
+
+
+[[=image https://scpko.wdfiles.com/local--files/theme%3Afogwalker/fogwalker-dark.png]]
+> @@[[include :theme:fogwalker@@ **dark=a**]]
+
+[[/tab]]
+[[/tabview]]
+
+[[=]]
+헤더 폰트는 [[span style="font-family: 'NostalgicPoliceVibe';"]]그리운 경찰 감성체[[/span]]입니다.
+헤더 부제 폰트는 [[span style="font-family: 'GowunBatang-Bold';"]]고운 바탕 볼드[[/span]]입니다.
+[[/=]]
+
+@@@@
+@@@@
+
++ Source Code
+
+[[/iftags]]
+
+[[div [[iftags -테마]]style="display: none"[[/iftags]]]]
+[[module CSS show="true"]]
+@font-face {
+    font-family: 'NostalgicPoliceVibe';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2601-6@1.0/Griun_PolSensibility-Rg.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'GowunBatang-Bold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/GowunBatang-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* 배경 */
+
+div#container-wrap {
+  background: url(https://scpko.wdfiles.com/local--files/theme%3Afogwalker/bg.jpg) 65% top no-repeat;
+  background-color: #DBDBDB;
+}
+
+/* 헤더 */
+
+#header {
+  background: transparent;
+}
+
+#header h1, #header h2 {
+  margin-left: 0;
+}
+
+#header h1 a {
+  color: transparent;
+  font-size: 180% !important;
+  font-family: 'NostalgicPoliceVibe', cursive;
+  text-shadow: none;
+}
+ 
+#header h1 a::before {
+  content: "무진기담";
+  color: #EEE;
+  text-shadow: 3px 3px 5px #000;
+  font-weight: 500;
+}
+
+#header h2 span {
+  color: transparent;
+  font-family: 'GowunBatang-Bold', Arial, sans-serif;
+  font-size: 90%;
+  text-shadow: none;
+  margin: -5px 0 0 15px;
+}
+
+#header h2 span::before {
+  content: "“읍내에서 좀 떨어진, 바다로 뻗어나가고 있는 방죽으로...”";
+  font-style: italic;
+  color: #555;
+  line-height: 1.3;
+  word-break: keep-all;
+}
+
+/* 상단바 */
+
+#top-bar {
+  top: 150px;
+}
+
+#top-bar a{
+  color: #ABABAB;
+  transition-duration: 0s;
+}
+
+#header:hover #top-bar a,
+#header:focus #top-bar a,
+#header:focus-within #top-bar a {
+  color: #000;
+  transition-duration: 0s;
+}
+
+#top-bar ul li ul {
+  border: solid 1px #DBDBDB;
+  box-shadow: none;
+}
+
+#top-bar ul li.sfhover a, #top-bar ul li:hover a {
+  background: #DBDBDB;
+  color: #555 !important;
+}
+
+#top-bar ul li.sfhover ul li a, #top-bar ul li:hover ul li a {
+  border-top: 1px solid #DBDBDB;
+}
+
+
+#top-bar ul li.sfhover a:hover, #top-bar ul li:hover a:hover {
+  background: #CBCBCB;
+}
+
+#top-bar ul li ul a, #top-bar a:hover, .c_topbar_arrow {
+  color: #555;
+}
+
+#top-bar ul li ul li ul {
+  border: none;
+}
+
+#search-top-box-input {
+  display: none;
+}
+
+#search-top-box-form input[type=submit] {
+  border: transparent;
+  color: #000;
+  background: none !important;
+  background-color: transparent;
+}
+
+/* 검색기 및 로그인 정보  */
+ 
+#search-top-box-form input[type=submit]:hover, #search-top-box-form input[type=submit]:focus {
+  border: solid 0.5px #000;
+  color: #000;
+  background: none !important;
+  background-color: transparent;
+}
+
+#login-status, #login-status a, #login-status ul a {
+  color: #000;
+  text-decoration: none;
+}
+
+#account-options {
+  background-color: #DBDBDB;
+  border: none;
+  transition-duration: 0.5s;
+}
+
+#account-options li:hover {
+  background-color: #CBCBCB;
+  transition-duration: 0.5s;
+}
+
+/* 사이드바 */
+
+#side-bar .side-block {
+  background: transparent !important;
+  box-shadow: none;
+  border: none;
+}
+
+#side-bar, #side-bar .heading, #side-bar a, #side-bar a:visited, #side-bar a::after {
+  color: #000 !important;
+}
+
+#side-bar a { text-decoration: none; }
+#side-bar a:hover { text-decoration: underline; }
+
+#side-bar .heading,
+#side-bar .collapsible-block-folded,
+#side-bar .collapsible-block-unfolded,
+#side-bar .collapsible-block-unfolded-link
+{
+  border-color: #ABABAB;
+}
+
+#side-bar {
+  filter: grayscale(100%);
+  opacity: 35%;
+  transition-duration: 0.5s;
+}
+
+#side-bar:hover,
+#side-bar:focus,
+#side-bar:focus-within {
+  opacity: 100%;
+  transition-duration: 0.5s;
+}
+
+/* 스크롤바 */
+
+:root {
+  scrollbar-color: #CBCBCB #DBDBDB;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+body::-webkit-scrollbar {
+  width: 15px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #CBCBCB;
+}
+
+body::-webkit-scrollbar-track {
+  background: #DBDBDB;
+}
+
+/* 평가 모듈 */
+
+div.page-rate-widget-box .rate-points,
+div.page-rate-widget-box .cancel,
+div.rate-box-with-credit-button {
+  background-color: #CBCBCB;
+  border: solid 1px #CBCBCB;
+  color: #000;
+}
+
+div.page-rate-widget-box .rateup, div.page-rate-widget-box .ratedown {
+  background-color: #DBDBDB;
+  border-top: solid 1px #CBCBCB;
+  border-bottom: solid 1px #CBCBCB;
+}
+
+div.page-rate-widget-box .rateup a, div.page-rate-widget-box .ratedown a {
+  color: #000;
+}
+
+div.page-rate-widget-box .rateup a:hover, div.page-rate-widget-box .ratedown a:hover {
+  background: #CBCBCB;
+  color: #000;
+}
+
+div.page-rate-widget-box .cancel a,
+div.rate-box-with-credit-button .creditButton p a {
+  color: #000;
+}
+
+div.page-rate-widget-box .cancel a:hover {
+  background: #DBDBDB;
+  color: #000;
+}
+
+div.rate-box-with-credit-button .creditButton p a:hover {
+  color: #EEE;
+}
+
+div.rate-box-with-credit-button {
+  box-shadow: 1px 1px 3px rgba(0,0,0,.3);
+}
+
+/* 본문 - 제목 */
+
+#page-title, .meta-title {
+  color: #000;
+  font-family: 'NostalgicPoliceVibe', cursive;
+  text-align: center;
+}
+
+h1 {
+  color: #000;
+  font-family: 'NostalgicPoliceVibe', cursive;
+}
+
+/* 본문 - 링크 */
+
+a { color: #000; }
+a:visited { color: #555; }
+a.newpage { color: #888; }
+#breadcrumbs { color: #676767; }
+#breadcrumbs a, #breadcrumbs a:visited { color: #676767; text-decoration: none; }
+
+a, #page-content a:visited, #page-content a.newpage {
+  text-decoration: underline #888;
+  transition-duration: 0.5s;
+}
+
+a:hover, a:focus, a:focus-within {
+  color: #000;
+  text-decoration: underline #000;
+  transition-duration: 0.5s;
+}
+
+/* 본문 - 인용구와 탭 */
+
+blockquote, div.blockquote {
+  border-color: transparent;
+  background: rgba(180, 180, 180, 0.25);
+}
+
+.yui-navset .yui-content{
+  background-color: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-bottom: solid 1px #555;
+}
+
+.yui-navset .yui-nav a, .yui-navset .yui-navset-top .yui-nav a {
+  background: #EBEBEB url(none) repeat-x;
+  border: none;
+  color:#000;
+}
+
+.yui-navset .yui-nav .selected a,
+.yui-navset .yui-nav .selected a:focus, /* no focus effect for selected */
+.yui-navset .yui-nav .selected a:hover { /* no hover effect for selected */
+  background: #555; /* selected tab background */
+  color: #EEE;
+}
+
+.yui-navset .yui-nav a:hover,
+.yui-navset .yui-nav a:focus {
+  background: #DBDBDB;
+  text-decoration: none;
+}
+
+.yui-navset .yui-nav,
+.yui-navset .yui-navset-top .yui-nav {
+  border-color: #555;
+}
+
+/* 모바일 */
+
+@media (max-width: 767px) {
+  #side-bar {
+    background: #DBDBDB;
+  }
+  #side-bar .side-block {
+    background: #DBDBDB !important;
+  }
+  #side-bar, #side-bar .heading, #side-bar a, #side-bar a:visited, #side-bar a::after {
+    color: #000 !important;
+  }
+
+  #top-bar .open-menu a {
+    filter: opacity(50%);
+    text-decoration: none;
+  }
+}
+
+@media (min-width: 1921px) {
+div#container-wrap {
+  background-position: center top;
+}
+}
+[[/module]]
+
+>[[ift{$dark}gs +tag]]
+>[!--
+>[[/ift{$dark}gs]]
+[[module CSS]]
+div#container-wrap {
+  background-image: url(https://scpko.wdfiles.com/local--files/theme%3Afogwalker/bg_d.png);
+  background-color: #525252;
+}
+
+#header h2 span::before {
+  color: #DEDEDE;
+}
+
+#top-bar a,
+#header:hover #top-bar > .top-bar > ul > li > a,
+#header:focus #top-bar > .top-bar > ul > li > a,
+#header:focus-within #top-bar > .top-bar > ul > li > a {
+  color: #DEDEDE;
+  transition-duration: 0s;
+}
+
+:root {
+  scrollbar-color: #767676 #525252;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #767676;
+}
+ 
+body::-webkit-scrollbar-track {
+  background: #525252;
+}
+
+#page-title, .meta-title, #page-options-container, #action-area, #license-area,
+#page-content, h1, h2, h3, h4, h5, h6, #breadcrumbs, #breadcrumbs a, #breadcrumbs a:visited {
+  color: #DEDEDE;
+}
+
+.scp-image-block .scp-image-caption > p,
+.modalbox, .modalbox h2 {
+  color: #525252;
+}
+
+a { color: #ABABAB; }
+a:visited { color: #ABABAB; }
+a.newpage { color: #EDEDED; }
+ 
+a, #page-content a:visited, #page-content a.newpage {
+  text-decoration: underline #ABABAB;
+  transition-duration: 0.5s;
+}
+
+a:hover, a:focus, a:focus-within {
+  color: #9A9A9A;
+  text-decoration: underline #9A9A9A;
+}
+
+.yui-navset .yui-nav a, .yui-navset .yui-navset-top .yui-nav a {
+  background: #555 url(none) repeat-x;
+  color:#EEE;
+}
+
+.yui-navset .yui-nav .selected a,
+.yui-navset .yui-nav .selected a:focus,
+.yui-navset .yui-nav .selected a:focus-within, /* no focus effect for selected */
+.yui-navset .yui-nav .selected a:hover { /* no hover effect for selected */
+  background: #EBEBEB;
+  color: #000;
+}
+
+@media (min-width: 768px) {
+#side-bar, #side-bar .heading, #side-bar a, #side-bar a:visited, #side-bar a::after {
+  color: #767676 !important;
+  transition-duration: 0.5s
+}
+
+#side-bar, #side-bar .heading, #side-bar a, #side-bar a:visited, #side-bar a::after {
+  color: #DEDEDE !important;
+}
+}
+
+@media (min-width: 1921px) {
+div#container-wrap {
+  background-position: center top;
+}
+}
+[[/module]]
+[!----]
+[[/div]]

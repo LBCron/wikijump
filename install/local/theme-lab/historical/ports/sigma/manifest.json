@@ -1,0 +1,127 @@
+{
+  "slug": "theme:sigma",
+  "en_source_sha256": "e2f126ba6f6debd4cbde5f1712f04da794e2820f0180a6501b54dbe4e318639c",
+  "en_updated_at": "2025-10-09T22:11:04+00:00",
+  "en_entity_uuid": "c90f86c8-c8da-4d19-b011-5a670ff06b42",
+  "jp_previous_status": "confirmed-absent-by-targeted-xmlrpc",
+  "jp_previous_source_sha256": null,
+  "jp_previous_updated_at": null,
+  "jp_previous_entity_uuid": null,
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:sigma",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": null,
+  "source_identity": {
+    "slug": "theme:sigma",
+    "title": "Sigma-9 Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "e2f126ba6f6debd4cbde5f1712f04da794e2820f0180a6501b54dbe4e318639c",
+      "updated_at": "2025-10-09T22:11:04+00:00",
+      "entity_uuid": "c90f86c8-c8da-4d19-b011-5a670ff06b42",
+      "tags": [
+        "_cc",
+        "joke",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 15,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:sigma"
+      }
+    },
+    "jp": {
+      "status": "confirmed-absent-by-targeted-xmlrpc",
+      "source_path": null,
+      "sha256": null,
+      "updated_at": null,
+      "entity_uuid": null,
+      "tags": [],
+      "absence_run": "theme-jp-absence-check-20260923"
+    },
+    "existing_jp_audit": "new-jp-candidate-verified",
+    "technical_spec_version": "1.4",
+    "final_verdict": "warn"
+  },
+  "dependencies": {
+    "slug": "theme:sigma",
+    "en_includes": [
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:sigma",
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:sigma",
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:sigma",
+      "component:image-block name=https://scp-wiki.wdfiles.com/local--files/component%3Atheme/logo.png"
+    ],
+    "en_external_dependencies": [
+      "https://scp-wiki.wdfiles.com/local--files/component%3Atheme/logo.png|caption=SCP"
+    ],
+    "jp_includes": [],
+    "jp_external_dependencies": [],
+    "base_family": "black-highlighter"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "human-port-candidate.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "human-made shared translation workspace; no current official JP counterpart",
+  "final_verdict": "warn",
+  "existing_jp_audit": "new-jp-candidate-verified",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/sigma/assets.json",
+  "asset_dependency_decision_count": 0,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "2bc461f3a212385d4588debb88de6f20a7f9c1a739b41053f6fb6f95e503bb23",
+    "jp_overrides_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "semantic_css_sha256": "648553bc9b1c96483771dcdffe9fd56f16d573ed1fd9b1d13ec58633a221713d",
+    "canonical_override_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "2bc461f3a212385d4588debb88de6f20a7f9c1a739b41053f6fb6f95e503bb23",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "active_tags": [],
+      "candidate_source_sha256": "2bc461f3a212385d4588debb88de6f20a7f9c1a739b41053f6fb6f95e503bb23",
+      "candidate_active_tags": [
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 1,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "asset_receipt_path": "assets.json",
+      "assets": 0,
+      "imports": 0,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "warn",
+    "port_verdict": "pass",
+    "target_status": "warn"
+  }
+}

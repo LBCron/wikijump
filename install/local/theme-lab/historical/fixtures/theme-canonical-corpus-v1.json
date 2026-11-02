@@ -1,0 +1,35 @@
+{
+  "schema": "theme_lab_canonical_corpus.v1",
+  "id": "canonical-theme-corpus-v1",
+  "source": "theme-canonical-corpus-v1.wikidot.txt",
+  "purpose": "Cross-environment theme rendering corpus. The same source and declared site state must be used on every compared platform/branch profile.",
+  "site_state_requirements": {
+    "corpus_page": {
+      "slug": "run-owned:theme-lab-canonical-corpus-v1",
+      "tags": ["theme", "theme-lab-canonical-corpus"]
+    },
+    "existing_pages": ["run-owned:theme-lab-corpus-existing"],
+    "missing_pages": ["run-owned:theme-lab-corpus-missing"],
+    "page_tags": ["theme"],
+    "session_profiles": ["anonymous", "authenticated"]
+  },
+  "semantic_probes": [
+    "headings",
+    "inline-formatting",
+    "existing-internal-link",
+    "missing-internal-link",
+    "external-link",
+    "lists",
+    "blockquote",
+    "table",
+    "code",
+    "collapsible",
+    "tabview",
+    "footnote",
+    "bibliography",
+    "math",
+    "toc",
+    "rating-widget-dom",
+    "tag-conditional"
+  ]
+}

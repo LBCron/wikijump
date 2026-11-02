@@ -20,7 +20,6 @@ const FIXTURE_URL = `http://127.0.0.1:${process.env.PLAYWRIGHT_FIXTURE_PORT ?? "
 const CREATE_DENIED_MESSAGE =
   "Sorry, you can not create a new page in this category. Only members of this site, site administrators and perhaps selected moderators are allowed to do it."
 
-// Denied slugs are never created, so each test can reuse the same missing slug.
 const DENIED_SLUG = "create-permission-denied-probe"
 
 const pageCreateWritesFor = async (
@@ -144,7 +143,6 @@ test("a missing page without a site template shows Wikidot's default state once"
   await expect(page.locator("#page-content > p[id='404-message']")).toContainText(
     "you want to access does not exist."
   )
-  // One create affordance, after the message, as on Wikidot.
   await expect(page.locator("#page-content a")).toHaveCount(1)
   await expect(page.locator("#page-content > :last-child")).toHaveAttribute(
     "id",

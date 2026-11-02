@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Resolve FTML's typed Gallery requirements against permission-checked files.
-
 use std::cmp::Ordering;
 use std::collections::{HashMap, HashSet};
 
@@ -38,9 +36,6 @@ const WIKIDOT_GALLERY_EMPTY_ERROR: &str = r#"<div class="error-block">Sorry, we 
 const MAX_GALLERY_FILES: u64 = 500;
 const MAX_GALLERY_ENTRIES: usize = 500;
 const MAX_GALLERY_REQUIREMENTS: usize = 32;
-// The frozen EN corpus contains art archive pages with 100 distinct Gallery
-// blocks. Only trusted corpus finalizer renders receive the larger ceiling;
-// ordinary renders retain the bound above.
 const MAX_CORPUS_GALLERY_REQUIREMENTS: usize = 128;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -176,8 +171,6 @@ impl<'a, 'ctx> VisibleFileLoader<'a, 'ctx> {
             return Ok(None);
         }
 
-        // File rows and their revisions are intentionally loaded only after
-        // the parent page's complete actor-aware view decision.
         let Some(rows) = FileService::get_visible_rows(
             self.ctx,
             self.site_id,
@@ -372,8 +365,6 @@ async fn resolve_explicit_gallery(
     }
     let mut images = Vec::new();
     for entry in entries {
-        // Custom link behavior belongs to a later evidence-backed viewer
-        // layer. It must not silently become a generic lightbox contract.
         if gallery_argument(entry.arguments(), "link").is_some() {
             continue;
         }

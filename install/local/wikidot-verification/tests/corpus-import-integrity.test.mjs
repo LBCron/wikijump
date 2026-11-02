@@ -38,8 +38,15 @@ test('integrity manifest validates source bytes and exact slug selection', () =>
 });
 
 test('integrity query safely requests selected pages and retrieves provenance and body length', () => {
-  const query = buildIntegrityQuery({siteId: 6000006}, [{fullname: "scp-'173"}]);
-  assert.match(query, /page\.site_id = 6000006/);
+  const query = buildIntegrityQuery({siteId: 6000006}, [{fullname: "scp-'173", source_site: "scp-wiki"}]);
+  assert.match(query, /named\.site_id = 6000006/);
+  assert.match(query, /\('scp-''173', 'scp-wiki'\)/);
+  assert.match(
+    query,
+    /held_snapshot\.source_site = requested\.source_site\n      AND held_snapshot\.source_fullname = requested\.slug/,
+    'a foreign row resolves to the page holding its own snapshot before any page of the same name',
+  );
+  assert.match(query, /ORDER BY candidate\.priority, candidate\.page_id/);
   assert.match(query, /wikidot_page_snapshot/);
   assert.match(query, /wikidot_corpus_import_item/);
   assert.match(query, /translate\(encode\(convert_to\(source\.contents, 'UTF8'\), 'base64'\), E'\\n', ''\)/);

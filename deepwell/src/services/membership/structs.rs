@@ -148,11 +148,6 @@ pub struct JoinMembership {
     pub ip_address: std::net::IpAddr,
 }
 
-/// One closed browser action emitted beside a renderer-owned Join control.
-///
-/// It intentionally contains no site, actor, policy, token, URL, or authored
-/// JavaScript. Page and revision identify the immutable renderer output; the
-/// mutation re-resolves them and every mutable authority from server state.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", tag = "type")]
 pub enum MembershipBrowserAction {

@@ -1,0 +1,15 @@
+{
+  "schema": "theme_lab_canonical_corpus_states.v1",
+  "corpus": "canonical-theme-corpus-v1",
+  "viewports": ["desktop", "laptop", "tablet", "mobile", "narrow-mobile"],
+  "session_profiles": ["anonymous", "authenticated"],
+  "interaction_states": [
+    "settled",
+    "internal-existing-link",
+    "internal-missing-link",
+    "collapsible-open",
+    "tab-second",
+    "footnote-open",
+    "responsive-shell"
+  ]
+}

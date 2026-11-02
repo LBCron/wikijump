@@ -40,8 +40,6 @@ test("a schemeless website renders as a normalized focusable anchor", async ({
   await expect(link).toHaveAttribute("href", NORMALIZED_DESTINATION)
   await expect(link).toHaveText("example.org")
 
-  // The anchor is keyboard reachable and its accessible name is the raw value,
-  // matching the frozen Wikidot reference (`<a href=…>scp-wiki.wikidot.com/seekgull</a>`).
   await link.focus()
   await expect(link).toBeFocused()
   await expect(page.getByRole("link", { name: "example.org" })).toBeVisible()
@@ -81,7 +79,6 @@ test("activating the website link attempts only the normalized destination", asy
       blocked.push(request.failure()?.errorText ?? "")
     }
   })
-  // Link activation must never submit a form action (profile mutation).
   const posts: string[] = []
   page.on("request", (request) => {
     if (request.method() === "POST") posts.push(request.url())
@@ -91,14 +88,11 @@ test("activating the website link attempts only the normalized destination", asy
   const link = page.locator(".user-attribute.website a.website-link")
   await expect(link).toBeVisible()
 
-  // Mouse activation: the only navigation target is the normalized URL, which
-  // the hermetic guard blocks (recorded through the portable failure reason).
   await link.click()
   await expect.poll(() => blocked).toEqual(["net::ERR_BLOCKED_BY_CLIENT"])
   expect(attemptedNavigations).toEqual([NORMALIZED_DESTINATION])
   expect(posts).toEqual([])
 
-  // Keyboard activation behaves the same way.
   await page.goto(`${APP_URL}/-/user/website-probe`)
   await link.focus()
   await page.keyboard.press("Enter")
@@ -108,7 +102,6 @@ test("activating the website link attempts only the normalized destination", asy
   expect(attemptedNavigations).toEqual([NORMALIZED_DESTINATION, NORMALIZED_DESTINATION])
   expect(posts).toEqual([])
 
-  // A context-menu "open in new tab" reaches the same destination.
   await page.goto(`${APP_URL}/-/user/website-probe`)
   await expect(link).toBeVisible()
   const navigationsBeforePopup = attemptedNavigations.length
@@ -128,7 +121,6 @@ test("an unsafe website scheme stays inert text without a link or script", async
   page
 }) => {
   const consoleErrors = collectConsoleErrors(page)
-  // Any script execution from the stored value would open a dialog.
   const dialogs: string[] = []
   page.on("dialog", (dialog) => {
     dialogs.push(dialog.message())
@@ -151,7 +143,6 @@ test("an unsafe website scheme stays inert text without a link or script", async
 test("a blank website renders no link and no empty anchor", async ({ page }) => {
   await page.setExtraHTTPHeaders(SITE_HEADERS)
   await page.goto(`${APP_URL}/-/user/guest`)
-  // The guest profile itself renders, so the negative check is not vacuous.
   await expect(page.locator("h1.user-attribute.name")).toHaveText("Guest")
   await expect(page.locator(".user-attribute.website")).toHaveCount(0)
   await expect(page.locator("a.website-link")).toHaveCount(0)

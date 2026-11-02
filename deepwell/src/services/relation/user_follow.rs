@@ -34,7 +34,7 @@ impl_relation! {
 }
 
 impl RelationService {
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub async fn create_user_follow(
         ctx: &ServiceContext<'_>,
         CreateUserFollow {
@@ -53,7 +53,6 @@ impl RelationService {
             )
         };
 
-        // Cannot follow if blocked
         Self::check_user_block(ctx, followed_user, following_user, "follow")
             .await
             .or_raise(make_error)?;

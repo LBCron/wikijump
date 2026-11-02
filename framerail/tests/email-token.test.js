@@ -156,7 +156,6 @@ describe("email-token routes", () => {
       email: "user@example.test",
       ip_address: "192.0.2.77"
     })
-    // Anonymous-safe: no session or account identity leaves framerail.
     assert.ok(!("session" in issue.params || "user_id" in issue.params))
   })
 
@@ -305,8 +304,6 @@ describe("email-token routes", () => {
       new URL("../../deepwell/src/endpoints/email.rs", import.meta.url),
       "utf8"
     )
-    // #2081 boundary: imported non-authenticatable identities must never
-    // receive recovery or verification tokens.
     assert.match(endpoints, /get_real_optional_by_email/u)
     assert.doesNotMatch(endpoints, /get_optional_by_email|import_wikidot/u)
   })
@@ -348,7 +345,6 @@ describe("email-token routes", () => {
     })
 
     calls.length = 0
-    // No cookie at all: fail closed before Deepwell.
     const noCookie = await routes.deleteAccount.actions.default({
       request: postRequest("/-/delete-account", {}),
       cookies: { get: () => undefined },
@@ -364,7 +360,6 @@ describe("email-token routes", () => {
     assert.equal(result.sent, true)
     const issue = calls.find(({ method }) => method === "account_delete_issue")
     assert.deepEqual(issue.params, { ip_address: "192.0.2.77" })
-    // Self-only: no address, user id, or token leaves framerail.
     assert.ok(!("email" in issue.params || "user_id" in issue.params))
     assert.equal(issue.context.sessionToken, "delete-session")
   })

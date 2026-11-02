@@ -55,8 +55,6 @@ pub(in crate::services::render::literal_regions) struct HeadCandidateStreams {
         Vec<RuntimeModuleHeadCandidate>,
     pub(in crate::services::render::literal_regions) runtime_modules:
         Vec<RuntimeModuleHeadCandidate>,
-    /// Candidate streams are cleared when this is true so no caller can use a
-    /// partial literal-ownership graph after budget exhaustion.
     pub(in crate::services::render::literal_regions) work_limit_exceeded: bool,
     pub(in crate::services::render::literal_regions) whole_head_scan_work: usize,
 }
@@ -72,11 +70,6 @@ impl HeadCandidateStreams {
     }
 }
 
-/// Enumerate complete heads consumed by pinned FTML block rules.
-///
-/// The collector deliberately does not mask nested candidates. Unknown and
-/// malformed heads emit nothing, allowing a valid runtime module inside them
-/// to be reconsidered by the global selector.
 #[cfg(test)]
 pub(in crate::services::render::literal_regions) fn collect_generic_head_candidates(
     source: &str,
@@ -200,8 +193,6 @@ pub(in crate::services::render::literal_regions) fn collect_head_candidate_strea
         } else if is_whole_value_block(name) {
             let (end, examined) = whole_value_end(bytes, name_end, &mut text_tokens);
             whole_head_scan_work = whole_head_scan_work.saturating_add(examined);
-            // A scan examines at most one source length before exhaustion is
-            // observed, so cumulative whole-value work remains bounded by 9n.
             if whole_head_scan_work > whole_head_scan_work_limit {
                 return HeadCandidateStreams::oversized_or_exhausted(
                     whole_head_scan_work,

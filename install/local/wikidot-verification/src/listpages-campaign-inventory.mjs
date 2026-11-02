@@ -362,22 +362,6 @@ async function seedDocQueue(docsRoot, allFullnames) {
   return reasonsByFullname;
 }
 
-/**
- * Lexicographic min-heap over strings.
- *
- * The traversal order is part of this tool's output, because a page's
- * `relevance_reasons` keeps insertion order, so the queue must pop the smallest
- * pending name first. Re-sorting the whole queue on every discovery costs
- * O(M log M) per accepted reason, and `Array.shift` costs O(M) per pop, where
- * M is the pending queue length. Heap push and pop cost O(log V).
- * Sequence numbers preserve the old stable-sort order when localeCompare
- * considers two different spellings equal.
- *
- * Pushes are not deduplicated here. Callers suppress pushes with their own
- * membership set, which keeps the pop order identical to the previous
- * push-then-sort-then-shift behavior: the first pop of a name is the same
- * either way, and any later duplicate would have been skipped anyway.
- */
 class LexicographicMinHeap {
   #items = [];
   #nextSequence = 0;
@@ -439,9 +423,6 @@ export async function buildDocumentationInventory({
 } = {}) {
   const allFullnames = new Set(await listDocFullnames(docsRoot));
   const reasonsByFullname = await seedDocQueue(docsRoot, allFullnames);
-  // The old queue's initial `.sort()` used code-unit order. Its first accepted
-  // reason changed the comparator to localeCompare for all later pops. Keep
-  // that transition, including when the target was already pending.
   const initialQueue = [...reasonsByFullname.keys()].sort();
   let initialIndex = 0;
   let queue = null;
@@ -454,15 +435,10 @@ export async function buildDocumentationInventory({
   const references = [];
   const missingReferences = [];
   const inspected = new Set();
-  // Mirrors reasonsByFullname for O(1) membership. The array still holds the
-  // reasons in insertion order, so the emitted `relevance_reasons` is unchanged.
   const reasonIndex = new Map();
   for (const [fullname, reasons] of reasonsByFullname) {
     reasonIndex.set(fullname, new Set(reasons));
   }
-  // A name is pushed at most once, so the queue holds O(V) pending names rather
-  // than one entry per incoming edge. The first push of a name still happens
-  // before any later edge could add it, so pop order is unaffected.
 
   while (queue === null ? initialIndex < initialQueue.length : queue.size > 0) {
     const fullname = queue === null ? initialQueue[initialIndex++] : queue.pop();
@@ -805,7 +781,6 @@ async function listFirstLevelCorpusRoots(corpusRoot) {
       const stats = await fs.stat(pagesRoot);
       if (stats.isDirectory()) roots.push(entry.name);
     } catch {
-      // No pages directory.
     }
   }
   return roots.sort((left, right) => left.localeCompare(right));

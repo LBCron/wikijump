@@ -1,0 +1,14 @@
+{
+  "schema": "theme_lab_frozen_navigation.v1",
+  "url": "https://scp-jp.wikidot.com/scp-173-jp",
+  "observed_at": "2026-09-29T19:17:18.255Z",
+  "source_artifact": "../ports/authority-evidence/replay/objects/5c/5c92d7dc050a72ac4e130aab62f56fa70105a044aa610da940c17b7fe66d2fb6",
+  "source_sha256": "5c92d7dc050a72ac4e130aab62f56fa70105a044aa610da940c17b7fe66d2fb6",
+  "fixture": "scp-jp-navigation.html",
+  "sha256": "28a313884b25d4b88a9a3216ff2d4df68e2390cee3fb11ba5a88f127fdd66cf3",
+  "transforms": [
+    "Select exact .top-bar and .mobile-top-bar DOM; omit non-navigation analytics and support code."
+  ],
+  "public_writes": 0,
+  "decision_authority": "FROZEN_WIKIDOT_DOM_FIXTURE"
+}

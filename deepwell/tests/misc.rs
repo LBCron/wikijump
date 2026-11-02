@@ -30,25 +30,20 @@ use time::OffsetDateTime;
 async fn misc() {
     let runner = TestRunner::setup().await;
 
-    // ping
     run_endpoint!(runner, ping);
 
-    // echo
     let object = run_endpoint!(runner, echo, json!(["foo bar"]));
     assert_eq!(object, json!(["foo bar"]));
 
     let object = run_endpoint!(runner, echo, json!({"apple": "red", "banana": "yellow"}));
     assert_eq!(object, json!({"apple": "red", "banana": "yellow"}));
 
-    // yield_error
     let error = run_endpoint_err!(runner, yield_error);
     assert_contains_error!(error, ErrorType::BadRequest);
 
-    // config_dump
     let config = run_endpoint!(runner, config_dump);
     assert_eq!(config, runner.config().raw_toml);
 
-    // normalize_method
     let normalized = run_endpoint!(runner, normalize_method, json!(["SCP-001"]));
     assert_eq!(normalized, "scp-001");
 
@@ -59,10 +54,8 @@ async fn misc() {
     let normalized = run_endpoint!(runner, normalize_method, json!(["abc-xyz"]));
     assert_eq!(normalized, "abc-xyz");
 
-    // Invalid arguments
     run_endpoint_err!(runner, normalize_method, json!({"foo": "bar"}));
 
-    // info
     let info = run_endpoint!(runner, server_info);
     assert_eq!(info.package.name, deepwell::info::PKG_NAME);
     assert_eq!(info.package.version, *deepwell::info::VERSION_INFO);

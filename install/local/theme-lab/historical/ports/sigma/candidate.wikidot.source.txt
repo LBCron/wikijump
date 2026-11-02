@@ -1,0 +1,184 @@
+[[iftags +テーマ]]
+[[module CSS]]
+.color {
+    font-weight: bold;
+    text-align: center;
+    color: white;
+    border: 1px solid black;
+    margin: 0.25em;
+    padding: 1em;
+}
+
+.blink {
+    text-decoration: blink;
+    -webkit-animation-name: blinker;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: cubic-bezier(1, 0, 0, 1);
+    -webkit-animation-duration: 1s;
+}
+
+.footnotes-footer {
+    display: none;
+}
+[[/module]]
+= [[size 110%]]このテーマは現在、##green|**有効**##です。[[/size]]
++ これは何か
+
+何千もの記事で選ばれている[[[component:theme|Sigma-9]]]テーマを適用するコンポーネントです。
+
+[[[SCP-173]]]、[[[SCP-682]]]、[[[SCP-096]]]、[[[/|メインページ]]]、[[[SCP-11837]]]などの著名記事で使われています（まだ存在しませんが、絶対すごくなります。信じてください。あとグリーンライトが2つだけ必要なんです、お願いします）
+
+何を待っているんですか？今日追加すれば価格を20%切り下げます！
++ 使用方法
+
+これは[[[theme:black-highlighter-theme|Black Highlighter]]]ベースのテーマです。なのでそちらも必ずincludeしてください。
+@@[[include :scp-jp:theme:black-highlighter-theme]]@@
+@@[[include :scp-jp:theme:sigma]]@@
+それから削除してください。そんなものはオタク向けです。
+--@@[[include :scp-jp:theme:black-highlighter-theme]]@@--
+@@[[include :scp-jp:theme:sigma]]@@
+実際のところ、あなたのwikiはたぶん既にSigma-9を使っています（それだけすごいのです）。なので2行目も削除してください。
+--@@[[include :scp-jp:theme:black-highlighter-theme]]@@--
+--@@[[include :scp-jp:theme:sigma]]@@--
+おめでとうございます。あなたは今、最新にして最高のCSS技術を使っています！
++ テーマカラー
+
+[[div_ class="color" style="background-color: #d61"]]
+Sunny-Dオレンジ
+[[/div]]
+
+[[div_ class="color" style="background-color: #901"]]
+酸っぱいブドウ
+[[/div]]
+
+[[div_ class="color" style="background-color: #700"]]
+肝臓
+[[/div]]
+
+[[div_ class="color" style="background-color: #333"]]
+脅威レベル: 黒
+[[/div]]
+
+[[div_ class="color" style="background-color: #ddd; color: black"]]
+[[span class="blink"]]新着メッセージがあります[[/span]]グレー
+[[/div]]
+
++ 例
+
+[[include :scp-jp:component:image-block name=https://scp-wiki.wdfiles.com/local--files/component%3Atheme/logo.png|caption=SCP財団ロゴ]]
+
+水平線は4つのハイフン「@@----@@」で作成でき、何かの内側（引用ブロックなど）に置かれていなければページ全体に伸びます。この文書のセクションを区切っている線は水平線です。
+行頭に1個から6個までのプラス記号「+」を置くと、タイトルを作成できます。
+
+[[collapsible show="+ タイトル" hide="- タイトル"]]
++ 王
+
+++ 大統領
+
++++ 上院議員
+
+++++ 下院議員
+
++++++ 国会議員
+
+++++++ 尊きロード・メイヤー閣下
+[[tab タブレータ]]
+これはタブビューです。
+[[/tab]]
+[[tab タブ化]]
+ほら、ここにも文章があります。
+
+なんとも古風ですね。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+
+これは長いタブです。たくさんの文章が入っています。
+[[/tab]]
+[[tab 何か変な理由ですごく長い名前の空タブ。どうしてでしょう？とても奇妙です。]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+はっ！嘘でした！
+[[/tab]]
+> これは引用ブロックです。各行の先頭に「> 」を置くと作成できます。
+>
+> {{もっと文章}}
+> -----
+> これは水平線です
+>
+>> 入れ子の引用ブロック
+--]
+
+||~ これは ||~ 表です ||
+||あなたは || これの作り方を ||
+||||もう知っているはずです[[footnote]]知らないなら、「{{@@|| 表 || の || 内容 ||@@}}」を使います。見出しには「{{@@||~ 名前 ||@@}}」です。[[/footnote]] ||
+
+[[div class="sexy-box"]]
+これはセクシーボックスです。はい、これはSigma-9が提供する本物のクラスです！
+
+次のコードで作成できます。
+... 内容 ...
+このdivを使用する記事には、忘れずに「{{adult}}」タグを付けてください！
+[[/div]]
+
++ 証言
+
+> **Elenee FishTruckはこう言っています:**
+> 
+> これは今のテーマを置き換えるべきです！
+
+> **NatVoltaicはこう言っています:**
+> 
+> 泣いてる
+
+> **Smaptiはこう言っています:**
+> 
+> 好みではありません。[/forum/t-766406/new-site-theme#post-1943647 クラシックレイアウト]を私の画面に表示する方法はありますか？
+
+> **Ellie3はこう言っています:**
+> 
+> これは{{!important}}です
+> 
+> 今こそsigma balls
+
+> **pxdnbluesoulはこう言っています:**
+> 
+> ねえみんな、こっちはいろいろ抱えてるんだ。もうしばらくこれが動くようにしてくれないかな？
+
+> **Uncle Nicoliniはこう言っています:**
+> 
+> なんという壮大な時間の無駄
+
+[[=]]
+[[span style="font-family: verdana, arial;"]]本文フォントはVerdanaです。[[/span]]
+[[span style="font-family: BauhausLTDemi;"]]ヘッダーフォントはLTDemiです。[[/span]]
+[[span style="font-family: 'Trebuchet MS', Trebuchet;"]]サブヘッダーフォントはTrebuchet MSです。[[/span]]
+[[span style="font-family: 'Andale Mono', 'Courier New', Courier;"]]等幅フォントはAndale Monoです。[[/span]]

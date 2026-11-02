@@ -1,0 +1,47 @@
+[[code type="CSS"]]
+@import url("https://pseudo-scp-jp.wdfiles.com/local--code/sigma-10%3Ainfo%3Astyle/1");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/cc-icons/1.2.1/css/cc-icons.min.css");
+
+.creditButton p a:hover {
+    color: #966;
+}
+
+/* JP localize (nest credit module) */
+.creditRate .page-rate-widget-box {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+.page-rate-widget-box span {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    height: 18px;
+    box-sizing: border-box;
+}
+
+.credit-license {
+    width: 100%;
+    height: 5px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.credit-license a.cc {
+    margin-right: 1em;
+    font-size: 30px;
+    color: #444;
+    text-decoration: none;
+}
+
+.rate-box-with-credit-button {border: none;}
+
+ul.creditRate>li.rateBox>ul {
+    display: none;
+}
+
+.modalbox .modalbox-title {
+    text-align: center;
+}
+[[/code]]

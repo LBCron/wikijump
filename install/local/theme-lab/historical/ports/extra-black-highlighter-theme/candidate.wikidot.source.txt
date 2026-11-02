@@ -1,0 +1,450 @@
+[[iftags +テーマ]]
+[[module css]]
+@import url("https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css");
+@import url("https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css");
+#page-title, #breadcrumbs {
+    text-align: center !important;
+}
+
+#page-title {
+    --wght: 900;
+    font-family: var(--header-font);
+    font-weight: 900;
+}
+
+.scp-image-block.block-right {
+    margin: 1em 0 1em 2em;
+}
+
+.scp-image-block > a:first-of-type {
+    background: var(--gradient-header);
+}
+
+.scp-image-block .printuser img.small {
+    width: initial;
+}
+
+.scp-image-block img {
+    min-width: 100%;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+    padding: 0.5em;
+}
+
+#page-content .wikisys--template-dialog div {
+    color: rgb(213,43,38) !important;
+}
+
+div.wikisys--template-dialog-footer > a {
+    color: rgb(198,14,9) !important;
+
+}
+
+[[/module]]
+[[include :scp-jp:component:interwiki-style
+| priority=1
+| theme=https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css
+]]
+
+[[include :scp-jp:component:interwiki-style
+| priority=2
+| theme=https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css
+]]
+[[=]]
+[[module Rate]]
++ これは何?
+ええと、これはBHL用のダークテーマです。
+//もしあなたがお望みなら。//
+[[/=]]
+[[div_ style="border: 0.0625rem solid rgb(var(--swatch-secondary-color));padding: 1em;text-align:center;"]]
++ 使い方
+[[div_ style="filter: invert(1) brightness(110%);display:flex;"]]
+[[image black-highlighter-logo.svg]]
+[[/div]]
+
+任意のwikiで:
+
+[[div class="code"]]
+@@[[include :scp-jp:theme:black-highlighter-theme]]@@
+@@[[include :scp-jp:theme:extra-black-highlighter-theme]]@@
+[[/div]]
+[[/div]]
+-----
+
+[[=]]
++ テーマカラー
+[[/=]]
+
+[[include :scp-jp:component:theme-squares -=-
+| color1-name=Payne's Grey
+| color1-variable=--gray-monochrome
+| color1-info=(66, 66, 72)
+| color1-has-light-text=1
+| color2-name=Rosewood
+| color2-variable=--bright-accent
+| color2-info=(133, 0, 5)
+| color2-has-light-text=1
+| subcolor1-name=Alto
+| subcolor1-variable=--very-light-gray-monochrome
+| subcolor1-info=(215, 215, 215)
+| subcolor2-name=White Smoke
+| subcolor2-variable=--pale-gray-monochrome
+| subcolor2-info=(244, 244, 244)
+| subcolor3-name=Bastille
+| subcolor3-variable=--dark-gray-monochrome
+| subcolor3-info=(48, 48, 52)
+| subcolor3-has-light-text=1
+| subcolor4-name=Buccaneer
+| subcolor4-variable=--medium-accent
+| subcolor4-info=(100, 46, 44)
+| subcolor4-has-light-text=1
+| subcolor5-name=Maroon
+| subcolor5-variable=--dark-accent
+| subcolor5-info=(100, 3, 15)
+| subcolor5-has-light-text=1
+| subcolor6-name=Mango Tango
+| subcolor6-variable=--newpage-color
+| subcolor6-info=(221, 102, 17)
+]]
+
++ 例
+
+[[include component:image-block name=https://scp-jp.github.io/Black-Highlighter/img/logo.svg|caption=SCP財団ロゴ|width=200px]]
+
+水平方向の罫線は5つのハイフン "@@-----@@" で作ることができ、何か(例 引用ブロック)の中に配置されなければページ全体に広がります。このドキュメントを区切る線が罫線です。
+
+-----
+
+見出しは行頭に1~6つの "+" を置くことで作成できます
+
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブ]]
+これはタブです。
+[[/tab]]
+[[tab タブが作られた]]
+見てください、ここにもテキストが。
+
+なんと奇妙な。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+[[/tab]]
+[[tab この空のタブにはなぜか非常に長い名前がついています。何故でしょう？とても奇妙です。]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックで、行頭に"> "を置くことで作成できます。
+>
+> 追加のテキスト
+> -----
+> これは罫線です
+>
+>> 入れ子になった引用ブロック
+
+||~ これは ||~ テーブルです ||
+||作り方は || もう既に ||
+||||知っていますね ||
+
+[[=]]
+[[span style="font-family:var(--body-font); font-size: calc(var(--base-font-size) * 1.25);"]]bodyのフォントは [https://fonts.google.com/specimen/Raleway Raleway]。[[/span]]
+[[span style="font-family:var(--header-font); font-size: calc(var(--base-font-size) * 1.25);"]]ヘッダーと見出しのフォントは [https://fonts.google.com/specimen/Poppins Poppins]。[[/span]]
+[[span style="font-family:var(--mono-font); font-size: calc(var(--base-font-size) * 1.25);"]]等幅フォントは [https://fonts.google.com/specimen/Recursive Recursive]。[[/span]]
+[[/=]]
+[[collapsible show="+ テーマのコードを表示" hide="- テーマのコードを隠す"]]
+[[code type="css"]]
+@supports(display:grid) {
+    :root {
+     /* S-CSS-P Integration */
+     /* If you're making a new CSS theme, please include the following three variables at minimum. */
+     --theme-base: "black-highlighte";
+     /* must be either "nuscp" or "sigma9" */
+     --theme-id: "Extra-BHL-theme";
+     /* set this to the URL of your theme's page - eg for "component:ar-theme", set it to "ar-theme" */
+     --theme-name: "Extra Black Highlighter Theme";
+     /* set this to your theme's full name */
+     /* New Vars */
+     --swatch-menubg-extra-dark-color: 30, 30, 32;
+
+     /* Old Vars */
+     --black-monochrome: 20, 22, 24;
+     --light-pale-gray-monochrome: 250, 250, 250;
+     --bright-accent: var(--pale-accent);
+     /* Primary Theme Colors */
+     --swatch-background: var(--swatch-menubg-black-color);
+     /* Background and Header Colors */
+     --background-gradient-color: 10, 10, 10;
+     --header-gradient-color-bottom: var(--medium-accent);
+     --header-gradient-color-middle: var(--swatch-menubg-black-color);
+     --header-gradient-color-top: var(--swatch-menubg-black-color);
+     /* Primary Text Colors */
+     --swatch-text-light: var(--light-pale-gray-monochrome);
+     --swatch-text-general: var(--swatch-text-light);
+     /* Primary Menu Colors */
+     --swatch-menubg-color: var(--swatch-menubg-black-color);
+     --swatch-menutxt-general-color: var(--swatch-menutxt-light-color);
+     /* Colors for Secondary & Tertiary items like Blockquote and YUI Tabs */
+     --swatch-secondary-color: var(--swatch-menubg-dark-color);
+     --swatch-tertiary-color: var(--swatch-menubg-medium-dark-color);
+     --swatch-alternate-color: var(--swatch-primary);
+
+     /* Text Colors for Secondary & Tertiary items like Sidebar Headers and Top-Bar Menu Text */
+     --swatch-text-secondary-color: var(--swatch-menutxt-light-color);
+     --swatch-text-tertiary-color: var(--swatch-menutxt-light-color);
+
+     /* Primary Header Colors */
+     --swatch-topmenu-border-color: var(--swatch-menubg-black-color);
+     --swatch-topmenu-bg-color: var(--swatch-menubg-extra-dark-color);
+
+     --rating-module-text-color: var(--swatch-text-general);
+     --rating-module-button-color: var(--swatch-text-general);
+     --rating-module-button-cancel-color: 100, 100, 100;
+
+     --ui-wght: 500;
+     --ui-hvr-wght: 600;
+
+     --gradient-header: linear-gradient(to bottom,
+     rgb(var(--header-gradient-color-bottom)) 0%,
+     rgb(var(--header-gradient-color-middle)) 90%,
+     rgb(var(--header-gradient-color-top)) 100%);
+
+     --diagonal-stripes: repeating-linear-gradient(45deg,
+     hsla(0, 0%, 100%, 0),
+     hsla(0, 0%, 100%, 0) 0.25vh,
+     rgba(var(--swatch-menubg-extra-dark-color), 0.1) 0.35vh,
+     rgba(var(--swatch-menubg-extra-dark-color), 0.2) 0.5vh);
+    }
+
+    #main-content {
+     --pagetags-title-text: var(--swatch-text-secondary-color);
+    }
+
+    #header {
+     --search-icon-color: var(--swatch-text-tertiary-color);
+    }
+
+    #top-bar {
+     /* ===DROPDOWN MENU=== */
+     --dropdown-bg-color: var(--swatch-menubg-extra-dark-color), 0.9;
+    }
+
+    ::-moz-selection {
+     background: rgb(var(--swatch-primary-darkest));
+    }
+
+    ::selection {
+     background: rgb(var(--swatch-primary-darkest));
+    }
+
+    body {
+     -webkit-font-smoothing: subpixel-antialiased;
+     -moz-osx-font-smoothing: auto;
+    }
+
+    #search-top-box-input {
+     background-color: rgb(var(--swatch-menubg-extra-dark-color));
+    }
+
+    #account-options {
+     background: var(--gradient-header);
+    }
+
+    #login-status {
+     color: rgba(var(--swatch-menutxt-light-color), 0.5);
+    }
+
+    #login-status ul a {
+     color: rgb(var(--swatch-menutxt-light-color));
+    }
+
+    span.printuser {
+     color: rgb(var(--swatch-menutxt-light-color));
+    }
+
+    .page-rate-widget-box {
+     background: linear-gradient(to bottom,
+     rgba(var(--header-gradient-color-bottom), 0.5) 0%,
+     rgba(var(--header-gradient-color-middle), 0.15) 90%,
+     rgba(var(--header-gradient-color-top), 0.15) 100%);
+     border: 0.0625rem solid rgba(var(--swatch-menubg-medium-color), 0.25);
+    }
+
+    #top-bar div.mobile-top-bar>ul>li>ul>li>a,
+    #top-bar div.top-bar>ul>li>ul>li>a {
+     box-shadow: inset 0 0 0 0.0625rem rgba(var(--swatch-menubg-medium-color), 0.15);
+    }
+
+    #interwiki {
+     background-color: transparent;
+    }
+
+    #interwiki .heading p,
+    #side-bar .heading p,
+    #side-bar .collapsible-block .collapsible-block-link {
+     color: rgb(var(--swatch-menutxt-light-color));
+    }
+
+    blockquote,
+    .blockquote,
+    .code {
+     --swatch-border-color: var(--swatch-menubg-light-color);
+     border-color: rgba(var(--swatch-border-color), 0.25);
+    }
+
+    .yui-navset .yui-nav,
+    .yui-navset .yui-navset-top .yui-nav {
+     --box-shadow: rgb(var(--swatch-primary-darkest));
+     border-color: rgb(var(--swatch-primary-darkest));
+    }
+
+    .yui-navset .yui-nav li,
+    .yui-navset .yui-navset-top .yui-nav li {
+     --box-shadow: rgb(var(--swatch-primary-darkest));
+    }
+
+    .yui-navset .yui-nav a,
+    .yui-navset .yui-navset-top .yui-nav a {
+     background-color: rgb(var(--swatch-menubg-extra-dark-color));
+     color: rgb(var(--swatch-text-general));
+    }
+
+    .yui-navset .yui-nav .selected,
+    .yui-navset .yui-navset-top .yui-nav .selected {
+     background-color: rgb(var(--swatch-primary-darkest));
+    }
+
+    table.wiki-content-table th {
+     background: rgb(var(--swatch-secondary-color));
+    }
+
+    table.wiki-content-table th,
+    table.wiki-content-table tr {
+     border: 0.0625rem solid rgba(var(--swatch-menubg-medium-color), 0.25) !important;
+    }
+
+    table.wiki-content-table td {
+     border: 0.0625rem solid rgba(var(--swatch-menubg-light-color), 0.25) !important;
+    }
+
+    textarea,
+    input.text,
+    input.checkbox,
+    div.note,
+    #lock-info {
+     border: 0.0625rem solid rgba(var(--swatch-menubg-light-color), 0.25);
+     background-color: rgb(var(--swatch-menubg-extra-dark-color));
+     color: rgb(var(--swatch-text-light));
+    }
+
+    .code pre span[class*="hl-"] {
+     -webkit-filter: invert(1) hue-rotate(180deg);
+     filter: invert(1) hue-rotate(180deg);
+    }
+
+    .owindow .modal-body img {
+     background-color: transparent !important;
+    }
+
+    .hovertip {
+     border: 0.0625rem solid rgba(var(--swatch-menubg-light-color), 0.25);
+     background-color: rgb(var(--swatch-menubg-extra-dark-color)) !important;
+     color: rgb(var(--swatch-text-light)) !important;
+    }
+
+    #main-content .page-tags span a:not([href^="/system:page-tags/tag/_"]),
+    #main-content .page-tags span a:visited:not([href^="/system:page-tags/tag/_"]) {
+     color: rgb(var(--swatch-primary-secondary-color));
+    }
+
+    #footer,
+    #license-area {
+     --link-color: var(--swatch-text-tertiary-color);
+     --hover-link-color: var(--swatch-text-tertiary-color);
+     --visited-link-color: var(--swatch-text-tertiary-color);
+     color: rgb(var(--swatch-text-general));
+    }
+
+    div[id*="page-options-bottom"]>a::after {
+     background-color: rgb(var(--swatch-text-secondary-color));
+    }
+
+    /* ===BUTTONS=== */
+    div[id*="page-options-bottom"]>a::after {
+     background-color: rgb(var(--swatch-text-tertiary-color));
+    }
+}
+
+[[/code]]
+[[/collapsible]]
+[[/iftags]]
+[[include :scp-jp:component:bhl-dark-sidebar]]
+[[module css]]
+@import url("https://pseudo-scp-jp.wdfiles.com/local--code/theme%3Aextra-black-highlighter-theme/1")
+[[/module]]
+[[include :scp-jp:component:interwiki-style
+| priority=3
+| theme=https://pseudo-scp-jp.wdfiles.com/local--code/theme%3Aextra-black-highlighter-theme/1
+]]
+
+[[module CSS]]
+/* SCP-JP Wikidot page history: keep the history option row within the mobile viewport. */
+#history-form-1>table>tbody>tr:first-child>td:nth-of-type(2){grid-template-columns:repeat(3,1fr)}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot BHL credit otherwise correction: keep the back link on one line in the otherwise credit dialog. */
+[id*=u-credit] div.credit-back a{white-space:nowrap;flex-shrink:0}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot extra-black-highlighter-theme top bar labels: keep top navigation labels whole at narrow widths. */
+#top-bar .top-bar>ul>li>a,#top-bar .mobile-top-bar>ul>li>a{word-break:keep-all}
+[[/module]]

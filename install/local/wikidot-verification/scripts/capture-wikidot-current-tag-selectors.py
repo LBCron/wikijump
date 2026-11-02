@@ -84,7 +84,7 @@ def fetch_page_content(site_name: str, fullname: str) -> tuple[str, str]:
             if content is None:
                 raise RuntimeError("saved page response lacks #page-content")
             return url, str(content)
-        except Exception as error:  # noqa: BLE001 - retries preserve final cause
+        except Exception as error:
             last_error = error
             if attempt < 4:
                 time.sleep(2)
@@ -248,7 +248,7 @@ def main() -> int:
             for page in reversed(created_pages):
                 try:
                     page.destroy()
-                except Exception as error:  # noqa: BLE001 - retain cleanup receipt
+                except Exception as error:
                     cleanup_errors.append(f"{page.fullname}: {type(error).__name__}: {error}")
 
     artifact = {

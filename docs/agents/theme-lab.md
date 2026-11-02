@@ -179,6 +179,15 @@ applies only to the default checkout root; callers that pass their own root get
 no fallback. Do not copy shared evidence into the checkout
 (`src/evidence-roots.mjs`).
 
+A clean checkout gets its authority evidence from the authority object store
+with `install/local/theme-lab/scripts/restore-checkout-authority-evidence.sh`.
+The restore inventory is derived at run time from the tracked
+`adaptation-authority.json` and the store
+(`scripts/derive-authority-inventory.mjs`), so an adaptation-ledger rebind
+needs only the ledger change and an ingest of the new evidence into the store.
+No inventory file is committed and no hash is re-pinned. See
+`install/local/theme-lab/publication/CURRENT-HEAD-AUTHORITY-EVIDENCE.md`.
+
 Once a verdict is recorded (an accept/review note with SHA references),
 keep the verdict, the final package, the final run contract, and the
 blobs they reference. Superseded iterations go: older canary versions,

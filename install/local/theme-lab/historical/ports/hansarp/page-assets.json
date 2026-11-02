@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "slug": "theme:hansarp",
+  "mode": "Wikidot page attachments; upload each named file to this theme page before publication",
+  "assets": [
+    {
+      "filename": "hansarplogo.png",
+      "sha256": "7606a8868385d21bbad3105808e7c117017ddbdd91b719f2063471de7b0a5503",
+      "bytes": 20766,
+      "asset_file": "7606a8868385d21bbad3105808e7c117017ddbdd91b719f2063471de7b0a5503.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-42-9f6d/hansarplogo.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-42-9f6d/hansarplogo.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "dependency_decisions": [
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "hansarplogo.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-42-9f6d/hansarplogo.png"
+      ],
+      "sha256": "7606a8868385d21bbad3105808e7c117017ddbdd91b719f2063471de7b0a5503",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ]
+}

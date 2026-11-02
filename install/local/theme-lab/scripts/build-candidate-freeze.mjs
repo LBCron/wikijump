@@ -39,7 +39,7 @@ import {fileURLToPath, pathToFileURL} from 'node:url';
 import {candidateIdentity} from '../ports/scripts/candidate-identity.mjs';
 import {assertPublishablePackage} from '../src/adaptation-authority.mjs';
 import {requireDeepwellRuntimeIdentity} from '../src/deepwell-runtime-identity.mjs';
-import {framerailSourceFingerprintSync} from '../src/framerail-source-fingerprint.mjs';
+import {framerailSourceFingerprintSyncMemoized} from '../src/framerail-source-fingerprint-memo.mjs';
 import {resolveExistingContainedFile} from '../src/package-path.mjs';
 import {frozenCandidateSetSha256, validatePublicationCandidateSet} from '../src/publication-candidate-freeze.mjs';
 
@@ -332,7 +332,7 @@ export function buildCandidateFreeze({root = THEME_LAB, generatedAt = null, read
   const bhl = readJson(root, artifactPath('bhl-option-authority'), 'BHL option authority');
   context.sourceAudit = readJson(root, artifactPath('source-dependency-audit'), 'Source-dependency audit');
 
-  const framerail = framerailSourceFingerprintSync(repoRoot);
+  const framerail = framerailSourceFingerprintSyncMemoized(repoRoot);
   if (expectFramerailFingerprint && expectFramerailFingerprint !== framerail) {
     addFinding(context, 'expected-framerail-mismatch', 'framerail', `expected ${expectFramerailFingerprint} but this checkout computes ${framerail}`);
   }

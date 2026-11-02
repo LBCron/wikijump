@@ -14,9 +14,6 @@ export const EMAIL_TOKEN_LENGTH = 48
 
 const EMAIL_TOKEN_PATTERN = /^[A-Za-z0-9]{48}$/
 
-// The shape every issued token and grant has. Used to keep malformed
-// input out of the redemption RPCs; the backend remains the authority on
-// whether a well-formed token redeems.
 export const isEmailTokenWellFormed = (token) =>
   typeof token === "string" && EMAIL_TOKEN_PATTERN.test(token)
 

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "slug": "theme:wikifot",
+  "mode": "Wikidot page attachments; upload each named file to this theme page before publication",
+  "assets": [
+    {
+      "filename": "table.png",
+      "sha256": "61d58db78f6aec50335ca228add57a43332a69a01078beb3235b39645452057a",
+      "bytes": 17211,
+      "asset_file": "61d58db78f6aec50335ca228add57a43332a69a01078beb3235b39645452057a.png",
+      "source_urls": [
+        "https://scpaiueouiuiuiui.wjfiles.localhost:18443/local--resized-images//table.png/medium.jpg"
+      ],
+      "acquired_from": "https://scp-wiki.wdfiles.com/local--files/theme:wikifot/table.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "dependency_decisions": [
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "table.png",
+      "source_urls": [
+        "https://scpaiueouiuiuiui.wjfiles.localhost:18443/local--resized-images//table.png/medium.jpg"
+      ],
+      "sha256": "61d58db78f6aec50335ca228add57a43332a69a01078beb3235b39645452057a",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ]
+}

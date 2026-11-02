@@ -194,7 +194,7 @@ pub(super) fn validate_site_icon_source(
     ));
 }
 
-#[allow(dead_code)] // TODO
+#[allow(dead_code)]
 const DEFAULT_FORUM_PER_PAGE_DISCUSSION: bool = false;
 
 impl SiteService {
@@ -219,21 +219,17 @@ impl SiteService {
     ) -> Result<CreateSiteOutput> {
         let txn = ctx.transaction();
 
-        // Normalize slug.
         normalize(&mut slug);
 
         let make_error =
             || Error::new(format!("failed to create site '{}'", slug), ErrorType::Site);
 
-        // Check for slug conflicts.
         Self::check_conflicts(ctx, &slug, "create")
             .await
             .or_raise(make_error)?;
 
-        // Validate locale.
         validate_locale(&locale)?;
 
-        // Insert into database
         let model = site::ActiveModel {
             slug: Set(slug.clone()),
             name: Set(name),
@@ -250,8 +246,6 @@ impl SiteService {
             ..Default::default()
         };
         let site = model.insert(txn).await.or_raise(make_error)?;
-
-        // Create site user, and add relation
 
         let user = UserService::create(
             ctx,
@@ -270,11 +264,6 @@ impl SiteService {
         .await
         .or_raise(make_error)?;
 
-        // Some fields can only be set in update after creation.
-        // The biography check constraint requires NULL or a non-empty
-        // value, and site creation legitimately carries an empty
-        // description (the creation form has no description field), so
-        // an empty description must become no biography at all.
         UserService::update(
             ctx,
             Reference::Id(user.user_id),
@@ -309,7 +298,6 @@ impl SiteService {
         .await
         .or_raise(make_error)?;
 
-        // Build and return
         Ok(CreateSiteOutput {
             site_id: site.site_id,
             site_user_id: user.user_id,
@@ -317,7 +305,6 @@ impl SiteService {
         })
     }
 
-    /// Update site information.
     pub async fn update(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
@@ -328,8 +315,6 @@ impl SiteService {
     ) -> Result<SiteModel> {
         let txn = ctx.transaction();
 
-        // Site slugs use the same canonical representation on create and
-        // update. This must happen before audit capture and hostname policy.
         if let Maybe::Set(slug) = &mut input.slug {
             normalize(slug);
         }
@@ -469,7 +454,6 @@ impl SiteService {
             )
         };
 
-        // Gather data for audit log entry
         {
             let mut previous_fields = SiteFields::default();
             let mut changed_fields = SiteFields::default();
@@ -579,7 +563,6 @@ impl SiteService {
             .await?;
         }
 
-        // For updating the corresponding site user
         let mut site_user_body = UpdateUserBody::default();
         let site_user_id = RelationService::get_site_user_id_for_site(ctx, site.site_id)
             .await
@@ -652,7 +635,6 @@ impl SiteService {
         }
 
         if let Maybe::Set(preferred_domain) = input.preferred_domain {
-            // Disallow preferred domains for the default site (www)
             if site.slug == DEFAULT_SITE_SLUG && preferred_domain.is_some() {
                 error!("Cannot set a preferred domain for the default site");
                 bail!(Error::new(
@@ -661,9 +643,6 @@ impl SiteService {
                 ));
             }
 
-            // TODO expire redis cache on change to domains
-
-            // Ensure that the custom domain exists and belongs to this site
             if let Some(domain) = &preferred_domain {
                 match DomainService::site_from_custom_domain_optional(ctx, domain)
                     .await
@@ -742,7 +721,6 @@ impl SiteService {
         ctx.defer_public_content_cache_invalidate_site(site.site_id)
             .or_raise(make_error)?;
 
-        // Update site
         model.updated_at = Set(Some(now()));
         model.settings_revision = Set(site.settings_revision + 1);
         let new_site = model.update(txn).await.or_raise(make_error)?;
@@ -757,12 +735,10 @@ impl SiteService {
         .await
         .or_raise(make_error)?;
 
-        // Update site user
         UserService::update(ctx, Reference::Id(site_user_id), ip_address, site_user_body)
             .await
             .or_raise(make_error)?;
 
-        // Run verification afterwards if the slug changed
         if site.slug != new_site.slug {
             let (result1, result2) = join!(
                 AliasService::verify(ctx, AliasType::Site, &site.slug),
@@ -771,15 +747,9 @@ impl SiteService {
             raise_multiple!(result1, result2; make_error);
         }
 
-        // Return
         Ok(new_site)
     }
 
-    /// Updates the slug for a site, leaving behind an alias.
-    ///
-    /// No alias row checks are performed because of a dependency order requiring
-    /// the user's slug to have been updated before aliases can be added.
-    /// Instead, alias row verification occurs manually afterwards.
     async fn update_slug(
         ctx: &ServiceContext<'_>,
         site: &SiteModel,
@@ -830,9 +800,6 @@ impl SiteService {
                 ));
             }
 
-            // Swap alias with site's current slug
-            //
-            // Don't return a future, nothing to do after
             Some(alias) => {
                 debug!("Swapping slug between site and alias");
                 AliasService::swap(ctx, alias.alias_id, old_slug)
@@ -840,10 +807,7 @@ impl SiteService {
                     .or_raise(make_error)?;
             }
 
-            // Return future that creates new alias at the old location
             None if is_reserved_platform_hostname_slug(old_slug) => {
-                // Legacy data may predate this reservation. Release the
-                // infrastructure hostname instead of retaining it as an alias.
                 info!(
                     "Releasing reserved platform hostname slug '{old_slug}' during site rename"
                 );
@@ -852,11 +816,6 @@ impl SiteService {
             None => {
                 debug!("Creating site alias for {old_slug}");
 
-                // Add site alias for old slug.
-                //
-                // We don't verify here because the site row hasn't been
-                // updated yet, so we instead run AliasService::verify()
-                // ourselves at the end of site updating (see above).
                 AliasService::create_for_pending_target_rename(
                     ctx,
                     CreateAlias {
@@ -864,7 +823,7 @@ impl SiteService {
                         alias_type: AliasType::Site,
                         target_id: site.site_id,
                         created_by: user_id,
-                        bypass_filter: true, // sites don't have filters
+                        bypass_filter: true,
                         ip_address,
                     },
                 )
@@ -894,18 +853,11 @@ impl SiteService {
 
         let make_error = || Error::new("failed to get site", ErrorType::Site);
 
-        // If slug, determine if this is a site alias.
-        //
-        // This uses separate queries rather than a join.
-        // See UserService::get_optional() for more information.
         if let Reference::Slug(ref slug) = reference
             && let Some(alias) = AliasService::get_optional(ctx, AliasType::Site, slug)
                 .await
                 .or_raise(make_error)?
         {
-            // If present, this is the actual site. Proceed with SELECT by id.
-            // Rewrite reference so in the "real" site search
-            // we locate directly via site ID.
             reference = Reference::Id(alias.target_id);
         }
 
@@ -951,11 +903,6 @@ impl SiteService {
             .ok_or_raise(|| Error::new("site does not exist", ErrorType::SiteNotFound))
     }
 
-    /// Gets the site ID from a reference, looking up if necessary.
-    ///
-    /// Convenience method since this is much more common than the optional
-    /// case, and we don't want to perform a redundant check for site existence
-    /// later as part of the actual query.
     pub async fn get_id(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
@@ -964,7 +911,6 @@ impl SiteService {
         match reference {
             Reference::Id(id) => Ok(id),
             Reference::Slug(slug) => {
-                // For slugs we pass-through the call so that alias handling is done.
                 let SiteModel { site_id, .. } = Self::get(ctx, Reference::Slug(slug))
                     .await
                     .or_raise(make_error)?;
@@ -974,7 +920,6 @@ impl SiteService {
         }
     }
 
-    /// Gets site-wide forum settings.
     pub async fn get_forum_settings(
         ctx: &ServiceContext<'_>,
         reference: Reference<'_>,
@@ -994,9 +939,6 @@ impl SiteService {
         })
     }
 
-    /// Checks to see if a site already exists at the slug specified.
-    ///
-    /// If so, this method fails with `ErrorType::SiteExists`. Otherwise it returns nothing.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         slug: &str,
@@ -1136,8 +1078,6 @@ mod tests {
             "https://scp-jp.wikidot.com/local--wp8icon/wp8icon.png",
             SiteIconSourceKind::Windows,
         ));
-        // Another site's tile, a non-tile path, and non-imported sites
-        // stay rejected.
         assert!(!is_site_owned_icon_source(
             "scp-jp",
             true,

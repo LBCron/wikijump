@@ -37,6 +37,10 @@ if [[ ! -d "${STORE}" ]]; then
   echo "Theme Lab evidence store not found: ${STORE} (set THEME_LAB_EVIDENCE_STORE)" >&2
   exit 1
 fi
-exec python3 -I "${HERE}/campaign-evidence-store.py" \
+python3 -I "${HERE}/campaign-evidence-store.py" \
   --mode campaign-restore --checkout-root "${REPO}" --store-root "${STORE}" \
   --inventory "${MANIFEST}" --inventory-sha256 "${MANIFEST_SHA}" --apply --link
+# Keep the restored evidence out of git status: every path in the same
+# pinned manifest the restore just verified joins the clone's info/exclude
+# (mirrors the authority restore's exclude step).
+"${HERE}/exclude-restored-campaign-evidence.sh" "${REPO}" "${MANIFEST}"

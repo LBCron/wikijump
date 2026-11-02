@@ -1,13 +1,3 @@
-/**
- * Roster import manifest tests.
- *
- * Every capture below is a HAND-WRITTEN FIXTURE whose user objects mirror
- * the shapes documented in the wikidot.py `llms.txt` reference
- * (AbstractUser id/name/unix_name/avatar_url, PageVote user+value,
- * SiteMember user+joined_at). They are not evidence and never stood in for
- * a live roster: they pin the deterministic transformer contract the live
- * acquisition lane (#2205 voters, #2172 watchers, #2073 members) will feed.
- */
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -58,8 +48,6 @@ test("voter manifests combine the baseline-free delta rows deterministically", (
   const first = buildRosterManifest(capture);
   const second = buildRosterManifest(capture);
   assert.equal(first.manifest_sha256, second.manifest_sha256);
-  // Row order is canonical even when the capture lists rows differently;
-  // the provenance hash still binds the exact input bytes.
   const shuffled = voterCapture([...capture.pages].reverse().map((entry) => ({
     page: entry.page,
     votes: [...entry.votes].reverse(),
@@ -175,7 +163,6 @@ test("joined_at keeps the earliest instant regardless of source spelling", () =>
     admins: [],
   };
   const manifest = buildRosterManifest(capture);
-  // The moderator timestamp is the later instant (2024-06-01T04:00:00Z).
   assert.equal(manifest.rows[0].joined_at, "2024-06-01T00:00:00.000Z");
   const respelled = {
     ...capture,

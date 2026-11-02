@@ -1,8 +1,0 @@
-src/services/render/list_pages/scanner.rs:1902:29: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase
-src/services/render/list_pages/scanner.rs:1902:29: replace + with * in find_list_pages_module_matches_with_cursor_work_context_lowercase
-src/services/render/list_pages/scanner.rs:1901:29: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase
-src/services/render/list_pages/scanner.rs:1901:29: replace + with * in find_list_pages_module_matches_with_cursor_work_context_lowercase
-src/services/render/list_pages/scanner.rs:1900:29: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase
-src/services/render/list_pages/scanner.rs:1900:29: replace + with * in find_list_pages_module_matches_with_cursor_work_context_lowercase
-src/services/render/list_pages/scanner.rs:1899:29: replace + with - in find_list_pages_module_matches_with_cursor_work_context_lowercase
-src/services/render/list_pages/scanner.rs:1899:29: replace + with * in find_list_pages_module_matches_with_cursor_work_context_lowercase

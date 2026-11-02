@@ -46,25 +46,16 @@ impl Error {
         }
     }
 
-    /// Returns a unique integer code for this type of error.
-    ///
-    /// See `ErrorType::code()` for details.
     #[inline]
     pub fn code(&self) -> i32 {
         self.error_type.code()
     }
 
-    /// Returns a basic summary of what this error is meant to represent.
-    ///
-    /// See `ErrorType::summary()` for details.
     #[inline]
     pub fn summary(&self) -> &'static str {
         self.error_type.summary()
     }
 
-    /// Returns auxiliary data for this error.
-    ///
-    /// See `ErrorType::data()` for details.
     #[inline]
     pub fn data(&self) -> JsonValue {
         self.error_type.data()

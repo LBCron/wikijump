@@ -1,9 +1,3 @@
-/*
- * services/render/replay/mod.rs
- *
- * Read-only corpus render convergence controller.
- */
-
 mod cluster;
 mod database;
 mod ddmin;
@@ -398,9 +392,6 @@ fn minimization_probe_concurrency(
     requested: usize,
 ) -> usize {
     if cluster.signature.class == "timeout" {
-        // Wall-clock timeout probes contend for CPU when run together. That
-        // can turn a fast candidate into a false reproducer which immediately
-        // passes or changes class during the required single final check.
         1
     } else {
         requested.max(1)

@@ -18,20 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Differential coverage for the batched ListPages view-permission path.
-//!
-//! `filter_viewable_rows` no longer asks `check_user_can` about every row. It
-//! resolves the pages a viewer has authored in one query, shares one site-wide
-//! permission derivation across the rest, and probes each distinct page category
-//! once. `PageAuthor` is the only page-scoped virtual role and it requires a live
-//! page attribution, so for a page the viewer has not authored a page reference
-//! cannot change the answer.
-//!
-//! These tests pin that equivalence against the per-page path, which stays the
-//! reference implementation, and they pin the property that makes the sharing
-//! safe: an authored page is visible to its author while its siblings in the same
-//! category are not.
-
 #[macro_use]
 mod common;
 
@@ -66,7 +52,6 @@ fn next_n() -> u64 {
     FIXTURE_COUNTER.fetch_add(1, Ordering::Relaxed)
 }
 
-/// A page plus the category the render scan reads for it.
 #[derive(Clone, Copy, Debug)]
 struct ScannedPage {
     page_id: i64,
@@ -96,8 +81,6 @@ async fn page_scoped_view_check(
     .expect("page-scoped view check should resolve")
 }
 
-/// The reference implementation: one page-scoped check per page, as the render
-/// scan performed before it was batched.
 async fn reference_view_decisions(
     ctx: &ServiceContext<'_>,
     viewer_user_id: Option<i64>,
@@ -111,9 +94,6 @@ async fn reference_view_decisions(
     decisions
 }
 
-/// The production batching path, called directly so the attribution gate, the
-/// per-site grouping and the category memo are all the real code rather than a
-/// copy that could drift from it.
 async fn batched_view_decisions(
     ctx: &ServiceContext<'_>,
     viewer_user_id: Option<i64>,
@@ -140,7 +120,6 @@ struct Fixture {
     category_id: i64,
     other_category_id: i64,
     user_with_view: i64,
-    /// Holds no page:view anywhere, but is a site member and authored one page.
     user_without_view: i64,
     user_no_roles: i64,
     pages: Vec<ScannedPage>,
@@ -157,10 +136,6 @@ async fn create_role(
     create_role_maybe_virtual(ctx, site_id, name, permissions, false).await
 }
 
-/// `is_virtual` matters here: `PageAuthor` is only ever applied when the site
-/// actually carries a virtual role row with that name. A site created inside a
-/// test has no seeded roles at all, so the fixture has to provide the virtual
-/// role itself or the page-scoped path is never exercised.
 async fn create_role_maybe_virtual(
     ctx: &ServiceContext<'_>,
     site_id: i64,
@@ -297,7 +272,6 @@ impl Fixture {
         let user_without_view = create_user(ctx, n, "without-view").await;
         let user_no_roles = create_user(ctx, n, "no-roles").await;
 
-        // Positive control: view granted everywhere.
         let viewer_role = create_role(
             ctx,
             site_id,
@@ -311,9 +285,6 @@ impl Fixture {
         .await;
         grant_role(ctx, site_id, user_with_view, viewer_role).await;
 
-        // The page-scoped virtual role, matching the seeded `page-author` role.
-        // Without it the attributed page would be denied on both paths and the
-        // leak check would prove nothing.
         create_role_maybe_virtual(
             ctx,
             site_id,
@@ -327,8 +298,6 @@ impl Fixture {
         )
         .await;
 
-        // user_without_view must be a member, because PageAuthor is only
-        // considered for site members, yet it holds no page:view at all.
         RelationService::create_site_member(
             ctx,
             CreateSiteMember {
@@ -344,10 +313,6 @@ impl Fixture {
         .await
         .expect("site membership should be created");
 
-        // Three pages per category, plus default-category pages, so a
-        // category-scoped memo has something to collide on. Slugs are unique per
-        // call because a page id is a hash of the slug, so a repeated slug would
-        // collide on the primary key rather than on anything this test controls.
         let tag = Uuid::new_v4();
         let mut pages = Vec::new();
         for i in 0..3 {
@@ -466,8 +431,6 @@ async fn a_warm_category_cache_never_changes_a_decision() {
     let f = Fixture::setup(&runner).await;
     let ctx = runner.context();
 
-    // One shared cache across repeated batches, as the render scan does when it
-    // pages through a result set larger than its scan cap.
     let mut category_scoped_cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
     let viewer = Some(f.user_with_view);
     let expected = reference_view_decisions(ctx, viewer, f.site_id, &f.pages).await;
@@ -532,8 +495,6 @@ async fn category_scoped_view_permissions_gate_the_batched_path() {
     let f = Fixture::setup(&runner).await;
     let ctx = runner.context();
 
-    // A role granting view only inside the fixture's own category must not leak
-    // to the other category or to the default category.
     let scoped_role = create_role(
         ctx,
         f.site_id,

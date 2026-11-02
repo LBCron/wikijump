@@ -18,15 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Governs the relation which tracks "site users".
-//!
-//! These are special users (of type `site`) which represent a site as a whole.
-//! They can be messaged to send messages to staff, and can be utilized to send
-//! messages on behalf of a site (for instance, a ban notification).
-//!
-//! This relation describes which site a site-user corresponds to.
-//! As such, it is an invariant that all users linked here are of the type `site`.
-
 use super::RelationService;
 use super::structs::{
     RelationDirection, RelationObject, RelationReference, relation_type_condition,
@@ -66,8 +57,6 @@ impl RelationService {
             )
         };
 
-        // User to be added must of type 'site'
-        // Which must necessarily be a Wikijump user
         let user = UserService::get_real(ctx, Reference::Id(user_id))
             .await
             .or_raise(make_error)?;
@@ -85,11 +74,6 @@ impl RelationService {
                 ErrorType::BadRequest
             ));
         }
-
-        // Site <--> User must be 1:1
-        //
-        // This means there should be no results for both
-        // this site_id -> anything and this user_id -> anything.
 
         let sites = RelationService::get_entries(
             ctx,
@@ -199,10 +183,6 @@ async fn get_relation(
     ctx: &ServiceContext<'_>,
     condition: Condition,
 ) -> Result<RelationModel> {
-    // We implement our own query since it's 1:1 and we
-    // don't have to worry about multiple results like
-    // for get_entries().
-
     let make_error = || {
         Error::new(
             "failed to get site user relation data",

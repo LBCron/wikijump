@@ -1,19 +1,4 @@
 #!/usr/bin/env node
-// V4 oracle-fixture check (agent-runnable): render each Wikidot Oracle
-// entry's wikitext snippet through the local runtime and compare the DOM
-// signature against the frozen live-Wikidot capture in the entry.
-//
-// Requires the local lab runtime (Deepwell RPC) and an oracle JSONL file.
-// Fixture pages are created/updated under a reserved slug prefix on the
-// target site and reused across runs.
-//
-// Usage:
-//   oracle-fixture-check.mjs --oracle <entries.jsonl> --output <verdict.json> \
-//     [--api-url http://127.0.0.1:2747/jsonrpc] [--site-id 6000002] \
-//     [--slug-prefix oracle-fixture-] [--run-id <id>] \
-//     [--admin-email admin@wikijump] [--admin-pass ...]
-//
-// Exit codes: 0 all pass, 1 failures, 2 structural (skipped entries/crash).
 
 import fs from 'node:fs';
 
@@ -76,7 +61,6 @@ async function rpc(args, method, params, sessionToken = null) {
 }
 
 function fixtureSlug(args, entry) {
-  // sentinel id when present, else the oracle entry id (already unique).
   const sentinel = entry.live_pilot_provenance?.sentinel_id;
   const base = (sentinel ?? entry.oracle_entry_id).toLowerCase().replace(/[^a-z0-9-]+/g, '-');
   return `${args.slugPrefix}${base}`;

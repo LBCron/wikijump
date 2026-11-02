@@ -1,0 +1,161 @@
+{
+  "slug": "theme:pataphysics",
+  "en_source_sha256": "b4961dbb0f02d987d5084bc0803f7c4a000cc03843c623f454b213ca69d852a8",
+  "en_updated_at": "2026-04-12T05:16:06+00:00",
+  "en_entity_uuid": "6bad84b5-57d2-4951-8613-01e988f258e6",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "010bec1cd52b910ae33ba244dd04b5141304142ba7210c53f3347ef68944504a",
+  "jp_previous_updated_at": "2026-09-25T03:22:03+00:00",
+  "jp_previous_entity_uuid": "8112e551-59c5-459c-9bbd-f324f880b922",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:pataphysics",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:pataphysics",
+    "title": "'Pataphysics Department Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "b4961dbb0f02d987d5084bc0803f7c4a000cc03843c623f454b213ca69d852a8",
+      "updated_at": "2026-04-12T05:16:06+00:00",
+      "entity_uuid": "6bad84b5-57d2-4951-8613-01e988f258e6",
+      "tags": [
+        "_cc",
+        "pataphysics-dept",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 253,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:pataphysics"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "010bec1cd52b910ae33ba244dd04b5141304142ba7210c53f3347ef68944504a",
+      "updated_at": "2026-09-25T03:22:03+00:00",
+      "entity_uuid": "8112e551-59c5-459c-9bbd-f324f880b922",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:pataphysics"
+      },
+      "revisions": 40
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive",
+    "existing_jp_rebase": {
+      "previous_sha256": "c2de53df254304f9cc88cb9955003855ecaafb336b24a11355dbd51ae832796b",
+      "previous_snapshot": "existing-jp-pre-rebase-20261005.wikidot.txt",
+      "current_revision": 40,
+      "current_updated_at": "2026-09-25T03:22:03+00:00",
+      "current_sha256": "010bec1cd52b910ae33ba244dd04b5141304142ba7210c53f3347ef68944504a",
+      "diff_assessment": "provenance refresh; source freshness audit found no theme CSS/runtime behavior delta"
+    }
+  },
+  "dependencies": {
+    "slug": "theme:pataphysics",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:info:start",
+      ":scp-wiki:info:end",
+      ":scp-wiki:theme:pataphysics",
+      "component:image-block"
+    ],
+    "en_external_dependencies": [
+      "https://en.wikipedia.org/wiki/%27Pataphysics",
+      "https://fonts.bunny.net/css2?family=Carrois+Gothic&display=swap",
+      "https://google.com",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Apataphysics/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Apataphysics/pataphysics-header-updated.png",
+      "https://scp-wiki.wikidot.com/#|A",
+      "https://scp-wiki.wikidot.com/local--files/theme:pataphysics/pataphysicslogo-ani.svg"
+    ],
+    "jp_includes": [
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start",
+      ":scp-jp:credit:end",
+      ":scp-jp:theme:pataphysics",
+      "component:image-block"
+    ],
+    "jp_external_dependencies": [
+      "http://ja.scp-wiki.net/",
+      "https://fonts.googleapis.com/css2?family=Carrois+Gothic&display=swap",
+      "https://google.com",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A4053112-134-dh1l/pataphysicslogo-ani.svg",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A4053112-135-dh1g/pataphysics-header-updated.png",
+      "https://scp-jp.wdfiles.com/local--code_/theme%3Apataphysics/1"
+    ],
+    "base_family": "independent"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/pataphysics/assets.json",
+  "asset_dependency_decision_count": 5,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "6fdcaec9c6a74cf2c3c0c75ac4fac85f010c6733d3fcdf10d3312d8f5470c07b",
+    "jp_overrides_sha256": "ce5d104cb01a3b72405e3e9da580961c1586cab24391dfded0cbaeda09160cbb",
+    "semantic_css_sha256": "488c6a2557a1928cbb479858835640c03aa5e6fbf1fa74084272b584c218ffeb",
+    "canonical_override_sha256": "f2564149b7e1badc45469f5741677f34be64b49660b6ba9940cd1db22696e747",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "30d6265ae0b68e73dc001f627ecd4ebe74778924e8efe924d93003a9f0f352b6",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "d4f90bec162a7965470c368d1b551a152d837540ebf325be5961e6e9157b8fa4",
+      "active_tags": [],
+      "candidate_source_sha256": "626144809c1f3056382d7e0a2af1a8bdaafdf221477536add3cc0eaddc7bcf5d",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 1,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "0be6fc9252a367bd01997ed80d6f454c7cb6cdf19ab202307a9178b84ad53010",
+      "asset_receipt_path": "assets.json",
+      "assets": 3,
+      "imports": 2,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

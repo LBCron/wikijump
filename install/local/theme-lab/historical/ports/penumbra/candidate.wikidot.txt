@@ -1,0 +1,287 @@
+
+
+[[>]]
+**Rateモジュール:**
+[[module Rate]]
+
+**Creditモジュール:**
+[[/>]]
+
+
+あなたの記事に関する情報
+
+
+
+これは、[[[theme:paperstack|Paperstackテーマ]]]をベースにEstrellaYoshteによって作成されたテーマです。
+
+このテーマを使用するには、次のテキストをページ最上部にコピーしてください:
+
+> @@@@
+
+{{[[include]]}}の後にCSSモジュールを配置することで、タイトル・サブタイトル・ヘッダーロゴ・アクセントカラーを変更することもできます:
+
+[[div class="darkbox" style="font-family:monospace;"]]
+:root {
+@@  --header-title: "サイトタイトル";@@
+@@  --header-subtitle: "サイトタブタイトル";@@
+@@  --lgurl: url("ロゴの画像ファイルのURL");@@
+@@  --accentColor: アクセントカラー;@@
+} 
+[[/div]]
+
+デフォルトでは、アクセントカラーは##1EB5E8|#1EB5E8##です。
+
+------
+
+
+
+分割線はハイフンを5つ並べることで作成できます。引用ブロックなどの内部になければ、ページの横幅全体に広がります。このページでセクションを区切っているのが分割線です。
+
+見出しは、1つから6つの"+"を行頭に挿入することで表示できます。
+
+@@ @@
+@@ @@
+@@ @@
+@@ @@
+
+[[collapsible show="折りたたみ - ここをクリック" hide="折りたたみ - ここをクリック"]]
+
++ 見出し1
+
+++ 見出し2
+
++++ 見出し3
+
+++++ 見出し4
+
++++++ 見出し5
+
+++++++ 見出し6
+
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブ]]
+これはタブです
+[[/tab]]
+[[tab タブ]]
+ここにもテキストが！
+
+面白いですね。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。たくさんのテキストを書くこともできます。[[footnote]]これは脚注です。[[/footnote]]
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+[[/tab]]
+
+[[tab もっと長いタブ]]
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+[[/tab]]
+
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+
+@@ @@
+
+> これは引用ブロックです。"> "を各行の行頭に挿入することで作成できます。
+> 
+> 続きのテキスト
+> -----
+> これは分割線です
+>
+>> ネストされた引用ブロック
+
+@@ @@
+
+||~ これが ||~ テーブルです ||
+|| 使い方は || もう ||
+||||知っているでしょう？ ||
+
+@@ @@
+
+[[div class="darkbox"]]
+{{@@[[div class="darkbox"]]@@}}
+[[/div]]
+
+[[div class="lightbox"]]
+{{@@[[div class="lightbox"]]@@}}
+[[/div]]
+
+------
+
+{{sidebox}}は次のようにセットアップできます:
+[[div class="darkbox"]]
+@@[[div class="limit"]]@@ {{<-- sideboxを表示したいエリアの先頭に配置}}
+@@[[div class="anchor"]]@@ {{<-- sideboxを置きたい場所に配置}}
+@@[[div class="sidebox"]]@@
+sidebox内のテキスト
+@@[[/div]]@@
+@@[[/div]]@@
+
+sideboxの左に表示したいテキスト
+
+@@[[/div]]@@ {{<-- sideboxを表示したいエリアの最後に配置}}
+[[/div]]
+
+
+[[collapsible show="例" hide="例"]]
+
+[[div class="limit"]]
+[[div class="anchor"]]
+[[div class="sidebox"]]
+工夫次第で
+[[/div]]
+[[/div]]
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean non molestie nulla. Morbi vitae massa auctor, porta arcu eget, dictum tellus. Etiam scelerisque aliquam ipsum, ac convallis lorem scelerisque eget.
+
+Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; In finibus purus non commodo porttitor. Integer sed felis dui. Nulla nec tincidunt velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+
+@@ @@
+[[/div]]
+
+[[div class="limit"]]
+[[div class="anchor"]]
+[[div class="sidebox"]]
+複数のsideboxを使うことも
+[[/div]]
+[[/div]]
+
+Vivamus sapien sem, gravida non vulputate eu, vestibulum vel lacus. Nulla massa erat, sodales dignissim vehicula non, fringilla id ante. Morbi eleifend lacus non nisl finibus aliquam. Proin tristique, lacus eu varius porttitor, lorem justo ullamcorper massa, sed ultricies elit dolor vitae nisi. Fusce varius nec sapien malesuada luctus. Pellentesque efficitur porttitor turpis sit amet rhoncus.
+
+Sed non sollicitudin nisl. Suspendisse finibus, est et venenatis placerat, diam lorem porttitor elit, ac sollicitudin arcu erat et orci. Curabitur erat mi, congue quis imperdiet ut, fringilla vitae sapien. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Duis nec ante pretium est commodo convallis id a sapien. Morbi sit amet ultricies urna.
+
+@@ @@
+[[/div]]
+
+[[div class="limit"]]
+[[div class="anchor"]]
+[[div class="sidebox"]]
+できるというわけです。
+[[/div]]
+[[/div]]
+
+Ut semper, tellus vel tristique convallis, nulla mi laoreet nisi, eu malesuada ipsum magna sed dolor. Pellentesque nec lorem eu ante tristique efficitur. Sed auctor tortor ipsum. Morbi laoreet interdum scelerisque. Vivamus id enim nisl. Donec vitae leo suscipit, venenatis tortor eget, laoreet diam.
+
+Sed sollicitudin, arcu ut condimentum vulputate, dui diam convallis velit, vitae ultricies leo libero non metus. Vestibulum at aliquam nisi. Aenean molestie tortor orci, ac volutpat magna eleifend vitae. Morbi tristique risus tortor, feugiat efficitur augue imperdiet ut. Aliquam nec urna lacinia, pretium ligula ut, gravida ex.
+[[/div]]
+
+[[/collapsible]]
+
+@@ @@
+{{limit}}ブロックがないと、{{anchor}}ブロックが指定した場所を離れてしまった時にページ全体に波及してしまいます。
+
+**{{sidebox}}は幅1290px以下のウィンドウ/スクリーンでは最小化されます。**(woedenazが作ってくれました！)
+
+------
+
+@@ @@
+
+[[=]]
++++ ヘッダーフォントはJosefin Sans
+bodyはRobotoです。
+@@ @@
+{{等幅フォントはFira Codeです。}}
+[[/=]]
+
+@@ @@
+
+[[footnoteblock]]
+
+------
+
+
+@@ @@
+++ ソースコード:
+
+
+[[div style="display: none"]]
+
+
+
+
+[[/div]]
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

@@ -232,7 +232,9 @@ fn validate_media_attributes(
                 has_allowfullscreen = true;
                 "allowfullscreen".to_owned()
             }
-            "allow" if provider == MediaProvider::Acast && value == "autoplay" => value,
+            "title" => value,
+            "allow" if valid_media_allow_list(&value) => value,
+            "referrerpolicy" if valid_referrer_policy(&value) => value,
             _ => return None,
         };
         output.push((key, value));
@@ -245,6 +247,53 @@ fn validate_media_attributes(
         return None;
     }
     Some(output)
+}
+
+const MEDIA_ALLOW_FEATURES: &[&str] = &[
+    "accelerometer",
+    "autoplay",
+    "clipboard-write",
+    "encrypted-media",
+    "fullscreen",
+    "gyroscope",
+    "modestbranding",
+    "picture-in-picture",
+    "rel",
+    "web-share",
+];
+
+fn valid_media_allow_list(value: &str) -> bool {
+    !value.is_empty()
+        && value.split(';').all(|token| {
+            let token = token.trim();
+            let (feature, granted) = match token.split_once('=') {
+                Some((feature, granted)) => (feature.trim(), Some(granted.trim())),
+                None => (token, None),
+            };
+            !feature.is_empty()
+                && MEDIA_ALLOW_FEATURES.contains(&feature)
+                && granted.is_none_or(|granted| {
+                    !granted.is_empty()
+                        && granted.bytes().all(|byte| {
+                            byte.is_ascii_alphanumeric()
+                                || matches!(byte, b'.' | b'-' | b'_')
+                        })
+                })
+        })
+}
+
+fn valid_referrer_policy(value: &str) -> bool {
+    matches!(
+        value,
+        "no-referrer"
+            | "no-referrer-when-downgrade"
+            | "origin"
+            | "origin-when-cross-origin"
+            | "same-origin"
+            | "strict-origin"
+            | "strict-origin-when-cross-origin"
+            | "unsafe-url"
+    )
 }
 
 fn safe_media_dimension(value: &str) -> bool {

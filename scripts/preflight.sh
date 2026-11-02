@@ -6,7 +6,7 @@
 #
 # The point is to fail here rather than eight minutes into a CI run. Which
 # checks apply is decided by .github/scripts/classify-changes.mjs, the same
-# script ci-gate.yaml uses, so this cannot drift from CI's own idea of what a
+# script the consolidated-validation workflow uses, so this cannot drift from CI's own idea of what a
 # change touches.
 #
 # Usage:
@@ -61,7 +61,6 @@ fi
 
 MERGE_BASE="$(git merge-base HEAD "${BASE}")"
 
-# Uncommitted work counts: this runs before you push, not after you commit.
 CHANGED_PATHS_FILE="$(mktemp)" || {
   echo "preflight: failed to create changed path receipt" >&2
   exit 2
@@ -77,7 +76,7 @@ if ! {
 fi
 mapfile -d '' -t CHANGED_PATHS < "${CHANGED_PATHS_FILE}"
 
-if [[ ${#CHANGED_PATHS[@]} -eq 0 && -z "${ONLY_GROUPS}" ]]; then
+if [[ ${#CHANGED_PATHS[@]} -eq 0 && -z "${ONLY_GROUPS}" && "${LIST}" != true ]]; then
   echo "preflight: no changes against ${BASE}; nothing to check"
   exit 0
 fi
@@ -87,8 +86,6 @@ if ! SELECTED="$(printf '%s\0' "${CHANGED_PATHS[@]}" | node .github/scripts/clas
   exit 2
 fi
 if [[ -n "${ONLY_GROUPS}" ]]; then
-  # An explicit list is authoritative: the named groups run even when the
-  # change-set would not select them, and nothing else runs.
   for requested in ${ONLY_GROUPS//,/ }; do
     if ! grep -q "^${requested}=" <<<"${SELECTED}"; then
       echo "preflight: unknown group in --groups: ${requested}" >&2
@@ -117,9 +114,8 @@ if ! [[ "${JOBS}" =~ ^[0-9]+$ ]]; then
   exit 2
 fi
 
-# The Rust groups shell out to cargo, and the Deepwell test stack spawns
-# sqlx; both live in ~/.cargo/bin, which a non-login shell may not have on
-# PATH. Name the environmental failure here instead of inside a group.
+PREFLIGHT_TARGET_ROOT="${PREFLIGHT_TARGET_ROOT:-${XDG_STATE_HOME:-${HOME}/.local/state}/wikijump/preflight-target}"
+
 if [[ "${LIST}" != true ]]; then
   if { group_selected deepwell || group_selected wws; } && ! command -v cargo >/dev/null 2>&1; then
     echo "preflight: cargo not found on PATH; the Rust check groups need it — run from a login shell or add \$HOME/.cargo/bin to PATH" >&2
@@ -150,14 +146,17 @@ run() {
   fi
 }
 
+failed_check() {
+  local failed
+  for failed in "${FAILED[@]}"; do [[ "${failed}" == "$1" ]] && return 0; done
+  return 1
+}
+
 run_test() {
   local name="$1"; shift
   run "${name}" "${TEST_NETWORK_GUARD}" "$@"
 }
 
-# Exit status 2 means the check has no evidence to judge (for example, no
-# current Theme Lab acceptance campaign exists yet). Report it as INCONCLUSIVE
-# without failing code validation; any other non-zero status still fails.
 run_test_inconclusive_ok() {
   local name="$1"; shift
   if "${LIST}"; then
@@ -181,11 +180,6 @@ run_test_inconclusive_ok() {
   esac
 }
 
-# Jobs mode only: run check functions at once, each in its own log, then
-# replay the logs in the order the functions were given and merge their
-# FAILED / INCONCLUSIVE lists. The group-level parallel runner uses the same
-# pattern one level up. Checks in one call must be independent: no shared
-# build directories, ports, or generated files.
 run_checks_concurrent() {
   local dir fn pid
   dir="$(mktemp -d)" || return 1
@@ -231,22 +225,61 @@ group_contracts() {
   fi
 }
 
-group_theme_lab() {
-  if group_selected theme_lab; then
-    run "Theme Lab tests" scripts/run-browser-test-no-external-network.sh npm --prefix install/local/theme-lab test
+check_theme_lab_tests() {
+  run "Theme Lab tests" scripts/run-browser-test-no-external-network.sh npm --prefix install/local/theme-lab test
+}
+
+theme_lab_archive_selected() {
+  if "${LIST}" || [[ "${PREFLIGHT_THEME_LAB_ARCHIVE:-}" == "always" ]]; then return 0; fi
+  local changed
+  for changed in "${CHANGED_PATHS[@]}"; do
+    case "${changed}" in
+      install/local/theme-lab/*|scripts/preflight.sh) return 0 ;;
+    esac
+  done
+  echo "preflight: Theme Lab archive checks skipped (Sigma-10 historical evidence integrity, current campaign evidence restore, campaign record integrity): no change under install/local/theme-lab/ since ${MERGE_BASE:0:12}; set PREFLIGHT_THEME_LAB_ARCHIVE=always to run them"
+  return 1
+}
+
+check_theme_lab_evidence() {
     run_test "Theme Lab authority evidence restore" install/local/theme-lab/scripts/restore-checkout-authority-evidence.sh
     run_test "Theme Lab adaptation authority" node install/local/theme-lab/ports/scripts/check-adaptation-authority.mjs
+    # The deterministic-packages and Sigma-10 historical checks repeat the
+    # per-package authority check; once it has passed on this tree, they skip
+    # re-hashing the same evidence.
+    local authority_evidence_verified=0
+    if ! "${LIST}" && ! failed_check "Theme Lab authority evidence restore" && ! failed_check "Theme Lab adaptation authority"; then
+      authority_evidence_verified=1
+    fi
     if [[ "${MODE}" == "final" ]]; then
       run_test "Theme Lab Python tests" python3 -m unittest discover -s install/local/theme-lab/tests -p 'test_*.py'
       run_test "Theme Lab maintainable sources" node install/local/theme-lab/ports/scripts/prepare-maintainable-sources.mjs --check
-      run_test "Theme Lab deterministic packages" node install/local/theme-lab/scripts/real-port-regression.mjs --verify-only
+      run_test "Theme Lab deterministic packages" env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED="${authority_evidence_verified}" node install/local/theme-lab/scripts/real-port-regression.mjs --verify-only
       run_test "Sigma-10 source evidence" node install/local/theme-lab/sigma10-migration/check-sources.mjs
-      run_test "Sigma-10 historical evidence integrity" node install/local/theme-lab/sigma10-migration/check-final.mjs --historical-only
-      run_test "Theme Lab current campaign evidence restore" install/local/theme-lab/scripts/restore-checkout-campaign-evidence.sh
-      # W17: completion is a hard PASS/FAIL check, never INCONCLUSIVE. The run
-      # contracts are explicit parameters (shared contracts below; the Freeze-3
-      # successor contract paths plug in here per W17-FILL-SHEET.md at open).
-      run_test "Theme Lab current campaign completion" node install/local/theme-lab/scripts/check-campaign-completion.mjs --run-contract ports/current-acceptance/run-contract-campaign-20261028-s9.json --sigma10-run-contract sigma10-migration/current-campaign/run-contract-campaign-20261028-s10b.json
+      if theme_lab_archive_selected; then
+        run_test "Sigma-10 historical evidence integrity" env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED="${authority_evidence_verified}" node install/local/theme-lab/sigma10-migration/check-final.mjs --historical-only
+        run_test "Theme Lab current campaign evidence restore" install/local/theme-lab/scripts/restore-checkout-campaign-evidence.sh
+        # ALLOC-32 B: the frozen campaign record is verified historically
+        # against its own recorded identities (Check 1, hard PASS/FAIL, never
+        # INCONCLUSIVE); candidate changes are admitted live only with a
+        # complete successor entry (Check 2, --base is the change-set base the
+        # validation receipt carries); runtime drift is reported, not gated
+        # (Check 3). The original live completion checker remains the next
+        # campaign's closure checker and is no longer run post-closure.
+        run_test "Theme Lab campaign record integrity" node install/local/theme-lab/scripts/check-campaign-record-integrity.mjs
+      fi
+      run_test "Theme Lab post-closure changes" node install/local/theme-lab/scripts/check-post-closure-changes.mjs --base "${MERGE_BASE}"
+      run_test "Theme Lab runtime drift report" node install/local/theme-lab/scripts/check-runtime-drift.mjs
+    fi
+}
+
+group_theme_lab() {
+  if group_selected theme_lab; then
+    if "${LIST}" || [[ "${JOBS}" == 1 ]]; then
+      check_theme_lab_tests
+      check_theme_lab_evidence
+    else
+      run_checks_concurrent check_theme_lab_tests check_theme_lab_evidence
     fi
   fi
 }
@@ -271,7 +304,20 @@ check_standing_receipt_tests() {
   run_test "standing receipt tests" node --test 'install/standing/tests/*.test.mjs'
 }
 
+# The specification generator reads the scp-wiki-translation documentation
+# corpus (WIKIDOT_DOCUMENTATION_CORPUS): operator data that exists in no Git
+# repository, so an environment without the corpus (a hosted CI runner) can
+# never get a verdict from it — the generator can only report its evidence
+# absent. Such an environment sets PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1
+# to exclude the check outright instead of failing every run on that absence.
+# A skipped run says so in the log; it does not appear as a check (the same
+# treatment as the Theme Lab archive checks). With the variable unset the
+# check always runs, exactly as before.
 check_wikidot_specification_generator() {
+  if [[ "${PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR:-}" == "1" ]]; then
+    echo "preflight: wikidot specification generator skipped (PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1): the check reads the scp-wiki-translation documentation corpus (WIKIDOT_DOCUMENTATION_CORPUS), operator data that is not available in this environment; unset the variable to run it"
+    return 0
+  fi
   run_test_inconclusive_ok "wikidot specification generator" node scripts/generate-wikidot-specifications.mjs --check
 }
 
@@ -303,7 +349,7 @@ group_verification() {
 group_deepwell_lint() {
   # Clippy beside the test build needs its own target directory: cargo locks
   # a target directory, so a shared one would serialize the two.
-  if [[ "${JOBS}" != 1 ]]; then export CARGO_TARGET_DIR="${REPO_ROOT}/target/preflight-deepwell-lint"; fi
+  if [[ "${JOBS}" != 1 ]]; then export CARGO_TARGET_DIR="${PREFLIGHT_TARGET_ROOT}/deepwell-lint"; fi
   if group_selected deepwell; then
     run "deepwell fmt" cargo fmt --manifest-path deepwell/Cargo.toml --check
     if [[ "${MODE}" == "final" ]]; then
@@ -314,6 +360,10 @@ group_deepwell_lint() {
 }
 
 group_deepwell() {
+  # Beside the lint group, the test build needs its own target directory:
+  # cargo locks a target directory, so a shared one would serialize the
+  # two. The integration runner inherits CARGO_TARGET_DIR from here.
+  if [[ "${JOBS}" != 1 ]]; then export CARGO_TARGET_DIR="${PREFLIGHT_TARGET_ROOT}/deepwell-test"; fi
   if group_selected deepwell && [[ "${MODE}" == "final" ]]; then
     # Nextest partitions, each on its own task-owned stack, side by side.
     run_test "deepwell full tests" env WIKIJUMP_DEEPWELL_TEST_SHARDS="${WIKIJUMP_DEEPWELL_TEST_SHARDS:-12}" node \
@@ -324,7 +374,7 @@ group_deepwell() {
 group_wws() {
   # Beside Deepwell, a Rust group builds in its own target directory: cargo
   # locks a target directory, so a shared one would serialize the groups.
-  if [[ "${JOBS}" != 1 ]]; then export CARGO_TARGET_DIR="${REPO_ROOT}/target/preflight-wws"; fi
+  if [[ "${JOBS}" != 1 ]]; then export CARGO_TARGET_DIR="${PREFLIGHT_TARGET_ROOT}/wws"; fi
   if group_selected wws; then
     run "wws fmt" cargo fmt --manifest-path wws/Cargo.toml --check
     if [[ "${MODE}" == "final" ]]; then
@@ -346,6 +396,10 @@ group_framerail() {
   # The unit tests and the build both regenerate .svelte-kit, so they stay in
   # one job.
   if group_selected framerail; then
+    # ALLOC-32 Check 3 also runs here, so a framerail PR's receipt shows
+    # what recorded runtime state its change supersedes (reporting only;
+    # the script fails only when it cannot compute the report).
+    run_test "Theme Lab runtime drift report" node install/local/theme-lab/scripts/check-runtime-drift.mjs
     run_test "framerail unit tests" pnpm --dir framerail test:unit
     if [[ "${MODE}" == "final" ]]; then
       run "framerail build" pnpm --dir framerail build
@@ -356,7 +410,7 @@ group_framerail() {
 group_locales() {
   # Beside Deepwell, a Rust group builds in its own target directory: cargo
   # locks a target directory, so a shared one would serialize the groups.
-  if [[ "${JOBS}" != 1 ]]; then export CARGO_TARGET_DIR="${REPO_ROOT}/target/preflight-locales"; fi
+  if [[ "${JOBS}" != 1 ]]; then export CARGO_TARGET_DIR="${PREFLIGHT_TARGET_ROOT}/locales"; fi
   if group_selected locales; then
     run "locales fmt" cargo fmt --manifest-path locales/validator/Cargo.toml --all -- --check
     if [[ "${MODE}" == "final" ]]; then

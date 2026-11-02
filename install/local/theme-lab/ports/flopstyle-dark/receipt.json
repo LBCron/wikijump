@@ -26,9 +26,9 @@
   "existing_jp_audit": "new-jp-candidate-verified",
   "technical_spec_version": "1.4",
   "package_path": "install/local/theme-lab/ports/flopstyle-dark",
-  "candidate_source_hash": "a3702c545d95bd13b7ce148c343f482b52f13e3b589933e26682031d4052203d",
+  "candidate_source_hash": "4900476d5cf31e094370d52e8cb09ff1e24d939ef8edea00562658cacc07dbec",
   "source_candidate_path": "install/local/theme-lab/ports/flopstyle-dark/candidate.wikidot.source.txt",
-  "source_candidate_sha256": "a3702c545d95bd13b7ce148c343f482b52f13e3b589933e26682031d4052203d",
+  "source_candidate_sha256": "4900476d5cf31e094370d52e8cb09ff1e24d939ef8edea00562658cacc07dbec",
   "candidate_origin": "human-made shared translation workspace; no current official JP counterpart",
   "existing_jp_source_differs_from_candidate": false,
   "preview_fixture_components": {
@@ -36,11 +36,11 @@
     "source_component": "install/local/theme-lab/ports/shared-fixtures/component-theme-squares.jp.wikidot.txt"
   },
   "candidate_source_path": "install/local/theme-lab/ports/flopstyle-dark/candidate.wikidot.source.txt",
-  "candidate_source_sha256": "a3702c545d95bd13b7ce148c343f482b52f13e3b589933e26682031d4052203d",
+  "candidate_source_sha256": "4900476d5cf31e094370d52e8cb09ff1e24d939ef8edea00562658cacc07dbec",
   "human_port_candidate_path": "install/local/theme-lab/ports/flopstyle-dark/human-port-candidate.wikidot.txt",
   "human_port_candidate_sha256": "1ba3503438000f4271894059e06dd0075bfcc10c416217af08042eff360b2abe",
   "candidate_preview_sha256": "a29c62ad16f1a380c47c63f74904a7875798e4a359dd7aa8503fc09bacab3e49",
-  "candidate_css_sha256": "be744e1d57f1028199f07f0aee70fbd7a96a724c3627dc7a3affdbc23d99108c",
+  "candidate_css_sha256": "4e9f17d162d5e0cf393e5a6d287c246b84efb0f82fdb97c05c56e3d537a8b446",
   "page_assets": [
     {
       "filename": "alt_logo_tyrian.png",
@@ -94,10 +94,15 @@
     "publishable_without_authority": 0
   },
   "overall_acceptance": {
-    "status": "inconclusive",
-    "reason": "Historical CSS changed; previous local screenshot acceptance is superseded. Only the explicitly recaptured real-Wikidot authority states apply to current CSS."
+    "status": "warn",
+    "port_verdict": "pass",
+    "target_status": "warn"
   },
-  "state": "authority-cleaned-local-candidate-not-published",
-  "final_verdict": "inconclusive",
-  "final_status": "adaptation-authority-cleaned"
+  "state": "accepted-local-candidate-not-published",
+  "final_verdict": "warn",
+  "final_status": "current-full-acceptance",
+  "current_acceptance": {
+    "path": "../current-acceptance/flopstyle-dark/accepted-result.json",
+    "sha256": "283cd39f09036dac48049aff58cd89a1285060643adaaedc4b4b5b624faea2cb"
+  }
 }

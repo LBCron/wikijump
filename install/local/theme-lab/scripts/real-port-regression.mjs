@@ -230,11 +230,15 @@ if (only && selectedCases.length !== 1) {
   selectedCases = [caseFor(discovered)];
 }
 
+// Set by scripts/preflight.sh once the adaptation authority check has verified
+// every package's evidence on this tree in the same run; the evidence is not
+// re-hashed here, and a standalone run still verifies it.
+const authorityEvidenceAlreadyVerified = process.env.THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED === "1";
 const failures = [];
 const inconclusives = [];
 const summaries = [];
 for (const item of selectedCases) {
-  assertPublishablePackage(path.basename(item.directory), {checkOutputs: true});
+  assertPublishablePackage(path.basename(item.directory), {checkOutputs: true, verifyAuthorityEvidence: !authorityEvidenceAlreadyVerified});
   verifyFrozenPackage(item, {requireDaemonAssets: !verifyOnly});
   if (verifyOnly) {
     summaries.push({slug: item.slug, status: "verified"});

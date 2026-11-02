@@ -1,0 +1,128 @@
+{
+  "schema": "theme_lab_frozen_baseline.v1",
+  "url": "https://scp-jp.github.io/files/util/main/styles/sigma-9.min.css",
+  "css_sha256": "2f58982dffd2a57f911971f7d7cd9706838c7a512bd8ffaaa0daea7c216517ba",
+  "dependencies": [
+    {
+      "url": "https://scp-jp.github.io/files/util/main/styles/sigma-9.min.css",
+      "sha256": "846b5e02118bff53564c3c8523fcaa9e9ed333e672c82b1e7278f7bba230228a",
+      "observed_at": "2026-09-29T19:17:16.912Z"
+    },
+    {
+      "url": "https://scp-jp.github.io/files/util/common/media/component/theme/font-bauhaus.css",
+      "sha256": "cab0842bcc1df61772fa43bfc4a8e037e3b9219996a55790b4a666a5d36d231c",
+      "observed_at": "2026-09-29T19:17:16.925Z"
+    },
+    {
+      "url": "https://scp-jp.github.io/files/util/common/media/component/theme/itc-bauhaus-lt-demi.eot",
+      "sha256": "44d631b2507c9bfceabf960599f9f3d2093a3e19f5d6f04d27d375efb8012f84",
+      "observed_at": "2026-09-29T19:17:17.101Z"
+    },
+    {
+      "url": "https://scp-jp.github.io/files/util/common/media/component/theme/itc-bauhaus-lt-demi.ttf",
+      "sha256": "7668781daf80240168d1142c72b3502f75617be40fbbe081caae66ac7d38d571",
+      "observed_at": "2026-09-29T19:17:17.284Z"
+    },
+    {
+      "url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css",
+      "sha256": "541ac58217a8ade1a5e292a65a0661dc9db7a49ae13654943817a4fbc6761afd",
+      "observed_at": "2026-09-29T19:17:17.337Z"
+    },
+    {
+      "url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?v=4.3.0",
+      "sha256": "cbb644d0ee730ea57dd5fbae35ef5ba4a41d57a254a6b1215de5c9ff8a321c2d",
+      "observed_at": "2026-09-29T19:17:17.355Z"
+    },
+    {
+      "url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?#iefix&v=4.3.0",
+      "sha256": "cbb644d0ee730ea57dd5fbae35ef5ba4a41d57a254a6b1215de5c9ff8a321c2d",
+      "observed_at": "2026-09-29T19:17:17.373Z"
+    },
+    {
+      "url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff2?v=4.3.0",
+      "sha256": "aadc3580d2b64ff5a7e6f1425587db4e8b033efcbf8f5c332ca52a5ed580c87c",
+      "observed_at": "2026-09-29T19:17:17.391Z"
+    },
+    {
+      "url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff?v=4.3.0",
+      "sha256": "e3870de89716b72cb61a4bba0e17c75783b361cdaba35ea96961c3070bd8ca18",
+      "observed_at": "2026-09-29T19:17:17.410Z"
+    },
+    {
+      "url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.ttf?v=4.3.0",
+      "sha256": "9e540a087924a6e64790149d735cac022640e4fa6bff6bd65f5e9f41529bf0b3",
+      "observed_at": "2026-09-29T19:17:17.431Z"
+    },
+    {
+      "url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.svg?v=4.3.0#fontawesomeregular",
+      "sha256": "bfdef833219a6edffd9c3cbc28db72739d22bb4d20cc2e2f8d56a7a4d408a206",
+      "observed_at": "2026-09-29T19:17:17.456Z"
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/cc-icons/1.2.1/css/cc-icons.min.css",
+      "sha256": "cea128bf70e5dcd2d9c9d3ded35080f775cf564ea59d1a0380375f4748526722",
+      "observed_at": "2026-09-29T19:17:17.510Z"
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/cc-icons/1.2.1/fonts/cc-icons.eot",
+      "sha256": "40723fa718237c74623d7b64ce186a02b872f7fb4b3a917013fcc8b6aec3ded6",
+      "observed_at": "2026-09-29T19:17:17.574Z"
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/cc-icons/1.2.1/fonts/cc-icons.svg",
+      "sha256": "2eb982d8faa4ab9bcc8bc39c31cad8f1d73e1d8df8e4aebd3970af1e38620841",
+      "observed_at": "2026-09-29T19:17:17.597Z"
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/cc-icons/1.2.1/fonts/cc-icons.otf",
+      "sha256": "41950d74f0aae0ee95ca1381b8096f1d19dc4154971505c8bdc3b18dce70912d",
+      "observed_at": "2026-09-29T19:17:17.621Z"
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/cc-icons/1.2.1/fonts/cc-icons.woff",
+      "sha256": "1a9b14799594702e4d0350164623d9e71261d70042ed4b3979808b08ba6e38b6",
+      "observed_at": "2026-09-29T19:17:17.660Z"
+    },
+    {
+      "url": "https://cdnjs.cloudflare.com/ajax/libs/cc-icons/1.2.1/fonts/cc-icons.ttf",
+      "sha256": "3ee20e2529a17cdd369a6c89edb23d5662ecfa9007936786d33c22c38fac14de",
+      "observed_at": "2026-09-29T19:17:18.003Z"
+    },
+    {
+      "url": "https://scp-jp.github.io/files/util/common/media/component/theme//body_bg.png",
+      "sha256": "aa602c40276279d9b8e782b8c4d1e466d51e5349dbe55d1756db93976584bcab",
+      "observed_at": "2026-09-29T19:17:18.015Z"
+    },
+    {
+      "url": "https://scp-jp.github.io/files/util/common/media/component/theme//logo.png",
+      "sha256": "f458790e7e2d0b83533b4d0f3669630adcb473673455815fd38c5c2496c06a46",
+      "observed_at": "2026-09-29T19:17:18.026Z"
+    },
+    {
+      "url": "https://scp-jp.github.io/files/util/common/media/nav/side/expand.png",
+      "sha256": "d65d63e6581b8c1210bed42a30dc766a0f0273018cb163947fdb8c0e160f3cb5",
+      "observed_at": "2026-09-29T19:17:18.230Z"
+    },
+    {
+      "url": "https://d3g0gp89917ko0.cloudfront.net/v--3b8418686296/common--theme/shiny/images/yuitabs.png",
+      "sha256": "1d7378ae112da2d33aafdf0ce83bd2bccb36d6786a5c58317444367f2b9b4604",
+      "observed_at": "2026-09-29T19:17:18.241Z"
+    },
+    {
+      "url": "https://d3g0gp89917ko0.cloudfront.net/v--3b8418686296/common--theme/shiny/images/yuitabs.png",
+      "sha256": "1d7378ae112da2d33aafdf0ce83bd2bccb36d6786a5c58317444367f2b9b4604",
+      "observed_at": "2026-09-29T19:17:18.241Z"
+    },
+    {
+      "url": "https://d3g0gp89917ko0.cloudfront.net/v--3b8418686296/common--theme/shiny/images/yuitabs.png",
+      "sha256": "1d7378ae112da2d33aafdf0ce83bd2bccb36d6786a5c58317444367f2b9b4604",
+      "observed_at": "2026-09-29T19:17:18.241Z"
+    },
+    {
+      "url": "https://scp-jp.github.io/files/util/common/media/component/theme//panel-bg-gradient-reverse.png",
+      "sha256": "8aab16649c61f865e40a66b550fc954c8e1e42e317c06b22970a14a5390e8123",
+      "observed_at": "2026-09-29T19:17:18.252Z"
+    }
+  ],
+  "public_writes": 0
+}

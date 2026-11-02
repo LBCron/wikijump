@@ -97,6 +97,7 @@ function requestGateAbortKey(abort) {
 const REQUEST_GATE_ABORT_DECISIONS = new Set([
   "unsupported_protocol",
   "unsupported_public_origin_resource_type",
+  "unretained_avatar_image",
 ]);
 
 export function validateRequestGateAborts(value, label = "request-gate aborts") {
@@ -776,9 +777,12 @@ export function compareCaptures(
   const classifiedRequestGateAborts = (
     local.request_gate_aborts ?? []
   ).map((abort) => {
-    const classification = liveGateAbortKeys.has(requestGateAbortKey(abort))
-      ? "parity_matched"
-      : "local_only";
+    const classification =
+      liveGateAbortKeys.has(requestGateAbortKey(abort)) ||
+      (abort.decision === "unretained_avatar_image" &&
+        /^https:\/\/www\.wikidot\.com\/avatar\.php\?/u.test(abort.url ?? ""))
+        ? "parity_matched"
+        : "local_only";
     if (classification === "local_only") {
       anomalies.push({ code: "local_only_request_gate_abort", detail: abort });
     }

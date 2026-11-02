@@ -1,0 +1,297 @@
+name: PR checks
+
+# Fast, path-scoped targeted checks: the merge signal for a pull request.
+#
+# Merge evidence is targeted tests on the changed part, run in minutes.
+# The full consolidated validation suite is informational only - it runs
+# nightly and on manual dispatch (consolidated-validation.yml), never as
+# a PR gate - so this workflow maps each changed path to the targeted
+# checks for the area it touches and runs nothing else:
+#
+#   deepwell/**                            cargo test --lib + clippy (deepwell crate)
+#   wws/**                                 cargo test --all-features + fmt check
+#   framerail/**                           pnpm test:unit
+#   install/local/wikidot-verification/**  pnpm test (the package suite)
+#   install/standing/**                    node --test install/standing/tests/
+#   .github/**, scripts/**                 node --test .github/tests/ (policy suite)
+#   locales/**                             cargo fmt --check (validator runs nightly)
+#
+# .github/tests/preflight.test.mjs is excluded from the policy suite
+# here: it exercises preflight's runtime behavior (task-owned docker
+# stacks, the Theme Lab authority store) and belongs to the provisioned
+# informational run, not a minutes-long PR check.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  targeted:
+    name: Targeted checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out the PR head
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Plan targeted checks from the changed paths
+        id: plan
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          deepwell=0; wws=0; framerail=0; verification=0; standing=0; policy=0; locales=0
+          files="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files" --paginate --jq '.[].filename')"
+          while IFS= read -r file; do
+            case "$file" in
+              deepwell/*) deepwell=1 ;;
+              wws/*) wws=1 ;;
+              framerail/*) framerail=1 ;;
+              install/local/wikidot-verification/*) verification=1 ;;
+              install/standing/*) standing=1 ;;
+              .github/*|scripts/*) policy=1 ;;
+              locales/*) locales=1 ;;
+            esac
+          done <<< "$files"
+          {
+            echo "deepwell=$deepwell"
+            echo "wws=$wws"
+            echo "framerail=$framerail"
+            echo "verification=$verification"
+            echo "standing=$standing"
+            echo "policy=$policy"
+            echo "locales=$locales"
+            echo "rust=$(( deepwell || wws || locales || verification ))"
+            echo "node=$(( framerail || verification ))"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "## Targeted checks for this PR"
+            echo
+            echo "Changed paths select: deepwell=$deepwell wws=$wws framerail=$framerail verification=$verification standing=$standing policy=$policy locales=$locales."
+            echo "Anything not listed here is covered by the informational consolidated run (nightly / dispatch), not by this check."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Set up Node
+        if: steps.plan.outputs.node == '1'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.22.1
+
+      - name: Enable pnpm via Corepack
+        if: steps.plan.outputs.node == '1'
+        run: |
+          corepack enable
+          # Both packages pin pnpm@11.10.0; activate exactly that version,
+          # or Corepack serves its own default and pnpm refuses with
+          # ERR_PNPM_BAD_PM_VERSION.
+          corepack prepare pnpm@11.10.0 --activate
+
+      - name: Install the pinned Rust toolchain
+        if: steps.plan.outputs.rust == '1'
+        run: |
+          set -euo pipefail
+          # The channel and components come from the tree's own
+          # rust-toolchain.toml, so a toolchain bump needs no workflow
+          # change.
+          channel="$(sed -n 's/^channel = "\([0-9.]*\)"/\1/p' rust-toolchain.toml)"
+          test -n "$channel"
+          rustup toolchain install "$channel" --profile minimal --component clippy,rustfmt,rust-src
+          rustup default "$channel"
+
+      - name: Install system build dependencies
+        if: steps.plan.outputs.deepwell == '1'
+        run: |
+          # deepwell's filemagic dependency probes libmagic via
+          # pkg-config at build time; the WSL has it, a bare runner does
+          # not.
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libmagic-dev
+
+      - name: Start sccache
+        if: steps.plan.outputs.deepwell == '1' || steps.plan.outputs.wws == '1'
+        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba # v0.0.11
+
+      - name: Cache the Cargo registry
+        if: steps.plan.outputs.rust == '1'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: cargo-registry-${{ runner.os }}-${{ hashFiles('deepwell/Cargo.lock', 'wws/Cargo.lock', 'locales/validator/Cargo.lock') }}
+          restore-keys: |
+            cargo-registry-${{ runner.os }}-
+
+      - name: Cache the pnpm store
+        if: steps.plan.outputs.node == '1'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.local/share/pnpm/store
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('framerail/pnpm-lock.yaml', 'install/local/wikidot-verification/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-store-${{ runner.os }}-
+
+      - name: Install Framerail dependencies
+        if: steps.plan.outputs.framerail == '1'
+        working-directory: framerail
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Wikidot verification dependencies
+        if: steps.plan.outputs.verification == '1'
+        working-directory: install/local/wikidot-verification
+        run: pnpm install --frozen-lockfile
+
+      - name: Fetch Cargo dependencies
+        if: steps.plan.outputs.deepwell == '1' || steps.plan.outputs.wws == '1'
+        env:
+          RUSTC_WRAPPER: sccache
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.plan.outputs.deepwell }}" = "1" ]; then
+            cargo fetch --manifest-path deepwell/Cargo.toml --locked
+          fi
+          if [ "${{ steps.plan.outputs.wws }}" = "1" ]; then
+            cargo fetch --manifest-path wws/Cargo.toml --locked
+          fi
+
+      - name: Deepwell targeted tests and Clippy
+        if: steps.plan.outputs.deepwell == '1'
+        env:
+          RUSTC_WRAPPER: sccache
+        run: |
+          set -euo pipefail
+          cargo test --manifest-path deepwell/Cargo.toml --lib --locked
+          cargo clippy --manifest-path deepwell/Cargo.toml --locked -- -D warnings
+
+      - name: Start the ambient Valkey the WWS tests expect
+        if: steps.plan.outputs.wws == '1'
+        run: |
+          # Two WWS avatar tests build their state with
+          # redis://127.0.0.1/ and exercise the cache-miss path; the
+          # local environment has the dev cache on that port. Run the
+          # project's own Valkey image there.
+          docker build -t wikijump-local-development-cache install/local/valkey
+          docker run -d --name ci-wws-cache -p 127.0.0.1:6379:6379 wikijump-local-development-cache
+          for attempt in $(seq 1 30); do
+            if docker exec ci-wws-cache valkey-cli ping 2>/dev/null | grep -q PONG; then exit 0; fi
+            sleep 1
+          done
+          echo "ambient valkey did not come up" >&2
+          exit 1
+
+      - name: WWS targeted tests and formatting
+        if: steps.plan.outputs.wws == '1'
+        env:
+          RUSTC_WRAPPER: sccache
+        run: |
+          set -euo pipefail
+          cargo fmt --manifest-path wws/Cargo.toml --check
+          cargo test --manifest-path wws/Cargo.toml --locked --all-features
+
+      - name: Framerail unit tests
+        if: steps.plan.outputs.framerail == '1'
+        working-directory: framerail
+        run: pnpm test:unit
+
+      - name: Resolve the sibling pins for the verification suite
+        if: steps.plan.outputs.verification == '1'
+        id: siblings
+        run: |
+          set -euo pipefail
+          # The verification tooling reads its FTML and wikidot.py source
+          # objects from sibling checkouts at the revisions the tree pins:
+          # FTML from deepwell/Cargo.lock, wikidot.py from the
+          # supported-source lock.
+          ftml_rev="$(sed -n '/^name = "ftml"$/,/^$/p' deepwell/Cargo.lock | grep -oE '[0-9a-f]{40}' | head -1)"
+          test -n "$ftml_rev"
+          echo "ftml_rev=$ftml_rev" >> "$GITHUB_OUTPUT"
+          wikidot_py_rev="$(node -e 'const fs = require("fs"); const v = JSON.parse(fs.readFileSync("docs/development/wikidot-py-supported-source.json", "utf8")); if (v.schema !== "wikijump.wikidot_py_supported_source.v1" || !/^[0-9a-f]{40}$/.test(v.commit ?? "")) process.exit(1); process.stdout.write(v.commit)')"
+          test -n "$wikidot_py_rev"
+          echo "wikidot_py_rev=$wikidot_py_rev" >> "$GITHUB_OUTPUT"
+
+      - name: Check out FTML at the pinned revision
+        if: steps.plan.outputs.verification == '1'
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          repository: Rokurolize/ftml
+          path: .ci-siblings/ftml
+          ref: ${{ steps.siblings.outputs.ftml_rev }}
+          fetch-depth: 0
+
+      - name: Check out wikidot.py at the pinned revision
+        if: steps.plan.outputs.verification == '1'
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          repository: Rokurolize/wikidot.py
+          path: .ci-siblings/wikidot.py
+          ref: ${{ steps.siblings.outputs.wikidot_py_rev }}
+          fetch-depth: 0
+
+      - name: Configure the runner's git identity
+        if: steps.plan.outputs.verification == '1'
+        run: |
+          # Same ambient precondition as the local environment: without
+          # a git identity, git's ident heuristic resolves the machine's
+          # own hostname during fixture clones, which the test network
+          # guard treats as an external lookup.
+          git config --global user.email "ci@localhost"
+          git config --global user.name "wikijump-ci"
+
+      - name: Prepare the wikidot.py locked test environment
+        if: steps.plan.outputs.verification == '1'
+        working-directory: .ci-siblings/wikidot.py
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          uv sync --locked
+
+      - name: Fetch the full history for the verification suite
+        if: steps.plan.outputs.verification == '1'
+        run: |
+          # The suite's source-attribution tests resolve historical
+          # commits of this repository (the audited evidence files cite
+          # nested sources by commit), which the depth-1 checkout above
+          # does not carry; without this they fail on missing objects.
+          git fetch --unshallow origin
+
+      - name: Wikidot verification suite
+        if: steps.plan.outputs.verification == '1'
+        working-directory: install/local/wikidot-verification
+        env:
+          WIKIJUMP_FTML_CHECKOUT: ${{ github.workspace }}/.ci-siblings/ftml
+          WIKIDOT_PY_CHECKOUT: ${{ github.workspace }}/.ci-siblings/wikidot.py
+        run: pnpm test
+
+      - name: Standing tooling tests
+        if: steps.plan.outputs.standing == '1'
+        run: node --test install/standing/tests/*.test.mjs
+
+      - name: Workflow policy tests
+        if: steps.plan.outputs.policy == '1'
+        run: |
+          node --test \
+            .github/tests/ci-gate-workflow.test.mjs \
+            .github/tests/docker-build-workflow-security.test.mjs \
+            .github/tests/ftml-boundary-deviations.test.mjs \
+            .github/tests/local-postgres-security.test.mjs \
+            .github/tests/local-publish-loopback.test.mjs \
+            .github/tests/markdown-table-cell.test.mjs \
+            .github/tests/role-edit-backfill-security.test.mjs \
+            .github/tests/seeded-admin-security.test.mjs \
+            .github/tests/silo-publish-workflow.test.mjs \
+            .github/tests/test-network-boundary.test.mjs
+
+      - name: Locales formatting
+        if: steps.plan.outputs.locales == '1'
+        run: cargo fmt --manifest-path locales/validator/Cargo.toml --check

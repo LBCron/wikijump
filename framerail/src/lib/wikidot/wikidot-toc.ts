@@ -19,7 +19,6 @@ function initializeTocControls(node: HTMLElement) {
   for (const link of node.querySelectorAll<HTMLAnchorElement>(
     'div#toc-action-bar a[onclick*="foldToc"]'
   )) {
-    // Keep the Wikidot href and DOM shape, but don't execute its inline handler.
     link.removeAttribute("onclick")
   }
 }

@@ -1,0 +1,186 @@
+{
+  "slug": "theme:minimalist-bhl",
+  "en_source_sha256": "d076f29e54167c0adc56808ccce19a17511162997bd4816470cb34812a7e282a",
+  "en_updated_at": "2026-04-12T05:12:17+00:00",
+  "en_entity_uuid": "47a8ad2e-f1ec-4031-ae3c-852b87dd1cfa",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "7d870ffc63b1f7a700201a7b585a7aca8aa57a52d5f673c6eafd76d2f1426848",
+  "jp_previous_updated_at": "2026-09-24T20:45:09+00:00",
+  "jp_previous_entity_uuid": "398bad62-9c4b-460b-90ca-1bd483ed636a",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:minimalist-bhl",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:minimalist-bhl",
+    "title": "Minimalist BHL Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "d076f29e54167c0adc56808ccce19a17511162997bd4816470cb34812a7e282a",
+      "updated_at": "2026-04-12T05:12:17+00:00",
+      "entity_uuid": "47a8ad2e-f1ec-4031-ae3c-852b87dd1cfa",
+      "tags": [
+        "co-authored",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 107,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:minimalist-bhl"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "7d870ffc63b1f7a700201a7b585a7aca8aa57a52d5f673c6eafd76d2f1426848",
+      "updated_at": "2026-09-24T20:45:09+00:00",
+      "entity_uuid": "398bad62-9c4b-460b-90ca-1bd483ed636a",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:minimalist-bhl"
+      },
+      "revisions": 2
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive",
+    "existing_jp_rebase": {
+      "previous_sha256": "6e5daba96afeb10ce3e4f49bc436920f6c0ba2ac4937c072030c59e43e80f3a0",
+      "previous_snapshot": "existing-jp-pre-rebase-20261005.wikidot.txt",
+      "current_revision": 2,
+      "current_updated_at": "2026-09-24T20:45:09+00:00",
+      "current_sha256": "7d870ffc63b1f7a700201a7b585a7aca8aa57a52d5f673c6eafd76d2f1426848",
+      "diff_assessment": "provenance refresh; source freshness audit found no theme CSS/runtime behavior delta"
+    }
+  },
+  "dependencies": {
+    "slug": "theme:minimalist-bhl",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:info:start",
+      ":scp-wiki:info:end",
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:minimalist-bhl",
+      "component:image-block name=https://scp-wiki.wikidot.com/local--files/theme:minimalist-bhl/Ar6AfDt.webp",
+      ":scp-wiki:component:centered-header-bhl",
+      ":scp-wiki:component:toggle-sidebar-bhl",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "http://scp-wiki.wikidot.com/anomaly-classification-system-guide",
+      "http://www.google.com",
+      "http://www.scp-wiki.net/classification-committee-memo",
+      "https://fonts.google.com/specimen/Poppins",
+      "https://fonts.google.com/specimen/Raleway",
+      "https://fonts.google.com/specimen/Recursive",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/stable/styles/black-highlighter.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/stable/styles/normalize.min.css",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Aminimalist-bhl/1",
+      "https://scp-wiki.wdfiles.com/local--files/component:pride-highlighter/gp_logo.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:minimalist-bhl/Ar6AfDt.webp|caption=Department"
+    ],
+    "jp_includes": [
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:theme:minimalist-bhl",
+      "component:image-block name=http://scp-jp-storage.wikidot.com/local--files/file:3324351-140-5rt8/Ar6AfDt.png",
+      ":scp-jp:component:centered-header-bhl",
+      ":scp-jp:component:toggle-sidebar-bhl",
+      ":scp-jp:component:interwiki-style"
+    ],
+    "jp_external_dependencies": [
+      "http://scp-jp-storage.wikidot.com/local--files/file:3324351-140-5rt8/Ar6AfDt.png|caption=科学部門ロゴ|width=200px",
+      "http://scp-jp-storage.wikidot.com/local--files/file:3324351-96-cwep/lgbtqp_logo.svg",
+      "http://www.google.com",
+      "https://fonts.google.com/specimen/Poppins",
+      "https://fonts.google.com/specimen/Raleway",
+      "https://fonts.google.com/specimen/Recursive",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Aminimalist-bhl/1"
+    ],
+    "base_family": "black-highlighter"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/minimalist-bhl/assets.json",
+  "asset_dependency_decision_count": 39,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "8bec8d27d44cdfb153f01dcedd67a41ff7a1477c0d1fcce1c41494e59b7ef8d5",
+    "jp_overrides_sha256": "4ffb33f01bb2ce087306dd507ff6efd013c69891d90e96671e6a574191025d9c",
+    "semantic_css_sha256": "3b01069a2283c3ff1bf7361c209743ee2b7aad09c2d12302852ea0796d3f527b",
+    "canonical_override_sha256": "0b01f8c98816735e596a70343768db5bd106a926c3e69b5d430c84182ea36097",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "2850b4def9217271462a419063540d35353baf4e6cfcdcf30e9dc9f208501a1b",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "0255fea88b53187db86d6e6b99703260b9d7fefa32d22dc2442bce95a5a4868f",
+      "active_tags": [],
+      "candidate_source_sha256": "0ae6dfa09094ed2db9512c085ecffd3c7513464ef799da00e7186a52c9f5df73",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 2,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "f35aec8f29c8ab4cf5a0a24d27b3ad31f504103404a76fd17a1b149da7f306ab",
+      "asset_receipt_path": "assets.json",
+      "assets": 33,
+      "imports": 6,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "875497dc164526da0940bc91a56d9b3cb6839e30cb02881e47245d662982a621",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

@@ -1,0 +1,16 @@
+[[/div]]
+------
+
+[[div class="creditBottomRate"]]
+[[div]]
+[[module Rate]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+[[/li]]
+[[/ul]]
+
+~~~~

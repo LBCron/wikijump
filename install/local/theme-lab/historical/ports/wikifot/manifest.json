@@ -1,0 +1,138 @@
+{
+  "slug": "theme:wikifot",
+  "en_source_sha256": "406f9fdca96043830e4656383a55643885cf1bd55a2237c360ce5c1f14d85a9e",
+  "en_updated_at": "2024-07-05T14:55:30+00:00",
+  "en_entity_uuid": "c01acd10-15e2-4c65-879f-16e370e66f50",
+  "jp_previous_status": "confirmed-absent-by-targeted-xmlrpc",
+  "jp_previous_source_sha256": null,
+  "jp_previous_updated_at": null,
+  "jp_previous_entity_uuid": null,
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:wikifot",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": null,
+  "source_identity": {
+    "slug": "theme:wikifot",
+    "title": "Wikifot Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "406f9fdca96043830e4656383a55643885cf1bd55a2237c360ce5c1f14d85a9e",
+      "updated_at": "2024-07-05T14:55:30+00:00",
+      "entity_uuid": "c01acd10-15e2-4c65-879f-16e370e66f50",
+      "tags": [
+        "_cc",
+        "joke",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 12,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:wikifot"
+      }
+    },
+    "jp": {
+      "status": "confirmed-absent-by-targeted-xmlrpc",
+      "source_path": null,
+      "sha256": null,
+      "updated_at": null,
+      "entity_uuid": null,
+      "tags": [],
+      "absence_run": "theme-jp-absence-check-20260923"
+    },
+    "existing_jp_audit": "new-jp-candidate-verified",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:wikifot",
+    "en_includes": [
+      ":scp-int:component:interwiki-style priority=1",
+      ":scp-wiki:theme:wikifot",
+      "theme:wikifot",
+      "component:image-block caption=An image I forgot to upload"
+    ],
+    "en_external_dependencies": [
+      "https://flickr.com/tags/bsod"
+    ],
+    "jp_includes": [],
+    "jp_external_dependencies": [],
+    "base_family": "sigma"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "human-port-candidate.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "human-made shared translation workspace; no current official JP counterpart",
+  "candidate_source_hash": "550fa3c183832d172679901732716aabebaa8e68a9d4f259582c43de263198bc",
+  "page_assets": [
+    {
+      "filename": "table.png",
+      "sha256": "61d58db78f6aec50335ca228add57a43332a69a01078beb3235b39645452057a",
+      "bytes": 17211,
+      "asset_file": "61d58db78f6aec50335ca228add57a43332a69a01078beb3235b39645452057a.png",
+      "source_urls": [
+        "https://scpaiueouiuiuiui.wjfiles.localhost:18443/local--resized-images//table.png/medium.jpg"
+      ],
+      "acquired_from": "https://scp-wiki.wdfiles.com/local--files/theme:wikifot/table.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "new-jp-candidate-verified",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/wikifot/assets.json",
+  "asset_dependency_decision_count": 1,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "9d42eb1414ca870f6a789123ff52f71092564a4eb8df09e699cade2d32f8ff45",
+    "jp_overrides_sha256": "45d04d48ce561b2adf834470ea5ade7455348752d8d3ea6ee1ecfcd671ddc7a5",
+    "semantic_css_sha256": "3f4b84e714ea7c9041fbcd6a8e4ba9bc7a4489b8f365dd1b5c941aa8dc085ed2",
+    "canonical_override_sha256": "daed086f9351342f3851a331d6cb5039d16464963d12003e8814e2b425b29ad0",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "b609206bc7b2913d325e64f3b380726335c0f719c60d9457f3a5fdf7906dcf13",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "db9c78dff364e2e87a17ee86e79a8a37d6e16ff4442a37e8b8561e61621edce3",
+      "active_tags": [],
+      "candidate_source_sha256": "fd0fa6d765b149fc5a1b60a179435d6e20eb34fbf581de3dfb96cb7a8912243e",
+      "candidate_active_tags": [
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 1,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "0516edb1e9f34d5d07175b3e3212ffb0852cddc00531ff09d3ede9854162efe7",
+      "asset_receipt_path": "assets.json",
+      "assets": 0,
+      "imports": 0,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

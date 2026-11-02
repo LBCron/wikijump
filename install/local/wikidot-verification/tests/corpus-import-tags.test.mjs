@@ -43,7 +43,13 @@ test("corpus imports preserve the complete Wikidot tag set in serial and batch r
   assert.deepEqual(row.tags, expectedTags);
 
   const expectedSqlArray = `ARRAY[${expectedTags.map((tag) => `'${tag}'`).join(",")}]::text[]`;
-  const serialSql = upsertSnapshotSql({}, row, 101, 201, 301);
+  const serialSql = upsertSnapshotSql(
+    { holding: { siteSlug: "scp-wiki", runBranches: ["en"] } },
+    row,
+    101,
+    201,
+    301,
+  );
   assert.ok(serialSql.includes(`tags = ${expectedSqlArray}`));
 
   const batchValues = batchShellCreatePageValues({}, [row], {

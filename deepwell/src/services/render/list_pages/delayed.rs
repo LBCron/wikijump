@@ -176,24 +176,6 @@ pub(in crate::services::render) fn prepare_delayed_list_pages_row_with_budget(
     let mut runtime_text_ranges = Vec::new();
     let mut tracked_content_fragments = BTreeSet::new();
     let mut prepared_body = suppress_generated_list_pages_heading_toc(body).into_owned();
-    // ListPages rows are extracted before the outer page's FTML pass. Apply
-    // the same Wikidot compatibility preprocessing while the row is still
-    // authored source, before typed/generated slots are inserted. Running it
-    // after slot insertion would reinterpret `%%...%%` slot ranges as source
-    // syntax and leave residual percent prefixes in later rows.
-    // The legacy row idiom
-    // `[[#ifexpr ... |  | [!-- ]] ... [!-- --]` uses comments as the
-    // inactive branch.  FTML's normal preprocessing would consume those
-    // comments and typographically rewrite the opener before the row
-    // variables have been substituted, leaving the parser function literal.
-    // Preserve only these structurally recognized gate tokens through that
-    // pass; the ordinary delayed parser-function pass below still decides
-    // whether the branch is retained.
-    // Parser-function branches that depend on ListPages variables must survive
-    // FTML's document-level preprocessing until the row variables have been
-    // substituted. Otherwise an unresolved scalar such as `%%size%%`, or a
-    // generated link such as `%%title_linked%%`, can be evaluated too early
-    // and lose the branch shape Wikidot exposes after row substitution.
     let row_parser_fragments = protect_row_variable_parser_functions(&mut prepared_body);
     let generated_comment_gates =
         protect_generated_parser_function_comment_gates(&mut prepared_body);
@@ -712,13 +694,6 @@ mod tests {
         );
     }
 
-    /// Regression for #2787: `%%title%%` inside a `[[html]]` block uses the
-    /// same escaping boundary as identity, tag, and form values (#2667).
-    ///
-    /// Inside an html block the substituted value is raw HTML served on the
-    /// files origin, so a page-author-controlled title must be HTML-escaped
-    /// before it reaches the served block. This exercises the full delayed
-    /// preparation and sealing path rather than the substitution string alone.
     #[test]
     fn title_inside_html_block_is_escaped() {
         let source = "[[html]]\n<b>%%title%% tags: %%tags%%</b>\n[[/html]]";
@@ -784,8 +759,6 @@ mod tests {
             "no raw title markup may reach the delayed body: {}",
             prepared.body,
         );
-        // Identity, tag, and form values share the same escaping (#2667):
-        // the title and the tag payload occur escaped identically here.
         assert!(
             prepared.body.matches(escaped_payload).count() >= 2,
             "title and tag payloads must both be escaped: {}",
@@ -807,8 +780,6 @@ mod tests {
             ftml::layout::Layout::Wikidot,
         );
 
-        // Replicate the sealing internals so the html block content that the
-        // `/{page}/html/{index}` route serves can be inspected directly.
         let output = prepared.body;
         let runtime_text_ranges = prepared.runtime_text_ranges;
         let mut segments = Vec::with_capacity(runtime_text_ranges.len() * 2 + 1);

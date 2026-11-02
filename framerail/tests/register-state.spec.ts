@@ -97,7 +97,6 @@ test("an authenticated visitor is redirected without a registration confirmation
   await page.locator(".auth-name-or-email").fill("fixture-member")
   await page.locator(".auth-password").fill("fixture-member-password")
   await page.locator("#login button[type=submit]").click()
-  // A completed sign-in started directly on /-/login lands on the site root.
   await expect(page).toHaveURL(`${APP_URL}/`)
 
   const response = await page.goto(`${APP_URL}/-/register`)
@@ -178,7 +177,6 @@ test("a native registration POST renders the success confirmation", async ({
     await page.locator("#register button[type=submit]").click()
 
     await expect(page.getByRole("status")).toContainText("register.toast")
-    // Server-rendered links are relative (`../-/login` from /-/register).
     const loginHref = await page
       .getByRole("status")
       .getByRole("link")

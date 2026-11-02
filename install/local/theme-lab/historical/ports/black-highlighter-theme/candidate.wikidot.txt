@@ -1,0 +1,311 @@
+
+
+
+
+
+
+
+
+
+
+**タイトル:** Black Highlighterテーマ
+**著者:** ©︎Woedenaz & Croquembouche
+**原題:** Black Highlighter Theme
+**作成年:** 2019
+
+
+[[image black-highlighter-logo.svg]]
+
+[[=]]
+[[div_ class="status"]]
+このコンポーネントは現在[[span class="active"]]有効[[/span]]です
+[[/div]]
+[[/=]]
+ _
+[[div style="border: 1px solid #ddd; padding: 1em; text-align: center;"]]
+
++ 使い方
+
+任意のwikiで:
+
+[[div class="code" style="text-align: center;"]]
+@@[[include :scp-jp:theme:black-highlighter-theme]]@@
+[[/div]]
+
+[[div class="blockquote" style="text-align: center;"]]
+++ [[[black-highlighter-themes | ]]]
+------
+++ オプションアドオン
++++ [[[component:bhl-dark-sidebar|ダークサイドバー]]]
+[[div class="code"]]
+@@[[include :scp-jp:component:bhl-dark-sidebar]]@@
+[[/div]]
+
++++ [[[component:collapsible-sidebar|折りたたみサイドバー]]]
+[[div class="code"]]
+@@[[include :scp-jp:component:collapsible-sidebar]]@@
+[[/div]]
+
++++ [[[component:toggle-sidebar-bhl|トグルサイドバー]]]
+[[div class="code"]]
+@@[[include :scp-jp:component:toggle-sidebar-bhl]]@@
+[[/div]]
+
++++ [[[component:centered-header-bhl|中央寄せヘッダー]]]
+[[div class="code"]]
+@@[[include :scp-jp:component:centered-header-bhl]]@@
+[[/div]]
+[[/div]]
+
+[[/div]]
+
++ これは何
+
+[http://scptestwiki.wikidot.com/ Black Highlighter]テーマをあなたの記事に適用するためのコンポーネントです。
+
+このコンポーネントは安定版Black Highlighterテーマを適用しますが、アップデートの際に表示が崩れる場合があります。
+
++ 問題の報告
+
+Githubアカウントを持っているなら、 [https://github.com/Nu-SCPTheme/Black-Highlighter/issues ここで]Issueを作成し、その(美的・技術的あるいはなんでも)問題を詳述してください。
+
+Githubアカウントを持っていないなら、もしくは誰かと直接議論したいならば、WoedenazにPMを送り、もし彼が返答しない場合はCroquemboucheにPMを送ってください。
+
+-----
+
+[[=]]
++ テーマカラー
+[[/=]]
+
+[[div_ class="colors-container"]]
+[[div_ class="colors"]]
+[[div class="color" style="background-color: rgb(66, 66, 72);" data-variable="palette-color1" data-has-light-text="1"]]
+Payne's Grey[[span class="css-variable"]]@@--gray-monochrome@@[[/span]][[span class="css-variable"]](66, 66, 72)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(133, 0, 5);" data-variable="palette-color2" data-has-light-text="1"]]
+Rosewood[[span class="css-variable"]]@@--bright-accent@@[[/span]][[span class="css-variable"]](133, 0, 5)[[/span]]
+[[/div]]
+[[/div]]
+[[div_ class="subcolors"]]
+[[div class="color" style="background-color: rgb(215, 215, 215);" data-variable="palette-subcolor1" data-has-light-text="0"]]
+Alto[[span class="css-variable"]]@@--very-light-gray-monochrome@@[[/span]][[span class="css-variable"]](215, 215, 215)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(244, 244, 244);" data-variable="palette-subcolor2" data-has-light-text="0"]]
+White Smoke[[span class="css-variable"]]@@--pale-gray-monochrome@@[[/span]][[span class="css-variable"]](244, 244, 244)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(48, 48, 52);" data-variable="palette-subcolor3" data-has-light-text="1"]]
+Bastille[[span class="css-variable"]]@@--dark-gray-monochrome@@[[/span]][[span class="css-variable"]](48, 48, 52)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(100, 46, 44);" data-variable="palette-subcolor4" data-has-light-text="1"]]
+Buccaneer[[span class="css-variable"]]@@--medium-accent@@[[/span]][[span class="css-variable"]](100, 46, 44)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(100, 3, 15);" data-variable="palette-subcolor5" data-has-light-text="1"]]
+Maroon[[span class="css-variable"]]@@--dark-accent@@[[/span]][[span class="css-variable"]](100, 3, 15)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(221, 102, 17);" data-variable="palette-subcolor6" data-has-light-text="0"]]
+Mango Tango[[span class="css-variable"]]@@--newpage-color@@[[/span]][[span class="css-variable"]](221, 102, 17)[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+
++ 例
+
+
+
+分割線は5個のハイフン"@@-----@@"で作ることができ、何かの中でない限り(例えば引用ブロック)ページ全体に展開されます。この文章を区切る線が分割線です。
+
+-----
+
+見出しは行の先頭に1から6個のプラス(+)を置くことで作成できます
+
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブ]]
+これはタブです。
+[[/tab]]
+[[tab タブが作られた]]
+おや見てください、ここにも文章が。
+
+なんて奇妙な。
+[[/tab]]
+[[tab 長いタブ]]
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+[[/tab]]
+[[tab この空のタブには何故か非常に長い名前が付いています。何故でしょうか? とても奇妙ですね。]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックです。各行の先頭に大なり記号と半角スペース"> "を置くことで作成できます。
+>
+> 追加の文章
+> -----
+> 分割線
+>
+>> 入れ子になった引用ブロック
+
+||~ これは ||~ テーブルです ||
+||もう既に || 作り方は ||
+||||知っていますね ||
+
+[[=]]
+[[div_ class="fonts-display"]]
+body、[[span class="title-font"]]見出し[[/span]]、[[span class="header-font"]]ヘッダー[[/span]]のフォントは[https://rsms.me/inter/ Inter]と[[span class="japanese-font"]][https://fonts.adobe.com/fonts/m-plus-1p M Plus 1p][[/span]]。
+[[span class="UI-font"]]UIフォントは[https://www.paratype.com/fonts/pt/pt-root-ui PT Root UI]。[[/span]]
+[[span class="mono-font"]]等幅フォントは[https://www.recursive.design/ Recursive]。[[/span]]
+[[/div]]
+
+全てのフォントは[http://scripts.sil.org/OFL SIL Open Font License, Version 1.1]の下でライセンスされています。
+[[/=]]
+
+-----
+
+
+
+
+
+
+[[module CSS]]
+td { vertical-align: top; }
+td strong { white-space: nowrap; }
+.options table.wiki-content-table td { border: none; padding: 0.7em 1em; }
+.colors-container {
+  width: 98%;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  font-weight: 700;
+  font-family: var(--title-font, Verdana);
+  color: black;
+}
+
+.colors-container .colors, .colors-container .subcolors {
+  width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.colors-container .color {
+  flex-grow: 2;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  color: rgb(var(--swatch-text-dark, 0, 0, 0));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.colors-container .colors .color {
+  height: 7rem;
+  flex-basis: calc((100% / 2) - 2rem);
+}
+
+.colors-container .subcolors .color {
+  height: 4rem;
+  font-size: 75%;
+  text-align: center;
+  flex-basis: calc((100% / 6) - 2rem);
+}
+
+.colors-container .css-variable {
+  font-size: 75%;
+  letter-spacing: 0.1em;
+  font-family: var(--body-font, Verdana);
+}
+
+/* Hide a colour that's not been provided by seeing if the variable starts with "{$" */
+.colors-container [data-variable^=\{\$] {
+  display: none;
+}
+
+.colors-container [data-has-light-text="1"] {
+  color: white;
+  color: rgb(var(--swatch-text-light, 255, 255, 255));
+}
+[[/module]]
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

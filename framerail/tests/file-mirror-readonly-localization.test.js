@@ -3,10 +3,6 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { test } from "node:test"
 
-// Refs #2603. The mirror read-only upload popup must come from the Fluent
-// catalogs, not hard-coded English: message, extra message, and the popup
-// chrome all render in the site locale. This file fails if either catalog
-// drops a mirror-readonly string or drifts from the component fallback.
 
 const enPath = new URL("../../locales/fluent/wiki-page/en.ftl", import.meta.url)
 const jaPath = new URL("../../locales/fluent/wiki-page/ja.ftl", import.meta.url)

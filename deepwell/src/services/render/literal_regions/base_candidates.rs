@@ -80,9 +80,7 @@ pub(super) struct DelimiterIdentity {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(super) enum BaseCandidateProvenance {
-    /// The pinned parser consumes the complete candidate when its opener wins.
     ClosedOwner,
-    /// Early runtime handling protects an unclosed candidate without claiming parser ownership.
     FailClosedProtection,
 }
 
@@ -91,7 +89,6 @@ pub(super) struct BaseCandidate {
     pub(super) range: Range<usize>,
     pub(super) provenance: BaseCandidateProvenance,
     pub(super) opener: DelimiterIdentity,
-    /// The delimiter becomes unavailable as an opener only if this candidate is selected.
     pub(super) terminator: Option<DelimiterIdentity>,
 }
 
@@ -138,13 +135,6 @@ impl BaseCandidatePolicy {
     };
 }
 
-/// Enumerate overlapping inline parser and protection candidates in source order.
-///
-/// Every emitted delimiter token remains a potential opener, including a token
-/// that is also another candidate's terminator. The global owner selector may
-/// consume that identity only after choosing the candidate that terminates
-/// there. This collector performs no sibling-parser selection or pre-masking;
-/// exact and protection candidates remain alternatives for one global pass.
 #[cfg(test)]
 pub(super) fn collect_base_candidates(
     source: &str,

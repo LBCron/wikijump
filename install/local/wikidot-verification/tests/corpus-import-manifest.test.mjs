@@ -386,7 +386,7 @@ test('buildCrossSiteDependencyManifest emits foreign rows with corpus provenance
   assert.equal(gaps[0].reason, 'absent-from-corpus');
 });
 
-test('buildCrossSiteDependencyManifest reports collisions and bad records as gaps, never renames', () => {
+test('buildCrossSiteDependencyManifest emits foreign pages that share a target fullname and reports bad records as gaps', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-xsite-'));
   writePage(root, 'en', 'scp-1', {
     entityId: '11111111-1111-4111-8111-111111111111',
@@ -394,12 +394,12 @@ test('buildCrossSiteDependencyManifest reports collisions and bad records as gap
   });
   writePage(root, 'en', 'clash', {
     entityId: '22222222-2222-4222-8222-222222222222',
-    source: 'same-site page wins the slug',
+    source: 'same-site page keeps its own fullname',
   });
   writePage(root, 'snippets', 'clash', {
     entityId: '33333333-3333-4333-8333-333333333333',
     meta: { fullname: 'clash', title: 'C', title_shown: 'C', tags: [] },
-    source: 'foreign decoy',
+    source: 'foreign page of the same fullname',
   });
   writePage(root, 'snippets', 'broken', {
     entityId: '44444444-4444-4444-8444-444444444444',
@@ -414,8 +414,8 @@ test('buildCrossSiteDependencyManifest reports collisions and bad records as gap
     roots: ['scp-1'],
     branches: ['en', 'snippets'],
   });
-  assert.deepEqual(rows, []);
-  assert.deepEqual(gaps.map((gap) => gap.reason).sort(), ['invalid-corpus-record', 'slug-collision']);
+  assert.deepEqual(rows.map((row) => `${row.source_site}:${row.fullname}`), ['snippets:clash']);
+  assert.deepEqual(gaps.map((gap) => gap.reason), ['invalid-corpus-record']);
 });
 
 test('summarizeCrossSiteCoverage counts fixed pages from per-root verdicts', () => {
@@ -461,7 +461,7 @@ test('buildCrossSiteDependencyManifest honors caller-configured branch preferenc
   assert.deepEqual(gaps, []);
 });
 
-test('buildCrossSiteDependencyManifest treats cross-branch same slugs as collisions', () => {
+test('buildCrossSiteDependencyManifest emits one fullname from two source sites as two rows', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-xsite-'));
   writePage(root, 'en', 'scp-1', {
     entityId: '11111111-1111-4111-8111-111111111111',
@@ -482,9 +482,9 @@ test('buildCrossSiteDependencyManifest treats cross-branch same slugs as collisi
     branches: ['en', 'aaa', 'zzz'],
     includeClosure: { preferredBranches: { aaa: 'aaa', zzz: 'zzz' } },
   });
-  assert.equal(rows.length, 1);
-  assert.equal(rows[0].source_branch, 'aaa');
-  assert.equal(gaps.length, 1);
-  assert.equal(gaps[0].reason, 'slug-collision');
-  assert.match(gaps[0].detail, /already emitted for aaa:shared/u);
+  assert.deepEqual(
+    rows.map((row) => `${row.source_site}:${row.fullname}`),
+    ['aaa:shared', 'zzz:shared'],
+  );
+  assert.deepEqual(gaps, []);
 });

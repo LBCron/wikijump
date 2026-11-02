@@ -35,9 +35,6 @@ const SOURCE_PROBE_MODULES = Object.freeze([
 ]);
 const WORKER_PATH = "scripts/wikidot_xmlrpc_capture_worker.py";
 
-// This is an explicit application import closure. The worker itself inserts
-// its materialized application root before importing this package; no mutable
-// source checkout is visible to the spawned interpreter.
 export const WIKIDOT_XMLRPC_WORKER_SOURCE_PATHS = Object.freeze([
   "pyproject.toml",
   "scripts/wikidot_paths.py",

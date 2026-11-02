@@ -1,0 +1,38 @@
+#header h2 span {
+    margin-left: 1px;
+}
+
+a {
+    color: #bb0111;
+}
+
+@keyframes sbs {
+    from {top: 0px;}
+    to {top: 500px;}
+}
+
+#side-bar, iframe.scpnet-interwiki-frame {
+    animation-name: sbs;
+    animation-duration: 20000s;
+    animation-iteration-count: infinite;
+}
+
+a[href="/system:page-tags/tag/テーマ#pages"] {
+    font-weight: bold;
+}
+
+#license-area a::after {
+    content: ".";
+}
+
+#watchers-button {
+    display: none;
+}
+
+.page-rate-widget-box .rate-points {
+    text-transform: capitalize;
+}
+
+
+/* SCP-JP Wikidot yossistyle narrow files: keep the file table inside the viewport at phone widths. */
+@media (max-width:767px){#action-area table.page-files{width:100%;table-layout:fixed}#action-area table.page-files td{overflow-wrap:anywhere}}

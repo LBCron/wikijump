@@ -1,0 +1,198 @@
+{
+  "slug": "theme:paperstack",
+  "en_source_sha256": "473d6a0dcb753239797efd8dd829f1e34bb626419076023de8d4afe944adf187",
+  "en_updated_at": "2026-04-12T05:15:56+00:00",
+  "en_entity_uuid": "03c85737-7f10-4ccf-a543-310480328e29",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "a6d81604d54acbe2626a625fcd1b839636fdb8a53d6b7de292338280ac6b8fc6",
+  "jp_previous_updated_at": "2026-09-24T21:16:37+00:00",
+  "jp_previous_entity_uuid": "1e488b54-154e-4ca3-b298-9023ad8c50a8",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:paperstack",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:paperstack",
+    "title": "Paperstack Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "473d6a0dcb753239797efd8dd829f1e34bb626419076023de8d4afe944adf187",
+      "updated_at": "2026-04-12T05:15:56+00:00",
+      "entity_uuid": "03c85737-7f10-4ccf-a543-310480328e29",
+      "tags": [
+        "_cc",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 105,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:paperstack"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "a6d81604d54acbe2626a625fcd1b839636fdb8a53d6b7de292338280ac6b8fc6",
+      "updated_at": "2026-09-24T21:16:37+00:00",
+      "entity_uuid": "1e488b54-154e-4ca3-b298-9023ad8c50a8",
+      "tags": [
+        "en",
+        "テーマ",
+        "要翻訳"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:paperstack"
+      },
+      "revisions": 6
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive",
+    "existing_jp_rebase": {
+      "previous_sha256": "6c36f989fdefaab3f2dbeff63bc5770e57b638650911eb9263e1b814dea27ee0",
+      "previous_snapshot": "existing-jp-pre-rebase-20261005.wikidot.txt",
+      "current_revision": 6,
+      "current_updated_at": "2026-09-24T21:16:37+00:00",
+      "current_sha256": "a6d81604d54acbe2626a625fcd1b839636fdb8a53d6b7de292338280ac6b8fc6",
+      "diff_assessment": "provenance refresh; source freshness audit found no theme CSS/runtime behavior delta"
+    }
+  },
+  "dependencies": {
+    "slug": "theme:paperstack",
+    "en_includes": [
+      "component:image-block name=https://scp-wiki.wdfiles.com/local--files/theme:paperstack/test.png",
+      ":scp-wiki:theme:paperstack",
+      "component:image-block name=(IMAGE-HERE)",
+      ":scp-wiki:theme:paperstack",
+      ":scp-wiki:component:sigma-plus",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/Josefin-Sans-Bold-Italic.woff2",
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/Josefin-Sans-Bold.woff2",
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/Josefin-Sans-Italic.woff2",
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/Josefin-Sans.woff2",
+      "https://fonts.bunny.net/css2?family=Fira+Code&display=swap",
+      "https://fonts.bunny.net/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Apaperstack/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Apaperstack/lgtrans.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme:paperstack/test.png|caption=(CAPTION"
+    ],
+    "jp_includes": [
+      "component:image-block name=http://scp-wiki.wdfiles.com/local--files/theme:paperstack/test.png",
+      ":scp-jp:theme:paperstack",
+      "component:image-block name=画像URL",
+      ":scp-jp:theme:paperstack",
+      "component:image-block",
+      "component:image-block",
+      "component:image-block"
+    ],
+    "jp_external_dependencies": [
+      "http://scp-jp-storage.wikidot.com/local--files/file:3396310-33-2yqn/t4.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:3396310-33-dj1t/t1.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:3396310-33-jwn9/t3.png",
+      "http://scp-wiki.wdfiles.com/local--files/theme:paperstack/test.png|caption=",
+      "https://fonts.googleapis.com/css2?family=Fira+Code&display=swap",
+      "https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Oxygen&display=swap",
+      "https://fonts.googleapis.com/css2?family=Sawarabi+Gothic&display=swap",
+      "https://scp-jp.wdfiles.com/local--files/theme%3Apaperstack/lgtrans.png"
+    ],
+    "base_family": "sigma"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "candidate_source_hash": "a8ecef175587b55b1458c900ab15e93cc7f1b76f7b388efe2b9e9f143eeeeba0",
+  "page_assets": [
+    {
+      "filename": "lgtrans.png",
+      "sha256": "85bb999e3a059b8686f0b18df73636242976531b5991c2d3ca395d7dd6d6b12e",
+      "bytes": 28725,
+      "asset_file": "85bb999e3a059b8686f0b18df73636242976531b5991c2d3ca395d7dd6d6b12e.png",
+      "source_urls": [
+        "https://scp-jp.wdfiles.com/local--files/theme%3Apaperstack/lgtrans.png"
+      ],
+      "acquired_from": "https://scp-jp.wdfiles.com/local--files/theme%3Apaperstack/lgtrans.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/paperstack/assets.json",
+  "asset_dependency_decision_count": 12,
+  "interactive_acceptance": {
+    "theme_source": {
+      "path": "upstream-en.wikidot.txt",
+      "active_tags": [
+        "_cc",
+        "theme"
+      ],
+      "evidence": "Current SCP-EN page metadata tags and active CSS module; imports resolved from the existing content-addressed Theme Lab cache without network access.",
+      "candidate_tags": [
+        "テーマ"
+      ]
+    },
+    "resolved_theme_css": {
+      "source_path": "upstream-en.wikidot.txt",
+      "source_sha256": "473d6a0dcb753239797efd8dd829f1e34bb626419076023de8d4afe944adf187",
+      "active_tags": [
+        "_cc",
+        "theme"
+      ],
+      "candidate_source_sha256": "15eebfa9eecd99a5201589d70f239b5f2ab5945936f537c0f53f589e00a8e773",
+      "candidate_active_tags": [
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "ccc0e9df9f727e6c4ab5c3507839e88b15c75fa216b5a9ccecbdf32ca83f20f7",
+      "asset_receipt_path": "assets.json",
+      "assets": 6,
+      "imports": 5,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "6f335793beb03e96c14bc5e906153e3857da66a37a19e148900e97ae2505f1ca",
+    "jp_overrides_sha256": "8b628d6094475175878b4d99551408d0db1edaa08a6dfbbe87a1b9f01731c516",
+    "semantic_css_sha256": "8b0c8416e580ad43b68bc3dd9310e0d6af0b3c774dc037e67cb992b05a1c2ae0",
+    "canonical_override_sha256": "d54288e197bef9cc0c2ecf34c8d537f98dd9c2d015628e1e1e1cc90b68d3524d",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "6a78c4d98561564b12421cb8503bf2091d45097d4930ecfd1f22825eb012eddb",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

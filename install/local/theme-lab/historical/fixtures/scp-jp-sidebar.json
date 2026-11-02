@@ -1,0 +1,17 @@
+{
+  "schema": "theme_lab_frozen_wikidot_dom.v1",
+  "url": "https://scp-jp.wikidot.com/scp-173-jp",
+  "selector": "#side-bar",
+  "observed_at": "2026-09-29T19:17:18.255Z",
+  "sha256": "e4ec133d51cfc843e65478a80ffcb82b161c1cc8209a80a42fa7f1b31dd7e032",
+  "dom_sha256": "b26c3392cfe2eccc36cf1f2cf08c42a4ae4453947995bddb47841c3c5e2bfb0c",
+  "receipt": "ports/authority-evidence/dear-dictator-navigation-published-current-v5/receipt.json",
+  "public_writes": 0,
+  "asset_sha256": [
+    "4f8c6d416f09671777934e57bc67fb52ccc97145dc6f1869e628d9ffd7d8f6e7"
+  ],
+  "transforms": [
+    "Inline frozen replay image bytes.",
+    "Remote Interwiki frames are represented separately by the bounded local placement fixture."
+  ]
+}

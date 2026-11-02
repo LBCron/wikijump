@@ -5,13 +5,13 @@
     "inputs": [
       {
         "path": "deepwell/Cargo.lock",
-        "git_blob": "f18eb0a5fce1a97c6be73490d5f5b992784a3fa4",
-        "sha256": "677d43fc4721bd6140c6775ca0100a50fd05454ff88c7ef4bd2421cced301888"
+        "git_blob": "0d2da293168cfc93f6ed14e077c979e1d8f84b18",
+        "sha256": "ca95f181495a3559734d21aaf59df4277c748b5a47fe2fca1bda1d3e306f5cd3"
       },
       {
         "path": "deepwell/Cargo.toml",
-        "git_blob": "0f99f6fdf42571314db5459b689b63d010087a02",
-        "sha256": "c145bc0d77ffd7810683bd59505463717790e767f2f95a64a6a5a48455d08cd1"
+        "git_blob": "26248036c77608ebae107f1d2852475bbbdace51",
+        "sha256": "ee45395bab963cef18e552072aa24ba5616b25b930d7e43bc475bc62c4b7bd02"
       },
       {
         "path": "deepwell/migrations/20260815010000_text_block_wikidot_sha1.sql",
@@ -20,8 +20,8 @@
       },
       {
         "path": "deepwell/src/api.rs",
-        "git_blob": "cae38503aaa091bde4ab188aace4e5e81c8d0fea",
-        "sha256": "0592a6fa6182ea64764575cf788e4363d58976767367b5d45fb3c0ab4a0c5d41"
+        "git_blob": "1b128c7133bac5b4e32b7779fd99bafd7a354880",
+        "sha256": "96efa6f4637f971eb64a4501687bae14b51d1a0e7e2b670873b7f680299c5422"
       },
       {
         "path": "deepwell/src/endpoints/text_block.rs",
@@ -30,99 +30,99 @@
       },
       {
         "path": "deepwell/src/models/text_block.rs",
-        "git_blob": "18c83570ef0638f672f70e4073b9479d7f21ca78",
-        "sha256": "15982170c7f94cf7da8b8b27e4756555926a7405840f965448d1b79bbbdac51d"
+        "git_blob": "f10784dabcfeaf6317fa0eaa39db66f0a3a3c60a",
+        "sha256": "2fd8ee50f207f67f17e92642461bb6cbea2e1d170d753aa783cae4e651c17614"
       },
       {
         "path": "deepwell/src/services/context.rs",
-        "git_blob": "33e996b8c0e9ae2162ea5e30d19d1c789cb81ce3",
-        "sha256": "4ae7be958939a434851549e71ff7e2757328a59a2c9366623d68e5d40f3286dc"
+        "git_blob": "cc374966d4356765616ce67fc0320a1ff25f3b0e",
+        "sha256": "1fc68700c6828d8d0aade8169902c2a3e71b95fd122e6a2e33146db8bfa43073"
       },
       {
         "path": "deepwell/src/services/text_block/service.rs",
-        "git_blob": "7af34cd8a755fec5918d21cdc15d2ad63f7020d1",
-        "sha256": "597d663efb768bea089fcf7cc90f451ade02dbc2b985764df3df3de3e0105003"
+        "git_blob": "6aa822d8a87fc2a4bd8246157bf6d9917346372d",
+        "sha256": "7949659aedbd8f59c926fb3d0aa7daf0ca1554a5b33bbe1b452c4a04b4902327"
       },
       {
         "path": "deepwell/src/services/text_block/structs.rs",
-        "git_blob": "22127a37ab9554f6c26228541df86d4ae2163b3c",
-        "sha256": "9b100aba9b9ee0b2347cdb2617449c1afa47b0379041c4694ea4aac91a41d5bd"
+        "git_blob": "172031e7401bc178e33b9791abd9df6616c9b7ca",
+        "sha256": "c25035999b75bf6677e9e62fbeb0f297930a5941a7e0022f18f879368aeca5e1"
       },
       {
         "path": "deepwell/tests/page.rs",
-        "git_blob": "5f71c99315ab280f0540b7027e8f0f17e9635921",
-        "sha256": "b16333c3da63283e548c4e343abdeb838dd8e73fa87f9f288b961f15ca823abf"
+        "git_blob": "5137e388a70f76e549dd63a592101a2d42ac4def",
+        "sha256": "512f1a5fc7233702cac4e8fcdc402715cc1626b79b38399e9139fb1e3b081504"
       },
       {
         "path": "wws/Cargo.lock",
-        "git_blob": "ef1ec81b70de14d4cba41f176bcbd1aff97f9f08",
-        "sha256": "5dec1c52be05ff096b828f441eb2601c4c98817f359a39831a3fe25fb9553771"
+        "git_blob": "ef84627b890441dfb33f0f6273655e45af221557",
+        "sha256": "8cc5b4f6273e09c7bfdf803935492c6c369e8d5760b2caac7b06bb20fe6fbd79"
       },
       {
         "path": "wws/Cargo.toml",
-        "git_blob": "9f0a12192ba2aa957bf2675a946cd2d18b71c8a6",
-        "sha256": "3ebb7b2880d49ac1c8bf1c13e99c507920f3d161fa886757b4504d69c8ca951a"
+        "git_blob": "45ec9921c67ce3a95a5989320c9f9fb8afd78634",
+        "sha256": "8523c2c924addb5e208c406563cb0e5a48a2563baa4a05334394649da6b59a44"
       },
       {
         "path": "wws/src/deepwell.rs",
-        "git_blob": "581e5abc925f18d6779a34c7b54b943887a329f0",
-        "sha256": "2d2cec493a593b0a047c7eba10415ca09c0154305a7f4d26ccd24a250ba84ddf"
+        "git_blob": "8f1b268bb1bc0231ae18591e442cf79c1e91ed04",
+        "sha256": "55e6f1bdef581c642e56d0c445830c1aeba6e8276a56e32570a81a87544e6b05"
       },
       {
         "path": "wws/src/handler/avatar.rs",
-        "git_blob": "c57f2cf5855593236ddc30535b561fc828bed09f",
-        "sha256": "aa005069d4e1112c49a0c708c0e9ee4a3dc8844409d9d31fcec3de302ae3b766"
+        "git_blob": "37c5a136b0deda9e8019eb91d95799800bb29eb9",
+        "sha256": "89c4e1f3884a4501b053943cb378a2a13d6ea292514b615efb69c0990e8d9f77"
       },
       {
         "path": "wws/src/handler/basic_error.rs",
-        "git_blob": "03faa63bc4138d4d44fe26ec5ecd5c758ab3d586",
-        "sha256": "180fe79f9bb317c685299617e034b192d08b9b08a002c1e298ea121695c01d19"
+        "git_blob": "d9ecf12e2d57907debcbce93b20bddf962f5ca30",
+        "sha256": "0bf66859fa7c24e5afa0123055cbe50bdc1fb57d20c45cb44fc0dbc22a80b7a6"
       },
       {
         "path": "wws/src/handler/file.rs",
-        "git_blob": "f51e1d0466be22049115043280a9e7ea5a5295cb",
-        "sha256": "23345ab3c416a84e6ad1227f99b71343056dadfbb5ba426facb0e3444192f78c"
+        "git_blob": "a5f0acf4e3c95872836938254d3fd14cddcbf827",
+        "sha256": "dbf34e079e8cfad2aceb15ebb3ed1c4959baecbbb40e2b630d4bbda653d26e89"
       },
       {
         "path": "wws/src/handler/misc.rs",
-        "git_blob": "0bbaf2640de49bcba6dbb8cb9b7c5a61c2d4944a",
-        "sha256": "a1129ddb03b8bd9a01569f58b59401788dca9afc160646f3b7cbc8f7b1dd1c0b"
+        "git_blob": "b3242e7bf46186ad6288e23fab17c16436ffa58d",
+        "sha256": "d5fbff0bad5850acd0f96dc7de00998409c848571ba444431f2a7f3d9dcc78b3"
       },
       {
         "path": "wws/src/handler/redirect.rs",
-        "git_blob": "978d0d6ff7dc5079be6609305f7ff251046be503",
-        "sha256": "9465f89fe6b0334d97a0b0d49b7c4762c92384fd655c5a45869311d198fab439"
+        "git_blob": "d6bd87e115563c3d2b19625b5a95cb5f2dd34062",
+        "sha256": "e5ffc46ab4621a05b25916ba6302c2b4a9150ae17e912be3840462e8e2ace677"
       },
       {
         "path": "wws/src/handler/resized_image.rs",
-        "git_blob": "b82671fee9b61224e3abe86e8a546f9acd421edc",
-        "sha256": "fa2bcf6f76854b202f15fbf75b775652383f8e3f08845b2fb0318dda88bff074"
+        "git_blob": "2557b197e624967587d49442d32491bf180ca0aa",
+        "sha256": "4f3c74605102c9d6f589724c309585f19958626379044298c8ff468654ec27db"
       },
       {
         "path": "wws/src/handler/robots.rs",
-        "git_blob": "1368b028a15ad4f1ee00189e1e5db0ce0e6af358",
-        "sha256": "2de5e2af3d1718c00f3f269209e833f4cb2195b27eb8fb706b72f9251a4511cc"
+        "git_blob": "c2b2bec7ee6513657174253b66c15fd44c8277c3",
+        "sha256": "9e758c824ec7566ae50a132dc7d7ff653284bec5312724389250340686e063ee"
       },
       {
         "path": "wws/src/handler/text_block.rs",
-        "git_blob": "f9c1ad872e4fd5ead4002a5ba9f2e9517dff67d8",
-        "sha256": "56b6ad93f3632669c17ae9d1150fd4734a5f3c744c8bb00d761207315a0ebbed"
+        "git_blob": "44b716e6690b87863efb3bbca999d95ad08fc6cd",
+        "sha256": "aeb4534df28d048da24cc02be948039d403f2023a46879ae040a4830a0555aa8"
       },
       {
         "path": "wws/src/handler/well_known.rs",
-        "git_blob": "7ab5bd0d4ac4f512fc46249e74c3398777a2a4df",
-        "sha256": "fc7a550970a46a663c5ac1b93ce55536be89430c3a99cd187869a086f304387b"
+        "git_blob": "1476a6ec41589c3fd4c8a4d0f727ed90ba4d9699",
+        "sha256": "718eec24c1431233fa719c3a7073f6143dce6612a5458edd0e55350cbedf761a"
       },
       {
         "path": "wws/src/route.rs",
-        "git_blob": "dc0c29fc9a5f83a430f3d863ddf8872d18606115",
-        "sha256": "fd80900327a6212c39feebacd10d55a2b414bb848569f5fab4ddb3762121b924"
+        "git_blob": "34490e620a67effdb73bdeb3780f667ffd37c812",
+        "sha256": "b3d53985800bf48114c13323cb0953d85590652a6eee58a2b79b064d822e2e39"
       }
     ]
   },
   "generator": {
     "path": "install/local/wikidot-verification/scripts/build-wws-route-registration-denominator.mjs",
-    "sha256": "1ed1f1af82d70881cc9b771743878fec1ed3890be4f943b34ec172f632637706"
+    "sha256": "e28657ec2a3a32803c0c1ed32359fc5ef4745309eb5ec778a5ebfb045e3d29e2"
   },
   "historical_artifact": {
     "path": "install/local/wikidot-verification/artifacts/pr1334-wws-route-attribution-no-thumbnails-20260810.json",
@@ -157,8 +157,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_invalid_method",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L93",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L217",
+      "route_registration_reference": "wws/src/route.rs#L82",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L216",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -168,8 +168,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_invalid_method",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L102",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L217",
+      "route_registration_reference": "wws/src/route.rs#L89",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L216",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -179,8 +179,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_invalid_method",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L96",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L217",
+      "route_registration_reference": "wws/src/route.rs#L84",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L216",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -190,8 +190,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_invalid_method",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L88",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L217",
+      "route_registration_reference": "wws/src/route.rs#L77",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L216",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -201,8 +201,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_invalid_method",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L75",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L217",
+      "route_registration_reference": "wws/src/route.rs#L64",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L216",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -212,8 +212,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_file_redirect",
       "handler_definition_path": "wws/src/handler/redirect.rs",
-      "route_registration_reference": "wws/src/route.rs#L60",
-      "handler_definition_reference": "wws/src/handler/redirect.rs#L60",
+      "route_registration_reference": "wws/src/route.rs#L50",
+      "handler_definition_reference": "wws/src/handler/redirect.rs#L87",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -223,7 +223,7 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_health_check",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L100",
+      "route_registration_reference": "wws/src/route.rs#L87",
       "handler_definition_reference": "wws/src/handler/misc.rs#L184",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
@@ -234,8 +234,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_invalid_method",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L98",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L217",
+      "route_registration_reference": "wws/src/route.rs#L86",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L216",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -245,8 +245,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_well_known",
       "handler_definition_path": "wws/src/handler/well_known.rs",
-      "route_registration_reference": "wws/src/route.rs#L125",
-      "handler_definition_reference": "wws/src/handler/well_known.rs#L35",
+      "route_registration_reference": "wws/src/route.rs#L105",
+      "handler_definition_reference": "wws/src/handler/well_known.rs#L30",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -256,8 +256,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_well_known",
       "handler_definition_path": "wws/src/handler/well_known.rs",
-      "route_registration_reference": "wws/src/route.rs#L126",
-      "handler_definition_reference": "wws/src/handler/well_known.rs#L35",
+      "route_registration_reference": "wws/src/route.rs#L106",
+      "handler_definition_reference": "wws/src/handler/well_known.rs#L30",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -267,8 +267,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_code_redirect",
       "handler_definition_path": "wws/src/handler/redirect.rs",
-      "route_registration_reference": "wws/src/route.rs#L46",
-      "handler_definition_reference": "wws/src/handler/redirect.rs#L41",
+      "route_registration_reference": "wws/src/route.rs#L37",
+      "handler_definition_reference": "wws/src/handler/redirect.rs#L68",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -278,8 +278,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_local_file",
       "handler_definition_path": "wws/src/handler/file.rs",
-      "route_registration_reference": "wws/src/route.rs#L42",
-      "handler_definition_reference": "wws/src/handler/file.rs#L342",
+      "route_registration_reference": "wws/src/route.rs#L33",
+      "handler_definition_reference": "wws/src/handler/file.rs#L331",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -289,8 +289,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_html_redirect",
       "handler_definition_path": "wws/src/handler/redirect.rs",
-      "route_registration_reference": "wws/src/route.rs#L58",
-      "handler_definition_reference": "wws/src/handler/redirect.rs#L53",
+      "route_registration_reference": "wws/src/route.rs#L49",
+      "handler_definition_reference": "wws/src/handler/redirect.rs#L80",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -300,8 +300,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_invalid_method",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L54",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L217",
+      "route_registration_reference": "wws/src/route.rs#L45",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L216",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -311,8 +311,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_invalid_method",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L80",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L217",
+      "route_registration_reference": "wws/src/route.rs#L69",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L216",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -322,8 +322,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_code_redirect",
       "handler_definition_path": "wws/src/handler/redirect.rs",
-      "route_registration_reference": "wws/src/route.rs#L66",
-      "handler_definition_reference": "wws/src/handler/redirect.rs#L41",
+      "route_registration_reference": "wws/src/route.rs#L56",
+      "handler_definition_reference": "wws/src/handler/redirect.rs#L68",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -333,8 +333,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_download_redirect",
       "handler_definition_path": "wws/src/handler/redirect.rs",
-      "route_registration_reference": "wws/src/route.rs#L69",
-      "handler_definition_reference": "wws/src/handler/redirect.rs#L67",
+      "route_registration_reference": "wws/src/route.rs#L59",
+      "handler_definition_reference": "wws/src/handler/redirect.rs#L94",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -344,8 +344,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_file_redirect",
       "handler_definition_path": "wws/src/handler/redirect.rs",
-      "route_registration_reference": "wws/src/route.rs#L68",
-      "handler_definition_reference": "wws/src/handler/redirect.rs#L60",
+      "route_registration_reference": "wws/src/route.rs#L58",
+      "handler_definition_reference": "wws/src/handler/redirect.rs#L87",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -355,8 +355,8 @@
       "declared_method_class": "ANY",
       "registered_handler_symbol": "handle_html_redirect",
       "handler_definition_path": "wws/src/handler/redirect.rs",
-      "route_registration_reference": "wws/src/route.rs#L67",
-      "handler_definition_reference": "wws/src/handler/redirect.rs#L53",
+      "route_registration_reference": "wws/src/route.rs#L57",
+      "handler_definition_reference": "wws/src/handler/redirect.rs#L80",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -366,7 +366,7 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_user_avatar",
       "handler_definition_path": "wws/src/handler/avatar.rs",
-      "route_registration_reference": "wws/src/route.rs#L92",
+      "route_registration_reference": "wws/src/route.rs#L81",
       "handler_definition_reference": "wws/src/handler/avatar.rs#L95",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
@@ -377,8 +377,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_basic_error",
       "handler_definition_path": "wws/src/handler/basic_error.rs",
-      "route_registration_reference": "wws/src/route.rs#L101",
-      "handler_definition_reference": "wws/src/handler/basic_error.rs#L127",
+      "route_registration_reference": "wws/src/route.rs#L88",
+      "handler_definition_reference": "wws/src/handler/basic_error.rs#L107",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -388,8 +388,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_code_block",
       "handler_definition_path": "wws/src/handler/text_block.rs",
-      "route_registration_reference": "wws/src/route.rs#L95",
-      "handler_definition_reference": "wws/src/handler/text_block.rs#L135",
+      "route_registration_reference": "wws/src/route.rs#L83",
+      "handler_definition_reference": "wws/src/handler/text_block.rs#L152",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -399,8 +399,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_file_download",
       "handler_definition_path": "wws/src/handler/file.rs",
-      "route_registration_reference": "wws/src/route.rs#L84",
-      "handler_definition_reference": "wws/src/handler/file.rs#L429",
+      "route_registration_reference": "wws/src/route.rs#L73",
+      "handler_definition_reference": "wws/src/handler/file.rs#L418",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -410,8 +410,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_file_fetch",
       "handler_definition_path": "wws/src/handler/file.rs",
-      "route_registration_reference": "wws/src/route.rs#L74",
-      "handler_definition_reference": "wws/src/handler/file.rs#L397",
+      "route_registration_reference": "wws/src/route.rs#L63",
+      "handler_definition_reference": "wws/src/handler/file.rs#L386",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -421,8 +421,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_html_block",
       "handler_definition_path": "wws/src/handler/text_block.rs",
-      "route_registration_reference": "wws/src/route.rs#L97",
-      "handler_definition_reference": "wws/src/handler/text_block.rs#L45",
+      "route_registration_reference": "wws/src/route.rs#L85",
+      "handler_definition_reference": "wws/src/handler/text_block.rs#L47",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -432,8 +432,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_html_block_iframe_js",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L113",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L209",
+      "route_registration_reference": "wws/src/route.rs#L96",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L208",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -443,8 +443,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_resize_iframe_html",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L117",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L213",
+      "route_registration_reference": "wws/src/route.rs#L100",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L212",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -454,8 +454,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_common_javascript",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L121",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L204",
+      "route_registration_reference": "wws/src/route.rs#L104",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L203",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -465,8 +465,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_html_block_css",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L105",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L200",
+      "route_registration_reference": "wws/src/route.rs#L91",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L199",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -476,8 +476,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_common_theme",
       "handler_definition_path": "wws/src/handler/misc.rs",
-      "route_registration_reference": "wws/src/route.rs#L109",
-      "handler_definition_reference": "wws/src/handler/misc.rs#L195",
+      "route_registration_reference": "wws/src/route.rs#L95",
+      "handler_definition_reference": "wws/src/handler/misc.rs#L194",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -487,8 +487,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_html_terminal",
       "handler_definition_path": "wws/src/handler/text_block.rs",
-      "route_registration_reference": "wws/src/route.rs#L50",
-      "handler_definition_reference": "wws/src/handler/text_block.rs#L67",
+      "route_registration_reference": "wws/src/route.rs#L41",
+      "handler_definition_reference": "wws/src/handler/text_block.rs#L68",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -498,8 +498,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_resized_image",
       "handler_definition_path": "wws/src/handler/resized_image.rs",
-      "route_registration_reference": "wws/src/route.rs#L76",
-      "handler_definition_reference": "wws/src/handler/resized_image.rs#L90",
+      "route_registration_reference": "wws/src/route.rs#L65",
+      "handler_definition_reference": "wws/src/handler/resized_image.rs#L99",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -509,8 +509,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_robots_txt",
       "handler_definition_path": "wws/src/handler/robots.rs",
-      "route_registration_reference": "wws/src/route.rs#L104",
-      "handler_definition_reference": "wws/src/handler/robots.rs#L55",
+      "route_registration_reference": "wws/src/route.rs#L90",
+      "handler_definition_reference": "wws/src/handler/robots.rs#L46",
       "fallback_handler_symbol": null,
       "fallback_handler_definition_reference": null
     },
@@ -520,8 +520,8 @@
       "declared_method_class": "GET",
       "registered_handler_symbol": "handle_default_code_redirect",
       "handler_definition_path": "wws/src/handler/redirect.rs",
-      "route_registration_reference": "wws/src/route.rs#L61",
-      "handler_definition_reference": "wws/src/handler/redirect.rs#L48",
+      "route_registration_reference": "wws/src/route.rs#L51",
+      "handler_definition_reference": "wws/src/handler/redirect.rs#L75",
       "fallback_handler_symbol": "redirect_to_main",
       "fallback_handler_definition_reference": "wws/src/handler/redirect.rs#L29"
     }

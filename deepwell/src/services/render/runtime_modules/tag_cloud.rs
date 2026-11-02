@@ -1,5 +1,3 @@
-//! Wikidot TagCloud runtime expansion.
-
 use super::{
     BTreeMap, CompatHtmlFragments, CompatTextFragments, ConnectionTrait, Cow, Error,
     ErrorType, FromQueryResult, LiteralRegionIndex, PageInfo, PermissionService,
@@ -18,6 +16,8 @@ const TAG_CLOUD_DEFAULT_WIDTH: u16 = 300;
 const TAG_CLOUD_DEFAULT_HEIGHT: u16 = 300;
 const TAG_CLOUD_FONT_UNIT_ERROR: &str =
     "Format for minFontSize and maxFontSize must be the same (px, em, pt or %).";
+const TAG_CLOUD_FONT_FORMAT_ERROR: &str =
+    "Unsupported format for font size. Use px, em, pt or %.";
 const TAG_CLOUD_COLOR_ERROR: &str = "Unsupported color format. Use \"RRR,GGG,BBB\" for Red,Green,Blue each within 0-255 range.";
 
 #[derive(Clone, Copy, Debug)]
@@ -85,9 +85,6 @@ fn default_tag_cloud_arguments() -> TagCloudArguments {
             value: 300.0,
             unit: "%",
         },
-        // Live Wikidot's default color endpoints are the reverse of the
-        // historical table labels: least-common tags are light, most-common
-        // tags are dark.
         min_color: TagCloudColor {
             red: 128,
             green: 128,
@@ -138,8 +135,6 @@ fn parse_tag_cloud_arguments(head: &str) -> Option<TagCloudArguments> {
                 arguments.category = (!value.is_empty()).then(|| value.to_owned());
             }
             "showhidden" => {
-                // Production Wikidot treats any non-empty value, including
-                // "false" and "no", as enabling hidden tags.
                 arguments.show_hidden = !value.is_empty();
             }
             "urlattrprefix" => {
@@ -169,11 +164,11 @@ fn parse_tag_cloud_arguments(head: &str) -> Option<TagCloudArguments> {
 
     if let (Some(min), Some(max)) = (min_font_size.as_deref(), max_font_size.as_deref()) {
         let Some(min) = parse_tag_cloud_size(min) else {
-            arguments.error = Some(TAG_CLOUD_FONT_UNIT_ERROR);
+            arguments.error = Some(TAG_CLOUD_FONT_FORMAT_ERROR);
             return Some(arguments);
         };
         let Some(max) = parse_tag_cloud_size(max) else {
-            arguments.error = Some(TAG_CLOUD_FONT_UNIT_ERROR);
+            arguments.error = Some(TAG_CLOUD_FONT_FORMAT_ERROR);
             return Some(arguments);
         };
         if min.unit != max.unit {
@@ -517,10 +512,6 @@ impl RenderService {
             .all(txn)
             .await
             .or_raise(make_error)?;
-        // The TagCloud viewer is anonymous, so a page reference cannot grant a
-        // page-scoped virtual role such as PageAuthor. Every scanned page can
-        // therefore share one permission derivation plus one category probe per
-        // distinct category, instead of a full page-scoped check per page.
         let category_permissions = &mut BTreeMap::new();
         let category_ids = pages
             .iter()
@@ -547,8 +538,6 @@ impl RenderService {
             return Ok(Vec::new());
         }
 
-        // Fetch revision tags in bounded chunks so a site with more pages than
-        // PostgreSQL's bind-parameter ceiling still renders instead of failing.
         let mut counts = BTreeMap::<String, usize>::new();
         for chunk in visible_revision_ids.chunks(REVISION_ID_QUERY_CHUNK) {
             let revision_values =
@@ -586,5 +575,37 @@ impl RenderService {
         }
 
         Ok(counts.into_iter().collect())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_tag_cloud_arguments;
+
+    #[test]
+    fn tag_cloud_unparseable_font_size_uses_the_format_error() {
+        for head in [
+            " maxFontSize=\"12banana\" minFontSize=\"100%\"",
+            " maxFontSize=\"100%\" minFontSize=\"12banana\"",
+        ] {
+            let arguments = parse_tag_cloud_arguments(head).expect("arguments parse");
+            assert_eq!(
+                arguments.error,
+                Some("Unsupported format for font size. Use px, em, pt or %."),
+            );
+        }
+    }
+
+    #[test]
+    fn tag_cloud_mismatched_font_units_use_the_unit_error() {
+        let arguments =
+            parse_tag_cloud_arguments(" maxFontSize=\"200%\" minFontSize=\"10px\"")
+                .expect("arguments parse");
+        assert_eq!(
+            arguments.error,
+            Some(
+                "Format for minFontSize and maxFontSize must be the same (px, em, pt or %)."
+            ),
+        );
     }
 }

@@ -35,7 +35,6 @@ test("anonymous Edit option shows the Wikidot denial without an editor", async (
   )
   await expect(page.locator("#odialog-container .button-close-message")).toBeVisible()
 
-  // No editor mounts, the action area stays hidden, and the page URL is kept.
   await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
   await expect(page.locator("#editor")).toHaveCount(0)
   await expect(page).toHaveURL(new RegExp(`${PAGE_PATH}$`, "u"))

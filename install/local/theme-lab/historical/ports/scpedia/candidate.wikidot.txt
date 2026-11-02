@@ -1,0 +1,1000 @@
+
+
+[[div style="padding-left: 1.6em;"]]
+//この記事は人気の百科事典スキンについて扱います。その他の用法については[[[theme:eigenvector|]]]を参照してください。//
+[[/div]]
+
+[[>]]
+**評価:**
+[[module Rate]]
+
+**クレジットモジュール付き評価:**
+[[/>]]
+
+
+ページに関する情報。
+
+
+これはEstrellaYoshteが作成した外観テーマです。
+
+このテーマをあなたのページへインポートするには、以下のテキストをページ内の任意の場所に置いてください。
+
+> @@@@
+
+
++ 例
+
+
+
+
+行頭に1個から6個のプラス記号「+」を置くことで、見出しを作成できます。
+
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 第1見出し
+
+++ 第2見出し
+
++++ 第3見出し
+
+++++ 第4見出し
+
++++++ 第5見出し
+
+++++++ 第6見出し
+[[/collapsible]]
+
+@@ @@
+~~~~
+[[tabview]]
+[[tab タブ1]]
+これはタブビューです。
+[[/tab]]
+[[tab タブ2]]
+ほら、ここにもテキストがあります。
+
+なんと趣深い。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。大量のテキストが含まれています。[[footnote]] これは脚注です。 [[/footnote]]
+
+これは長いタブです。大量のテキストが含まれています。
+
+これは長いタブです。大量のテキストが含まれています。
+
+これは長いタブです。大量のテキストが含まれています。
+
+これは長いタブです。大量のテキストが含まれています。
+
+これは長いタブです。大量のテキストが含まれています。
+
+これは長いタブです。大量のテキストが含まれています。
+
+これは長いタブです。大量のテキストが含まれています。
+[[/tab]]
+
+[[tab 空のタブ]]
+[[/tab]]
+
+[[tab 空のタブ]]
+[[/tab]]
+
+[[tab 超メガタブ]]
+こんにちは
+[[/tab]]
+
+[[tab 超絶長大メガタブIIアルティメット: 報い]]
+こんにちは2
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックです。各行の先頭に「> 」を置くことで作成できます。
+>
+> さらにテキスト
+> -----
+> これは水平線です
+>
+>> 入れ子の引用ブロック
+
+||~ これは ||~ 表です ||
+||これらの作り方は || もう知っているはずです ||
+||||きっと ||
+
+----
+
+@@@@
+
+[[div class="oheader"]]
+{{oheader}} div
+[[/div]]
+[[div class="oheader yellow"]]
+{{oheader yellow}} div
+[[/div]]
+[[div class="oheader orange"]]
+{{oheader orange}} div
+[[/div]]
+[[div class="oheader red"]]
+{{oheader red}} div
+[[/div]]
+
+[[div class="wikibox"]]
+= {{**@@[[div class="wikibox"]]@@**}}
+
+
+----
+{{wikibox}} div内の水平線。
+[[span class="capt grey"]]{{capt grey}} span[[/span]]
+[[span class="capt blue"]]{{capt blue}} span[[/span]]
+[[span class="capt lavender"]]{{capt lavender}} span[[/span]]
+[[span class="capt cyan"]]{{capt cyan}} span[[/span]]
+[[/div]]
+
+@@ @@
+@@ @@
+
+[[span class="s-title"]]{{s-title}} span[[/span]]
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+[[span class="s-title"]]{{s-title}} span 再び[[/span]]
+
+Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+
+~~~~
+[[footnoteblock]]
+
+[[span class="s-title"]]ソースコード:[[/span]]
+
+[[code type="CSS"]]
+/*
+    SCPedia Theme
+    [2021 Wikidot Theme]
+    By EstrellaYoshte
+    Based on:
+       Paperstack Theme by EstrellaYoshte
+*/
+
+@import url('https://scp-wiki.wdfiles.com/local--files/theme%3Ascpedia/linuxlibertine.css');
+@import url('https://fonts.bunny.net/css2?family=Roboto&display=swap');
+
+/* ---- BASE ---- */
+
+@media not screen and (max-width: 767px) {
+    #content-wrap {
+        margin: 2em 0 0;
+        max-width: 100%;
+    }
+    #main-content {
+        width: calc(100% - 15rem - 3rem);
+        margin: 0 0 0 16.5rem;
+        box-sizing: border-box;
+    }
+    #header {
+         width: auto;
+         max-width: calc(100% - 3rem);
+    }
+    #top-bar {
+        width: 100%;
+        max-width: 100%;
+        right: 0;
+    }
+}
+
+body {
+    font-family: sans-serif, 'Roboto', sans-serif;
+    color: #202122;
+    background-color: #f6f6f6;
+    background-image: linear-gradient(
+        to bottom,
+        #fff, #f6f6f6 140px,
+        #f6f6f6 140px, #f6f6f6 100%);
+}
+
+
+/* ---- HEADER ---- */
+ 
+div#container-wrap {
+     background-image: none;
+}
+div#header {
+    background-image: none;
+    height: 100px;
+}
+
+#header h1, #header h2 { float: none; margin-left: 0; text-align: center; }
+#header h2 { margin-top: -1.1rem; }
+/* Hide the existing text */
+#header h1 span, #header h2 span { font-size: 0; display: none; }
+/* Style the new text */
+#header h1 a::before, #header h2::before {
+    color: black;
+    font-family: 'linux_libertinesemibold', 'Georgia', serif;
+    text-shadow: none;
+}
+
+#header h1 a::before {
+  content: " ";
+  font-size: 1.3em;
+  font-weight: 240;
+  display: inline-block;
+  margin-top: -1.2rem;
+}
+#header h2::before {
+  content: " ";
+  font-size: 1.4em;
+  text-indent: 0.5rem;
+  display: inline-block;
+  margin-top: -0.3rem;
+}
+
+div#extra-div-1 {
+    height: 192px;
+    width: 100%;
+    top: 10px;
+    position: absolute;
+    background: var(--lgurl);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: 2.5rem 50%;
+    z-index: -1;
+}
+
+div#extra-div-2 {
+    height: 115px;
+    width: max-content;
+    top: 1.65rem;
+    left: 17.25rem;
+    position: absolute;
+    pointer-events: none;
+}
+div#extra-div-2::before, div#extra-div-2::after {
+    color: black;
+    font-family: 'linux_libertinesemibold', 'Georgia', serif;
+    font-weight: 300;
+    text-shadow: none;
+    display: block;
+    position: relative;
+    text-align: center;
+    height: 3.5rem;
+}
+div#extra-div-2::before {
+    content: var(--header-title, "SCP FOUNDATION");
+    font-size: 3.75rem;
+}
+div#extra-div-2::after {
+    content: var(--header-subtitle, "Source, Catalog, Profile");
+    font-size: 1.625rem;
+}
+
+@media (max-width: 767px) {
+    div#extra-div-1 {
+        top: 9px;
+        height: 120px;
+        background-position: 50% 50%;
+        opacity: 0.25;
+    }
+   #header h1 a::before {
+        content: var(--header-title, "SCP FOUNDATION");
+    }
+    #header h2::before {
+       content: var(--header-subtitle, "Source, Catalog, Profile");
+    }
+    div#extra-div-2::before, div#extra-div-2::after { display: none; }
+}
+
+#login-status { 
+    color: #54595D;
+    right: 0;
+}
+#login-status a, #login-status ul a, #login-status ul a:hover { color: #0645AD; }
+#account-topbutton{ border: solid 1px #0645AD; }
+
+
+/* ---- SEARCH ---- */
+div#search-top-box {
+    top: 2.1rem;
+    right: -1px;
+}
+div#search-top-box form {
+    display: flex;
+    justify-content: flex-end;
+}
+
+div#search-top-box form input[type="text"]:not(:focus),
+div#search-top-box form input[type="text"]:not(:focus):not(:hover) {
+    color: transparent;
+    cursor: pointer;
+    display: none;
+    width: 1.6rem;
+    height: 1.6rem;
+    box-sizing: border-box;
+    border-radius: 0;
+    background-position: center;
+    background-size: 55%;
+    background-repeat: no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cpath%20fill%3D%22%23ddd%22%20d%3D%22M505%20442.7L405.3%20343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3%2044-79.7%2044-128C416%2093.1%20322.9%200%20208%200S0%2093.1%200%20208s93.1%20208%20208%20208c48.3%200%2092.7-16.4%20128-44v16.3c0%206.4%202.5%2012.5%207%2017l99.7%2099.7c9.4%209.4%2024.6%209.4%2033.9%200l28.3-28.3c9.4-9.4%209.4-24.6.1-34zM208%20336c-70.7%200-128-57.2-128-128%200-70.7%2057.2-128%20128-128%2070.7%200%20128%2057.2%20128%20128%200%2070.7-57.2%20128-128%20128z%22%2F%3E%3C%2Fsvg%3E");
+}
+
+div#search-top-box form input[type="text"],
+div#search-top-box form input[type="text"]:hover {
+    background-color: #FDFDFD!important;
+    color: #202122;
+    display: inline-block;
+    height: 1.6rem;
+    width: 8rem;
+    box-shadow: none;
+    border: solid 1px #A2A9B1;
+    border-radius: 0;
+    transition: width .25s;
+    outline: none;
+}
+
+div#search-top-box form input[type="submit"].button {
+    display: block;
+    height: 1.6rem;
+    width: 1.6rem;
+    border: solid 1px #A2A9B1;
+    border-radius: 0;
+    color: transparent;
+    text-shadow: none;
+    box-shadow: none;
+    background-color: #fdfdfd;
+background-position: center;
+    background-size: 55%;
+    background-repeat: no-repeat;
+    background-image: url(data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20512%20512%22%3E%3Cpath%20fill%3D%22%23ddd%22%20d%3D%22M505%20442.7L405.3%20343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3%2044-79.7%2044-128C416%2093.1%20322.9%200%20208%200S0%2093.1%200%20208s93.1%20208%20208%20208c48.3%200%2092.7-16.4%20128-44v16.3c0%206.4%202.5%2012.5%207%2017l99.7%2099.7c9.4%209.4%2024.6%209.4%2033.9%200l28.3-28.3c9.4-9.4%209.4-24.6.1-34zM208%20336c-70.7%200-128-57.2-128-128%200-70.7%2057.2-128%20128-128%2070.7%200%20128%2057.2%20128%20128%200%2070.7-57.2%20128-128%20128z%22%2F%3E%3C%2Fsvg%3E);
+}
+
+
+/* ---- TOP BAR ---- */
+
+#top-bar { top: 6.75rem; }
+div.top-bar { left: 1em; }
+#top-bar, #top-bar a {
+     color: #0645AD;
+}
+
+#top-bar ul li ul {
+    border-bottom-width: 1px;
+    border-color: #A2A9B1;
+    box-shadow: none;
+}
+#top-bar ul li a {
+    color: #0645AD;
+    background-image: linear-gradient(to bottom, rgba(167,215,249,0) 0, rgba(167,215,249,0.2) 100%);
+    border-left: solid 1px #A7D7F9;
+    border-right: solid 1px #A7D7F9;
+}
+#top-bar ul li.sfhover a,
+#top-bar ul li a:hover {
+    background: white; /* top bar hover background color */
+    color: #0645AD;
+    border-left: solid 1px #A7D7F9;
+    border-right: solid 1px #A7D7F9;
+}
+
+#top-bar ul li.sfhover ul li a,
+#top-bar ul li:hover ul li a {
+   border-top-color: #A2A9B1;
+   background-color: #f6f6f6;
+}
+#top-bar ul li.sfhover a,
+#top-bar ul li:hover a {
+    color: #0645AD;
+}
+
+
+/* ---- SIDE BAR ---- */
+#side-bar {
+    background-color: #F6F6F6;
+    top: 3.4em;
+}
+ 
+#side-bar .side-block.media > * {
+    display: flex;
+    justify-content: space-evenly;
+}
+#side-bar .side-block.media::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 0.1rem;
+    margin-top: 1.2em; margin-bottom: -1.5em;
+    background: linear-gradient(to right, #f6f6f6, #C8CCD1 50%, #f6f6f6 100%);
+}
+#side-bar .side-block {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: #F6F6F6 !important;
+    padding: 2px;
+}
+#side-bar .heading {
+    border: none;
+    border-radius: 0;
+    color: #54595D;
+    font-size: 1.1rem;
+    font-family: 'linux_libertinesemibold', 'Georgia', serif;
+    padding: 0.2em 0;
+    font-weight: normal;
+}
+#side-bar .heading::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 0.1rem;
+    background: linear-gradient(to right, #f6f6f6, #C8CCD1 50%, #f6f6f6 100%);
+}
+.side-block .menu-item > .image {
+    display: none;
+}
+#top-bar div.open-menu a {
+    border-radius: 0;
+    background-color: #EAECF0;
+    color: #54595D;
+    border: solid 1px #54595D;
+}
+
+@media (max-width: 767px) {
+    #side-bar {
+        left: -17rem;
+        top: 0;
+    }
+    #side-bar .close-menu {
+        transition: width 0.5s ease-in-out 0.1s,
+        opacity 1s ease-in-out 0s;
+        display: block;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        right: 0; left: auto;
+        background: rgba(0,0,0,0.3);
+        z-index: -1;
+        opacity: 0;
+        pointer-events: none;
+    }
+    #side-bar:target .close-menu {
+        width: calc(100% - 17rem);
+        right: 0;
+        opacity: 1;
+        pointer-events: auto;
+    }
+    #side-bar {
+        top: 0;
+    }
+    #side-bar .heading {
+        padding-left: 1em;
+        margin-left: -1em;
+    }
+}
+
+/* ---- CONTENT CONTAINER STYLING---- */
+
+#main-content {
+    box-sizing: border-box;
+    background-color: #fff;
+    padding: 1rem;
+    border: solid 1px #A7D7F9;
+    top: -1.55rem;
+}
+
+#page-options-container {
+    padding: 0.4em;
+    margin-top: 1rem;
+    background-color: #F6F6F6;
+    border: solid 1px #A2A9B1;
+}
+#page-options-container #page-options-bottom a,
+#page-options-container #page-options-bottom-2 a {
+    padding: 0 1px;
+}
+#page-options-container #page-options-bottom a::before,
+#page-options-container #page-options-bottom-2 a::before {
+    content: " ";
+    border-left: solid 1px #A2A9B1;
+    margin-right: 0.56rem;
+}
+#page-options-container #page-options-bottom a:first-of-type::before,
+#page-options-container #page-options-bottom-2 a:first-of-type::before {
+    content: none;
+}
+
+/* ---- TABS ---- */
+ 
+/* ---- YUI TAB BASE ---- */
+.yui-navset .yui-nav a,.yui-navset .yui-navset-top .yui-nav a{background-color:inherit;background-image:inherit}.yui-navset .yui-nav a:hover,.yui-navset .yui-nav a:focus{background:inherit;text-decoration:inherit}.yui-navset .yui-nav .selected a,.yui-navset .yui-nav .selected a:focus,.yui-navset .yui-nav .selected a:hover{color:inherit;background:inherit}.yui-navset .yui-nav,.yui-navset .yui-navset-top .yui-nav{border-color:inherit}.yui-navset li{line-height:inherit}
+ 
+/* ---- YUI TAB CUSTOMIZATION ----*/
+ 
+ .yui-navset .yui-nav,
+ .yui-navset .yui-navset-top .yui-nav{
+     display: flex;
+     flex-wrap: wrap;
+     width: calc(100% - .125rem);
+     margin: 0 auto;
+     border-color: #DDDDFF;
+     box-shadow: none;
+}
+ .yui-navset .yui-nav a, /* ---- Link Modifier ---- */
+ .yui-navset .yui-navset-top .yui-nav a{
+     color: #0645AD;
+    /* ---- Tab Background Colour | [UNSELECTED] ---- */
+     background-color: #F6F6F6;
+     border: unset;
+     box-shadow: none;
+     box-shadow: none;
+}
+ .yui-navset .yui-nav a:hover,
+ .yui-navset .yui-nav a:focus {
+     color: #0645AD;
+    /* ---- Tab Background Colour | [HOVER] ---- */
+     background-color: #DDDDFF;
+}
+ .yui-navset .yui-nav a:hover {
+     text-decoration: underline;
+}
+ .yui-navset .yui-nav li, /* ---- Listitem Modifier ---- */
+ .yui-navset .yui-navset-top .yui-nav li{
+     position: relative;
+     display: flex;
+     flex-grow: 2;
+     max-width: 100%;
+     margin: 0;
+     padding: 0;
+     color: #ffffff;
+     background-color: #ffffff;
+     border: solid 1px #ffffff; border-bottom: none; border-top-width: 2px;
+     box-shadow: none;
+}
+ .yui-navset .yui-nav li a,
+ .yui-navset-top .yui-nav li a,
+ .yui-navset-bottom .yui-nav li a{
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     width: 100%;
+}
+ .yui-navset .yui-nav li em{
+     border: unset;
+}
+ .yui-navset .yui-nav a em,
+ .yui-navset .yui-navset-top .yui-nav a em{
+     padding: .35em .75em;
+ 
+     text-overflow: ellipsis;
+     overflow: hidden;
+     white-space: nowrap;
+}
+ .yui-navset .yui-nav .selected, /* ---- Selection Modifier ---- */
+ .yui-navset .yui-navset-top .yui-nav .selected{
+     flex-grow: 2;
+     margin: 0;
+     padding: 0;
+    /* ---- Tab Background Colour | [SELECTED] ---- */
+     background-color: #DDDDFF;
+}
+ .yui-navset .yui-nav .selected a,
+ .yui-navset .yui-nav .selected a em{
+     border: none;
+}
+ .yui-navset .yui-nav .selected a{
+     width: 100%;
+     color: #0B0080;
+}
+ .yui-navset .yui-nav .selected a:focus,
+ .yui-navset .yui-nav .selected a:active{
+     color: #0B0080;
+     background-color: #DDDDFF;
+}
+ #page-content .yui-navset .yui-content {
+    background-color: #FDFDFD;
+    box-shadow: none;
+    border: solid 1px #A2A9B1;
+}
+ .yui-navset .yui-content,
+ .yui-navset .yui-navset-top .yui-content{
+     padding: .5em;
+     border: none;
+}
+
+/* ---- Link Color ---- */
+
+a, #side-bar a { color: #0645AD; }
+a:active, #side-bar a:active { color: #FAA700; }
+a:visited, #side-bar a:visited { color: #0B0080; }
+a:visited:active, #side-bar a:visited:active { color: #BB6633; }
+
+/* ---- INFO PANE ---- */
+ 
+#page-content .creditRate{
+    margin: unset;
+    margin-bottom: 4px;
+}
+#page-content .rate-box-with-credit-button {
+    background-color: #FBFBFB;
+    border: solid 1px #FBFBFB;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 2px;
+    border: solid 1px #A2A9B1;
+}
+ 
+div.creditButton p a {
+    color: #202122;
+    border: none;
+}
+ 
+.rate-box-with-credit-button .cancel {
+    border: solid 1px #FBFBFB;
+}
+
+.rate-box-with-credit-button .page-rate-widget-box {
+    border: none;
+}
+
+#page-content .modalbox h2 { border-bottom-width: 0px; }
+#page-content .modalbox {
+    border: solid 1px #A2A9B1;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* ---- PAGE RATING ---- */
+ 
+.page-rate-widget-box {
+    box-shadow: none;
+    margin: unset;
+    margin-bottom: 4px;
+    border-radius: 0;
+    padding: 2px;
+    background-color: #FBFBFB;
+    border: solid 1px #A2A9B1;
+}
+ 
+div.page-rate-widget-box .rate-points {
+    background-color: #FBFBFB;
+    color: #202122;
+    border: solid 1px #FBFBFB;
+    border-radius: 0;
+}
+.page-rate-widget-box .rateup,
+.page-rate-widget-box .ratedown {
+    background-color: #FBFBFB;
+    border-top: solid 1px #FBFBFB;
+    border-bottom: solid 1px #FBFBFB;
+}
+ 
+.page-rate-widget-box .rateup a,
+.page-rate-widget-box .ratedown a {
+    background: transparent;
+    color: #202122;
+}
+ 
+.page-rate-widget-box .rateup a:hover,
+.page-rate-widget-box .ratedown a:hover {
+    background: #DDDDFF;
+}
+ 
+.page-rate-widget-box .cancel {
+    background: transparent;
+    background-color: #FBFBFB;
+    border: solid 1px #FBFBFB;
+    border-radius: 0;
+}
+ 
+.page-rate-widget-box .cancel a {
+    color: #202122;
+}
+.page-rate-widget-box .cancel a:hover {
+    background: #DDDDFF;
+    border-radius: 0;
+}
+
+/* ---- PAGE ELEMENTS ---- */
+
+#page-title, .meta-title {
+    color: black;
+    font-family: 'linux_libertinesemibold', 'Georgia', serif;
+    font-size: 2.4em;
+    padding-bottom: 0.06em;
+    border-color: #A2A9B1;
+}
+
+#page-content h1, #page-content h2, #page-content h3, #page-content h4, #page-content h5, #page-content h6 {
+    border-bottom: solid 1px #A2A9B1;
+    color: black;
+    font-family: 'linux_libertinesemibold', 'Georgia', serif;
+    font-weight: normal;
+    margin-top: 0.8rem; margin-bottom: 0.8rem;
+    padding-bottom: 0.1em;
+    display: flow-root;
+}
+
+
+hr {
+    background-color: #A2A9B1;
+}
+
+blockquote, div.blockquote, #toc {
+    background-color: #F8F9FA;
+    border: solid 1px #A2A9B1;
+    width: 72%;
+    margin-left: auto; margin-right: auto;
+    box-sizing: border-box;
+}
+#page-content #toc {
+    min-width: 13.25em;
+    max-width: 30em;
+    padding: 0.625em 0.5em;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+#toc .title {
+    order: 0;
+    padding: 0;
+}
+#toc-action-bar {
+    order: 1;
+    width: max-content;
+    font-size: 90%;
+    margin-left: 0.25em;
+}
+#toc-action-bar::before { content: "["; }
+#toc-action-bar::after { content: "]"; }
+#toc-list {
+    order: 2;
+    flex-basis: 100%;
+    line-height: 1.375;
+    margin: 0.375em 0 0 0;
+}
+@media (max-width: 767px) {
+    blockquote, div.blockquote, #toc { width: 96%; }
+}
+.code {
+    background-color: #FBFBFB;
+    border: solid 1px #A2A9B1;
+}
+
+
+.scp-image-block {
+    border: solid 4px #F8F9FA;
+    box-shadow: 0px 0px 0px 1px #C8CCD1;
+    box-sizing: border-box;
+}
+.scp-image-block img {
+    border: solid 1px #C8CCD1;
+    box-sizing: border-box;
+}
+.scp-image-block .scp-image-caption {
+    background-color: #F8F9FA;
+    border-top: solid 4px #F8F9FA;
+}
+.scp-image-block.block-left { margin-left: 0; }
+.scp-image-block.block-right { margin-right: 0; }
+@media (max-width: 540px) {
+  .scp-image-block.block-left, .scp-image-block.block-right {
+    float: none; clear: both; margin-left: auto; margin-right: auto;
+  }
+}
+
+
+#page-content .wiki-content-table tr th {
+    border: solid 1px #A2A9B1;
+    background-color: #EAECF0;
+    /* set border for table title */
+}
+#page-content .wiki-content-table tr td {
+    border: solid 1px #A2A9B1;
+    background-color: #F8F9FA;
+    /* set border for table content */
+}
+
+
+.footnotes-footer .title {
+    border-bottom: solid 1px #A2A9B1;
+    color: black;
+    font-family: 'linux_libertinesemibold', 'Georgia', serif;
+    font-weight: normal;
+    font-size: 1.2rem;
+    margin-top: 0.8rem; margin-bottom: 0.8rem;
+    padding-bottom: 0.1em;
+    display: flow-root;
+}
+a.footnoteref::before { content:"["; }
+a.footnoteref::after { content:"]"; }
+
+.hovertip {
+    background-color: #FDFDFD !important;
+    border: solid 1px #A2A9B1 !important;
+}
+
+a.bibcite {
+    vertical-align: super;
+    font-size: 0.85em;
+    margin-top: -1em;
+}
+a.bibcite::before { content: "["; }
+a.bibcite::after { content: "]"; }
+
+/* ---- PAGE TAGS ---- */
+
+#main-content .page-tags {
+    background-color: #FDFDFD;
+    border: solid 1px #A2A9B1;
+    padding: 5px;
+    display: flex;
+    align-items: stretch;
+}
+.page-tags::before {
+    content: "Tag";
+    font-size: 90%;
+    font-weight: bold;
+    background-color: #DDDDFF;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 10px;
+    margin-right: 0.7em;
+    box-shadow: 0 0 0 2px #DDDDFF;
+}
+#main-content .page-tags span { border-top: none; max-width: 100%; align-self: center; }
+
+/* ---- CUSTOM SYNTAX ---- */
+
+.wikibox {
+    background-color: #F8F9FA;
+    border: solid 1px #A2A9B1;
+    margin: 0.5em 0 0.5em 1em;
+    padding: 0.4em; padding-top: 0.2em; padding-bottom: 0.2em;
+    float: right;
+    clear: right;
+    font-size: 88%;
+    line-height: 1.5em;
+    width: 16rem;
+}
+.wikibox hr { margin-left: -0.4em; margin-right: -0.4em; }
+@media (max-width: 540px) {
+    .wikibox {
+        float: none; clear: both; margin-left: auto; margin-right: auto;
+    }
+}
+
+.capt {
+    display: flow-root;
+    margin: 0.5em;
+    font-size: 106%;
+    padding: 3px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: -0.4rem;
+}
+.capt.blue { background-color: #B0C4DE; }
+.capt.grey { background-color: #DEDEE2; }
+.capt.lavender { background-color: #E6E6FA; }
+.capt.cyan { background-color: #ABDFEE; }
+
+.oheader {
+    background-color: #FBFBFB;
+    border: solid 1px #A2A9B1;
+    width: 65%;
+    margin: 1rem auto;
+    clear: both;
+    padding: 8px;
+    box-sizing: border-box;
+}
+.oheader.yellow { border-left: solid 12px #f5c32e; }
+.oheader.orange { border-left: solid 12px #F28500; }
+.oheader.red { border-left: solid 12px #B32424; }
+@media (max-width: 767px) {
+    .oheader {
+        width: 90%;
+    }
+}
+
+.s-title {
+    font-size: 116%;
+    font-weight: bold;
+    margin-top: 0.4rem; margin-bottom: 0.4rem;
+}
+
+
+/* ---- Wikimodule Integration ---- */
+
+div.collection .collapsible-block-unfolded-link a , div.collection .collapsible-block-folded a {
+    background-color: #CCCCFF;
+    color: #0645AD;
+}
+th.namerow, th.titlecolumn {
+    background-color: #DDDDFF;
+}
+
+/* ---- MISC ---- */
+
+div#action-area h1 {
+    border-bottom: solid 1px #A2A9B1;
+    color: black;
+    font-family: 'linux_libertinesemibold', 'Georgia', serif;
+    font-weight: normal;
+    margin-top: 0.8rem; margin-bottom: 0.8rem;
+    padding-bottom: 0.1em;
+}
+
+#footer, #footer a {
+    background: transparent;
+    color: #54595D;
+}
+
+#odialog-container h1 {
+    color: black;
+    font-family: 'linux_libertinesemibold', 'Georgia', serif;
+    font-weight: normal;
+}
+
+
+/*------*/
+
+:root {
+    --lgurl: url("https://scp-wiki.wdfiles.com/local--files/theme%3Ascpedia/raisa.png");
+}
+
+/* ---- MOBILE QUERY ---- */
+
+@media screen and (max-width: 767px) {
+    #main-content {
+        max-width: calc(100% - 2rem);
+        margin: 0 auto;
+        top: -1.125rem;
+    }
+}
+[[/code]]
+
+
+
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

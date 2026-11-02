@@ -270,8 +270,6 @@ class Open43SettingsRun {
         description: this.#fixedPlan.general_ui_description_marker,
         onLoaded: async () => {
           const site = await this.#site();
-          // Advance only the general-settings revision so the form's stale
-          // submission exercises the same public action under test.
           await this.#action("site", siteFields(site), { expectSuccess: true });
         },
         onStaleObserved: async () => {

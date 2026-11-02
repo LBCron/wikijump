@@ -18,7 +18,6 @@ import type { RequestContext } from "../request-context"
 
 const MAX_PAGE_HISTORY_REVISIONS = 1_000
 
-/* ----- Page Delete ----- */
 interface PageDelete {
   page_id: number
   revision_id: number
@@ -53,7 +52,6 @@ export async function pageDelete(
   )
 }
 
-/* ----- Page Edit ----- */
 export interface CreatePageRevisionOutput {
   page_id?: number
   revision_id: number
@@ -356,7 +354,6 @@ export async function wikidotSiteChangesFeed(
   )
 }
 
-/* ----- Sitemap ----- */
 export interface WikidotSitemapEntry {
   slug: string
   last_modified: string
@@ -529,7 +526,6 @@ export async function wikidotPageDiscussionCreate(
   )
 }
 
-/* ----- Page History ----- */
 export interface PageRevisionModelFiltered {
   revision_id: number
   revision_type: PageRevisionType
@@ -666,7 +662,6 @@ export interface PageRevisionCountOutput {
   last_revision: number
 }
 
-/* ----- Page Move ----- */
 interface PageMove {
   old_slug: string
   new_slug: string
@@ -713,7 +708,6 @@ export async function pageMove(
   )
 }
 
-/* ----- Page Revision ----- */
 export async function pageRevision(
   siteId: number,
   pageId: Optional<number>,
@@ -792,7 +786,6 @@ export async function pageRevisionDiff(
   )
 }
 
-/* ----- Page Rollback ----- */
 export interface PageRollbackInput {
   siteId: number
   pageId: Optional<number>
@@ -832,7 +825,6 @@ export async function pageRollback(
   )
 }
 
-/* ----- Page Vote List ----- */
 export async function pageVoteList(
   pageId: Optional<number>,
   requestContext: RequestContext
@@ -851,7 +843,6 @@ export async function pageVoteList(
   )
 }
 
-/* ----- Page Vote Cast ----- */
 export async function pageVoteCast(
   pageId: Optional<number>,
   value: number,
@@ -867,7 +858,6 @@ export async function pageVoteCast(
   )
 }
 
-/* ----- Page Vote Remove ----- */
 export async function pageVoteRemove(
   pageId: Optional<number>,
   requestContext: RequestContext
@@ -875,7 +865,6 @@ export async function pageVoteRemove(
   return client.request("vote_remove", { page_id: pageId }, requestContext)
 }
 
-/* ----- Renderer-bound Wikidot Rate action ----- */
 export async function wikidotLegacyRate(
   pageId: number,
   lastRevisionId: number,
@@ -895,8 +884,6 @@ export async function wikidotLegacyRate(
   )
 }
 
-/* ----- Page Rerender ----- */
-// Not used for now
 export async function pageRerender(siteId: number, pageId: number): Promise<void> {
   return client.request("page_rerender", {
     site_id: siteId,
@@ -904,7 +891,6 @@ export async function pageRerender(siteId: number, pageId: number): Promise<void
   })
 }
 
-/* ----- Page Layout ----- */
 export async function pageLayout(
   siteId: number,
   pageId: number,
@@ -926,7 +912,6 @@ export async function pageLayout(
   )
 }
 
-/* ----- Page Parent Update ----- */
 interface PageParentUpdateResult {
   added: Nullable<number[]>
   removed: Nullable<boolean[]>
@@ -952,7 +937,6 @@ export async function pageParentUpdate(
   )
 }
 
-/* ----- Page Parent Get ----- */
 export async function pageParentGet(
   siteId: number,
   pageId: Optional<number>,
@@ -969,7 +953,38 @@ export async function pageParentGet(
   )
 }
 
-/* ----- Page Deleted Get ----- */
+export async function pageParentTrace(
+  siteId: number,
+  pageId: Optional<number>,
+  slug: string,
+  requestContext: RequestContext
+): Promise<object> {
+  return client.request(
+    "parent_trace",
+    {
+      site_id: siteId,
+      page: pageId ?? slug
+    },
+    requestContext
+  )
+}
+
+export async function pageChildrenGet(
+  siteId: number,
+  pageId: Optional<number>,
+  slug: string,
+  requestContext: RequestContext
+): Promise<object> {
+  return client.request(
+    "child_get_all",
+    {
+      site_id: siteId,
+      page: pageId ?? slug
+    },
+    requestContext
+  )
+}
+
 export interface PageDeletedGet {
   page_id: number
   page_created_at: string
@@ -1004,7 +1019,6 @@ export async function pageDeletedGet(
   )
 }
 
-/* ----- Page Restore ----- */
 interface PageRestore {
   slug: string
   revision_id: number
@@ -1032,7 +1046,6 @@ export async function pageRestore(
   )
 }
 
-/* ----- Page Lock History ----- */
 export interface PageLockModel {
   page_lock_id: number
   created_at: string
@@ -1052,7 +1065,6 @@ export async function pageLockHistory(
   return client.request("page_lock_get_history", { page: pageId }, reqContext)
 }
 
-/* ----- Page Lock Remove ----- */
 export async function pageLockRemove(
   pageId: number,
   userIpAddr: string,
@@ -1068,7 +1080,6 @@ export async function pageLockRemove(
   )
 }
 
-/* ----- Page Lock Create ----- */
 export async function pageLockCreate(
   pageId: number,
   lockType: PageLockType,
@@ -1093,7 +1104,6 @@ export async function pageLockCreate(
   )
 }
 
-/* ----- Page Score ----- */
 export interface PageScore {
   page_id: number
   score: number

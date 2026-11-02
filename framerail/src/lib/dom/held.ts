@@ -1,14 +1,10 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 export interface WhileHeldOpts {
-  /** Fired when the node is first held down. */
   pressed?: (node: HTMLElement) => void
-  /** Fired when the node is released. */
   released?: (node: HTMLElement) => void
 }
 
-/** Observer for firing callbacks while an element is held down. */
 export class HeldObserver {
-  /** Current held state. */
   private held = false
 
   /**
@@ -27,14 +23,12 @@ export class HeldObserver {
     target.addEventListener("pointercancel", this.released)
   }
 
-  /** Fired when the element is pressed. */
   private pressed() {
     if (this.held) return
     this.held = true
     if (this.opts.pressed) this.opts.pressed(this.target)
   }
 
-  /** Fired when the element is released. */
   private released() {
     if (!this.held) return
     this.held = false
@@ -50,7 +44,6 @@ export class HeldObserver {
     this.opts = opts
   }
 
-  /** Destroys the observer. */
   destroy() {
     this.target.removeEventListener("pointerdown", this.pressed)
     this.target.removeEventListener("pointerup", this.released)

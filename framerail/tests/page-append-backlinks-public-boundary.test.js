@@ -211,10 +211,6 @@ test("Backlinks handler delegates the current route to the typed public Deepwell
     throw new Error(`Unexpected Deepwell method ${method}`)
   }
 
-  // What the pane actually submits is fetch("?/backlinks", { method: "POST",
-  // body: "" }). A string body makes the browser send this content type, which
-  // SvelteKit accepts for form actions. The read carries no page identifier:
-  // the action resolves the route slug and trusted site context server-side.
   const request = new Request("https://wikijump.test/fixture?/backlinks", {
     method: "POST",
     body: "",

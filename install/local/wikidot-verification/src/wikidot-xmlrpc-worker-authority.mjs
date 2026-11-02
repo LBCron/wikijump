@@ -10,8 +10,6 @@ import { exactDataRecord as dataObject } from "./wikidot-xmlrpc-exact-data-recor
 export const WIKIDOT_XMLRPC_WORKER_AUTHORITY_SCHEMA =
   "wikijump_full_parity.wikidot_xmlrpc_worker_authority.v1";
 
-// This module only serializes identity claims. A later capsule verifier must
-// prove their versioned canonical preimages before it can launch any worker.
 
 const BUILD_KEYS = Object.freeze([
   "dependencyEnvironmentSha256",

@@ -18,34 +18,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Manages cached data in Redis.
-//!
-//! Whenever you make changes to this module, make sure that the code is
-//! compatible with DEEPWELL's Redis code.
-
 use crate::error::Result;
 use redis::{AsyncCommands, AsyncConnectionConfig};
 use std::future::Future;
 use std::time::Duration;
 
-/// The reply and connection timeouts DEEPWELL uses (`deepwell/src/redis.rs`):
-/// a saturated host can hold a Valkey reply past the client library's 500 ms
-/// default, while a reply this late means Valkey is unreachable.
 const REDIS_TIMEOUT: Duration = Duration::from_secs(5);
 
-/// How long a cached avatar hash is trusted. DEEPWELL deletes the entry when a
-/// user's avatar changes; the expiry bounds a re-cache that races that commit
-/// and any write path that bypasses it, so a removed avatar stops being served
-/// (#2556).
 pub const AVATAR_CACHE_TTL: Duration = Duration::from_secs(60);
 
-/// How long a cached preferred domain is trusted. WWS has no write path for
-/// preferred domains: DEEPWELL changes them (the site's `preferred_domain`
-/// update, and custom-domain create and remove) and does not delete this key
-/// yet (see the TODO in `deepwell/src/services/site/service.rs`). The expiry is
-/// therefore the only bound on a redirect to a changed or removed domain. It
-/// matches the avatar bound, and a site costs each WWS instance about one
-/// DEEPWELL lookup a minute.
 pub const SITE_DOMAIN_CACHE_TTL: Duration = Duration::from_secs(60);
 
 fn connection_config() -> AsyncConnectionConfig {
@@ -62,10 +43,6 @@ macro_rules! get_connection {
     };
 }
 
-/// Helper macro to build redis keys.
-///
-/// This way we avoid issues with inconsistent key names,
-/// forgetting to update its values or other footguns.
 macro_rules! redis_key {
     (site_domain => $site_id:expr $(,)?) => {
         format!("site_domain:{}", $site_id)
@@ -81,14 +58,11 @@ pub struct Cache {
 }
 
 impl Cache {
-    /// Connect to the Redis cluster.
     pub fn connect(redis_url: &str) -> Result<Self> {
         let client = redis::Client::open(redis_url)?;
         Ok(Cache { client })
     }
 
-    /// Gets the preferred domain for a given site: the cached value while it is
-    /// fresh, otherwise the result of `fetch` (see `SITE_DOMAIN_CACHE_TTL`).
     pub async fn get_or_fetch_site_domain<F, Fut>(
         &self,
         site_id: i64,
@@ -117,7 +91,6 @@ impl Cache {
     }
 }
 
-/// Reads a site's cached preferred domain.
 async fn read_site_domain<C: AsyncCommands>(
     conn: &mut C,
     site_id: i64,
@@ -126,7 +99,6 @@ async fn read_site_domain<C: AsyncCommands>(
     Ok(conn.get(key).await?)
 }
 
-/// Caches a site's preferred domain for `SITE_DOMAIN_CACHE_TTL`.
 async fn write_site_domain<C: AsyncCommands>(
     conn: &mut C,
     site_id: i64,
@@ -138,9 +110,6 @@ async fn write_site_domain<C: AsyncCommands>(
     Ok(())
 }
 
-/// Returns a site's cached preferred domain. On a miss, or once the entry has
-/// expired, `fetch` asks DEEPWELL and the answer is cached with a fresh TTL. A
-/// failed fetch caches nothing, so the next request asks again.
 async fn read_through_site_domain<C, F, Fut>(
     conn: &mut C,
     site_id: i64,
@@ -173,9 +142,6 @@ mod tests {
 
     const SITE_ID: i64 = 42;
 
-    /// In-memory stand-in for the Redis commands this module issues (GET, and
-    /// SET with EX). The clock is virtual, so a test passes an expiry by
-    /// advancing it rather than sleeping. Clones share one keyspace.
     #[derive(Clone, Debug, Default)]
     struct FakeValkey {
         state: Arc<Mutex<FakeState>>,
@@ -184,7 +150,6 @@ mod tests {
     #[derive(Debug, Default)]
     struct FakeState {
         now: Duration,
-        /// Key to value, and the virtual time at which the key expires.
         keys: HashMap<Vec<u8>, (Vec<u8>, Option<Duration>)>,
         commands: Vec<Vec<u8>>,
     }
@@ -194,7 +159,6 @@ mod tests {
             self.state.lock().unwrap().now += by;
         }
 
-        /// Every command received so far, space-joined, in order.
         fn commands(&self) -> Vec<String> {
             self.state
                 .lock()
@@ -280,8 +244,6 @@ mod tests {
         }
     }
 
-    /// Stands in for DEEPWELL's `site_domain` RPC. It counts lookups and
-    /// answers with the domain DEEPWELL currently holds.
     #[derive(Clone, Debug)]
     struct FakeDeepwell {
         domain: Arc<Mutex<String>>,
@@ -310,8 +272,6 @@ mod tests {
         }
     }
 
-    /// One request's lookup, through the same read-through path that
-    /// `Cache::get_or_fetch_site_domain` runs.
     async fn lookup(valkey: &FakeValkey, deepwell: &FakeDeepwell) -> String {
         let mut conn = valkey.clone();
         read_through_site_domain(&mut conn, SITE_ID, || deepwell.site_domain())
@@ -322,7 +282,6 @@ mod tests {
     #[test]
     fn redis_keys_include_all_identifying_parts() {
         assert_eq!(redis_key!(site_domain => 42), "site_domain:42");
-        // DEEPWELL deletes this exact key when an avatar changes (#2556).
         assert_eq!(redis_key!(user_avatar => 7), "user_avatar:7");
     }
 
@@ -366,8 +325,6 @@ mod tests {
         let deepwell = FakeDeepwell::new("first.example");
         assert_eq!(lookup(&valkey, &deepwell).await, "first.example");
 
-        // DEEPWELL now holds a different domain. Until the entry expires, the
-        // request is answered from the cache exactly as before, with no lookup.
         deepwell.change_domain("changed.example");
         valkey.advance(SITE_DOMAIN_CACHE_TTL - Duration::from_secs(1));
 
@@ -382,15 +339,12 @@ mod tests {
         assert_eq!(lookup(&valkey, &deepwell).await, "first.example");
         deepwell.change_domain("changed.example");
 
-        // The entry expires exactly one TTL after it was written.
         valkey.advance(SITE_DOMAIN_CACHE_TTL - Duration::from_secs(1));
         assert_eq!(lookup(&valkey, &deepwell).await, "first.example");
         valkey.advance(Duration::from_secs(1));
         assert_eq!(lookup(&valkey, &deepwell).await, "changed.example");
         assert_eq!(deepwell.lookups(), 2);
 
-        // The refetch was cached with a new TTL, so the new value is served
-        // until one full TTL after the refetch, and no sooner.
         valkey.advance(SITE_DOMAIN_CACHE_TTL - Duration::from_secs(1));
         assert_eq!(lookup(&valkey, &deepwell).await, "changed.example");
         assert_eq!(deepwell.lookups(), 2);
@@ -424,7 +378,6 @@ mod tests {
         assert!(matches!(failed, Err(Error::DeepwellBusy)));
         assert_eq!(valkey.commands(), ["GET site_domain:42"]);
 
-        // Nothing was cached, so the next request asks DEEPWELL and succeeds.
         let deepwell = FakeDeepwell::new("recovered.example");
         assert_eq!(lookup(&valkey, &deepwell).await, "recovered.example");
         assert_eq!(deepwell.lookups(), 1);

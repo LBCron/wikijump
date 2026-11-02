@@ -1,12 +1,3 @@
-//! Files-pane parity on fully imported mirror pages (issue #2603).
-//!
-//! A page whose page and site are both flagged `from_wikidot` shows the
-//! source inventory only, and every file mutation except the platform-staff
-//! import endpoints is refused there. Fixtures come only through the import
-//! APIs (`ImportService::add_site` / `add_page` / `add_file`); the hidden
-//! local row is planted through `FileService::create` with a staged pending
-//! blob, the way the normal upload flow stages it. No SQL flag flips.
-
 #[macro_use]
 mod common;
 
@@ -161,20 +152,12 @@ async fn import_source_file(
     (output.file_id, s3_hash)
 }
 
-/// Plants a local-origin row through the file service, the way scaffolding
-/// and authorized authoring did before mirror mutations were refused.
-/// `CreateFile.direct_upload` is crate-private, so the input is built
-/// through the struct's public `Deserialize` contract with a staged pending
-/// blob, exactly as the `file_create` endpoint would supply it. The mirror
-/// guard lives in the endpoint layer above the service, so it does not fire
-/// here by design.
 async fn insert_local_file(
     runner: &TestRunner,
     site_id: i64,
     page_id: i64,
     name: &str,
 ) -> i64 {
-    // cuid2 IDs are 24 characters, exactly what blob_pending_external_id_check requires.
     let pending_blob_id = cuid();
     blob_pending::ActiveModel {
         external_id: Set(pending_blob_id.clone()),
@@ -211,12 +194,6 @@ async fn insert_local_file(
         .file_id
 }
 
-/// Grants the platform admin page-edit rights on a mirror fixture page.
-///
-/// Fresh import sites carry no seed roles, so even the admin fails the
-/// permission gate that runs before the mirror guard. Granting edit through
-/// the sanctioned role path isolates the assertions below: every refusal
-/// they observe comes from the mirror rule, not from missing rights.
 async fn grant_admin_page_edit(runner: &TestRunner, site_id: i64, page_id: i64) {
     let page = PageService::get(runner.context(), site_id, Reference::Id(page_id))
         .await
@@ -267,10 +244,6 @@ async fn grant_admin_page_edit(runner: &TestRunner, site_id: i64, page_id: i64) 
     .expect("admin should receive the mirror editor role");
 }
 
-/// Asserts a refusal came from the mirror guard specifically: the
-/// permission category plus the guard's own message naming the action.
-/// This distinguishes the mirror rule from the permission gate that runs
-/// before it.
 fn assert_mirror_refusal(error: &Exn<Error>, action: &str) {
     assert_contains_error!(error, ErrorType::Permission);
     let debug = format!("{error:?}");
@@ -327,16 +300,12 @@ async fn mirror_files_pane_shows_source_inventory_only() {
     let local_id = insert_local_file(&runner, site_id, page_id, "SCP.txt").await;
     assert_ne!(source_id, local_id);
 
-    // The Files pane shows the source inventory only, even though the
-    // local row is present, active, and contract-valid.
     assert_eq!(
         visible_names(&runner, site_id, page_id).await,
         vec!["canon.jpg".to_owned()],
         "fully imported mirror page must omit local-origin rows",
     );
 
-    // Staff import verification stays permitted on the mirror page: the
-    // endpoint guard must not block the import path it exists alongside.
     let verified = ImportService::verify_page_files(
         runner.context(),
         ImportPageFilesVerify {
@@ -452,17 +421,12 @@ async fn mirror_file_mutations_are_refused() {
     );
     assert_mirror_refusal(&error, "roll back a file");
 
-    // Nothing changed: the source row keeps its single revision. This
-    // assertion runs before the intentional tombstone below, which does
-    // add a revision through the allowed import path.
     let unchanged =
         FileRevisionService::get_latest(runner.context(), site_id, page_id, source_id)
             .await
             .expect("latest revision lookup should succeed");
     assert_eq!(unchanged.revision_id, latest.revision_id);
 
-    // Tombstone through the import path (which stays allowed), then prove
-    // the endpoint restore is refused too.
     let tombstoned = ImportService::delete_file(
         runner.context(),
         ImportFileDelete {
@@ -491,8 +455,6 @@ async fn mirror_file_mutations_are_refused() {
     );
     assert_mirror_refusal(&error, "restore a file");
 
-    // After the tombstone, the refused restore left no trace: the latest
-    // revision is still the import tombstone, not a new endpoint revision.
     let after_restore =
         FileRevisionService::get_latest(runner.context(), site_id, page_id, source_id)
             .await
@@ -504,13 +466,6 @@ async fn mirror_file_mutations_are_refused() {
 
 #[tokio::test]
 async fn source_rows_visible_on_native_and_mirror_configurations() {
-    // Compares source-row visibility under the two current configurations:
-    // an imported page on a native site, and an imported page on a mirror
-    // site with page and site flagged. These are two separate source rows;
-    // no flag changes in this test. A site-flag transition is a documented
-    // future precondition of the migration (flagging a site whose imported
-    // pages still carry unflagged local rows hides those rows) and is not
-    // exercised here.
     let runner = TestRunner::setup().await;
     let tag = Uuid::new_v4();
     let uploader = import_uploader(&runner, "transition").await;
@@ -544,8 +499,6 @@ async fn source_rows_visible_on_native_and_mirror_configurations() {
     )
     .await;
 
-    // Each configuration lists its own source row: visibility does not
-    // depend on the site flag for imported rows.
     assert_eq!(
         visible_names(&runner, native_site, mixed_page).await,
         vec!["steady.jpg".to_owned()],
@@ -565,7 +518,6 @@ async fn pending_empty_blob(
     page_id: i64,
     label: &str,
 ) -> String {
-    // cuid2 IDs are 24 characters, exactly what blob_pending_external_id_check requires.
     let pending_blob_id = cuid();
     blob_pending::ActiveModel {
         external_id: Set(pending_blob_id.clone()),
@@ -587,19 +539,6 @@ async fn pending_empty_blob(
     pending_blob_id
 }
 
-/// Stages a pending blob with caller-supplied bytes in the mock bucket.
-///
-/// A replacement whose bytes are identical to the current blob is correctly
-/// a no-op (the revision service creates nothing when nothing changed), so
-/// a replacement fixture must carry distinct content. The row is left
-/// unmoved (`s3_hash: None`) so finalization hashes the staged bytes, the
-/// same way the normal upload flow does.
-///
-/// The row is inserted through the committed pool connection, not the test
-/// transaction: blob finalization opens its own separate transaction to
-/// move the upload, which cannot see rows the test transaction has not
-/// committed yet. This mirrors
-/// `create_committed_page_pending_blob_with_data_fixture` in page.rs.
 async fn pending_data_blob(
     runner: &TestRunner,
     site_id: i64,
@@ -637,10 +576,6 @@ async fn pending_data_blob(
 
 #[tokio::test]
 async fn native_file_mutations_still_succeed() {
-    // The mirror guard must not overfire: every mutating endpoint keeps
-    // working on native pages, building each required prior state through
-    // the normal endpoints (second revision for rollback, tombstone for
-    // restore).
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
         .expect("seeded test site should exist")
@@ -774,9 +709,6 @@ async fn native_file_mutations_still_succeed() {
         "native file restore must succeed through the guarded endpoint",
     );
 
-    // A move records a revision only when the page actually changes (the
-    // revision body carries the page switch, matching the existing
-    // authorized-move contract), so the destination is a real second page.
     let destination = run_endpoint!(
         runner,
         page_create,

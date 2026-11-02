@@ -28,9 +28,6 @@ use crate::services::blob::{
 use crate::types::Action;
 use crate::types::Bytes;
 
-/// Temporary endpoint to get any blob by hash.
-/// Primarily for user avatars, which have no other
-/// way of getting the data at the moment.
 pub async fn blob_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -59,7 +56,6 @@ pub async fn blob_get(
     })
 }
 
-/// Cancel a started upload by removing the pending blob.
 pub async fn blob_cancel(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -83,7 +79,6 @@ pub async fn blob_cancel(
         })
 }
 
-/// Starts a new upload by creating a pending blob.
 pub async fn blob_upload(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,

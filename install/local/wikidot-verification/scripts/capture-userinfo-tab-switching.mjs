@@ -1,11 +1,5 @@
 #!/usr/bin/env node
 
-// Anonymous, read-only acquisition of the public user:info tab switching.
-//
-// Cache-first through the shared public-evidence response cache and the
-// persistent request gate; one fresh page load per state; the only
-// interaction is a click on one of the six public tab anchors. No login,
-// no form submission, and no other control is touched.
 
 import {execFile} from "node:child_process";
 import crypto from "node:crypto";
@@ -78,14 +72,12 @@ function parseArgs(argv) {
   return args;
 }
 
-// Runs inside the page. Reads only the public user:info region and the tab strip.
 const SNAPSHOT_SCRIPT = () => {
   const style = (element) => {
     if (!element) return {present: false};
     const computed = getComputedStyle(element);
     return {present: true, display: computed.display, visibility: computed.visibility};
   };
-  // Inline script bodies carry no DOM state and are not retained; each element stays.
   const redactedHtml = (element) => {
     if (!element) return null;
     const clone = element.cloneNode(true);
@@ -143,10 +135,6 @@ async function browserIdentity(executable) {
   };
 }
 
-// One click on one tab anchor. The Wikidot topbar can sit over the tab, so the
-// anchor is scrolled into the centre of the viewport first. A trusted mouse click
-// is sent only when the anchor (or its descendant) is the element at that point;
-// otherwise the same anchor receives a DOM click and the overlap is recorded.
 async function clickTab(page, tabId) {
   const anchor = page.locator(`#${tabId}`);
   await anchor.evaluate((element) => element.scrollIntoView({block: "center", inline: "nearest"}));
@@ -249,10 +237,6 @@ async function captureState(context, {target, actionTabId}) {
   return state;
 }
 
-// The page's own static contract: Wikidot hosts, plus the versioned Wikidot
-// static assets (WIKIDOT.combined.js, UserInfoModule.js, bootstrap, theme CSS)
-// served from its CDN and file host. Ads, analytics, and other third-party
-// hosts are not part of this contract and are aborted.
 const ALLOWED_PUBLIC_PREFIXES = Object.freeze([
   {host: "d3g0gp89917ko0.cloudfront.net", pathPrefix: "/v--c5ce02208cf9/"},
   {host: "www.wdfiles.com", pathPrefix: "/local--theme/"},
@@ -265,9 +249,6 @@ function allowedPublicRequest(url) {
   return ALLOWED_PUBLIC_PREFIXES.some(({host, pathPrefix}) => url.hostname === host && url.pathname.startsWith(pathPrefix));
 }
 
-// One page load, then a fixed sequence of tab clicks in the same document. Each
-// step is snapshotted after its click, so the class transitions of repeated
-// selection are recorded rather than inferred.
 const SEQUENCE_TABS = Object.freeze(["ui-member-b", "ui-moderator-b", "ui-profile-b"]);
 
 async function captureSequence(context, target) {
@@ -334,9 +315,6 @@ function sortedBlocked(blocked) {
     .sort((left, right) => (left.request < right.request ? -1 : left.request > right.request ? 1 : 0));
 }
 
-// Runs every state and always returns what it captured. The gate and cache
-// are flushed here so that the lock can be confirmed and released by the
-// caller only after the request-gate state is durable.
 async function runCapture(args, lock) {
   const states = [];
   const sequences = [];
@@ -347,10 +325,6 @@ async function runCapture(args, lock) {
   let responseCache = null;
   let proxy = null;
   let browser = null;
-  // The gate fails closed on an identity whose earlier acquisition is uncertain:
-  // it throws inside the route handler, which Node reports as an unhandled
-  // rejection. Record that refusal per URL and let the affected request fail;
-  // do not refetch it. Any other unhandled rejection still terminates the run.
   const onUnhandledRejection = (error) => {
     const match = /uncertain prior acquisition: (\S+)/u.exec(errorMessage(error));
     if (match === null) throw error;
@@ -368,10 +342,6 @@ async function runCapture(args, lock) {
       browserContextOptions({ignoreHttpsErrors: false, proxyServer: proxy.url, blockServiceWorkers: true}),
     );
     await installBrowserRequestGate(context, {gate, responseCache});
-    // Routes registered later run first. Third-party hosts are aborted before
-    // the gate is consulted: they are outside the public user:info contract,
-    // and their stale acquisition barriers must not block the page. Every
-    // aborted request is recorded in the artifact.
     await context.route("**/*", async (route) => {
       const request = route.request();
       const url = new URL(request.url());

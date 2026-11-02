@@ -1,5 +1,3 @@
-//! ListPages and CountPages query-selector helpers.
-
 use super::{
     ComparisonOperation, CountPagesExactCountEligibilityDiagnostics,
     CountPagesExactCountEligibilityInput, CountPagesRequiredTagBatchResult, Cow,
@@ -20,12 +18,6 @@ pub(super) fn list_pages_comparison_value(operator: &str, value: &str) -> String
 pub(in crate::services::render) fn count_pages_should_remain_literal(
     arguments: &ListPagesArguments,
 ) -> bool {
-    // `+==`/`-==` are accepted as legacy signed tag tokens by ListPages,
-    // where `=` and `==` are ordinary tag names.  CountPages has no
-    // evidenced equivalent for those signed forms; expanding them as a
-    // database query would silently turn an unsupported current-page shape
-    // into a zero count.  Keep that narrow family literal while preserving
-    // the ordinary ListPages parser behavior.
     let has_unsupported_signed_current_tag = arguments
         .all_tags
         .iter()
@@ -44,10 +36,6 @@ pub(in crate::services::render) fn count_pages_should_remain_literal(
                 .saturating_add(u64::from(arguments.exclude_current_page))
                 > u64::from(MAX_LISTPAGES_RENDER_SCAN_ROWS)
         })
-        || (arguments.category_selector_present
-            && arguments.category_all
-            && arguments.count_pages_explicit_limit.is_none()
-            && !count_pages_has_static_filter(arguments))
         || (arguments.current_page_only
             && (arguments.category_selector_present
                 || arguments.page_type != PageTypeSelector::Normal
@@ -70,6 +58,15 @@ pub(in crate::services::render) fn count_pages_should_remain_literal(
                 || !arguments.data_form_fields.is_empty()
                 || arguments.slug.is_some()
                 || arguments.name_pattern.is_some()))
+}
+
+pub(in crate::services::render) fn count_pages_unbounded_all_category_shape(
+    arguments: &ListPagesArguments,
+) -> bool {
+    arguments.category_selector_present
+        && arguments.category_all
+        && arguments.count_pages_explicit_limit.is_none()
+        && !count_pages_has_static_filter(arguments)
 }
 
 pub(in crate::services::render) fn advance_literal_cursor_and_check_count_pages_capture_containment(

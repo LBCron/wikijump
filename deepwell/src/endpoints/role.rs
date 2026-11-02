@@ -93,7 +93,6 @@ pub async fn role_create(
         input.name, input.site_id
     );
 
-    // Translating to internal input, as there are some fields that are not meant to be set by users
     let translated = InternalCreateRoleInput {
         site_id: input.site_id,
         name: input.name,
@@ -149,7 +148,6 @@ pub async fn role_reparent(
         input.role_id, input.new_parent_id, input.site_id
     );
 
-    // Translating to internal input, as there are some fields that are not meant to be set by users
     let translated = InternalReparentRoleInput {
         site_id: input.site_id,
         role_id: input.role_id,

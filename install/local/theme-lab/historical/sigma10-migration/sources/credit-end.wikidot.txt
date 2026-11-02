@@ -1,0 +1,19 @@
+[[/div]]
+------
+
+[[div class="creditBottomRate"]]
+[[div_ class="credit-license"]]
+[[a href="*https://creativecommons.org/licenses/by-sa/3.0/deed.ja" class="cc cc-by-sa"]]@@@@[[/a]]
+[[/div]]
+[[div]]
+[[module Rate]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+[[/li]]
+[[/ul]]
+
+~~~~

@@ -1,0 +1,436 @@
+{
+  "schema": "theme_lab_wikidot_adaptation_ab.v1",
+  "url": "https://pseudo-scp-jp.wikidot.com/sigma-10:main",
+  "site": "pseudo-scp-jp.wikidot.com",
+  "observed_at": "2026-09-29T19:27:54.509Z",
+  "measured_at": "2026-09-29T19:34:32.463Z",
+  "snapshot": {
+    "entry": "/o/125e577422d838dcc730b8acbcf4414abd20a9d2afde8ad42aaf45cdf73ffeff",
+    "created_at": "2026-09-29T19:27:54.509Z",
+    "assets": 90,
+    "failed_assets": 2,
+    "failed_asset_details": [
+      {
+        "url": "https://www.napyfab.com/ajax-indicators/images/indicator_medium.gif",
+        "code": "reference_http_error",
+        "message": "reference fetch returned HTTP 441 for https://www.napyfab.com/ajax-indicators/images/indicator_medium.gif"
+      },
+      {
+        "url": "https://scp-wiki.wdfiles.com/local--files/component:theme/panel-bg-gradient-reverse.png",
+        "code": "reference_http_error",
+        "message": "reference fetch returned HTTP 500 for https://scp-wiki.wdfiles.com/local--files/component:theme/panel-bg-gradient-reverse.png"
+      }
+    ],
+    "replay_complete": true,
+    "object_digests": [
+      "125e577422d838dcc730b8acbcf4414abd20a9d2afde8ad42aaf45cdf73ffeff",
+      "82c2fb524eb5090ed2e260b31911087af4c3aeef949c306ade8fca0df25e3b07",
+      "6115df91fc7fe0a54466ed202f8d829d2ab9a5fc3f35857a595961a517ea7cd6",
+      "8c26cbf8a95e091d2cf962b245ef31eca2e883dcc56793c5a3590717fce6b3a4",
+      "0a47dabd021d9afce542e744be169048215e386559396ff60220a6e112f99d65",
+      "7009f254a0b7a3833c3752ea3b10c175fca21c2c1ceee3bcac32d774ddb98387",
+      "49bcabdb14d446bb93d261f9c967bedfa7cdf7b214807a8180974cbd00b21f11",
+      "12d76a7e7646312cb8bd8819216b0081fce6637f4b827af2bff2a203d87be941",
+      "c0fad68653c3344aa16c574b1571bd21973a0394d0bcac27994005cbf0ed5cdc",
+      "4f8c6d416f09671777934e57bc67fb52ccc97145dc6f1869e628d9ffd7d8f6e7",
+      "12ba0dac0f83457461a9158d710f3026edfba3848e37b785c448456756e875e9",
+      "eabe424dd70c56173c2cfcfe8ca6b328ef2077d6ce9b3243540148a2d76f20ab",
+      "b75a0d1f4c6203805ef6e432eb5c06ad5065255119e1cbd3b3c64baaadb9005e",
+      "5da265dc849871cd2201875b63a803c9a6b348419a048981960c746a18bfc583",
+      "dab79d3aeee7dc23243a53e417f1b8dc4cb0f397f06aa17bac4c1f373abd5ede",
+      "c893531613ca348b0217ea5976a52c4dfe7cda7ffa0ca002ef24a0980a201825",
+      "6d59328357ba699fae7fe1ce66e403bcb430c4a86fb750e2c240d483f6ff2201",
+      "8ee173565b2e771fecf3b471a79bdf072aaa1bd9dc27582cfda2b2a322beeba8",
+      "841dadb079124d00a289640d7ddae9ecd8b9e8b245d59c33593d3905863b568a",
+      "d4b09792783e799e3dfd3acc0590f59783a9875909b5baf88f43f5d384d6acd3",
+      "222902c16fcda2ffbe6acf20f48a9a3b1ce3ec1b1f37e4cea2df449c3b053ff8",
+      "2b3f53a407d5b25bc91bd9920f164b13e14d944bc95a7bf32a5138b30cef07c6",
+      "fbfecc922b34a8921eadef91c1763804baa9dc5fe8c9299ccaa94dad3bb31604",
+      "77aa03dfe99dca77dd663d465c87fa642d26267f5190208c11d5498e7c7fe697",
+      "7090e0cbe6dd7a326f49a184824ae4e205fcfea8c89a19346e81f8bc4d26df7c",
+      "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3",
+      "e564f652916db6c139570fefb9524a77c4d48f30c92928de9db19b6b5c7a262a",
+      "70ca998635d9fc627dede8108f04d0989e6e03346183f0ad0917723e790f6973",
+      "930d666b74e0dc0c26c2821f5643b701f8a41beaf3bb95ce146298104f29169c",
+      "ba4fc81dbb25871f1bcabc664b1e37703fca0a05f7248a923e7db497c6d211cc",
+      "38bad3a6a9ad1a7fcd8082e6423ba5e0baea16598f2cf304e527844f697e32b2",
+      "e111a1e2ad914ccda9179b95e83fb10234dd52a1932e0b93c480476227983fd9",
+      "050265b27d11860a26c66c054210852661abb5d229c4e0bb3525757a830f3790",
+      "e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085",
+      "2d078cb3bc8f934740d53b39dd23b0678f2f97477e49ec785dd9d8acd8b96bfc",
+      "0ff3e94614e1493eb556314fd247ae6c4a85a7783b4cc86be539940cf83f2a48",
+      "1b0df503de488a92082a8c5d72ddc4c0229183ceb645ae1c25c2d0d63778517c",
+      "5cb7103e4e605989afebc03d989c79201e54b21b5183db33981f70db9178a301",
+      "5e2a2bc3b5b9af0644f005693b10499dab18065d6aedbf46c8b74ccede27daeb",
+      "fa888127b6da015b65569f0351f3b5c391ad928904951f1c20e9f8462a8d95ea",
+      "4a10532d76c90c4597c0ad4bfc9284600e597d3012dd1ec16c1d44e0ad0058ab",
+      "6f75025856f8db1b2186e9cb89be9de9894932c8b7b20f4df5e65916ff714e34",
+      "53bb20ba292e2ac28a0777bf0f56f31b98be432a3cc04359e2eb608c758349c7",
+      "12ed0eed6749099b46c7b2e8198dc30c2d7e0f2a4e5fb1d12f0b6ae2c4f33cc4",
+      "308e101141e9dee3b6b121614da03969eb8179886975a9eeb5348021b04368fe",
+      "21cfe42e7f1031b410e247ed199f43fc362415af81b3a8e442a97f63b4dbe327",
+      "eff21589eacf1f6a596191038d7b47b4dd2455a096b175bb3572ecb6d026a611",
+      "9031b6d2a1a559753d50b311ecb463ddf7acaaae1d992a7e9b009620d8ce6def",
+      "e8d7078160ef92b82c2123857c1b3aefaa4a795a44b56df5fe3edade60d81576",
+      "01dd2d491ed863177e61f6e9458813baa85453ad97b32c5c1216927d4eebfe65",
+      "59b5be56306fd353d067aa6995c2c92bc3feb3ace73684d94e3c6e73fe2beaac",
+      "3a9463a58c3e7ba1e3cd65b5dbff91a35c508ff78a104cd1121feff83efeb787",
+      "dfd398d7372b61278e1505bfbdfc5ab0f6511ef887a47a2c90c13475eae585da",
+      "f1227907684853882ad00d7f97ce9f64bc17b89a2a291a7d4ec84fccfa442934",
+      "6bf254c1a65c806c019f52818add66747da83595a314112917911bcf5fa2f5c5",
+      "d9f63a82b826fb0117c92715c3a52a2d2247bc321bc39341420bf52d91e8277a",
+      "dd9d78314bdd5062302a73c7e2954008bab8158304fa7ac4f0ea8977b841dccb",
+      "23bc37619593377e128f24660fedb2869d18277b4026cb46e5637be7643faf91",
+      "5a0fe1f01b8777fab4a5f73c757743fa52579c7723b0291777625cb53c0a792a",
+      "97eeee5a6f4f22fef1f607cf8836104d65968f03e59bc068a7586bf18364a8a7",
+      "159b72ba47887032915420aa1445ae6768197e7ea732230182998f14d1cdb932",
+      "05650cb83c70fda2a465eade0c0a1a6c25d37ec49df3cd74b7e564683f9729f1",
+      "9746bf2bd43fe158144b83ede747088e80396daad55b9e6ea7232e0e22ee6fce",
+      "a8ed3f79f6374f68c86fa08f75ee91b2a4cd0f17e643f72b5e57ef40ea608df7",
+      "cbb644d0ee730ea57dd5fbae35ef5ba4a41d57a254a6b1215de5c9ff8a321c2d",
+      "aadc3580d2b64ff5a7e6f1425587db4e8b033efcbf8f5c332ca52a5ed580c87c",
+      "e3870de89716b72cb61a4bba0e17c75783b361cdaba35ea96961c3070bd8ca18",
+      "9e540a087924a6e64790149d735cac022640e4fa6bff6bd65f5e9f41529bf0b3",
+      "bfdef833219a6edffd9c3cbc28db72739d22bb4d20cc2e2f8d56a7a4d408a206",
+      "ed0652b49899259e10ff2b7270ffee4d9f07b4c2a46c8d95a7f86fa3e94e01d8",
+      "44d631b2507c9bfceabf960599f9f3d2093a3e19f5d6f04d27d375efb8012f84",
+      "7668781daf80240168d1142c72b3502f75617be40fbbe081caae66ac7d38d571",
+      "231630b39af902bf9ad98a22bd77b3c5359b18a9336b63bf599c31a76f1e08cd",
+      "e837f75abd3f971413d6edbd30a04937f656d06fd7ee95e7953368ef3454f254",
+      "b432066558f2c1a3e79c8e97607d966c8db473f4a8f6521f79bcfb16c9d8bd23",
+      "4c67b34b1b269e3a78976d3fee315d9b21d4695cdf880d25aa737f1608367a0f",
+      "fcd9f75940109475f878f0702d7eb0e1c55cd461369244c86203bb032b6dbe31",
+      "1d7378ae112da2d33aafdf0ce83bd2bccb36d6786a5c58317444367f2b9b4604",
+      "8aab16649c61f865e40a66b550fc954c8e1e42e317c06b22970a14a5390e8123",
+      "ead812094ab9e1c7af19e9de822a0807e3561e0ecae51533e3ffe7fa27ac37d4",
+      "5ef3bbd811f2281c9c05faaa88cb7ca404af15b09a873864177c0b509475e2cc",
+      "40723fa718237c74623d7b64ce186a02b872f7fb4b3a917013fcc8b6aec3ded6",
+      "2eb982d8faa4ab9bcc8bc39c31cad8f1d73e1d8df8e4aebd3970af1e38620841",
+      "41950d74f0aae0ee95ca1381b8096f1d19dc4154971505c8bdc3b18dce70912d",
+      "1a9b14799594702e4d0350164623d9e71261d70042ed4b3979808b08ba6e38b6",
+      "3ee20e2529a17cdd369a6c89edb23d5662ecfa9007936786d33c22c38fac14de",
+      "d8e1808c4f33e6bd075bd13b7aafc8596a1937495d5c57732322502b9c711a03",
+      "2c70976f2e37bf7191ad96d3af1efc72c865aa87f001ad4e144f6a74a288b4a6"
+    ]
+  },
+  "browser_version": "154.0.8037.57",
+  "browser_sha256": "aea09d69ce7f24d5901f6bfb15dd44d0c856e793e0a498f8d8393ec7d2c308ec",
+  "acquisition": {
+    "root_url": "https://pseudo-scp-jp.wikidot.com/sigma-10:main",
+    "entry": "/o/125e577422d838dcc730b8acbcf4414abd20a9d2afde8ad42aaf45cdf73ffeff",
+    "asset_count": 90,
+    "external_requests": 0,
+    "cache_hits": 1,
+    "failed_assets": [
+      {
+        "url": "https://www.napyfab.com/ajax-indicators/images/indicator_medium.gif",
+        "code": "reference_http_error",
+        "message": "reference fetch returned HTTP 441 for https://www.napyfab.com/ajax-indicators/images/indicator_medium.gif"
+      },
+      {
+        "url": "https://scp-wiki.wdfiles.com/local--files/component:theme/panel-bg-gradient-reverse.png",
+        "code": "reference_http_error",
+        "message": "reference fetch returned HTTP 500 for https://scp-wiki.wdfiles.com/local--files/component:theme/panel-bg-gradient-reverse.png"
+      }
+    ],
+    "failed_asset_count": 2
+  },
+  "public_writes": 0,
+  "external_browser_requests": 0,
+  "blocked_requests": [
+    {
+      "method": "GET",
+      "url": "http://stats.g.doubleclick.net/dc.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/interwikiFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/styleFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://stats.g.doubleclick.net/dc.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/interwikiFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/styleFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://stats.g.doubleclick.net/dc.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/interwikiFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/styleFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://stats.g.doubleclick.net/dc.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/interwikiFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/styleFrame.html"
+    }
+  ],
+  "rows": [
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "settled",
+      "index": 0,
+      "css_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "measurement": {
+        "document_width": 320,
+        "viewport_width": 320,
+        "selector_coverage": {
+          ".creditRate::before": 1
+        },
+        "rows": [
+          {
+            "selector": ".creditRate::before",
+            "pseudo": "::before",
+            "text": "_\n\n\n\n\n評価: 0+–x\n\n\n\n\n評価: 0+–x\n\n\n\n\n\nclose\n\n\n\nクレジット\n\n\nX\n\nタイトル: SCP-173 - 彫刻 - オリジナル\n著者: ©︎Moto42\n訳者: 匿名\n原記事: https://scpwiki.com/scp-173\n作成年: 2007\n\n\n\n\n_\n\n\nその他のライセンス\n\nclose\n\n\n\nその他\n\n\n\n\n\n製作者に関する情報\nこの記事に使用されている画像は加藤泉氏の作品である\"無題 2004\"を撮影したものです。写真はKeisuke Yamamoto氏によって撮影されました。これらに関する全ての権利は各著者の方々が有しています。\n注意: SCP-173は加藤泉氏の作品である\"無題 2004\"およびその写真を二次利用して生まれたものです。SCP-173のコンセプトは元作品である\"無題 2004\"のコンセプトとは全く関係ありません。\nこの彫刻及び写真はクリエイティブ・コモンズライセンスの元では公開されていません。記事の文章のみがクリエイティブ・コモンズライセンスの元で公開されています。いかなる場合においても、この彫刻および画像を営利目的で利用してはいけません。加藤泉氏は\"無題 2004\"の画像の利用を、非営利に限るという条件のもとでSCP Foundationおよびそのファンに対してお許しくださいました。これは加藤泉氏のご厚意によるものです。\n\n\n\nクレジット\n\n\n\n\n\n\n\n\n\n\n\n評価: 0+–x",
+            "rect": {
+              "x": 138.015625,
+              "y": 574.21875,
+              "width": 138.625,
+              "height": 18,
+              "top": 574.21875,
+              "right": 276.640625,
+              "bottom": 592.21875,
+              "left": 138.015625
+            },
+            "style": {
+              "display": "none",
+              "visibility": "visible",
+              "content": "\"プレビュー時、クレジットモジュール・Infoモジュールは非表示となっています。\\a 表示を確認するには、一度保存してください。\"",
+              "background-size": "auto",
+              "width": "auto",
+              "min-width": "0px",
+              "left": "auto",
+              "right": "auto",
+              "white-space": "pre"
+            }
+          }
+        ],
+        "search": {
+          "display": "none",
+          "focused": false
+        }
+      },
+      "bounds": [
+        {
+          "left": 138.015625,
+          "right": 276.640625,
+          "viewport_width": 320,
+          "off_left_px": 0,
+          "off_right_px": 0,
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "screenshot": "without-320-settled-0.png",
+      "screenshot_sha256": "430bfac2079e5865890d98129d7615075a970c85be6dc9a2411d85b860e29547",
+      "dom": "without-320-settled-0.html.gz",
+      "dom_sha256": "63ccd88ca5fc39dc86521cffe2fea56de4eabfac5d19794f637650086683b0f5"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "settled",
+      "index": 0,
+      "css_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "measurement": {
+        "document_width": 320,
+        "viewport_width": 320,
+        "selector_coverage": {
+          ".creditRate::before": 1
+        },
+        "rows": [
+          {
+            "selector": ".creditRate::before",
+            "pseudo": "::before",
+            "text": "_\n\n\n\n\n評価: 0+–x\n\n\n\n\n評価: 0+–x\n\n\n\n\n\nclose\n\n\n\nクレジット\n\n\nX\n\nタイトル: SCP-173 - 彫刻 - オリジナル\n著者: ©︎Moto42\n訳者: 匿名\n原記事: https://scpwiki.com/scp-173\n作成年: 2007\n\n\n\n\n_\n\n\nその他のライセンス\n\nclose\n\n\n\nその他\n\n\n\n\n\n製作者に関する情報\nこの記事に使用されている画像は加藤泉氏の作品である\"無題 2004\"を撮影したものです。写真はKeisuke Yamamoto氏によって撮影されました。これらに関する全ての権利は各著者の方々が有しています。\n注意: SCP-173は加藤泉氏の作品である\"無題 2004\"およびその写真を二次利用して生まれたものです。SCP-173のコンセプトは元作品である\"無題 2004\"のコンセプトとは全く関係ありません。\nこの彫刻及び写真はクリエイティブ・コモンズライセンスの元では公開されていません。記事の文章のみがクリエイティブ・コモンズライセンスの元で公開されています。いかなる場合においても、この彫刻および画像を営利目的で利用してはいけません。加藤泉氏は\"無題 2004\"の画像の利用を、非営利に限るという条件のもとでSCP Foundationおよびそのファンに対してお許しくださいました。これは加藤泉氏のご厚意によるものです。\n\n\n\nクレジット\n\n\n\n\n\n\n\n\n\n\n\n評価: 0+–x",
+            "rect": {
+              "x": 138.015625,
+              "y": 574.21875,
+              "width": 138.625,
+              "height": 18,
+              "top": 574.21875,
+              "right": 276.640625,
+              "bottom": 592.21875,
+              "left": 138.015625
+            },
+            "style": {
+              "display": "none",
+              "visibility": "visible",
+              "content": "\"プレビュー時、クレジットモジュール・Infoモジュールは非表示となっています。\\a 表示を確認するには、一度保存してください。\"",
+              "background-size": "auto",
+              "width": "auto",
+              "min-width": "0px",
+              "left": "auto",
+              "right": "auto",
+              "white-space": "pre"
+            }
+          }
+        ],
+        "search": {
+          "display": "none",
+          "focused": false
+        }
+      },
+      "bounds": [
+        {
+          "left": 138.015625,
+          "right": 276.640625,
+          "viewport_width": 320,
+          "off_left_px": 0,
+          "off_right_px": 0,
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "screenshot": "with-320-settled-0.png",
+      "screenshot_sha256": "430bfac2079e5865890d98129d7615075a970c85be6dc9a2411d85b860e29547",
+      "dom": "with-320-settled-0.html.gz",
+      "dom_sha256": "63ccd88ca5fc39dc86521cffe2fea56de4eabfac5d19794f637650086683b0f5"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "settled",
+      "index": 0,
+      "css_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "measurement": {
+        "document_width": 390,
+        "viewport_width": 390,
+        "selector_coverage": {
+          ".creditRate::before": 1
+        },
+        "rows": [
+          {
+            "selector": ".creditRate::before",
+            "pseudo": "::before",
+            "text": "_\n\n\n\n\n評価: 0+–x\n\n\n\n\n評価: 0+–x\n\n\n\n\n\nclose\n\n\n\nクレジット\n\n\nX\n\nタイトル: SCP-173 - 彫刻 - オリジナル\n著者: ©︎Moto42\n訳者: 匿名\n原記事: https://scpwiki.com/scp-173\n作成年: 2007\n\n\n\n\n_\n\n\nその他のライセンス\n\nclose\n\n\n\nその他\n\n\n\n\n\n製作者に関する情報\nこの記事に使用されている画像は加藤泉氏の作品である\"無題 2004\"を撮影したものです。写真はKeisuke Yamamoto氏によって撮影されました。これらに関する全ての権利は各著者の方々が有しています。\n注意: SCP-173は加藤泉氏の作品である\"無題 2004\"およびその写真を二次利用して生まれたものです。SCP-173のコンセプトは元作品である\"無題 2004\"のコンセプトとは全く関係ありません。\nこの彫刻及び写真はクリエイティブ・コモンズライセンスの元では公開されていません。記事の文章のみがクリエイティブ・コモンズライセンスの元で公開されています。いかなる場合においても、この彫刻および画像を営利目的で利用してはいけません。加藤泉氏は\"無題 2004\"の画像の利用を、非営利に限るという条件のもとでSCP Foundationおよびそのファンに対してお許しくださいました。これは加藤泉氏のご厚意によるものです。\n\n\n\nクレジット\n\n\n\n\n\n\n\n\n\n\n\n評価: 0+–x",
+            "rect": {
+              "x": 204.515625,
+              "y": 517.6875,
+              "width": 138.625,
+              "height": 18,
+              "top": 517.6875,
+              "right": 343.140625,
+              "bottom": 535.6875,
+              "left": 204.515625
+            },
+            "style": {
+              "display": "none",
+              "visibility": "visible",
+              "content": "\"プレビュー時、クレジットモジュール・Infoモジュールは非表示となっています。\\a 表示を確認するには、一度保存してください。\"",
+              "background-size": "auto",
+              "width": "auto",
+              "min-width": "0px",
+              "left": "auto",
+              "right": "auto",
+              "white-space": "pre"
+            }
+          }
+        ],
+        "search": {
+          "display": "none",
+          "focused": false
+        }
+      },
+      "bounds": [
+        {
+          "left": 204.515625,
+          "right": 343.140625,
+          "viewport_width": 390,
+          "off_left_px": 0,
+          "off_right_px": 0,
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "screenshot": "without-390-settled-0.png",
+      "screenshot_sha256": "8bc63598306f6917e9ddaf2e287a9d1ebd4813163c8943f60a8cb33ecb15b052",
+      "dom": "without-390-settled-0.html.gz",
+      "dom_sha256": "63ccd88ca5fc39dc86521cffe2fea56de4eabfac5d19794f637650086683b0f5"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "settled",
+      "index": 0,
+      "css_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "measurement": {
+        "document_width": 390,
+        "viewport_width": 390,
+        "selector_coverage": {
+          ".creditRate::before": 1
+        },
+        "rows": [
+          {
+            "selector": ".creditRate::before",
+            "pseudo": "::before",
+            "text": "_\n\n\n\n\n評価: 0+–x\n\n\n\n\n評価: 0+–x\n\n\n\n\n\nclose\n\n\n\nクレジット\n\n\nX\n\nタイトル: SCP-173 - 彫刻 - オリジナル\n著者: ©︎Moto42\n訳者: 匿名\n原記事: https://scpwiki.com/scp-173\n作成年: 2007\n\n\n\n\n_\n\n\nその他のライセンス\n\nclose\n\n\n\nその他\n\n\n\n\n\n製作者に関する情報\nこの記事に使用されている画像は加藤泉氏の作品である\"無題 2004\"を撮影したものです。写真はKeisuke Yamamoto氏によって撮影されました。これらに関する全ての権利は各著者の方々が有しています。\n注意: SCP-173は加藤泉氏の作品である\"無題 2004\"およびその写真を二次利用して生まれたものです。SCP-173のコンセプトは元作品である\"無題 2004\"のコンセプトとは全く関係ありません。\nこの彫刻及び写真はクリエイティブ・コモンズライセンスの元では公開されていません。記事の文章のみがクリエイティブ・コモンズライセンスの元で公開されています。いかなる場合においても、この彫刻および画像を営利目的で利用してはいけません。加藤泉氏は\"無題 2004\"の画像の利用を、非営利に限るという条件のもとでSCP Foundationおよびそのファンに対してお許しくださいました。これは加藤泉氏のご厚意によるものです。\n\n\n\nクレジット\n\n\n\n\n\n\n\n\n\n\n\n評価: 0+–x",
+            "rect": {
+              "x": 204.515625,
+              "y": 517.6875,
+              "width": 138.625,
+              "height": 18,
+              "top": 517.6875,
+              "right": 343.140625,
+              "bottom": 535.6875,
+              "left": 204.515625
+            },
+            "style": {
+              "display": "none",
+              "visibility": "visible",
+              "content": "\"プレビュー時、クレジットモジュール・Infoモジュールは非表示となっています。\\a 表示を確認するには、一度保存してください。\"",
+              "background-size": "auto",
+              "width": "auto",
+              "min-width": "0px",
+              "left": "auto",
+              "right": "auto",
+              "white-space": "pre"
+            }
+          }
+        ],
+        "search": {
+          "display": "none",
+          "focused": false
+        }
+      },
+      "bounds": [
+        {
+          "left": 204.515625,
+          "right": 343.140625,
+          "viewport_width": 390,
+          "off_left_px": 0,
+          "off_right_px": 0,
+          "pass": true
+        }
+      ],
+      "pass": true,
+      "screenshot": "with-390-settled-0.png",
+      "screenshot_sha256": "8bc63598306f6917e9ddaf2e287a9d1ebd4813163c8943f60a8cb33ecb15b052",
+      "dom": "with-390-settled-0.html.gz",
+      "dom_sha256": "63ccd88ca5fc39dc86521cffe2fea56de4eabfac5d19794f637650086683b0f5"
+    }
+  ]
+}

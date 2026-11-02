@@ -1,0 +1,1471 @@
+[[iftags]]
+[[include :scp-jp:theme:black-highlighter-theme]]
+[[/iftags]]
+
+[!-- フラグメント
+https://scp-jp.wikidot.com/fragment:redtape-light
+https://scp-jp.wikidot.com/fragment:redtape-dark
+--]
+
+[[iftags +テーマ]]
+[[module CSS]]
+@import url("https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css");
+@import url("https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css");
+
+#page-content .wikisys--template-dialog a {
+    color: rgb(var(--newpage-color));
+}
+[[/module]]
+
+[[include :scp-jp:component:interwiki-style
+| priority=1
+| theme=https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css
+]]
+
+[[include :scp-jp:component:interwiki-style
+| priority=2
+| theme=https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css
+]]
+
+[[div class="crom-thumbnail" style="display: none;"]]
+[[include :scp-jp:component:image-block name=https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-101-3mcp/redtapethemethumbnail.png]]
+[[/div]]
+
+[[include :scp-jp:credit:start-preview]]
+**タイトル:**  REDTAPE THEME
+**翻訳責任者:** nebula2700
+**翻訳年:** 2024
+**原題:**  REDTAPE THEME
+**著作権者:** Rounderhouse
+**作成年:**  2022
+**初訳時参照リビジョン:** 147
+**元記事リンク:** [https://scp-wiki.wikidot.com/theme:redtape ソース]
+
+[[include :scp-jp:credit:cc4]]
+[[include :scp-jp:credit:end-preview]]
+
+[[=]]
++ [https://scp-jp.wikidot.com/theme:redtape/offset/0 LIGHT] / [https://scp-jp.wikidot.com/theme:redtape/offset/1 DARK]
+[[/=]]
+
+[[div_ style="filter: none;"]]
+[[image black-highlighter-logo.svg style="mix-blend-mode: difference;"]]
+[[/div]]
+----
+[[=]]
+++++ これはROUNDERHOUSEによる[[span class="label"]]REDTAPE // ALLCAPS[[/span]]記事の年表のためのテーマです。テーマを使用して投稿したい場合は、お問い合わせください！
+[[/=]]
+----
+[[div class="scp-image-block block-center" style="width:100%;"]]
+[[image redtapeexample.png style="width:100%;" link=#]]
+[[div class="scp-image-caption" style="width:100%;"]]
+REDTAPE
+[[/div]]
+[[/div]]
+
+----
+
+[[=]]
++ テーマカラー
+[[/=]]
+
+[[include :scp-jp:component:theme-squares -=-
+| color1-name=Ship Gray
+| color1-variable=--gray-monochrome
+| color1-info=#424248
+| color2-name=Firebrick
+| color2-variable=--bright-accent
+| color2-info=#c02727
+| subcolor1-name=Persian Plum
+| subcolor1-variable=--medium-accent
+| subcolor1-info=#711515
+| subcolor2-name=Dryblood
+| subcolor2-variable=--dark-accent
+| subcolor2-info=#460d0d
+]]
+
+----
+[[div class="crom-thumbnail"]]
+[[include :scp-jp:component:image-block name=https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-101-3mcp/redtapethemethumbnail.png
+|caption=REDTAPEサムネイル。]]
+[[/div]]
+++ 注: これはBlack Highlighterベースのテーマです。このテーマを使用するにはBlack Highlighterテーマもインポートする必要があります。[[[theme:black-highlighter-theme|詳細については、ここを参照してください。]]]
+@@ @@
+@@ @@
+@@ @@
+@@ @@
+[[module css]]
+.cc4-caution {
+    background: rgb(var(--bright-accent));
+    color: #fff;
+    margin: auto;
+    padding: 3%;
+}
+.cc4-caution a {
+    color: rgb(var(--newpage-color));
+}
+[[/module]]
+
+[[div class="cc4-caution"]]
+= [[size 200%]]**JPにおける注意！**[[/size]]
+
+このカスタムテーマは、[*https://creativecommons.org/licenses/by-sa/4.0/deed.ja CC BY-SA 4.0ライセンス]下にあります。JPで使用する際は、以下のincludeをクレジットモジュール内に設置してください:
+= [[span style="border: 1px solid #fff; padding: 2%; text-align: center; font-family: var(--mono-font);"]]@@[[include :scp-jp:credit:cc4]]@@[[/span]]
+[[/div]]
+
+どんなウィキでも:
+
+[[div class="code"]]
+@@[[include :scp-jp:theme:black-highlighter-theme]]@@
+@@[[include :scp-jp:theme:redtape@@
+@@|dark=--]@@ <- これはテーマのダークモードを使用したい場合のオプション引数です。これを省略すると、デフォルトのライトモードになります。
+@@|years=XX@@ <- これにより、サブヘッダーと時計の真夜中までの時間が設定されます。REDTAPEの年表に従う全ての記事において、真夜中は2043年となります。
+@@]]@@
+[[/div]]
+
++ 例
+
+罫線は、4つのハイフン「@@----@@」を使用して作成でき、何かの内側（例: ブロック引用）に配置されていなければページ全体に適用されます。このドキュメントのセクションを区切る線は罫線です。
+
+-----
+
+見出しは、行の先頭に1～6文字の「+」を置くことで作成できます
+
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブを作る]]
+ここに{{ダミーテキスト}}が表示されていると想像してください。
+
+* [[span style="color: rgb(var(--dark-accent))"]]訪問済みのリンク[[/span]]
+* [[span style="color: rgb(var(--medium-accent))"]]未訪問のリンク[[/span]]
+* [[span style="color: rgb(var(--link-color))"]]存在しないリンク[[/span]]
+
+[[/tab]]
+[[tab タブが作られた]]
+見てください、ここにもテキストがあります。
+
+なんと奇妙な。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+本当に空ですよ
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックです。各行の先頭に半角の「> 」を置くか、{{@@[[div class="blockquote"]]@@}}を使用することで作成されます。
+>
+> 追加のテキスト
+> -----
+> これは罫線です
+>
+>> 入れ子になった引用ブロック
+>>> そしてもう一段[[footnote]] そしてここに脚注！ [[/footnote]]
+----
+
+||~ これは ||~ テーブルです ||
+||もう || 作り方は ||
+||||知っているはずです ||
+
+----
+このテーマには、記事のフォーマットを際立たせるために使える様々なdivが用意されています。以下はその一覧です:
+
++ >> 補遺ヘッダー
+
+[[div class="addendum"]]
+[[div class="doc"]]
+添付記録 - 1983年 6月
+[[/div]]
+[[span class="label"]]@@[[div class="doc"]]@@[[/span]]
+Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum
+@@ @@
+[[/div]]
+
+[[div class="addendum"]]
+[[span class="label"]]@@[[div class="addendum"]]@@[[/span]]
+Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum Lorem ipsum
+[[/div]]
+----
++ >> 角度付きのヘッダー
+[[span class="label"]]@@[[image 画像のURL class="angled"]]@@[[/span]]
+[[=image newtempest.png class="angled"]]
+----
++ >> Foundation Divs
+
+[[div class="foundation"]]
++++ 財団通達
+[[span class="label"]]@@[[div class="foundation"]]@@[[/span]]
+@@ @@
+@@ @@
+[[/div]]
+
+[[div class="foundation snow"]]
++++ 財団通達 'SNOW'
+[[span class="label"]]@@[[div class="foundation snow"]]@@[[/span]]
+@@ @@
+@@ @@
+[[/div]]
+
+[[div class="foundation raisa"]]
++++ 財団記録・保管・情報保安管理局より通達
+[[span class="label"]]@@[[div class="foundation raisa"]]@@[[/span]]
+@@ @@
+@@ @@
+[[/div]]
+
+[[div class="foundation alt"]]
++++ 財団通達 'GUERRE'
+[[span class="label"]]@@[[div class="foundation alt"]]@@[[/span]]
+@@ @@
+@@ @@
+[[/div]]
+
+
+----
++ >> GOC div
+[[div class="addendum goc"]]
++ 世界オカルト連合ファイル
+----
+[[span class="label"]]@@[[div class="addendum goc"]]@@[[/span]]
+@@ @@
+@@ @@
+@@ @@
+[[/div]]
+
+[[div class="addendum goc notice"]]
++ 世界オカルト連合通達
+----
+[[span class="label"]]@@[[div class="addendum goc notice"]]@@[[/span]]
+@@ @@
+@@ @@
+@@ @@
+[[/div]]
+----
++ >> 汎用カラーDiv
+
+[[div class="generic red"]]
++ 汎用ファイルサーバ通達
+----
+[[span class="label"]]@@[[div class="generic red"]]@@[[/span]]
+@@ @@
+@@ @@
+[[/div]]
+
+[[div class="generic blue"]]
++ 汎用ファイルサーバ通達
+----
+[[span class="label"]]@@[[div class="generic blue"]]@@[[/span]]
+@@ @@
+@@ @@
+[[/div]]
+
+[[div class="generic yellow"]]
++ 汎用ファイルサーバ通達
+----
+[[span class="label"]]@@[[div class="generic yellow"]]@@[[/span]]
+@@ @@
+@@ @@
+[[/div]]
+
+[[div class="generic purple"]]
++ 汎用ファイルサーバ通達
+----
+[[span class="label"]]@@[[div class="generic purple"]]@@[[/span]]
+@@ @@
+@@ @@
+[[/div]]
+
+----
++ >> ナビゲーションバー
+さらに、REDTAPEにはクールなモジュール式のナビゲーションバー も用意されています。そのいくつかのバリエーションをご確認ください:
+----
++++ 001シリーズ
+
+[[div class="rnb-navbar"]]
+
+[[div class="rnb-item rnb-last goldproposal"]]
+[[a href="https://scp-jp.wikidot.com/rounderhouse-gold-proposal" style="display: block;"]][[span class="rnb-supertitle"]]PREVIOUS[[/span]]
+<< GOLD PROPOSAL >>[[/a]]
+[[/div]]
+
+[[div class="rnb-item rnb-current"]]
+REDTAPE
+[[/div]]
+
+[[div class="rnb-item rnb-next jadeproposal"]]
+[[a href="#navbar" style="display: block;"]][[span class="rnb-supertitle"]]NEXT[[/span]]
+<< JADE PROPOSAL >>[[/a]]
+[[/div]]
+
+[[/div]]
+
+
++++ シリーズの項目（ハブリンク付き）
+
+[[div class="rnb-navbar"]]
+
+[[div class="rnb-item rnb-last"]]
+[[a href="https://scp-jp.wikidot.com/airgap" style="display: block;"]][[span class="rnb-supertitle"]]PREVIOUS[[/span]]
+<< TEMPEST >>[[/a]]
+[[/div]]
+
+[[div class="rnb-item rnb-current site7nav"]]
+[https://scp-wiki.wikidot.com/forum/t-15154222/airgap サイト-7]
+[[/div]]
+
+[[div class="rnb-item rnb-next"]]
+[[a href="https://scp-jp.wikidot.com/airgap" style="display: block;"]][[span class="rnb-supertitle"]]NEXT[[/span]]
+<< AIRGAP >>[[/a]]
+[[/div]]
+
+[[/div]]
+
+
++++ シリーズ一作目
+
+[[div class="rnb-navbar"]]
+
+[[div class="rnb-item rnb-current gocnav"]]
+DOGS OF WAR
+[[/div]]
+
+[[div class="rnb-item rnb-next"]]
+[[a href="#navbar" style="display: block;"]][[span class="rnb-supertitle"]]NEXT[[/span]]
+<< WEAPONS FREE >>[[/a]]
+[[/div]]
+
+[[/div]]
+
+
++++ シリーズ最新作
+
+[[div class="rnb-navbar"]]
+
+[[div class="rnb-item rnb-last"]]
+[[a href="#navbar" style="display: block;"]][[span class="rnb-supertitle"]]PREVIOUS[[/span]]
+<< SCP-6781 >>[[/a]]
+[[/div]]
+
+[[div class="rnb-item rnb-current raisanav"]]
+RAISA
+[[/div]]
+
+[[div class="rnb-item rnb-next"]]
+[[span class="rnb-supertitle"]]COMING SOON[[/span]]
+[[/div]]
+
+
+[[/div]]
+----
+
+[[=]]
+[[span style="font-family: var(--header-font); font-weight: 900;"]]ヘッダーと見出しのフォントはSecular OneとM PLUS 1p。[[/span]]
+[[span style="font-family: var(--body-font);"]]BodyフォントはTelex。[[/span]]
+[[span style="font-family: var(--mono-font);"]]使用している等幅フォントはPT Mono。[[/span]]
+[[/=]]
+
+----
+
+[[collapsible show="+ テーマコードを表示" hide="- テーマコードを非表示"]]
+[[code type="css"]]
+/*
+REDTAPE Theme
+[2022 Wikidot Theme]
+Created by ROUNDERHOUSE
+Thanks to estrellayoshte, stormbreath, stephlynch, Woedenaz for critique and help.
+Based on Black Highlighter Theme created by Woedenaz and Croquembouche.
+The clock logo was created by EstrellaYoshte, based off the SCP Foundation logo. Licensed under CC BY SA 3.0.
+The topography background was created by Steve Schoger of https://heropatterns.com, licensed under CC BY 4.0.
+The red tape design in the header was created by stephlynch, licensed under CC BY SA 3.0.
+*/
+
+/* *** FONTS *** */
+@import url('https://fonts.googleapis.com/css2?family=Secular+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Telex&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
+/* *** ROOT VARS *** */
+
+:root {
+    --theme-id: "REDTAPE";
+    --theme-name: "REDTAPE";
+    --logo-image: url("https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-88-gkya/midnightwhite.png");
+    --header-title: "REDTAPE";
+    --header-subtitle: "{$years} Minutes to Midnight";
+    --header-font: 'Secular One', 'M PLUS 1p', sans-serif;
+    --title-font: 'Secular One', 'M PLUS 1p', sans-serif;
+    --body-font: 'Telex', "BIZ UDPGothic", "M Plus 1p", sans-serif;
+
+    --minutes-to-midnight: {$years};
+
+    /* Standard Colors */
+    --white-monochrome: 252,
+    252,
+    252;
+    /* white */
+    --pale-gray-monochrome: 244,
+    244,
+    244;
+    --white-accent: 244,
+    244,
+    244;
+    /* v light gray for blockquotes and stuff */
+    --light-gray-monochrome: 170,
+    170,
+    170;
+    /* light accent gray for login status */
+    --gray-monochrome: 66,
+    66,
+    72;
+    /* gray */
+    --dark-gray-monochrome: 48,
+    48,
+    52;
+    /* dark accent gray for sidebar background */
+    --black-monochrome: 12,
+    12,
+    12;
+    /* black */
+    --pale-accent: 192,
+    39,
+    39;
+    --bright-accent: 192,
+    39,
+    39;
+    /* bright blue */
+    --medium-accent: 113,
+    21,
+    21;
+    /* pale blue */
+    --dark-accent: 70,
+    13,
+    13;
+    /* v pale blue */
+    --newpage-color: 164,
+    194,
+    236;
+
+
+    /* ===PRIMARY COLORS=== */
+    /* ===GENERAL COLORS=== */
+    --swatch-primary: var(--bright-accent);
+    --swatch-primary-darker: var(--medium-accent);
+    --swatch-primary-darkest: var(--dark-accent);
+    --swatch-border-color: var(--black-monochrome);
+
+    /* ===GENERAL TEXT COLORS=== */
+    --swatch-text-dark: var(--white-monochrome);
+    --swatch-text-light: var(--black-monochrome);
+    --swatch-text-general: var(--swatch-text-light);
+    --swatch-important-text: var(--bright-accent);
+
+    /* ===MENU COLORS=== */
+    /* ===MENU BACKGROUND COLORS=== */
+    --swatch-menubg-color: var(--bright-accent);
+    --swatch-menubg-light-color: var(--pale-gray-monochrome);
+    --swatch-menubg-medium-color: var(--light-gray-monochrome);
+    --swatch-menubg-medium-dark-color: var(--gray-monochrome);
+    --swatch-menubg-dark-color: var(--dark-gray-monochrome);
+    --swatch-menubg-black-color: var(--black-monochrome);
+    --swatch-menubg-hover-color: var(--black-monochrome);
+
+    /* ===MENU TEXT COLORS=== */
+    --swatch-menutxt-dark-color: var(--black-monochrome);
+    --swatch-menutxt-light-color: var(--white-monochrome);
+    --swatch-menutxt-general-color: var(--swatch-menutxt-light-color);
+    --swatch-background: var(--white-monochrome);
+    --swatch-headerh1-color: var(--white-monochrome);
+    --swatch-headerh2-color: var(--bright-accent);
+    --background-gradient-color: var(--bright-accent);
+    --background-gradient-distance: 18rem;
+
+    --topbar-height-on-desktop: 1.5rem;
+    --topbar-height-on-mobile: 3.5rem;
+
+    --gradient-topmenu: radial-gradient(circle, rgb(var(--bright-accent)) 81%, rgba(var(--medium-accent), 0.1) 94%);
+    --gradient-topmenu-mobile: none;
+
+    --swatch-tertiary-color: var(--dark-accent);
+    --swatch-secondary-color: var(--bright-accent);
+    --swatch-text-tertiary-color: var(--white-accent);
+    --swatch-text-secondary-color: var(--white-monochrome);
+
+    --rating-module-text-color: var(--swatch-secondary-color);
+
+    --toggle-border-color: rgb(var(--bright-accent));
+    --toggle-icon-color: rgb(var(--bright-accent));
+    --toggle-roundness: 1%;
+    --toggle-button-bg: rgb(var(--white-monochrome));
+
+
+    --barColour: #c02727 !important;
+    --tabs-content-bg-color: var(--white-monochrome),
+    0.25;
+    --tabs-content-border-color: var(--bright-accent);
+
+    --dropdown-bg-color: var(--white-monochrome),
+    0.9;
+    --dropdown-border-color: var(--swatch-text-tertiary-color),
+    0.5;
+    --dropdown-links-color: var(--bright-accent);
+    --dropdown-links-bg-color: 0,
+    0,
+    0,
+    0;
+    /* Transparent */
+    --dropdown-links-hover-color: var(--white-monochrome);
+    --dropdown-links-hover-bg-color: var(--swatch-primary);
+
+
+    --modal-bg: var(--swatch-secondary-color);
+    --modal-body-text: var(--swatch-text-tertiary-color);
+    --modal-body-header-txt: var(--swatch-text-tertiary-color);
+
+    --modal-header-stripe: var(--swatch-primary);
+
+    /* ===FOOTNOTES HOVER BLOCK=== */
+    --hoverblock-bg: var(--white-monochrome);
+    --hoverblock-txt: var(--bright-accent);
+
+    --pagetags-title-bg: var(--bright-accent);
+}
+
+#main-content {
+    /* ===TABLE OF CONTENS=== */
+    --toc-body-link-color: var(--pale-gray-monochrome) !important;
+    --toc-body-link-hover-color: var(--pale-gray-monochrome) !important;
+    --toc-body-hover-arrow-color: var(--pale-gray-monochrome) !important;
+}
+
+/* *** FOOTNOTES *** */
+
+.bibitems,
+.footnotes-footer {
+    background-color: #d3d3d370;
+    box-shadow: inset .5em 0 0 0 rgba(var(--bright-accent), 1);
+    border-radius: 5px;
+}
+
+.bibitems .title,
+.footnotes-footer .title {
+    width: inherit;
+    background-color: rgb(var(--bright-accent));
+    -webkit-clip-path: polygon(94.49% 0px, 100% 43.55%, 100% 100%, 0px 100%, 0px 0px);
+            clip-path: polygon(94.49% 0px, 100% 43.55%, 100% 100%, 0px 100%, 0px 0px);
+    border-radius: 5px 0 0;
+}
+
+.bibitems .bibitem::after,
+.footnotes-footer a[href*="javascript"]::before {
+    background-color: transparent;
+}
+
+/* *** LICENSEBOX *** */
+
+.licensebox {
+    text-align: center;
+}
+
+.licensebox .collapsible-block-content {
+    text-align: left;
+}
+
+.licensebox .collapsible-block-link {
+    background: rgb(var(--bright-accent));
+    color: white;
+    border-radius: 4px;
+    padding: 4px;
+    font-family: var(--mono-font);
+}
+
+/* *** SIDEBAR *** */
+
+#side-bar .side-block.media a::before {
+    background-color: rgb(var(--white-monochrome));
+}
+
+#side-bar div.menu-item a::before,
+#interwiki div.menu-item a::before {
+    background-color: rgb(var(--dark-accent));
+}
+
+.side-block a:hover {
+    background-color: black;
+}
+
+/* *** TABS *** */
+
+.yui-navset .yui-content {
+    background: rgba(var(--white-monochrome), .75);
+}
+
+.yui-navset .yui-nav li a,
+.yui-navset-top .yui-nav li a,
+.yui-navset-bottom .yui-nav li a {
+    background: rgb(var(--white-monochrome)) !important;
+}
+
+.yui-navset .yui-nav li a em,
+.yui-navset-top .yui-nav li a em,
+.yui-navset-bottom .yui-nav li a em {
+    color: rgb(var(--bright-accent));
+}
+
+.yui-navset .yui-nav a em,
+.yui-navset .yui-nav .selected a em {
+    color: rgb(var(--white-monochrome));
+}
+
+.yui-navset .yui-nav li a,
+.yui-navset-top .yui-nav li a,
+.yui-navset-bottom .yui-nav li a {
+    background: rgb(var(--black-monochrome));
+}
+
+/* *** TOPBAR *** */
+
+#top-bar {
+    background: rgb(var(--bright-accent));
+    border-radius: 4px;
+}
+
+#header div[class*="top-bar"]>ul>li>ul {
+    border: none;
+}
+
+#header div[class*="top-bar"]>ul>li ul>li {
+    background-color: rgb(var(--black-monochrome));
+}
+
+#header div[class*="top-bar"]>ul>li>ul li>a {
+    color: rgb(var(--bright-accent));
+}
+
+#header div[class*="top-bar"]>ul>li ul>li {
+    background-color: rgb(var(--white-monochrome));
+}
+
+#header div[class*="top-bar"]>ul>li>ul li>a {
+    color: rgb(var(--bright-accent));
+}
+
+/* *** HEADER *** */
+
+#content-wrap:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-90-5dfj/topolight.png);
+    background-size: contain;
+    z-index: -1;
+}
+
+#content-wrap {
+    background-color: #ffffffa3;
+    background-blend-mode: multiply;
+}
+
+#header::before {
+    height: calc(100% - var(--topbar-height-on-desktop));
+    aspect-ratio: 1;
+    left: 50%;
+    top: 0.3rem;
+    background-image: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-87-3c7w/Untitled2.png);
+    background-size: contain;
+    transform: translatex(-50%);
+    -webkit-filter: invert(1);
+            filter: invert(1);
+}
+
+#header::after {
+    content: "";
+    display: block;
+    position: absolute;
+    background: white;
+    opacity: 0.75;
+    height: 25.5%;
+    width: 0.5rem;
+    bottom: 53%;
+    left: calc(50% - 0.25rem);
+    transform-origin: bottom center;
+    transform: rotate(calc(360deg - 30deg * var(--minutes-to-midnight)/60));
+}
+
+#extra-div-1 {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10rem;
+    background: #f4f4f4;
+    pointer-events: none;
+}
+
+#extra-div-2 {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10rem;
+    background-image: url("https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-89-waka/topotrans.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: repeat-x;
+    pointer-events: none;
+    filter: invert(70%);
+    -webkit-filter: invert(70%);
+}
+
+#extra-div-3 {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10rem;
+    background-image: url("https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-92-7ljl/redtapes.png");
+    background-size: 130%;
+    background-position: center;
+    background-repeat: repeat-x;
+    pointer-events: none;
+}
+
+/* *** MISC PAGE STYLING *** */
+.page-source {
+    box-shadow: 1px 1px 4px rgba(var(--dark-accent), 0.55);
+    color: white;
+}
+
+.page-source a {
+    color: rgb(var(--newpage-color));
+}
+
+.page-source::selection {
+   background-color: rgb(var(--dark-accent));
+}
+
+#page-content div.b-tables table.wiki-content-table th,
+#page-content table.wiki-content-table th {
+    background: rgb(var(--bright-accent));
+}
+
+#page-content>.collapsible-block {
+    border-color: rgb(var(--bright-accent));
+}
+
+#page-content>h1 span,
+#page-content>h2 span,
+#page-content>h3 span,
+#page-content>h4 span,
+#page-content>h5 span,
+#page-content>h6 span {
+    text-transform: uppercase;
+}
+
+#login-status #account-options {
+    background-image: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-89-waka/topotrans.png);
+    background-size: contain;
+    background-color: rgb(var(--bright-accent));
+    background-blend-mode: multiply;
+}
+
+#license-area a:active,
+#license-area a:hover,
+#footer a:active,
+#footer a:hover {
+    color: rgb(var(--white-monochrome));
+}
+
+div.obj {
+    color: rgb(var(--white-monochrome)) !important;
+}
+
+#page-content>a {
+    color: rgb(var(--bright-accent));
+}
+
+.page-rate-widget-box a {
+    color: transparent;
+}
+
+.modalbox .credit {
+    color: rgb(var(--modal-body-text));
+}
+
+.modalbox div.credit a {
+    color: rgb(var(--newpage-color)) !important;
+}
+
+.modalbox .cc::before {
+    color: rgb(var(--modal-body-text));
+}
+
+#page-title::after,
+.meta-title::after,
+#page-title::before,
+.meta-title::before {
+    background-color: rgb(var(--bright-accent));
+    border: 4px solid rgb(var(--bright-accent));
+}
+
+form#edit-page-form .wd-editor-toolbar-panel a::before {
+    background-color: rgb(var(--bright-accent));
+}
+
+#odialog-container div.owindow {
+    background-color: white;
+    color:  rgb(var(--bright-accent));
+}
+
+:is(blockquote, .blockquote, div.blockquote, [class*="blockquote"]) {
+    border-left: 5px rgb(var(--bright-accent)) solid;
+    background: rgb(var(--white-monochrome));
+    box-shadow: 1px 1px 4px rgba(var(--medium-accent), 0.5);
+}
+
+#main-content .page-tags span a:-webkit-any-link:not([href^="/system:page-tags/tag/_"]) {
+    background-color: rgb(var(--medium-accent));
+    color: white;
+}
+
+#main-content .page-tags span a:-moz-any-link:not([href^="/system:page-tags/tag/_"]) {
+    background-color: rgb(var(--medium-accent));
+    color: white;
+}
+
+#main-content .page-tags span a:any-link:not([href^="/system:page-tags/tag/_"]) {
+    background-color: rgb(var(--medium-accent));
+    color: white;
+}
+
+
+.scp-image-caption {
+    color: rgb(var(--white-monochrome));
+}
+
+.image-block,
+.scp-image-block {
+    box-shadow: 0px 0px 4px rgb(var(--medium-accent))
+}
+
+hr {
+    border-top: none!important;
+    height: .07rem;
+    background: rgb(var(--bright-accent));
+    border-left: 50px double #f4f4f4;
+    border-right: 50px double #f4f4f4;
+}
+
+.code {
+    color: white;
+}
+
+blockquote hr,
+.blockquote hr,
+div.blockquote hr,
+[class*="blockquote"] hr {
+    border-left: none;
+    border-right: none;
+}
+
+a.btn {
+    -webkit-clip-path: polygon(89% 0, 100% 29%, 100% 100%, 0 100%, 0 0);
+            clip-path: polygon(89% 0, 100% 29%, 100% 100%, 0 100%, 0 0);
+    color: rgb(var(--white-monochrome))!important;
+}
+
+form#edit-page-form .edit-page-bottomtable tr>td:first-of-type>div:first-of-type textarea:not(:-moz-placeholder-shown) {
+    color: rgb(var(--bright-accent));
+}
+
+form#edit-page-form .edit-page-bottomtable tr>td:first-of-type>div:first-of-type textarea:not(:placeholder-shown) {
+    color: rgb(var(--bright-accent));
+}
+
+/* *** DIVS *** */
+
+.addendum {
+    border: solid 2px rgb(var(--bright-accent));
+    background: #F5F5F5;
+    width: 84%;
+    padding: 1px 15px;
+    margin: 10px auto;
+}
+
+.label {
+    background: rgb(var(--bright-accent));
+    color: white;
+    padding: 3px;
+    border-radius: 4px;
+    font-family: monospace;
+    white-space: nowrap;
+}
+
+.doc {
+    background-color: rgb(var(--bright-accent));
+    color: white;
+    font-family: var(--mono-font);
+    padding: 0 1.5rem;
+    font-size: 1.1em;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+    position: relative;
+    top: -2em;
+    border-radius: 4px;
+    margin-bottom: -3rem;
+}
+
+.addendum {
+    margin-top: 1.6rem;
+}
+
+.angled {
+    -webkit-clip-path: polygon(4% 0%, 100% 0%, 96% 100%, 0% 100%);
+            clip-path: polygon(4% 0%, 100% 0%, 96% 100%, 0% 100%);
+    border-radius: 5px;
+}
+
+.foundation {
+    border: solid 3px #444;
+    background: #f2f2c2 url('https://scp-jp-storage.wdfiles.com/local--files/file%3A2532460-25-b7bd/scp_trans.png') center center no-repeat;
+    padding: 1.5rem;
+    margin-bottom: 10px;
+    color: black;
+}
+
+.foundation p {
+    margin: none;
+}
+
+.foundation.snow {
+    background: #fff url('https://scp-jp-storage.wdfiles.com/local--files/file%3A2532460-25-b7bd/scp_trans.png') center center no-repeat;
+}
+
+.foundation.raisa {
+    background: #f2f2c2 url('https://scp-jp-storage.wdfiles.com/local--files/file%3A2375337-562-real/raisa_trans.png') center center no-repeat;
+    background-size: 29rem;
+    text-align: center;
+}
+
+.foundation.alt {
+    background: #fff url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-97-42uw/scp-logo-i57.png') center center no-repeat;
+}
+
+.goc {
+    background: #fff url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-37-4d3q/goc-fade.png') -5rem -5rem no-repeat !important;
+    border: none;
+    border-left: 5px solid #275495;
+    background-size: 30rem;
+    box-shadow: 1px 1px 4px #27549582;
+    color: black;
+}
+
+.goc h1,
+.goc h2,
+.goc h3,
+.goc h4,
+.goc h5,
+.goc h6 {
+    font-family: 'Russo One', "M Plus 1p", sans-serif;
+    color: #5c95e6;
+}
+
+.goc hr,
+.goc .label {
+    background: #275495 !important;
+}
+
+.goc .scp-image-caption {
+    background-color: #275495;
+    box-shadow: none;
+}
+
+.goc.notice {
+    width: 80%;
+    margin: 0.625rem auto;
+    padding: 0.9375rem;
+    border: solid 0.125rem #5c95e6;
+    background: #fff url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-37-4d3q/goc-fade.png') center no-repeat;
+    background-size: auto;
+    text-align: center;
+    background-position: center !important;
+}
+
+.generic {
+    position: relative;
+    margin: 0.5em 1.25rem;
+    padding: 0.825em 1.25em;
+    clear: both;
+    -webkit-clip-path: polygon(93% 0px, 100% 15.11%, 100% 100%, 0px 100%, 0px 0px);
+            clip-path: polygon(93% 0px, 100% 15.11%, 100% 100%, 0px 100%, 0px 0px);
+    border-left: 4px solid gray;
+}
+
+.generic hr {
+    background: gray;
+    border: none;
+}
+
+.generic h1,
+.generic h2,
+.generic h3,
+.generic h4,
+.generic h5,
+.generic h6 {
+    color: #515050;
+}
+
+.generic.red {
+    background: #ff4a4a3d;
+}
+
+.generic.blue {
+    background: #4a80ff3d;
+}
+
+.generic.yellow {
+    background: #fff77f3d;
+}
+
+.generic.purple {
+    background: #a561d536;
+}
+
+.flameframe {
+    background: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-102-e1r0/unknown.png');
+    color: white;
+    background-size: 100% 100%;
+    background-position: center;
+}
+
+/* *** NAVBAR *** */
+
+.rnb-navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 2.7rem;
+    margin: 3rem 0rem;
+}
+
+.rnb-item {
+    padding: 3px;
+    text-align: center;
+    width: 35%;
+    border: 3px solid rgb(var(--bright-accent));
+    background-attachment: fixed;
+    background-size: contain;
+}
+
+.rnb-item a {
+    font-family: var(--header-font);
+    color: rgb(var(--bright-accent));
+    font-size: 110%;
+}
+
+.rnb-item p {
+    margin: 3%;
+}
+
+.rnb-last {
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-90-5dfj/topolight.png');
+    transition: all 0.25s ease-in-out;
+}
+
+.rnb-current {
+    width: 30%;
+    border: none;
+    background-color: rgb(192, 39, 39);
+    font-size: 140%;
+    color: white;
+    font-family: var(--header-font);
+    letter-spacing: 3px;
+    box-shadow: 1px 1px 4px rgba(var(--dark-accent), 0.75);
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-93-rhwy/logo_SCP.png');
+    background-size: 12rem;
+    background-repeat: no-repeat;
+    background-attachment: initial;
+    background-position: center;
+    background-blend-mode: color-burn;
+    text-shadow: 3px 0px 3px rgb(var(--dark-accent));
+}
+
+.rnb-current a {
+    color: rgb(var(--white-monochrome)) !important;
+}
+
+
+.rnb-current a::before {
+    content: "[";
+}
+
+.rnb-current a::after {
+    content: "]";
+}
+
+.rnb-next {
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-90-5dfj/topolight.png');
+    transition: all 0.25s ease-in-out;
+}
+
+.rnb-last:hover,
+.rnb-next:hover {
+    background-color: rgb(var(--bright-accent));
+    background-blend-mode: hard-light;
+}
+
+.rnb-last a,
+.rnb-next a {
+    transition: all 0.25s ease-in-out;
+    text-decoration: none !important;
+}
+
+.rnb-last a:hover,
+.rnb-last a:active,
+.rnb-next a:hover,
+.rnb-next a:active {
+    text-decoration: none;
+    text-shadow: #FF6868 1px 0 10px;
+}
+
+.rnb-supertitle {
+    font-family: var(--header-font);
+    color: rgb(var(--medium-accent));
+    font-size: 70%;
+    letter-spacing: 0.5rem;
+    margin-left: 0.5rem;
+}
+
+.rnb-current .rnb-supertitle {
+    letter-spacing: 0;
+}
+
+/* *** NAVBAR VARIANTS *** */
+
+.rnb-item.goldproposal {
+    background-color: rgba(164, 119, 84, 1);
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-99-6kef/AmapiRam.jpg');
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-attachment: local;
+    border-color: rgb(91, 67, 48);
+    background-position: center;
+}
+
+.rnb-item.goldproposal:hover {
+    background-color: rgb(var(--bright-accent));
+}
+
+.rnb-item.goldproposal .rnb-supertitle,
+.goldproposal a {
+    color: #fdcc0a !important;
+}
+
+.rnb-item.goldproposal a:hover {
+    text-shadow: gold 1px 0 10px;
+}
+
+
+.rnb-item.jadeproposal {
+    border-color: #37782C;
+    background-color: #295522;
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-100-9z5z/JadeHeader2k.jpg');
+    background-blend-mode: luminosity;
+    background-size: 170%;
+    background-attachment: local;
+    background-position: center;
+}
+
+.rnb-item.jadeproposal a,
+.jadeproposal .rnb-supertitle {
+    color: #78C46C !important;
+}
+
+.rnb-item.jadeproposal:hover {
+    background-color: rgb(var(--bright-accent));
+}
+
+.rnb-item.jadeproposal a:hover {
+    text-shadow: green 1px 0 10px;
+}
+
+.rnb-item.boneproposal {
+border-color: #fff;
+background-color: #040404;
+background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-103-3k8h/Catacombe%2C_a_place_Denfert-Rochereau%2C_Paris.jpg');
+background-blend-mode: luminosity;
+background-size: initial;
+background-position: revert-layer;
+background-size: 170%;
+background-attachment: local;
+background-position: center;
+}
+.rnb-item.boneproposal a, .rnb-item.boneproposal .rnb-supertitle {
+    color: #fff!important;
+}
+
+.rnb-item.boneproposal:hover {
+    background-color: rgb(var(--bright-accent));
+}
+
+.rnb-item.boneproposal a:hover {
+    text-shadow: white 1px 0 10px;
+}
+
+.rnb-current.gocnav {
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-94-su76/logo_GOC.png');
+}
+
+rnb-.current.raisanav {
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-95-1p53/logo_RAISA.png');
+}
+
+.rnb-current.site7nav {
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-96-zycj/logo_SITE7.png');
+}
+
+/* *** MOBILE *** */
+
+@media only screen and (max-width: 765px) {
+    #extra-div-3 {
+     background-size: 310%;
+    }
+
+    #header::before {
+     top: 0.75rem;
+    }
+
+    #header::after {
+     bottom: 51%;
+    }
+
+    #header::after {
+     width: 0.35rem;
+     left: calc(50% - 0.19rem);
+    }
+}
+
+#header h2 span:is(::before, ::after), #page-title, .meta-title, h1, h2, h3, h4, h5, h6 {
+    --wght: 900;
+}
+[[/code]]
+
+[[code type="css"]]
+:root {
+    --swatch-text-general: var(--swatch-text-dark);
+    --swatch-background: var(--black-monochrome);
+    --swatch-text-tertiary-color: var(--dark-accent);
+    --toggle-button-bg: rgb(var(--black-monochrome));
+}
+
+div.obj {
+    color: rgb(var(--white-monochrome)) !important;
+}
+
+div.objclass::before {
+    background-color: rgb(var(--white-monochrome)) !important;
+}
+
+a:visited {
+    color: #E74E45;
+}
+
+#content-wrap:before {
+    background-image: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-91-qt25/topo.png);
+}
+
+#content-wrap {
+    background-color: #0000005c;
+}
+
+#extra-div-1 {
+    background: #111;
+}
+
+#extra-div-2 {
+    filter: none;
+    -webkit-filter: none;
+}
+
+blockquote,
+.blockquote,
+div.blockquote,
+[class*="blockquote"] {
+    background: #151515!important;
+}
+
+hr {
+    border-color: #0e0e0e;
+}
+
+.bibitems,
+.footnotes-footer {
+    background-color: #5c5a5a70;
+}
+
+.image-block,
+.scp-image-block {
+    box-shadow: 0px 0px 4px rgb(var(--medium-accent));
+}
+
+.yui-navset .yui-content {
+    background: rgba(var(--black-monochrome), .75);
+}
+
+.yui-navset .yui-nav li a,
+.yui-navset-top .yui-nav li a,
+.yui-navset-bottom .yui-nav li a {
+    background: rgb(var(--black-monochrome)) !important;
+}
+
+.addendum {
+    background: #1C1C1C;
+    color: white;
+}
+
+.addendum hr {
+    border-color: #1C1C1C;
+}
+
+.goc {
+    background-color: #111;
+    color: #fff;
+}
+
+.generic {
+    border-color: #e4e1e1;
+}
+
+.generic hr {
+    background: #e4e1e1;
+}
+
+.generic h1,
+.generic h2,
+.generic h3,
+.generic h4,
+.generic h5,
+.generic h6 {
+    color: #e4e1e1;
+}
+
+.rnb-next,
+.rnb-last {
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-91-qt25/topo.png');
+}
+
+.rnb-supertitle {
+    color: rgb(var(--white-monochrome));
+}
+[[/code]]
+[[/collapsible]]
+[[/iftags]]
+
+[[include :scp-jp:component:centered-header-bhl]]
+[[include :scp-jp:component:toggle-sidebar-bhl]]
+[[module css]]
+@import url("https://scp-jp.wdfiles.com/local--code/theme%3Aredtape/1")
+[[/module]]
+[!-- {$dark}
+[[module css]]
+@import url("https://scp-jp.wdfiles.com/local--code/theme%3Aredtape/2")
+[[/module]]
+[!-- --]
+[[include :scp-jp:component:interwiki-style
+| priority=3
+| theme=https://scp-jp.wdfiles.com/local--code/theme%3Aredtape/1
+]]
+
+[[iftags +テーマ]]
+[[module ListPages  category="fragment" parent="." limit="1" order="created_at" offset="@URL|0"]]
+%%content%%
+[[/module]]
+[[/iftags]]
+
+[[module css]]
+:root {
+    --header-subtitle: "{$years} Minutes to Midnight";
+    --minutes-to-midnight: {$years};
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot page history: keep the history option row within the mobile viewport. */
+#history-form-1>table>tbody>tr:first-child>td:nth-of-type(2){grid-template-columns:repeat(3,1fr)}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot redtape mobile submenu: list the mobile submenu in a single column like the target menu instead of a two-column grid with a dangling empty cell. */
+#header div.mobile-top-bar>ul>li>ul{grid-template-columns:1fr}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot redtape credit heritage: give the heritage rating module the dark pill ground of the target composition so its label stays readable in the credit modal. */
+[id*=u-credit] .heritage-rating-module{background-color:rgb(var(--swatch-primary-darkest));color:rgb(var(--swatch-text-secondary-color));--rating-module-text-color:var(--swatch-text-secondary-color)}
+[id*=u-credit] .heritage-rating-module .page-rate-widget-box{background-color:transparent;color:rgb(var(--swatch-text-secondary-color))}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot redtape dialog headings: keep dialog body headings on the dialog text color so they stay readable on the white dialog ground. */
+#odialog-container .owindow{--modal-body-header-txt:var(--bright-accent)}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot BHL credit otherwise correction: keep the back link on one line in the otherwise credit dialog. */
+[id*=u-credit] div.credit-back a{white-space:nowrap;flex-shrink:0}
+[[/module]]

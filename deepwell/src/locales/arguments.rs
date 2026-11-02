@@ -55,8 +55,6 @@ impl<'a> MessageArguments<'a> {
 pub enum MessageValue<'a> {
     String(Cow<'a, str>),
     Float(f64),
-    // for now, we're not adding full FluentNumberOptions support here
-    // if we need it in the future we can cross that bridge when we get there
     Null,
 }
 

@@ -18,12 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The text service, for storing large strings in the database.
-//! For instance, page wikitext sources and compiled HTML outputs.
-//!
-//! It uses content-addressable storage, meaning that data is uniquely
-//! identified by its hash.
-
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::hash::{TEXT_HASH_LENGTH, TextHash, k12_hash};
 use crate::models::forum_post_revision::{self, Entity as ForumPostRevision};
@@ -86,12 +80,6 @@ impl TextService {
             .map(|text| text.is_some())
     }
 
-    /// Possibly retrieve text, if a flag is set.
-    ///
-    /// This utility conditionally retrieves the
-    /// text given by the specified hash only
-    /// if the flag `should_fetch` is true.
-    /// Otherwise, it does no action, returning `None`.
     pub async fn get_conditional(
         ctx: &ServiceContext<'_>,
         should_fetch: bool,
@@ -107,30 +95,6 @@ impl TextService {
         }
     }
 
-    /// Syntactic sugar for `Option<[u8]>` → `Option<String>`.
-    ///
-    /// This is effectively equivalent to `Option::map()` for `TextService::get()`,
-    /// but because it is `async` and returns `Result`, the actual equivalent code
-    /// would be:
-    /// ```rs
-    /// # fn get_option(ctx: &ServiceContext<'_>, hash: Option<&[u8]>) -> Result<Option<String>> {
-    /// match hash {
-    ///     None => Ok(None),
-    ///     Some(hash) => {
-    ///         let text = TextService::get(ctx, hash).await?;
-    ///         Ok(Some(text))
-    ///     }
-    /// }
-    /// # }
-    /// ```
-    ///
-    /// Put another way, if `hash` is `Some(_)` then the result will always be `Some(_)`,
-    /// and if `hash` is `None` then the result will always be `None`.
-    ///
-    /// Not to be confused with the following methods:
-    /// * `get_optional()` &mdash; Returns `None` if the text doesn't exist instead of an error.
-    /// * `get_conditional()` &mdash; Doesn't accept an `Option` hash reference.
-    /// * `get_conditional_option()` &mdash; Combination of `get_conditional()` and `get_option()`.
     pub async fn get_option<B: AsRef<[u8]>>(
         ctx: &ServiceContext<'_>,
         hash: &Option<B>,
@@ -148,14 +112,6 @@ impl TextService {
         }
     }
 
-    /// A combination of `get_conditional()` and `get_option()`.
-    ///
-    /// That is, it will fetch a text if and only if:
-    /// * `should_fetch` is true
-    /// * `hash` is `Some(_)`
-    ///
-    /// If both conditions are met, then it is identical to returning
-    /// the results of `TextService::get()` in a `Some(_)`.
     pub async fn get_conditional_option<B: AsRef<[u8]>>(
         ctx: &ServiceContext<'_>,
         should_fetch: bool,
@@ -168,7 +124,6 @@ impl TextService {
         }
     }
 
-    /// Creates a text entry with this data, if it does not already exist.
     pub async fn create(ctx: &ServiceContext<'_>, contents: String) -> Result<TextHash> {
         let make_error =
             || Error::new("failed to create new text entry", ErrorType::Text);
@@ -197,10 +152,6 @@ impl TextService {
         Ok(hash)
     }
 
-    /// Searches for any text rows which are unused.
-    ///
-    /// This is rare, but can happen when text is invalidated,
-    /// such as rerendering pages.
     pub async fn prune(ctx: &ServiceContext<'_>) -> Result<()> {
         macro_rules! not_in_column {
             ($table:expr, $column:expr $(,)?) => {
@@ -210,9 +161,6 @@ impl TextService {
             };
         }
 
-        // All foreign keys of text.hash should have conditions here.
-        // These foreign key constraints prevent us from deleting anything
-        // actually used.
         let txn = ctx.transaction();
         let DeleteResult { rows_affected, .. } = Text::delete_many()
             .filter(

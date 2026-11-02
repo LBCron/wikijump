@@ -54,8 +54,6 @@ function sameIdentity(left, right) {
 }
 
 function sameSnapshot(left, right) {
-  // Publishing uses a temporary hard link to the final inode. Removing that
-  // link legitimately changes ctime while leaving the immutable object intact.
   return (
     sameIdentity(left, right) &&
     left.size === right.size &&

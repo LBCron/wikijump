@@ -18,11 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The blueprint page service.
-//!
-//! This encompasses per-site configurable templates such as `_404`,
-//! which display custom "this page does not exist" content.
-
 mod service;
 mod structs;
 mod template;

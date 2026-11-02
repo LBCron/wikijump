@@ -18,22 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Saved-page rendering ahead of a renderer generation switch.
-//!
-//! A renderer epoch or FTML bump makes every saved page stale, and the view
-//! path refuses stale output. Rendering them only after the new build starts
-//! means an outage as long as the whole rerender. Instead, the new build runs
-//! the `render-ahead` runtime action against the live database while the old
-//! build keeps serving: each stale page's latest revision is rendered into
-//! `page_revision_render_ahead`. When the new build starts it promotes every
-//! row that is still valid into `page_revision` in one statement, so the
-//! switch costs a container restart instead of a rerender.
-//!
-//! A row is valid when its revision is still the page's latest, its source is
-//! unchanged, and the serving build has not rerendered the revision since the
-//! row's inputs were read. Pages that fail that check stay stale and are
-//! rendered by a later run or by the normal stale-page path.
-
 use super::corpus::{parse_boolish, parse_positive_i64, parse_positive_usize};
 use super::generator::COMPILED_GENERATOR;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
@@ -54,12 +38,8 @@ const DEFAULT_BATCH_SIZE: i64 = 200;
 const DEFAULT_CONCURRENCY: usize = 16;
 const MAX_REPORTED_FAILURES: usize = 50;
 const MAX_REPORTED_SLOW_RENDERS: usize = 50;
-/// A render at least this long counts as slow in the summary.
 const SLOW_RENDER_MS: u64 = 1_000;
 
-/// SQL predicate for an ahead row `ahead` that may replace the output of
-/// revision `revision`. `$1` is the current compiled generator and `$2` the
-/// earliest accepted render time.
 const VALID_AHEAD_ROW: &str = "
     ahead.revision_id = revision.revision_id
     AND ahead.compiled_generator = $1
@@ -91,17 +71,12 @@ pub struct RenderAheadSummary {
     rendered: usize,
     failed: usize,
     failed_page_ids: Vec<i64>,
-    /// Rendered pages whose output read the page link graph. Their output can
-    /// depend on links that other pages of the same pass changed.
     link_reader_page_ids: Vec<i64>,
     stale_without_valid_ahead: i64,
     elapsed_ms: u128,
     rows_per_sec: f64,
     failures: Vec<RenderAheadFailure>,
-    /// Rendered pages that took at least `SLOW_RENDER_MS`, beside the others
-    /// of the pass.
     slow_renders: usize,
-    /// The slowest renders, slowest first.
     slowest_renders: Vec<RenderAheadTiming>,
 }
 
@@ -158,11 +133,6 @@ impl RenderAheadSettings {
 }
 
 impl RenderAheadService {
-    /// Renders every stale page without a valid ahead row.
-    ///
-    /// Each page renders in its own task, so `concurrency` pages use that many
-    /// runtime workers instead of sharing the one that polls the stream, and a
-    /// slow page does not hold back the pages selected after it.
     pub async fn run(
         state: &ServerState,
         settings: RenderAheadSettings,
@@ -174,8 +144,6 @@ impl RenderAheadService {
         let mut link_reader_page_ids = Vec::new();
         let mut timings = Vec::new();
 
-        // Keyset pagination over page IDs, so a page that fails is not
-        // selected again in the same run.
         let mut candidates = Vec::new();
         let mut after_page_id = 0;
         loop {
@@ -277,11 +245,6 @@ impl RenderAheadService {
         })
     }
 
-    /// Moves every valid ahead row for this build's generator into its
-    /// revision, then drops this generator's remaining rows.
-    ///
-    /// Rows for other generators are kept: they belong to a different
-    /// build, which promotes or discards them when it starts.
     pub async fn promote(
         state: &ServerState,
         page_ids: Option<&[i64]>,
@@ -487,7 +450,6 @@ impl RenderAheadService {
     }
 }
 
-/// One page rendered into the ahead table.
 #[derive(Debug, Clone, Copy)]
 struct RenderedAhead {
     reads_link_graph: bool,
@@ -497,7 +459,6 @@ fn elapsed_ms(started_at: Instant) -> u64 {
     u64::try_from(started_at.elapsed().as_millis()).unwrap_or(u64::MAX)
 }
 
-/// How many renders were slow, and the slowest ones, slowest first.
 fn slowest_renders(
     mut timings: Vec<RenderAheadTiming>,
 ) -> (usize, Vec<RenderAheadTiming>) {

@@ -13,7 +13,6 @@ const triggerBlock = (source) =>
   source.slice(source.indexOf("on:\n"), source.indexOf("\npermissions:"))
 
 const validationWorkflows = [
-  "codex-cloud.yaml",
   "full-ci.yaml",
   "wikidot-verification.yaml"
 ]
@@ -32,15 +31,36 @@ const forbiddenCiCommands = [
   /\bpnpm\s+[^\n]*\blint\b/u
 ]
 
-test("automatic CI gate is absent", () => {
+test("targeted PR checks are the merge signal; the full suite is informational", () => {
+  // The PR workflow runs fast path-scoped targeted checks only.
+  const prChecks = workflow("pr-checks.yml")
+  const prTrigger = triggerBlock(prChecks)
+  assert.match(prTrigger, /pull_request:/u)
+  assert.doesNotMatch(prTrigger, /schedule:|merge_group:|push:/u)
+  assert.match(prChecks, /cargo test/u)
+  assert.match(prChecks, /test:unit/u)
+  assert.doesNotMatch(prChecks, /run-consolidated-validation/u)
+
+  // The full consolidated suite runs nightly and on dispatch only,
+  // never on pull requests, and keeps its sealed receipt as an artifact.
+  const full = workflow("consolidated-validation.yml")
+  const fullTrigger = triggerBlock(full)
+  assert.match(fullTrigger, /workflow_dispatch:/u)
+  assert.match(fullTrigger, /schedule:/u)
+  assert.doesNotMatch(fullTrigger, /pull_request:|merge_group:|push:/u)
+  assert.match(full, /run-consolidated-validation\.mjs/u)
+  assert.match(full, /upload-artifact/u)
+  assert.doesNotMatch(full, /(?:wikidot\.com|wdfiles)/iu)
+
+  // The retired gate name stays retired.
   const names = readdirSync(path.join(root, ".github/workflows"))
   assert.equal(names.includes("ci-gate.yaml"), false)
+  // The manual-only policy stubs keep their triggers.
   for (const name of validationWorkflows) {
-    const trigger = triggerBlock(workflow(name))
-    assert.doesNotMatch(trigger, /pull_request:|merge_group:|push:/u, name)
+    const stubTrigger = triggerBlock(workflow(name))
+    assert.doesNotMatch(stubTrigger, /pull_request:|merge_group:|push:/u, name)
   }
 })
-
 test("Browser CI is manual-only and runs no browser validation", () => {
   const source = workflow("full-ci.yaml")
   const trigger = triggerBlock(source)
@@ -59,14 +79,6 @@ test("Wikidot verification is manual-only and runs no verification", () => {
   assert.doesNotMatch(trigger, /pull_request:|push:|merge_group:/u)
   assert.match(source, /persistent identity-bound response cache/u)
   assert.match(source, /cache hit must perform zero external requests/u)
-  assert.doesNotMatch(source, /^\s*uses:/mu)
-})
-
-test("Codex Cloud validation publishes no CI-side tests or lint", () => {
-  const source = workflow("codex-cloud.yaml")
-
-  assert.match(source, /Codex Cloud script validation is intentionally disabled in GitHub Actions/u)
-  assert.match(source, /Run Bash syntax, ShellCheck, and regression tests in the maintained local workspace/u)
   assert.doesNotMatch(source, /^\s*uses:/mu)
 })
 
@@ -281,12 +293,9 @@ test("Theme Lab inputs select their own acceptance gates without selecting runti
   for (const gate of ["check-adaptation-authority.mjs", "prepare-maintainable-sources.mjs --check", "real-port-regression.mjs --verify-only", "sigma10-migration/check-final.mjs"]) assert.ok(preflight.includes(gate), gate)
 })
 
-test("specification supplements and test-quality audit scripts select only verification", () => {
+test("specification supplements select only verification", () => {
   for (const file of [
     "scripts/data/wikidot-spec-supplements.json",
-    "scripts/run-test-quality-audit.mjs",
-    "scripts/refresh-test-quality-snapshot.mjs",
-    "scripts/lib/test-quality-snapshot.mjs",
   ]) {
     const selected = classifyChanges([file])
     assert.equal(selected.verification, true, file)

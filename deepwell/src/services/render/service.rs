@@ -70,7 +70,10 @@ use super::compat::wikidot_iframe::{
 use super::compat::wikidot_link_protection::{
     WikidotWikipediaLink, build_wikidot_wikipedia_link,
 };
-use super::compat::{CompatCodeBlock, scan_compat_code_blocks};
+use super::compat::{
+    CompatCodeBlock, WikidotHtmlBlockEmission, mark_comment_wrapped_code_blocks,
+    scan_compat_code_blocks,
+};
 use super::diagnostics::{
     CorpusRenderDimension, CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace,
     StageGuard,
@@ -83,7 +86,7 @@ use super::ftml_render::{
 use super::ftml_user_info::UserInfoSnapshot;
 use super::generator::COMPILED_GENERATOR;
 use super::iftags::{
-    resolve_outermost_wikidot_iftags,
+    mark_wikidot_generated_iftags_specs, resolve_outermost_wikidot_iftags,
     resolve_outermost_wikidot_iftags_before_include_expansion,
     resolve_outermost_wikidot_iftags_before_include_expansion_for_page_preview,
 };
@@ -152,7 +155,7 @@ use crate::hash::{TextHash, k12_hash};
 use crate::models::site::Model as SiteModel;
 use crate::services::ServiceContext;
 use crate::services::settings::{
-    NavigationPageWikitext, PageRatingType, SettingsService,
+    NavigationPage, NavigationPageWikitext, PageRatingType, SettingsService,
 };
 use crate::services::text_block::{MIME_HTML, TextBlock, TextBlockService};
 use crate::services::{
@@ -185,13 +188,6 @@ use tokio::time::timeout;
 #[derive(Debug)]
 pub struct RenderService;
 
-/// Runtime-expanded page input for the corpus render replayer.
-///
-/// This is intentionally produced by the same expansion path used by
-/// `render_inner()`, stopping immediately before the pure Wikidot
-/// normalization and protection steps.  Keeping the owned FTML context with
-/// the text lets a worker process finish preparation without rebuilding page
-/// metadata independently.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct CorpusReplayExpandedWikitext {
     pub wikitext: String,
@@ -210,7 +206,6 @@ impl CorpusReplayExpandedWikitext {
     }
 }
 
-/// Timings for the pure portion of corpus replay preparation.
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub(crate) struct CorpusReplayStageTimings {
     pub normalization_us: u64,
@@ -220,7 +215,6 @@ pub(crate) struct CorpusReplayStageTimings {
     pub preprocess_us: u64,
 }
 
-/// Cheap syntax features recorded beside a replay input for clustering.
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub(crate) struct CorpusReplaySyntaxFeatures {
     pub bytes: usize,
@@ -234,7 +228,6 @@ pub(crate) struct CorpusReplaySyntaxFeatures {
     pub inline_delimiter_markers: usize,
 }
 
-/// Start notifications for the pure replay preparation stages.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CorpusReplayPreparationStage {
     Normalization,
@@ -244,11 +237,6 @@ pub(crate) enum CorpusReplayPreparationStage {
     Preprocess,
 }
 
-/// Pure worker-ready output from corpus replay preparation.
-///
-/// `preprocessed` is false only when Deepwell's compatibility fallback is the
-/// production path.  Such pages deliberately never enter FTML preprocessing
-/// or parsing.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct CorpusReplayPreparedWikitext {
     pub wikitext: String,
@@ -296,15 +284,6 @@ struct ExpandedRenderWikitext {
     runtime_css_insertions: Vec<RuntimeCssInsertion>,
 }
 
-/// Owns the protection registries created during render preparation.
-///
-/// The registries must stay alive until every rendered body, HTML block, and
-/// code block has crossed the Wikidot restoration boundary.  Callers borrow
-/// the registries only inside [`RenderProtectionBundle::restore`]; dropping the bundle without
-/// that consuming handoff is a programming error and panics.  Error paths that
-/// abandon an unrestored bundle must call [`RenderProtectionBundle::defuse`]
-/// first, so the original error propagates instead of being masked by a Drop
-/// panic (see #2686).
 #[must_use = "restore the Wikidot protection bundle before dropping it"]
 #[derive(Debug)]
 pub(super) struct RenderProtectionBundle {
@@ -345,25 +324,16 @@ impl RenderProtectionBundle {
         }
     }
 
-    /// Run the restoration boundary and consume the guard.
     fn restore<R>(mut self, restore: impl FnOnce(&mut Self) -> R) -> R {
         let result = restore(&mut self);
         self.restored = true;
         result
     }
 
-    /// Mark the bundle as intentionally abandoned on an error path.
-    ///
-    /// Call this before returning an error while the bundle is still unrestored,
-    /// so that dropping it does not panic and mask the original error.
     fn defuse(&mut self) {
         self.restored = true;
     }
 
-    /// Transfer registries to the replay transport representation.
-    ///
-    /// Replay preparation serializes these registries for a later worker, so
-    /// the worker remains responsible for the eventual HTML restoration.
     fn into_parts(mut self) -> RenderProtectionParts {
         self.restored = true;
         RenderProtectionParts {
@@ -412,8 +382,6 @@ impl Drop for RenderProtectionBundle {
         if self.restored || std::thread::panicking() {
             return;
         }
-        // Reaching here means a success path forgot to restore the bundle.
-        // Error paths call `defuse` first, so they never reach this panic.
         panic!("render protection bundle dropped before restoration");
     }
 }
@@ -430,24 +398,11 @@ struct OuterPreparedRenderWikitext {
 
 pub(super) const MAX_INCLUDE_EXPANSION_DEPTH: usize = 8;
 pub(super) const MAX_INCLUDE_EXPANSION_TOTAL: usize = 256;
-// The frozen EN corpus contains a page with 1,266 direct includes. The
-// trusted corpus finalizer and pages of Wikidot mirror sites (source-owned,
-// read-only content that Wikidot renders) receive this higher ceiling;
-// locally authored sites retain the ordinary limit above. The render
-// deadline still bounds the cost of every render.
 const MAX_CORPUS_INCLUDE_EXPANSION_TOTAL: usize = 4096;
 pub(super) const DEFAULT_LISTPAGES_PER_PAGE: u64 = 20;
 pub(super) const MAX_LISTPAGES_RENDER_LIMIT: u64 = 250;
-// Keep runtime-owned content expansion within the largest supported ListPages
-// page. The render-scoped module, generated-output, include, and scan budgets
-// still bound revision loading and nested expansion across the whole render.
 pub(super) const MAX_LISTPAGES_CONTENT_ROWS_PER_RENDER: usize =
     MAX_LISTPAGES_RENDER_LIMIT as usize;
-// Content-backed ListPages modules with selected rows can trigger revision
-// loading and nested include expansion. Zero-row queries never load content
-// and therefore do not consume this budget. Three nonempty modules cover the
-// common corpus shape while stopping dense author-page compositions before
-// they exhaust the render budget.
 pub(super) const MAX_LISTPAGES_CONTENT_MODULES_PER_RENDER: usize = 3;
 pub(super) const MAX_LISTPAGES_RENDER_OFFSET: u32 = 1_000;
 pub(super) const MAX_LISTPAGES_RENDER_SCAN_ROWS: u32 = 50_000;
@@ -459,9 +414,6 @@ pub(super) const MAX_FTML_COMPAT_DENSE_PARSE_SCORE: usize = 180_000;
 pub(super) const MIN_FTML_COMPAT_TABBED_RENDER_BYTES: usize = 100_000;
 pub(super) const MIN_FTML_COMPAT_TABBED_MARKERS: usize = 10;
 pub(super) const MIN_DENSE_FTML_COMPAT_RENDER_TIMEOUT_SECS: u64 = 150;
-// Large ListPages content selected by a valid `/offset/<n>` is rendered for
-// the page view rather than stored ahead of time. SCP-8980's observed fragment
-// is large enough to exceed the ordinary standing timeout.
 pub(super) const MIN_URL_OFFSET_LISTPAGES_CONTENT_BYTES: usize = 100_000;
 pub(super) const MIN_URL_OFFSET_LISTPAGES_RENDER_TIMEOUT_SECS: u64 = 10;
 pub(super) const INCLUDE_VARIABLE_OPEN_SENTINEL: &str = "__WIKIJUMP_INCLUDE_VAR_OPEN__";
@@ -694,11 +646,6 @@ static WIKIDOT_LOCAL_FILE_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     )
     .unwrap()
 });
-/// Entity-quoted `url(...)` asset references inside real `style="..."`
-/// attributes, e.g. `style="--_img: url(&#39;https://site.wdfiles.com/...&#39;)"`.
-/// Displayed code listings escape their quotes the same way, but a literal
-/// `style="` opener never survives code highlighting (quotes there become
-/// `&quot;`), so scoping to the attribute keeps those samples literal.
 static WIKIDOT_STYLE_ATTR_URL_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"style="(?P<content>[^"]*)""#).unwrap());
 static WIKIDOT_STYLE_ATTR_ENTITY_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -800,8 +747,6 @@ impl RenderService {
         })
     }
 
-    /// Renders a Wikidot fragment in an existing page's site context without
-    /// persisting compiled text or replacing that page's hosted text blocks.
     pub async fn render_wikidot_fragment_for_page(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -825,7 +770,12 @@ impl RenderService {
             &settings,
             RenderInnerOptions {
                 observed_user_info: None,
-                render_context: RenderContext::page_nav(site_id, category_id, page_id),
+                render_context: RenderContext::page_nav(
+                    site_id,
+                    category_id,
+                    page_id,
+                    None,
+                ),
                 viewer_user_id: None,
                 current_page_data_form_values: None,
                 max_include_expansions: MAX_INCLUDE_EXPANSION_TOTAL,
@@ -889,18 +839,12 @@ impl RenderService {
             RenderInnerOptions {
                 observed_user_info: None,
                 render_context: RenderContext::ajax_module(site_id),
-                // The random ListPages cache retains only an order seed.
-                // Re-evaluate candidates and visibility for the current AMC
-                // actor on every request.
                 viewer_user_id: ctx.request().user_id,
                 current_page_data_form_values: None,
                 max_include_expansions: MAX_INCLUDE_EXPANSION_TOTAL,
                 render_cost_budget: RenderCostBudget::new_default(),
                 trace: None,
                 persist_compiled_text: false,
-                // AMC carries pager state as `p`; selectors remain in the
-                // synthesized module head while `p` follows the ordinary page
-                // view path through UrlArguments.
                 url: UrlArguments {
                     page,
                     ..UrlArguments::default()
@@ -919,11 +863,6 @@ impl RenderService {
         })
     }
 
-    /// Render a page.
-    ///
-    /// `url` carries the Wikidot URL path arguments when this render is
-    /// serving a page view. Pass the default when producing a revision's
-    /// stored HTML, which has no request behind it.
     pub async fn render_page(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -958,13 +897,6 @@ impl RenderService {
         .await
     }
 
-    /// Render a stored revision from the same raw candidate values that are
-    /// about to be committed.
-    ///
-    /// Category templates may contain ListPages selectors derived from the
-    /// current page's data-form fields. Revision creation renders before the
-    /// new revision row exists, so these values must travel with the candidate
-    /// instead of being read back from the previous committed revision.
     pub(crate) async fn render_page_with_candidate_data_form_values(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -991,12 +923,6 @@ impl RenderService {
         .await
     }
 
-    /// Render a page for a request-specific viewer.
-    ///
-    /// This is used for page-view rerenders whose output depends on runtime
-    /// request state. Revision compilation uses `render_page()` so
-    /// viewer-specific modules cannot bake an editor's identity into stored
-    /// HTML.
     pub async fn render_page_for_viewer(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -1024,9 +950,6 @@ impl RenderService {
         .await
     }
 
-    /// Render a trusted corpus-import page with its evidence-backed include ceiling.
-    ///
-    /// Callers must not expose this path to user-controlled page rendering.
     pub async fn render_corpus_page(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -1157,6 +1080,8 @@ impl RenderService {
         .or_raise(make_error)?;
 
         let NavigationPageWikitext {
+            top_bar_page,
+            side_bar_page,
             top_bar_page_wikitext,
             side_bar_page_wikitext,
         } = SettingsService::get_nav_page_wikitext(ctx, site_id, Some(category_id))
@@ -1164,19 +1089,16 @@ impl RenderService {
             .or_raise(make_error)?;
 
         let nav_settings = &nav_settings;
-        let render_nav_page = |wikitext, scope| {
+        let render_nav_page = |wikitext, page: &NavigationPage, scope| {
             let render_cost_budget = render_cost_budget.clone();
             let current_page_data_form_values = current_page_data_form_values.clone();
+            let html_block_owner_slug = match page {
+                NavigationPage::Enabled(page_slug) => Some(page_slug.clone()),
+                NavigationPage::Disabled => None,
+            };
             async move {
                 match wikitext {
                     Some(wikitext) => {
-                        // Navigation pages render in the context of the viewed page, but
-                        // must not update the viewed page's hosted text blocks.
-                        //
-                        // Also note that the page_info for nav pages is the page being displayed,
-                        // not the nav pages themselves. This means that any variables or blocks
-                        // which depend on the current page (e.g. page slug, tags), which reflect
-                        // the page being viewed.
                         let result = Self::render_inner(
                             ctx,
                             wikitext,
@@ -1188,6 +1110,7 @@ impl RenderService {
                                     site_id,
                                     category_id,
                                     page_id,
+                                    html_block_owner_slug,
                                 ),
                                 viewer_user_id,
                                 current_page_data_form_values,
@@ -1195,9 +1118,6 @@ impl RenderService {
                                 render_cost_budget: render_cost_budget.clone(),
                                 trace: trace.map(|trace| (trace, scope)),
                                 persist_compiled_text: persist_page_artifacts,
-                                // Whether a nav bar's own modules read the viewed
-                                // page's URL arguments is not captured, so they
-                                // keep rendering as they do without one.
                                 url: UrlArguments::default(),
                             },
                         )
@@ -1213,15 +1133,22 @@ impl RenderService {
                         }
                     }
 
-                    // No nav page
                     None => Ok(None),
                 }
             }
         };
 
         let (top_bar_render_result, side_bar_render_result) = join!(
-            render_nav_page(top_bar_page_wikitext, CorpusRenderScope::TopNav),
-            render_nav_page(side_bar_page_wikitext, CorpusRenderScope::SideNav),
+            render_nav_page(
+                top_bar_page_wikitext,
+                &top_bar_page,
+                CorpusRenderScope::TopNav
+            ),
+            render_nav_page(
+                side_bar_page_wikitext,
+                &side_bar_page,
+                CorpusRenderScope::SideNav,
+            ),
         );
         let (top_bar_render, side_bar_render) =
             raise_multiple!(top_bar_render_result, side_bar_render_result; make_error);
@@ -1260,12 +1187,6 @@ impl RenderService {
         })
     }
 
-    /// Expand trusted corpus page wikitext exactly as the production page
-    /// renderer does, stopping before the pure normalization/protection pass.
-    ///
-    /// The returned value is intentionally owned and serializable so a replay
-    /// controller can hand it to an isolated worker without giving that worker
-    /// database or service credentials.
     pub(crate) async fn expand_corpus_replay_wikitext(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -1287,7 +1208,6 @@ impl RenderService {
                 max_include_expansions: MAX_CORPUS_INCLUDE_EXPANSION_TOTAL,
                 render_cost_budget: RenderCostBudget::new_default(),
                 trace: None,
-                // Corpus replay renders stored wikitext, never a live request.
                 url: UrlArguments::default(),
                 list_pages_pager_route: super::list_pages::ListPagesPagerRoute::SavedPage,
                 page_preview: false,
@@ -1307,8 +1227,6 @@ impl RenderService {
         })
     }
 
-    /// Finish the pure portion of production render preparation for an
-    /// isolated corpus replay worker.
     #[allow(dead_code)]
     pub(crate) fn prepare_corpus_replay_wikitext(
         input: CorpusReplayExpandedWikitext,
@@ -1421,10 +1339,6 @@ impl RenderService {
             suppress_nested_list_pages,
         } = options;
         let backlinks_page_id = current_page_id;
-        // PagePreviewModule carries `page_unix_name`/`pageId`, and the legacy
-        // NextPage/PreviousPage modules resolve their adjacency from that
-        // identity. Other preview modules keep rendering without a current
-        // page until their own preview contract is evidenced.
         let next_previous_page_id = current_page_id;
         let current_page_id = (!page_preview).then_some(current_page_id).flatten();
         let make_error =
@@ -1443,9 +1357,6 @@ impl RenderService {
         };
         select_metacomponent_documentation(&mut wikitext, metacomponent_context);
         if settings.layout.legacy() {
-            // Wikidot trims the leading whitespace of a page source before it
-            // parses. The trim belongs to the page source, so it runs before
-            // the include expansion fills the document.
             Self::trim_wikidot_document_leading_whitespace(&mut wikitext);
         }
         let mut wikidot_compat_text = CompatTextFragments::new(&wikitext);
@@ -1486,23 +1397,12 @@ impl RenderService {
         wikitext = expanded_wikitext;
         included_pages.extend(expanded_included_pages);
         include_budget.consume(expanded_include_count);
-        // Pair alignment markers here, on the whole include-expanded
-        // document, before secondary-module expansion runs its scope scans
-        // (notably the Rate module body scan): those scans predate marker
-        // pairing and must see the same divs the pre-#2596 per-source
-        // rewrite produced. The outer-prep call below stays as the pairing
-        // point for corpus-replay documents and as a no-op second pass.
         Self::normalize_wikidot_alignment_markers(
             &mut wikitext,
             &mut wikidot_compat_text,
         );
         {
             let _stage = StageGuard::new(trace, CorpusRenderStage::PostInclude);
-            // Include-branch cleanup treats a standalone `[!-- --]` line as
-            // a generic boundary. Generated parser-function gates use the
-            // same Wikidot token as their delayed branch closer, so protect
-            // only the structurally recognized gate before cleanup and put
-            // the boundary back immediately afterwards.
             let generated_comment_gates =
                 protect_generated_parser_function_comment_gates(&mut wikitext);
             remove_unresolved_include_comment_branches(&mut wikitext);
@@ -1788,16 +1688,11 @@ impl RenderService {
         observer(CorpusReplayPreparationStage::Normalization);
         let started = Instant::now();
         if settings.enable_page_syntax {
-            // Includes and runtime modules can introduce literal Wikidot
-            // conditionals after the pre-expansion pass. Resolve that generated
-            // context-free syntax before FTML sees it as anchor markup.
             Self::prepare_wikidot_conditionals_for_include_expansion(
                 &mut expanded.wikitext,
                 page_info,
                 &mut wikidot_compat_text,
             );
-            // Alignment markers pair across include boundaries, so their
-            // ownership is decided on the whole expanded document.
             Self::normalize_wikidot_alignment_markers(
                 &mut expanded.wikitext,
                 &mut wikidot_compat_text,
@@ -1851,8 +1746,6 @@ impl RenderService {
                 wikidot_color_spans,
                 expanded.wikidot_compat_html,
                 wikidot_compat_text,
-                // Bullet lists render through FTML, which emits its own
-                // Wikipedia links and backlinks (#2575).
                 Vec::new(),
             ),
             compatibility_fallback,
@@ -1900,54 +1793,6 @@ impl RenderService {
         }
     }
 
-    pub(in crate::services::render) fn rewrite_wikidot_html_block_iframe_urls(
-        mut body: String,
-        page_info: &PageInfo<'_>,
-        html_blocks: &[String],
-    ) -> String {
-        const PLACEHOLDER: &str = concat!(
-            r#"<iframe src="https://example.com/" allowtransparency="true" "#,
-            r#"frameborder="0" class="html-block-iframe"></iframe>"#,
-        );
-        if html_blocks.is_empty() || !body.contains(PLACEHOLDER) {
-            return body;
-        }
-
-        let full_slug = Self::page_info_full_slug(page_info);
-        // PagePreviewModule uses `search:site` for the otherwise anonymous
-        // preview page identity. Keep that route fallback local to HTML-block
-        // registration: treating it as the query's current page changes
-        // ListPages selection and exclusion semantics.
-        let full_slug = if full_slug.is_empty() {
-            "search:site".to_owned()
-        } else {
-            full_slug
-        };
-        let mut search_start = 0;
-        for index in 1..=html_blocks.len() {
-            let Some(relative_start) = body[search_start..].find(PLACEHOLDER) else {
-                break;
-            };
-            let start = search_start + relative_start;
-            let end = start + PLACEHOLDER.len();
-            let iframe = Self::wikidot_direct_html_iframe(&html_blocks[index - 1])
-                .map(str::to_owned)
-                .unwrap_or_else(|| {
-                    format!(
-                        concat!(
-                            r#"<iframe src="/{}/html/{}" allowtransparency="true" "#,
-                            r#"frameborder="0" class="html-block-iframe"></iframe>"#,
-                        ),
-                        escape_list_pages_html_attr(&full_slug),
-                        index,
-                    )
-                });
-            body.replace_range(start..end, &iframe);
-            search_start = start + iframe.len();
-        }
-        body
-    }
-
     pub(super) async fn render_inner(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -1955,10 +1800,6 @@ impl RenderService {
         settings: &WikitextSettings,
         options: RenderInnerOptions<'_>,
     ) -> Result<RenderInnerOutput> {
-        // Recursive ListPages/content renders can otherwise complete several
-        // ready futures synchronously on the caller's stack. Yield once at
-        // this boundary so each nested render resumes from its heap-owned
-        // future instead of accumulating poll frames.
         tokio::task::yield_now().await;
         let RenderInnerOptions {
             observed_user_info,
@@ -1979,6 +1820,7 @@ impl RenderService {
             current_category_id,
             current_page_id,
             text_block_page_id,
+            html_block_owner_slug,
             lifecycle,
             suppress_nested_list_pages,
         } = render_context;
@@ -2005,10 +1847,12 @@ impl RenderService {
             }
         };
 
-        // Hosted `/local--code/` text comes from the page's own source, which
-        // include expansion and FTML preprocessing no longer show verbatim.
-        let hosted_code_source =
-            text_block_page_id.and_then(|_| scan_compat_code_blocks(&wikitext).ok());
+        let hosted_code_source = text_block_page_id.and_then(|_| {
+            scan_compat_code_blocks(&wikitext).ok().map(|mut blocks| {
+                mark_comment_wrapped_code_blocks(&wikitext, &mut blocks);
+                blocks
+            })
+        });
         let expanded = Self::expand_render_wikitext(
             ctx,
             wikitext,
@@ -2042,6 +1886,7 @@ impl RenderService {
             render_current_page_id,
             viewer_user_id,
             text_block_page_id,
+            html_block_owner_slug,
             hosted_code_source,
             allow_wikidot_styleframe,
             lifecycle == RenderLifecycle::PagePreview,
@@ -2065,8 +1910,6 @@ impl RenderService {
         current_site: SiteModel,
     ) -> Result<RenderInnerOutput> {
         if settings.layout.legacy() {
-            // This path renders the submitted source without expanding its
-            // includes, so the source trim belongs here as well.
             Self::trim_wikidot_document_leading_whitespace(&mut wikitext);
         }
         Self::render_inner_expanded(
@@ -2086,6 +1929,7 @@ impl RenderService {
             Some(current_site_id),
             None,
             viewer_user_id,
+            None,
             None,
             None,
             true,
@@ -2110,6 +1954,7 @@ impl RenderService {
         current_page_id: Option<i64>,
         viewer_user_id: Option<i64>,
         text_block_page_id: Option<i64>,
+        html_block_owner_slug: Option<String>,
         hosted_code_source: Option<Vec<CompatCodeBlock>>,
         allow_wikidot_styleframe: bool,
         page_preview: bool,
@@ -2180,6 +2025,13 @@ impl RenderService {
             };
             let fallback_render_stage =
                 StageGuard::new(trace, CorpusRenderStage::FallbackRender);
+            let root_page_full_slug = Self::page_info_full_slug(page_info);
+            let fallback_emission = WikidotHtmlBlockEmission {
+                owner_page_slug: html_block_owner_slug.as_deref(),
+                root_page_slug: (!root_page_full_slug.is_empty())
+                    .then_some(root_page_full_slug.as_str()),
+                page_language: Some(page_info.language.as_ref()),
+            };
             let fallback_output = Self::render_oversized_wikidot_compatibility_fallback(
                 &wikitext,
                 current_site.as_ref(),
@@ -2188,6 +2040,7 @@ impl RenderService {
                     .enable_html_blocks
                     .then_some(page_info.page.as_ref()),
                 Some(&fallback_link_titles),
+                fallback_emission,
             );
             let (
                 wikidot_css_modules,
@@ -2375,6 +2228,7 @@ impl RenderService {
                     &fallback_code_blocks,
                     hosted_code_source.as_deref(),
                     current_site.as_ref(),
+                    false,
                 )
                 .await
                 .or_raise(make_error)?;
@@ -2389,6 +2243,7 @@ impl RenderService {
             });
         }
         let render_page_info = Self::owned_page_info(page_info);
+        let render_html_block_owner_slug = html_block_owner_slug.clone();
         let render_settings = settings.clone();
         let render_config = config.clone();
         let render_current_site = current_site.clone();
@@ -2424,16 +2279,12 @@ impl RenderService {
                 &mut parsed.tree,
                 parsed.prepared.protection.compat_text(),
             );
-            // If the caller already gave up, hand the parse back so its unrestored
-            // bundle is defused here instead of being dropped by the runtime.
             if let Err(mut parsed) = parse_tx.send(parsed) {
                 parsed.prepared.protection.defuse();
             }
         });
         let parse_outcome = timeout(render_timeout, &mut parse_rx).await;
         if parse_outcome.is_err() {
-            // Close the channel, then reclaim a parse that completed just after the
-            // timeout so its unrestored bundle is defused rather than dropped.
             parse_rx.close();
             if let Ok(mut late) = parse_rx.try_recv() {
                 late.prepared.protection.defuse();
@@ -2510,9 +2361,6 @@ impl RenderService {
             let (html_block_texts, code_blocks) = {
                 let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlCompat);
                 protection.restore(|protection| {
-                    // Deepwell's Wikidot compatibility scanner identifies actual CSS module
-                    // syntax before raw HTML fragments are restored. Keeping that typed
-                    // provenance separate ensures authored <style> HTML stays in the body.
                     let mut wikidot_css_modules = protection.take_css_modules(strip_residual);
                     if !wikidot_css_modules.is_empty() {
                         wikidot_css_modules.append(&mut html_output.styles);
@@ -2533,9 +2381,6 @@ impl RenderService {
                         std::mem::take(&mut html_output.body),
                         &wikidot_embed_iframes,
                     );
-                    // Optimized native lists contain the inline/color markers
-                    // protected before the list was registered. Expose that
-                    // trusted HTML before restoring its inline dependencies.
                     let body = protection.compat_html().restore(&html_output.body);
                     html_output.body = protection
                         .compat_html()
@@ -2613,6 +2458,7 @@ impl RenderService {
                             std::mem::take(&mut html_output.body),
                             &render_page_info,
                             &html_block_texts,
+                            render_html_block_owner_slug.as_deref(),
                         );
                     }
                     let code_blocks = tree
@@ -2726,11 +2572,6 @@ impl RenderService {
             .into());
         }
 
-        // Include, module, gallery, and protected-text restoration can add
-        // Wikidot file URLs after the initial compatibility pass in the
-        // blocking FTML renderer. Localize the completed render output once
-        // more so the browser never receives a source WDFiles URL for a
-        // mirror asset.
         Self::localize_wikidot_render_output_file_urls(
             &mut html_output.body,
             &mut html_output.styles,
@@ -2745,8 +2586,6 @@ impl RenderService {
             );
         }
 
-        // Both hosted block collections must be valid before either one can
-        // write to S3. Each add_blocks call also validates its own slice.
         {
             let _stage = StageGuard::new(trace, CorpusRenderStage::BlocksValidate);
             if text_block_page_id.is_some() {
@@ -2767,18 +2606,9 @@ impl RenderService {
         )
         .await?;
 
-        // Set up the hosted text blocks
-        //
-        // This only applies for published pages, in any other
-        // rendering context and we should skip this step.
-
         if let Some(page_id) = text_block_page_id {
-            // It's possible to render a page without doing text blocks
-            // (e.g. blueprint pages), but all cases where text blocks
-            // are done are pages.
             debug_assert_eq!(settings.mode, WikitextMode::Page);
 
-            // [[html]]
             {
                 let _stage = StageGuard::new(trace, CorpusRenderStage::HtmlBlocks);
                 let html_blocks: Vec<TextBlock> = html_block_texts
@@ -2801,7 +2631,6 @@ impl RenderService {
                 .or_raise(make_error)?;
             }
 
-            // [[code]]
             {
                 let _stage = StageGuard::new(trace, CorpusRenderStage::CodeBlocks);
                 persist_hosted_code_blocks(
@@ -2810,13 +2639,13 @@ impl RenderService {
                     &code_blocks,
                     hosted_code_source.as_deref(),
                     current_site.as_ref(),
+                    true,
                 )
                 .await
                 .or_raise(make_error)?;
             }
         }
 
-        // Build and return
         Ok(RenderInnerOutput {
             theme_previewer_blank,
             html_output,
@@ -2912,9 +2741,6 @@ impl RenderService {
             })
             .into_owned();
 
-        // Entity-quoted `url(...)` references only resolve inside real
-        // `style="..."` attributes; the same `&#39;` shape in displayed code
-        // listings is source text, not a fetched asset, and stays literal.
         let html = WIKIDOT_STYLE_ATTR_URL_REGEX
             .replace_all(&html, |captures: &regex::Captures<'_>| {
                 let content = WIKIDOT_STYLE_ATTR_ENTITY_URL_REGEX
@@ -3035,6 +2861,7 @@ impl RenderService {
             IncludeExpansionContext {
                 current_site_id,
                 current_site_slug: current_site_slug.to_owned(),
+                imported_source_site: None,
                 attachment_owner: source_attachment_owner,
                 page_info,
                 settings,
@@ -3196,6 +3023,7 @@ impl RenderService {
                         expansion_context.current_site_id,
                         &expansion_context.current_site_slug,
                         include.page_ref(),
+                        expansion_context.imported_source_site.as_deref(),
                         include_source_cache,
                     )
                     .await?;
@@ -3613,7 +3441,6 @@ pub(super) fn format_list_pages_rating(score: Option<f32>) -> String {
 }
 
 #[cfg(test)]
-/// Captured legacy HTML used only to exercise generic fragment protection.
 pub(super) fn members_compat_html_fixture(group: &str) -> String {
     let group_attr = escape_list_pages_html_attr(group);
     let group_script = escape_javascript_single_quoted(group);
@@ -3719,8 +3546,6 @@ pub(super) struct IncludeExpansion {
 #[derive(Debug)]
 pub(super) struct IncludeExpansionOptions<'a> {
     pub(super) current_site_id: Option<i64>,
-    /// Canonical attachment owner for source text originating on a page other
-    /// than the page currently being rendered, such as a ListPages content row.
     pub(super) source_attachment_owner: Option<AttachmentOwner>,
     pub(super) source_cache: &'a mut IncludeSourceCache,
     pub(super) compat_text: &'a mut CompatTextFragments,
@@ -3753,8 +3578,7 @@ impl IncludeExpansionBudget {
 struct IncludeExpansionContext<'a> {
     current_site_id: i64,
     current_site_slug: String,
-    /// Canonical owner of relative attachments in this source. The ordinary
-    /// render root remains `None` so its `PageInfo` identity is used.
+    imported_source_site: Option<String>,
     attachment_owner: Option<AttachmentOwner>,
     page_info: &'a PageInfo<'a>,
     settings: &'a WikitextSettings,
@@ -3767,9 +3591,9 @@ struct IncludeExpansionContext<'a> {
 impl<'a> IncludeExpansionContext<'a> {
     fn for_nested_source(&self, source: &IncludeSource) -> Self {
         Self {
-            // Wikidot resolves an unqualified include inside a cross-site include against the original callsite site. The fetched source still owns its relative attachments.
             current_site_id: self.current_site_id,
             current_site_slug: self.current_site_slug.clone(),
+            imported_source_site: source.source_site.clone(),
             attachment_owner: Some(AttachmentOwner {
                 site_slug: source.site_slug.clone(),
                 page_slug: source.page_slug.clone(),

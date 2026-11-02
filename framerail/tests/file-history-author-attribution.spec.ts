@@ -5,10 +5,6 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -124,7 +120,6 @@ test("File History shows the resolved uploader name instead of a raw user ID", a
 }) => {
   await openHistory(page)
 
-  // Newest first: the attributed revision renders the public identity link.
   const attributedUser = page.locator(".revision-row .revision-attribute.user").first()
   await expect(attributedUser.getByRole("link")).toHaveText("SeekGull")
   await expect(attributedUser.getByRole("link")).toHaveAttribute(
@@ -139,9 +134,6 @@ test("File History without a public identity keeps the deleted-user marker", asy
 }) => {
   await openHistory(page)
 
-  // The synthetic import actor (-1) has no public identity: the raw ID must
-  // not appear as row text, and the pane keeps the page History pane's
-  // deleted-user marker with the stable ID only as audit data.
   const unattributedUser = page.locator(".revision-row .revision-attribute.user").last()
   await expect(unattributedUser).not.toContainText("-1")
   const marker = unattributedUser.locator(".printuser.deleted")

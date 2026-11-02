@@ -1,0 +1,14 @@
+{
+  "schema": "theme_lab_surface_contract.v1",
+  "strict": true,
+  "custom_selectors": [],
+  "reviewed_exceptions": [
+    {
+      "kind": "baseline_responsive_behavior_flattened",
+      "surface": "shell.container",
+      "selector": "#main-content",
+      "property": "max-width",
+      "rationale": "Basalt intentionally sizes the reading column with a percentage max-width at every breakpoint: calc(100% - var(--main-content-side-margin) * 2), resolving to calc(100% - 42.4px). The Sigma-9 baseline instead leaves desktop max-width unset and only constrains mobile, so the declaration-string heuristic reports the identical theme declaration at both viewports even though the measured content box remains responsive. The current task-runtime surface capture measured #main-content at 960px desktop and 347.59375px mobile with document overflow 0 on both viewports; only this scoped kind/surface/selector/property combination is reviewed, and any different flattened declaration still warns."
+    }
+  ]
+}

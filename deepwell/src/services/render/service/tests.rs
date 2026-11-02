@@ -35,12 +35,13 @@ use super::super::list_pages::{
     build_wikidot_list_pages_module_request, build_wikidot_list_pages_module_source,
     count_pages_exact_count_render_diagnostics, count_pages_required_tag_batch_result,
     count_pages_required_tag_batch_selector, count_pages_scan_requires_preservation,
-    count_pages_should_remain_literal, count_pages_unbounded_total,
-    current_page_info_list_pages_row, exact_name_list_pages_batch_key,
-    format_list_pages_created_at, list_pages_author_cache_key,
-    list_pages_body_is_no_visible_tracking_markup, list_pages_body_uses_content_variable,
-    list_pages_body_variables_supported, list_pages_content_query_target,
-    list_pages_feed_info_html, list_pages_has_unsupported_page_type_selector,
+    count_pages_should_remain_literal, count_pages_unbounded_all_category_shape,
+    count_pages_unbounded_total, current_page_info_list_pages_row,
+    exact_name_list_pages_batch_key, format_list_pages_created_at,
+    list_pages_author_cache_key, list_pages_body_is_no_visible_tracking_markup,
+    list_pages_body_uses_content_variable, list_pages_body_variables_supported,
+    list_pages_content_query_target, list_pages_feed_info_html,
+    list_pages_has_unsupported_page_type_selector,
     list_pages_has_unsupported_parent_selector, list_pages_parent_fullname,
     list_pages_row_scan_target, list_pages_tag_link_href,
     page_query_cap_requires_original_module, parse_list_pages_arguments,
@@ -366,8 +367,6 @@ fn compatibility_protection_preserves_ftml_lexical_ownership() {
     }
 }
 
-/// Render a page body through the Wikidot source trim, the render
-/// preparation, and the FTML pipeline, in the production order.
 fn render_wikidot_trimmed_page_body(wikitext: &str) -> String {
     let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -1247,16 +1246,24 @@ fn page_view_and_nav_contexts_keep_current_page_without_text_block_target() {
         current_category_id: Some(9),
         current_page_id: Some(11),
         text_block_page_id: None,
+        html_block_owner_slug: None,
         lifecycle: RenderLifecycle::SavedPage,
         suppress_nested_list_pages: false,
     };
 
     for context in [
         RenderContext::page_view(7, 9, 11),
-        RenderContext::page_nav(7, 9, 11),
+        RenderContext::page_nav(7, 9, 11, None),
     ] {
         assert_eq!(context, expected);
     }
+
+    assert_eq!(
+        RenderContext::page_nav(7, 9, 11, Some("nav:side".to_owned()))
+            .html_block_owner_slug
+            .as_deref(),
+        Some("nav:side"),
+    );
 }
 
 #[test]
@@ -1268,6 +1275,7 @@ fn page_render_context_uses_current_page_as_text_block_target() {
             current_category_id: Some(9),
             current_page_id: Some(11),
             text_block_page_id: Some(11),
+            html_block_owner_slug: None,
             lifecycle: RenderLifecycle::SavedPage,
             suppress_nested_list_pages: false,
         },
@@ -1683,9 +1691,6 @@ fn rate_module_expansion_ignores_literal_and_attribute_occurrences() {
         &mut compat_text,
     );
 
-    // Every occurrence here is inside inline source text, an attribute, a
-    // literal region, or a paired same-line module. Wikidot leaves them as
-    // source text; only a standalone module line becomes runtime HTML.
     assert_eq!(protected, source);
 
     let mut output =
@@ -1802,8 +1807,6 @@ fn protects_unbound_include_variables_in_all_rendered_positions() {
     assert_eq!(fragments.restore(&wikitext), original);
 }
 
-/// Parse protected Wikidot source, optionally restoring compatibility text
-/// in link targets first, and return the restored HTML with its links.
 fn render_protected_links(
     source: &str,
     restore_targets: bool,
@@ -1814,7 +1817,6 @@ fn render_protected_links(
         &mut wikitext,
         &mut fragments,
     );
-    // A stray `##` is protected the same way as an unrendered color marker.
     wikitext = wikitext.replace("##", &fragments.push("##"));
     let page_info = fallback_test_page_info("component:links", "Links");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
@@ -1878,8 +1880,6 @@ fn link_targets_keep_the_authored_text_of_protected_fragments() {
         "{recorded}"
     );
 
-    // Without the pass the marker survives into the page target, which is
-    // the leak this guards against.
     let (unrestored, _) = render_protected_links(source, false);
     assert!(
         unrestored
@@ -2026,7 +2026,6 @@ fn raw_markers_on_separate_lines_do_not_protect_a_multiline_page_link() {
     RenderService::normalize_wikidot_multiline_page_links(&mut wikitext);
     assert_eq!(wikitext, source);
 
-    // Other links, including ones next to a closed pair, still normalize.
     let mut wikitext =
         "@@raw@@\n[[[page-link|Yes\nPlease]]]\n@@[[[escape-link|Nope Please]]]@@\n"
             .to_owned();
@@ -3194,7 +3193,11 @@ fn matches_live_wikidot_tag_predicate_matrix() {
     assert!(!wikidot_tag_conditions_match("+alpha +beta", &tags));
     assert!(wikidot_tag_conditions_match("+alpha -beta", &tags));
     assert!(!wikidot_tag_conditions_match("+alpha -alpha", &tags));
-    assert!(!wikidot_tag_conditions_match("", &tags));
+    // A bare gate has no conditions to check: it passes exactly when the
+    // page carries at least one tag (the saved-route behavior; the frozen
+    // PagePreview observations are all tag-less and bind it as false).
+    assert!(wikidot_tag_conditions_match("", &tags));
+    assert!(!wikidot_tag_conditions_match("", &[]));
     assert!(wikidot_tag_conditions_match("-", &tags));
 }
 
@@ -3243,6 +3246,59 @@ fn resolves_parser_generated_iftags_predicates_before_tag_matching() {
     }
     assert!(!wikitext.contains("[[iftags"), "{wikitext}");
     assert!(!wikitext.contains("[[#if"), "{wikitext}");
+}
+
+#[test]
+fn authored_and_generated_empty_iftags_specs_diverge_in_preparation() {
+    // The tagged saved-route population carries authored bare gates whose
+    // bodies render live (css-theme-preparation-tool among them), while
+    // the frozen parser-predicate matrix binds a parser function that
+    // evaluates its spec to nothing as the OFF state. Preparation marks
+    // generated heads before evaluating them so both behaviors hold.
+    let page_info = ftml::data::PageInfo {
+        tags: vec![Cow::Borrowed("alpha")],
+        ..fallback_test_page_info("tagged-page", "Tagged Page")
+    };
+    let mut wikitext = concat!(
+        "[[iftags]]\n",
+        "AUTHORED_BARE_TAGGED\n",
+        "[[/iftags]]\n",
+        "[[iftags [[#ifexpr 1 == 0 | - ]]]]\n",
+        "GENERATED_EMPTY_TAGGED\n",
+        "[[/iftags]]\n",
+        "[[iftags [[#ifexpr 1 == 1 | +alpha | +beta ]]]]\n",
+        "GENERATED_ALPHA_TAGGED\n",
+        "[[/iftags]]\n",
+    )
+    .to_owned();
+
+    prepare_test_wikidot_conditionals_before_include_expansion(&mut wikitext, &page_info);
+
+    assert!(wikitext.contains("AUTHORED_BARE_TAGGED"), "{wikitext}");
+    assert!(!wikitext.contains("GENERATED_EMPTY_TAGGED"), "{wikitext}");
+    assert!(wikitext.contains("GENERATED_ALPHA_TAGGED"), "{wikitext}");
+    assert!(!wikitext.contains("[[iftags"), "{wikitext}");
+    assert!(!wikitext.contains("generated-spec"), "{wikitext}");
+}
+
+#[test]
+fn authored_bare_iftags_stays_closed_on_a_tagless_page_in_preparation() {
+    let page_info = fallback_test_page_info("plain-page", "Plain Page");
+    let mut wikitext = concat!(
+        "[[iftags]]\n",
+        "AUTHORED_BARE_UNTAGGED\n",
+        "[[/iftags]]\n",
+        "[[iftags [[#ifexpr 1 == 1 | - ]]]]\n",
+        "GENERATED_MINUS_UNTAGGED\n",
+        "[[/iftags]]\n",
+    )
+    .to_owned();
+
+    prepare_test_wikidot_conditionals_before_include_expansion(&mut wikitext, &page_info);
+
+    assert!(!wikitext.contains("AUTHORED_BARE_UNTAGGED"), "{wikitext}");
+    assert!(wikitext.contains("GENERATED_MINUS_UNTAGGED"), "{wikitext}");
+    assert!(!wikitext.contains("[[iftags"), "{wikitext}");
 }
 
 #[test]
@@ -3444,6 +3500,17 @@ fn resolves_empty_and_empty_negative_iftags_like_saved_wikidot() {
     resolve_test_wikidot_iftags(&mut wikitext, &page_info);
 
     assert_eq!(wikitext, "\nOMEGA_EMPTY_NEGATIVE\n");
+}
+
+#[test]
+fn resolves_no_argument_iftags_on_a_tagged_page_like_saved_wikidot() {
+    let mut page_info = fallback_test_page_info("tagged-page", "Tagged Page");
+    page_info.tags = vec![Cow::Borrowed("essay"), Cow::Borrowed("_cc")];
+    let mut wikitext = "[[iftags]]OMEGA_NO_ARGUMENT[[/iftags]]\n".to_owned();
+
+    resolve_test_wikidot_iftags(&mut wikitext, &page_info);
+
+    assert_eq!(wikitext, "OMEGA_NO_ARGUMENT\n");
 }
 
 #[test]
@@ -3835,9 +3902,6 @@ fn empty_protection_bundle() -> RenderProtectionBundle {
 
 #[test]
 fn render_protection_bundle_drop_propagates_errors() {
-    // Regression test for #2686: every `?` between bundle creation and
-    // restoration used to turn the original Err into a Drop panic, hiding the
-    // real failure. An error path must defuse the unrestored bundle first.
     fn run_with_forced_error() -> Result<(), Box<Error>> {
         let mut bundle = empty_protection_bundle();
         Err::<(), _>(Error::new("forced render failure", ErrorType::Render))

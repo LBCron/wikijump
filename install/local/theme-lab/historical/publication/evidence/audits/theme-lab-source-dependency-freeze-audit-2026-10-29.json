@@ -1,0 +1,3911 @@
+{
+  "schema": "theme_lab_source_dependency_freeze_audit.v1",
+  "generated_at": "2026-10-29",
+  "scope": "36 publication theme nodes; source include observations and materialized CSS includes",
+  "authority": {
+    "shared_corpus_root": "/home/roku/src/Rokurolize/scp-wiki-translation/corpus",
+    "foreign_dependency_policy_audit": "evidence/audits/theme-lab-foreign-dependency-policy-audit-20261005.json",
+    "source_freshness_audit": "../ports/SOURCE-FRESHNESS-AUDIT-20261005.md"
+  },
+  "summary": {
+    "theme_count": 36,
+    "observed_include_rows": 209,
+    "unique_include_pages": 44,
+    "source_css_dependency_rows": 27,
+    "unresolved": 0,
+    "status_counts": {
+      "source-dependency-reviewed-final-acceptance-pending": 33,
+      "source-ready-acceptance-required": 1,
+      "final-acceptance-pending-after-freeze": 1,
+      "rebased-package-acceptance-required": 1
+    }
+  },
+  "themes": [
+    {
+      "theme": "theme:aesthetic-theme",
+      "observed_dependency_count": 11,
+      "source_css_dependency_count": 2,
+      "unresolved": 0,
+      "candidate_source_sha256": "f2c421f4711c9fac2bae3cc5aaa6e656247599a22182aef2892002b99d6a278f",
+      "candidate_css_sha256": "05f0a7bfbd9581f913a87093e70ec51d5133efba15b07e34ba1c2f107f797b09"
+    },
+    {
+      "theme": "theme:al-slop",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 1,
+      "unresolved": 0,
+      "candidate_source_sha256": "4954b888b502397c1e8612addfc74dda5c6da91c8fb260ed19f8cdc323f73122",
+      "candidate_css_sha256": "0fb7e246567d58220ee4c98ff4009fa7fad14b2c0a685c0edffeb6a2738a7677"
+    },
+    {
+      "theme": "theme:basalt",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 2,
+      "unresolved": 0,
+      "candidate_source_sha256": "7167897315929a07f31f9008682a529351686d51ddab7a8569f6e6d06ca021d5",
+      "candidate_css_sha256": "059a0e4ff9dc0071e1c13e0bb17578722f46c783ff9227edaa9b0215649afba0"
+    },
+    {
+      "theme": "theme:bedrock",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "c077ff195b55327cd0de0e3310c39ed078045a87cc75f8ebe48dabaff594e423",
+      "candidate_css_sha256": "210621c337510276613df2496a6fcc1ee98843d5175b0cc07404d82c416236ea"
+    },
+    {
+      "theme": "theme:black-highlighter-theme",
+      "observed_dependency_count": 11,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "ed339b72f5d04e7e11f6d419596b7449ca397f549ef1e73f1d1e349c0c0e1bf8",
+      "candidate_css_sha256": "78954600d05073df1461599a2b73cc656d379f0289d798d6e2ad65c76df1ccca"
+    },
+    {
+      "theme": "theme:classic",
+      "observed_dependency_count": 5,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "9aa209eaeec59753e2f6dba8e0299281fb58793c720f4495559e2a1adbd48e09",
+      "candidate_css_sha256": "8d37bcdf89e9fd69aa69d369da18eb75e388106b088187de457d45c2d7342376"
+    },
+    {
+      "theme": "theme:cosmonaut",
+      "observed_dependency_count": 6,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "155fd2fa7eba52281b87c34e446bf6ad1b587936efdadd291dff0081c59da179",
+      "candidate_css_sha256": "7f9e282e6cff16e19473549be91d979cf9f1037a8510ebe9bf318a6fd1a527ce"
+    },
+    {
+      "theme": "theme:dear-dictator-jp",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "32739731fe39263816ea42f378f2541286186b93d477938feb6d489279e42022",
+      "candidate_css_sha256": null
+    },
+    {
+      "theme": "theme:extra-black-highlighter-theme",
+      "observed_dependency_count": 8,
+      "source_css_dependency_count": 1,
+      "unresolved": 0,
+      "candidate_source_sha256": "b8753485c88e904e91db1e1d54659aca2542ad3cdb9353667d38af1527bc44f6",
+      "candidate_css_sha256": "31e5af9285e5643840ab5f205e6d5d3a4a33726a4649383abc7eb1392c5ed3e9"
+    },
+    {
+      "theme": "theme:flopstyle-dark",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 6,
+      "unresolved": 0,
+      "candidate_source_sha256": "a3702c545d95bd13b7ce148c343f482b52f13e3b589933e26682031d4052203d",
+      "candidate_css_sha256": "be744e1d57f1028199f07f0aee70fbd7a96a724c3627dc7a3affdbc23d99108c"
+    },
+    {
+      "theme": "theme:foxtrot",
+      "observed_dependency_count": 38,
+      "source_css_dependency_count": 4,
+      "unresolved": 0,
+      "candidate_source_sha256": "94bec2085323e08e9fe302fa86df5a051c3d21f93dd57c9986a750cc591845f0",
+      "candidate_css_sha256": "97f8003415d8cc463fc82677a4c2b35b1078985e945f73aca7fee09f70ba095b"
+    },
+    {
+      "theme": "theme:hansarp",
+      "observed_dependency_count": 9,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "ccf5f58cc71f0e9a6f7b988e5a74bbc889dd369625075c33da06773b57bc8f45",
+      "candidate_css_sha256": "018358256020cce5ad1e0930293fb3839986a945dae59a93e07e2915e0cf8b3c"
+    },
+    {
+      "theme": "theme:inkblot",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "679a88f60fb72ac72743a09380e121bfbb03207800e41b1ad74e59b1f66bc9ac",
+      "candidate_css_sha256": "fd7e2ae9c01c3d31160b1e7017e441b3abcd8d5eab309c631ef2ebf139fc3406"
+    },
+    {
+      "theme": "theme:isolated-terminal",
+      "observed_dependency_count": 15,
+      "source_css_dependency_count": 2,
+      "unresolved": 0,
+      "candidate_source_sha256": "528f4a52a34ac4dd3de8133a2fff4dd6c0b56da8be0b4b10c8b6c3b21a4e1e26",
+      "candidate_css_sha256": "4b8fb8dd0aca57923f47143d4e2dc55192b35d2173b54b93dfc25785ed1511d8"
+    },
+    {
+      "theme": "theme:jakstyle",
+      "observed_dependency_count": 11,
+      "source_css_dependency_count": 2,
+      "unresolved": 0,
+      "candidate_source_sha256": "89034fb9bc67ce6c1df63201c30c98ee546499015aaf44709dcf13e04ff57aff",
+      "candidate_css_sha256": "08367e8d1364e6e976a4dc4acb0ccc4332dac24791e396fb0e508c091058e175"
+    },
+    {
+      "theme": "theme:minimalist-bhl",
+      "observed_dependency_count": 11,
+      "source_css_dependency_count": 2,
+      "unresolved": 0,
+      "candidate_source_sha256": "0ae6dfa09094ed2db9512c085ecffd3c7513464ef799da00e7186a52c9f5df73",
+      "candidate_css_sha256": "f35aec8f29c8ab4cf5a0a24d27b3ad31f504103404a76fd17a1b149da7f306ab"
+    },
+    {
+      "theme": "theme:monotypical",
+      "observed_dependency_count": 5,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "2b1757725694a02df9618f21e2e4326f37500b6f751d005558199df72f9913e5",
+      "candidate_css_sha256": "f2883666196dd7cad910db816eba36924273e206d35ef01c410443f3b48bfd23"
+    },
+    {
+      "theme": "theme:much-cool",
+      "observed_dependency_count": 5,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "799c546f83e7d257fa8b56067a9779eeebe6bda8e6bbc72a4ccbac100f6d9570",
+      "candidate_css_sha256": "c8b4d4ae7d31b4d9f1f5b2c75f7b898db8371db46ee53781dc4c24b069d4acdb"
+    },
+    {
+      "theme": "theme:night-rush-theme",
+      "observed_dependency_count": 5,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "5d0cc657cd638addbb28f8278832126dc863b1ae0ae339f216dceff45ef2f98c",
+      "candidate_css_sha256": "6ecbb80fc4aa2e7fbf948a2ced01153aa816bd2911cfcb6cfa398bc3f534245b"
+    },
+    {
+      "theme": "theme:ouroborous-theme",
+      "observed_dependency_count": 9,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "ec5eadaa0d7f13636259c8209ad6f5ab2f20c52a882ed92a59ebcd2f7469299d",
+      "candidate_css_sha256": "0102ff1156947176ae4bca48829e758982331d11c45df6b7b8f8ef5d453d402e"
+    },
+    {
+      "theme": "theme:paperstack",
+      "observed_dependency_count": 7,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "15eebfa9eecd99a5201589d70f239b5f2ab5945936f537c0f53f589e00a8e773",
+      "candidate_css_sha256": "ccc0e9df9f727e6c4ab5c3507839e88b15c75fa216b5a9ccecbdf32ca83f20f7"
+    },
+    {
+      "theme": "theme:pataphysics",
+      "observed_dependency_count": 5,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "626144809c1f3056382d7e0a2af1a8bdaafdf221477536add3cc0eaddc7bcf5d",
+      "candidate_css_sha256": "0be6fc9252a367bd01997ed80d6f454c7cb6cdf19ab202307a9178b84ad53010"
+    },
+    {
+      "theme": "theme:penumbra",
+      "observed_dependency_count": 5,
+      "source_css_dependency_count": 1,
+      "unresolved": 0,
+      "candidate_source_sha256": "439b21910d1a4363c35845490fdc2585a286b26577c2d692f130c2f790681b9e",
+      "candidate_css_sha256": "2d8436acd87691323a742583e715e7f69c96bfd53c355dac5b2fe27b8ceeb5da"
+    },
+    {
+      "theme": "theme:quand-le-soleil-se-couche",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "c44ef95cf9a648f5b2eb9bc3854e95cb4e7005d5c9f656078e795508c7c7c47a",
+      "candidate_css_sha256": null
+    },
+    {
+      "theme": "theme:redtape",
+      "observed_dependency_count": 15,
+      "source_css_dependency_count": 2,
+      "unresolved": 0,
+      "candidate_source_sha256": "585e429f8a4fd472aed4e190461a23fba689aba968ebc38195971509fffa304e",
+      "candidate_css_sha256": "291cd47505fcdae005459e6ad82f9485cc1a803d32a2d802c6c4721ad7a586d7"
+    },
+    {
+      "theme": "theme:scheme",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "dab1d3ddc8805b0e4c3977dbe49876e04e975f43151aa3fb3e70165291599b58",
+      "candidate_css_sha256": "274f0149d9d1d695fd0555d28de09ceb7a0439a310bdd67e3b44c12ba23b2c55"
+    },
+    {
+      "theme": "theme:scp-offices-theme",
+      "observed_dependency_count": 9,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "1fb480f19fd71c9d78ba365e5d88d5668ce46b722546f514b795a83b74eb82c8",
+      "candidate_css_sha256": "f3d5d0cec11e9092bed5913399d302ed8a19dea98a4e43ee71845afe4e803545"
+    },
+    {
+      "theme": "theme:scpedia",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "7cad349274e80a9710e32526e5366b85e4cec268d04a80fc5b6e80bdc806d41c",
+      "candidate_css_sha256": "137675ef1fc201189336334bde5d9c88b8d38012a1c2d193cfbe5632338f556f"
+    },
+    {
+      "theme": "theme:sigma",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "2bc461f3a212385d4588debb88de6f20a7f9c1a739b41053f6fb6f95e503bb23",
+      "candidate_css_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "theme": "theme:site",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "6538b37accac65ba5c9ae78c88244b48ca447963251ac7e99b58e3d27334b1fc",
+      "candidate_css_sha256": "fa49d12c7af28d6001cccb36f6763b5539b2909a322aaf47e140a3aaf9a2ceae"
+    },
+    {
+      "theme": "theme:skipos",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "5422f618f60c010cf39c702b8d70aff2dd1a889aca66751b27cf887396ca5ea7",
+      "candidate_css_sha256": "db7104e8a069325316c07b8d20b0b1211abfe3b3fe34bc2aea1551a63c38b8cc"
+    },
+    {
+      "theme": "theme:space",
+      "observed_dependency_count": 6,
+      "source_css_dependency_count": 1,
+      "unresolved": 0,
+      "candidate_source_sha256": "df6265436b06703f428f4df2ee6809634177378d104332f05e252ee77bae26f7",
+      "candidate_css_sha256": "9050a943386e3975914248717c6a354ea8c88dc45eb06120ae2f58625e3eb70e"
+    },
+    {
+      "theme": "theme:turbo-vision",
+      "observed_dependency_count": 8,
+      "source_css_dependency_count": 1,
+      "unresolved": 0,
+      "candidate_source_sha256": "e8acd56ebfe4e28b14825c26db3980a1d584e5b2532a9c9b818ec70aa9013647",
+      "candidate_css_sha256": "b9e8c63b787dc95314a26d81fd6dc61ed99470cddb7fb5470985fef95b2dc402"
+    },
+    {
+      "theme": "theme:wikifot",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "fd0fa6d765b149fc5a1b60a179435d6e20eb34fbf581de3dfb96cb7a8912243e",
+      "candidate_css_sha256": "0516edb1e9f34d5d07175b3e3212ffb0852cddc00531ff09d3ede9854162efe7"
+    },
+    {
+      "theme": "theme:y2k",
+      "observed_dependency_count": 5,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "8e350e9f2a3444e2e8abd1d5a26e2618f91db4ace75e1bcb574a2903d25027f2",
+      "candidate_css_sha256": "450d8184621bdf1a9245790b2b3b32fa388e7e7fe61e7115eb898b0891fe7a6c"
+    },
+    {
+      "theme": "theme:yossistyle",
+      "observed_dependency_count": 0,
+      "source_css_dependency_count": 0,
+      "unresolved": 0,
+      "candidate_source_sha256": "c8f06e137605ffe2ab8249cc2faa0d8d13f795b1574ec64079c96a53af7312ae",
+      "candidate_css_sha256": "c1c711959c75c57b769ef9bdbf294bf60e8b937dc2a6af86b8bd345191ada445"
+    }
+  ],
+  "dependencies": [
+    {
+      "site": "scp-jp",
+      "slug": "theme:black-highlighter-theme",
+      "observations": [
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:extra-black-highlighter-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:hansarp",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:hansarp",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:jakstyle",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:jakstyle",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:ouroborous-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:ouroborous-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:scp-offices-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        },
+        {
+          "theme": "theme:scp-offices-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:interwiki-style",
+      "observations": [
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:classic",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:cosmonaut",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:extra-black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:extra-black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:extra-black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:hansarp",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:hansarp",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:hansarp",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:jakstyle",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:jakstyle",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:jakstyle",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:monotypical",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:much-cool",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:ouroborous-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:ouroborous-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:ouroborous-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:pataphysics",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:scp-offices-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:scp-offices-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:scp-offices-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:space",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:turbo-vision",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        },
+        {
+          "theme": "theme:y2k",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:interwiki-style",
+            "revision": 6,
+            "updated_at": "2023-01-08T08:30:25+00:00",
+            "source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "credit:start-preview",
+      "observations": [
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:classic",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:cosmonaut",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:hansarp",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:jakstyle",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:monotypical",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:much-cool",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:ouroborous-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:penumbra",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:scp-offices-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:space",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:turbo-vision",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        },
+        {
+          "theme": "theme:y2k",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start-preview",
+            "revision": 13,
+            "updated_at": "2026-09-26T06:10:52+00:00",
+            "source_sha256": "a61125640d28160843226f7356dfb3252578c288803bfaf4fd6f6d324ea324ca"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "credit:end-preview",
+      "observations": [
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:classic",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:cosmonaut",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:hansarp",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:jakstyle",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:monotypical",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:much-cool",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:ouroborous-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:penumbra",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:scp-offices-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:space",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:turbo-vision",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        },
+        {
+          "theme": "theme:y2k",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end-preview",
+            "revision": 7,
+            "updated_at": "2022-01-08T10:15:02+00:00",
+            "source_sha256": "282691165c025e5555466b0689ca2e991fbaa507ac44be64ee2918f3a9cd48e9"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:theme-squares",
+      "observations": [
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:theme-squares",
+            "revision": 5,
+            "updated_at": "2026-09-24T22:24:09+00:00",
+            "source_sha256": "9eb331e6331a7d5980eae278a45042613cfcd71ededcc3fd7aca2345b6f56b95"
+          }
+        },
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:theme-squares",
+            "revision": 5,
+            "updated_at": "2026-09-24T22:24:09+00:00",
+            "source_sha256": "9eb331e6331a7d5980eae278a45042613cfcd71ededcc3fd7aca2345b6f56b95"
+          }
+        },
+        {
+          "theme": "theme:extra-black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:theme-squares",
+            "revision": 5,
+            "updated_at": "2026-09-24T22:24:09+00:00",
+            "source_sha256": "9eb331e6331a7d5980eae278a45042613cfcd71ededcc3fd7aca2345b6f56b95"
+          }
+        },
+        {
+          "theme": "theme:hansarp",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:theme-squares",
+            "revision": 5,
+            "updated_at": "2026-09-24T22:24:09+00:00",
+            "source_sha256": "9eb331e6331a7d5980eae278a45042613cfcd71ededcc3fd7aca2345b6f56b95"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:theme-squares",
+            "revision": 5,
+            "updated_at": "2026-09-24T22:24:09+00:00",
+            "source_sha256": "9eb331e6331a7d5980eae278a45042613cfcd71ededcc3fd7aca2345b6f56b95"
+          }
+        },
+        {
+          "theme": "theme:ouroborous-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:theme-squares",
+            "revision": 5,
+            "updated_at": "2026-09-24T22:24:09+00:00",
+            "source_sha256": "9eb331e6331a7d5980eae278a45042613cfcd71ededcc3fd7aca2345b6f56b95"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:theme-squares",
+            "revision": 5,
+            "updated_at": "2026-09-24T22:24:09+00:00",
+            "source_sha256": "9eb331e6331a7d5980eae278a45042613cfcd71ededcc3fd7aca2345b6f56b95"
+          }
+        },
+        {
+          "theme": "theme:scp-offices-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:theme-squares",
+            "revision": 5,
+            "updated_at": "2026-09-24T22:24:09+00:00",
+            "source_sha256": "9eb331e6331a7d5980eae278a45042613cfcd71ededcc3fd7aca2345b6f56b95"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:aesthetic-theme",
+      "observations": [
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/aesthetic-theme/candidate.wikidot.source.txt",
+            "source_sha256": "336b7b50a4969b60b1b8926b17975d54fe5f2297ef3354d56c41c20ede8d164c"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:toggle-sidebar-bhl",
+      "observations": [
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:toggle-sidebar-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:40:36+00:00",
+            "source_sha256": "b498d2bbcd7a503ac89beb04a63041a5cb8d49f980630e82155ddbf7b2857a05"
+          }
+        },
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:toggle-sidebar-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:40:36+00:00",
+            "source_sha256": "b498d2bbcd7a503ac89beb04a63041a5cb8d49f980630e82155ddbf7b2857a05"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:toggle-sidebar-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:40:36+00:00",
+            "source_sha256": "b498d2bbcd7a503ac89beb04a63041a5cb8d49f980630e82155ddbf7b2857a05"
+          }
+        },
+        {
+          "theme": "theme:jakstyle",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:toggle-sidebar-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:40:36+00:00",
+            "source_sha256": "b498d2bbcd7a503ac89beb04a63041a5cb8d49f980630e82155ddbf7b2857a05"
+          }
+        },
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:toggle-sidebar-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:40:36+00:00",
+            "source_sha256": "b498d2bbcd7a503ac89beb04a63041a5cb8d49f980630e82155ddbf7b2857a05"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:toggle-sidebar-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:40:36+00:00",
+            "source_sha256": "b498d2bbcd7a503ac89beb04a63041a5cb8d49f980630e82155ddbf7b2857a05"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:centered-header-bhl",
+      "observations": [
+        {
+          "theme": "theme:aesthetic-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:centered-header-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:38:13+00:00",
+            "source_sha256": "be0cec9e1373b49ea771184edf19efda85a9b7b09ef6788f89ce266874b9a28c"
+          }
+        },
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:centered-header-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:38:13+00:00",
+            "source_sha256": "be0cec9e1373b49ea771184edf19efda85a9b7b09ef6788f89ce266874b9a28c"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:centered-header-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:38:13+00:00",
+            "source_sha256": "be0cec9e1373b49ea771184edf19efda85a9b7b09ef6788f89ce266874b9a28c"
+          }
+        },
+        {
+          "theme": "theme:jakstyle",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:centered-header-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:38:13+00:00",
+            "source_sha256": "be0cec9e1373b49ea771184edf19efda85a9b7b09ef6788f89ce266874b9a28c"
+          }
+        },
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:centered-header-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:38:13+00:00",
+            "source_sha256": "be0cec9e1373b49ea771184edf19efda85a9b7b09ef6788f89ce266874b9a28c"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:centered-header-bhl",
+            "revision": 3,
+            "updated_at": "2023-09-18T04:38:13+00:00",
+            "source_sha256": "be0cec9e1373b49ea771184edf19efda85a9b7b09ef6788f89ce266874b9a28c"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:bhl-dark-sidebar",
+      "observations": [
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:bhl-dark-sidebar",
+            "revision": 2,
+            "updated_at": "2023-01-20T09:58:55+00:00",
+            "source_sha256": "ac6bdcbd357fda304db94439c8140a3e3b6fc379d4ba558ecf0add845e903357"
+          }
+        },
+        {
+          "theme": "theme:extra-black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:bhl-dark-sidebar",
+            "revision": 2,
+            "updated_at": "2023-01-20T09:58:55+00:00",
+            "source_sha256": "ac6bdcbd357fda304db94439c8140a3e3b6fc379d4ba558ecf0add845e903357"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:collapsible-sidebar",
+      "observations": [
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:collapsible-sidebar",
+            "revision": 4,
+            "updated_at": "2026-09-25T04:20:00+00:00",
+            "source_sha256": "b0ae91dbf313be853ab0a8e130176b2dc6bd5a9543d1f97687fc4cf9432db55f"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:image-block",
+      "observations": [
+        {
+          "theme": "theme:black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:cosmonaut",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:extra-black-highlighter-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:jakstyle",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:monotypical",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:much-cool",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:night-rush-theme",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:paperstack",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:paperstack",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:paperstack",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:paperstack",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:paperstack",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:pataphysics",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:penumbra",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:space",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:turbo-vision",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:turbo-vision",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        },
+        {
+          "theme": "theme:y2k",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:image-block",
+            "revision": 12,
+            "updated_at": "2021-12-24T16:24:59+00:00",
+            "source_sha256": "befd428556c2119a01913cb31abbb07edcc505fd0a989e9b75b58b12f6f64b16"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:classic",
+      "observations": [
+        {
+          "theme": "theme:classic",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/classic/candidate.wikidot.source.txt",
+            "source_sha256": "162f067cede5e88784332a3e2a902ad411e24c48dba3b7cb349a780e9516e6be"
+          }
+        },
+        {
+          "theme": "theme:classic",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/classic/candidate.wikidot.source.txt",
+            "source_sha256": "162f067cede5e88784332a3e2a902ad411e24c48dba3b7cb349a780e9516e6be"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:cosmonaut",
+      "observations": [
+        {
+          "theme": "theme:cosmonaut",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/cosmonaut/candidate.wikidot.source.txt",
+            "source_sha256": "155fd2fa7eba52281b87c34e446bf6ad1b587936efdadd291dff0081c59da179"
+          }
+        },
+        {
+          "theme": "theme:cosmonaut",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/cosmonaut/candidate.wikidot.source.txt",
+            "source_sha256": "155fd2fa7eba52281b87c34e446bf6ad1b587936efdadd291dff0081c59da179"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:extra-black-highlighter-theme",
+      "observations": [
+        {
+          "theme": "theme:extra-black-highlighter-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/extra-black-highlighter-theme/candidate.wikidot.source.txt",
+            "source_sha256": "b0a5bdc62ba1eccb494b073861ed269baf71c0a3549dc2a1a5c3854d9d6d4a5a"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:toggle-sidebar",
+      "observations": [
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:toggle-sidebar",
+            "revision": 7,
+            "updated_at": "2026-09-24T23:01:25+00:00",
+            "source_sha256": "48cebc50d46214957be0e99b4ad26d0d49db540807dfeac27972aaf72b2e6b26"
+          }
+        },
+        {
+          "theme": "theme:penumbra",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:toggle-sidebar",
+            "revision": 7,
+            "updated_at": "2026-09-24T23:01:25+00:00",
+            "source_sha256": "48cebc50d46214957be0e99b4ad26d0d49db540807dfeac27972aaf72b2e6b26"
+          }
+        },
+        {
+          "theme": "theme:turbo-vision",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:toggle-sidebar",
+            "revision": 7,
+            "updated_at": "2026-09-24T23:01:25+00:00",
+            "source_sha256": "48cebc50d46214957be0e99b4ad26d0d49db540807dfeac27972aaf72b2e6b26"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:acs-animation",
+      "observations": [
+        {
+          "theme": "theme:foxtrot",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:acs-animation",
+            "revision": 1,
+            "updated_at": "2022-03-23T22:37:08+00:00",
+            "source_sha256": "8c55bf57211d2f79cce3b6df37b12b428c97a375f8f7c450b7d54af8960a0574"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:fade-in",
+      "observations": [
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "components/fade-in/source.wikidot.txt",
+            "source_sha256": "a4882c56f2c0be3af6f9c4d1d0b6d6054ddbf86c16e6fa584342e2a6adb71f90"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:betterfootnotes",
+      "observations": [
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "components/betterfootnotes/source.wikidot.txt",
+            "source_sha256": "84aa43f24ed32e2953abacc1b81804f284235b3afcdcee2b56f908525e45d46d"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-wiki",
+      "slug": "component:author-label-source",
+      "observations": [
+        {
+          "theme": "theme:foxtrot",
+          "classification": "intentional-cross-wiki-attribution-content",
+          "policy": "retain-source-credit-include"
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "intentional-cross-wiki-attribution-content",
+          "policy": "retain-source-credit-include"
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:foxtrot",
+      "observations": [
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        },
+        {
+          "theme": "theme:foxtrot",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/foxtrot/candidate.wikidot.source.txt",
+            "source_sha256": "e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:hansarp",
+      "observations": [
+        {
+          "theme": "theme:hansarp",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/hansarp/candidate.wikidot.source.txt",
+            "source_sha256": "8607035277a57cb631f331706c0b2d7fbfbdcf1bcf278cdebf9442258f3aef00"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:isolated-terminal",
+      "observations": [
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/isolated-terminal/candidate.wikidot.source.txt",
+            "source_sha256": "81ddb7613a62070b01f7c95657433a7ac130ece617e3f691df43db82255670b7"
+          }
+        },
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/isolated-terminal/candidate.wikidot.source.txt",
+            "source_sha256": "81ddb7613a62070b01f7c95657433a7ac130ece617e3f691df43db82255670b7"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "component:ayu18",
+      "observations": [
+        {
+          "theme": "theme:isolated-terminal",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "component:ayu18",
+            "revision": 1,
+            "updated_at": "2024-07-15T03:56:44+00:00",
+            "source_sha256": "3475a6be6e6f39f9c8a2723511a14eb000311e104c323f2988691ddf965d0782"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:jakstyle",
+      "observations": [
+        {
+          "theme": "theme:jakstyle",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/jakstyle/candidate.wikidot.source.txt",
+            "source_sha256": "d0eb8af160c74eb7d72792b78567756792857a6b7851ed196cc7233b1f960869"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:minimalist-bhl",
+      "observations": [
+        {
+          "theme": "theme:minimalist-bhl",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/minimalist-bhl/candidate.wikidot.source.txt",
+            "source_sha256": "8bec8d27d44cdfb153f01dcedd67a41ff7a1477c0d1fcce1c41494e59b7ef8d5"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:monotypical",
+      "observations": [
+        {
+          "theme": "theme:monotypical",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/monotypical/candidate.wikidot.source.txt",
+            "source_sha256": "2b1757725694a02df9618f21e2e4326f37500b6f751d005558199df72f9913e5"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:much-cool",
+      "observations": [
+        {
+          "theme": "theme:much-cool",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/much-cool/candidate.wikidot.source.txt",
+            "source_sha256": "5b80ba7f55a5f70b6569fef18e95056bf223ec143f7c2ef549d88aba7a3d096a"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-wiki",
+      "slug": "info:start",
+      "observations": [
+        {
+          "theme": "theme:night-rush-theme",
+          "classification": "showcase-only-cross-wiki-content",
+          "policy": "retain-documentation-example"
+        }
+      ]
+    },
+    {
+      "site": "scp-wiki",
+      "slug": "info:more",
+      "observations": [
+        {
+          "theme": "theme:night-rush-theme",
+          "classification": "showcase-only-cross-wiki-content",
+          "policy": "retain-documentation-example"
+        }
+      ]
+    },
+    {
+      "site": "scp-wiki",
+      "slug": "info:end",
+      "observations": [
+        {
+          "theme": "theme:night-rush-theme",
+          "classification": "showcase-only-cross-wiki-content",
+          "policy": "retain-documentation-example"
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:night-rush-theme",
+      "observations": [
+        {
+          "theme": "theme:night-rush-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/night-rush-theme/candidate.wikidot.source.txt",
+            "source_sha256": "5d0cc657cd638addbb28f8278832126dc863b1ae0ae339f216dceff45ef2f98c"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:ouroborous-theme",
+      "observations": [
+        {
+          "theme": "theme:ouroborous-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/ouroborous-theme/candidate.wikidot.source.txt",
+            "source_sha256": "0fa23f59bcaafa19dd4cd7bf135cd29e4726de0c507f9357343d23a12a927d2f"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:paperstack",
+      "observations": [
+        {
+          "theme": "theme:paperstack",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/paperstack/candidate.wikidot.source.txt",
+            "source_sha256": "5939181e533d5c02d39ac16dad70f9ae9b80efa7fcd79ebb4c8ba8b75ab16854"
+          }
+        },
+        {
+          "theme": "theme:paperstack",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/paperstack/candidate.wikidot.source.txt",
+            "source_sha256": "5939181e533d5c02d39ac16dad70f9ae9b80efa7fcd79ebb4c8ba8b75ab16854"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "credit:start",
+      "observations": [
+        {
+          "theme": "theme:pataphysics",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:start",
+            "revision": 29,
+            "updated_at": "2026-09-26T04:11:14+00:00",
+            "source_sha256": "a6a5e2e583bcae25b39a2a33ba3a9864680c8feb5c3c8bafe008baf16ff5043c"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "credit:end",
+      "observations": [
+        {
+          "theme": "theme:pataphysics",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:end",
+            "revision": 16,
+            "updated_at": "2026-09-24T22:29:47+00:00",
+            "source_sha256": "89e45fbf78f99d8d3d060baeaf6fdcde3a672650e41d57ef2fd155f84d382b57"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:pataphysics",
+      "observations": [
+        {
+          "theme": "theme:pataphysics",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/pataphysics/candidate.wikidot.source.txt",
+            "source_sha256": "6fdcaec9c6a74cf2c3c0c75ac4fac85f010c6733d3fcdf10d3312d8f5470c07b"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:penumbra",
+      "observations": [
+        {
+          "theme": "theme:penumbra",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/penumbra/candidate.wikidot.source.txt",
+            "source_sha256": "439b21910d1a4363c35845490fdc2585a286b26577c2d692f130c2f790681b9e"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "credit:cc4",
+      "observations": [
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:cc4",
+            "revision": 2,
+            "updated_at": "2021-12-24T16:51:02+00:00",
+            "source_sha256": "1727fcadb6d259822b7909e4b6319f327e6445507af8ddd2976cc74997b32ddf"
+          }
+        },
+        {
+          "theme": "theme:redtape",
+          "classification": "existing-current-scp-jp-counterpart",
+          "policy": "reuse-existing-current-counterpart",
+          "authority": {
+            "kind": "shared-corpus-current-page",
+            "branch": "jp",
+            "slug": "credit:cc4",
+            "revision": 2,
+            "updated_at": "2021-12-24T16:51:02+00:00",
+            "source_sha256": "1727fcadb6d259822b7909e4b6319f327e6445507af8ddd2976cc74997b32ddf"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:redtape",
+      "observations": [
+        {
+          "theme": "theme:redtape",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/redtape/candidate.wikidot.source.txt",
+            "source_sha256": "ece731ae73360d76e394eb747dda555a081de973e2c6444284385764cc320892"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:scp-offices-theme",
+      "observations": [
+        {
+          "theme": "theme:scp-offices-theme",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/scp-offices-theme/candidate.wikidot.source.txt",
+            "source_sha256": "1fb480f19fd71c9d78ba365e5d88d5668ce46b722546f514b795a83b74eb82c8"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-wiki",
+      "slug": "component:sigma-plus",
+      "observations": [
+        {
+          "theme": "theme:space",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "components/sigma-plus/source.wikidot.txt",
+            "source_sha256": "dccfb8c281e6bf0268f7f472ef86690aa64181d3d916d1385838886bd89eafbf"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:space",
+      "observations": [
+        {
+          "theme": "theme:space",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/space/candidate.wikidot.source.txt",
+            "source_sha256": "20d4d9c98052fc76fcf8573505509dc4d49c3b4852e2ea99580218ad34afe3a7"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:turbo-vision",
+      "observations": [
+        {
+          "theme": "theme:turbo-vision",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/turbo-vision/candidate.wikidot.source.txt",
+            "source_sha256": "69e1fa9c6a57ca01097a29beab1f58b67741f9e53f958e95616fb5f7b559e589"
+          }
+        },
+        {
+          "theme": "theme:turbo-vision",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/turbo-vision/candidate.wikidot.source.txt",
+            "source_sha256": "69e1fa9c6a57ca01097a29beab1f58b67741f9e53f958e95616fb5f7b559e589"
+          }
+        }
+      ]
+    },
+    {
+      "site": "scp-jp",
+      "slug": "theme:y2k",
+      "observations": [
+        {
+          "theme": "theme:y2k",
+          "classification": "campaign-shared-publication-dependency",
+          "policy": "publish-before-or-reuse-per-node-action",
+          "authority": {
+            "kind": "campaign-publication-candidate",
+            "source": "../ports/y2k/candidate.wikidot.source.txt",
+            "source_sha256": "267413c5754294971d048457f9712b6929d5421ffe2d3e54dfa47c47140e8bf0"
+          }
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "candidate_identity_refresh": {
+    "refreshed_at": "2026-10-29",
+    "themes": [
+      {
+        "theme": "theme:aesthetic-theme",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/aesthetic-theme/candidate.wikidot.source.txt",
+        "source_sha256": "f2c421f4711c9fac2bae3cc5aaa6e656247599a22182aef2892002b99d6a278f",
+        "candidate_source_sha256": "f2c421f4711c9fac2bae3cc5aaa6e656247599a22182aef2892002b99d6a278f",
+        "candidate_css_sha256": "05f0a7bfbd9581f913a87093e70ec51d5133efba15b07e34ba1c2f107f797b09",
+        "current_jp_source": {
+          "status": "present",
+          "source_sha256": "da06a9e340ca0f6faa0f900117f1c165eaffed070d2269df0a99aec038b06338",
+          "updated_at": "2026-03-17T14:48:29+00:00"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:aesthetic-theme",
+          "sha256": "35234ec38792ffc739258798c50bb91d993575fb23eb6b6a51c58c2d02b26efd",
+          "updated_at": "2026-04-10T05:10:37+00:00"
+        }
+      },
+      {
+        "theme": "theme:al-slop",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/al-slop/candidate.wikidot.source.txt",
+        "source_sha256": "4954b888b502397c1e8612addfc74dda5c6da91c8fb260ed19f8cdc323f73122",
+        "candidate_source_sha256": "4954b888b502397c1e8612addfc74dda5c6da91c8fb260ed19f8cdc323f73122",
+        "candidate_css_sha256": "0fb7e246567d58220ee4c98ff4009fa7fad14b2c0a685c0edffeb6a2738a7677",
+        "current_jp_source": null,
+        "upstream": null
+      },
+      {
+        "theme": "theme:basalt",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/basalt/candidate.wikidot.source.txt",
+        "source_sha256": "7167897315929a07f31f9008682a529351686d51ddab7a8569f6e6d06ca021d5",
+        "candidate_source_sha256": "7167897315929a07f31f9008682a529351686d51ddab7a8569f6e6d06ca021d5",
+        "candidate_css_sha256": "059a0e4ff9dc0071e1c13e0bb17578722f46c783ff9227edaa9b0215649afba0",
+        "current_jp_source": null,
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:basalt",
+          "sha256": "df4b78d344536f5b7c363ac86b2ddc6f3c31b3647693f473169550e03fca17c5",
+          "updated_at": "2026-07-22T01:52:12+00:00"
+        }
+      },
+      {
+        "theme": "theme:bedrock",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/bedrock/candidate.wikidot.source.txt",
+        "source_sha256": "c077ff195b55327cd0de0e3310c39ed078045a87cc75f8ebe48dabaff594e423",
+        "candidate_source_sha256": "c077ff195b55327cd0de0e3310c39ed078045a87cc75f8ebe48dabaff594e423",
+        "candidate_css_sha256": "210621c337510276613df2496a6fcc1ee98843d5175b0cc07404d82c416236ea",
+        "current_jp_source": null,
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:bedrock",
+          "sha256": "7f62a64c055d179d4b51746812fc8f288fd479661219bc3e607036c69dc86da5",
+          "updated_at": "2024-01-08T13:14:12+00:00"
+        }
+      },
+      {
+        "theme": "theme:black-highlighter-theme",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/black-highlighter-theme/candidate.wikidot.source.txt",
+        "source_sha256": "ed339b72f5d04e7e11f6d419596b7449ca397f549ef1e73f1d1e349c0c0e1bf8",
+        "candidate_source_sha256": "ed339b72f5d04e7e11f6d419596b7449ca397f549ef1e73f1d1e349c0c0e1bf8",
+        "candidate_css_sha256": "78954600d05073df1461599a2b73cc656d379f0289d798d6e2ad65c76df1ccca",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 74,
+          "updated_at": "2026-09-25T01:25:13+00:00",
+          "source_sha256": "760ef1fb2d85d2c956c7ae59c6792c22c651faf05dc547669a86e66f5702c10e",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:black-highlighter-theme",
+          "sha256": "fa840cb320ea4de09864cd687aca308115f9027076d8c5712c3fb52cd5c31a58",
+          "updated_at": "2024-09-03T02:55:28+00:00"
+        }
+      },
+      {
+        "theme": "theme:classic",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/classic/candidate.wikidot.source.txt",
+        "source_sha256": "9aa209eaeec59753e2f6dba8e0299281fb58793c720f4495559e2a1adbd48e09",
+        "candidate_source_sha256": "9aa209eaeec59753e2f6dba8e0299281fb58793c720f4495559e2a1adbd48e09",
+        "candidate_css_sha256": "8d37bcdf89e9fd69aa69d369da18eb75e388106b088187de457d45c2d7342376",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 11,
+          "updated_at": "2026-09-25T00:46:02+00:00",
+          "source_sha256": "fa167734c0345030acd8ac869edf0505a91aad74be1bb87fc9f26ec59d38584a",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:classic",
+          "sha256": "306c9422efd40de805e391694aba91df5e660aab46a3b023959e6902a8d43728",
+          "updated_at": "2026-07-12T20:13:59+00:00"
+        }
+      },
+      {
+        "theme": "theme:cosmonaut",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/cosmonaut/candidate.wikidot.source.txt",
+        "source_sha256": "155fd2fa7eba52281b87c34e446bf6ad1b587936efdadd291dff0081c59da179",
+        "candidate_source_sha256": "155fd2fa7eba52281b87c34e446bf6ad1b587936efdadd291dff0081c59da179",
+        "candidate_css_sha256": "7f9e282e6cff16e19473549be91d979cf9f1037a8510ebe9bf318a6fd1a527ce",
+        "current_jp_source": {
+          "status": "present",
+          "source_sha256": "857c48d316a054139c6c667fcfadd14208885fcf1c3103b56c9a661a620e5fd2",
+          "updated_at": "2025-03-11T09:05:30+00:00"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:cosmonaut",
+          "sha256": "7d315826293db9af4419d47ffd594a19bfbe6bd458493de0dc410f34693a18a4",
+          "updated_at": "2025-12-14T11:15:02+00:00"
+        }
+      },
+      {
+        "theme": "theme:dear-dictator-jp",
+        "action": "create",
+        "status": "source-ready-acceptance-required",
+        "publication_source": "themes/dear-dictator-jp/source.wikidot.txt",
+        "source_sha256": "32739731fe39263816ea42f378f2541286186b93d477938feb6d489279e42022",
+        "candidate_source_sha256": "32739731fe39263816ea42f378f2541286186b93d477938feb6d489279e42022",
+        "candidate_css_sha256": null,
+        "current_jp_source": null,
+        "upstream": null
+      },
+      {
+        "theme": "theme:extra-black-highlighter-theme",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/extra-black-highlighter-theme/candidate.wikidot.source.txt",
+        "source_sha256": "b8753485c88e904e91db1e1d54659aca2542ad3cdb9353667d38af1527bc44f6",
+        "candidate_source_sha256": "b8753485c88e904e91db1e1d54659aca2542ad3cdb9353667d38af1527bc44f6",
+        "candidate_css_sha256": "31e5af9285e5643840ab5f205e6d5d3a4a33726a4649383abc7eb1392c5ed3e9",
+        "current_jp_source": {
+          "status": "present",
+          "source_sha256": "9fd030b51393568f0701d43d31f25c61ac7ad2350995f04a98e2f8d1fcedcaf5",
+          "updated_at": "2024-06-07T02:17:29+00:00"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:extra-black-highlighter-theme",
+          "sha256": "7f4834eabf433320747d1334a18987e5cd9d976fba3872031e2c67cdf9ad6e31",
+          "updated_at": "2026-04-12T04:59:50+00:00"
+        }
+      },
+      {
+        "theme": "theme:flopstyle-dark",
+        "action": "create",
+        "status": "final-acceptance-pending-after-freeze",
+        "publication_source": "../ports/flopstyle-dark/candidate.wikidot.source.txt",
+        "source_sha256": "a3702c545d95bd13b7ce148c343f482b52f13e3b589933e26682031d4052203d",
+        "candidate_source_sha256": "a3702c545d95bd13b7ce148c343f482b52f13e3b589933e26682031d4052203d",
+        "candidate_css_sha256": "be744e1d57f1028199f07f0aee70fbd7a96a724c3627dc7a3affdbc23d99108c",
+        "current_jp_source": null,
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:flopstyle-dark",
+          "revision": 401,
+          "updated_at": "2026-09-28T23:41:46+00:00",
+          "sha256": "bce06e2f87c6962d176e9f54f8bac47815860044b52a16562a139e98a0051b85"
+        }
+      },
+      {
+        "theme": "theme:foxtrot",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/foxtrot/candidate.wikidot.source.txt",
+        "source_sha256": "94bec2085323e08e9fe302fa86df5a051c3d21f93dd57c9986a750cc591845f0",
+        "candidate_source_sha256": "94bec2085323e08e9fe302fa86df5a051c3d21f93dd57c9986a750cc591845f0",
+        "candidate_css_sha256": "97f8003415d8cc463fc82677a4c2b35b1078985e945f73aca7fee09f70ba095b",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 8,
+          "updated_at": "2026-09-24T19:03:04+00:00",
+          "source_sha256": "d342ea8a6503fe16f975d74ff6646ff285ab8a382538e54c3e863d70bd055634",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:foxtrot",
+          "sha256": "04407aa0cfb8cf27b6066cd994b7b1ae7d2c867f187aacbd90639423f7c78b5d",
+          "updated_at": "2026-03-26T17:29:48+00:00"
+        }
+      },
+      {
+        "theme": "theme:hansarp",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/hansarp/candidate.wikidot.source.txt",
+        "source_sha256": "ccf5f58cc71f0e9a6f7b988e5a74bbc889dd369625075c33da06773b57bc8f45",
+        "candidate_source_sha256": "ccf5f58cc71f0e9a6f7b988e5a74bbc889dd369625075c33da06773b57bc8f45",
+        "candidate_css_sha256": "018358256020cce5ad1e0930293fb3839986a945dae59a93e07e2915e0cf8b3c",
+        "current_jp_source": {
+          "status": "present",
+          "source_sha256": "f398f2ab409800a156552d37382cbd396a6745d6bbdd794f3f39ab17c5fa78dd",
+          "updated_at": "2024-09-06T10:28:57+00:00"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:hansarp",
+          "sha256": "d8484393306d5ae7ded365f3a0a611258213a0dc9cb011829015802bbfbaa01e",
+          "updated_at": "2026-09-03T13:21:03+00:00"
+        }
+      },
+      {
+        "theme": "theme:inkblot",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/inkblot/candidate.wikidot.source.txt",
+        "source_sha256": "679a88f60fb72ac72743a09380e121bfbb03207800e41b1ad74e59b1f66bc9ac",
+        "candidate_source_sha256": "679a88f60fb72ac72743a09380e121bfbb03207800e41b1ad74e59b1f66bc9ac",
+        "candidate_css_sha256": "fd7e2ae9c01c3d31160b1e7017e441b3abcd8d5eab309c631ef2ebf139fc3406",
+        "current_jp_source": null,
+        "upstream": null
+      },
+      {
+        "theme": "theme:isolated-terminal",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/isolated-terminal/candidate.wikidot.source.txt",
+        "source_sha256": "528f4a52a34ac4dd3de8133a2fff4dd6c0b56da8be0b4b10c8b6c3b21a4e1e26",
+        "candidate_source_sha256": "528f4a52a34ac4dd3de8133a2fff4dd6c0b56da8be0b4b10c8b6c3b21a4e1e26",
+        "candidate_css_sha256": "4b8fb8dd0aca57923f47143d4e2dc55192b35d2173b54b93dfc25785ed1511d8",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 14,
+          "updated_at": "2026-09-24T10:21:35+00:00",
+          "source_sha256": "7b004be4cad79ce61c5c092e5aa714d40c95369ab8422a465025917ab0bd8ea4",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:isolated-terminal",
+          "sha256": "120ce0a71fa1ca235d3ed1955957ebe037bdb8e4a160b7099fe810d61f17a257",
+          "updated_at": "2026-02-01T03:34:54+00:00"
+        }
+      },
+      {
+        "theme": "theme:jakstyle",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/jakstyle/candidate.wikidot.source.txt",
+        "source_sha256": "89034fb9bc67ce6c1df63201c30c98ee546499015aaf44709dcf13e04ff57aff",
+        "candidate_source_sha256": "89034fb9bc67ce6c1df63201c30c98ee546499015aaf44709dcf13e04ff57aff",
+        "candidate_css_sha256": "08367e8d1364e6e976a4dc4acb0ccc4332dac24791e396fb0e508c091058e175",
+        "current_jp_source": {
+          "status": "present",
+          "source_sha256": "043a9ecd102a053c1d7daa538e293a147117f722cfe6e232c694f6107c48dae2",
+          "updated_at": "2023-02-20T06:32:47+00:00"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:jakstyle",
+          "sha256": "001da31e6e309460792f950ba5bcb78eba3c8a7305efb7a3e21e05365615d270",
+          "updated_at": "2026-04-21T01:35:48+00:00"
+        }
+      },
+      {
+        "theme": "theme:minimalist-bhl",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/minimalist-bhl/candidate.wikidot.source.txt",
+        "source_sha256": "0ae6dfa09094ed2db9512c085ecffd3c7513464ef799da00e7186a52c9f5df73",
+        "candidate_source_sha256": "0ae6dfa09094ed2db9512c085ecffd3c7513464ef799da00e7186a52c9f5df73",
+        "candidate_css_sha256": "f35aec8f29c8ab4cf5a0a24d27b3ad31f504103404a76fd17a1b149da7f306ab",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 2,
+          "updated_at": "2026-09-24T20:45:09+00:00",
+          "source_sha256": "7d870ffc63b1f7a700201a7b585a7aca8aa57a52d5f673c6eafd76d2f1426848",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:minimalist-bhl",
+          "sha256": "d076f29e54167c0adc56808ccce19a17511162997bd4816470cb34812a7e282a",
+          "updated_at": "2026-04-12T05:12:17+00:00"
+        }
+      },
+      {
+        "theme": "theme:monotypical",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/monotypical/candidate.wikidot.source.txt",
+        "source_sha256": "2b1757725694a02df9618f21e2e4326f37500b6f751d005558199df72f9913e5",
+        "candidate_source_sha256": "2b1757725694a02df9618f21e2e4326f37500b6f751d005558199df72f9913e5",
+        "candidate_css_sha256": "f2883666196dd7cad910db816eba36924273e206d35ef01c410443f3b48bfd23",
+        "current_jp_source": {
+          "status": "present",
+          "source_sha256": "f9e1ea2563ba3963770c899068d58fd175d58824f0d3ffd4436ec8db5a60c156",
+          "updated_at": "2024-10-18T09:04:38+00:00"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:monotypical",
+          "sha256": "7584ab59275e4e7300966646f2f8b42a2833e3087fa8353c508f26c2a8f89bc4",
+          "updated_at": "2026-04-12T05:12:14+00:00"
+        }
+      },
+      {
+        "theme": "theme:much-cool",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/much-cool/candidate.wikidot.source.txt",
+        "source_sha256": "799c546f83e7d257fa8b56067a9779eeebe6bda8e6bbc72a4ccbac100f6d9570",
+        "candidate_source_sha256": "799c546f83e7d257fa8b56067a9779eeebe6bda8e6bbc72a4ccbac100f6d9570",
+        "candidate_css_sha256": "c8b4d4ae7d31b4d9f1f5b2c75f7b898db8371db46ee53781dc4c24b069d4acdb",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 4,
+          "updated_at": "2026-09-25T03:02:42+00:00",
+          "source_sha256": "aff88b307f9e26ce47d632a6f29bb786a62f9b89b1e2b41ed9ab0e74d9272988",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:much-cool",
+          "sha256": "e2e876a82210ed12ecbe3f0fa37f4ae084ebafa21b3fd50366ab154de244c88a",
+          "updated_at": "2026-04-12T05:13:12+00:00"
+        }
+      },
+      {
+        "theme": "theme:night-rush-theme",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/night-rush-theme/candidate.wikidot.source.txt",
+        "source_sha256": "5d0cc657cd638addbb28f8278832126dc863b1ae0ae339f216dceff45ef2f98c",
+        "candidate_source_sha256": "5d0cc657cd638addbb28f8278832126dc863b1ae0ae339f216dceff45ef2f98c",
+        "candidate_css_sha256": "6ecbb80fc4aa2e7fbf948a2ced01153aa816bd2911cfcb6cfa398bc3f534245b",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 11,
+          "updated_at": "2026-09-24T21:34:04+00:00",
+          "source_sha256": "03327c410ace73c1105b60aaf89f254336732ed63579c9c952608be0462bb132",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:night-rush-theme",
+          "sha256": "2d1fe57ae48528ada48c2f177e2b9db9d3b83b825233e3bd105cc38931cd69ef",
+          "updated_at": "2022-12-20T21:40:07+00:00"
+        }
+      },
+      {
+        "theme": "theme:ouroborous-theme",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/ouroborous-theme/candidate.wikidot.source.txt",
+        "source_sha256": "ec5eadaa0d7f13636259c8209ad6f5ab2f20c52a882ed92a59ebcd2f7469299d",
+        "candidate_source_sha256": "ec5eadaa0d7f13636259c8209ad6f5ab2f20c52a882ed92a59ebcd2f7469299d",
+        "candidate_css_sha256": "0102ff1156947176ae4bca48829e758982331d11c45df6b7b8f8ef5d453d402e",
+        "current_jp_source": {
+          "status": "present",
+          "source_sha256": "154b816e5c5de3fef3ea3fa0f0b9dbe5688cbd936d8ba60eeb60fb8eb5d35b58",
+          "updated_at": "2025-01-19T12:38:49+00:00"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:ouroborous-theme",
+          "sha256": "b172231574fa6f71b41be2fb5065293aafc9c772d808a268009798e7aba4ab4f",
+          "updated_at": "2023-05-05T17:15:28+00:00"
+        }
+      },
+      {
+        "theme": "theme:paperstack",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/paperstack/candidate.wikidot.source.txt",
+        "source_sha256": "15eebfa9eecd99a5201589d70f239b5f2ab5945936f537c0f53f589e00a8e773",
+        "candidate_source_sha256": "15eebfa9eecd99a5201589d70f239b5f2ab5945936f537c0f53f589e00a8e773",
+        "candidate_css_sha256": "ccc0e9df9f727e6c4ab5c3507839e88b15c75fa216b5a9ccecbdf32ca83f20f7",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 6,
+          "updated_at": "2026-09-24T21:16:37+00:00",
+          "source_sha256": "a6d81604d54acbe2626a625fcd1b839636fdb8a53d6b7de292338280ac6b8fc6",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:paperstack",
+          "sha256": "473d6a0dcb753239797efd8dd829f1e34bb626419076023de8d4afe944adf187",
+          "updated_at": "2026-04-12T05:15:56+00:00"
+        }
+      },
+      {
+        "theme": "theme:pataphysics",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/pataphysics/candidate.wikidot.source.txt",
+        "source_sha256": "626144809c1f3056382d7e0a2af1a8bdaafdf221477536add3cc0eaddc7bcf5d",
+        "candidate_source_sha256": "626144809c1f3056382d7e0a2af1a8bdaafdf221477536add3cc0eaddc7bcf5d",
+        "candidate_css_sha256": "0be6fc9252a367bd01997ed80d6f454c7cb6cdf19ab202307a9178b84ad53010",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 40,
+          "updated_at": "2026-09-25T03:22:03+00:00",
+          "source_sha256": "010bec1cd52b910ae33ba244dd04b5141304142ba7210c53f3347ef68944504a",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:pataphysics",
+          "sha256": "b4961dbb0f02d987d5084bc0803f7c4a000cc03843c623f454b213ca69d852a8",
+          "updated_at": "2026-04-12T05:16:06+00:00"
+        }
+      },
+      {
+        "theme": "theme:penumbra",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/penumbra/candidate.wikidot.source.txt",
+        "source_sha256": "439b21910d1a4363c35845490fdc2585a286b26577c2d692f130c2f790681b9e",
+        "candidate_source_sha256": "439b21910d1a4363c35845490fdc2585a286b26577c2d692f130c2f790681b9e",
+        "candidate_css_sha256": "2d8436acd87691323a742583e715e7f69c96bfd53c355dac5b2fe27b8ceeb5da",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 8,
+          "updated_at": "2026-09-24T17:15:44+00:00",
+          "source_sha256": "9ab03d7a81385d6867dd7cf6fabcad33b3257b8f11296479924031b9eb1cbec0",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:penumbra",
+          "sha256": "befb285563d3f8d956f49726d2272a051bdab6ac4b9a84dd0ba856490c0890b5",
+          "updated_at": "2026-04-12T05:16:38+00:00"
+        }
+      },
+      {
+        "theme": "theme:quand-le-soleil-se-couche",
+        "action": "update",
+        "status": "rebased-package-acceptance-required",
+        "publication_source": "themes/quand-le-soleil-se-couche/source.wikidot.txt",
+        "source_sha256": "c44ef95cf9a648f5b2eb9bc3854e95cb4e7005d5c9f656078e795508c7c7c47a",
+        "candidate_source_sha256": "c44ef95cf9a648f5b2eb9bc3854e95cb4e7005d5c9f656078e795508c7c7c47a",
+        "candidate_css_sha256": null,
+        "current_jp_source": null,
+        "upstream": null
+      },
+      {
+        "theme": "theme:redtape",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/redtape/candidate.wikidot.source.txt",
+        "source_sha256": "585e429f8a4fd472aed4e190461a23fba689aba968ebc38195971509fffa304e",
+        "candidate_source_sha256": "585e429f8a4fd472aed4e190461a23fba689aba968ebc38195971509fffa304e",
+        "candidate_css_sha256": "291cd47505fcdae005459e6ad82f9485cc1a803d32a2d802c6c4721ad7a586d7",
+        "current_jp_source": {
+          "status": "present",
+          "source_sha256": "b0f436a038cfd2c4f1bb0e153995a5ba911c92682d5a058eba578724563632af",
+          "updated_at": "2025-02-24T00:14:16+00:00"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:redtape",
+          "sha256": "7362f7971e67776bff08f0f29e39d43f0d38c03a432e063f908a4dc07ae30ea1",
+          "updated_at": "2024-10-02T07:06:10+00:00"
+        }
+      },
+      {
+        "theme": "theme:scheme",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/scheme/candidate.wikidot.source.txt",
+        "source_sha256": "dab1d3ddc8805b0e4c3977dbe49876e04e975f43151aa3fb3e70165291599b58",
+        "candidate_source_sha256": "dab1d3ddc8805b0e4c3977dbe49876e04e975f43151aa3fb3e70165291599b58",
+        "candidate_css_sha256": "274f0149d9d1d695fd0555d28de09ceb7a0439a310bdd67e3b44c12ba23b2c55",
+        "current_jp_source": null,
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:scheme",
+          "sha256": "639e67baca7add0448d8170f065e1672b7393416f5753792ab81832429676471",
+          "updated_at": "2026-04-12T05:21:40+00:00"
+        }
+      },
+      {
+        "theme": "theme:scp-offices-theme",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/scp-offices-theme/candidate.wikidot.source.txt",
+        "source_sha256": "1fb480f19fd71c9d78ba365e5d88d5668ce46b722546f514b795a83b74eb82c8",
+        "candidate_source_sha256": "1fb480f19fd71c9d78ba365e5d88d5668ce46b722546f514b795a83b74eb82c8",
+        "candidate_css_sha256": "f3d5d0cec11e9092bed5913399d302ed8a19dea98a4e43ee71845afe4e803545",
+        "current_jp_source": {
+          "status": "present",
+          "source_sha256": "712c7edf8e1060819d93f205158f599cf5318cdc4cec6d3e2c5241e059873808",
+          "updated_at": "2023-01-20T10:11:35+00:00"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:scp-offices-theme",
+          "sha256": "b102a2474cef0f96202818ee1e283eab2807c83db8c69479e642b2758629a00a",
+          "updated_at": "2026-04-12T05:22:32+00:00"
+        }
+      },
+      {
+        "theme": "theme:scpedia",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/scpedia/candidate.wikidot.source.txt",
+        "source_sha256": "7cad349274e80a9710e32526e5366b85e4cec268d04a80fc5b6e80bdc806d41c",
+        "candidate_source_sha256": "7cad349274e80a9710e32526e5366b85e4cec268d04a80fc5b6e80bdc806d41c",
+        "candidate_css_sha256": "137675ef1fc201189336334bde5d9c88b8d38012a1c2d193cfbe5632338f556f",
+        "current_jp_source": null,
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:scpedia",
+          "sha256": "195a9d70bbfed2cf6cb177aec6b7f8f236c7ca161af19b040d1a653f8da16284",
+          "updated_at": "2026-04-12T05:22:44+00:00"
+        }
+      },
+      {
+        "theme": "theme:sigma",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/sigma/candidate.wikidot.source.txt",
+        "source_sha256": "2bc461f3a212385d4588debb88de6f20a7f9c1a739b41053f6fb6f95e503bb23",
+        "candidate_source_sha256": "2bc461f3a212385d4588debb88de6f20a7f9c1a739b41053f6fb6f95e503bb23",
+        "candidate_css_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "current_jp_source": null,
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:sigma",
+          "sha256": "e2f126ba6f6debd4cbde5f1712f04da794e2820f0180a6501b54dbe4e318639c",
+          "updated_at": "2025-10-09T22:11:04+00:00"
+        }
+      },
+      {
+        "theme": "theme:site",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/site/candidate.wikidot.source.txt",
+        "source_sha256": "6538b37accac65ba5c9ae78c88244b48ca447963251ac7e99b58e3d27334b1fc",
+        "candidate_source_sha256": "6538b37accac65ba5c9ae78c88244b48ca447963251ac7e99b58e3d27334b1fc",
+        "candidate_css_sha256": "fa49d12c7af28d6001cccb36f6763b5539b2909a322aaf47e140a3aaf9a2ceae",
+        "current_jp_source": null,
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:site",
+          "sha256": "17f5d83fc92f3f171fcdb790f78fe207db86203eeca1e34f508631fb36daca34",
+          "updated_at": "2026-05-22T09:04:20+00:00"
+        }
+      },
+      {
+        "theme": "theme:skipos",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/skipos/candidate.wikidot.source.txt",
+        "source_sha256": "5422f618f60c010cf39c702b8d70aff2dd1a889aca66751b27cf887396ca5ea7",
+        "candidate_source_sha256": "5422f618f60c010cf39c702b8d70aff2dd1a889aca66751b27cf887396ca5ea7",
+        "candidate_css_sha256": "db7104e8a069325316c07b8d20b0b1211abfe3b3fe34bc2aea1551a63c38b8cc",
+        "current_jp_source": null,
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:skipos",
+          "sha256": "846904b0214ea2a126cccdd984834608efc30236df82ebd3b1b86da36c8969dd",
+          "updated_at": "2026-04-12T05:29:02+00:00"
+        }
+      },
+      {
+        "theme": "theme:space",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/space/candidate.wikidot.source.txt",
+        "source_sha256": "df6265436b06703f428f4df2ee6809634177378d104332f05e252ee77bae26f7",
+        "candidate_source_sha256": "df6265436b06703f428f4df2ee6809634177378d104332f05e252ee77bae26f7",
+        "candidate_css_sha256": "9050a943386e3975914248717c6a354ea8c88dc45eb06120ae2f58625e3eb70e",
+        "current_jp_source": null,
+        "upstream": null
+      },
+      {
+        "theme": "theme:turbo-vision",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/turbo-vision/candidate.wikidot.source.txt",
+        "source_sha256": "e8acd56ebfe4e28b14825c26db3980a1d584e5b2532a9c9b818ec70aa9013647",
+        "candidate_source_sha256": "e8acd56ebfe4e28b14825c26db3980a1d584e5b2532a9c9b818ec70aa9013647",
+        "candidate_css_sha256": "b9e8c63b787dc95314a26d81fd6dc61ed99470cddb7fb5470985fef95b2dc402",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 6,
+          "updated_at": "2026-09-24T10:35:51+00:00",
+          "source_sha256": "ca80e76ee545e00f11d7d2145aa43942b83910dea9b5db2a854b9aabed6e7e0b",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:turbo-vision",
+          "sha256": "c28a37187cdc6bcb768921c8a05f805b18d153a929411db17971dd8e9019f97f",
+          "updated_at": "2026-04-12T05:37:45+00:00"
+        }
+      },
+      {
+        "theme": "theme:wikifot",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/wikifot/candidate.wikidot.source.txt",
+        "source_sha256": "fd0fa6d765b149fc5a1b60a179435d6e20eb34fbf581de3dfb96cb7a8912243e",
+        "candidate_source_sha256": "fd0fa6d765b149fc5a1b60a179435d6e20eb34fbf581de3dfb96cb7a8912243e",
+        "candidate_css_sha256": "0516edb1e9f34d5d07175b3e3212ffb0852cddc00531ff09d3ede9854162efe7",
+        "current_jp_source": null,
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:wikifot",
+          "sha256": "406f9fdca96043830e4656383a55643885cf1bd55a2237c360ce5c1f14d85a9e",
+          "updated_at": "2024-07-05T14:55:30+00:00"
+        }
+      },
+      {
+        "theme": "theme:y2k",
+        "action": "update",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/y2k/candidate.wikidot.source.txt",
+        "source_sha256": "8e350e9f2a3444e2e8abd1d5a26e2618f91db4ace75e1bcb574a2903d25027f2",
+        "candidate_source_sha256": "8e350e9f2a3444e2e8abd1d5a26e2618f91db4ace75e1bcb574a2903d25027f2",
+        "candidate_css_sha256": "450d8184621bdf1a9245790b2b3b32fa388e7e7fe61e7115eb898b0891fe7a6c",
+        "current_jp_source": {
+          "status": "present",
+          "revision": 3,
+          "updated_at": "2026-09-24T20:25:44+00:00",
+          "source_sha256": "49187df24c3c7c454aa0a01eeec6f33e2f625074495bbb91c1f2d7b811705aab",
+          "rebase": "provenance-only"
+        },
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:y2k",
+          "sha256": "c2c102c15afbf03460f7045110a8d70c0615020e459c647a4ad82651ab649c8a",
+          "updated_at": "2025-12-20T09:19:59+00:00"
+        }
+      },
+      {
+        "theme": "theme:yossistyle",
+        "action": "create",
+        "status": "source-dependency-reviewed-final-acceptance-pending",
+        "publication_source": "../ports/yossistyle/candidate.wikidot.source.txt",
+        "source_sha256": "c8f06e137605ffe2ab8249cc2faa0d8d13f795b1574ec64079c96a53af7312ae",
+        "candidate_source_sha256": "c8f06e137605ffe2ab8249cc2faa0d8d13f795b1574ec64079c96a53af7312ae",
+        "candidate_css_sha256": "c1c711959c75c57b769ef9bdbf294bf60e8b937dc2a6af86b8bd345191ada445",
+        "current_jp_source": null,
+        "upstream": {
+          "site": "scp-wiki",
+          "slug": "theme:yossistyle",
+          "sha256": "561228038e46e76ab45e61d95570e82519bceea1aa5233addbbec324601ca4d4",
+          "updated_at": "2021-09-11T01:27:54+00:00"
+        }
+      }
+    ],
+    "source_files_verified": 36,
+    "css_files_verified": 34,
+    "refresh_details": [
+      {
+        "theme": "theme:classic",
+        "reason": "Current 320px navigation correction is included; source/CSS identity refreshed after targeted current-Framerail capture and exact-image review."
+      },
+      {
+        "theme": "theme:dear-dictator-jp",
+        "reason": "Publication-only source regenerated twice from current package; both builds match SHA-256 32739731fe39263816ea42f378f2541286186b93d477938feb6d489279e42022; five PNG data URLs and no external asset URLs."
+      },
+      {
+        "theme": "theme:basalt",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-23; the include and @import surface is byte-identical to the audit-era bytes (source b3dc264fd62d29c3202e3e3db90a2461e27f04426e657c66c648284be558f4df, CSS c1b44963493737105ecb19c33bb49a41c4b931c09a9b3dbecde0562b0f942823)."
+      },
+      {
+        "theme": "theme:aesthetic-theme",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 336b7b50a4969b60b1b8926b17975d54fe5f2297ef3354d56c41c20ede8d164c, CSS 5419caca49caf8f0be65724001a7edcf57daa52f75a01b324c98f4a869b6c117)."
+      },
+      {
+        "theme": "theme:al-slop",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source f6809160ccf1b35e74340d5e0421efecf8585246310203debbb5f0727b95eb8b, CSS 00a8fff90043b8cc9164700b07080367ec1c29d29529635e34e6404a071e21e9)."
+      },
+      {
+        "theme": "theme:black-highlighter-theme",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427, CSS 08b5d9abd0af51ddfe535761e6b5c18484dab099672dfd08a2c39af4585cb98b)."
+      },
+      {
+        "theme": "theme:extra-black-highlighter-theme",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source b0a5bdc62ba1eccb494b073861ed269baf71c0a3549dc2a1a5c3854d9d6d4a5a, CSS 1942887e382d16b8150cf95086a4944c7589def1ea0c2783d5d6dc341c445400)."
+      },
+      {
+        "theme": "theme:flopstyle-dark",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 2b9004a9304ed089aa69da78d140bc03aa333b792751b57133d7429b499aa1e3, CSS cfb5865dd28e562413dc1cbed44ace29ff4d08eb4bdc8daafcfc87b4e98c8161)."
+      },
+      {
+        "theme": "theme:jakstyle",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source d0eb8af160c74eb7d72792b78567756792857a6b7851ed196cc7233b1f960869, CSS a4b0f7c1cb6262b4ee6ac62e5d9e4846919bf50d57766de6968d3a58ea6ff8e6)."
+      },
+      {
+        "theme": "theme:minimalist-bhl",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 8bec8d27d44cdfb153f01dcedd67a41ff7a1477c0d1fcce1c41494e59b7ef8d5, CSS bb4018bd604b2abfbd17e84f3fd884d13c3891be34fdac52c3a6d30af295d245)."
+      },
+      {
+        "theme": "theme:paperstack",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 5939181e533d5c02d39ac16dad70f9ae9b80efa7fcd79ebb4c8ba8b75ab16854, CSS 5c388bc9f4e8c9a888c71e72ca59c6dc7a64f5aab0f791f7a789f8478d77e0aa)."
+      },
+      {
+        "theme": "theme:redtape",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source ece731ae73360d76e394eb747dda555a081de973e2c6444284385764cc320892, CSS e68651742177907f32d7870a383a86a432159fe581e4a005e1d9f1a0da227016)."
+      },
+      {
+        "theme": "theme:site",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source b62171f0df44d62ebe3af75eca1cb53ef854f0b8e747dedade2ed0ee399e9c48, CSS 28a72ef325901611e12a505fa1e94ea40a315c80cb316f787d6ec6c2ee3606a4)."
+      },
+      {
+        "theme": "theme:space",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 20d4d9c98052fc76fcf8573505509dc4d49c3b4852e2ea99580218ad34afe3a7, CSS 1df89c43e1a5d880ac726dd3529fb0cd9bf5abf6513cb84c4a3544e390fed286)."
+      },
+      {
+        "theme": "theme:turbo-vision",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 69e1fa9c6a57ca01097a29beab1f58b67741f9e53f958e95616fb5f7b559e589, CSS 4ea34f42f05c6f1f845811620cdcd73395860284adeac42b847f385aa24e1cd3)."
+      },
+      {
+        "theme": "theme:wikifot",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 403335fe611db4be2ef13a0349e8215dade54727318494551221bb5671cc5e55, CSS 738099d2701ec214769009074f34e060a0d05f6b7999e36aeeccc9ec833e1c9d)."
+      },
+      {
+        "theme": "theme:aesthetic-theme",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source a1224d4197633e7ec643ba2d970ce635ab0327f217e3618ec2383a8f8e2509be, CSS 7354a9978b1d5e2dd1134bcfe974282a2fd5c89ef3a897f18eedd798fd0587d9)."
+      },
+      {
+        "theme": "theme:al-slop",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 1d9fdc59e8cddb2bee05e562b126686cd7608f50067a5168fec8779bbe74814f, CSS 006c85b41da9002e2a701ef3db17185fee4c428e6f5d0e6a338af2d7ce370ee4)."
+      },
+      {
+        "theme": "theme:black-highlighter-theme",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 7d5b9b62dabf64d00edf200fd4a42567c43985479a8a0500b34a4a5ed90ef599, CSS b675c758a7518328c672e44ad71ee74d900703020a845d6ec7ba1055cda73577)."
+      },
+      {
+        "theme": "theme:extra-black-highlighter-theme",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 7a58af8257b5d4daba45c3aefaf1542a9e942333f8cbfdd2451c89b3e56bdba7, CSS ffc99c551f35faf592fefb35dcdfa2b7e23c20530bad4a70224b626ca30a62f2)."
+      },
+      {
+        "theme": "theme:flopstyle-dark",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source ccb1b62f1368db3992b121d43c9a69f493e033e9c9f11a01145326a3b373f905, CSS 519d88b43e366531bff3fb2b0a1ff722cb80c444efa952919631f943a4cd8a97)."
+      },
+      {
+        "theme": "theme:foxtrot",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source e0bbf7be650005b5f7d5e3893e598e16febd6f06d0bc26fc86f90163520b4e47, CSS db15469bd49cb604c373918859834372b1cfc07b79157c0d66747c8f61c69912)."
+      },
+      {
+        "theme": "theme:hansarp",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 8607035277a57cb631f331706c0b2d7fbfbdcf1bcf278cdebf9442258f3aef00, CSS d431fa5d54d10b03245b905157917fd0e41324fa6668d7406e434554ed428319)."
+      },
+      {
+        "theme": "theme:isolated-terminal",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 81ddb7613a62070b01f7c95657433a7ac130ece617e3f691df43db82255670b7, CSS ae7f1726cb7b2f37ef99a4530e4dde51294f337ec6aa2e41d375a9c37603c0c2)."
+      },
+      {
+        "theme": "theme:jakstyle",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 8a565cdbb3e8c1a7ea9541a82b731cee709554b494b3167a53d092f5559dae35, CSS 66c73632860fbbc7cfab07f37eec5f8c3e816b3545988b727b1f4898addab014)."
+      },
+      {
+        "theme": "theme:minimalist-bhl",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 919dbda6c608205b4da445faafbe1ccd8aa274a53f14beaaa53178bb4e22bc9e, CSS c42321624f2b36b8e220a1fd75cfe2fbb10ba4b73af378d0688aff850ada3851)."
+      },
+      {
+        "theme": "theme:much-cool",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 5b80ba7f55a5f70b6569fef18e95056bf223ec143f7c2ef549d88aba7a3d096a, CSS d6232bbe6f3e7da786f975a4960754dd86b71fdf16abbbc58bd07c2052293468)."
+      },
+      {
+        "theme": "theme:ouroborous-theme",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 0fa23f59bcaafa19dd4cd7bf135cd29e4726de0c507f9357343d23a12a927d2f, CSS e3ca8e1a29abcba717d8e638af2eb2526f85b0ae134cd76918157a2b7f5a3fb1)."
+      },
+      {
+        "theme": "theme:paperstack",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source b02cb8e8bf5c98d90fc6aa5fccaca2c8fb0c101d6dbc10dd3d94be77ac0471d2, CSS 5c388bc9f4e8c9a888c71e72ca59c6dc7a64f5aab0f791f7a789f8478d77e0aa)."
+      },
+      {
+        "theme": "theme:pataphysics",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 6fdcaec9c6a74cf2c3c0c75ac4fac85f010c6733d3fcdf10d3312d8f5470c07b, CSS 98f233f2f3161e085fe9c764c87a2e07b95501977e69702236582d1e39923b17)."
+      },
+      {
+        "theme": "theme:redtape",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source c9f511a9c22faa366c11a096a2a068d39d74321e88c038f6b38db00365b3fd84, CSS 799e314bb7ab9ad9af9a141f9eb11b76227a7bfd5c32cc3c438012277402d92b)."
+      },
+      {
+        "theme": "theme:scheme",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 292624abd9238b7a3c0cca9fe0f603fbd18476610740084e2b5315a01e8348fc, CSS 13b6176aa6fddeeaeaf1a8e493163fe1fa6c8f72888e27d9631a66dfc0950fce)."
+      },
+      {
+        "theme": "theme:scpedia",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source a03ffcf8189adfaf7d9e43fd3084c61957f9f4910a6096b32d9073ad699d70f8, CSS 68d1cdb84e515d1c7693a3663d70915f05e7bf5d4de3b9294f7c2a9774b21924)."
+      },
+      {
+        "theme": "theme:skipos",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source d4433a2cdfa61e377dfd7bc925cc61b3add23aade773a891b968acf9a6ec2507, CSS 4c937d03bc1365ea16418f20c086048139954971435cabb60cfecb36485dc810)."
+      },
+      {
+        "theme": "theme:space",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source c3e4148bc860bab02cdf1ca71cf33f98a128b802de072c61ec185857fe818e1c, CSS eaa78c18bc1e583254f9dc0479f9b70e72451eb205efbe2a24c72fcd34f24735)."
+      },
+      {
+        "theme": "theme:turbo-vision",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source c26d77a0915b873a375a9e0e81dea259889394059ed82c4aacfd6ecf3ffb0c7a, CSS 19227e0d6d1d723955040f7b67d75f09cc9897eb30a2abd0b646db315fdc386d)."
+      },
+      {
+        "theme": "theme:y2k",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source 267413c5754294971d048457f9712b6929d5421ffe2d3e54dfa47c47140e8bf0, CSS 65f2796fb65882751c4b2d521878ddb78a6a542425023a9a83eea30a90a92f5e)."
+      },
+      {
+        "theme": "theme:yossistyle",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-28; the include and @import surface is byte-identical to the audit-era bytes (source c9987477d0e9079b7b15c55ac608b853e69c970484dc2b5b0e6f3cd6565c442c, CSS 84a214fc85344d262727f624b6319e2a4bdfa6537bd49ebd8678d854f009faab)."
+      },
+      {
+        "theme": "theme:foxtrot",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-29; the include and @import surface is byte-identical to the audit-era bytes (source 1940fcb0c0dc1aebbe9fd6f9c638dc83b07895acda45649ad99dce75bc58b7c8, CSS 230403bfd3c5355796b5c838e4cbce91db90a9367d10980a3b3041ab42e6ef0a)."
+      },
+      {
+        "theme": "theme:hansarp",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-29; the include and @import surface is byte-identical to the audit-era bytes (source 64d5227d86a84ab67944599e6b5d5af73a5a898f2ef38c501ecee028d2c7c5ff, CSS 92301f3d56671274a864124f53f6924f57f42fc0882739aec5b1336a824380c6)."
+      },
+      {
+        "theme": "theme:turbo-vision",
+        "reason": "Candidate hashes refreshed from current repository bytes at 2026-10-29; the include and @import surface is byte-identical to the audit-era bytes (source 8934e7d94e2eb582311c961eaf4042fd01107f7943b9547252e1e5bee08aa3c3, CSS c5719b8c8b44ede16fb276698944c8de4cdace6ed436359304df8a73fd0d8651)."
+      }
+    ],
+    "dependency_observations_unchanged": true
+  },
+  "predecessor": {
+    "sha256": "defc395ec973c9dd457d2ff21b26e812a8623bde71ee1f48b232010a570bf3e6"
+  }
+}

@@ -18,15 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Committed render-ahead coverage.
-//!
-//! A renderer generation switch renders stale saved pages into
-//! `page_revision_render_ahead` while the previous build serves, and the next
-//! build promotes the rows when it starts. These tests pin that the ahead run
-//! leaves the served revision untouched, that promotion replaces it, and that
-//! a revision rerendered by the serving build in between is not overwritten
-//! with output computed from older inputs.
-
 use deepwell::api::{
     ServerState, build_server_state_without_workers_with_job_queue_namespace,
     promote_render_ahead, run_render_ahead,
@@ -64,8 +55,6 @@ struct ServedRevision {
 }
 
 impl Fixture {
-    /// Commit a page, then make its saved output stale as a renderer
-    /// generation bump does: an old generator and an old body.
     async fn new(label: &str) -> Self {
         Self::new_with_body(label, "").await
     }
@@ -191,8 +180,6 @@ impl Fixture {
             .expect("count should be an integer")
     }
 
-    /// Stand in for the serving build rerendering the revision after the
-    /// ahead row's inputs were read.
     async fn touch_served_revision(&self) {
         self.state
             .database

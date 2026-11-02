@@ -1,0 +1,2812 @@
+{
+  "schema": "theme_lab_wikidot_adaptation_ab.v1",
+  "url": "https://pseudo-scp-jp.wikidot.com/sigma-10:main",
+  "site": "pseudo-scp-jp.wikidot.com",
+  "measurement_contract": "contained-probes.v1",
+  "measurement_program_sha256": "fa2eae75bd2d284ecb759ced945e991a1099938404506cd8d4363f041e136f94",
+  "archived_sources": [
+    {
+      "path": "measurement-wikidot-adaptation-ab.mjs",
+      "sha256": "fa2eae75bd2d284ecb759ced945e991a1099938404506cd8d4363f041e136f94"
+    },
+    {
+      "path": "measurement-viewport-bounds.mjs",
+      "sha256": "3f63853560e7a05f0757cd8cde73b4ba657f2b8e9b421f4006b5c673bbedd8c9"
+    },
+    {
+      "path": "measurement-navigation-interaction.mjs",
+      "sha256": "ba4b963f59a5e85ad242ba83cc342b5796c42fe5910ac67671c8d0e33e52c97e"
+    },
+    {
+      "path": "measurement-css-layers.mjs",
+      "sha256": "e2da8318c2b3b418341b1cc3c155a3e2e317dad00ef8331d37a3a88651f2d535"
+    }
+  ],
+  "observed_at": "2026-10-27T02:22:11.839Z",
+  "measured_at": "2026-10-30T07:40:57.028Z",
+  "snapshot": {
+    "entry": "/o/bd1b565056c99acb681c16c3bc42cfcbb837f93f70a677623705055c8e4b7d61",
+    "created_at": "2026-10-27T02:22:11.839Z",
+    "assets": 90,
+    "failed_assets": 2,
+    "failed_asset_details": [
+      {
+        "url": "https://scp-jp.wdfiles.com/local--files/componen%3Aheritage-rating/scp-heritage-v3.png",
+        "code": "reference_http_error",
+        "message": "reference fetch returned HTTP 404 for https://scp-jp.wdfiles.com/local--files/componen%3Aheritage-rating/scp-heritage-v3.png"
+      },
+      {
+        "url": "https://www.napyfab.com/ajax-indicators/images/indicator_medium.gif",
+        "code": "reference_http_error",
+        "message": "reference fetch returned HTTP 441 for https://www.napyfab.com/ajax-indicators/images/indicator_medium.gif"
+      }
+    ],
+    "replay_complete": true,
+    "object_digests": [
+      "bd1b565056c99acb681c16c3bc42cfcbb837f93f70a677623705055c8e4b7d61",
+      "82c2fb524eb5090ed2e260b31911087af4c3aeef949c306ade8fca0df25e3b07",
+      "6115df91fc7fe0a54466ed202f8d829d2ab9a5fc3f35857a595961a517ea7cd6",
+      "8c26cbf8a95e091d2cf962b245ef31eca2e883dcc56793c5a3590717fce6b3a4",
+      "0a47dabd021d9afce542e744be169048215e386559396ff60220a6e112f99d65",
+      "05035839cb59a6813788baed6cae4a46b0a77e26a3c654f5b18ad7f7f2ad552e",
+      "49bcabdb14d446bb93d261f9c967bedfa7cdf7b214807a8180974cbd00b21f11",
+      "12d76a7e7646312cb8bd8819216b0081fce6637f4b827af2bff2a203d87be941",
+      "c0fad68653c3344aa16c574b1571bd21973a0394d0bcac27994005cbf0ed5cdc",
+      "4f8c6d416f09671777934e57bc67fb52ccc97145dc6f1869e628d9ffd7d8f6e7",
+      "12ba0dac0f83457461a9158d710f3026edfba3848e37b785c448456756e875e9",
+      "b75a0d1f4c6203805ef6e432eb5c06ad5065255119e1cbd3b3c64baaadb9005e",
+      "5da265dc849871cd2201875b63a803c9a6b348419a048981960c746a18bfc583",
+      "dab79d3aeee7dc23243a53e417f1b8dc4cb0f397f06aa17bac4c1f373abd5ede",
+      "c893531613ca348b0217ea5976a52c4dfe7cda7ffa0ca002ef24a0980a201825",
+      "6d59328357ba699fae7fe1ce66e403bcb430c4a86fb750e2c240d483f6ff2201",
+      "8ee173565b2e771fecf3b471a79bdf072aaa1bd9dc27582cfda2b2a322beeba8",
+      "841dadb079124d00a289640d7ddae9ecd8b9e8b245d59c33593d3905863b568a",
+      "d4b09792783e799e3dfd3acc0590f59783a9875909b5baf88f43f5d384d6acd3",
+      "222902c16fcda2ffbe6acf20f48a9a3b1ce3ec1b1f37e4cea2df449c3b053ff8",
+      "2b3f53a407d5b25bc91bd9920f164b13e14d944bc95a7bf32a5138b30cef07c6",
+      "fbfecc922b34a8921eadef91c1763804baa9dc5fe8c9299ccaa94dad3bb31604",
+      "77aa03dfe99dca77dd663d465c87fa642d26267f5190208c11d5498e7c7fe697",
+      "7090e0cbe6dd7a326f49a184824ae4e205fcfea8c89a19346e81f8bc4d26df7c",
+      "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3",
+      "e564f652916db6c139570fefb9524a77c4d48f30c92928de9db19b6b5c7a262a",
+      "70ca998635d9fc627dede8108f04d0989e6e03346183f0ad0917723e790f6973",
+      "930d666b74e0dc0c26c2821f5643b701f8a41beaf3bb95ce146298104f29169c",
+      "ba4fc81dbb25871f1bcabc664b1e37703fca0a05f7248a923e7db497c6d211cc",
+      "38bad3a6a9ad1a7fcd8082e6423ba5e0baea16598f2cf304e527844f697e32b2",
+      "e111a1e2ad914ccda9179b95e83fb10234dd52a1932e0b93c480476227983fd9",
+      "050265b27d11860a26c66c054210852661abb5d229c4e0bb3525757a830f3790",
+      "e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085",
+      "2d078cb3bc8f934740d53b39dd23b0678f2f97477e49ec785dd9d8acd8b96bfc",
+      "0ff3e94614e1493eb556314fd247ae6c4a85a7783b4cc86be539940cf83f2a48",
+      "1b0df503de488a92082a8c5d72ddc4c0229183ceb645ae1c25c2d0d63778517c",
+      "5cb7103e4e605989afebc03d989c79201e54b21b5183db33981f70db9178a301",
+      "5e2a2bc3b5b9af0644f005693b10499dab18065d6aedbf46c8b74ccede27daeb",
+      "fa888127b6da015b65569f0351f3b5c391ad928904951f1c20e9f8462a8d95ea",
+      "4a10532d76c90c4597c0ad4bfc9284600e597d3012dd1ec16c1d44e0ad0058ab",
+      "6f75025856f8db1b2186e9cb89be9de9894932c8b7b20f4df5e65916ff714e34",
+      "53bb20ba292e2ac28a0777bf0f56f31b98be432a3cc04359e2eb608c758349c7",
+      "12ed0eed6749099b46c7b2e8198dc30c2d7e0f2a4e5fb1d12f0b6ae2c4f33cc4",
+      "308e101141e9dee3b6b121614da03969eb8179886975a9eeb5348021b04368fe",
+      "21cfe42e7f1031b410e247ed199f43fc362415af81b3a8e442a97f63b4dbe327",
+      "eff21589eacf1f6a596191038d7b47b4dd2455a096b175bb3572ecb6d026a611",
+      "9031b6d2a1a559753d50b311ecb463ddf7acaaae1d992a7e9b009620d8ce6def",
+      "e8d7078160ef92b82c2123857c1b3aefaa4a795a44b56df5fe3edade60d81576",
+      "01dd2d491ed863177e61f6e9458813baa85453ad97b32c5c1216927d4eebfe65",
+      "59b5be56306fd353d067aa6995c2c92bc3feb3ace73684d94e3c6e73fe2beaac",
+      "3a9463a58c3e7ba1e3cd65b5dbff91a35c508ff78a104cd1121feff83efeb787",
+      "dfd398d7372b61278e1505bfbdfc5ab0f6511ef887a47a2c90c13475eae585da",
+      "f1227907684853882ad00d7f97ce9f64bc17b89a2a291a7d4ec84fccfa442934",
+      "6bf254c1a65c806c019f52818add66747da83595a314112917911bcf5fa2f5c5",
+      "d9f63a82b826fb0117c92715c3a52a2d2247bc321bc39341420bf52d91e8277a",
+      "dd9d78314bdd5062302a73c7e2954008bab8158304fa7ac4f0ea8977b841dccb",
+      "23bc37619593377e128f24660fedb2869d18277b4026cb46e5637be7643faf91",
+      "5a0fe1f01b8777fab4a5f73c757743fa52579c7723b0291777625cb53c0a792a",
+      "97eeee5a6f4f22fef1f607cf8836104d65968f03e59bc068a7586bf18364a8a7",
+      "159b72ba47887032915420aa1445ae6768197e7ea732230182998f14d1cdb932",
+      "05650cb83c70fda2a465eade0c0a1a6c25d37ec49df3cd74b7e564683f9729f1",
+      "9746bf2bd43fe158144b83ede747088e80396daad55b9e6ea7232e0e22ee6fce",
+      "a8ed3f79f6374f68c86fa08f75ee91b2a4cd0f17e643f72b5e57ef40ea608df7",
+      "cbb644d0ee730ea57dd5fbae35ef5ba4a41d57a254a6b1215de5c9ff8a321c2d",
+      "aadc3580d2b64ff5a7e6f1425587db4e8b033efcbf8f5c332ca52a5ed580c87c",
+      "e3870de89716b72cb61a4bba0e17c75783b361cdaba35ea96961c3070bd8ca18",
+      "9e540a087924a6e64790149d735cac022640e4fa6bff6bd65f5e9f41529bf0b3",
+      "bfdef833219a6edffd9c3cbc28db72739d22bb4d20cc2e2f8d56a7a4d408a206",
+      "ed0652b49899259e10ff2b7270ffee4d9f07b4c2a46c8d95a7f86fa3e94e01d8",
+      "44d631b2507c9bfceabf960599f9f3d2093a3e19f5d6f04d27d375efb8012f84",
+      "7668781daf80240168d1142c72b3502f75617be40fbbe081caae66ac7d38d571",
+      "231630b39af902bf9ad98a22bd77b3c5359b18a9336b63bf599c31a76f1e08cd",
+      "e837f75abd3f971413d6edbd30a04937f656d06fd7ee95e7953368ef3454f254",
+      "b432066558f2c1a3e79c8e97607d966c8db473f4a8f6521f79bcfb16c9d8bd23",
+      "4c67b34b1b269e3a78976d3fee315d9b21d4695cdf880d25aa737f1608367a0f",
+      "fcd9f75940109475f878f0702d7eb0e1c55cd461369244c86203bb032b6dbe31",
+      "1d7378ae112da2d33aafdf0ce83bd2bccb36d6786a5c58317444367f2b9b4604",
+      "8aab16649c61f865e40a66b550fc954c8e1e42e317c06b22970a14a5390e8123",
+      "daa4627c967e244c6ef849bcee8c26b91d118cc415cc81e48468a9718e79cd72",
+      "5ef3bbd811f2281c9c05faaa88cb7ca404af15b09a873864177c0b509475e2cc",
+      "40723fa718237c74623d7b64ce186a02b872f7fb4b3a917013fcc8b6aec3ded6",
+      "2eb982d8faa4ab9bcc8bc39c31cad8f1d73e1d8df8e4aebd3970af1e38620841",
+      "41950d74f0aae0ee95ca1381b8096f1d19dc4154971505c8bdc3b18dce70912d",
+      "1a9b14799594702e4d0350164623d9e71261d70042ed4b3979808b08ba6e38b6",
+      "3ee20e2529a17cdd369a6c89edb23d5662ecfa9007936786d33c22c38fac14de",
+      "d8e1808c4f33e6bd075bd13b7aafc8596a1937495d5c57732322502b9c711a03",
+      "2c70976f2e37bf7191ad96d3af1efc72c865aa87f001ad4e144f6a74a288b4a6"
+    ]
+  },
+  "browser_engine": "chromium",
+  "browser_version": "156.0.8078.73",
+  "browser_sha256": "aea09d69ce7f24d5901f6bfb15dd44d0c856e793e0a498f8d8393ec7d2c308ec",
+  "acquisition": {
+    "root_url": "https://pseudo-scp-jp.wikidot.com/sigma-10:main",
+    "entry": "/o/bd1b565056c99acb681c16c3bc42cfcbb837f93f70a677623705055c8e4b7d61",
+    "asset_count": 90,
+    "external_requests": 0,
+    "cache_hits": 1,
+    "failed_assets": [
+      {
+        "url": "https://scp-jp.wdfiles.com/local--files/componen%3Aheritage-rating/scp-heritage-v3.png",
+        "code": "reference_http_error",
+        "message": "reference fetch returned HTTP 404 for https://scp-jp.wdfiles.com/local--files/componen%3Aheritage-rating/scp-heritage-v3.png"
+      },
+      {
+        "url": "https://www.napyfab.com/ajax-indicators/images/indicator_medium.gif",
+        "code": "reference_http_error",
+        "message": "reference fetch returned HTTP 441 for https://www.napyfab.com/ajax-indicators/images/indicator_medium.gif"
+      }
+    ],
+    "failed_asset_count": 2
+  },
+  "credit_scroll_to_bottom": false,
+  "computed_contract": [],
+  "public_writes": 0,
+  "external_browser_requests": 0,
+  "blocked_requests": [
+    {
+      "method": "GET",
+      "url": "http://stats.g.doubleclick.net/dc.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/interwikiFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/styleFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://stats.g.doubleclick.net/dc.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/interwikiFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/styleFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://stats.g.doubleclick.net/dc.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/interwikiFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/styleFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://stats.g.doubleclick.net/dc.js"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/interwikiFrame.html"
+    },
+    {
+      "method": "GET",
+      "url": "http://interwiki.scp-jp.org/styleFrame.html"
+    }
+  ],
+  "rows": [
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "credit-otherwise",
+      "index": 0,
+      "css_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "base_css_sha256": null,
+      "effective_css_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "measurement": {
+        "navigation_row_layout": null,
+        "credit_fold": null,
+        "computed_checks": [],
+        "document_width": 320,
+        "viewport_width": 320,
+        "overlaps": [],
+        "control_occlusion": [],
+        "header_ink_rects": null,
+        "scroll_overflow_sources": [
+          {
+            "tag": "DIV",
+            "id": "top-bar",
+            "class_name": "",
+            "scroll_width": 294,
+            "client_width": 288,
+            "rect": {
+              "x": 2.328125,
+              "y": 140,
+              "width": 288,
+              "height": 21,
+              "top": 140,
+              "right": 290.328125,
+              "bottom": 161,
+              "left": 2.328125
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "mobile-top-bar",
+            "scroll_width": 280,
+            "client_width": 225,
+            "rect": {
+              "x": 16,
+              "y": 126.328125,
+              "width": 224.84375,
+              "height": 34.671875,
+              "top": 126.328125,
+              "right": 240.84375,
+              "bottom": 161,
+              "left": 16
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "UL",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 280,
+            "client_width": 225,
+            "rect": {
+              "x": 16,
+              "y": 140,
+              "width": 224.84375,
+              "height": 21,
+              "top": 140,
+              "right": 240.84375,
+              "bottom": 161,
+              "left": 16
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "LI",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 144,
+            "client_width": 55,
+            "rect": {
+              "x": 16,
+              "y": 140,
+              "width": 54.78125,
+              "height": 21,
+              "top": 140,
+              "right": 70.78125,
+              "bottom": 161,
+              "left": 16
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "LI",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 144,
+            "client_width": 82,
+            "rect": {
+              "x": 70.78125,
+              "y": 140,
+              "width": 82.125,
+              "height": 21,
+              "top": 140,
+              "right": 152.90625,
+              "bottom": 161,
+              "left": 70.78125
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "LI",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 144,
+            "client_width": 48,
+            "rect": {
+              "x": 152.90625,
+              "y": 140,
+              "width": 47.796875,
+              "height": 21,
+              "top": 140,
+              "right": 200.703125,
+              "bottom": 161,
+              "left": 152.90625
+            },
+            "overflow_x": "visible"
+          }
+        ],
+        "overflow_sources": [
+          {
+            "tag": "DIV",
+            "id": "side-bar",
+            "class_name": "",
+            "rect": {
+              "x": -400,
+              "y": 0,
+              "width": 272,
+              "height": 860,
+              "top": 0,
+              "right": -128,
+              "bottom": 860,
+              "left": -400
+            },
+            "parent_id": "content-wrap",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "16px 16px 0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "side-block resources",
+            "rect": {
+              "x": -384,
+              "y": 16,
+              "width": 240,
+              "height": 129.109375,
+              "top": 16,
+              "right": -144,
+              "bottom": 145.109375,
+              "left": -384
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "10px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "heading",
+            "rect": {
+              "x": -373,
+              "y": 27,
+              "width": 218,
+              "height": 18.109375,
+              "top": 27,
+              "right": -155,
+              "bottom": 45.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px 0px 0px 15px"
+          },
+          {
+            "tag": "P",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -358,
+              "y": 27,
+              "width": 203,
+              "height": 17.109375,
+              "top": 27,
+              "right": -155,
+              "bottom": 44.109375,
+              "left": -358
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 50.109375,
+              "width": 218,
+              "height": 19,
+              "top": 50.109375,
+              "right": -155,
+              "bottom": 69.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 50.109375,
+              "width": 183.171875,
+              "height": 19,
+              "top": 50.109375,
+              "right": -189.828125,
+              "bottom": 69.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 71.109375,
+              "width": 218,
+              "height": 19,
+              "top": 71.109375,
+              "right": -155,
+              "bottom": 90.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 71.109375,
+              "width": 29.96875,
+              "height": 19,
+              "top": 71.109375,
+              "right": -343.03125,
+              "bottom": 90.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 92.109375,
+              "width": 218,
+              "height": 19,
+              "top": 92.109375,
+              "right": -155,
+              "bottom": 111.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 92.109375,
+              "width": 96.90625,
+              "height": 19,
+              "top": 92.109375,
+              "right": -276.09375,
+              "bottom": 111.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 113.109375,
+              "width": 218,
+              "height": 19,
+              "top": 113.109375,
+              "right": -155,
+              "bottom": 132.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 113.109375,
+              "width": 73.671875,
+              "height": 19,
+              "top": 113.109375,
+              "right": -299.328125,
+              "bottom": 132.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -384,
+              "y": 160.109375,
+              "width": 240,
+              "height": 0,
+              "top": 160.109375,
+              "right": -144,
+              "bottom": 160.109375,
+              "left": -384
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "side-block",
+            "rect": {
+              "x": -384,
+              "y": 160.109375,
+              "width": 240,
+              "height": 905.9375,
+              "top": 160.109375,
+              "right": -144,
+              "bottom": 1066.046875,
+              "left": -384
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "10px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 173.109375,
+              "width": 218,
+              "height": 19,
+              "top": 173.109375,
+              "right": -155,
+              "bottom": 192.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 173.109375,
+              "width": 78.828125,
+              "height": 19,
+              "top": 173.109375,
+              "right": -294.171875,
+              "bottom": 192.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "heading",
+            "rect": {
+              "x": -373,
+              "y": 202.109375,
+              "width": 218,
+              "height": 18.109375,
+              "top": 202.109375,
+              "right": -155,
+              "bottom": 220.21875,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px 0px 0px 15px"
+          },
+          {
+            "tag": "P",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -358,
+              "y": 202.109375,
+              "width": 203,
+              "height": 17.109375,
+              "top": 202.109375,
+              "right": -155,
+              "bottom": 219.21875,
+              "left": -358
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 225.21875,
+              "width": 218,
+              "height": 19,
+              "top": 225.21875,
+              "right": -155,
+              "bottom": 244.21875,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 225.21875,
+              "width": 7.15625,
+              "height": 19,
+              "top": 225.21875,
+              "right": -365.84375,
+              "bottom": 244.21875,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -352.34375,
+              "y": 225.21875,
+              "width": 14.3125,
+              "height": 19,
+              "top": 225.21875,
+              "right": -338.03125,
+              "bottom": 244.21875,
+              "left": -352.34375
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -324.53125,
+              "y": 225.21875,
+              "width": 21.453125,
+              "height": 19,
+              "top": 225.21875,
+              "right": -303.078125,
+              "bottom": 244.21875,
+              "left": -324.53125
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -289.578125,
+              "y": 225.21875,
+              "width": 18.453125,
+              "height": 19,
+              "top": 225.21875,
+              "right": -271.125,
+              "bottom": 244.21875,
+              "left": -289.578125
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -257.625,
+              "y": 225.21875,
+              "width": 11.296875,
+              "height": 19,
+              "top": 225.21875,
+              "right": -246.328125,
+              "bottom": 244.21875,
+              "left": -257.625
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          }
+        ],
+        "selector_coverage": {
+          "#header": 1
+        },
+        "rows": [
+          {
+            "selector": "#header",
+            "pseudo": null,
+            "text": "SCP-JP環境再現サイト\n                \n                    実験、実験、爆発\n                \n                \n                \n                \n                \n    \n        \n    \n\n                \n                \n                    \n                        \n\n\n\nSCPデータベース\n\n合作\nインシデント記録\nシリーズアーカイブ\nコンテストアーカイブ国際版\n\n\nJPデータベース\n\n合作-JP\n補足-JP\nアンソロジー-JP\nイベントアーカイブ-JP\n殿堂入りコレクション\n\n\nSCP和訳一覧\nSCPの世界観\n\nSCP財団とは\n財団世界観\nセキュリティ施設\n内部部門\n機動部隊\n職員・人物ファイル\n要注意団体\nセキュリティ施設-JP\n内部部門-JP\n機動部隊-JP\n職員・人物ファイル-JP\n要注意団体-JP\n要注意領域-JP\n\n\nガイド\n\nガイドハブ\nサイトルール\nライセンスガイド\n画像利用ポリシー\nVoteポリシー\n批評に関するポリシー\n\n\n\n\n\n\n≡\n\n\nシリーズ\n\nEN - I (001-999)\nEN - II (1000-1999)\nEN - III (2000-2999)\nEN - IV (3000-3999)\nEN - V (4000-4999)\nEN - VI (5000-5999)\nEN - VII (6000-6999)\nEN - VIII (7000-7999)\nEN - IX (8000-8999)\nEN - X (9000-9999)\nJP - I (001-999)\nJP - II (1000-1999)\nJP - III (2000-2999)\nJP - IV (3000-3999)\nJP - V (4000-4999)\nSCP和訳一覧\n\n\nデータベース\n\n合作\nシリーズアーカイブ\nコンテストアーカイブ国際版\n合作-JP\n補足-JP\nアンソロジー-JP\nイベントアーカイブ-JP\n殿堂入りコレクション-JP\n\n\n世界観\n\nSCP財団とは\n財団世界観\nセキュリティ施設\n内部部門\n機動部隊\n職員・人物ファイル\n要注意団体\nセキュリティ施設-JP\n内部部門-JP\n機動部隊-JP\n職員・人物ファイル-JP\n要注意団体-JP\n要注意領域-JP\n\n\nガイド\n\nガイドハブ\nサイトルール\nライセンスガイド\n画像利用ポリシー\nVoteポリシー\n批評に関するポリシー\n\n\n\n\n\n\n\n                    \n                \n                アカウントを作成 または サインイン",
+            "rect": {
+              "x": 16,
+              "y": 0,
+              "width": 288,
+              "height": 162,
+              "top": 0,
+              "right": 304,
+              "bottom": 162,
+              "left": 16
+            },
+            "parent_rect": {
+              "x": 0,
+              "y": 0,
+              "width": 320,
+              "height": 2228.15625,
+              "top": 0,
+              "right": 320,
+              "bottom": 2228.15625,
+              "left": 0
+            },
+            "scroll_width": 288,
+            "client_width": 288,
+            "style": {
+              "font-size": "15.2px",
+              "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+              "line-height": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "opacity": "1",
+              "position": "relative",
+              "box-sizing": "content-box",
+              "transform": "none",
+              "margin-left": "16px",
+              "margin-right": "16px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "content": "normal",
+              "background-size": "calc(5% + 48px) auto",
+              "width": "288px",
+              "min-width": "0px",
+              "left": "0px",
+              "right": "0px",
+              "inset-inline-start": "0px",
+              "inset-inline-end": "0px",
+              "white-space": "normal"
+            }
+          }
+        ],
+        "search": {
+          "display": "none",
+          "focused": false
+        }
+      },
+      "bounds": [
+        {
+          "left": 16,
+          "right": 304,
+          "viewport_width": 320,
+          "off_left_px": 0,
+          "off_right_px": 0,
+          "pass": true
+        }
+      ],
+      "interaction_error": null,
+      "pass": true,
+      "screenshot": "without-320-credit-otherwise-0.png",
+      "screenshot_sha256": "430bfac2079e5865890d98129d7615075a970c85be6dc9a2411d85b860e29547",
+      "dom": "without-320-credit-otherwise-0.html.gz",
+      "dom_sha256": "1af3fb2635034163b6018b2638df308c92c1a38de610b0f4c3dcdcca1d9932d3"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "credit-otherwise",
+      "index": 0,
+      "css_sha256": "4e9f17d162d5e0cf393e5a6d287c246b84efb0f82fdb97c05c56e3d537a8b446",
+      "base_css_sha256": null,
+      "effective_css_sha256": "4e9f17d162d5e0cf393e5a6d287c246b84efb0f82fdb97c05c56e3d537a8b446",
+      "measurement": {
+        "navigation_row_layout": null,
+        "credit_fold": null,
+        "computed_checks": [],
+        "document_width": 320,
+        "viewport_width": 320,
+        "overlaps": [],
+        "control_occlusion": [],
+        "header_ink_rects": null,
+        "scroll_overflow_sources": [
+          {
+            "tag": "DIV",
+            "id": "header",
+            "class_name": "",
+            "scroll_width": 291,
+            "client_width": 288,
+            "rect": {
+              "x": 16,
+              "y": 0,
+              "width": 288,
+              "height": 162,
+              "top": 0,
+              "right": 304,
+              "bottom": 162,
+              "left": 16
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "DIV",
+            "id": "search-top-box",
+            "class_name": "form-search",
+            "scroll_width": 25,
+            "client_width": 0,
+            "rect": {
+              "x": 281.5,
+              "y": 17.25,
+              "width": 0,
+              "height": 30,
+              "top": 17.25,
+              "right": 281.5,
+              "bottom": 47.25,
+              "left": 281.5
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "INPUT",
+            "id": "",
+            "class_name": "button btn",
+            "scroll_width": 37,
+            "client_width": 23,
+            "rect": {
+              "x": 281.5,
+              "y": 32.25,
+              "width": 25.1875,
+              "height": 25,
+              "top": 32.25,
+              "right": 306.6875,
+              "bottom": 57.25,
+              "left": 281.5
+            },
+            "overflow_x": "clip"
+          },
+          {
+            "tag": "LI",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 142,
+            "client_width": 49,
+            "rect": {
+              "x": 59.671875,
+              "y": 140,
+              "width": 48.90625,
+              "height": 21,
+              "top": 140,
+              "right": 108.578125,
+              "bottom": 161,
+              "left": 59.671875
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "LI",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 142,
+            "client_width": 73,
+            "rect": {
+              "x": 108.578125,
+              "y": 140,
+              "width": 72.90625,
+              "height": 21,
+              "top": 140,
+              "right": 181.484375,
+              "bottom": 161,
+              "left": 108.578125
+            },
+            "overflow_x": "visible"
+          }
+        ],
+        "overflow_sources": [
+          {
+            "tag": "DIV",
+            "id": "side-bar",
+            "class_name": "",
+            "rect": {
+              "x": -400,
+              "y": 0,
+              "width": 255,
+              "height": 874,
+              "top": 0,
+              "right": -145,
+              "bottom": 874,
+              "left": -400
+            },
+            "parent_id": "content-wrap",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "15px 0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "side-block resources",
+            "rect": {
+              "x": -400,
+              "y": 15,
+              "width": 255,
+              "height": 131.375,
+              "top": 15,
+              "right": -145,
+              "bottom": 146.375,
+              "left": -400
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "10px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "heading",
+            "rect": {
+              "x": -404.25,
+              "y": 25,
+              "width": 249.25,
+              "height": 22.375,
+              "top": 25,
+              "right": -155,
+              "bottom": 47.375,
+              "left": -404.25
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px 0px 0px 14.25px"
+          },
+          {
+            "tag": "P",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 25,
+              "width": 235,
+              "height": 21.375,
+              "top": 25,
+              "right": -155,
+              "bottom": 46.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 52.375,
+              "width": 235,
+              "height": 19,
+              "top": 52.375,
+              "right": -155,
+              "bottom": 71.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 52.375,
+              "width": 180.921875,
+              "height": 19,
+              "top": 52.375,
+              "right": -209.078125,
+              "bottom": 71.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 73.375,
+              "width": 235,
+              "height": 19,
+              "top": 73.375,
+              "right": -155,
+              "bottom": 92.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 73.375,
+              "width": 29.671875,
+              "height": 19,
+              "top": 73.375,
+              "right": -360.328125,
+              "bottom": 92.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 94.375,
+              "width": 235,
+              "height": 19,
+              "top": 94.375,
+              "right": -155,
+              "bottom": 113.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 94.375,
+              "width": 95.703125,
+              "height": 19,
+              "top": 94.375,
+              "right": -294.296875,
+              "bottom": 113.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 115.375,
+              "width": 235,
+              "height": 19,
+              "top": 115.375,
+              "right": -155,
+              "bottom": 134.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 115.375,
+              "width": 72.765625,
+              "height": 19,
+              "top": 115.375,
+              "right": -317.234375,
+              "bottom": 134.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -400,
+              "y": 161.375,
+              "width": 255,
+              "height": 0,
+              "top": 161.375,
+              "right": -145,
+              "bottom": 161.375,
+              "left": -400
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "side-block",
+            "rect": {
+              "x": -400,
+              "y": 161.375,
+              "width": 255,
+              "height": 931.125,
+              "top": 161.375,
+              "right": -145,
+              "bottom": 1092.5,
+              "left": -400
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "10px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 173.375,
+              "width": 235,
+              "height": 19,
+              "top": 173.375,
+              "right": -155,
+              "bottom": 192.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 173.375,
+              "width": 77.84375,
+              "height": 19,
+              "top": 173.375,
+              "right": -312.15625,
+              "bottom": 192.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "heading",
+            "rect": {
+              "x": -404.25,
+              "y": 202.375,
+              "width": 249.25,
+              "height": 22.375,
+              "top": 202.375,
+              "right": -155,
+              "bottom": 224.75,
+              "left": -404.25
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px 0px 0px 14.25px"
+          },
+          {
+            "tag": "P",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 202.375,
+              "width": 235,
+              "height": 21.375,
+              "top": 202.375,
+              "right": -155,
+              "bottom": 223.75,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 229.75,
+              "width": 235,
+              "height": 19,
+              "top": 229.75,
+              "right": -155,
+              "bottom": 248.75,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 229.75,
+              "width": 7.15625,
+              "height": 19,
+              "top": 229.75,
+              "right": -382.84375,
+              "bottom": 248.75,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -369.40625,
+              "y": 229.75,
+              "width": 14.296875,
+              "height": 19,
+              "top": 229.75,
+              "right": -355.109375,
+              "bottom": 248.75,
+              "left": -369.40625
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -341.671875,
+              "y": 229.75,
+              "width": 21.453125,
+              "height": 19,
+              "top": 229.75,
+              "right": -320.21875,
+              "bottom": 248.75,
+              "left": -341.671875
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -306.78125,
+              "y": 229.75,
+              "width": 18.359375,
+              "height": 19,
+              "top": 229.75,
+              "right": -288.421875,
+              "bottom": 248.75,
+              "left": -306.78125
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -274.984375,
+              "y": 229.75,
+              "width": 11.203125,
+              "height": 19,
+              "top": 229.75,
+              "right": -263.78125,
+              "bottom": 248.75,
+              "left": -274.984375
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          }
+        ],
+        "selector_coverage": {
+          "#header": 1
+        },
+        "rows": [
+          {
+            "selector": "#header",
+            "pseudo": null,
+            "text": "SCP-JP環境再現サイト\n                \n                    実験、実験、爆発\n                \n                \n                \n                \n                \n    \n        \n    \n\n                \n                \n                    \n                        \n\n\n\nSCPデータベース\n\n合作\nインシデント記録\nシリーズアーカイブ\nコンテストアーカイブ国際版\n\n\nJPデータベース\n\n合作-JP\n補足-JP\nアンソロジー-JP\nイベントアーカイブ-JP\n殿堂入りコレクション\n\n\nSCP和訳一覧\nSCPの世界観\n\nSCP財団とは\n財団世界観\nセキュリティ施設\n内部部門\n機動部隊\n職員・人物ファイル\n要注意団体\nセキュリティ施設-JP\n内部部門-JP\n機動部隊-JP\n職員・人物ファイル-JP\n要注意団体-JP\n要注意領域-JP\n\n\nガイド\n\nガイドハブ\nサイトルール\nライセンスガイド\n画像利用ポリシー\nVoteポリシー\n批評に関するポリシー\n\n\n\n\n\n\n≡\n\n\nシリーズ\n\nEN - I (001-999)\nEN - II (1000-1999)\nEN - III (2000-2999)\nEN - IV (3000-3999)\nEN - V (4000-4999)\nEN - VI (5000-5999)\nEN - VII (6000-6999)\nEN - VIII (7000-7999)\nEN - IX (8000-8999)\nEN - X (9000-9999)\nJP - I (001-999)\nJP - II (1000-1999)\nJP - III (2000-2999)\nJP - IV (3000-3999)\nJP - V (4000-4999)\nSCP和訳一覧\n\n\nデータベース\n\n合作\nシリーズアーカイブ\nコンテストアーカイブ国際版\n合作-JP\n補足-JP\nアンソロジー-JP\nイベントアーカイブ-JP\n殿堂入りコレクション-JP\n\n\n世界観\n\nSCP財団とは\n財団世界観\nセキュリティ施設\n内部部門\n機動部隊\n職員・人物ファイル\n要注意団体\nセキュリティ施設-JP\n内部部門-JP\n機動部隊-JP\n職員・人物ファイル-JP\n要注意団体-JP\n要注意領域-JP\n\n\nガイド\n\nガイドハブ\nサイトルール\nライセンスガイド\n画像利用ポリシー\nVoteポリシー\n批評に関するポリシー\n\n\n\n\n\n\n\n                    \n                \n                アカウントを作成 または サインイン",
+            "rect": {
+              "x": 16,
+              "y": 0,
+              "width": 288,
+              "height": 162,
+              "top": 0,
+              "right": 304,
+              "bottom": 162,
+              "left": 16
+            },
+            "parent_rect": {
+              "x": 0,
+              "y": 0,
+              "width": 320,
+              "height": 2243.75,
+              "top": 0,
+              "right": 320,
+              "bottom": 2243.75,
+              "left": 0
+            },
+            "scroll_width": 291,
+            "client_width": 288,
+            "style": {
+              "font-size": "15px",
+              "font-family": "Inter, sans-serif",
+              "line-height": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "opacity": "1",
+              "position": "relative",
+              "box-sizing": "content-box",
+              "transform": "none",
+              "margin-left": "16px",
+              "margin-right": "16px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "content": "normal",
+              "background-size": "auto",
+              "width": "288px",
+              "min-width": "0px",
+              "left": "0px",
+              "right": "0px",
+              "inset-inline-start": "0px",
+              "inset-inline-end": "0px",
+              "white-space": "normal"
+            }
+          }
+        ],
+        "search": {
+          "display": "none",
+          "focused": false
+        }
+      },
+      "bounds": [
+        {
+          "left": 16,
+          "right": 304,
+          "viewport_width": 320,
+          "off_left_px": 0,
+          "off_right_px": 0,
+          "pass": true
+        }
+      ],
+      "interaction_error": null,
+      "pass": true,
+      "screenshot": "with-320-credit-otherwise-0.png",
+      "screenshot_sha256": "8203e962f1caec789b2b4bac15b2544b1b9ce430fb72169c66990647d05bd005",
+      "dom": "with-320-credit-otherwise-0.html.gz",
+      "dom_sha256": "c91d79489bf43a9fb0b787f215f3ee63701a11c5c3b720d982f0772c776f0ec9"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "credit-otherwise",
+      "index": 0,
+      "css_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "base_css_sha256": null,
+      "effective_css_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "measurement": {
+        "navigation_row_layout": null,
+        "credit_fold": null,
+        "computed_checks": [],
+        "document_width": 390,
+        "viewport_width": 390,
+        "overlaps": [],
+        "control_occlusion": [],
+        "header_ink_rects": null,
+        "scroll_overflow_sources": [
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "mobile-top-bar",
+            "scroll_width": 284,
+            "client_width": 229,
+            "rect": {
+              "x": 19.5,
+              "y": 126.328125,
+              "width": 229.09375,
+              "height": 34.671875,
+              "top": 126.328125,
+              "right": 248.59375,
+              "bottom": 161,
+              "left": 19.5
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "UL",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 284,
+            "client_width": 229,
+            "rect": {
+              "x": 19.5,
+              "y": 140,
+              "width": 229.09375,
+              "height": 21,
+              "top": 140,
+              "right": 248.59375,
+              "bottom": 161,
+              "left": 19.5
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "LI",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 145,
+            "client_width": 56,
+            "rect": {
+              "x": 19.5,
+              "y": 140,
+              "width": 55.84375,
+              "height": 21,
+              "top": 140,
+              "right": 75.34375,
+              "bottom": 161,
+              "left": 19.5
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "LI",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 145,
+            "client_width": 83,
+            "rect": {
+              "x": 75.34375,
+              "y": 140,
+              "width": 83.1875,
+              "height": 21,
+              "top": 140,
+              "right": 158.53125,
+              "bottom": 161,
+              "left": 75.34375
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "LI",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 145,
+            "client_width": 49,
+            "rect": {
+              "x": 158.53125,
+              "y": 140,
+              "width": 48.859375,
+              "height": 21,
+              "top": 140,
+              "right": 207.390625,
+              "bottom": 161,
+              "left": 158.53125
+            },
+            "overflow_x": "visible"
+          }
+        ],
+        "overflow_sources": [
+          {
+            "tag": "DIV",
+            "id": "side-bar",
+            "class_name": "",
+            "rect": {
+              "x": -400,
+              "y": 0,
+              "width": 272,
+              "height": 860,
+              "top": 0,
+              "right": -128,
+              "bottom": 860,
+              "left": -400
+            },
+            "parent_id": "content-wrap",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "16px 16px 0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "side-block resources",
+            "rect": {
+              "x": -384,
+              "y": 16,
+              "width": 240,
+              "height": 129.109375,
+              "top": 16,
+              "right": -144,
+              "bottom": 145.109375,
+              "left": -384
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "10px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "heading",
+            "rect": {
+              "x": -373,
+              "y": 27,
+              "width": 218,
+              "height": 18.109375,
+              "top": 27,
+              "right": -155,
+              "bottom": 45.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px 0px 0px 15px"
+          },
+          {
+            "tag": "P",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -358,
+              "y": 27,
+              "width": 203,
+              "height": 17.109375,
+              "top": 27,
+              "right": -155,
+              "bottom": 44.109375,
+              "left": -358
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 50.109375,
+              "width": 218,
+              "height": 19,
+              "top": 50.109375,
+              "right": -155,
+              "bottom": 69.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 50.109375,
+              "width": 183.171875,
+              "height": 19,
+              "top": 50.109375,
+              "right": -189.828125,
+              "bottom": 69.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 71.109375,
+              "width": 218,
+              "height": 19,
+              "top": 71.109375,
+              "right": -155,
+              "bottom": 90.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 71.109375,
+              "width": 29.96875,
+              "height": 19,
+              "top": 71.109375,
+              "right": -343.03125,
+              "bottom": 90.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 92.109375,
+              "width": 218,
+              "height": 19,
+              "top": 92.109375,
+              "right": -155,
+              "bottom": 111.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 92.109375,
+              "width": 96.90625,
+              "height": 19,
+              "top": 92.109375,
+              "right": -276.09375,
+              "bottom": 111.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 113.109375,
+              "width": 218,
+              "height": 19,
+              "top": 113.109375,
+              "right": -155,
+              "bottom": 132.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 113.109375,
+              "width": 73.671875,
+              "height": 19,
+              "top": 113.109375,
+              "right": -299.328125,
+              "bottom": 132.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -384,
+              "y": 160.109375,
+              "width": 240,
+              "height": 0,
+              "top": 160.109375,
+              "right": -144,
+              "bottom": 160.109375,
+              "left": -384
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "side-block",
+            "rect": {
+              "x": -384,
+              "y": 160.109375,
+              "width": 240,
+              "height": 905.9375,
+              "top": 160.109375,
+              "right": -144,
+              "bottom": 1066.046875,
+              "left": -384
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "10px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 173.109375,
+              "width": 218,
+              "height": 19,
+              "top": 173.109375,
+              "right": -155,
+              "bottom": 192.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 173.109375,
+              "width": 78.828125,
+              "height": 19,
+              "top": 173.109375,
+              "right": -294.171875,
+              "bottom": 192.109375,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "heading",
+            "rect": {
+              "x": -373,
+              "y": 202.109375,
+              "width": 218,
+              "height": 18.109375,
+              "top": 202.109375,
+              "right": -155,
+              "bottom": 220.21875,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px 0px 0px 15px"
+          },
+          {
+            "tag": "P",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -358,
+              "y": 202.109375,
+              "width": 203,
+              "height": 17.109375,
+              "top": 202.109375,
+              "right": -155,
+              "bottom": 219.21875,
+              "left": -358
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -373,
+              "y": 225.21875,
+              "width": 218,
+              "height": 19,
+              "top": 225.21875,
+              "right": -155,
+              "bottom": 244.21875,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -373,
+              "y": 225.21875,
+              "width": 7.15625,
+              "height": 19,
+              "top": 225.21875,
+              "right": -365.84375,
+              "bottom": 244.21875,
+              "left": -373
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -352.34375,
+              "y": 225.21875,
+              "width": 14.3125,
+              "height": 19,
+              "top": 225.21875,
+              "right": -338.03125,
+              "bottom": 244.21875,
+              "left": -352.34375
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -324.53125,
+              "y": 225.21875,
+              "width": 21.453125,
+              "height": 19,
+              "top": 225.21875,
+              "right": -303.078125,
+              "bottom": 244.21875,
+              "left": -324.53125
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -289.578125,
+              "y": 225.21875,
+              "width": 18.453125,
+              "height": 19,
+              "top": 225.21875,
+              "right": -271.125,
+              "bottom": 244.21875,
+              "left": -289.578125
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -257.625,
+              "y": 225.21875,
+              "width": 11.296875,
+              "height": 19,
+              "top": 225.21875,
+              "right": -246.328125,
+              "bottom": 244.21875,
+              "left": -257.625
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          }
+        ],
+        "selector_coverage": {
+          "#header": 1
+        },
+        "rows": [
+          {
+            "selector": "#header",
+            "pseudo": null,
+            "text": "SCP-JP環境再現サイト\n                \n                    実験、実験、爆発\n                \n                \n                \n                \n                \n    \n        \n    \n\n                \n                \n                    \n                        \n\n\n\nSCPデータベース\n\n合作\nインシデント記録\nシリーズアーカイブ\nコンテストアーカイブ国際版\n\n\nJPデータベース\n\n合作-JP\n補足-JP\nアンソロジー-JP\nイベントアーカイブ-JP\n殿堂入りコレクション\n\n\nSCP和訳一覧\nSCPの世界観\n\nSCP財団とは\n財団世界観\nセキュリティ施設\n内部部門\n機動部隊\n職員・人物ファイル\n要注意団体\nセキュリティ施設-JP\n内部部門-JP\n機動部隊-JP\n職員・人物ファイル-JP\n要注意団体-JP\n要注意領域-JP\n\n\nガイド\n\nガイドハブ\nサイトルール\nライセンスガイド\n画像利用ポリシー\nVoteポリシー\n批評に関するポリシー\n\n\n\n\n\n\n≡\n\n\nシリーズ\n\nEN - I (001-999)\nEN - II (1000-1999)\nEN - III (2000-2999)\nEN - IV (3000-3999)\nEN - V (4000-4999)\nEN - VI (5000-5999)\nEN - VII (6000-6999)\nEN - VIII (7000-7999)\nEN - IX (8000-8999)\nEN - X (9000-9999)\nJP - I (001-999)\nJP - II (1000-1999)\nJP - III (2000-2999)\nJP - IV (3000-3999)\nJP - V (4000-4999)\nSCP和訳一覧\n\n\nデータベース\n\n合作\nシリーズアーカイブ\nコンテストアーカイブ国際版\n合作-JP\n補足-JP\nアンソロジー-JP\nイベントアーカイブ-JP\n殿堂入りコレクション-JP\n\n\n世界観\n\nSCP財団とは\n財団世界観\nセキュリティ施設\n内部部門\n機動部隊\n職員・人物ファイル\n要注意団体\nセキュリティ施設-JP\n内部部門-JP\n機動部隊-JP\n職員・人物ファイル-JP\n要注意団体-JP\n要注意領域-JP\n\n\nガイド\n\nガイドハブ\nサイトルール\nライセンスガイド\n画像利用ポリシー\nVoteポリシー\n批評に関するポリシー\n\n\n\n\n\n\n\n                    \n                \n                アカウントを作成 または サインイン",
+            "rect": {
+              "x": 19.5,
+              "y": 0,
+              "width": 351,
+              "height": 162,
+              "top": 0,
+              "right": 370.5,
+              "bottom": 162,
+              "left": 19.5
+            },
+            "parent_rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 2199.15625,
+              "top": 0,
+              "right": 390,
+              "bottom": 2199.15625,
+              "left": 0
+            },
+            "scroll_width": 351,
+            "client_width": 351,
+            "style": {
+              "font-size": "15.2px",
+              "font-family": "InterVariable, RedactRect, Inter, BlinkMacSystemFont, \"Segoe UI\", Roboto, Oxygen, Ubuntu, Cantarell, \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+              "line-height": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "opacity": "1",
+              "position": "relative",
+              "box-sizing": "content-box",
+              "transform": "none",
+              "margin-left": "19.5px",
+              "margin-right": "19.5px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "content": "normal",
+              "background-size": "calc(5% + 48px) auto",
+              "width": "351px",
+              "min-width": "0px",
+              "left": "0px",
+              "right": "0px",
+              "inset-inline-start": "0px",
+              "inset-inline-end": "0px",
+              "white-space": "normal"
+            }
+          }
+        ],
+        "search": {
+          "display": "none",
+          "focused": false
+        }
+      },
+      "bounds": [
+        {
+          "left": 19.5,
+          "right": 370.5,
+          "viewport_width": 390,
+          "off_left_px": 0,
+          "off_right_px": 0,
+          "pass": true
+        }
+      ],
+      "interaction_error": null,
+      "pass": true,
+      "screenshot": "without-390-credit-otherwise-0.png",
+      "screenshot_sha256": "8bc63598306f6917e9ddaf2e287a9d1ebd4813163c8943f60a8cb33ecb15b052",
+      "dom": "without-390-credit-otherwise-0.html.gz",
+      "dom_sha256": "1af3fb2635034163b6018b2638df308c92c1a38de610b0f4c3dcdcca1d9932d3"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "credit-otherwise",
+      "index": 0,
+      "css_sha256": "4e9f17d162d5e0cf393e5a6d287c246b84efb0f82fdb97c05c56e3d537a8b446",
+      "base_css_sha256": null,
+      "effective_css_sha256": "4e9f17d162d5e0cf393e5a6d287c246b84efb0f82fdb97c05c56e3d537a8b446",
+      "measurement": {
+        "navigation_row_layout": null,
+        "credit_fold": null,
+        "computed_checks": [],
+        "document_width": 390,
+        "viewport_width": 390,
+        "overlaps": [],
+        "control_occlusion": [],
+        "header_ink_rects": null,
+        "scroll_overflow_sources": [
+          {
+            "tag": "DIV",
+            "id": "header",
+            "class_name": "",
+            "scroll_width": 354,
+            "client_width": 351,
+            "rect": {
+              "x": 19.5,
+              "y": 0,
+              "width": 351,
+              "height": 162,
+              "top": 0,
+              "right": 370.5,
+              "bottom": 162,
+              "left": 19.5
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "DIV",
+            "id": "search-top-box",
+            "class_name": "form-search",
+            "scroll_width": 25,
+            "client_width": 0,
+            "rect": {
+              "x": 348,
+              "y": 17.25,
+              "width": 0,
+              "height": 30,
+              "top": 17.25,
+              "right": 348,
+              "bottom": 47.25,
+              "left": 348
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "INPUT",
+            "id": "",
+            "class_name": "button btn",
+            "scroll_width": 37,
+            "client_width": 23,
+            "rect": {
+              "x": 348,
+              "y": 32.25,
+              "width": 25.1875,
+              "height": 25,
+              "top": 32.25,
+              "right": 373.1875,
+              "bottom": 57.25,
+              "left": 348
+            },
+            "overflow_x": "clip"
+          },
+          {
+            "tag": "LI",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 143,
+            "client_width": 50,
+            "rect": {
+              "x": 92.546875,
+              "y": 140,
+              "width": 49.96875,
+              "height": 21,
+              "top": 140,
+              "right": 142.515625,
+              "bottom": 161,
+              "left": 92.546875
+            },
+            "overflow_x": "visible"
+          },
+          {
+            "tag": "LI",
+            "id": "",
+            "class_name": "",
+            "scroll_width": 143,
+            "client_width": 74,
+            "rect": {
+              "x": 142.515625,
+              "y": 140,
+              "width": 73.96875,
+              "height": 21,
+              "top": 140,
+              "right": 216.484375,
+              "bottom": 161,
+              "left": 142.515625
+            },
+            "overflow_x": "visible"
+          }
+        ],
+        "overflow_sources": [
+          {
+            "tag": "DIV",
+            "id": "side-bar",
+            "class_name": "",
+            "rect": {
+              "x": -400,
+              "y": 0,
+              "width": 255,
+              "height": 874,
+              "top": 0,
+              "right": -145,
+              "bottom": 874,
+              "left": -400
+            },
+            "parent_id": "content-wrap",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "15px 0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "side-block resources",
+            "rect": {
+              "x": -400,
+              "y": 15,
+              "width": 255,
+              "height": 131.375,
+              "top": 15,
+              "right": -145,
+              "bottom": 146.375,
+              "left": -400
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "10px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "heading",
+            "rect": {
+              "x": -404.25,
+              "y": 25,
+              "width": 249.25,
+              "height": 22.375,
+              "top": 25,
+              "right": -155,
+              "bottom": 47.375,
+              "left": -404.25
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px 0px 0px 14.25px"
+          },
+          {
+            "tag": "P",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 25,
+              "width": 235,
+              "height": 21.375,
+              "top": 25,
+              "right": -155,
+              "bottom": 46.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 52.375,
+              "width": 235,
+              "height": 19,
+              "top": 52.375,
+              "right": -155,
+              "bottom": 71.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 52.375,
+              "width": 180.921875,
+              "height": 19,
+              "top": 52.375,
+              "right": -209.078125,
+              "bottom": 71.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 73.375,
+              "width": 235,
+              "height": 19,
+              "top": 73.375,
+              "right": -155,
+              "bottom": 92.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 73.375,
+              "width": 29.671875,
+              "height": 19,
+              "top": 73.375,
+              "right": -360.328125,
+              "bottom": 92.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 94.375,
+              "width": 235,
+              "height": 19,
+              "top": 94.375,
+              "right": -155,
+              "bottom": 113.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 94.375,
+              "width": 95.703125,
+              "height": 19,
+              "top": 94.375,
+              "right": -294.296875,
+              "bottom": 113.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 115.375,
+              "width": 235,
+              "height": 19,
+              "top": 115.375,
+              "right": -155,
+              "bottom": 134.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 115.375,
+              "width": 72.765625,
+              "height": 19,
+              "top": 115.375,
+              "right": -317.234375,
+              "bottom": 134.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -400,
+              "y": 161.375,
+              "width": 255,
+              "height": 0,
+              "top": 161.375,
+              "right": -145,
+              "bottom": 161.375,
+              "left": -400
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "side-block",
+            "rect": {
+              "x": -400,
+              "y": 161.375,
+              "width": 255,
+              "height": 931.125,
+              "top": 161.375,
+              "right": -145,
+              "bottom": 1092.5,
+              "left": -400
+            },
+            "parent_id": "side-bar",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "10px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 173.375,
+              "width": 235,
+              "height": 19,
+              "top": 173.375,
+              "right": -155,
+              "bottom": 192.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 173.375,
+              "width": 77.84375,
+              "height": 19,
+              "top": 173.375,
+              "right": -312.15625,
+              "bottom": 192.375,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "heading",
+            "rect": {
+              "x": -404.25,
+              "y": 202.375,
+              "width": 249.25,
+              "height": 22.375,
+              "top": 202.375,
+              "right": -155,
+              "bottom": 224.75,
+              "left": -404.25
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px 0px 0px 14.25px"
+          },
+          {
+            "tag": "P",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 202.375,
+              "width": 235,
+              "height": 21.375,
+              "top": 202.375,
+              "right": -155,
+              "bottom": 223.75,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "class_name": "menu-item",
+            "rect": {
+              "x": -390,
+              "y": 229.75,
+              "width": 235,
+              "height": 19,
+              "top": 229.75,
+              "right": -155,
+              "bottom": 248.75,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -390,
+              "y": 229.75,
+              "width": 7.15625,
+              "height": 19,
+              "top": 229.75,
+              "right": -382.84375,
+              "bottom": 248.75,
+              "left": -390
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -369.40625,
+              "y": 229.75,
+              "width": 14.296875,
+              "height": 19,
+              "top": 229.75,
+              "right": -355.109375,
+              "bottom": 248.75,
+              "left": -369.40625
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -341.671875,
+              "y": 229.75,
+              "width": 21.453125,
+              "height": 19,
+              "top": 229.75,
+              "right": -320.21875,
+              "bottom": 248.75,
+              "left": -341.671875
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -306.78125,
+              "y": 229.75,
+              "width": 18.359375,
+              "height": 19,
+              "top": 229.75,
+              "right": -288.421875,
+              "bottom": 248.75,
+              "left": -306.78125
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          },
+          {
+            "tag": "A",
+            "id": "",
+            "class_name": "",
+            "rect": {
+              "x": -274.984375,
+              "y": 229.75,
+              "width": 11.203125,
+              "height": 19,
+              "top": 229.75,
+              "right": -263.78125,
+              "bottom": 248.75,
+              "left": -274.984375
+            },
+            "parent_id": "",
+            "box_sizing": "content-box",
+            "min_width": "0px",
+            "padding": "0px"
+          }
+        ],
+        "selector_coverage": {
+          "#header": 1
+        },
+        "rows": [
+          {
+            "selector": "#header",
+            "pseudo": null,
+            "text": "SCP-JP環境再現サイト\n                \n                    実験、実験、爆発\n                \n                \n                \n                \n                \n    \n        \n    \n\n                \n                \n                    \n                        \n\n\n\nSCPデータベース\n\n合作\nインシデント記録\nシリーズアーカイブ\nコンテストアーカイブ国際版\n\n\nJPデータベース\n\n合作-JP\n補足-JP\nアンソロジー-JP\nイベントアーカイブ-JP\n殿堂入りコレクション\n\n\nSCP和訳一覧\nSCPの世界観\n\nSCP財団とは\n財団世界観\nセキュリティ施設\n内部部門\n機動部隊\n職員・人物ファイル\n要注意団体\nセキュリティ施設-JP\n内部部門-JP\n機動部隊-JP\n職員・人物ファイル-JP\n要注意団体-JP\n要注意領域-JP\n\n\nガイド\n\nガイドハブ\nサイトルール\nライセンスガイド\n画像利用ポリシー\nVoteポリシー\n批評に関するポリシー\n\n\n\n\n\n\n≡\n\n\nシリーズ\n\nEN - I (001-999)\nEN - II (1000-1999)\nEN - III (2000-2999)\nEN - IV (3000-3999)\nEN - V (4000-4999)\nEN - VI (5000-5999)\nEN - VII (6000-6999)\nEN - VIII (7000-7999)\nEN - IX (8000-8999)\nEN - X (9000-9999)\nJP - I (001-999)\nJP - II (1000-1999)\nJP - III (2000-2999)\nJP - IV (3000-3999)\nJP - V (4000-4999)\nSCP和訳一覧\n\n\nデータベース\n\n合作\nシリーズアーカイブ\nコンテストアーカイブ国際版\n合作-JP\n補足-JP\nアンソロジー-JP\nイベントアーカイブ-JP\n殿堂入りコレクション-JP\n\n\n世界観\n\nSCP財団とは\n財団世界観\nセキュリティ施設\n内部部門\n機動部隊\n職員・人物ファイル\n要注意団体\nセキュリティ施設-JP\n内部部門-JP\n機動部隊-JP\n職員・人物ファイル-JP\n要注意団体-JP\n要注意領域-JP\n\n\nガイド\n\nガイドハブ\nサイトルール\nライセンスガイド\n画像利用ポリシー\nVoteポリシー\n批評に関するポリシー\n\n\n\n\n\n\n\n                    \n                \n                アカウントを作成 または サインイン",
+            "rect": {
+              "x": 19.5,
+              "y": 0,
+              "width": 351,
+              "height": 162,
+              "top": 0,
+              "right": 370.5,
+              "bottom": 162,
+              "left": 19.5
+            },
+            "parent_rect": {
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 2214.75,
+              "top": 0,
+              "right": 390,
+              "bottom": 2214.75,
+              "left": 0
+            },
+            "scroll_width": 354,
+            "client_width": 351,
+            "style": {
+              "font-size": "15px",
+              "font-family": "Inter, sans-serif",
+              "line-height": "normal",
+              "display": "block",
+              "visibility": "visible",
+              "opacity": "1",
+              "position": "relative",
+              "box-sizing": "content-box",
+              "transform": "none",
+              "margin-left": "19.5px",
+              "margin-right": "19.5px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "content": "normal",
+              "background-size": "auto",
+              "width": "351px",
+              "min-width": "0px",
+              "left": "0px",
+              "right": "0px",
+              "inset-inline-start": "0px",
+              "inset-inline-end": "0px",
+              "white-space": "normal"
+            }
+          }
+        ],
+        "search": {
+          "display": "none",
+          "focused": false
+        }
+      },
+      "bounds": [
+        {
+          "left": 19.5,
+          "right": 370.5,
+          "viewport_width": 390,
+          "off_left_px": 0,
+          "off_right_px": 0,
+          "pass": true
+        }
+      ],
+      "interaction_error": null,
+      "pass": true,
+      "screenshot": "with-390-credit-otherwise-0.png",
+      "screenshot_sha256": "fd3155dcf40c785f41ffd291035b489c2472d79c984979262d02fe7202024801",
+      "dom": "with-390-credit-otherwise-0.html.gz",
+      "dom_sha256": "c91d79489bf43a9fb0b787f215f3ee63701a11c5c3b720d982f0772c776f0ec9"
+    }
+  ]
+}

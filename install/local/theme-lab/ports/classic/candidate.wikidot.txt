@@ -40,13 +40,13 @@
 このテーマを使用するには、あなたのページの一番上にこのコードをコピーして下さい:
 
 [[div class="code"]]
-@@@@
+@@[[include :scp-jp:theme:classic]]@@
 [[/div]]
 
 また、日本語版テーマ独自の仕様で左上のタイトルを英語に変更することが出来ます:
 
 [[div class="code"]]
-@@@@
+@@[[include :scp-jp:theme:classic engtitle=a]]@@
 [[/div]]
 
 他のテーマとは異なり、このテーマはロゴがありません。
@@ -498,6 +498,8 @@ div.page-rate-widget-box .rate-points{
 
 >
 >[[/ift{$engtitle}gs]]
+
+
 
 
 

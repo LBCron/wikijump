@@ -298,12 +298,6 @@ export function validateSandboxOracleRegistry(value) {
   });
 }
 
-/**
- * A browser capture is evidence, not merely an object that the comparator can
- * partially inspect.  Refuse to carry a navigation or observation failure
- * into a frozen fixture set: otherwise the capture loop can continue and
- * produce a receipt whose missing screenshots look like a valid fixture.
- */
 export function validateSandboxOracleCapture(value, name = "capture") {
   const capture = requirePlainObject(value, name);
   if (capture.capture_mode === "syntax-only") {
@@ -654,12 +648,6 @@ function blockedResourceFailure(failure) {
   );
 }
 
-/**
- * Separate request-gate host counts that are covered by exact live failure
- * allowances from hosts that must remain a blocking measurement boundary.
- * The gate only records a host/count, so the count must agree with the
- * policy-approved live failures before a host can be allowed.
- */
 export function classifyBlockedResourceHosts({
   blockedHosts,
   live,

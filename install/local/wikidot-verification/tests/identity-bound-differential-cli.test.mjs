@@ -26,8 +26,6 @@ async function identity(filePath) {
   return {path: filePath, sha256: createHash("sha256").update(await fs.readFile(filePath)).digest("hex")};
 }
 
-// The executables are ~180 MB of hashing and cannot change during this
-// file's run; hash them once instead of once per fixture.
 let executableIdentities = null;
 async function executables() {
   executableIdentities ??= {
@@ -76,8 +74,6 @@ async function fixture(t) {
     site: "sandbox-for-codex",
     url: "https://sandbox-for-codex.wikidot.com/run-owned:ftml-diff-20260815-001",
     wikidot_evidence: {captures: [await identity(capturesPath)], external_references: []},
-    // A copy: tests mutate their manifest's executable entries, and the
-    // cached identities must not carry those mutations into other fixtures.
     executables: structuredClone(await executables()),
     channels: {
       raw_html: {applies: true},

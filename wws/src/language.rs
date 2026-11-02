@@ -20,8 +20,6 @@
 
 use axum::http::header::HeaderMap;
 
-/// Parse the `Accept-Language` header.
-/// If there are no languages, or there is no header, then use English.
 pub fn parse_accept_language(headers: &HeaderMap) -> Vec<String> {
     const FALLBACK_LANGUAGE: &str = "en";
 

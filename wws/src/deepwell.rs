@@ -34,17 +34,9 @@ use tokio::sync::Semaphore;
 
 const JSONRPC_MAX_REQUEST: u32 = 16 * 1024;
 
-// Public file and text-block routes resolve page and file metadata freshly
-// on every request, so outside callers decide how many Deepwell lookups run
-// (#717). The in-flight bound caps that: a call beyond it fails at once
-// instead of queueing. Within the bound, the timeout outlasts a briefly busy
-// Deepwell, so ordinary requests no longer fail with a 500 under load
-// (#2536).
 const JSONRPC_MAX_IN_FLIGHT: usize = 64;
 const JSONRPC_TIMEOUT: Duration = Duration::from_secs(2);
 
-/// Macro to create `ObjectParams` instances.
-/// This is the object equivalent to `rpc_params!`, which creates `ArrayParams` instances.
 macro_rules! rpc_object {
     ($($key:expr => $value:expr,)+) => { rpc_object!($($key => $value),+) };
     ($($key:expr => $value:expr),*) => {{
@@ -103,7 +95,6 @@ impl Deepwell {
         Ok(self.client.request(method, params).await?)
     }
 
-    /// Attempt to ping DEEPWELL, panicking if connecting failed.
     pub async fn check(&self) {
         self.ping().await.expect("Unable to connect to DEEPWELL");
     }
@@ -115,28 +106,17 @@ impl Deepwell {
         Ok(())
     }
 
-    // Getters
-
     pub async fn get_site_domain(&self, site_id: i64) -> Result<String> {
         let params = rpc_params![site_id];
         let domain: String = self.request("site_domain", params).await?;
         Ok(domain)
     }
 
-    /// Whether DEEPWELL publishes a public sitemap inventory for this site.
-    ///
-    /// This calls the same `wikidot_sitemap` index query the `/sitemap.xml`
-    /// routes use (shard 0 returns the count only, never page bodies), so
-    /// robots.txt shares the sitemap routes' anonymous-visibility authority:
-    /// a `None` (JSON null) result means anonymous viewers cannot view the
-    /// site and crawlers must not be invited in.
     pub async fn get_sitemap_presence(&self, site_id: i64) -> Result<bool> {
         let params = rpc_object! {
             "site_id" => site_id,
             "shard" => 0,
         };
-        // `IgnoredAny` keeps only presence: JSON null deserializes to `None`
-        // and any other value to `Some`, without allocating the payload.
         let output: Option<serde::de::IgnoredAny> =
             self.request("wikidot_sitemap", params).await?;
         Ok(output.is_some())
@@ -234,8 +214,6 @@ impl Deepwell {
 
         Ok(block_info)
     }
-
-    // Basic errors
 
     pub async fn basic_error_missing_site_slug(
         &self,
@@ -435,7 +413,6 @@ pub struct PageData {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct FileData {
-    // Deserialized from the Deepwell response; only the test assertions read it.
     #[cfg_attr(not(test), allow(dead_code))]
     pub file_id: i64,
     pub revision_id: i64,

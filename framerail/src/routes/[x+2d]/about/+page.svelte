@@ -142,8 +142,6 @@
 </table>
 
 <style lang="scss">
-  // Contain long package, repository, and version values inside the viewport
-  // instead of letting the table widen the whole page.
   table.platform-info {
     width: 100%;
     max-width: 100%;

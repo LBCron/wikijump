@@ -1,9 +1,5 @@
 #!/usr/bin/env node
 
-// This entrypoint imports only Node built-ins until it has validated the
-// private descriptor received from the bootstrap over file descriptor 3.
-// It independently resolves that descriptor from the claimed exact Git tree;
-// the same-UID bootstrap and Git identity remain the explicit trust root.
 import crypto from "node:crypto";
 import { spawn } from "node:child_process";
 import { constants as fsConstants, createReadStream } from "node:fs";

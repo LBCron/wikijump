@@ -30,9 +30,9 @@
   "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
   "technical_spec_version": "1.4",
   "package_path": "install/local/theme-lab/ports/classic",
-  "candidate_source_hash": "9aa209eaeec59753e2f6dba8e0299281fb58793c720f4495559e2a1adbd48e09",
+  "candidate_source_hash": "949175fc8426148dd8ca3ee3d2034f615158bef393c31e2735529fa19ef29218",
   "source_candidate_path": "install/local/theme-lab/ports/classic/candidate.wikidot.source.txt",
-  "source_candidate_sha256": "9aa209eaeec59753e2f6dba8e0299281fb58793c720f4495559e2a1adbd48e09",
+  "source_candidate_sha256": "949175fc8426148dd8ca3ee3d2034f615158bef393c31e2735529fa19ef29218",
   "candidate_origin": "current official SCP-JP page source",
   "existing_jp_source_differs_from_candidate": true,
   "preview_fixture_components": {
@@ -40,11 +40,11 @@
     "source_component": "install/local/theme-lab/ports/shared-fixtures/component-theme-squares.jp.wikidot.txt"
   },
   "candidate_source_path": "install/local/theme-lab/ports/classic/candidate.wikidot.source.txt",
-  "candidate_source_sha256": "9aa209eaeec59753e2f6dba8e0299281fb58793c720f4495559e2a1adbd48e09",
+  "candidate_source_sha256": "949175fc8426148dd8ca3ee3d2034f615158bef393c31e2735529fa19ef29218",
   "human_port_candidate_path": "install/local/theme-lab/ports/classic/human-port-candidate.wikidot.txt",
   "human_port_candidate_sha256": "4993fb2a8fbbc1b3f44ce7aba357e9c5ca70cbf7e915450cdfcc23b16e9cb512",
-  "candidate_preview_sha256": "bda45a5874984fc7fba628622c6fbd8e30e9deaa64897301c35f767979cb5f4b",
-  "candidate_css_sha256": "8d37bcdf89e9fd69aa69d369da18eb75e388106b088187de457d45c2d7342376",
+  "candidate_preview_sha256": "c7c8cf8af8724870997cbe6e3e6b52e3d21a6d5646ad5fada2b031247f2b23bb",
+  "candidate_css_sha256": "5b00fb07f930b0a11e7526bb39b602c8d6c542e0cd75825e0351a74fe0298977",
   "page_assets": [
     {
       "filename": "base_image_frame.png",
@@ -121,6 +121,6 @@
   "final_status": "current-full-acceptance",
   "current_acceptance": {
     "path": "../current-acceptance/classic/accepted-result.json",
-    "sha256": "4529df7fb46b5922d163527a0ec28444ab3062eb301b29144949a90cee19d82d"
+    "sha256": "2a24263e5a82c2318fae6a9d62e9ba8fff17ee87e338e6d8aee732e206acb13f"
   }
 }

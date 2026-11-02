@@ -11,13 +11,13 @@
 #     not cached as a snapshot (later sessions then re-run it)
 # The preinstalled image already provides Node 20/21/22, pnpm, Rust,
 # Docker, PostgreSQL 16 and Redis 7. This script adds what Wikijump
-# pins on top: Node 24.22.1, Rust 1.95.0, pnpm 11.10.0, and dependency
+# pins on top: Node 24.22.1, Rust 1.99.1, pnpm 11.10.0, and dependency
 # prefetches so sessions start warm.
 set -Eeuo pipefail
 
 script_revision=2026-10-26.3
 node_version=24.22.1
-required_rust_version=1.95.0
+required_rust_version=1.99.1
 pnpm_version=11.10.0
 trusted_node24_dir=/opt/wikijump/trusted-node24
 node24_env=/root/.config/wikijump/node24.sh
@@ -41,8 +41,6 @@ retry() {
   done
 }
 
-# Locate the repository clone (its path inside a cloud session VM is
-# not fixed; find the Wikijump tree instead of assuming one).
 find_repo() {
   local candidate
   for candidate in "${WIKIJUMP_CLAUDE_REPO:-}" "$PWD" "$HOME"/* /workspace/* /root/*; do

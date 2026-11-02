@@ -1,34 +1,4 @@
 #!/usr/bin/env node
-// Refresh an imported mirror site to the canonical corpus (operator tool).
-//
-// For every mirrored page whose current source, title or tags differ from
-// the corpus copy, append a new page revision with the corpus values through
-// Deepwell's ordinary page_edit, so history, recorded links and dependent
-// renders follow normally (no row rewrite). Only pages whose every revision
-// came from the mirror import or seed are touched; a page with any other
-// revision is reported and left alone. An empty corpus title keeps the local
-// title (Wikidot then shows the page name).
-//
-// Reconciliation (same guard): a previously imported page whose source
-// entity no longer exists in the corpus is tombstoned through the ordinary
-// page_delete, and a page whose source entity moved to a new slug is moved
-// through the ordinary page_move, so renames keep their history instead of
-// appearing as a delete plus a create. Rename pairing keys on the stable
-// corpus entity id (entity_id.txt), never on title or content similarity.
-// Tombstoned and renamed-away slugs are recorded as consumed in the site's
-// mirror_scope row so later passes never resurrect them. Corpus entities
-// with no local page are reported for the create import path; this tool
-// never creates pages. Without --apply the command only prints the plan.
-//
-// Usage:
-//   refresh-mirror-from-corpus.mjs --corpus-root <path> [--branch en] \
-//     [--site scp-wiki] [--site-id 6000006] \
-//     [--db-container <name> | --db-url <url>] \
-//     [--rpc-url http://127.0.0.1:2747/jsonrpc] [--slug <page>...] [--apply]
-//
-// Auth: DEEPWELL_RPC_TOKEN for the service, and DEEPWELL_SESSION_TOKEN or the
-// local seed administrator (WIKIDOT_VERIFY_ADMIN_EMAIL / _PASS) for the edit
-// actor. Edits are attributed to the session's user.
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -78,12 +48,6 @@ export function usage() {
 
 const sha256 = (value) => crypto.createHash('sha256').update(value).digest('hex');
 
-/**
- * Decide the refresh for each local page from its corpus copy.
- *
- * @param {{slug: string, sourceSha256: string, title: string, tags: string[], importOnly: boolean}[]} pages
- * @param {(slug: string) => ({source: string, title: string, tags: string[], run: string} | null)} readCorpus
- */
 export function planMirrorRefresh(pages, readCorpus) {
   const plan = [];
   const skipped = [];
@@ -120,11 +84,6 @@ export function corpusReader(corpusRoot, branch) {
   };
 }
 
-/**
- * Read the stable source entity id for one corpus page directory.
- * Returns null when the directory predates entity inventories; callers
- * must treat a null here as "unpairable", never as "deleted".
- */
 export function readCorpusEntityId(directory) {
   try {
     const value = fs.readFileSync(path.join(directory, 'entity_id.txt'), 'utf8').trim();
@@ -134,12 +93,6 @@ export function readCorpusEntityId(directory) {
   }
 }
 
-/**
- * Enumerate the corpus entity inventory: every page slug with its stable
- * entity id. entityComplete is false when any page directory lacks a
- * usable entity_id.txt, in which case absence from the inventory proves
- * nothing and the reconciler must not plan deletes.
- */
 export function readCorpusEntities(corpusRoot, branch) {
   const pagesRoot = path.join(corpusRoot, branch, 'pages');
   const slugs = fs.readdirSync(pagesRoot, {withFileTypes: true}).filter((entry) => entry.isDirectory()).map((entry) => entry.name);
@@ -156,20 +109,6 @@ export function readCorpusEntities(corpusRoot, branch) {
   return {slugs, entities, entityComplete};
 }
 
-/**
- * Reconcile the local inventory against the corpus entity inventory.
- *
- * Rename pairing keys on the stable source entity id: a local page whose
- * entity lives on under a different corpus slug is a rename, never a
- * delete plus a create. A delete requires the entity to be absent from a
- * complete entity inventory AND the slug to be absent from the corpus;
- * anything less conclusive is reported, never tombstoned. Declared scope
- * extras are classified local content and are never delete candidates.
- *
- * @param {{slug: string, importOnly: boolean, sourceEntityId: string | null}[]} pages
- * @param {{slugs: string[], entities: {entityId: string, slug: string}[], entityComplete: boolean}} corpus
- * @param {{declaredExtras?: string[], consumedSlugs?: string[]}} scope
- */
 export function planMirrorReconciliation(pages, corpus, scope = {}) {
   const declaredExtras = new Set(scope.declaredExtras ?? []);
   const consumedSlugs = new Set(scope.consumedSlugs ?? []);
@@ -191,10 +130,6 @@ export function planMirrorReconciliation(pages, corpus, scope = {}) {
     }
     const corpusSlug = page.sourceEntityId ? corpusSlugByEntity.get(page.sourceEntityId) : undefined;
     if (corpusSlugs.has(page.slug)) {
-      // The slug is still inventoried: content refresh (not reconciliation)
-      // owns it. The one exception worth reporting is a genuine slug
-      // takeover — the recorded entity is conclusively gone from a
-      // complete inventory while the slug lives on under other content.
       if (page.sourceEntityId && corpus.entityComplete && corpusSlug === undefined) {
         skipped.push({slug: page.slug, reason: 'slug-reassigned'});
       }
@@ -229,13 +164,8 @@ export function planMirrorReconciliation(pages, corpus, scope = {}) {
   return {deletes, renames, creates, skipped};
 }
 
-function localPagesSql(site, slugs) {
+export function localPagesSql(site, slugs) {
   const filter = slugs.length ? ` AND p.slug IN (${slugs.map(sqlQuote).join(',')})` : '';
-  // The seed (system user) and mirror-import revisions are the only
-  // revisions a mirror page may have for it to be refreshed. The import
-  // snapshot join carries the stable source entity id used to pair
-  // renames; pages without a snapshot cannot be paired and are never
-  // delete candidates.
   return `SELECT json_build_object('slug', p.slug, 'sha', encode(sha256(convert_to(t.contents, 'UTF8')), 'hex'),
       'title', r.title, 'tags', r.tags,
       'importOnly', bool_and(r2.user_id = -2 OR (r2.user_id = -1 AND coalesce(r2.comments, '') LIKE ${sqlQuote(`${IMPORT_COMMENT_PREFIX}%`)})),
@@ -246,6 +176,12 @@ function localPagesSql(site, slugs) {
     JOIN page_revision r2 ON r2.page_id = p.page_id
     LEFT JOIN wikidot_page_snapshot snap ON snap.page_id = p.page_id
     WHERE s.slug = ${sqlQuote(site)} AND p.deleted_at IS NULL${filter}
+      AND NOT EXISTS (
+        SELECT 1 FROM wikidot_page_snapshot foreign_snapshot
+        WHERE foreign_snapshot.page_id = p.page_id
+          AND foreign_snapshot.source_site <> s.slug
+          AND foreign_snapshot.source_site NOT IN (
+            SELECT source_branch FROM wikidot_corpus_import_run run WHERE run.site_id = s.site_id))
     GROUP BY p.slug, t.contents, r.title, r.tags, snap.source_entity_id;`;
 }
 
@@ -394,8 +330,6 @@ export async function main(argv = process.argv.slice(2)) {
   } else if (consumed.length) {
     console.log(JSON.stringify({mirrorScope: true, ok: false, error: 'mirror-scope-missing: consumed slugs not recorded; re-planning stays idempotent because tombstoned and moved slugs leave the inventory'}));
   }
-  // Re-read the inventory: deletes and renames changed the slug set, so
-  // content refresh must plan against the post-reconciliation state.
   const {plan: refreshPlan} = planMirrorRefresh(await fetchPages(), readCorpus);
   for (const item of refreshPlan) {
     try {

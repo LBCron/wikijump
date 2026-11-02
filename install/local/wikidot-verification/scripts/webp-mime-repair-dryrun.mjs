@@ -1,15 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * DRY-RUN WebP MIME repair list. Refs #2067.
- *
- * Lists `.webp` rows stored as `application/octet-stream` (SELECT-only
- * against Standing, or a TSV dump) and writes a row list plus a manifest
- * carrying counts and the sha256 of the canonical row list. The default
- * is DRY-RUN: --apply refuses unless --approval-sha256 equals the
- * manifest sha AND WIKIJUMP_REPAIR_APPROVED=1 is set. No Standing writes
- * happen in this lane.
- */
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";

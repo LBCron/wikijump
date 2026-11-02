@@ -18,14 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Rendering a page body for a request that carried Wikidot URL arguments.
-//!
-//! A revision's stored HTML answers the page's bare URL. When the request path
-//! supplies an argument a module reads, that stored HTML is an answer to a
-//! different question, so the body is rendered again for this request. Nothing
-//! is written back: the revision keeps the HTML it was compiled with, and the
-//! link table is not touched, because a page view is a read.
-
 use super::module_arguments::PageModuleArguments;
 use crate::error::exn_any_error;
 use crate::error::prelude::{Error, ErrorType, Result};
@@ -46,10 +38,6 @@ use exn::Exn;
 use ftml::data::PageInfo;
 use ref_map::OptionRefMap;
 
-/// Decides whether this request needs its own render, and performs it.
-///
-/// Returns `stored_body_html` unchanged when the effective source reads no URL
-/// argument and has no module that always needs current runtime state.
 #[allow(clippy::too_many_arguments)]
 pub(super) async fn render_body_for_module_arguments(
     ctx: &ServiceContext<'_>,
@@ -118,11 +106,6 @@ pub(super) async fn render_body_for_module_arguments(
 
     match output {
         Ok(output) => Ok(output.html_output.body),
-        // The saved render answers the bare URL. It was produced by the
-        // renderer for this revision, without the interactive deadline. When
-        // a page's live runtime modules cannot be rendered within that
-        // deadline, serving it is better than failing the whole page. A
-        // request with module arguments still needs its own render.
         Err(error) if saved_render_answers_failed_render(module_arguments, &error) => {
             warn!(
                 "Serving the saved render of page ID {} after the live render timed out",
@@ -134,9 +117,6 @@ pub(super) async fn render_body_for_module_arguments(
     }
 }
 
-/// Whether the saved render may answer a request whose live render failed:
-/// only a bare URL (the saved render answers no module arguments), and only
-/// when the failure is the render deadline rather than a rendering error.
 fn saved_render_answers_failed_render(
     module_arguments: &PageModuleArguments,
     error: &Exn<Error>,

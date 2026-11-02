@@ -27,9 +27,66 @@ const RESPONSE_CACHE_REQUEST_IDENTITY_HEADERS = [
   "if-range",
 ];
 
+const WIKIDOT_AVATAR_PHP_URL = /^https:\/\/www\.wikidot\.com\/avatar\.php\?/u;
+
+/**
+ * The canonical response-cache key for a Wikidot printuser avatar URL.
+ *
+ * Wikidot compiles the avatar URL with `&amp;` separators and a compile-time
+ * `timestamp` parameter. A rendering pipeline that passes the compiled URL
+ * through another HTML-escaping layer makes the browser request a spelling
+ * whose separators are escaped again (`&amp;amp;`), and the timestamp changes
+ * on every render, so no exact-URL key can ever be recorded for the request a
+ * local render actually issues. The response is identified by the userid (and
+ * size) alone, so canonicalize every separator spelling to the `&amp;` form
+ * the retained evidence is recorded under and drop the volatile timestamp:
+ * one retained response then answers every spelling of the same avatar
+ * request, and a request for any other userid still keys differently.
+ */
+function canonicalAvatarResponseCacheKey(value) {
+  return value
+    .replace(/&(amp;)+/gu, "&amp;")
+    .replace(/&(?!amp;)/gu, "&amp;")
+    .replace(/&amp;timestamp=[^&]*/gu, "")
+    .replace(/\?timestamp=[^&]*&amp;/u, "?")
+    .replace(/\?timestamp=[^&]*$/u, "");
+}
+
 function responseCacheKey(value) {
-  if (/^https:\/\/www\.wikidot\.com\/avatar\.php\?/u.test(value)) return value.replace(/(?:&amp;|&)timestamp=[^&]*/u, "");
-  return value;
+  if (!WIKIDOT_AVATAR_PHP_URL.test(value)) return value;
+  const marker = "#__wikijump_evidence_request=";
+  const markerIndex = value.indexOf(marker);
+  const head = markerIndex === -1 ? value : value.slice(0, markerIndex);
+  const tail = markerIndex === -1 ? "" : value.slice(markerIndex);
+  return canonicalAvatarResponseCacheKey(head) + tail;
+}
+
+function isWikidotAvatarImageRequest(url, resourceType) {
+  return resourceType === "image" && WIKIDOT_AVATAR_PHP_URL.test(url);
+}
+
+/**
+ * A cache-only replay request for a Wikidot avatar image whose response the
+ * retained evidence does not hold.
+ *
+ * Avatar responses are the one public response class the evidence capture
+ * cannot guarantee to retain: the URL is volatile (see
+ * canonicalAvatarResponseCacheKey), and avatar.php answers with responses
+ * the capture must bypass instead of retaining whenever they carry
+ * Set-Cookie or a request-dependent Vary, so a sealed reference can
+ * legitimately hold no response for a user a local render asks about. The
+ * request gate converts this error into an attributed blockedbyclient abort,
+ * accounted like every other gate abort, instead of failing the whole replay
+ * closed; a miss for any other request remains a replay-integrity failure.
+ * The parity comparison still judges the rendered page, avatar included,
+ * against the live reference.
+ */
+export class UnretainedAvatarResponseError extends Error {
+  constructor(url) {
+    super(`candidate response cache miss: ${url}`);
+    this.name = "UnretainedAvatarResponseError";
+    this.url = url;
+  }
 }
 
 function reusableStoredHeaders(headers) {
@@ -672,8 +729,6 @@ export function createBrowserResponseCache({maxEntries = DEFAULT_RESPONSE_CACHE_
       if (!loaded) throw new Error("persistent browser response cache must be loaded before lookup");
       return matchingRetainedEntry(responseCacheKey(key), null);
     },
-    // Read-only provenance query for the cache-only replay guard. It must not disturb the
-    // hit/miss accounting that measures how much evidence a replay actually reused.
     hasRetainedEntry(key) {
       if (!loaded) throw new Error("persistent browser response cache must be loaded before lookup");
       return matchingRetainedEntry(responseCacheKey(key), null, {count: false}) !== null;
@@ -1072,7 +1127,6 @@ async function abortRoute(route) {
     await route.abort("blockedbyclient");
     return true;
   } catch {
-    // A route can already be disposed after navigation teardown. Never continue it after a failed gate path.
     return false;
   }
 }
@@ -1260,6 +1314,9 @@ export async function resolveEvidenceReplaySubresourceRedirect({
     let targetEntry = responseCache.lookup(targetCacheKey, {requestHeaders});
     if (targetEntry === null) {
       if (cacheOnly) {
+        if (isWikidotAvatarImageRequest(sourceUrl, resourceType)) {
+          throw new UnretainedAvatarResponseError(target.href);
+        }
         throw new Error(`candidate response cache miss: ${target.href}`);
       } else if (fetchRetainedEntry !== null) {
         targetEntry = await fetchRetainedEntry(target.href);
@@ -1357,23 +1414,12 @@ function evidenceReplaySchemeVariant(value) {
   return parsed.href;
 }
 
-/**
- * Whether retained evidence exists for a URL, counting the HTTPS variant of an insecure
- * request as the same resource (see `evidenceReplaySchemeVariant`).
- */
 function hasRetainedReplayEvidence(responseCache, value) {
   if (responseCache.hasRetainedEntry(value)) return true;
   const schemeVariant = evidenceReplaySchemeVariant(value);
   return schemeVariant !== null && responseCache.hasRetainedEntry(schemeVariant);
 }
 
-/**
- * Serve a cache-only replay request from retained evidence.
- *
- * The request's own URL is looked up first so an explicitly retained `http://` entry still
- * wins. Only when that misses does the HTTPS variant of the same origin and path answer the
- * request, because that is the representation the retained evidence holds for the resource.
- */
 function lookupRetainedReplayEntry(request, responseCache, requestHeaders) {
   const requestUrl = request.url();
   const schemeVariant = evidenceReplaySchemeVariant(requestUrl);
@@ -1381,9 +1427,6 @@ function lookupRetainedReplayEntry(request, responseCache, requestHeaders) {
   const hasOwnEntry = canProbe
     ? responseCache.hasRetainedEntry(requestUrl)
     : responseCache.lookup(responseCacheRequestKey(request, null, requestHeaders), {requestHeaders}) !== null;
-  // Probing first keeps the fallback from recording a phantom cache miss for a scheme the
-  // evidence was never acquired under. A genuinely unretained request still misses and still
-  // fails closed under its own URL.
   if (!hasOwnEntry && schemeVariant !== null) {
     return responseCache.lookup(responseCacheRequestKey(request, schemeVariant, requestHeaders), {requestHeaders});
   }
@@ -1399,7 +1442,12 @@ async function servePublicRoute(route, {gate, responseCache, cacheOnly = false, 
       throw new Error(`candidate response cache cannot serve ${request.url()}`);
     }
     const cached = lookupRetainedReplayEntry(request, responseCache, requestHeaders);
-    if (cached === null) throw new Error(`candidate response cache miss: ${request.url()}`);
+    if (cached === null) {
+      if (isWikidotAvatarImageRequest(request.url(), request.resourceType())) {
+        throw new UnretainedAvatarResponseError(request.url());
+      }
+      throw new Error(`candidate response cache miss: ${request.url()}`);
+    }
     await fulfillRetainedEntry(route, { gate, responseCache, request, entry: cached, cacheOnly: true });
     return;
   }
@@ -1439,23 +1487,6 @@ async function servePublicRoute(route, {gate, responseCache, cacheOnly = false, 
   await fulfillRetainedEntry(route, { gate, responseCache, request, entry });
 }
 
-/**
- * @param {import("@playwright/test").BrowserContext} context
- * @param {{
- *   gate: object
- *   exemptOrigins?: string[]
- *   responseCache?: object | null
- *   publicOriginPredicate?: ((value: string, resourceType: string, method: string) => boolean) | null
- *   cacheOnly?: boolean
- * }} [options]
- *
- * With `cacheOnly`, a public response that the browser received from anywhere other than
- * this installation is a replay-integrity failure: the response listener fails the gate
- * closed whenever the response URL has retained evidence this installation never served.
- * Route interception cannot observe every request a browser issues (Firefox upgrades an
- * insecure subresource through an internal redirect it never routes), so silently
- * continuing would let live network bytes replace retained evidence.
- */
 export async function installBrowserRequestGate(context, {gate, exemptOrigins = [], responseCache = null, publicOriginPredicate = null, cacheOnly = false} = {}) {
   if (!gate || typeof gate.acquire !== "function" || typeof gate.deferForRetryAfter !== "function" || typeof gate.failClosed !== "function" || typeof gate.recordLocalExempt !== "function" || typeof gate.recordUnsupportedRequestBlocked !== "function" || typeof gate.recordWebSocketBlocked !== "function") throw new Error("browser request gate is malformed");
   if (!context || typeof context.route !== "function" || typeof context.routeWebSocket !== "function" || typeof context.on !== "function") throw new Error("browser context cannot enforce request-level capture controls");
@@ -1471,7 +1502,6 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
           gate.recordLocalExempt();
         }
       } catch {
-        // Malformed/non-HTTP requests remain the route handler's fail-closed concern.
       }
     });
   }
@@ -1556,6 +1586,17 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
           const remaining = gateServedRequests.get(replayIdentity) ?? 0;
           if (remaining > 1) gateServedRequests.set(replayIdentity, remaining - 1);
           else gateServedRequests.delete(replayIdentity);
+        }
+        if (error instanceof UnretainedAvatarResponseError) {
+          // The retained evidence legitimately holds no response for this
+          // avatar (see UnretainedAvatarResponseError), so the request is
+          // blocked and accounted like any other gate abort instead of
+          // failing the replay closed. The decision string is validated
+          // against REQUEST_GATE_ABORT_DECISIONS in
+          // standing-browser-parity-contract.mjs.
+          gate.recordUnsupportedRequestBlocked(url.hostname);
+          await abortWithAttribution(route, "unretained_avatar_image");
+          return;
         }
         throw error;
       }

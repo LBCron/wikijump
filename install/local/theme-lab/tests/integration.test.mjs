@@ -72,15 +72,22 @@ async function fixtureServer() {
 async function withSession(t, run, {previewClient = null} = {}) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "theme-lab-integration-"));
   const fixture = await fixtureServer();
-  const chromium = loadChromium();
-  const server = await startSessionServer({
-    socketPath: path.join(dir, "session.sock"),
-    chromium,
-    headless: true,
-    candidateUrl: `${fixture.origin}/candidate`,
-    referenceAssets: new ReferenceCache({cacheDir: path.join(dir, "cache"), allowPrivate: true}),
-    previewClient,
-  });
+  let server;
+  try {
+    server = await startSessionServer({
+      socketPath: path.join(dir, "session.sock"),
+      chromium: loadChromium(),
+      headless: true,
+      candidateUrl: `${fixture.origin}/candidate`,
+      referenceAssets: new ReferenceCache({cacheDir: path.join(dir, "cache"), allowPrivate: true}),
+      previewClient,
+    });
+  } catch (error) {
+    // A listening fixture server keeps the file's process alive forever.
+    await fixture.close();
+    await fs.rm(dir, {recursive: true, force: true});
+    throw error;
+  }
   t.after(async () => {
     await server.close().catch(() => {});
     await fixture.close();
@@ -300,14 +307,20 @@ test("unapplied reference stylesheet fails the diff loudly instead of dropping d
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
-  const chromium = loadChromium();
-  const sessionServer = await startSessionServer({
-    socketPath: path.join(dir, "session.sock"),
-    chromium,
-    headless: true,
-    candidateUrl: `${origin}/reference`,
-    referenceAssets: new ReferenceCache({cacheDir: path.join(dir, "cache"), allowPrivate: true}),
-  });
+  let sessionServer;
+  try {
+    sessionServer = await startSessionServer({
+      socketPath: path.join(dir, "session.sock"),
+      chromium: loadChromium(),
+      headless: true,
+      candidateUrl: `${origin}/reference`,
+      referenceAssets: new ReferenceCache({cacheDir: path.join(dir, "cache"), allowPrivate: true}),
+    });
+  } catch (error) {
+    await new Promise((resolve) => server.close(resolve));
+    await fs.rm(dir, {recursive: true, force: true});
+    throw error;
+  }
   t.after(async () => {
     await sessionServer.close().catch(() => {});
     await new Promise((resolve) => server.close(resolve));

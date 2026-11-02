@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Wikidot data-form scalar parsing, serialization, and validation helpers.
-
 pub(super) fn parse_wikidot_stored_plain_scalar(value: &str) -> Option<String> {
     if value.starts_with('\'') {
         parse_wikidot_single_quoted_scalar(value)

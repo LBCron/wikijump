@@ -2,27 +2,10 @@ import * as easings from "svelte/easing"
 import { Media } from "./media"
 
 export interface AnimOpts {
-  /** Delay before the animation plays, in or out. */
   delay?: number
-  /** Length of animation, in miliseconds. */
   duration?: number
-  /** Easing algorithm to use. */
   easing?: keyof typeof easings
-  /**
-   * Forces the animation to play even with `prefers-reduced-motion:
-   * reduce`.
-   */
   forceReduced?: boolean
-  /**
-   * Function that returns the styling that should be applied for a given
-   * time.
-   *
-   * @example
-   *   ```ts
-   *   // fading animation
-   *   const anim = { css: t => `opacity: ${t}` }
-   *   ```
-   */
   css: (t: number, u: number) => string | string[]
 }
 
@@ -60,7 +43,6 @@ export function anim(
   }
 }
 
-/** Animation that "unfolds" (or folds) an element via its `max-height`. */
 export function unfold(node: Element, opts: Omit<AnimOpts, "css">) {
   const height = node.getBoundingClientRect().height
   const css = (t: number) => `max-height: ${t * height}px`

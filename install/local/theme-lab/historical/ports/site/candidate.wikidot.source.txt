@@ -1,0 +1,53 @@
+これはSCP Wikiのテーマ、Sigma-10用ディレクトリです。
+
+ソースコードは[https://github.com/scpwiki/sigma GitHub]でホストされ、配信されています。
+
+サイトテーマの前バージョン（SCP Sigma-9）のコードは[[[component:theme|こちら]]]で確認できます。
+
+[[div class="blockquote"]]
++ 英語サンドボックス向け手順
+
+# 自分のサイトに{{theme:site}}という名前のページを作成してください。このページはロックするべきです。
+# 自分のサイトのサイトマネージャーで**外観と動作**、**テーマ**へ移動し、**外部**タブを選択して、"{{@@https://@@}}**your-site-name**{{@@.wdfiles.com/local--code/theme:site/1@@}}"を入力してください。
+# 必要なら、その形式を使うために[[[nav:side|サイドバー]]]および/または[[[nav:top|トップバー]]]をコピーしてください。
+# 添付ファイルを含め、[[[main|フロントページ]]]テンプレートをコピーしてください。
+# モバイル表示を有効化するには、あなたのWiki上の任意のページへ移動し、下部の[# + Options]をクリックしてください。
+# [# Edit Meta]をクリックしてください。
+# "Add a new meta tag"をクリックしてください。nameには"{{viewport}}"（引用符なし）を使い、contentには"{{width=device-width, initial-scale=1.0}}"（こちらも引用符なし）を使ってください。
+
+{{theme:site}}ページの内容:
+
+[[div class="code"]]
+@<[[code type="css"]]>@
+@<@import url("https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css");>@
+@<[[/code]]>@
+[[/div]]
+
+コードブロック内には、異なるヘッダー画像など、サンドボックス向けのカスタムスタイルを含めても構いません。
+[[/div]]
+
+[[module CSS]]
+/* SCP-JP Wikidot narrow image-block correction: include the native right margin and border in its available width. */
+@media (max-width: 479px) {
+  .scp-image-block.block-right { max-width: calc(100% - 2em - 2px) !important; }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot tablet sidebar: contain documented literal HTML-block preview source while preserving horizontal access. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #side-bar { overflow-x: auto !important; }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot narrow mobile navigation: keep the penultimate submenu within its owning row. */
+@media (max-width: 359px) {
+  #top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul { left: -4px; right: auto; }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot navigation labels: lift the Sigma-9 one-pixel clip on top-level labels so the label text keeps its line box. */
+#top-bar .top-bar > ul > li > a, #top-bar .mobile-top-bar > ul > li > a { max-height: none; overflow: visible; }
+[[/module]]

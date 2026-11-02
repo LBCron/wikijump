@@ -1,0 +1,585 @@
+{
+  "schema_version": 1,
+  "slug": "theme:foxtrot",
+  "mode": "Wikidot page attachments; upload each named file to this theme page before publication",
+  "assets": [
+    {
+      "filename": "canada_dark-JP.png",
+      "sha256": "5b21d465f3108d573b11d651d11ded55751b99e63195d272530651ba23726ba0",
+      "bytes": 67295,
+      "asset_file": "5b21d465f3108d573b11d651d11ded55751b99e63195d272530651ba23726ba0.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-85-6k0m/canada_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-85-6k0m/canada_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "canada_light-JP.png",
+      "sha256": "7557a168960706abff94ffa6023a5ae977649d5e8ae0905fcc662dd3b4ed5e3d",
+      "bytes": 66220,
+      "asset_file": "7557a168960706abff94ffa6023a5ae977649d5e8ae0905fcc662dd3b4ed5e3d.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-84-cvcw/canada_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-84-cvcw/canada_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "fishing_dark-JP.png",
+      "sha256": "58c241c1bf7914e763334443cef3a23444ec4c1252bcb539a01ae01c7077c54d",
+      "bytes": 66696,
+      "asset_file": "58c241c1bf7914e763334443cef3a23444ec4c1252bcb539a01ae01c7077c54d.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-99-ct6y/fishing_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-99-ct6y/fishing_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "fishing_light-JP.png",
+      "sha256": "bde8bf5d2c40f3b2b7b6b440f5d9cf136275e28688fece77ae2e5743a5903565",
+      "bytes": 61957,
+      "asset_file": "bde8bf5d2c40f3b2b7b6b440f5d9cf136275e28688fece77ae2e5743a5903565.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-98-f31h/fishing_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-98-f31h/fishing_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "goc_dark-JP.png",
+      "sha256": "29d24f580ebc75cacd907119395368075ca63d04f19807db4c6476b84f95bf75",
+      "bytes": 67949,
+      "asset_file": "29d24f580ebc75cacd907119395368075ca63d04f19807db4c6476b84f95bf75.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-105-hrgt/goc_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-105-hrgt/goc_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "goc_light-JP.png",
+      "sha256": "ae136ebd2d5e00dded63907f373bbb29c3bb67ab15dd7c4b261e636837efed4c",
+      "bytes": 66505,
+      "asset_file": "ae136ebd2d5e00dded63907f373bbb29c3bb67ab15dd7c4b261e636837efed4c.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-104-s61v/goc_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-104-s61v/goc_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "hybrasil_dark-JP.png",
+      "sha256": "a62e82cfc8b8721b8ed93ece934cc9ca58a882ceaa19db6a47d5e78e1b0b647a",
+      "bytes": 93569,
+      "asset_file": "a62e82cfc8b8721b8ed93ece934cc9ca58a882ceaa19db6a47d5e78e1b0b647a.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-103-f7xn/hybrasil_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-103-f7xn/hybrasil_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "hybrasil_light-JP.png",
+      "sha256": "739a8f6f2c6eecfe275d6d7b8d32fb36d7caced4ed5dc977cbb429fcf50919fa",
+      "bytes": 97774,
+      "asset_file": "739a8f6f2c6eecfe275d6d7b8d32fb36d7caced4ed5dc977cbb429fcf50919fa.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-102-yhl7/hybrasil_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-102-yhl7/hybrasil_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "nightfall_dark-JP.png",
+      "sha256": "4d7b21765130662fc1127eb0bd8657ab74ea10039967e0e1b95dd27563dec631",
+      "bytes": 54725,
+      "asset_file": "4d7b21765130662fc1127eb0bd8657ab74ea10039967e0e1b95dd27563dec631.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-101-t3p2/nightfall_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-101-t3p2/nightfall_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "nightfall_light-JP.png",
+      "sha256": "a48444c067a9b8f8eb7169175a9651e8d4563e3ca632a7062c5de156ad5497ee",
+      "bytes": 18673,
+      "asset_file": "a48444c067a9b8f8eb7169175a9651e8d4563e3ca632a7062c5de156ad5497ee.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-100-vd38/nightfall_light-JP.png"
+      ],
+      "acquired_from": "https://scp-wiki.wdfiles.com/local--files/theme:foxtrot/nightfall_light.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; the JP-hosted counterpart returned HTTP 500, so the current EN image with the same theme showcase role is bundled.",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; the JP-hosted counterpart returned HTTP 500, so the current EN image with the same theme showcase role is bundled."
+    },
+    {
+      "filename": "overwatch_dark-JP.png",
+      "sha256": "a1c43f76d90909b4e0d88465c4c38077ab22f4134e79b3bf49b64d04c4e17760",
+      "bytes": 54778,
+      "asset_file": "a1c43f76d90909b4e0d88465c4c38077ab22f4134e79b3bf49b64d04c4e17760.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-95-mgaw/overwatch_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-95-mgaw/overwatch_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "overwatch_light-JP.png",
+      "sha256": "8fedc09672684735671d09fa6940808553fe80d27eccaf0a043b337b310c143d",
+      "bytes": 14163,
+      "asset_file": "8fedc09672684735671d09fa6940808553fe80d27eccaf0a043b337b310c143d.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-94-9j68/overwatch_light-JP.png"
+      ],
+      "acquired_from": "https://scp-wiki.wdfiles.com/local--files/theme:foxtrot/overwatch_light.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; the JP-hosted counterpart returned HTTP 500, so the current EN image with the same theme showcase role is bundled.",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; the JP-hosted counterpart returned HTTP 500, so the current EN image with the same theme showcase role is bundled."
+    },
+    {
+      "filename": "poland_dark-JP.png",
+      "sha256": "ed55e8d4f13187a45a065914d4c756d360dea4fdbc7594b6c3db2bd9c3f644a3",
+      "bytes": 71846,
+      "asset_file": "ed55e8d4f13187a45a065914d4c756d360dea4fdbc7594b6c3db2bd9c3f644a3.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-89-40fu/poland_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-89-40fu/poland_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "poland_light-JP.png",
+      "sha256": "ba64644d32f217fd57b7777ed7a8aa1dbd1e24dd7ad4d21f61ddc44781589a54",
+      "bytes": 60908,
+      "asset_file": "ba64644d32f217fd57b7777ed7a8aa1dbd1e24dd7ad4d21f61ddc44781589a54.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-88-5988/poland_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-88-5988/poland_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "slothspit_dark-JP.png",
+      "sha256": "060e75de6b3488c5bfcab1e1362dded4dfaecc1d0875b06f0f5583726f365305",
+      "bytes": 85314,
+      "asset_file": "060e75de6b3488c5bfcab1e1362dded4dfaecc1d0875b06f0f5583726f365305.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-87-iriu/slothspit_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-87-iriu/slothspit_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "slothspit_light-JP.png",
+      "sha256": "d8e40b36106b3bb1525775bc6dc12b71441348dd80fe4eba4ff13e930c57ab42",
+      "bytes": 82144,
+      "asset_file": "d8e40b36106b3bb1525775bc6dc12b71441348dd80fe4eba4ff13e930c57ab42.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-86-9vrb/slothspit_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-86-9vrb/slothspit_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "spc_dark-JP.png",
+      "sha256": "8ddc3500d4375fc6dfab44bc9b318817acbc8955f42afa8ed5b653be6f84e54d",
+      "bytes": 68745,
+      "asset_file": "8ddc3500d4375fc6dfab44bc9b318817acbc8955f42afa8ed5b653be6f84e54d.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-97-wj4h/spc_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-97-wj4h/spc_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "spc_light-JP.png",
+      "sha256": "05c8d142b7ac7a752804aa65ff738ece4592ebbb827ce85a6e7ea96544519844",
+      "bytes": 68351,
+      "asset_file": "05c8d142b7ac7a752804aa65ff738ece4592ebbb827ce85a6e7ea96544519844.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-96-88ic/spc_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-96-88ic/spc_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "spooky_dark-JP.png",
+      "sha256": "37ce528638b7f5bc5334d691ce5e5b6a6ad9c13736d22136943f6dee6a0e2908",
+      "bytes": 74095,
+      "asset_file": "37ce528638b7f5bc5334d691ce5e5b6a6ad9c13736d22136943f6dee6a0e2908.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-107-fk3e/spooky_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-107-fk3e/spooky_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "spooky_light-JP.png",
+      "sha256": "4a8557fde9fe00f2f840bbbe3dccbda38c49d6cf9b1ab6c02ecd12ad07b1200b",
+      "bytes": 77430,
+      "asset_file": "4a8557fde9fe00f2f840bbbe3dccbda38c49d6cf9b1ab6c02ecd12ad07b1200b.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-106-g20u/spooky_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-106-g20u/spooky_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "threshold_dark-JP.png",
+      "sha256": "ccbdcd07ac6f1592973a81c4045d269cdbdbf9aa931ac8deafbe1377c7d877ce",
+      "bytes": 54586,
+      "asset_file": "ccbdcd07ac6f1592973a81c4045d269cdbdbf9aa931ac8deafbe1377c7d877ce.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-93-mf91/threshold_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-93-mf91/threshold_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "threshold_light-JP.png",
+      "sha256": "3bccd3bbf06f609a0b20e106855a2562a10cd6ad394f8d558e27ef8ae336f991",
+      "bytes": 46540,
+      "asset_file": "3bccd3bbf06f609a0b20e106855a2562a10cd6ad394f8d558e27ef8ae336f991.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-92-n9nj/threshold_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-92-n9nj/threshold_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "vanguard_dark-JP.png",
+      "sha256": "077589c0ff6c4c77bf7b72ffefc820ec46078163bee12d3a0c5f71669766451c",
+      "bytes": 81498,
+      "asset_file": "077589c0ff6c4c77bf7b72ffefc820ec46078163bee12d3a0c5f71669766451c.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-91-ps8h/vanguard_dark-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-91-ps8h/vanguard_dark-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "vanguard_light-JP.png",
+      "sha256": "85d57f2d3421928fbaf94af29707d4707bbfeb5a7d8ab51b60fd71e0d43f7303",
+      "bytes": 86195,
+      "asset_file": "85d57f2d3421928fbaf94af29707d4707bbfeb5a7d8ab51b60fd71e0d43f7303.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-90-h0l3/vanguard_light-JP.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-90-h0l3/vanguard_light-JP.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "dependency_decisions": [
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "canada_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-85-6k0m/canada_dark-JP.png"
+      ],
+      "sha256": "5b21d465f3108d573b11d651d11ded55751b99e63195d272530651ba23726ba0",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "canada_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-84-cvcw/canada_light-JP.png"
+      ],
+      "sha256": "7557a168960706abff94ffa6023a5ae977649d5e8ae0905fcc662dd3b4ed5e3d",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "fishing_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-99-ct6y/fishing_dark-JP.png"
+      ],
+      "sha256": "58c241c1bf7914e763334443cef3a23444ec4c1252bcb539a01ae01c7077c54d",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "fishing_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-98-f31h/fishing_light-JP.png"
+      ],
+      "sha256": "bde8bf5d2c40f3b2b7b6b440f5d9cf136275e28688fece77ae2e5743a5903565",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "goc_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-105-hrgt/goc_dark-JP.png"
+      ],
+      "sha256": "29d24f580ebc75cacd907119395368075ca63d04f19807db4c6476b84f95bf75",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "goc_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-104-s61v/goc_light-JP.png"
+      ],
+      "sha256": "ae136ebd2d5e00dded63907f373bbb29c3bb67ab15dd7c4b261e636837efed4c",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "hybrasil_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-103-f7xn/hybrasil_dark-JP.png"
+      ],
+      "sha256": "a62e82cfc8b8721b8ed93ece934cc9ca58a882ceaa19db6a47d5e78e1b0b647a",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "hybrasil_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-102-yhl7/hybrasil_light-JP.png"
+      ],
+      "sha256": "739a8f6f2c6eecfe275d6d7b8d32fb36d7caced4ed5dc977cbb429fcf50919fa",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "nightfall_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-101-t3p2/nightfall_dark-JP.png"
+      ],
+      "sha256": "4d7b21765130662fc1127eb0bd8657ab74ea10039967e0e1b95dd27563dec631",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "nightfall_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-100-vd38/nightfall_light-JP.png"
+      ],
+      "sha256": "a48444c067a9b8f8eb7169175a9651e8d4563e3ca632a7062c5de156ad5497ee",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; the JP-hosted counterpart returned HTTP 500, so the current EN image with the same theme showcase role is bundled."
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "overwatch_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-95-mgaw/overwatch_dark-JP.png"
+      ],
+      "sha256": "a1c43f76d90909b4e0d88465c4c38077ab22f4134e79b3bf49b64d04c4e17760",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "overwatch_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-94-9j68/overwatch_light-JP.png"
+      ],
+      "sha256": "8fedc09672684735671d09fa6940808553fe80d27eccaf0a043b337b310c143d",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; the JP-hosted counterpart returned HTTP 500, so the current EN image with the same theme showcase role is bundled."
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "poland_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-89-40fu/poland_dark-JP.png"
+      ],
+      "sha256": "ed55e8d4f13187a45a065914d4c756d360dea4fdbc7594b6c3db2bd9c3f644a3",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "poland_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-88-5988/poland_light-JP.png"
+      ],
+      "sha256": "ba64644d32f217fd57b7777ed7a8aa1dbd1e24dd7ad4d21f61ddc44781589a54",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "slothspit_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-87-iriu/slothspit_dark-JP.png"
+      ],
+      "sha256": "060e75de6b3488c5bfcab1e1362dded4dfaecc1d0875b06f0f5583726f365305",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "slothspit_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-86-9vrb/slothspit_light-JP.png"
+      ],
+      "sha256": "d8e40b36106b3bb1525775bc6dc12b71441348dd80fe4eba4ff13e930c57ab42",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "spc_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-97-wj4h/spc_dark-JP.png"
+      ],
+      "sha256": "8ddc3500d4375fc6dfab44bc9b318817acbc8955f42afa8ed5b653be6f84e54d",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "spc_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-96-88ic/spc_light-JP.png"
+      ],
+      "sha256": "05c8d142b7ac7a752804aa65ff738ece4592ebbb827ce85a6e7ea96544519844",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "spooky_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-107-fk3e/spooky_dark-JP.png"
+      ],
+      "sha256": "37ce528638b7f5bc5334d691ce5e5b6a6ad9c13736d22136943f6dee6a0e2908",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "spooky_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-106-g20u/spooky_light-JP.png"
+      ],
+      "sha256": "4a8557fde9fe00f2f840bbbe3dccbda38c49d6cf9b1ab6c02ecd12ad07b1200b",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "threshold_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-93-mf91/threshold_dark-JP.png"
+      ],
+      "sha256": "ccbdcd07ac6f1592973a81c4045d269cdbdbf9aa931ac8deafbe1377c7d877ce",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "threshold_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A5722815-92-n9nj/threshold_light-JP.png"
+      ],
+      "sha256": "3bccd3bbf06f609a0b20e106855a2562a10cd6ad394f8d558e27ef8ae336f991",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "vanguard_dark-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-91-ps8h/vanguard_dark-JP.png"
+      ],
+      "sha256": "077589c0ff6c4c77bf7b72ffefc820ec46078163bee12d3a0c5f71669766451c",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "vanguard_light-JP.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:5722815-90-h0l3/vanguard_light-JP.png"
+      ],
+      "sha256": "85d57f2d3421928fbaf94af29707d4707bbfeb5a7d8ab51b60fd71e0d43f7303",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ]
+}

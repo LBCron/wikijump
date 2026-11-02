@@ -145,7 +145,5 @@ export const loadForumThreadRoute = async (event, dependencies) => {
     { t: thread },
     context.deepwell
   )
-  // The sealed remote script URLs remain inert response metadata. The served
-  // route does not grant them loader authority.
   return threadBody(result, MISSING_THREAD, thread)
 }

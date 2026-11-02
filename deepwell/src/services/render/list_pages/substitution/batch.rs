@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Batch query keys, display payloads, and author resolution support.
-
 use super::ListPagesArguments;
 use crate::services::page_query::{
     AuthorSelector, FoundPageFields, normalize_wikidot_author_name,
@@ -221,10 +219,6 @@ pub(in crate::services::render) fn exact_name_list_pages_batch_key(
             .iter()
             .any(|category| category.as_ref() != "_default")
     {
-        // Category-local names map to stored full slugs only inside the
-        // ordinary query. The exact-name batch is keyed by stored full slug,
-        // so using the short source token as its lookup key would fabricate
-        // an empty result.
         return None;
     }
 

@@ -28,4 +28,4 @@ pub use email_token::{
 };
 pub use service::EmailService;
 pub(crate) use service::is_well_formed_email;
-pub use structs::{EmailClassification, EmailValidationOutput};
+pub use structs::{EmailClassification, EmailValidationOutput, MailFormMessage};

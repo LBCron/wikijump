@@ -1,0 +1,15 @@
+{
+  "schema": "theme_lab_site_state.v1",
+  "branch_profile": "scp-jp",
+  "locale": "ja",
+  "site_slug": "scpaiueouiuiuiui",
+  "page_tags": ["theme"],
+  "corpus_page": {
+    "slug": "run-owned:theme-lab-canonical-corpus-v1",
+    "tags": ["theme", "theme-lab-canonical-corpus"]
+  },
+  "existing_pages": ["run-owned:theme-lab-corpus-existing"],
+  "missing_pages": ["run-owned:theme-lab-corpus-missing"],
+  "session_profiles": ["anonymous", "authenticated"],
+  "purpose": "Controlled database state for canonical theme corpus rendering; existing/missing link classification is part of scenario identity."
+}

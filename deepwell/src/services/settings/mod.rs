@@ -18,21 +18,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The "settings" service.
-//!
-//! This enables convenient access of the various object-associated settings
-//! found throughout the database schema.
-//!
-//! For instance, a site may have a particular setting, which can be fetched
-//! here, or a setting may be distributed across multiple levels, such as
-//! a page's layout, which by default inherits from the level above it.
-
 mod service;
 mod structs;
 
 pub use self::service::SettingsService;
 pub use self::structs::{
-    GoogleAnalyticsSettings, MembershipSettings, NavigationPageHtml,
+    GoogleAnalyticsSettings, MembershipSettings, NavigationPage, NavigationPageHtml,
     NavigationPageWikitext, PageDiscussionSettings, PageRatingPermission,
     PageRatingSettings, PageRatingType, PageRatingVisibility, SiteSettings, ThemeSetting,
     ToolbarSettings, UpdateGoogleAnalyticsSettings, UpdateMembershipSettings,

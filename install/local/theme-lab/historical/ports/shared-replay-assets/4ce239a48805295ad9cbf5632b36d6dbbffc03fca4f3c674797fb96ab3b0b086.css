@@ -1,0 +1,158 @@
+/*
+Font families defined by this CSS:
+  - InterVariable  variable font for modern web browsers
+  - Inter          static fonts for older web browsers (small optical size)
+  - InterDisplay   static fonts for older web browsers (large optical size)
+
+Usage example:
+  :root { font-family: Inter, sans-serif; }
+  @supports (font-variation-settings: normal) {
+    :root { font-family: InterVariable, sans-serif; }
+  }
+
+*/
+@font-face {
+  font-family: InterVariable;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3.woff2") format('woff2');
+}
+@font-face {
+  font-family: InterVariable;
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./e564f652916db6c139570fefb9524a77c4d48f30c92928de9db19b6b5c7a262a.woff2") format('woff2');
+}
+/* legacy name "Inter var" (Oct 2023) */
+@font-face { font-family:'Inter var'; font-style:normal; font-weight:100 900; font-display:swap; src: url("./693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3.woff2") format('woff2'); }
+@font-face { font-family:'Inter var'; font-style:italic; font-weight:100 900; font-display:swap; src: url("./e564f652916db6c139570fefb9524a77c4d48f30c92928de9db19b6b5c7a262a.woff2") format('woff2'); }
+/* static fonts */
+@font-face { font-family:Inter; font-style:normal; font-weight:100; font-display:swap; src:url("./70ca998635d9fc627dede8108f04d0989e6e03346183f0ad0917723e790f6973.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:italic; font-weight:100; font-display:swap; src:url("./930d666b74e0dc0c26c2821f5643b701f8a41beaf3bb95ce146298104f29169c.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:normal; font-weight:200; font-display:swap; src:url("./ba4fc81dbb25871f1bcabc664b1e37703fca0a05f7248a923e7db497c6d211cc.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:italic; font-weight:200; font-display:swap; src:url("./38bad3a6a9ad1a7fcd8082e6423ba5e0baea16598f2cf304e527844f697e32b2.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:normal; font-weight:300; font-display:swap; src:url("./e111a1e2ad914ccda9179b95e83fb10234dd52a1932e0b93c480476227983fd9.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:italic; font-weight:300; font-display:swap; src:url("./050265b27d11860a26c66c054210852661abb5d229c4e0bb3525757a830f3790.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:normal; font-weight:400; font-display:swap; src:url("./e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:italic; font-weight:400; font-display:swap; src:url("./2d078cb3bc8f934740d53b39dd23b0678f2f97477e49ec785dd9d8acd8b96bfc.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:normal; font-weight:500; font-display:swap; src:url("./0ff3e94614e1493eb556314fd247ae6c4a85a7783b4cc86be539940cf83f2a48.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:italic; font-weight:500; font-display:swap; src:url("./1b0df503de488a92082a8c5d72ddc4c0229183ceb645ae1c25c2d0d63778517c.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:normal; font-weight:600; font-display:swap; src:url("./5cb7103e4e605989afebc03d989c79201e54b21b5183db33981f70db9178a301.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:italic; font-weight:600; font-display:swap; src:url("./5e2a2bc3b5b9af0644f005693b10499dab18065d6aedbf46c8b74ccede27daeb.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:normal; font-weight:700; font-display:swap; src:url("./fa888127b6da015b65569f0351f3b5c391ad928904951f1c20e9f8462a8d95ea.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:italic; font-weight:700; font-display:swap; src:url("./4a10532d76c90c4597c0ad4bfc9284600e597d3012dd1ec16c1d44e0ad0058ab.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:normal; font-weight:800; font-display:swap; src:url("./6f75025856f8db1b2186e9cb89be9de9894932c8b7b20f4df5e65916ff714e34.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:italic; font-weight:800; font-display:swap; src:url("./53bb20ba292e2ac28a0777bf0f56f31b98be432a3cc04359e2eb608c758349c7.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:normal; font-weight:900; font-display:swap; src:url("./12ed0eed6749099b46c7b2e8198dc30c2d7e0f2a4e5fb1d12f0b6ae2c4f33cc4.woff2") format("woff2"); }
+@font-face { font-family:Inter; font-style:italic; font-weight:900; font-display:swap; src:url("./308e101141e9dee3b6b121614da03969eb8179886975a9eeb5348021b04368fe.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:normal; font-weight:100; font-display:swap; src:url("./21cfe42e7f1031b410e247ed199f43fc362415af81b3a8e442a97f63b4dbe327.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:italic; font-weight:100; font-display:swap; src:url("./eff21589eacf1f6a596191038d7b47b4dd2455a096b175bb3572ecb6d026a611.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:normal; font-weight:200; font-display:swap; src:url("./9031b6d2a1a559753d50b311ecb463ddf7acaaae1d992a7e9b009620d8ce6def.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:italic; font-weight:200; font-display:swap; src:url("./e8d7078160ef92b82c2123857c1b3aefaa4a795a44b56df5fe3edade60d81576.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:normal; font-weight:300; font-display:swap; src:url("./01dd2d491ed863177e61f6e9458813baa85453ad97b32c5c1216927d4eebfe65.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:italic; font-weight:300; font-display:swap; src:url("./59b5be56306fd353d067aa6995c2c92bc3feb3ace73684d94e3c6e73fe2beaac.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:normal; font-weight:400; font-display:swap; src:url("./3a9463a58c3e7ba1e3cd65b5dbff91a35c508ff78a104cd1121feff83efeb787.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:italic; font-weight:400; font-display:swap; src:url("./dfd398d7372b61278e1505bfbdfc5ab0f6511ef887a47a2c90c13475eae585da.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:normal; font-weight:500; font-display:swap; src:url("./f1227907684853882ad00d7f97ce9f64bc17b89a2a291a7d4ec84fccfa442934.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:italic; font-weight:500; font-display:swap; src:url("./6bf254c1a65c806c019f52818add66747da83595a314112917911bcf5fa2f5c5.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:normal; font-weight:600; font-display:swap; src:url("./d9f63a82b826fb0117c92715c3a52a2d2247bc321bc39341420bf52d91e8277a.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:italic; font-weight:600; font-display:swap; src:url("./dd9d78314bdd5062302a73c7e2954008bab8158304fa7ac4f0ea8977b841dccb.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:normal; font-weight:700; font-display:swap; src:url("./23bc37619593377e128f24660fedb2869d18277b4026cb46e5637be7643faf91.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:italic; font-weight:700; font-display:swap; src:url("./5a0fe1f01b8777fab4a5f73c757743fa52579c7723b0291777625cb53c0a792a.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:normal; font-weight:800; font-display:swap; src:url("./97eeee5a6f4f22fef1f607cf8836104d65968f03e59bc068a7586bf18364a8a7.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:italic; font-weight:800; font-display:swap; src:url("./159b72ba47887032915420aa1445ae6768197e7ea732230182998f14d1cdb932.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:normal; font-weight:900; font-display:swap; src:url("./05650cb83c70fda2a465eade0c0a1a6c25d37ec49df3cd74b7e564683f9729f1.woff2") format("woff2"); }
+@font-face { font-family:InterDisplay; font-style:italic; font-weight:900; font-display:swap; src:url("./9746bf2bd43fe158144b83ede747088e80396daad55b9e6ea7232e0e22ee6fce.woff2") format("woff2"); }
+
+@font-feature-values InterVariable {
+    @character-variant {
+        cv01: 1; cv02: 2; cv03: 3; cv04: 4; cv05: 5; cv06: 6; cv07: 7; cv08: 8;
+        cv09: 9; cv10: 10; cv11: 11; cv12: 12; cv13: 13;
+        alt-1:            1; /* Alternate one */
+        alt-3:            9; /* Flat-top three */
+        open-4:           2; /* Open four */
+        open-6:           3; /* Open six */
+        open-9:           4; /* Open nine */
+        lc-l-with-tail:   5; /* Lower-case L with tail */
+        simplified-u:     6; /* Simplified u */
+        alt-double-s:     7; /* Alternate German double s */
+        uc-i-with-serif:  8; /* Upper-case i with serif */
+        uc-g-with-spur:  10; /* Capital G with spur */
+        single-story-a:  11; /* Single-story a */
+        compact-lc-f:    12; /* Compact f */
+        compact-lc-t:    13; /* Compact t */
+    }
+    @styleset {
+        ss01: 1; ss02: 2; ss03: 3; ss04: 4; ss05: 5; ss06: 6; ss07: 7; ss08: 8;
+        open-digits: 1;                /* Open digits */
+        disambiguation: 2;             /* Disambiguation (with zero) */
+        disambiguation-except-zero: 4; /* Disambiguation (no zero) */
+        round-quotes-and-commas: 3;    /* Round quotes &amp; commas */
+        square-punctuation: 7;         /* Square punctuation */
+        square-quotes: 8;              /* Square quotes */
+        circled-characters: 5;         /* Circled characters */
+        squared-characters: 6;         /* Squared characters */
+    }
+}
+@font-feature-values Inter {
+    @character-variant {
+        cv01: 1; cv02: 2; cv03: 3; cv04: 4; cv05: 5; cv06: 6; cv07: 7; cv08: 8;
+        cv09: 9; cv10: 10; cv11: 11; cv12: 12; cv13: 13;
+        alt-1:            1; /* Alternate one */
+        alt-3:            9; /* Flat-top three */
+        open-4:           2; /* Open four */
+        open-6:           3; /* Open six */
+        open-9:           4; /* Open nine */
+        lc-l-with-tail:   5; /* Lower-case L with tail */
+        simplified-u:     6; /* Simplified u */
+        alt-double-s:     7; /* Alternate German double s */
+        uc-i-with-serif:  8; /* Upper-case i with serif */
+        uc-g-with-spur:  10; /* Capital G with spur */
+        single-story-a:  11; /* Single-story a */
+        compact-lc-f:    12; /* Compact f */
+        compact-lc-t:    13; /* Compact t */
+    }
+    @styleset {
+        ss01: 1; ss02: 2; ss03: 3; ss04: 4; ss05: 5; ss06: 6; ss07: 7; ss08: 8;
+        open-digits: 1;                /* Open digits */
+        disambiguation: 2;             /* Disambiguation (with zero) */
+        disambiguation-except-zero: 4; /* Disambiguation (no zero) */
+        round-quotes-and-commas: 3;    /* Round quotes &amp; commas */
+        square-punctuation: 7;         /* Square punctuation */
+        square-quotes: 8;              /* Square quotes */
+        circled-characters: 5;         /* Circled characters */
+        squared-characters: 6;         /* Squared characters */
+    }
+}
+@font-feature-values InterDisplay {
+    @character-variant {
+        cv01: 1; cv02: 2; cv03: 3; cv04: 4; cv05: 5; cv06: 6; cv07: 7; cv08: 8;
+        cv09: 9; cv10: 10; cv11: 11; cv12: 12; cv13: 13;
+        alt-1:            1; /* Alternate one */
+        alt-3:            9; /* Flat-top three */
+        open-4:           2; /* Open four */
+        open-6:           3; /* Open six */
+        open-9:           4; /* Open nine */
+        lc-l-with-tail:   5; /* Lower-case L with tail */
+        simplified-u:     6; /* Simplified u */
+        alt-double-s:     7; /* Alternate German double s */
+        uc-i-with-serif:  8; /* Upper-case i with serif */
+        uc-g-with-spur:  10; /* Capital G with spur */
+        single-story-a:  11; /* Single-story a */
+        compact-lc-f:    12; /* Compact f */
+        compact-lc-t:    13; /* Compact t */
+    }
+    @styleset {
+        ss01: 1; ss02: 2; ss03: 3; ss04: 4; ss05: 5; ss06: 6; ss07: 7; ss08: 8;
+        open-digits: 1;                /* Open digits */
+        disambiguation: 2;             /* Disambiguation (with zero) */
+        disambiguation-except-zero: 4; /* Disambiguation (no zero) */
+        round-quotes-and-commas: 3;    /* Round quotes &amp; commas */
+        square-punctuation: 7;         /* Square punctuation */
+        square-quotes: 8;              /* Square quotes */
+        circled-characters: 5;         /* Circled characters */
+        squared-characters: 6;         /* Squared characters */
+    }
+}

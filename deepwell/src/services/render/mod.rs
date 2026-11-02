@@ -50,6 +50,7 @@ mod link_modules;
 #[allow(dead_code)]
 mod list_pages;
 mod literal_regions;
+mod mail_form_module;
 mod membership_actions;
 mod metacomponent;
 mod module_arguments;
@@ -105,6 +106,10 @@ pub use self::legacy_actions::{
     LegacyActionDescriptor, LegacyActionRegistry, LegacyBrowserAction,
 };
 pub(crate) use self::literal_regions::LiteralRegionIndex;
+pub(crate) use self::mail_form_module::find_mail_form_definition;
+pub(crate) use self::mail_form_module::{
+    MailFormDefinition, mail_form_error_message, validate_mail_form_submission,
+};
 pub use self::membership_actions::{MembershipActionKind, MembershipActionRegistry};
 pub use self::rate_actions::{
     RateActionRegistry, RateBrowserAction, RateBrowserActionRegistry,

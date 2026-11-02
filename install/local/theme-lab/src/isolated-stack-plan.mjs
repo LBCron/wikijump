@@ -14,9 +14,9 @@ export const ALL_VOLUMES = Object.freeze([
   "local-postgres-data",
   "local-minio-data",
   "local-valkey-data",
-  "local-rust-1-95-0-target",
-  "local-rust-1-95-0-cargo-registry",
-  "local-rust-1-95-0-cargo-git",
+  "local-rust-1-99-1-target",
+  "local-rust-1-99-1-cargo-registry",
+  "local-rust-1-99-1-cargo-git",
   "local-node-24-18-0-pnpm-store",
   "local-framerail-node-modules",
 ]);

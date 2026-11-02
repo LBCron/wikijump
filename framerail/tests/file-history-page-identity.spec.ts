@@ -5,10 +5,6 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {

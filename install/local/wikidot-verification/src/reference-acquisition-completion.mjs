@@ -266,7 +266,6 @@ class ReferenceAcquisitionCompletions {
     return this.#resolveTarget(this.#target(request), true);
   }
 
-  // Typed layer wrappers inspect canonical attempt receipts before reading referenced objects with role-specific byte bounds.
   async resolveAttemptReceipt(request) {
     return this.#resolveTarget(this.#target(request), false);
   }

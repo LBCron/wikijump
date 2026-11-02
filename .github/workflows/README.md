@@ -4,27 +4,71 @@ Every workflow here costs wall-clock time on a pull request, so each one needs a
 
 ## Pull-request validation
 
-There is no automatic pull-request or merge-queue CI validation workflow.
-The former `CI / gate` workflow was removed because its narrow repository
-metadata checks neither established behavioral correctness nor justified an
-automatic repository checkout for every PR. GitHub Actions does not run tests,
-installs, builds, linters, browsers, or compatibility acquisition for PRs.
-Validation belongs in the maintained WSL workspace, where persistent evidence
-caches survive retries and repeated runs.
+Pull requests are checked by `pr-checks.yml`: fast, path-scoped targeted
+checks, and nothing else. It maps each changed path to the targeted checks
+for the area it touches (Deepwell library tests and Clippy for
+`deepwell/**`, WWS tests and formatting for `wws/**`, Framerail unit tests
+for `framerail/**`, the verification package suite for
+`install/local/wikidot-verification/**`, the standing tooling tests for
+`install/standing/**`, the workflow policy tests for `.github/**` and
+`scripts/**`, a formatting check for `locales/**`) and runs only those.
+That targeted evidence is the merge signal; development runs the same
+targeted checks locally first and never waits on the full suite.
 
-Run `scripts/preflight.sh` explicitly when a lightweight local checkpoint is useful. It classifies the current working tree and branch changes against the selected base and runs only the path-relevant local checks. Machine-readable `docs/development/*.json` authority selects the verification group even though ordinary documentation remains cheap. Every verification, Deepwell, WWS, or Framerail checkpoint also runs the repository generated-contract verifier. Pushes do not invoke validation implicitly; automatic Git hooks were removed because they can accidentally mix unrelated uncommitted work into branch delivery.
+The full consolidated validation suite is informational only.
+`consolidated-validation.yml` runs
+`install/local/wikidot-verification/scripts/run-consolidated-validation.mjs`
+- the same runner as the local barrier, unmodified - nightly on `develop`
+and on manual dispatch, and uploads its sealed receipt and preflight log
+as a workflow artifact. Nothing gates a merge or a promotion on it. On
+the nightly run there is no PR diff to select from, so it runs every
+CI-runnable group; on dispatch it runs the diff-selected groups or the
+groups named in the dispatch input.
+`install/standing/scripts/fetch-ci-validation-receipt.mjs` verifies a CI
+receipt against a requested head (schema, bound commit, bound tree) and
+can land it in the local validation store. External actions in every
+workflow stay pinned to full commit SHAs.
 
-Theme Lab has its own path-owned group: its tests, adaptation-authority gate, maintenance bindings, deterministic packages and Sigma source/evidence checks run without selecting runtime components. Runtime paths and unknown paths retain their existing gates.
+`scripts/preflight.sh` remains available as a local checkpoint and is
+what the informational workflow drives. It classifies working-tree and
+branch changes against the selected base and runs only the path-relevant
+checks. Machine-readable `docs/development/*.json` authority selects the
+verification group even though ordinary documentation remains cheap.
+Every verification, Deepwell, WWS, or Framerail checkpoint also runs the
+repository generated-contract verifier. Pushes do not invoke local
+validation implicitly; automatic Git hooks were removed because they can
+accidentally mix unrelated uncommitted work into branch delivery.
 
-Run `scripts/preflight.sh --final` on the PR head before merging, through `install/local/wikidot-verification/scripts/run-consolidated-validation.mjs` so the receipt is kept for the standing promotion. This is the one local final barrier and adds dependency hygiene, every selected Clippy pass, full test suite, validator, and the Framerail production build. Its generated-contract check also regenerates the compatibility surface inventory from the inventory's exact pinned source revision and requires byte-for-byte reproduction; this deliberately avoids the inventory's self-reference trap where pinning it to the commit that contains itself can never converge. Verification tooling and Wikidot specification inputs select the verifier package tests, standing promotion precondition, specification generator check, and implementation-ledger check without selecting a Rust component. Campaign closure additionally requires the digest-bound consolidated-validation receipt consumed by final-zero. The Deepwell suite runs as four nextest partitions side by side, each on its own task-owned stack (`WIKIJUMP_DEEPWELL_TEST_SHARDS`). `install/local/wikidot-verification/scripts/run-consolidated-validation.mjs` runs the barrier, builds the standing application images alongside it (so the post-merge promotion of the same runtime inputs rebuilds from the BuildKit cache), and keeps the receipt where `install/standing/promote.py` reuses it for every check group the merge does not change.
+One group cannot run in Actions at all. Theme Lab's evidence lives in
+the local authority object store, which is not in Git and is not
+published anywhere a runner could fetch, so the group fails closed
+there. The informational workflow omits it and names it in its job
+summary and a warning annotation; Theme Lab is exercised locally when a
+change touches it. Theme Lab keeps its own path-owned group: its tests,
+adaptation-authority gate, maintenance bindings, deterministic packages
+and Sigma source/evidence checks run without selecting runtime
+components. Runtime paths and unknown paths retain their existing gates.
 
-No `CI / gate` status is produced for pull requests or merge queues. Do not
-configure that removed status as a required branch-protection check. External
-actions in the remaining workflows stay pinned to full commit SHAs.
+The informational invocation passes the runner's own `--no-image-build`
+flag: the `docker-build-*.yaml` workflows already build the standing
+application images on pull requests. A local run of the runner still
+builds the images alongside the barrier, so a promotion of the same
+runtime inputs rebuilds from the BuildKit cache.
 
-GitHub Actions availability does not determine acceptance. Development,
-regression testing, and integration rehearsals run locally, and landing does
-not wait for an Actions validation result.
+The final barrier form adds dependency hygiene, every selected Clippy
+pass, full test suite, validator, and the Framerail production build. Its
+generated-contract check also regenerates the compatibility surface
+inventory from the inventory's exact pinned source revision and requires
+byte-for-byte reproduction; this deliberately avoids the inventory's
+self-reference trap where pinning it to the commit that contains itself
+can never converge. Verification tooling and Wikidot specification
+inputs select the verifier package tests, standing promotion
+precondition, specification generator check, and implementation-ledger
+check without selecting a Rust component. Campaign closure additionally
+requires the digest-bound consolidated-validation receipt consumed by
+final-zero. The Deepwell suite runs as nextest partitions side by side,
+each on its own task-owned stack (`WIKIJUMP_DEEPWELL_TEST_SHARDS`; a
+hosted runner takes fewer stacks at once than the local box).
 
 `full-ci.yaml` is retained only as a manual policy notice. It never runs
 Playwright in GitHub Actions. Browser validation is local WSL work.
@@ -46,10 +90,6 @@ no verifier tests and performs no acquisition in GitHub Actions. Verification,
 candidate cases, standing parity, and retained-evidence replay all run locally
 in WSL so the identity-bound persistent response cache can be reused across
 every retry. A cache hit is expected to perform zero external requests.
-
-`codex-cloud.yaml` is retained only as a manual policy notice for the Codex
-cloud environment scripts. Bash syntax, ShellCheck, and regression validation
-run locally rather than in GitHub Actions.
 
 ## Keeping triggers honest
 

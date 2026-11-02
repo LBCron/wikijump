@@ -1,0 +1,746 @@
+
+
+
+
+
+
+
+
+
+[[>]]
+
+[[span style="margin-right: 2em;"]]**評価モジュール:**[[/span]]
+
+[[module Rate]]
+
+[[span style="margin-right: 2em;"]]**クレジットモジュール:**[[/span]]
+[[/>]]
+
+
+
+**空想科学部門テーマ**
+**作成者:** Lt Flops
+**公開日:** 2019年8月19日
+
+
+
+[[div class="templateInfo"]]
+[[=]]
++* これは何？
+[[/=]]
+----
+これは、Lt Flopsが作成した空想科学部門テーマです。
+
+Rimpleの「空想科学部門」に着想を得て作成されました。
+[[/div]]
+
+[[div class="templateInfo"]]
+[[=]]
++* 使い方
+[[/=]]
+----
+このテーマを使用するには、以下のコードをページの一番上に貼り付けてください。
+
+[[div class="code"]]
+@@@@
+[[/div]]
+**このテーマは何のために使われるの？**
+
+このテーマは、「空想科学部門」の解釈のひとつを表現するために存在します。空想科学部門は、単一のカノンに定義されたものではありません。ある時は、様々な文学によってもたらされる異常を記録している架空のキャラクターたちの集団であり、ある時は、現実のものとなってしまった空想の怪物から世界を守る人々であり、ある時は、物語の中の登場人物たちが、彼らが共有するフィクションを認識したり、相互作用したりするための研究であり、またある時は、第四の壁を破るための訓練でもあります。
+
+このテーマは、SCP報告書やTaleをはじめとするページでの使用に適しています。
+[[/div]]
+
+[[div class="templateInfo"]]
+[[=]]
++* フォーマットの例
+[[/=]]
+[[/div]]
+
+
+
++ 見出し1
+
+++ 見出し2
+
++++ 見出し3
+
+++++ 見出し4
+
++++++ 見出し5
+
+++++++ 見出し6
+
+**太字** | //斜体// | _下線_ | --打ち消し線-- | {{等幅フォント}} | ^^上付き文字^^,,下付き文字,,
+
+ハイフン4つ"@@----@@"で水平線をひくことができます。
+
+----
+
+> 引用ブロック
+>> ネストされた引用ブロック
+
+||~ ヘッダー ||~ ヘッダー ||~ ヘッダー ||~ ヘッダー ||~ ヘッダー ||~ ヘッダー ||
+|| セルの内容 || セルの内容 || セルの内容 || セルの内容 || セルの内容 || セルの内容 ||
+
+[[toc]]
+
+[[div class="code"]]
+@@偽のセレクタ{@@
+@@  偽のプロパティ: 偽の値;@@
+@@}@@
+[[/div]]
+
+[http://ja.scp-wiki.net/ リンク] ([https://google.com 多分あなたが訪問したことのあるリンク])
+
+[[collapsible show="+ 折りたたみ" hide="- 折りたたみ"]]
+折りたたみの中身
+[[/collapsible]]
+
+# 番号付きリスト
+# リストのアイテム
+# リストのアイテム
+
+* 箇条書きリスト
+* リストのアイテム
+* リストのアイテム
+
+[[tabview]]
+[[tab １つ目のタブ]]
+タブのコンテンツ
+[[/tab]]
+[[tab ２つ目のタブ]]
+タブのコンテンツ
+[[/tab]]
+[[tab ３つ目のタブ]]
+タブのコンテンツ
+[[/tab]]
+[[tab ４つ目のタブ]]
+タブのコンテンツ
+[[/tab]]
+[[tab ５つ目のタブ]]
+タブのコンテンツ
+[[/tab]]
+[[/tabview]]
+
+[[div class="templateInfo"]]
+[[=]]
++* ソースコード
+[[/=]]
+[[/div]]
+
+[[code type="css"]]
+@import url(https://fonts.googleapis.com/css2?family=Carrois+Gothic&display=swap);
+
+/* 'Pataphysics Department Theme
+ * [2018 Wikidot Theme]
+ * Based on Aelanna's Sigma-9 Theme as Edited by Dr Devan
+ * Inspired by Rimple's "Pataphysics Department"
+ * Created by Lt Flops, Logo Designed by TSATPWTCOTTTADC, Animated Logo by Woedenaz
+ * With Code Help From Stormbreath
+**/
+
+/* ---- COLOUR VARIABLES ---- */
+ body{
+                                  /* ---- GREY --- */
+             --very-dark-grey: hsl(000, 000%, 05%);
+                       --grey: hsl(000, 000%, 75%);
+                 --light-grey: hsl(000, 000%, 88%);
+               --lighter-grey: hsl(000, 000%, 91%);
+            --very-light-grey: hsl(000, 000%, 95%);
+                                 /* ---- GOLD ---- */
+              --strong-orange: hsl(036, 067%, 49%);
+                --pure-yellow: hsl(051, 100%, 50%);
+                                /* ---- GREEN ---- */
+           --vivid-lime-green: hsl(112, 077%, 48%);
+                                 /* ---- BLUE ---- */
+                  --dark-blue: hsl(253, 060%, 33%);
+   --light-grayish-lime-green: hsl(127, 050%, 94%);
+                               /* ---- VIOLET ---- */
+           --very-dark-violet: hsl(268, 039%, 10%);
+  --very-dark-moderate-violet: hsl(268, 040%, 25%);
+                --dark-violet: hsl(266, 100%, 25%);
+     --very-dark-muted-violet: hsl(268, 033%, 30%);
+              --strong-violet: hsl(268, 100%, 37%);
+       --dark-moderate-violet: hsl(268, 040%, 45%);
+   --mostly-muted-dark-violet: hsl(268, 025%, 50%);
+                      /* ---- GRADIENT VIOLET ---- */
+--grad-very-dark-muted-violet: hsl(268, 040%, 19%);
+  --grad-dark-moderate-violet: hsl(268, 040%, 33%);
+                              /* ---- MAGENTA ---- */
+               --dark-magenta: hsl(298, 086%, 37%);
+}
+
+/* ---- CONTENT WRAP ---- */
+ div#container-wrap{
+     background: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A4053112-135-dh1g/pataphysics-header-updated.png) top left repeat-x !important;
+}
+ body{
+     color: hsl(0, 0%, 05%);
+     color: var(--very-dark-grey);
+     background-color: hsl(0, 0%, 95%);
+     background-color: var(--very-light-grey);
+
+     word-break: unset;
+}
+
+/* ---- LOGO IMAGE | [PRE] ---- */
+ #header{
+     background-image: none;
+}
+
+/* 'Pataphysics Department Logo | [ANIMATION]
+ * Logo Designed by TSATPWTCOTTTADC, Animated Logo by Woedenaz
+ * Released Under CC BY-SA 3.0
+**/
+
+ #header #header-extra-div-1{
+     width: 6.25rem;
+     height: 6.25rem;
+     display: flex;
+     position: absolute;
+     left: .25rem;
+     top: 2rem;
+}
+
+ #header #header-extra-div-1::before{
+     content: "";
+     width: 6.25rem;
+     height: 6.25rem;
+     position: absolute;
+     background-image: url("https://scp-jp-storage.wdfiles.com/local--files/file%3A4053112-134-dh1l/pataphysicslogo-ani.svg");
+     background-repeat: no-repeat;
+     background-position: center center;
+     background-size: contain;
+     flex: 1;
+}
+
+/* ---- MOBILE ANIMATION ---- */
+ @media (max-width: 767px){
+     #header{
+         background: none !important;
+    }
+     #header #header-extra-div-1{
+         width: 5rem !important;
+         height: 5rem !important;
+         left: -1rem !important;
+         top: 3rem !important;
+    }
+     #header #header-extra-div-1::before{
+         width: 5rem !important;
+         height: 5rem !important;
+    }
+}
+
+/* ---- GENERAL ---- */
+ span,
+ a{
+     word-break: unset;
+}
+ hr{
+     height: 0;
+     margin: 1em 0;
+ 
+     background-color: transparent;
+     border-top: 1px solid hsl(0, 0%, 62%);
+}
+ table.wiki-content-table{
+     background-color: white;
+}
+ table.wiki-content-table th{
+     background-color: hsl(0, 0%, 88%);
+     background-color: var(--light-grey);
+}
+
+/* ---- LINKS ---- */
+ a{
+     color: hsl(268, 100%, 37%);
+     color: var(--strong-violet);
+}
+ a:visited{
+     color: hsl(253, 60%, 33%);
+     color: var(--dark-blue);
+}
+ #side-bar a{
+     color: hsl(268, 100%, 37%);
+     color: var(--strong-violet);
+}
+ a.newpage{
+     color: hsl(298, 86%, 47%);
+     color: var(--dark-magenta);
+}
+ a.footnoteref,
+ a.footnoteref:before{
+     color: hsl(307, 100%, 37%);
+     color: var(--dark-magenta);
+}
+ a.collapsible-block-link{
+     font-weight: bold;
+}
+ .pata-notice a{ /* ---- PATA-NOTICE LINK COLOUR ---- */
+     color: hsl(51, 100%, 50%);
+     color: var(--pure-yellow);
+}
+ .pata-notice a:visited{
+     color: hsl(36, 67%, 49%);
+     color: var(--strong-orange);
+}
+ .pata-notice a.footnoteref, /* ---- PATA-NOTICE FOOTNOTE COLOUR ---- */
+ .pata-notice a.footnoteref:before{
+     color: hsl(51, 100%, 50%);
+     color: var(--pure-yellow);
+}
+
+/* ---- HEADER ---- */
+ h1, h2, h3, h4, h5, h6{
+     word-break: unset;
+}
+ h1,
+ #page-title,
+ .meta-title{
+     color: hsl(266, 100%, 25%);
+     color: var(--dark-violet);
+}
+ #header h1 a,
+ #header h1 a::before{
+     position: relative;
+     left: -1.5px;
+
+     letter-spacing: -.02em;
+}
+ #header h1 a{
+     color: transparent;
+
+     font-family: "Carrois Gothic", "Arial", sans-serif;
+     text-shadow: none;
+}
+ #header h1 a::before{
+     content: "空想科学部門";
+
+     color: hsl(0, 0%, 91%);
+     color: var(--lighter-grey);
+
+     text-shadow: 1px 1px 1px hsl(0, 0%, 05%);
+     text-shadow: 1px 1px 1px var(--very-dark-grey);
+}
+ #header span{
+     color: hsl(0, 0%, 91%);
+     color: var(--lighter-grey);
+}
+ #header h2 span{
+     color: transparent;
+
+     text-shadow: none;
+}
+ #header h1 a span{
+     content: "";
+
+     visibility: hidden;
+}
+ #header h2 span::before{
+     content: "我らの神を殺す";
+
+     color: hsl(0, 0%, 91%);
+     color: var(--lighter-grey);
+
+     text-shadow: 1px 1px 1px hsl(0, 0%, 05%);
+     text-shadow: 1px 1px 1px var(--very-dark-grey);
+     text-shadow: 1px 1px 1px hsla(0, 0%, 5%, .8);
+}
+ @media only screen and (max-width: 425px){
+     #header h1 a::before{
+         content: "空想科学部門";
+    }
+}
+
+/* ---- TOP MENU ---- */
+ #top-bar ul li ul{
+     border: solid 1px hsl(268, 40%, 25%);
+     border: solid 1px var(--very-dark-moderate-violet);
+}
+ #top-bar a{
+     color: hsl(0, 0%, 91%);
+     color: var(--lighter-grey);
+}
+ #login-status ul a{
+     color: hsl(268, 100%, 37%);
+     color: var(--strong-violet);
+}
+ #top-bar ul .sfhover a,
+ #top-bar ul li:hover a{
+     color: hsl(268, 40%, 25%);
+     color: var(--very-dark-moderate-violet);
+     background: hsl(0, 0%, 95%);
+     background: var(--very-light-grey);
+}
+ #my-account,
+ #account-topbutton{
+     color: hsl(0, 0%, 95%);
+     color: var(--very-light-grey);
+}
+
+/* ---- SEARCH BAR ---- */
+ #search-top-box-input{
+     background-color: hsl(268, 40%, 25%);
+     background-color: var(--very-dark-moderate-violet);
+     border: solid 1px hsl(268, 33%, 30%);
+     border: solid 1px var(--very-dark-muted-violet);
+     border-radius: 0;
+}
+ #search-top-box-input:hover,
+ #search-top-box-input:focus{
+     background: hsl(268, 25%, 50%);
+     background: var(--mostly-muted-dark-violet);
+     border: solid 1px hsl(0, 0%, 95%);
+     border: solid 1px var(--very-light-grey);
+     border-radius: 0;
+}
+ #search-top-box-form input[type="submit"]{
+     color: hsl(270, 75%, 76%);
+     background: hsl(268, 33%, 30%);
+     background: var(--very-dark-muted-violet);
+     border: solid 1px hsl(268, 40%, 45%);
+     border: solid 1px var(--dark-moderate-violet);
+     border-radius: 0;
+     box-shadow: none;
+
+     font-size: unset;
+}
+ #search-top-box-form input[type="submit"]:hover,
+ #search-top-box-form input[type="submit"]:focus{
+     color: hsl(0, 0%, 95%);
+     color: var(--very-light-grey);
+     background: hsl(268, 25%, 50%);
+     background: var(--mostly-muted-dark-violet);
+     border: solid 1px hsl(0, 0%, 95%);
+     border: solid 1px var(--very-light-grey);
+     border-radius: 0;
+     box-shadow: none;
+}
+
+/* ---- SIDE MENU ---- */
+ #side-bar{
+     background: none;
+}
+ #side-bar .side-block{
+     background: hsl(0, 0%, 91%);
+     background: var(--lighter-grey);
+     border: 3px solid hsl(268, 40%, 25%);
+     border: 3px solid var(--very-dark-moderate-violet);
+     border-radius: 0;
+     box-shadow: none;
+}
+ #side-bar .heading{
+     color: hsl(268, 40%, 25%);
+     color: var(--very-dark-moderate-violet);
+     border-bottom: 1px solid hsl(268, 40%, 45%);
+     border-bottom: 1px solid var(--dark-moderate-violet);
+}
+ .side-block .menu-item > .image{
+     filter: hue-rotate(268deg) saturate(90%) brightness(100%);
+     -webkit-filter: hue-rotate(268deg) saturate(90%) brightness(100%);
+}
+ #side-bar div.menu-item.inactive a{
+     color: hsl(268, 40%, 25%);
+     color: var(--very-dark-moderate-violet);
+}
+ #side-bar div.menu-item .sub-text{
+     color: hsl(268, 40%, 25%);
+     color: var(--very-dark-moderate-violet);
+}
+ #side-bar .collapsible-block-folded{
+     background: none;
+}
+ #side-bar .collapsible-block-unfolded-link{
+     border-bottom: solid 1px hsl(268, 40%, 25%);
+     border-bottom: solid 1px var(--very-dark-moderate-violet);
+}
+ #side-bar .collapsible-block-unfolded-link .collapsible-block-link{
+     color: hsl(268, 40%, 25%);
+     color: var(--very-dark-moderate-violet);
+
+     font-weight: bold;
+}
+
+/* ---- INFO BAR ---- */
+ body{
+     --linkColour: hsl(0, 0%, 95%);
+     --linkColour: var(--very-light-grey);
+     --barColour: hsl(268, 39%, 10%);
+     --barColour: var(--very-dark-violet);
+}
+
+/* ---- INFO PANE ---- */
+ .rate-box-with-credit-button{
+     background-color: hsl(268, 40%, 25%) !important;
+     background-color: var(--very-dark-moderate-violet) !important;
+     border-color: hsl(268, 40%, 25%) !important;
+     border-color: var(--very-dark-moderate-violet) !important;
+     border-radius: 0 !important;
+     box-shadow: none !important;
+}
+ .rate-box-with-credit-button .fa-info{
+     color: hsl(0, 0%, 95%);
+     color: var(--very-light-grey);
+     border-color: hsl(268, 40%, 45%);
+     border-color: var(--dark-moderate-violet);
+}
+ .rate-box-with-credit-button .fa-info:hover{
+     color: hsl(112, 77%, 48%);
+     color: var(--vivid-lime-green);
+}
+ .rate-box-with-credit-button .cancel{
+     border: 0;
+}
+ .close-credits,
+ .credit-back{
+     filter: hue-rotate(268deg);
+}
+ .modalbox{
+     box-shadow: 0 1px 10px hsla(282, 73%, 51%, .3);
+}
+
+/* ---- PAGE RATING ---- */
+ .page-rate-widget-box{
+     border: none;
+     border-radius: 0;
+     box-shadow: none;
+}
+ div.page-rate-widget-box .rate-points{
+     background-color: hsl(268, 40%, 25%);
+     background-color: var(--very-dark-moderate-violet);
+     border: solid 1px hsl(268, 33%, 30%);
+     border: solid 1px var(--very-dark-muted-violet);
+     border-radius: 0;
+}
+ .page-rate-widget-box .rateup,
+ .page-rate-widget-box .ratedown{
+     background-color: hsl(0, 0%, 95%);
+     background-color: var(--very-light-grey);
+     border-top: solid 1px hsl(268, 33%, 30%);
+     border-top: solid 1px var(--very-dark-muted-violet);
+     border-bottom: solid 1px hsl(268, 33%, 30%);
+     border-bottom: solid 1px var(--very-dark-muted-violet);
+}
+ .page-rate-widget-box .rateup a,
+ .page-rate-widget-box .ratedown a{
+     color: hsl(268, 40%, 25%);
+     color: var--very-dark-moderate-violet);
+}
+ .page-rate-widget-box .rateup a:hover,
+ .page-rate-widget-box .ratedown a:hover{
+     color: hsl(0, 0%, 95%);
+     color: var(--very-light-grey);
+     background: hsl(268, 40%, 25%);
+     background: var(--very-dark-moderate-violet);
+}
+ .page-rate-widget-box .cancel{
+     background-color: hsl(268, 40%, 25%);
+     background-color: var(--very-dark-moderate-violet);
+     border: solid 1px hsl(268, 33%, 30%);
+     border: solid 1px var(--very-dark-muted-violet);
+     border-left: 0;
+     border-radius: 0;
+}
+ .page-rate-widget-box .cancel a{
+     color: hsl(268, 40%, 45%);
+     color: var(--dark-moderate-violet);
+}
+ .page-rate-widget-box .cancel a:hover{
+     color: hsl(0, 0%, 95%);
+     color: var(--very-light-grey);
+     background: hsl(268, 40%, 25%);
+     background: var(--very-dark-moderate-violet);
+     border-radius: 0;
+}
+
+/* ---- DIV BLOCKS ---- */
+ blockquote,
+ div.blockquote{
+     background-color: hsl(0, 0%, 91%);
+     background-color: var(--lighter-grey);
+     border: 1px solid hsl(0, 0%, 60%);
+}
+ .pata-notice{
+     margin: 1em 0;
+     padding: 0 1em;
+
+     color: hsl(0, 0%, 95%);
+     color: var(--very-light-grey);
+     background-color: hsl(268, 40%, 25%);
+     background-color: var(--very-dark-moderate-violet);
+     border: 1px solid hsl(268, 33%, 30%);
+     border: 1px solid var(--very-dark-muted-violet);
+
+     text-align: center;
+}
+ .code{
+     background-color: hsl(0, 0%, 92%);
+     border-color: hsl(0, 0%, 82%);
+}
+
+/* ---- CUSTOM PAGE CONTENT CLASSES ---- */
+ .content-panel .panel-body{
+     background: hsl(0, 0%, 95%);
+     background: var(--very-light-grey);
+}
+ .content-panel .panel-footer{
+     color: hsl(0, 0%, 95%);
+     color: var(--very-light-grey);
+}
+ .content-panel .panel-footer a{
+     color: hsl(0, 0%, 95%);
+     color: var(--very-light-grey);
+}
+
+/* ---- YUI TAB CUSTOMIZATION ---- */
+ .yui-navset .yui-content{
+    /* ---- Content Background ---- */
+     background-color: white;
+    /* -------- */
+}
+ .yui-navset .yui-nav a, /* ---- Link Modifier ---- */
+ .yui-navset .yui-navset-top .yui-navset-left .yui-navset-right .yui-nav a{
+     color: hsl(0, 0%, 05%);
+     color: var(--very-dark-grey);
+    /* ---- Tab Background Colour | [UNSELECTED] ---- */
+     background-color: white;
+    /* -------- */
+     background-image: none;
+     border: solid 1px #808080;
+     border-bottom: none;
+
+     transition: .125s;
+}
+ .yui-navset .yui-nav .selected a, /* ---- Selection Modifier ---- */
+ .yui-navset .yui-nav .selected a:focus,
+ .yui-navset .yui-nav .selected a:hover{
+     color: hsl(0, 0%, 95%);
+     color: var(--very-light-grey);
+    /* ---- Tab Background Colour | [SELECTED] ---- */
+     background: hsl(268, 40%, 25%);
+     background: var(--very-dark-moderate-violet);
+    /* -------- */
+}
+ .yui-navset .yui-nav a:hover,
+ .yui-navset .yui-nav a:focus{
+    /* ---- Tab Background Colour | [HOVER] ---- */
+     background: hsl(0, 0%, 75%);
+     background: var(--grey);
+    /* -------- */
+}
+ .yui-navset .yui-nav, /* ---- Between Tab And Content ---- */
+ .yui-navset .yui-navset-top .yui-nav{
+     border-color: hsl(268, 40%, 25%);
+     border-color: var(--very-dark-moderate-violet);
+}
+
+/* ---- STANDARD IMAGE BLOCK ---- */
+ .scp-image-block{
+     box-shadow: none;
+}
+ .scp-image-block .scp-image-caption{
+     background-color: hsl(0, 0%, 88%);
+     background-color: var(--light-grey);
+     border-top: solid 1px hsl(268, 40%, 25%);
+     border-top: solid 1px var(--very-dark-moderate-violet);
+}
+
+/* ---- INTERWIKI ---- */
+ #interwiki body{
+     overflow: hidden;
+}
+ #interwiki .side-block{
+     background: var(--light-grayish-lime-green);
+     border: 3px solid var(--very-dark-moderate-violet);
+     border-radius: 0;
+     box-shadow: none;
+}
+ #interwiki .heading{
+     color: var(--very-dark-moderate-violet);
+     border-color: var(--dark-moderate-violet);
+}
+
+
+/* ---- ADJUST MOBILE IMAGE SIZE ---- */
+ @media (max-width: 767px){
+     #top-bar .open-menu a{
+         color: hsl(268, 40%, 25%) ;
+         color: var(--very-dark-moderate-violet);
+         background-color: white;
+         border: 2px solid hsl(268, 40%, 25%);
+         border: 2px solid var(--very-dark-moderate-violet);
+    }
+     #side-bar{
+         background-color: hsl(0, 0%, 75%);
+         background-color: var(--grey);
+    }
+     #side-bar:target + #main-content{
+         left: 0;
+    }
+}
+ @media (min-width: 768px){
+     #header h1 a{
+         font-size: 150%;
+    }
+}
+
+/* ---- REDUCED MOTION ACCESSIBILITY ----
+ * By SMLT
+**/
+@media (prefers-reduced-motion: reduce){
+     *, *::before, *::after{
+         animation-duration: .001s !important;
+         animation-iteration-count: 1 !important;
+         transition-duration: .001s !important;
+    }
+}
+
+/* JP ONLY */
+ 
+#page-content .rate-box-with-credit-button .creditButton {
+    background-color: var(--very-dark-moderate-violet);
+    border: 1px solid var(--very-dark-muted-violet);
+    border-radius: unset;
+    box-shadow: unset;
+}
+[[/code]]
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

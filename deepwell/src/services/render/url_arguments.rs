@@ -18,12 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Which wikitext depends on the arguments in a request's URL path.
-//!
-//! Deepwell bakes a page's HTML at revision-save time, so a request carrying
-//! path arguments is only answered correctly if the view re-renders. This
-//! module decides when that is necessary.
-
 use super::backlinks::BACKLINKS_MODULE_REGEX;
 use super::child_pages::CHILD_PAGES_MODULE_REGEX;
 use super::count_pages_recognition::wikitext_has_executable_count_pages_module;
@@ -47,12 +41,6 @@ use regex::Regex;
 use std::borrow::Cow;
 use std::sync::LazyLock;
 
-/// A ListPages module opening whose head names `@URL` somewhere.
-///
-/// Only the head is examined, and only for the marker itself: whether the
-/// marker sits in a `tags` selector or somewhere the renderer ignores is
-/// settled later. Matching too eagerly costs one extra render; matching too
-/// narrowly would serve the stored HTML and drop the argument entirely.
 static LIST_PAGES_URL_SELECTOR_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?is)\[\[\s*module\s+listpages\b[^\]]*@url").unwrap());
 static PAGE_CALENDAR_MODULE_REGEX: LazyLock<Regex> =
@@ -106,32 +94,22 @@ static SEARCH_ALL_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         .unwrap()
 });
 
-/// One raw URL path argument addressed to a page module.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct UrlArgumentPair {
     pub name: String,
     pub value: Option<String>,
 }
 
-/// The Wikidot URL path arguments a render is answering.
-///
-/// Empty for every render that is not serving a page view, including the one
-/// that produces a revision's stored HTML.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct UrlArguments<'a> {
-    /// `/tag/<value>`, read by `PagesByTag` and by a `tags="@URL"` selector.
     pub tag: Option<&'a str>,
 
-    /// `/p/<n>`, the 1-based page a paginated `ListPages` renders.
     pub page: Option<u32>,
 
-    /// `/category/<value>`, read by a `category="@URL"` selector.
     pub category: Option<&'a str>,
 
-    /// `/offset/<n>`, read by a ListPages `offset="@URL|fallback"` selector.
     pub offset: Option<u32>,
 
-    /// Ordered raw path arguments, kept for ListPages pager links.
     pub path_arguments: &'a [UrlArgumentPair],
 }
 
@@ -200,10 +178,6 @@ fn list_pages_argument_key<'a>(
     }
 }
 
-/// A ListPages module opening that may answer `/p/<n>`.
-///
-/// ListPages defaults to 20 rows per page, so an explicit `perPage` argument is
-/// not required for a request path to affect the rendered result.
 static LIST_PAGES_MODULE_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"(?is)\[\[\s*module\s+listpages\b").unwrap());
 static WWW_SPECIAL_RUNTIME_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
@@ -223,14 +197,6 @@ fn wikitext_has_www_special_runtime_module(wikitext: &str) -> bool {
         .any(|module| !literals.contains(module.start()))
 }
 
-/// Whether this wikitext holds a module whose output depends on the request's
-/// URL path arguments.
-///
-/// The page view uses this to decide whether a request carrying arguments
-/// needs a render of its own instead of the revision's stored HTML. It looks
-/// at the page's own source only: a module reached through `[[include]]`
-/// renders as it does without arguments, which is the same result Wikijump
-/// produced before arguments were routed at all.
 pub fn wikitext_reads_url_arguments(wikitext: &str) -> bool {
     wikitext_has_bare_pages_module(wikitext)
         || wikitext_has_supported_pages_by_tag_module(wikitext)
@@ -243,12 +209,6 @@ pub fn wikitext_reads_url_arguments(wikitext: &str) -> bool {
         || MEMBERSHIP_EMAIL_INVITATION_MODULE_REGEX.is_match(wikitext)
 }
 
-/// Whether a page view must render from source even without URL arguments.
-///
-/// `Pages` is a live site index, `PagesByTag` is a live tag/category query, and
-/// `Members` is a live site-membership query. Their results change when the
-/// corresponding runtime state changes, so stored revision HTML cannot answer
-/// even the bare request.
 pub fn wikitext_requires_runtime_render(wikitext: &str) -> bool {
     wikitext_has_bare_pages_module(wikitext)
         || wikitext_has_supported_pages_by_tag_module(wikitext)
@@ -457,6 +417,7 @@ mod tests {
         for source in [
             "[[module CountPages category=\"news\"]]%%total%%[[/module]]",
             "[[module CountPages category=\"news\" tags=\"@URL|+fresh\"]]%%total%%[[/module]]",
+            "[[module CountPages category=\"*\"]]%%total%%[[/module]]",
         ] {
             assert!(wikitext_requires_runtime_render(source), "{source}");
             assert!(!wikitext_reads_url_arguments(source), "{source}");
@@ -464,7 +425,6 @@ mod tests {
 
         for source in [
             "[[module CountPages tags=\"@URL\"]]%%total%%[[/module]]",
-            "[[module CountPages category=\"*\"]]%%total%%[[/module]]",
             "[[code]]\n[[module CountPages category=\"news\"]]%%total%%[[/module]]\n[[/code]]",
             "[[module CountPages]][[/module]]",
         ] {

@@ -43,11 +43,6 @@ pub async fn auth_login(
         user_agent,
     } = parse!(params, Login);
 
-    // Don't allow empty passwords.
-    //
-    // They are never valid, and are potentially indicative of the user
-    // entering the password in the name field instead, which we do
-    // *not* want to be logging.
     if authenticate.password.is_empty() {
         error!("User submitted empty password in auth request");
         bail!(Error::new(
@@ -58,16 +53,6 @@ pub async fn auth_login(
 
     let make_error = || Error::new("failed to perform login", ErrorType::Login);
 
-    // All authentication issue should return the same error.
-    //
-    // If anything went wrong, only allow a generic backend failure
-    // to avoid leaking internal state. However since we are an internal
-    // API
-    //
-    // The only three possible responses to this method should be:
-    // * success
-    // * invalid authentication
-    // * server error
     let result =
         AuthenticationService::auth_password(ctx, authenticate, ip_address).await;
     let AuthenticateUserOutput { needs_mfa, user_id } = match result {
@@ -112,10 +97,6 @@ pub async fn auth_logout(
         .or_raise(|| Error::new("failed to perform logout", ErrorType::Logout))
 }
 
-/// Gets the information associated with a particular session token.
-///
-/// This is how framerail determines the user ID this user is acting as,
-/// among other information.
 pub async fn auth_session_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -149,8 +130,6 @@ pub async fn auth_session_get_others(
 
     let make_error = || Error::new("failed to get other sessions", ErrorType::Request);
 
-    // Produce output struct, which extracts the current session and
-    // places it in its own location.
     let mut sessions = SessionService::get_all(ctx, user_id)
         .await
         .or_raise(make_error)?;

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "slug": "theme:paperstack",
+  "mode": "Wikidot page attachments; upload each named file to this theme page before publication",
+  "assets": [
+    {
+      "filename": "lgtrans.png",
+      "sha256": "85bb999e3a059b8686f0b18df73636242976531b5991c2d3ca395d7dd6d6b12e",
+      "bytes": 28725,
+      "asset_file": "85bb999e3a059b8686f0b18df73636242976531b5991c2d3ca395d7dd6d6b12e.png",
+      "source_urls": [
+        "https://scp-jp.wdfiles.com/local--files/theme%3Apaperstack/lgtrans.png"
+      ],
+      "acquired_from": "https://scp-jp.wdfiles.com/local--files/theme%3Apaperstack/lgtrans.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "dependency_decisions": [
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "lgtrans.png",
+      "source_urls": [
+        "https://scp-jp.wdfiles.com/local--files/theme%3Apaperstack/lgtrans.png"
+      ],
+      "sha256": "85bb999e3a059b8686f0b18df73636242976531b5991c2d3ca395d7dd6d6b12e",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ]
+}

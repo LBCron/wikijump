@@ -1,0 +1,90 @@
+{
+ "schema": "theme_lab_semantic_review_decisions.v1",
+ "run": "flopstyle-dark-successor-20261030-m123",
+ "decisions": {
+  "61a1ce95aedac633fcd1f0f977051283c7b201481bba88c14b92ffa6715516bf": {
+   "decision": "pass",
+   "evidence_sha256": "d3b9c17ad5d3d30155d863e02ec912c312ebc6666c950ffc746940c0d97de114",
+   "note": "Successor review for flopstyle-dark under run flopstyle-dark-successor-20261030-m123 (candidate set a2545305, candidate 4e9f17d1 with the V2b Firefox container anchoring). I compared the frozen EN source renderings at all five widths against the successor captures and reviewed every screenshot row of the new audit directly (91 frames viewed first-hand in labeled montages; 20 byte-identical frames carry the closure audit's verdicts). Preserved in every layout: the dark slate ground with magenta masthead and accents, the contained top bar at desktop, mobile and narrow-mobile, the sidebar and page-action surfaces, the credit bar and dialogs, and the rating module placement. The Firefox top-bar endpoint submenus that escaped before the fix are contained in the new Firefox captures, and the Chromium and WebKit geometry is unchanged. Documented localization differences only: JP fixture content and glyphs replace the EN text.",
+   "reviewer": "Muse M123 (direct source-versus-target comparison)",
+   "reviewed_at": "2026-10-30T08:16:23Z",
+   "source_url": "https://scp-wiki.wikidot.com/theme:flopstyle-dark",
+   "source_snapshot": {
+    "path": "ports/flopstyle-dark/upstream-en.wikidot.txt",
+    "sha256": "bce06e2f87c6962d176e9f54f8bac47815860044b52a16562a139e98a0051b85"
+   },
+   "source_renderings": {
+    "desktop": {
+     "source_html": {
+      "path": "ports/current-acceptance/source-oracles/objects/21/214eec83c4417d0ce09cb36b6d55a4e4da074e6449a1a3dadd91093091bb0729",
+      "sha256": "214eec83c4417d0ce09cb36b6d55a4e4da074e6449a1a3dadd91093091bb0729"
+     },
+     "source_rendering": {
+      "path": "ports/current-acceptance/source-oracles/renderings/flopstyle-dark-desktop-cba9e5f14f28840817c7a67265991f038c47d736fbe1870298746b48e984be52.png",
+      "sha256": "cba9e5f14f28840817c7a67265991f038c47d736fbe1870298746b48e984be52"
+     },
+     "source_rendering_receipt": {
+      "path": "ports/current-acceptance/source-oracles/rendering-receipts/flopstyle-dark-desktop.json",
+      "sha256": "fabcc636792482bace4a64775fef35ef14f40c854e32e397752c93a758a48a6a"
+     }
+    },
+    "laptop": {
+     "source_html": {
+      "path": "ports/current-acceptance/source-oracles/objects/21/214eec83c4417d0ce09cb36b6d55a4e4da074e6449a1a3dadd91093091bb0729",
+      "sha256": "214eec83c4417d0ce09cb36b6d55a4e4da074e6449a1a3dadd91093091bb0729"
+     },
+     "source_rendering": {
+      "path": "ports/current-acceptance/source-oracles/renderings/flopstyle-dark-laptop-2d8da17f7ab45806985f6c30700d03f657b7c2a4c0eb70cd10088d36f629a9da.png",
+      "sha256": "2d8da17f7ab45806985f6c30700d03f657b7c2a4c0eb70cd10088d36f629a9da"
+     },
+     "source_rendering_receipt": {
+      "path": "ports/current-acceptance/source-oracles/rendering-receipts/flopstyle-dark-laptop.json",
+      "sha256": "1ab1ab1216b0f30a2bf5f92770c42e721926e9bbff1f3662f531ee1b3ecfa018"
+     }
+    },
+    "mobile": {
+     "source_html": {
+      "path": "ports/current-acceptance/source-oracles/objects/21/214eec83c4417d0ce09cb36b6d55a4e4da074e6449a1a3dadd91093091bb0729",
+      "sha256": "214eec83c4417d0ce09cb36b6d55a4e4da074e6449a1a3dadd91093091bb0729"
+     },
+     "source_rendering": {
+      "path": "ports/current-acceptance/source-oracles/renderings/flopstyle-dark-mobile-dae14bc2e45fdd975a4d738bfa50dac4d607b97ccb1ed058ffb4d033e86a5063.png",
+      "sha256": "dae14bc2e45fdd975a4d738bfa50dac4d607b97ccb1ed058ffb4d033e86a5063"
+     },
+     "source_rendering_receipt": {
+      "path": "ports/current-acceptance/source-oracles/rendering-receipts/flopstyle-dark-mobile.json",
+      "sha256": "5a86b0f3f7149e7e0871551d4949ad16a744a02c5a90cb8d504559b1731c74cf"
+     }
+    },
+    "narrow-mobile": {
+     "source_html": {
+      "path": "ports/current-acceptance/source-oracles/objects/21/214eec83c4417d0ce09cb36b6d55a4e4da074e6449a1a3dadd91093091bb0729",
+      "sha256": "214eec83c4417d0ce09cb36b6d55a4e4da074e6449a1a3dadd91093091bb0729"
+     },
+     "source_rendering": {
+      "path": "ports/current-acceptance/source-oracles/renderings/flopstyle-dark-narrow-mobile-24ea4e10bbec2b1d0aae8b329bd359ea2de7b23ee33859a1c1855acaba01f5c5.png",
+      "sha256": "24ea4e10bbec2b1d0aae8b329bd359ea2de7b23ee33859a1c1855acaba01f5c5"
+     },
+     "source_rendering_receipt": {
+      "path": "ports/current-acceptance/source-oracles/rendering-receipts/flopstyle-dark-narrow-mobile.json",
+      "sha256": "11fdd80b7c7a976476f73d051c0709c705082c64ecd85e7f1db3a114d472644b"
+     }
+    },
+    "tablet": {
+     "source_html": {
+      "path": "ports/current-acceptance/source-oracles/objects/21/214eec83c4417d0ce09cb36b6d55a4e4da074e6449a1a3dadd91093091bb0729",
+      "sha256": "214eec83c4417d0ce09cb36b6d55a4e4da074e6449a1a3dadd91093091bb0729"
+     },
+     "source_rendering": {
+      "path": "ports/current-acceptance/source-oracles/renderings/flopstyle-dark-tablet-d09428da8427756a2381fd08282733d63815fa071f4b8cfc1cfbfad146fc3d7a.png",
+      "sha256": "d09428da8427756a2381fd08282733d63815fa071f4b8cfc1cfbfad146fc3d7a"
+     },
+     "source_rendering_receipt": {
+      "path": "ports/current-acceptance/source-oracles/rendering-receipts/flopstyle-dark-tablet.json",
+      "sha256": "30d6c7b9b47ea0c9b210bb0d9259e77ae2a7ac555d4b5adca54abf7e7148862a"
+     }
+    }
+   }
+  }
+ }
+}

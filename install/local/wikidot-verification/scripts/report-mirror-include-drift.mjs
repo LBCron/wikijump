@@ -1,11 +1,4 @@
 #!/usr/bin/env node
-// Read-only report of mirror source drift for a page's include closure.
-//
-// A mirrored page renders through every page it includes (themes,
-// components), so a stale include source silently changes the page even when
-// the page itself is current. This command walks the include closure of the
-// selected root pages in the canonical corpus and compares each page's
-// current local revision source with the corpus source.
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -59,7 +52,6 @@ export function usage() {
   return 'Usage: report-mirror-include-drift.mjs --corpus-root <path> --root <slug>... [--branch en] [--source-site scp-wiki] [--site-id <id>] [--db-container <name> | --db-url <url>]';
 }
 
-/** Breadth-first include closure, roots first, each slug once. */
 export function includeClosure(roots, readSource, sourceSite) {
   const order = [];
   const seen = new Set();
@@ -71,8 +63,6 @@ export function includeClosure(roots, readSource, sourceSite) {
     const source = readSource(slug);
     order.push({slug, source});
     if (source === null) continue;
-    // Raw spans and comments contain display-only documentation. Includes
-    // inside code blocks remain active under Wikidot's include contract.
     const activeSource = stripInactiveSourceSpans(source.toString('utf8'));
     INCLUDE.lastIndex = 0;
     for (const match of activeSource.matchAll(INCLUDE)) {

@@ -1,0 +1,14 @@
+#header
+#header h1 a
+#header h2
+#header h2 span
+#side-bar
+#page-title
+#page-content
+#page-content a
+#page-content:has(.page-rate-widget-box)
+#page-content:has(.yui-navset)
+#content-wrap
+#main-content
+#footer
+#license-area

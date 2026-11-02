@@ -1,0 +1,90 @@
+{
+ "schema": "theme_lab_semantic_review_decisions.v1",
+ "run": "classic-successor-20261030-m122b",
+ "decisions": {
+  "015ed8bd489544f74eb8651117d82d705e1ddddd67a010ca457e0521c1dbc1b4": {
+   "decision": "pass",
+   "evidence_sha256": "ff4f668c21482748dbb95ff19e9831886d1d17e15eeea4bea1434525df0f677e",
+   "note": "Compared the frozen EN source renderings at all five widths against the nine normal-state JP successor captures (Chromium at desktop, laptop, tablet, mobile and narrow-mobile; Firefox and WebKit at desktop and mobile). Preserved in every layout: the black gradient header with white masthead and red tagline, the fully contained top bar, the sidebar structure, red serif headings, the emblem, and the rating/credit module placement all match. Documented localization differences: JP fixture content and glyphs replace the EN text; Firefox and WebKit render wider Latin fallback glyphs.",
+   "reviewer": "Muse M120 (direct source-versus-target comparison)",
+   "reviewed_at": "2026-10-30T03:58:00Z",
+   "source_url": "https://scp-wiki.wikidot.com/theme:classic",
+   "source_snapshot": {
+    "path": "ports/classic/upstream-en.wikidot.txt",
+    "sha256": "306c9422efd40de805e391694aba91df5e660aab46a3b023959e6902a8d43728"
+   },
+   "source_renderings": {
+    "desktop": {
+     "source_html": {
+      "path": "ports/current-acceptance/source-oracles/objects/a0/a05f166e4889451b9f7204895e8dace50a9a569ad39e3f907f08fb490cf482d7",
+      "sha256": "a05f166e4889451b9f7204895e8dace50a9a569ad39e3f907f08fb490cf482d7"
+     },
+     "source_rendering": {
+      "path": "ports/current-acceptance/source-oracles/renderings/classic-desktop-b468df8ed1dc1b66ea9addade5243af61cbc88c422ed78230ff610504d0a6f21.png",
+      "sha256": "b468df8ed1dc1b66ea9addade5243af61cbc88c422ed78230ff610504d0a6f21"
+     },
+     "source_rendering_receipt": {
+      "path": "ports/current-acceptance/source-oracles/rendering-receipts/classic-desktop.json",
+      "sha256": "d4d018b18a3c887af26b46f9e7b7abab42413d356ad7bfaae49dd1ed9195ae2d"
+     }
+    },
+    "laptop": {
+     "source_html": {
+      "path": "ports/current-acceptance/source-oracles/objects/a0/a05f166e4889451b9f7204895e8dace50a9a569ad39e3f907f08fb490cf482d7",
+      "sha256": "a05f166e4889451b9f7204895e8dace50a9a569ad39e3f907f08fb490cf482d7"
+     },
+     "source_rendering": {
+      "path": "ports/current-acceptance/source-oracles/renderings/classic-laptop-a9f63a75f3c54c36f59c9217b0eec2b6db777a6ebec08c637aba0886bee2531f.png",
+      "sha256": "a9f63a75f3c54c36f59c9217b0eec2b6db777a6ebec08c637aba0886bee2531f"
+     },
+     "source_rendering_receipt": {
+      "path": "ports/current-acceptance/source-oracles/rendering-receipts/classic-laptop.json",
+      "sha256": "20a69abf6bca4486550dd79e6530dde916e7bd84f7c2c62895ebd58cd585d2fa"
+     }
+    },
+    "tablet": {
+     "source_html": {
+      "path": "ports/current-acceptance/source-oracles/objects/a0/a05f166e4889451b9f7204895e8dace50a9a569ad39e3f907f08fb490cf482d7",
+      "sha256": "a05f166e4889451b9f7204895e8dace50a9a569ad39e3f907f08fb490cf482d7"
+     },
+     "source_rendering": {
+      "path": "ports/current-acceptance/source-oracles/renderings/classic-tablet-7f9d3e5f2e9ef9a58e9be5ea3d486b01668501e01fb638b850dac2dcbcc9fec2.png",
+      "sha256": "7f9d3e5f2e9ef9a58e9be5ea3d486b01668501e01fb638b850dac2dcbcc9fec2"
+     },
+     "source_rendering_receipt": {
+      "path": "ports/current-acceptance/source-oracles/rendering-receipts/classic-tablet.json",
+      "sha256": "422d3d625d01006482fa2565301456df0503c4bc42fdffcd9b46668ecc1d498c"
+     }
+    },
+    "mobile": {
+     "source_html": {
+      "path": "ports/current-acceptance/source-oracles/objects/a0/a05f166e4889451b9f7204895e8dace50a9a569ad39e3f907f08fb490cf482d7",
+      "sha256": "a05f166e4889451b9f7204895e8dace50a9a569ad39e3f907f08fb490cf482d7"
+     },
+     "source_rendering": {
+      "path": "ports/current-acceptance/source-oracles/renderings/classic-mobile-b547064bc624722af536b7a5fbb595c8193226ba77bc00ecce26a6bf280b1633.png",
+      "sha256": "b547064bc624722af536b7a5fbb595c8193226ba77bc00ecce26a6bf280b1633"
+     },
+     "source_rendering_receipt": {
+      "path": "ports/current-acceptance/source-oracles/rendering-receipts/classic-mobile.json",
+      "sha256": "9d6598c92b3895df088e7b8b7f0b6525b381d64dc3f20d34fd5934175dc2e84b"
+     }
+    },
+    "narrow-mobile": {
+     "source_html": {
+      "path": "ports/current-acceptance/source-oracles/objects/a0/a05f166e4889451b9f7204895e8dace50a9a569ad39e3f907f08fb490cf482d7",
+      "sha256": "a05f166e4889451b9f7204895e8dace50a9a569ad39e3f907f08fb490cf482d7"
+     },
+     "source_rendering": {
+      "path": "ports/current-acceptance/source-oracles/renderings/classic-narrow-mobile-55dec8d727a12ec776df0ac4e3dd83a5e0d77acb2af86a7104f93914fae1b8ec.png",
+      "sha256": "55dec8d727a12ec776df0ac4e3dd83a5e0d77acb2af86a7104f93914fae1b8ec"
+     },
+     "source_rendering_receipt": {
+      "path": "ports/current-acceptance/source-oracles/rendering-receipts/classic-narrow-mobile.json",
+      "sha256": "592f4a786a448e59b6b0d13554ba7b4690023ba03dcc2f456acaa7b78f36f634"
+     }
+    }
+   }
+  }
+ }
+}

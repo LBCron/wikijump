@@ -1,0 +1,850 @@
+[[iftags]]
+[[include :scp-jp:theme:black-highlighter-theme]]
+[[/iftags]]
+
+[[iftags +テーマ]]
+[[module css]]
+@import url("https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css");
+@import url("https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css");
+[[/module]]
+
+[[include :scp-jp:component:interwiki-style
+| priority=1
+| theme=https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css
+]]
+
+[[include :scp-jp:component:interwiki-style
+| priority=2
+| theme=https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css
+]]
+
+[[>]]
+**クレジット付き評価モジュール**
+[[/>]]
+[[include :scp-jp:credit:start-preview]]
+**翻訳責任者:** oplax-counterpoint
+**翻訳年:** 2024
+**原題:** Isolated Terminal Theme
+**ソース:** *https://scp-wiki.wikidot.com/theme:isolated-terminal
+**著作権者:** EstrellaYoshte, Woedenaz
+**作成年:** 2021
+**初版時参照リビジョン:** 121
+[[include :scp-jp:credit:end-preview]]
+
+[[div style="filter: invert(1) saturate(60) hue-rotate(-20deg);"]]
+[[image black-highlighter-logo.svg]]
+[[/div]]
+
+[[=]]
++ テーマカラー
+[[/=]]
+
+[[include :scp-jp:component:theme-squares -=-
+| color1-name=Ray Yellow
+| color1-variable=--accentColor
+| color1-info=(246, 196, 3)
+| color2-name=Vacuum Dark
+| color2-variable=--darkColor
+| color2-info=(40, 26, 8)
+| color2-has-light-text=1
+]]
+[[module css]]
+.colors-container .colors .color:first-child { color: rgb(var(--darkColor)); }
+[[/module]]
+
+------
+
+このテーマは[[[http://scp-jp.wikidot.com/scp-5999|SCP-5999]]]のヴィジュアルに由来して、EstrellaYoshteが作成したBlack Highlighterベースのテーマです。
+
+このテーマを使うためにはBlack Highlihghterテーマも導入する必要があります。Black Highlighterテーマについては[[[*http://scp-jp.wikidot.com/theme:black-highlighter-theme | こちら]]]。
+
+**このテーマを導入するには、以下のコードをあなたのページに追加してください。**
+
+> @@[[include :scp-jp:theme:black-highlighter-theme]]@@
+> @@[[include :scp-jp:theme:isolated-terminal]]@@
+
+~~~~
+
+[[include component:image-block name=https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-10-4g1r/pxlogo.png|caption=画像|width=200px]]
+
+水平線はハイフン5つ「@@-----@@」で作ることができ、(例えばblockquoteのような) 何かの中に位置していない限りページ全体に展開されます。この文書内の節を区切っているのが水平線です。
+
+-----
+
+見出しは行の先頭に1～6個のプラス「+」を置くことで作成できます。
+
+@@ @@
+
+[[collapsible show="+ 折りたたみ - ここをクリック" hide="- 折りたたみ - ここをクリック"]]
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブを作る]]
+これはタブです。
+[[/tab]]
+[[tab タブが作られる]]
+見てください。ここにも文章が。
+
+なんとも奇妙な。
+[[/tab]]
+[[tab 長いタブ]]
+長いタブです。たくさん文章が詰まっています。[[footnote]]これは脚注です。[[/footnote]]
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+
+長いタブです。たくさん文章が詰まっています。
+[[/tab]]
+
+[[tab もっと長いタブ]]
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+
+もっと長いタブです。たくさん文章が詰まっています。
+[[/tab]]
+
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+
+@@ @@
+
+> 各行の先頭に「> 」と書くことで引用ブロックを作ることができます。
+>
+> さらなるテキスト
+> -----
+> 分割線も入ります。
+>
+>> 入れ子の引用ブロック
+
+@@ @@
+
+||~ これは ||~ 表です ||
+|| もう既に || 作り方は ||
+|||| 知っていますね ||
+
+@@ @@
+
+[[div class="expoblock"]]
+{{@@[[div class="expoblock"]]@@}}
+----
+{{expoblock}} ブロックの中にある水平線
+
+[[span class="hilighter"]]@@[[span class="hilighter"]]@@[[/span]]
+[[span class="hilighter"]]スーパーカリフラジスティ……分かるだろ？ [[/span]]
+[[/div]]
+
+----
+
+[[div class="expoblock"]]
+[[=]]
++ [[span class="hilighter"]]さらなる設定[[/span]]
+[[/=]]
+----
+
+画面の走査線フィルタを無効化するには、以下のパッチを追加します。
+[[div class="blockquote" style="font-family: 'profontwindowsregular', monospace;"]]
+@@[[module CSS]]@@
+div#extrac-div-1, div#extrac-div-2 {
+    display: none;
+}
+@@[[/module]]@@
+[[/div]]
+
+----
+
+このテーマはそのまま使用することを意図して作られていますが、{{[[include]]}}文の直後に以下のCSSコードを置くことで色を変えることができます。
+[[div class="blockquote" style="font-family: 'profontwindowsregular', monospace;"]]
+:root {
+@@  --accentColor: 246,196,3;@@
+@@  --darkColor: 40,26,8;@@
+}
+[[/div]]
+
+{{@@--accentColor@@}} は主要なアクセントを制御します。(デフォルトは黄色です。)
+{{@@--darkColor@@}} はテーマの背景と暗い陰を制御します。
+RGB形式で、希望の色に変更してください。
+
+[[span class="hilighter"]]背景色に純粋な黒を使用しないことをお勧めします。[[/span]]
+
+-----
+
+以下のCSSコードを{{[[include]]}}文の直後に置いて主要和文フォントをjiskan24hにすることで、より古いディスプレイにすることができます (当然ながら視認性が低下するため、基本的にはお勧めしません)。
+[[div class="blockquote" style="font-family: 'profontwindowsregular', monospace;"]]
+:root {
+@@	--body-font: 'Terminus', 'jiskan24h', sans-serif;@@
+}
+[[/div]]
+
+あるいは、[[[*esoteric-syntax#toc20|Ayu18]]]を利用して以下のようにする方法もあります。
+[[div class="blockquote" style="font-family: 'profontwindowsregular', monospace;"]]
+@@[[include :scp-jp:theme:black-highlighter-theme]]@@
+@@[[include :scp-jp:theme:isolated-terminal]]@@
+@@[[include :scp-jp:component:ayu18]]@@
+@@[[module CSS]]@@
+:root {
+@@	--body-font: 'Terminus', 'ayu18regular', sans-serif;@@
+}
+@@[[/module]]@@
+[[/div]]
+
+[[/div]]
+
+----
+
+[[=]]
+指定フォント
+
++++ ヘッダーフォントは [[[*http://jikasei.me/font/jf-dotfont/|JFドット東雲明朝16]]]
+
+本文フォントは [[[*https://terminus-font.sourceforge.net/|Terminus]]] と [[span style="font-family:'Noto Sans JP'"]][[[*https://fonts.google.com/noto/specimen/Noto+Sans+JP|Noto Sans JP]]][[/span]]
+
+半角モノタイプフォントは {{[[[https://www.fontsquirrel.com/fonts/profontwindows|ProFontWindows]]]}}
+
+UI部フォントは [[span style="font-family:var(--UI-font)"]]ProFontWindows[[/span]] と [[span style="font-family:jiskan24h"]][[[*http://jikasei.me/font/jf-dotfont/|JFドットjiskan24h]]][[/span]]
+[[/=]]
+
+[[collapsible show="フォントについて" hide="閉じる"]]
+各フォントは以下のライセンスおよび配布元のものを使用しています。各フォントは本テーマを構成しておらず、各配布元でそれぞれのライセンスによって公開・(再)配布されています。
+> **フォント名:** Noto Sans Japanese
+> **著作権:** (C) 2014-2021 Adobe, with Reserved Font Name 'Source'
+> **ライセンス:** [[[*https://openfontlicense.org/|SIL Open Font License]]] Version 1.1
+> **配布元:** [[[*https://fonts.google.com/noto/specimen/Noto+Sans+JP|Google Fonts]]]
+----
+> **フォント名:** Terminus
+> **著作権:** 
+> : **Terminus Font** : (c) 2010 Dimitar Toshkov Zhekov
+> : **Terminus (TTF)** : (c) 2011 Tilman Blumenbach
+> **ライセンス:** [[[*https://openfontlicense.org/open-font-license-official-text/|SIL Open Font License]]], version 1.1.
+> **配布元:** https://terminus-font.sourceforge.net/
+
+> **フォント名:** ProFontWindows
+> **著作権:** (c) 1997 SQ Software
+> **ライセンス:** [[[*https://www.fontsquirrel.com/license/ProFontWindows|ProFont Redistribution Terms]]]
+> **配布元 (TTF):** https://www.fontsquirrel.com/fonts/ProFontWindows
+> **配布元 (CSS/WOFF):** https://scp-wiki.wikidot.com/theme:isolated-terminal
+> **補足:** WOFF and CSS files generated by Font Squirrel (https://www.fontsquirrel.com) on March 7, 2021
+
+> **フォント名:** JFドット東雲明朝16
+> **著作権:** (C) 2001 The Electronic Font Open Laboratory
+> **ライセンス:** パブリックドメイン
+> **配布元 (TTF):** http://jikasei.me/font/jf-dotfont/
+> **メインデザイン:** 古川泰之
+> **補足:** 一部文字はjiskan16のものをそのまま使用しています (配布ファイル内AUTHORS参照)。
+
+> **フォント名:** JFドットjiskan24h
+> **著作権:**
+> : **jiskan24** : (C) 電気情報技術産業協会、矢木達也
+> : **日比谷24** : (C) 平木敬太郎
+> **ライセンス:** [[[*https://openfontlicense.org/|SIL Open Font License]]] version 1.1 (全体)
+> **補足:** JFドットjiskan24hは全角部分がパブリックドメインですが、部分的に[[[*http://jikasei.me/font/kh-dotfont/|日比谷24]]]を使用しているため、全体は[[[*https://openfontlicense.org/|SIL Open Font License]]] v1.1でライセンスされます。
+[[/collapsible]]
+
+[[footnoteblock]]
+
+@@ @@
+
++* ソースコード
+
+[[collapsible show="+ 表示" hide="- 隠す"]]
+[[code type="css"]]
+/*
+	Isolated Terminal Theme CSS (ja-JP modification) by oplax-counterpoint (@merliborn)
+*/
+@import url('https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-2-mfzo/JFDotShinonomeMing16.css');
+@import url('https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-3-ci8u/profontwindows.css');
+@import url('https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-5-t5lr/terminus.css');
+@import url('https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-6-aeo3/jiskan24.css');
+
+
+/* Noto Sans JP */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap');
+
+:root {
+	/* S-CSS-P integrations are removed because it's unavailable in scp-jp. */
+
+	/* header measurements */
+	--header-height-on-desktop: 12.4rem;
+	--header-height-on-mobile: 12rem;
+	--header-h1-font-size: calc(var(--base-font-size) * 3);
+
+	/* Typefaces */
+	--body-font: 'Terminus', 'Noto Sans JP', sans-serif;
+	--header-font: 'JSDot Shinonome Ming 16', sans-serif;
+	--title-font: 'JSDot Shinonome Ming 16', sans-serif;
+	--mono-font: 'profontwindowsregular', monospace;
+	--UI-font: 'profontwindowsregular', 'jiskan24h', monospace;
+	--base-font-size: 1.1rem;
+
+	/* null logo */
+	--logo-image: none;
+
+	/* change title */
+	--header-title: "SCP FOUNDATION";
+
+	/* Header Gradients */
+	--diagonal-stripes: initial;
+
+
+	/*----*/
+
+	--accentColor: 246, 196, 3;
+	--darkColor: 40, 26, 8;
+
+
+	--bright-accent: var(--accentColor);
+	--dark-accent: var(--accentColor);
+	--pale-accent: var(--accentColor);
+	--medium-accent: var(--accentColor);
+
+	--black-monochrome: var(--accentColor);
+	--dark-gray-monochrome: var(--darkColor);
+	--gray-monochrome: var(--darkColor);
+	--light-pale-gray-monochrome: var(--darkColor);
+	--pale-gray-monochrome: var(--accentColor);
+	--very-light-gray-monochrome: var(--darkColor);
+	--white-monochrome: var(--darkColor);
+
+	--rating-module-bg-color: var(--pale-gray-monochrome);
+	--rating-module-button-color: var(--white-monochrome);
+	--rating-module-button-credit-color: var(--white-monochrome);
+	--rating-module-text-color: var(--white-monochrome);
+	--rating-module-button-cancel-color: var(--gray-monochrome);
+	--rating-module-text-hover-color: var(--pale-gray-monochrome);
+
+	--swatch-headerh1-color: var(--black-monochrome);
+
+	--swatch-menubg-medium-color: var(--bright-accent);
+	--swatch-menubg-light-color: var(--gray-monochrome);
+	--swatch-menutxt-light-color: var(--black-monochrome);
+	--swatch-menubg-medium-dark-color: var(--black-monochrome);
+
+	--swatch-primary-darker: var(--bright-accent);
+	--swatch-primary-darkest: var(--pale-gray-monochrome);
+	--swatch-text-secondary-color: var(--white-monochrome);
+	--swatch-text-light: var(--bright-accent);
+	--swatch-topmenu-bg-color: var(--bright-accent);
+
+	--gradient-header: none;
+	--gradient-background: rgb(var(--gray-monochrome));
+
+	/* Desktop Sidebar button */
+	--toggle-button-bg: rgb(var(--swatch-menubg-light-color));
+	--toggle-border-width: 0;
+	--toggle-icon-color: rgb(var(--swatch-primary-darkest));
+	--toggle-roundness: 0;
+}
+
+/* mobile menu mark patch */
+#header div[class*="top-bar"]>div.open-menu>p>a {
+	font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* credit view patch */
+@media (max-width:479px) {
+	div.modalbox {
+	 font-size: 90%;
+	}
+	#u-credit-view div.credit {
+	 margin: 2em 1ch;
+	}
+}
+#u-credit-view div.creditBottomRate {
+	padding-top: 0px;
+}
+#u-credit-view div.credit-license {
+	height: unset;
+	position: fixed;
+}
+#u-credit-view div.credit-license a {
+	padding: 0px min(2px, 0.08em);
+	font-size: unset;
+}
+#u-credit-view div.creditBottomRate > div:not(.credit-license) {
+	position: relative;
+	top: 0px;
+}
+#u-credit-otherwise .otherwise .credit-back {
+	display: none;
+}
+#u-credit-otherwise div.credit.otherwise {
+	padding-bottom: 1em;
+}
+#u-credit-otherwise .modalbox-title {
+	margin-bottom: 14px;
+}
+/* ------------------------------- */
+
+/* header title adjustments */
+#header::before {
+	opacity: 1;
+}
+
+/* change logo opacity */
+#header {
+	-webkit-filter: none;
+	filter: none;
+}
+
+#header h1,
+#header h1 a,
+#header h1 a::before {
+	text-shadow: none;
+	letter-spacing: 0.1rem;
+	align-self: flex-end;
+}
+
+#header h1 a::before {
+	height: 0.5em;
+	-webkit-text-stroke: 0;
+}
+
+#header h1 a::after,
+#header h1 a span,
+#header h2 {
+	display: none;
+}
+
+
+/* Hotfix */
+#header h1 { top: 0; }
+
+/* svg logo mask */
+#header::before {
+	background-color: rgb(var(--black-monochrome));
+	-webkit-mask-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.0' width='1040' height='1040'%3E%3Cpath d='M437 969v-10h-73v-18h-36v-18h-36v-18h-36v-18h-56v18h-72v-36h-18v-36H92v-37H74v-36H55v-36H37v-36H19v-56h18v-18h18v-18h19V451h18v-72h18v-38h18v-36h18v-36h18v-18h18v-18h18v-19h20v-18h18v-18h18v-18h36v-18h36v-18h18v-18h18V50h19V32h272v18h19v56h18v18h18v18h36v18h36v18h18v18h20v18h18v19h18v18h18v18h18v36h18v36h18v38h18v72h18v145h19v18h18v18h18v56h-18v36h-18v36h-19v36h-18v37h-18v36h-18v36h-72v-18h-56v18h-36v18h-36v18h-36v18h-73v20H437v-10zm146-37v-9h72v-18h37v-18h36v-18h18v-18h92v18h54v-36h18v-37h18v-36h18v-36h18v-36h19v-38h-19v-18h-18v-18h-18V469h-18v-72h-18v-38h-18v-36h-18v-18h-18v-36h-18v-18h-20v-18h-18v-19h-36v-18h-18v-18h-36v-18h-18v-18h-19v-36h-18V70H401v36h-18v36h-19v18h-18v18h-36v18h-18v18h-36v19h-18v18h-18v18h-20v36h-18v18h-18v36h-18v38h-18v72h-18v145H92v18H74v18H55v38h19v36h18v36h18v36h18v37h18v36h54v-18h92v18h18v18h36v18h37v18h72v18h128v-9z'/%3E%3Cpath d='M437 805v-9h-54v-18h-37v-18h-18v-18h-18v-18h-18v-18h-36v18h-36v18h-20v-18h-18v-36h38v-18h18v-20h18v-18h-18v-72h-18v-73h18v-72h18v-36h18v-38h18v-18h18v-18h18v-18h18v-18h37v-18h36v-18h72v-55h56v55h72v18h36v18h37v18h18v18h18v18h18v18h18v38h18v36h18v72h20v73h-20v72h-18v18h18v20h20v18h36v36h-18v18h-18v-18h-38v-18h-36v18h-18v18h-18v18h-18v18h-37v18h-54v18H437v-9zm164-54v-9h36v-18h37v-18h18v-18h18v-18h-18v-20h-37v-18h-18v38h-18v-20h-18v-36h-18v-18h-18v-18h-18v-36h90v18h55v18h-18v18h18v18h36v18h18v-54h18V469h-18v-54h-18v-36h-18v-20h-18v-18h-18v-18h-37v-18h-36v-18h-54v92h36v36h-18v36h-18v36h-18v18h-20v-18h-18v-36h-18v-36h-18v-36h36v-92h-54v18h-36v18h-37v18h-18v18h-18v20h-18v36h-18v54h-18v109h18v54h18v-18h36v-18h18v-18h-18v-18h55v-18h90v36h-18v18h-18v18h-18v36h-18v20h-18v-38h-18v18h-37v20h-18v18h18v18h18v18h37v18h36v18h164v-9z'/%3E%3C/svg%3E");
+	mask-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.0' width='1040' height='1040'%3E%3Cpath d='M437 969v-10h-73v-18h-36v-18h-36v-18h-36v-18h-56v18h-72v-36h-18v-36H92v-37H74v-36H55v-36H37v-36H19v-56h18v-18h18v-18h19V451h18v-72h18v-38h18v-36h18v-36h18v-18h18v-18h18v-19h20v-18h18v-18h18v-18h36v-18h36v-18h18v-18h18V50h19V32h272v18h19v56h18v18h18v18h36v18h36v18h18v18h20v18h18v19h18v18h18v18h18v36h18v36h18v38h18v72h18v145h19v18h18v18h18v56h-18v36h-18v36h-19v36h-18v37h-18v36h-18v36h-72v-18h-56v18h-36v18h-36v18h-36v18h-73v20H437v-10zm146-37v-9h72v-18h37v-18h36v-18h18v-18h92v18h54v-36h18v-37h18v-36h18v-36h18v-36h19v-38h-19v-18h-18v-18h-18V469h-18v-72h-18v-38h-18v-36h-18v-18h-18v-36h-18v-18h-20v-18h-18v-19h-36v-18h-18v-18h-36v-18h-18v-18h-19v-36h-18V70H401v36h-18v36h-19v18h-18v18h-36v18h-18v18h-36v19h-18v18h-18v18h-20v36h-18v18h-18v36h-18v38h-18v72h-18v145H92v18H74v18H55v38h19v36h18v36h18v36h18v37h18v36h54v-18h92v18h18v18h36v18h37v18h72v18h128v-9z'/%3E%3Cpath d='M437 805v-9h-54v-18h-37v-18h-18v-18h-18v-18h-18v-18h-36v18h-36v18h-20v-18h-18v-36h38v-18h18v-20h18v-18h-18v-72h-18v-73h18v-72h18v-36h18v-38h18v-18h18v-18h18v-18h18v-18h37v-18h36v-18h72v-55h56v55h72v18h36v18h37v18h18v18h18v18h18v18h18v38h18v36h18v72h20v73h-20v72h-18v18h18v20h20v18h36v36h-18v18h-18v-18h-38v-18h-36v18h-18v18h-18v18h-18v18h-37v18h-54v18H437v-9zm164-54v-9h36v-18h37v-18h18v-18h18v-18h-18v-20h-37v-18h-18v38h-18v-20h-18v-36h-18v-18h-18v-18h-18v-36h90v18h55v18h-18v18h18v18h36v18h18v-54h18V469h-18v-54h-18v-36h-18v-20h-18v-18h-18v-18h-37v-18h-36v-18h-54v92h36v36h-18v36h-18v36h-18v18h-20v-18h-18v-36h-18v-36h-18v-36h36v-92h-54v18h-36v18h-37v18h-18v18h-18v20h-18v36h-18v54h-18v109h18v54h18v-18h36v-18h18v-18h-18v-18h55v-18h90v36h-18v18h-18v18h-18v36h-18v20h-18v-38h-18v18h-37v20h-18v18h18v18h18v18h37v18h36v18h164v-9z'/%3E%3C/svg%3E");
+	-webkit-mask-size: calc(var(--header-height-on-desktop) - var(--header-h1-font-size) - 1rem);
+	mask-size: calc(var(--header-height-on-desktop) - var(--header-h1-font-size) - 1rem);
+	-webkit-mask-position: center 0;
+	mask-position: center 0;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+}
+
+
+#header {
+	--swatch-text-secondary-color: var(--black-monochrome);
+
+	--login-dropdown-text-hover-color: var(--white-monochrome);
+}
+
+#my-account:hover,
+#my-account:active,
+#my-account:focus {
+	--login-myaccount-color: var(--white-monochrome);
+}
+
+#search-top-box:focus-within {
+	--search-icon-hover-color: var(--swatch-menubg-light-color);
+}
+
+#search-top-box form[id="search-top-box-form"] input[type="text"] {
+	--search-focus-textbox-bg-color: var(--black-monochrome);
+	background-color: rgb(var(--search-focus-textbox-bg-color), 0.06) !important;
+}
+
+#search-top-box form[id="search-top-box-form"]:not(:focus-within) input[type="text"] {
+	--search-textbox-text-color: var(--black-monochrome);
+}
+
+#top-bar {
+	--dropdown-links-hover-color: var(--white-monochrome);
+}
+
+#top-bar .mobile-top-bar>ul>li>a {
+	--topmenu-category-color: var(--white-monochrome);
+}
+
+#top-bar .mobile-top-bar>ul>li:hover>a,
+#top-bar .mobile-top-bar>ul>li:active>a,
+#top-bar .mobile-top-bar>ul>li:focus-within>a {
+	--topmenu-category-hover-bg: var(--white-monochrome);
+}
+
+#header div[class*="top-bar"]>div.open-menu>p>a {
+	--mobile-topmenu-sidebar-button-color: var(--white-monochrome);
+}
+
+/* ------------------------------- */
+
+/* EDITBOX */
+#wd-editor-toolbar-panel {
+	--editor-icon-color: var(--white-monochrome);
+}
+
+form#edit-page-form .edit-page-bottomtable div.sub {
+	color: var(--swatch-primary-darkest);
+}
+
+/* ------------------------------- */
+
+/* Image Block */
+.scp-image-block {
+	box-sizing: border-box;
+	border-width: 0;
+	box-shadow: none;
+}
+
+:is(div.image-block,div.scp-image-block) :is(.image-caption,.scp-image-caption) {
+	color: rgb(var(--swatch-text-secondary-color));
+	background-color: rgb(var(--swatch-primary-darker));
+	border-color: rgb(var(--swatch-primary-darker));
+	padding: 0.15rem;
+	margin-top: 6px;
+}
+
+/* Blockquote */
+#main-content {
+	--blockquote-bg-color: var(--swatch-tertiary-color), 0.06;
+}
+
+/* Code */
+div.code {
+	background-color: #f4f4f4;
+	text-shadow: none;
+}
+
+/* hr */
+hr {
+	background-color: rgb(var(--swatch-menubg-medium-color));
+	height: 0;
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+
+:is(blockquote, .blockquote, div.blockquote, [class*="blockquote"])>hr {
+	margin-left: -2ch;
+	margin-right: -2ch;
+}
+
+/* footnotes */
+a.footnoteref {
+	display: inline;
+}
+
+.footnotes-footer a[href*="javascript"]:-webkit-any-link {
+	margin-right: -0.45rem;
+}
+
+.footnotes-footer a[href*="javascript"]:-moz-any-link {
+	margin-right: -0.45rem;
+}
+
+.footnotes-footer a[href*="javascript"]:any-link {
+	margin-right: -0.45rem;
+}
+
+.footnotes-footer a[href*="javascript"]::before {
+	padding-left: 0.35em;
+}
+
+.footnotes-footer a[href*="javascript"]::before,
+.footnotes-footer a[href*="javascript"]:hover::before {
+	color: rgb(var(--swatch-secondary-color));
+	background-color: rgb(var(--swatch-primary));
+}
+
+.footnotes-footer,
+.bibitems {
+	background-color: rgba(var(--footnotes-footer-colorbar-color), 0.06);
+}
+
+
+/* LINK */
+#main-content a:not(#breadcrumbs a, .pseudocrumbs a, .page-rate-widget-box a, .rate-box-with-credit-button a, ul.yui-nav a, .printuser.avatarhover a:first-child, .footnote-footer > a[href*="javascript"], div[id*="page-options-bottom"] a, .danger-diamond a) {
+	font-weight: bold;
+	color: rgb(var(--gray-monochrome));
+	padding: 0.115em;
+	background-color: rgb(var(--black-monochrome));
+}
+
+#main-content a:not(#breadcrumbs a, .pseudocrumbs a, .page-rate-widget-box a, .rate-box-with-credit-button a, ul.yui-nav a, .printuser.avatarhover a:first-child, .footnote-footer > a[href*="javascript"], div[id*="page-options-bottom"] a, .danger-diamond a):hover {
+	box-shadow: 0 0 0.7em 0.1em rgba(var(--black-monochrome), 0.3);
+}
+
+
+/* CUSTOM BLOCKS */
+
+.expoblock {
+	box-sizing: border-box;
+	border: solid 0.7rem rgb(var(--black-monochrome));
+	padding: 1rem;
+}
+
+.expoblock hr {
+	height: 0.6rem;
+	margin: 1.5em 0;
+}
+
+span.hilighter {
+	background-color: rgb(var(--black-monochrome));
+	color: rgb(var(--gray-monochrome));
+	font-weight: bold;
+	padding: 0.2em;
+	font-size: 108%;
+	line-height: 1.2;
+}
+
+/* author label compatibility */
+#page-content .authorlink-wrapper>a::before {
+	color: rgb(var(--gray-monochrome));
+}
+
+#page-content .authorlink-wrapper .authorbox {
+	-webkit-filter: drop-shadow(0 0 3px rgba(var(--black-monochrome), 0.75));
+	filter: drop-shadow(0 0 3px rgba(var(--black-monochrome), 0.75));
+}
+
+/* ayers info compatibility */
+.info-container {
+	--barColour: rgb(var(--accentColor));
+	--linkColour: rgb(var(--darkColor));
+}
+
+#main-content #page-content .info-container>.collapsible-block a.collapsible-block-link {
+	background-color: var(--linkColour);
+}
+
+.info-container .collapsible-block-unfolded {
+	border-color: rgb(var(--accentColor));
+}
+
+/*---- PAGE TAGS ----*/
+#main-content .page-tags {
+	margin-bottom: 1rem;
+}
+
+#main-content .page-tags span {
+	display: block;
+}
+
+#content-wrap #main-content .page-tags span a:-webkit-any-link:not([href^="/system:page-tags/tag/_"]) {
+	margin: 0.2rem;
+	padding: 0.2em 0.25em;
+}
+
+#content-wrap #main-content .page-tags span a:-moz-any-link:not([href^="/system:page-tags/tag/_"]) {
+	margin: 0.2rem;
+	padding: 0.2em 0.25em;
+}
+
+#content-wrap #main-content .page-tags span a:any-link:not([href^="/system:page-tags/tag/_"]) {
+	margin: 0.2rem;
+	padding: 0.2em 0.25em;
+}
+
+
+/*---- BOTTOM OPTIONS ----*/
+div[id*="page-options-bottom"]:not(.page-rate-widget-box):not(#search-top-box-form)>a.btn {
+	--button-padding: calc(var(--icon-size) / 6);
+	flex-basis: 8.3rem;
+	flex-grow: 1;
+}
+
+div[id*="page-options-bottom"]>a#more-options-button {
+	flex-grow: 4;
+}
+
+
+/*---- LICENSE AREA ----*/
+#license-area {
+	--swatch-text-secondary-color: var(--black-monochrome);
+	--license-link-hover-bg-color: var(--black-monochrome);
+	--license-link-hover-color: var(--white-monochrome);
+}
+
+/*---- SCANLINE MONITOR EFFECT ----*/
+#extrac-div-1 {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	pointer-events: none;
+	background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .15) 50%, rgba(0, 0, 0, 0));
+	background-size: auto 8px;
+	opacity: 0.7;
+}
+
+#extrac-div-2 {
+	position: fixed;
+	width: 100vw;
+	height: 1rem;
+	top: 0;
+	pointer-events: none;
+	background: linear-gradient(to bottom, rgba(255, 0, 0, 0) 0%, rgba(255, 250, 250, 1) 50%, rgba(255, 255, 255, 0.98) 51%, rgba(255, 0, 0, 0) 100%);
+	opacity: .1;
+	-webkit-animation: scanm 6s linear infinite;
+	animation: scanm 6s linear infinite;
+}
+
+@-webkit-keyframes scanm {
+	0% {
+		top: -1rem;
+		opacity: .05;
+	}
+
+	25% {
+		top: 50%;
+		opacity: .03;
+	}
+
+	37.5% {
+		top: 75%;
+		opacity: 0.06;
+	}
+
+	50% {
+		top: 100%;
+		opacity: .03;
+	}
+
+	100% {
+		top: 100%;
+	}
+}
+
+@keyframes scanm {
+	0% {
+		top: -1rem;
+		opacity: .05;
+	}
+
+	25% {
+		top: 50%;
+		opacity: .03;
+	}
+
+	37.5% {
+		top: 75%;
+		opacity: 0.06;
+	}
+
+	50% {
+		top: 100%;
+		opacity: .03;
+	}
+
+	100% {
+		top: 100%;
+	}
+}
+
+#extrac-div-3 {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	pointer-events: none;
+	background-image: radial-gradient(circle, rgb(230, 210, 200) 0%, rgb(177, 158, 152) 60%, rgb(55, 28, 30) 100%);
+	opacity: 0.25;
+	mix-blend-mode: color-dodge;
+	background-repeat: no-repeat;
+	background-size: cover;
+	z-index: 30;
+}
+
+/* fixes a chrome bug */
+html {
+	background: rgb(var(--swatch-background));
+}
+/* disable screen effect on safari due to bug */
+@supports (-webkit-hyphens:none) {
+#extrac-div-3 {
+    display: none;
+}
+}
+
+/*---- MOBILE QUERY ----*/
+@media only screen and (max-width: 56.25rem) {
+	:root {
+		--header-h1-font-size: calc(var(--base-font-size) * 2.4);
+	}
+
+	#login-status:hover {
+		background-color: rgba(var(--swatch-menubg-light-color), 0.65);
+		-webkit-backdrop-filter: blur(0.1rem);
+		backdrop-filter: blur(0.1rem);
+	}
+}
+
+/*---- CODE BLOCK PATCH ----*/
+.hl-default, .hl-code, .hl-brackets {
+	color: rgb(var(--darkColor));
+}
+[[/code]]
+[[/collapsible]]
+[[/iftags]]
+[[include :scp-jp:component:toggle-sidebar-bhl]]
+[[include :scp-jp:component:centered-header-bhl]]
+[[module css]]
+@import url("https://scp-jp.wdfiles.com/local--code/theme%3Aisolated-terminal/1")
+[[/module]]
+
+[[include :scp-jp:component:interwiki-style
+| priority=3
+| theme=https://scp-jp.wdfiles.com/local--code/theme%3Aisolated-terminal/1
+]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Isolated Terminal narrow login: wrap account links inside the masthead without changing their type scale. */
+@media(max-width:359px){#login-status{max-width:calc(100% - 2rem);white-space:normal;margin-left:0;}}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Isolated Terminal native History: retain form and revision columns inside horizontal scrollers. */
+@media(max-width:767px){#revision-list,#history-form-1 .form{max-width:100%;overflow-x:auto;}#history-form-1 .form{display:block;}}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Isolated Terminal narrow tables: preserve their columns in an intrinsic-width horizontal scroller. */
+@media(max-width:359px){#page-content table.wiki-content-table{display:block;max-width:100%;overflow-x:auto;width:max-content;}}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot isolated-terminal narrow files: keep the file table inside the viewport at phone widths. */
+@media (max-width:767px){#action-area table.page-files{width:100%;table-layout:fixed}#action-area table.page-files td{overflow-wrap:anywhere}}
+[[/module]]

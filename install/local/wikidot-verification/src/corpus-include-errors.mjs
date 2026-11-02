@@ -1,22 +1,3 @@
-/**
- * Exact include-error marker shared by the corpus import dry-run and the
- * integrity verifier (issue #2093).
- *
- * The renderer emits missing includes as
- * `Included page "<page>" does not exist (...)` with a create-it-now link
- * (deepwell/src/services/render/include_resolution.rs,
- * `missing_include_message`, wrapped in a `[[div class="error-block"]]`
- * block). A loose `does not exist` substring also matches story prose
- * ("There does not exist a single mote...") and unrelated product
- * messages ("Requested forum category does not exist."), so affected and
- * fixed counts must use this exact marker instead.
- *
- * Observed compiled forms:
- * - entity-escaped: `Included page &quot;<page>&quot; does not exist`
- * - raw quotes: `Included page "<page>" does not exist`, as seen in DOM
- *   text content (entities decoded) and in wikitext source, where the
- *   message continues with ` ([[a ...` (the create-it-now link).
- */
 
 export const INCLUDE_ERROR_TARGET_ENTITY_RE =
   /Included page &quot;((?:(?!&quot;)[^<])+?)&quot; does not exist/g;
@@ -24,10 +5,6 @@ export const INCLUDE_ERROR_TARGET_ENTITY_RE =
 export const INCLUDE_ERROR_TARGET_QUOTE_RE =
   /Included page "([^"\n]+?)" does not exist/g;
 
-/**
- * Extract the distinct missing-include target page names from rendered
- * output, in first-seen order. Matches both compiled forms.
- */
 export function findIncludeErrorTargets(rendered) {
   const targets = [];
   const seen = new Set();
@@ -47,7 +24,6 @@ export function findIncludeErrorTargets(rendered) {
   return targets;
 }
 
-/** True when the rendered output carries at least one exact include error. */
 export function hasIncludeError(rendered) {
   INCLUDE_ERROR_TARGET_ENTITY_RE.lastIndex = 0;
   INCLUDE_ERROR_TARGET_QUOTE_RE.lastIndex = 0;
@@ -80,15 +56,6 @@ WHERE p.site_id = ${siteId}
 ORDER BY 1;`;
 }
 
-/**
- * SQL fetching latest rendered bodies for an explicit slug list, for
- * per-page include-error certification. Slugs are quote-escaped; an empty
- * list throws. Bodies travel base64-encoded: rendered HTML is multi-line
- * and contains `|` (formatCaptureOutput joins raw values with `|` and
- * `\n`), so raw transport would split one body into phantom rows and
- * misattribute fragments. Slugs cannot contain `|` or newlines, so the
- * `slug|b64` framing stays unambiguous.
- */
 export function buildIncludeErrorBodiesQuery(siteId, slugs) {
   if (!Number.isInteger(siteId)) {
     throw new Error("siteId must be an integer");
@@ -112,18 +79,6 @@ LEFT JOIN text b ON b.hash = r.compiled_body_html_hash
 ORDER BY requested.slug;`;
 }
 
-/**
- * Annotate a cross-site coverage report with exact include-error targets.
- *
- * `bodiesOutput` is the pipe-separated output of
- * `buildIncludeErrorBodiesQuery` (`slug|base64-body`, one row per line;
- * the base64 alphabet contains neither `\n` nor `|`). Pages already
- * expected to be broken (unresolved gaps, truncated closure, or
- * unmaterialized rows) keep their errors as informational
- * `include_error_targets`. A page expected clean that still renders an
- * exact include error becomes a failure, since the closure claims to
- * have fixed it.
- */
 export function annotateCoverageWithIncludeErrors(report, bodiesOutput) {
   const bodies = new Map();
   for (const line of bodiesOutput.split("\n").filter(Boolean)) {

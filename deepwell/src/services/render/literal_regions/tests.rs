@@ -197,10 +197,6 @@ fn runtime_meta_raw_owns_exactly_six_delimiter_bytes() {
 
 #[test]
 fn color_restoration_treats_authored_code_div_as_ordinary() {
-    // Live Wikidot renders color spans inside an authored
-    // `[[div class="code"]]` (see `component:coltop`), so the color
-    // restoration pass must not treat that div as a literal code block.
-    // Real `[[code]]` output is `<wj-code>` at this pipeline stage.
     let source = concat!(
         r#"<code class="wj-monospace">inline-marker</code>"#,
         "\n<pre><code>pre-marker</code></pre>",
@@ -289,8 +285,6 @@ fn common_index_pairs_inline_raw_within_physical_lines() {
         "live @@unclosed\nthrough eof",
         "live {{@@}} lone\n\nacross paragraphs @@ following",
     ] {
-        // The ListPages runtime index additionally protects an unmatched `@@`
-        // to the end of its own line, so only the next line is compared there.
         let offset = source.find("across").or(source.find("through")).unwrap();
         for index in [
             LiteralRegionIndex::new_wikidot_syntax(source),
@@ -315,10 +309,6 @@ fn common_index_pairs_inline_raw_within_physical_lines() {
 
 #[test]
 fn a_lone_raw_marker_does_not_invert_later_raw_pairs() {
-    // `theme:flopstyle-dark` carries one `{{@@}}` on line 433 and documents
-    // markup with balanced `@@...@@` pairs for the remaining 5,000 lines.
-    // Document-wide pairing flipped every later pair, so the documentation
-    // examples became live markup and the page's CSS code blocks vanished.
     let source = concat!(
         "an unpaired {{@@}} marker\n",
         "example: @@[[ul class=\"creditRate\"]]@@\n",
@@ -369,8 +359,6 @@ fn conditional_index_honors_pinned_url_adjacent_raw_delimiters() {
     let source = "https://e.test/a@@b[[/iftags]]@@tail";
     let index = LiteralRegionIndex::new_wikidot_conditional_syntax(source);
 
-    // FTML exposes `@@` before and after a URL as real inline-raw markers;
-    // the conditional body between them therefore remains literal.
     assert!(index.contains(source.find("@@").unwrap()));
     assert!(index.contains(source.find("[[/iftags]]").unwrap()));
     assert!(index.contains(source.rfind("@@").unwrap()));

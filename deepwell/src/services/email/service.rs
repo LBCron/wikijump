@@ -21,6 +21,7 @@
 use super::structs::{
     EmailClassification, EmailProviderClassification, EmailValidationOutput,
     MailCheckFailureResponse, MailCheckResponse, MailCheckSuccessResponse,
+    MailFormMessage,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::runtime::ServerState;
@@ -30,10 +31,6 @@ use crate::services::ServiceContext;
 pub struct EmailService;
 
 impl EmailService {
-    /// Validates an email through the MailCheck API.
-    ///
-    /// Fails when MailCheck cannot answer. Account creation and email changes
-    /// use [`EmailService::validate_when_available`] instead.
     pub async fn validate(
         ctx: &ServiceContext<'_>,
         email: &str,
@@ -47,13 +44,6 @@ impl EmailService {
         }
     }
 
-    /// Validates an email through the MailCheck API, or returns `None` when
-    /// MailCheck cannot answer (rate limit, transport failure, server error).
-    ///
-    /// An unanswered check must not block sign-up: the caller records the
-    /// email as not validated, exactly as when validation is bypassed. A
-    /// definite verdict (a rejected address, or one that is disposable, has
-    /// no MX records or is spam) is still returned for the caller to enforce.
     pub async fn validate_when_available(
         ctx: &ServiceContext<'_>,
         email: &str,
@@ -65,8 +55,6 @@ impl EmailService {
             ));
         }
 
-        // MailCheck may be unavailable, so the address must at least be
-        // well formed before it can be stored unvalidated.
         if !is_well_formed_email(email) {
             bail!(Error::new(
                 "email address is not well formed",
@@ -92,7 +80,6 @@ impl EmailService {
         Ok(Self::mailcheck_verdict(response)?.map(Self::classify))
     }
 
-    /// The MailCheck answer, `None` when it is not a verdict on the email.
     fn mailcheck_verdict(
         response: MailCheckResponse,
     ) -> Result<Option<MailCheckSuccessResponse>> {
@@ -106,13 +93,10 @@ impl EmailService {
                 Ok(None)
             }
 
-            // Invalid request, bad email
             MailCheckResponse::Failure(MailCheckFailureResponse {
                 status: 400,
                 error,
             }) => {
-                // MailCheck rejected the address itself: report it as the
-                // user-facing invalid-email error, not an internal failure.
                 warn!("MailCheck API rejected the email address: {}", error);
                 bail!(Error::new(
                     format!("MailCheck API rejected the email address: {error}"),
@@ -120,8 +104,6 @@ impl EmailService {
                 ));
             }
 
-            // Exceeded rate limit, or another status that says nothing
-            // about the email itself.
             MailCheckResponse::Failure(MailCheckFailureResponse { status, error }) => {
                 warn!(
                     "MailCheck API returned error status {}, email not validated: {}",
@@ -133,22 +115,15 @@ impl EmailService {
     }
 
     fn classify(mailcheck: MailCheckSuccessResponse) -> EmailValidationOutput {
-        // Prepare output fields
         let mut valid = true;
         let mut classification = EmailClassification::Normal;
         let mut provider_classification = EmailProviderClassification::KnownProvider;
         let mut normalized_email = None;
 
-        // Check if the email is a role email
-        // This is for addresses like "info@example.com" or "webmaster@example.com"
-        // which are likely managed by multiple people.
         if mailcheck.role_account {
             classification = EmailClassification::Role;
         }
 
-        // Check if the email is an alias.
-        // This was previously a boolean, now it is a derived property
-        // from comparing the email with its derived counterpart.
         if mailcheck.email != mailcheck.normalized_email {
             classification = EmailClassification::Alias;
             normalized_email = Some(mailcheck.normalized_email);
@@ -159,8 +134,6 @@ impl EmailService {
             classification = EmailClassification::Disposable;
         }
 
-        // Check if the domain has any MX records.
-        // If not, it's not a valid email (we cannot send anything there)
         if !mailcheck.mx {
             valid = false;
             classification = EmailClassification::Invalid;
@@ -171,7 +144,6 @@ impl EmailService {
             classification = EmailClassification::Spam;
         }
 
-        // Determine email provider classification if no mx_providers
         if mailcheck.mx_providers.is_empty() {
             if !mailcheck.mx {
                 provider_classification = EmailProviderClassification::NoProvider;
@@ -182,7 +154,6 @@ impl EmailService {
             }
         }
 
-        // Move other fields to output
         EmailValidationOutput {
             valid,
             classification,
@@ -203,7 +174,6 @@ impl EmailService {
         }
     }
 
-    /// Actual HTTP request to MailCheck.
     async fn request_mailcheck(
         state: ServerState,
         email: &str,
@@ -231,7 +201,6 @@ impl EmailService {
         Ok(response)
     }
 
-    /// Mocked request to MailCheck for tests.
     fn mock_mailcheck(email: &str) -> MailCheckResponse {
         #[derive(Debug, Copy, Clone, PartialEq, Eq)]
         enum EmailType {
@@ -288,14 +257,6 @@ impl EmailService {
         })
     }
 
-    // TODO (WJ-1384) add email sending helper method
-
-    /// Record delivery of a token email through the local development sink.
-    ///
-    /// LOCAL DEFAULT: structured log of recipient, purpose, and expiry
-    /// only. Tokens and credentials are never logged, and nothing is sent
-    /// to a real mailbox. Real SMTP delivery is a later slice with its own
-    /// review; until then this record is the observable enqueue event.
     pub async fn send_token_email(
         to_email: &str,
         purpose: super::EmailTokenPurpose,
@@ -309,13 +270,15 @@ impl EmailService {
         );
     }
 
-    // TODO (WJ-1390) one-time code (used as substitute second factor when logging in)
+    pub async fn send_mail_form_message(message: &MailFormMessage) {
+        info!(
+            "MailForm submission recorded, NOT delivered (local sink): \
+             to='{}', title='{}', body='{}'",
+            message.recipients, message.title, message.body,
+        );
+    }
 }
 
-/// A deliberately small syntax check: one `@`, a non-empty local part, and a
-/// domain of non-empty dot-separated labels, with no whitespace or control
-/// characters. Single-label domains stay valid (local accounts such as
-/// `admin@wikijump`); MailCheck, when it answers, decides deliverability.
 pub(crate) fn is_well_formed_email(email: &str) -> bool {
     if email.chars().any(|c| c.is_whitespace() || c.is_control()) {
         return false;

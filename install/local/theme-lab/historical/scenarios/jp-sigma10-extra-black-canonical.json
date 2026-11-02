@@ -1,0 +1,55 @@
+{
+  "schema": "theme_lab_test_scenario_config.v1",
+  "runtime": {
+    "platform": "wikijump",
+    "implementation": "wikijump-local",
+    "origin": "https://scpaiueouiuiuiui.wikijump.localhost:3398",
+    "implementation_source": "framerail"
+  },
+  "branch_profile": {
+    "id": "scp-jp",
+    "locale": "ja",
+    "site_slug": "scpaiueouiuiuiui",
+    "site_state": "fixtures/scp-jp-canonical-site-state-v1.json"
+  },
+  "shell_profile": {
+    "id": "scp-jp-sigma10-shell",
+    "format": "wikidot-source",
+    "files": {
+      "interwiki": "sigma10-migration/fixtures/run-owned-sigma10-nav-interwiki.wikidot.txt",
+      "interwiki_style": "sigma10-migration/fixtures/run-owned-sigma10-interwiki-style.wikidot.txt",
+      "navigation_side": "sigma10-migration/fixtures/run-owned-sigma10-nav-side.wikidot.txt",
+      "navigation_top": "sigma10-migration/fixtures/run-owned-sigma10-nav-top.wikidot.txt"
+    },
+    "injection": {
+      "navigationHtml": "navigation_top",
+      "sidebarHtml": "navigation_side"
+    }
+  },
+  "baseline": {
+    "id": "sigma10",
+    "css": "sigma10-migration/sigma10-offline.css",
+    "components": {
+      "credit_end": "sigma10-migration/fixtures/run-owned-sigma10-credit-end.wikidot.txt",
+      "credit_otherwise_end": "sigma10-migration/fixtures/run-owned-sigma10-credit-otherwise-end.wikidot.txt",
+      "credit_otherwise_start": "sigma10-migration/fixtures/run-owned-sigma10-credit-otherwise-start.wikidot.txt",
+      "credit_saved_css": "sigma10-migration/current-campaign/saved-credit-component.css",
+      "credit_start": "sigma10-migration/fixtures/run-owned-sigma10-credit-start.wikidot.txt"
+    }
+  },
+  "theme": {
+    "id": "extra-black-highlighter-theme",
+    "css": "ports/extra-black-highlighter-theme/candidate.css",
+    "source": "ports/extra-black-highlighter-theme/candidate.wikidot.source.txt"
+  },
+  "corpus": {
+    "id": "canonical-theme-corpus-v1",
+    "manifest": "fixtures/theme-canonical-corpus-v1.json",
+    "source": "fixtures/theme-canonical-corpus-v1.wikidot.txt",
+    "states": "fixtures/theme-canonical-corpus-v1-states.json"
+  },
+  "measurement": {
+    "id": "canonical-browser-measurement-v1",
+    "contract": "fixtures/theme-canonical-measurement-v1.json"
+  }
+}

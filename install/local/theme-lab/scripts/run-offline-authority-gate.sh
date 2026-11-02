@@ -29,15 +29,18 @@ if [[ "$(printf '%s\n' "${LINKS}" | wc -l)" -ne 1 || "${LINKS}" != *': lo:'* ]];
   exit 2
 fi
 
-MANIFEST="${HERE}/../publication/current-head-authority-supplement.json"
-# Audited against the checked-in manifest, and intentionally updated only
-# through a reviewed authority inventory migration.
-MANIFEST_SHA=1c06a3aae872588663d95999dec769b29714d3ef16c7d014a42b294f11dc7b20
+# Derived from the checkout's tracked ledger and the store; nothing is pinned
+# by hand, so the restore below is limited to what the ledger binds.
+INVENTORY="$(mktemp)"
+trap 'rm -f "${INVENTORY}"' EXIT
+node "${HERE}/derive-authority-inventory.mjs" --store "${STORE}" --checkout "${REPO}" --output "${INVENTORY}"
+INVENTORY_SHA="$(sha256sum "${INVENTORY}" | cut -d' ' -f1)"
 
 python3 "${HERE}/content-addressed-authority-store.py" \
   --mode restore --store-root "${STORE}" \
   --destination-root "${REPO}" \
-  --inventory "${MANIFEST}" --inventory-sha256 "${MANIFEST_SHA}" --apply
+  --inventory "${INVENTORY}" --inventory-sha256 "${INVENTORY_SHA}" --apply
+"${HERE}/exclude-restored-authority-evidence.sh" "${REPO}" "${INVENTORY}"
 
 node "${HERE}/../ports/scripts/check-adaptation-authority.mjs"
 node "${HERE}/real-port-regression.mjs" --maintained --verify-only

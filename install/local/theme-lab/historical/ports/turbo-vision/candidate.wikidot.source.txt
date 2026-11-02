@@ -1,0 +1,1726 @@
+>[!-{$blocks}
+
+[[include :scp-jp:component:toggle-sidebar]]
+
+[[module CSS]]
+@import url("https://scp-jp.wdfiles.com/local--code/theme%3Aturbo-vision/2");
+[[/module]]
+
+[[include :scp-jp:component:interwiki-style
+| priority=1
+| theme=https://scp-jp.wdfiles.com/local--code/theme%3Aturbo-vision/2
+]]
+
+[!-- --]
+
+[[module CSS]]
+@import url("https://scp-jp.wdfiles.com/local--code/theme%3Aturbo-vision/1");
+[[/module]]
+
+[[iftags +テーマ]]
+
+[[include :scp-jp:credit:start-preview]]
+**翻訳責任:** oplax-counterpoint
+**翻訳年:** 2024
+**タイトル:** ターボ・ビジョン テーマ
+**原著者:** JakdragonX, Croquembouche
+**作成年:** 2021
+**参照版:** 53
+**原語版URL:** [[[*https://scp-wiki.wikidot.com/theme:turbo-vision]]]
+[[include :scp-jp:credit:end-preview]]
+
+[[div class="offset-left left-1"]]
+[[div class="turbo-block bg-cyan border-white"]]
+これはJakdragonXとCroquemboucheによるターボ・ビジョン テーマです。見た目に痛々しいレトロな感覚を引き起こしますが、このテーマは財団世界における何の前提にも関連していない、単なる美学的なものです。
+[[/div]]
+[[/div]]
+
+[[div class="offset-right right-1"]]
+[[div class="turbo-block bg-orange border-white"]]
+このテーマをあなたのページに適用する際には、以下のコードを挿入してください。
+
+[[div class="turbo-block bg-grey border-black text-black"]]
+@@[[include :scp-jp:theme:turbo-vision]]@@
+[[/div]]
+
+このコードはターボ・ビジョン テーマを“テーマ・モード”で適用します。
+
+-----
+
+ターボ・ブロックだけを使いたくて、それ以外は使いたくない場合は、"blocks=-"を追加してください。
+
+[[div class="turbo-block bg-grey border-black text-black"]]
+@@[[include :scp-jp:theme:turbo-vision blocks=-]]@@
+[[/div]]
+
+このコードはターボ・ビジョン テーマを“コンポーネント・モード”で適用します。これは[[[theme:black-highlighter-theme|]]]と互換性があります。
+
+-----
+
+“テーマ・モード”と“コンポーネント・モード”については後で説明します。あなたのページがどちらのモードで使用されるかを確認してください。
+[[/div]]
+[[/div]]
+
+~~~~
+
+ターボ・ビジョン テーマは[https://en.wikipedia.org/wiki/Turbo_Vision 90年代のDOS端末]に似た外観になるようデザインされており、このデザインは多数のASCII文字で構成されているように見えます。境界線とドロップシャドウが不格好で非対称に見えるのは、このためです――これらは、個々のタイルの文字色と背景色によって作られる色を持った、ボックス描画用の文字に見えるように作られています。
+
+とはいえ、私たちは上記のガイドラインに厳密に従っているわけではなく、読書体験を少しでも苦痛のないものにする創造的な自由を取っています。
+
+このテーマは、好きな内容を書き込めるオフセットブロックを配置する水平/垂直方向のスペースを確保するために、デフォルトで[[[component:toggle-sidebar|トグル式サイドバー]]]が用いられています。水平方向の幅がない小さい画面では、これらのオフセットブロックは自動的にページの中央に移動するため、モバイルの読者でも何一つ見逃すものはありません。
+
+このテーマは[[span class="ruby"]]ブロック状[[span class="rt"]]blocky[[/span]][[/span]]で、[[span class="ruby"]]不格好[[span class="rt"]]clunky[[/span]][[/span]]で、そしてカラフルです。このテーマを使うページは、積み重ねられたウィンドウの束でいっぱいのインターフェースのように雑然としているかもしれませんが、それこそが魅力の一部です。ですが、そうでなくてはならないということはありません――あなた次第です。このページには、あなたの好きなように設定する方法が記載されています。
+
+-----
+
+以下のタブには基本的なWikidotフォーマットの例がいくつか含まれています。
+
+blockquote (引用ブロック) と table (テーブル) のスタイルは“コンポーネント・モード”で使用できますが、tabview (タブ構文) は“テーマ・モード”でしか使用できないことに注意してください。
+
+[[tabview]]
+[[tab 基本のフォーマット]]
+水平線はハイフン5つ@@"-----"@@で作ることができ、(例えばblockquoteのような) 何かの中に位置していない限りページ全体に展開されます。この文書内の節を区切っているのが水平線です。
+
+**これは太字 (bold) の文章です。**
+
+//これは斜体 (italic) の文章です。//
+
+{{これはモノタイプ (monospace) の文章です。}}
+[[/tab]]
+[[tab 見出し]]
+見出しは行の先頭に1～6個のプラス “+” を置くことで作成できます。
+
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/tab]]
+[[tab 引用ブロック]]
+[[div class="blockquote"]]
+文章を“blockquote”クラスのdivブロックで囲むことでこのような引用ブロックを作ることができます。
+
+[[div class="blockquote"]]
+さらなるテキスト
+-----
+分割線も入ります。
+
+[[div class="blockquote"]]
+入れ子の引用ブロック
+
+いいでしょ？
+----
+わお。
+[[/div]]
+[[/div]]
+[[/div]]
+[[/tab]]
+[[tab テーブル]]
+||~ 表 ||~ ヘッダセル ||
+|| 普通のセル || もう1つ普通のセル ||
+|||| 結合したセル ||
+[[/tab]]
+[[/tabview]]
+
+------
+
+それでは、ターボ・ブロックがどのように動作するかを簡単に実演します…
+
+------
+
+[[div class="turbo-block bg-red border-white text-white" data-title="警告!"]]
+このページの次のセクションは、見た目にも恐ろしく思えるかもしれません。ですが、不安になったり強迫的になることはありません。――全ての部分は簡単に分割できます。
+[[/div]]
+
+-----
+
+[[div class="turbo-block bg-grey border-black text-black" data-title="基本的な例"]]
+
+[[div class="offset-right right-4"]]
+[[div class="turbo-block bg-orange border-white text-white" data-title="画像"]]
+[[include component:image-block
+| name=https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-26-mn41/scpimage-small.webp
+| caption=こんにちは。ええ、ここは文章です。
+]]
+[[/div]]
+[[/div]]
+
+[[div class="heading"]]
+**アイテム番号**
+[[/div]]
+
+SCP-NUMBER
+
+[[div class="heading"]]
+**オブジェクトクラス**
+[[/div]]
+
+[[[http://scp-jp.wikidot.com/scp-0110-j|LIGMA]]]
+
+[[div class="heading"]]
+**特別収容プロトコル**
+[[/div]]
+
+[[div class="offset-left left-3"]]
+[[div class="turbo-block bg-black border-white text-white" data-title="チャット" style="max-width: 250px"]]
+
+**johnsmith12:** あの、自分が今何やってるか分かってる？
+
+**俺:** いや草。このバカげたテーマのために何か下書きを用意したいだけだから
+
+[[/div]]
+[[/div]]
+
+SCP-NUMBERは現在未収容です。これが未確認の記述に起因するのか、それとも単に面倒すぎて対処できていないだけなのかは不明です。
+
+何かの理由でSCP-NUMBERを観察した場合――よく考えるとあまり意味がないですが――影響を受けた対象者は**治療法#104321**のためにサイト内に在籍しているセラピストに相談しなければなりません。そのような治療法は数時間以上継続する可能性があり、患者にとって耐えがたいほどの痛みを伴う可能性があります。なぜなら、どんな理由であれ、誰も保健室に行きたくないからです。
+
+[[div class="offset-left left-4"]]
+[[div class="turbo-block bg-white border-black text-black" data-title="メモ帳" style="max-width: 150px"]]
+ランチに何を食べるつもりだったっけ
+[[/div]]
+[[/div]]
+
+[[div class="heading"]]
+**説明**
+[[/div]]
+
+SCP-NUMBERは何でもありません。全くもって、何でもありません。実際、これは嘘です。あなたと同じです。あなたもまた嘘です。これは全ての人に当てはまることなので、傷ついたとか気分を害したとかは思わないで下さい。財団では差別を非難しています。
+[[div class="offset-right right-2"]]
+[[div class="turbo-block bg-cyan border-black text-white"]]
+あのイーハトーヴォのすきとおった風、夏でも底に冷たさをもつ青いそら、うつくしい森で飾られたモリーオ市、郊外のぎらぎらひかる草の波。
+
+またそのなかでいっしょになったたくさんのひとたち、ファゼーロとロザーロ、羊飼のミーロや、顔の赤いこどもたち、地主のテーモ、山猫博士のボーガント・デストゥパーゴなど、いまこの暗い巨きな石の建物のなかで考えていると、みんなむかし風のなつかしい青い幻燈のように思われます。では、わたくしはいつかの小さなみだしをつけながら、しずかにあの年のイーハトーヴォの五月から十月までを書きつけましょう。[[footnote]]**訳注:** 宮沢賢治『[*https://www.aozora.gr.jp/cards/000081/card1935.html ポラーノの広場]』(講談社, 1971) より引用。原文はLorem Ipsumが書かれていた。[[/footnote]]
+[[/div]]
+[[/div]]
+実際、真実とは何を指すのでしょう？認識はおそらく嘘です。人間どうしが作り出した嘘でしょうか。たしかにあなたと私とにとって現実は同じではありません。私たちは皆異なる真実と嘘を持っているのです。私たちは、もちろん、三次元の生きものです。私たちは理解に飢えています。知識を欲し、どんなに善意をもっていてもそれを探し求めるのです。
+
+ひょっとして、私がナンセンスな文章をずっと書いているのは、単に色付きのボックスを追加するためにこの文章を長くしたいだけだと思っていませんか？それも思っていますけど、そんなささやかな願いとは関係なく、私はあなたに自己反省の機会を与えたいだけなのです。あなたは、本当のところ、実在していますか？いいえ。既に述べたように、あなたは単なる偽の像です。あなたが今生きている世界の間違った像です。それだけです。
+
+[[/div]]
+
+------
+
+[[=]]
++ つかいかた HOW TO USE
+[[/=]]
+
+[[div class="turbo-block bg-cyan border-white text-white" data-title="ターボ・ブロック"]]
+
+この文章を囲んでいるような、影付きの[[span class="ruby"]]ぼってりした[[span class="rt"]]chunky[[/span]][[/span]]ターボ・ブロックを使うためには、divブロックを次のクラスと共に使用します。
+
+* "turbo-block"
+* 背景色をセットするクラス
+* 境界色をセットするクラス
+* 文字色をセットするクラス
+
+このテーマはそれらすべてのクラスを提供しています。
+
+[[div class="heading"]]
+ブロック
+[[/div]]
+
+"turbo-block" クラスはターボ・ブロックそれ自体を作ります。あなたはこれを、他のクラスの一切が無くとも使うことができます。ですが、これはちょっと変に見えると思います (例えば、それは背景色を持ちません)。
+
+[[div class="blockquote"]]
+@@[[div class="turbo-block"]]@@
+ここに文章を入れる
+@@[[/div]]@@
+[[/div]]
+
+[[div class="heading"]]
+背景色
+[[/div]]
+
+このテーマは多数の有用な背景色クラスを、"bg-[color]" という形式の名前で提供しています。以下がその全てのリストです。
+
+[[div class="text-white" style="text-align: center;"]]
+[[div class="turbo-block bg-red border-white"]]
+@@[[div class="turbo-block bg-red"]]@@
+[[/div]]
+[[div class="turbo-block bg-grey border-white"]]
+@@[[div class="turbo-block bg-grey"]]@@
+[[/div]]
+[[div class="turbo-block bg-green border-white"]]
+@@[[div class="turbo-block bg-green"]]@@
+[[/div]]
+[[div class="turbo-block bg-cyan border-white"]]
+@@[[div class="turbo-block bg-cyan"]]@@
+[[/div]]
+[[div class="turbo-block bg-orange border-white"]]
+@@[[div class="turbo-block bg-orange"]]@@
+[[/div]]
+[[div class="turbo-block bg-yellow border-white"]]
+@@[[div class="turbo-block bg-yellow"]]@@
+[[/div]]
+[[div class="turbo-block bg-purple border-white"]]
+@@[[div class="turbo-block bg-purple"]]@@
+[[/div]]
+[[div class="turbo-block bg-black border-white"]]
+@@[[div class="turbo-block bg-black"]]@@
+[[/div]]
+[[div class="turbo-block bg-white border-black text-black"]]
+@@[[div class="turbo-block bg-white"]]@@
+[[/div]]
+[[/div]]
+
+[[div class="heading"]]
+境界色
+[[/div]]
+
+境界色のクラスには "border-black" と "border-white" の2種類が用意されています。ターボ・ブロックはデフォルトでは境界線が付いていないため、各ターボ・ブロックごとに境界線を選択する必要があります。
+
+"turbo-block" クラスを持つ全てのdivブロックには二重線の境界線があることに注意してください。引用ブロック、テーブルおよびタブ表示には一重線の境界線があります。
+
+[[div class="heading"]]
+文字色
+[[/div]]
+
+文字色のクラスには "text-black" と "text-white" の2種類が用意されています。これらはターボ・ブロック内のデフォルトの文字色をそれぞれ黒と白にします。
+
+[[/div]]
+
+@@ @@
+
+[[div class="turbo-block bg-green border-white text-white" data-title="見出し"]]
+
+各ターボ・ブロックはタイトルと複数の見出しを付けることができます。タイトルはブロックの最初に登場するやつです——このブロック自身で言うと “見出し” の部分です。これは "data-title" 属性をdivブロックに追加すると実現できます。
+
+[[div class="blockquote"]]
+@@[[div class="turbo-block ..." data-title="ここにタイトルを書く"]]@@
+[[/div]]
+
+オリジナルのターボ・ビジョンに合わせるなら、ブロックのタイトルは英大文字で構成されるべきですが、これは強制ではありません——あなたは任意のテキストをそこに置くことができます。
+
+ですが、幅を取りすぎると見た目におかしくなるので、タイトルは短く留める努力をしてください。
+
+[[div class="turbo-block bg-grey border-black text-black" data-title="おっと、ここを見て！長すぎるタイトルがあるよ！"]]
+書かれてる意味がわかりますか？
+[[/div]]
+
+上記の例のソースコードは以下のようになります。
+
+[[div class="blockquote"]]
+@@[[div class="turbo-block bg-grey border-black text-black" data-title="おっと、ここを見て！長すぎるタイトルがあるよ！"]]@@
+書かれてる意味がわかりますか？
+@@[[/div]]@@
+[[/div]]
+
+モバイルの端末で読む人のことを考えて、タイトルは短くしておきましょう。
+
+[[div class="heading"]]
+見出し
+[[/div]]
+
+ターボ・ブロック内では、サブセクションの見出しを "heading" クラスで作ることができます——以下にあるのが、つい今しがたあったもののソースコードです。
+
+[[div class="blockquote"]]
+@@[[div class="heading"]]@@
+見出し
+@@[[/div]]@@
+[[/div]]
+
+見出しがある場所のような線を追加したいが、見出しの文章は欲しくない場合、ハイフン4つないし5つを書いて水平線を追加してください。
+
+-----
+
+↑ このように。
+
+[[/div]]
+
+@@ @@
+
+[[div class="turbo-block bg-yellow border-black text-black" data-title="画像"]]
+
+ターボ・ブロック内には、画像を含めて、何でも好きなものを配置できます。画像を追加する最善の方法は、ターボ・ブロックを作成して、その中に標準的な画像ブロックコンポーネントを配置することです。
+
+このページの前の方で使われた例を載せます。
+
+[[div class="blockquote"]]
+@@[[div class="turbo-block bg-orange border-white text-white" data-title="画像"]]@@
+@@[[include :scp-jp:component:image-block@@
+| name=@@https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-26-mn41/scpimage-small.webp@@
+| caption=こんにちは。ええ、ここは文章です。
+@@]]@@
+@@[[/div]]@@
+[[/div]]
+[[/div]]
+
+@@ @@
+
+[[div class="turbo-block bg-purple border-white text-white" data-title="オフセット"]]
+これまでの説明では、ターボ・ブロックの作成方法について説明しました。あなたはターボ・ブロックを別のターボ・ブロックの中に設置することはできるようになりましたが、それだけでは、整理されてない研究者の机の上に散らかったメモの山があるような、雑然とした感じにはなりません。そういう感じにするには、メモの一部を左右に移動させる必要があります。
+
+これはオフセットクラスを用いて実現されます。ターボ・ビジョン テーマではものを左に移動するために以下のクラスを提供しています。
+
+* "offset-left"
+* "left-1"
+* "left-2"
+* "left-3"
+* "left-4"
+* "left-5"
+
+…そして右方向にも。
+
+* "offset-right"
+* "right-1"
+* "right-2"
+* "right-3"
+* "right-4"
+* "right-5"
+
+左方向に移動するには、それをdivブロックで囲んで、それに "left-1" から "left-5" までのいずれかと、"offset-left" クラスを適用します。"left-1" から "left-5" は左にどれだけ移動させたいかに応じて指定します。"left-1"は少ししか移動しませんが、"left-5" は大きく移動します——画面の左端までずっと。
+
+右に移動させる場合も、"left" を "right" に置き換える以外は全く同じです。
+
+[[div class="heading"]]
+モバイルでのオフセット
+[[/div]]
+
+これまでにCSSを使用したことがある人は、あんまり水平方向の空間を使いすぎるのは非常に危険なことで、つまりこれらのオフセットはモバイル端末から見ると非常に見栄えが悪いと考えるかもしれません。
+
+心配はいりません。画面サイズが小さい場合、オフセットdivはページの中央近くに配置され、画面が**非常に**小さい場合は完全にオフになります。
+
+著者にとっては、これはモバイルユーザーがオフセットdivに書いたすべてのコンテンツを常に見ることができる一方で、意図したほど雑然とした見た目にならない可能性があることを意味します。公開する前に必ずモバイルでの見た目をテストし、すべてのユーザーにとって読みやすいことを確認してください。
+
+[[div class="heading"]]
+オフセットブロックの作り方
+[[/div]]
+
+オフセットブロックを作るためには、オフセットの方向と大きさを決定して、先述のクラスから2つを組み合わせて使います。
+
+[[div class="blockquote"]]
+@@[[div class="offset-left left-3"]]@@
+
+@@[[/div]]@@
+[[/div]]
+
+ターボ・ブロックをオフセットして使いたい場合は、オフセットブロック**の中に**ターボ・ブロックを配置してください (ターボ・ブロックに直接オフセットクラスを適用しないでください)。
+
+[[div class="blockquote"]]
+@@[[div class="offset-left left-3"]]@@
+@@[[div class="turbo-block bg-white border-black text-black"]]@@
+ハロー！
+@@[[/div]]@@
+@@[[/div]]@@
+[[/div]]
+
+[[div class="offset-left left-3"]]
+[[div class="turbo-block bg-white border-black text-black"]]
+ハロー！
+[[/div]]
+[[/div]]
+
+もしあなたが幅広のブラウザーを使っている (例えば、デスクトップ) なら、上記の例は左に表示されているはずです。狭めのブラウザを使っている (モバイル) 場合は、上記の例はこの文章のすぐ上に表示されています。
+
+オフセットブロックはターボ・ブロックとは異なるものなので、オフセットクラスを持ったdivブロック内に配置するだけで、あなたは任意の好きなものをオフセットすることができます。例えば画像付きのターボ・ブロックをオフセットしてみてください！
+
+[[div class="heading"]]
+フロートをクリアする
+[[/div]]
+
+オフセットブロックはCSSの[https://developer.mozilla.org/ja/docs/Web/CSS/float "float"]プロパティを使用しています。HTML要素がフロートしているとき、その下にある内容は上方向に引き上げられ、余った空間を埋めるように配置されます。
+
+これはいつでも望ましい挙動であるとは限りません。あなたがフロートしたオフセットブロックを使いたくて、けれどその後の文章はオフセットブロックがフロート**しなかった**かのように配置させたい場合があるかもしれません。そういう場合は、他になにも無ければ大きな余白が残されることになります。
+
+これはCSSの [https://developer.mozilla.org/ja/docs/Web/CSS/clear "clear"]プロパティ (一般に "clearfix" と呼ばれる方法) を用いて行うことができます。Wikidotでは、4つのチルダ記号 (@@~~~~@@) を使用してこれを行うことができます。
+
+[[div class="blockquote"]]
+@@[[div class="offset-left left-3"]]@@
+@@[[div class="turbo-block bg-white border-black text-black"]]@@
+ハロー！
+@@[[/div]]@@
+@@[[/div]]@@
+
+@@~~~~@@
+[[/div]]
+
+[[div class="offset-left left-3"]]
+[[div class="turbo-block bg-white border-black text-black"]]
+ハロー！
+[[/div]]
+[[/div]]
+
+~~~~
+
+この文章は余白を埋めるために上に引き上げられません。結果として、デスクトップ上では大きな空白が出現しています。モバイルではもちろん、元々と何も変わっていません。
+
+[[div class="heading"]]
+例
+[[/div]]
+
+さまざまなオフセットの組み合わせの例を以下に示します。
+
+[[module CSS]]
+.mobile-only {
+  display: none;
+}
+@media (max-width: 600px) {
+  .mobile-only { display: block }
+  .desktop-only { display: none }
+}
+[[/module]]
+
+[[div class="desktop-only"]]
+あなたのブラウザは幅広のスクリーンを使っています (少なくともCSSはそうなっています)。以下の例を見て、ウィンドウサイズを調整し、オフセットブロックがどのように反応するかを確認してください。
+[[/div]]
+
+[[div class="mobile-only"]]
+あなたのブラウザは狭い画面を使っています (少なくともCSSはそうなっています)。つまり、モバイルデバイスを使っている可能性があります。以下のオフセットの例は、面白くもない中央揃えのdivブロックの集まりとして表示されます。後でこのページを横長のスクリーンで表示して、オフセットを確認してください。
+[[/div]]
+
+[[/div]]
+
+[[div class="offset-left left-5"]]
+[[div class="turbo-block bg-grey border-white text-white"]]
+@@[[div class="offset-left left-5"]]@@
+[[/div]]
+[[/div]]
+~~~~~
+[[div class="offset-left left-4"]]
+[[div class="turbo-block bg-grey border-white text-white"]]
+@@[[div class="offset-left left-4"]]@@
+[[/div]]
+[[/div]]
+~~~~~
+[[div class="offset-left left-3"]]
+[[div class="turbo-block bg-grey border-white text-white"]]
+@@[[div class="offset-left left-3"]]@@
+[[/div]]
+[[/div]]
+~~~~~
+[[div class="offset-left left-2"]]
+[[div class="turbo-block bg-grey border-white text-white"]]
+@@[[div class="offset-left left-2]]@@
+[[/div]]
+[[/div]]
+~~~~~
+[[div class="offset-left left-1"]]
+[[div class="turbo-block bg-grey border-white text-white"]]
+@@[[div class="offset-left left-1"]]@@
+[[/div]]
+[[/div]]
+~~~~~
+[[div class="offset-right right-1"]]
+[[div class="turbo-block bg-grey border-white text-white"]]
+@@[[div class="offset-right right-1"]]@@
+[[/div]]
+[[/div]]
+~~~~~
+[[div class="offset-right right-2"]]
+[[div class="turbo-block bg-grey border-white text-white"]]
+@@[[div class="offset-right right-2"]]@@
+[[/div]]
+[[/div]]
+~~~~~
+[[div class="offset-right right-3"]]
+[[div class="turbo-block bg-grey border-white text-white"]]
+@@[[div class="offset-right right-3"]]@@
+[[/div]]
+[[/div]]
+~~~~~
+[[div class="offset-right right-4"]]
+[[div class="turbo-block bg-grey border-white text-white"]]
+@@[[div class="offset-right right-4"]]@@
+[[/div]]
+[[/div]]
+~~~~~
+[[div class="offset-right right-5"]]
+[[div class="turbo-block bg-grey border-white text-white"]]
+@@[[div class="offset-right right-5"]]@@
+[[/div]]
+[[/div]]
+
+~~~~~
+
+[[div class="turbo-block bg-purple border-white text-white" data-title="オフセット機能の制限"]]
+
+オフセットクラスを使うべきでない場合もあります。もちろん使用することはできますが、ページに悪影響を及ぼします。
+
+使用できるクラスは、サイドバーの位置と、ページコンテンツがブラウザのビューポートに対して中央揃えになっているかどうかによって異なります。また、このテーマを “テーマ・モード” と “コンポーネント・モード” のどちらで使用しているかによっても異なります。どちらがどちらであるかを確認するには、ページの一番上にある使用方法の説明を確認してください。
+
+[[div class="heading"]]
+テーマ・モード
+[[/div]]
+
+ターボ・ビジョン テーマを “テーマ・モード” で使用している場合は、[[[http://scp-jp.wikidot.com/component:toggle-sidebar|component:toggle-sidebar]]]が付属しており、ページコンテンツを中央揃えにして、水平方向のスペースを可能な限り広く確保します。全てのオフセットクラスを自由に使用できます。
+
+[[div class="heading"]]
+コンポーネント・モード
+[[/div]]
+
+ターボ・ビジョン テーマを “コンポーネント・モード” で使用している場合、デフォルトでは[[[http://scp-jp.wikidot.com/component:toggle-sidebar|component:toggle-sidebar]]]は付属していません。これにより、水平方向のスペースが制限されます。
+
+もしトグル式サイドバーを使用している場合は、ページ本体が中央揃えになり、すべてのオフセットクラスを自由に使用できます。
+
+トグル式サイドバーを使用していない場合、ページ本体はページの右側にあります。右側のオフセットクラスは画面の端からはみ出す可能性があるため、使用しないでください。また、左側のオフセットクラスはサイドバーと重なる可能性があるため、ページの先頭付近での使用は避けてください。
+
+[[[theme:black-highlighter-theme|]]]を使用している場合、ページ本体は中央に配置されるため、右側のオフセットクラスを自由に使用できます。ただし、サイドバーは文書全体に表示されるため、左側のオフセットクラスは使用しないでください。
+
+BHLと[[[component:toggle-sidebar-bhl|]]]を使用している場合は、左側のスペースが解放されるため、左側のオフセットクラスも自由に使用できます。
+
+[[div class="heading"]]
+TL;DR
+[[/div]]
+
+つまり、サイドバーがある場合は左へのオフセットを避けて、ページコンテンツが中央に配置されていない場合は右へのオフセットを避けてください。
+
+[[/div]]
+
+@@ @@
+
+[[collapsible show="画像ライセンスについて" hide="閉じる"]]
+[[div class="turbo-block bg-grey border-white text-black"]]
+**ファイル名:** border_black2.svg
+**ソース:** [[[https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/border_black2.svg]]]
+----
+**ファイル名:** border_white2.svg
+**ソース:** [[[https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/border_white2.svg]]]
+----
+**ファイル名:** border_white.svg
+**ソース:** [[[https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/border_white.svg]]]
+----
+**ファイル名:** logo (1).png
+**ソース:** [[[https://scp-wiki.wdfiles.com/local--files/theme:turbo-vision/logo%20(1).png]]]
+
+以上全てのライセンス表示
+**著作者:** Croquembouche
+**ライセンス:** CC BY SA 3.0
+**公開年:** 2021
+**補足:** oplax-counterpointによって、全てCSS内に埋め込む形式に変更されている。
+[[/div]]
+
+> **ファイル名:** scpimage.png
+> **ファイルページ:** [[[http://scp-jp-storage.wikidot.com/file:9042763-26-mn41]]]
+> **ソース:** [[[https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/scpimage.png]]]
+> **著作者:** Placeholder McD
+> **ライセンス:** CC BY SA 3.0
+> **補足:** サイズ縮小とwebpへの変換はoplax-counterpointが行った。
+
+> **ファイル名:** small (1).png
+> **ソース:** [[[https://scp-wiki.wdfiles.com/local--files/theme%3Aturbo-vision/small%20%281%29.png]]]
+> **著作者:** JakdragonX
+> **ライセンス:** CC BY SA 3.0
+> **補足:** oplax-counterpointによって、CSS内に埋め込む形式に変更されている。
+[[/collapsible]]
+
+[[collapsible show="フォント情報について"]]
+> **フォント名:** JFドットM+12
+> **ファイルページ:** [[[http://scp-jp-storage.wikidot.com/file:9042763-13-vzwf]]]
+> **ソース:** [[[http://jikasei.me/font/jf-dotfont/]]]
+> **著作権者:** 森下浩司
+> **ライセンス:** M+ FONTS LICENSE
+> **補足:**
+> ttf -> woff2の変換とCSS埋め込みはoplax-counterpointが行いました。これらのライセンスについても以下のM+ FONTS LICENSEを準用します。
+> 
+> **M+ FONTS LICENSE**
+>> -
+>> M+ BITMAP FONTS            Copyright 2002-2005  COZ
+>> <coz@users.sourceforge.jp>
+>> -
+>> 
+>> LICENSE
+>> 
+>> これらのフォントはフリー（自由な）ソフトウエアです。
+>> あらゆる改変の有無に関わらず、また商業的な利用であっても、自由にご利用、
+>> 複製、再配布することができますが、全て無保証とさせていただきます。
+
+> **フォント名:** IBM Plex Mono
+> **リンク:** [[[https://fonts.google.com/specimen/IBM+Plex+Mono]]] (Google Font)
+> **ライセンス:** [[[*https://openfontlicense.org/open-font-license-official-text/|SIL Open Font License Version 1.1]]]
+
+> **フォント名:** Noto Sans Japanese
+> **リンク:** [[[https://fonts.google.com/noto/specimen/Noto+Sans+JP]]] (Google Font)
+> **ライセンス:** [[[*https://openfontlicense.org/open-font-license-official-text/|SIL Open Font License Version 1.1]]]
+[[/collapsible]]
+
+[[footnoteblock]]
+
+@@ @@
+
+これがこのテーマの全てです。
+
+@@ @@
+
++ ソースコード
+
+[[collapsible show="+ ターボ・ブロック用コードを見る" hide="- 閉じる"]]
+[[code type="css"]]
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+
+/* Japanese Fonts */
+@import url("https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-13-vzwf/jfdot-mp12.css");
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300..700&display=swap');
+/*
+    Turbo Vision Theme
+    [2021 Wikidot Theme]
+    By JakdragonX
+    Based on SCP Sigma 9-Theme created by Aelanna and Dr Devan
+    Based on the original Turbo Vision Theme created by Croquembouche
+
+    The Turbo Vision theme is split into two CSS fragments.
+
+    This fragment styles user-created Turbo Blocks, and does not require
+    the other fragment in order to function correctly.
+*/
+/*
+    Turbo Vision Theme (ja-jp edition)
+    by oplax-counterpoint, 2024
+ */
+
+/* Inlined SVG images */
+:root {
+  /* border_white.svg, border_white2.svg, border_black2.svg
+      by Croquembouche, 2021
+      licensed under Creative Commons Attribution-ShareAlike 3.0 License
+   */
+  --svg-border-white:   url("data:image/svg+xml,%3C%3Fxml version='1.0'%3F%3E%3C!DOCTYPE svg%3E%3Csvg xmlns='http://www.w3.org/2000/svg' shape-rendering='crispEdges' viewBox='0 0 17.462 17.463' height='66' width='66'%3E%3Cpath d='M1.323 2.646v12.17H16.14V2.647zm.53.264H15.61v11.642H1.852z' fill='%23fff'/%3E%3C/svg%3E");
+  --svg-border-white2:  url("data:image/svg+xml,%3C%3Fxml version='1.0'%3F%3E%3C!DOCTYPE svg%3E%3Csvg xmlns='http://www.w3.org/2000/svg' shape-rendering='crispEdges' viewBox='0 0 17.462 17.463' height='66' width='66'%3E%3Cg fill='%23fff'%3E%3Cpath d='M.794 2.381v12.7h15.875v-12.7zm.529.265H16.14v12.17H1.323z'/%3E%3Cpath d='M1.587 2.91v11.642h14.288V2.91zm.53.265h13.229v11.112H2.116z'/%3E%3C/g%3E%3C/svg%3E");
+  --svg-border-black2:  url("data:image/svg+xml,%3C%3Fxml version='1.0'%3F%3E%3C!DOCTYPE svg%3E%3Csvg xmlns='http://www.w3.org/2000/svg' shape-rendering='crispEdges' viewBox='0 0 17.462 17.463' height='66' width='66'%3E%3Cpath d='M.794 2.381v12.7h15.875v-12.7zm.529.265H16.14v12.17H1.323z'/%3E%3Cpath d='M1.587 2.91v11.642h14.288V2.91zm.53.265h13.229v11.112H2.116z'/%3E%3C/svg%3E");
+}
+/* Font for Turbo Block */
+:root {
+  /*
+  --font-turbo-block: "IBM Plex Mono", sans-serif;
+   */
+  --font-turbo-block: 'IBM Plex Mono', "IBM Plex Sans JP", "Noto Sans JP", sans-serif;
+}
+
+/* BEFORE WE BEGIN, A QUICK FIX FOR UNDOING SIGMA-9 WEIRD THINGS */
+
+@media (min-width: 768px) and (max-width: 979px) {
+  div,
+  div table {
+    clear: initial;
+  }
+}
+
+.avatar-hover {
+  z-index: 1;
+}
+
+/* AND NOW... */
+/* ------------------------------------- */
+/* NOW FOR THE MAIN COURSE */
+
+/* VARIABLES */
+
+:root {
+  --turbo-block-shadow: 0.5em 1em 0 0 #3e3f47;
+  --turbo-block-border-width: 22px;
+}
+
+/* BLOCKQUOTES */
+
+.turbo-block blockquote,
+.turbo-block div.blockquote {
+  background-color: #aaaaaa;
+  color: #000;
+  padding: 0;
+  margin-bottom: 2em;
+  border-width: var(--turbo-block-border-width);
+  border-style: solid;
+  border-image: var(--svg-border-white) 16 round;
+  box-shadow: var(--turbo-block-shadow);
+}
+
+/* SIMPLE TABLES */
+
+.turbo-block table.wiki-content-table {
+  box-shadow: var(--turbo-block-shadow);
+  margin-bottom: 2em;
+}
+
+.turbo-block table.wiki-content-table td {
+  border: 1px solid #fff;
+  background-color: #aaaaaa;
+}
+
+.turbo-block table.wiki-content-table th {
+  border: 1px solid #011657;
+  color: #fff;
+  background-color: #011657;
+}
+
+/* "BLOCK" DIV'S, DEFAULT CONFIG */
+
+.turbo-block {
+  position: relative;
+  border-radius: 0;
+  border-width: var(--turbo-block-border-width);
+  border-style: solid;
+  box-shadow: var(--turbo-block-shadow);
+  color: white;
+  margin: 0.75rem 1.5rem 1.5rem 0.75rem;
+  z-index: 1;
+
+  /* Properties that apply to whole document in the general fragment */
+  font-family: var(--font-turbo-block);
+  font-size: 16px;
+  line-height: 22px;
+  letter-spacing: 0.5px;
+  image-rendering: pixelated;
+}
+
+.turbo-block .heading {
+  position: relative;
+  border: none;
+  margin-top: 1.5em;
+}
+
+.turbo-block .heading::before {
+  content: "";
+  border-top: 3px double white;
+  position: absolute;
+  width: calc(100% + 22px);
+  top: calc(50% - 1.5px);
+  left: 0;
+  margin: 0 -11px;
+}
+
+.turbo-block .heading p {
+  display: table;
+  position: relative;
+  padding: 0 8px;
+  background: inherit;
+  margin: 0 0 0 2em;
+  color: white;
+}
+
+.turbo-block hr {
+  padding: 0;
+  margin: 1em 0 0 -11px;
+  width: calc(100% + 22px);
+  max-width: none;
+  height: 3px;
+  border-top: 3px double white;
+  background: none;
+}
+.turbo-block.border-white hr {
+  border-color: white;
+}
+.turbo-block.border-black hr {
+  border-color: black;
+}
+
+.turbo-block::after {
+  content: attr(data-title);
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  color: white;
+  padding: 0 8px;
+}
+
+/* IMAGE BLOCKS */
+/* Image blocks are supposed to have a turbo block all of their own */
+
+.turbo-block .scp-image-block {
+  margin: 4px 0 0 0;
+  float: none;
+  border: none;
+  box-shadow: none;
+}
+
+.turbo-block .scp-image-caption {
+  background-color: transparent;
+  font-weight: normal;
+  border: none;
+}
+
+/* COLORIZED DIV BLOCKS */
+
+.turbo-block.bg-cyan,
+.turbo-block.bg-cyan::after,
+.turbo-block.bg-cyan .heading p {
+  background: #1f8785;
+}
+
+.turbo-block.bg-grey,
+.turbo-block.bg-grey::after,
+.turbo-block.bg-grey .heading p {
+  background: #bdbdbd;
+}
+
+.turbo-block.bg-red,
+.turbo-block.bg-red::after,
+.turbo-block.bg-red .heading p {
+  background: #840603;
+}
+
+.turbo-block.bg-orange,
+.turbo-block.bg-orange::after,
+.turbo-block.bg-orange .heading p {
+  background: #e39814;
+}
+
+.turbo-block.bg-green,
+.turbo-block.bg-green::after,
+.turbo-block.bg-green .heading p {
+  background: #13781f;
+}
+
+.turbo-block.bg-purple,
+.turbo-block.bg-purple::after,
+.turbo-block.bg-purple .heading p {
+  background: #7f0e9c;
+}
+
+.turbo-block.bg-yellow,
+.turbo-block.bg-yellow::after,
+.turbo-block.bg-yellow .heading p {
+  background: #bfcc2b;
+}
+
+.turbo-block.bg-black,
+.turbo-block.bg-black::after,
+.turbo-block.bg-black .heading p {
+  background: #000;
+}
+
+.turbo-block.bg-white,
+.turbo-block.bg-white::after,
+.turbo-block.bg-white .heading p {
+  background: #fff;
+}
+
+/* DIV "BLACK" AND "WHITE" AND WHAT THAT MEANS */
+
+.turbo-block.border-black {
+  border-image: var(--svg-border-black2) 16 round;
+}
+
+.turbo-block.border-black .heading::before {
+  border-color: black;
+}
+
+.turbo-block.border-white {
+  border-image: var(--svg-border-white2) 16 round;
+}
+
+.turbo-block.border-white .heading {
+  background-image: var(--svg-border-white2) 16 round;
+}
+
+.turbo-block.text-black,
+.turbo-block.text-black .heading p,
+.turbo-block.text-black::after {
+  color: black;
+}
+
+.turbo-block.text-white,
+.turbo-block.text-white .heading p,
+.turbo-block.text-white::after {
+  color: white;
+}
+
+/* LINKS IN COLORIZED BLOCKS */
+
+/* For big contrast and maximum readability, links in colorized blocks have
+ * their background set to the block's text color, and their text color set to
+ * the block's background color. This avoids any concerns about the default
+ * link color only being suitable for certain background colors.
+ */
+
+.turbo-block a {
+  padding: 0 2px;
+  background-color: white; /* default */
+}
+.turbo-block.text-white a {
+  background-color: white;
+}
+.turbo-block.text-black a {
+  background-color: black;
+}
+.turbo-block.bg-cyan a {
+  color: #1f8785;
+}
+.turbo-block.bg-grey a {
+  color: #bdbdbd;
+}
+.turbo-block.bg-red a {
+  color: #840603;
+}
+.turbo-block.bg-orange a {
+  color: #e39814;
+}
+.turbo-block.bg-green a {
+  color: #13781f;
+}
+.turbo-block.bg-purple a {
+  color: #7f0e9c;
+}
+.turbo-block.bg-yellow a {
+  color: #bfcc2b;
+}
+.turbo-block.bg-black a {
+  color: #000;
+}
+.turbo-block.bg-white a {
+  color: #fff;
+}
+.turbo-block a:hover {
+  text-decoration: none;
+  background-color: #11ff00;
+  color: black;
+}
+
+/* "OFFSET-LEFT|RIGHT" DIVS */
+
+.offset-right {
+  float: right;
+}
+.offset-right > * {
+  float: none;
+}
+
+.offset-left {
+  float: left;
+}
+.offset-left > * {
+  float: none;
+}
+
+.offset-right.right-5 {
+  margin-right: calc(((50vw - 50%) * -1) + 1rem);
+}
+
+.offset-right.right-4 {
+  margin-right: calc(((50vw - 50%) * -0.8) + 1rem);
+}
+
+.offset-right.right-3 {
+  margin-right: calc(((50vw - 50%) * -0.6) + 1rem);
+}
+
+.offset-right.right-2 {
+  margin-right: calc(((50vw - 50%) * -0.4) + 1rem);
+}
+
+.offset-right.right-1 {
+  margin-right: calc(((50vw - 50%) * -0.2) + 1rem);
+}
+
+.offset-left.left-5 {
+  margin-left: calc(((50vw - 50%) * -1) + 1rem);
+}
+
+.offset-left.left-4 {
+  margin-left: calc(((50vw - 50%) * -0.8) + 1rem);
+}
+
+.offset-left.left-3 {
+  margin-left: calc(((50vw - 50%) * -0.6) + 1rem);
+}
+
+.offset-left.left-2 {
+  margin-left: calc(((50vw - 50%) * -0.4) + 1rem);
+}
+
+.offset-left.left-1 {
+  margin-left: calc(((50vw - 50%) * -0.2) + 1rem);
+}
+
+/* FIXING MOBILE SHIT */
+
+@media (max-width: 600px) {
+  /* Stop all floats and offsets on really thin devices */
+  .offset-right,
+  .offset-left,
+  .turbo-block,
+  .turbo-block .scp-image-block {
+    float: none;
+    clear: both;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
+[[/code]]
+[[/collapsible]]
+
+[[collapsible show="+ テーマ部分のソースコードを見る" hide="- 閉じる"]]
+[[code type="css"]]
+/*
+    Turbo Vision Theme
+    [2021 Wikidot Theme]
+    By JakdragonX
+    Based on SCP Sigma 9-Theme created by Aelanna and Dr Devan
+    Based on the original Turbo Vision Theme created by Croquembouche
+
+    The Turbo Vision theme is split into two CSS fragments.
+
+    This fragment styles general parts of the page, and requires the other
+    fragment in order to function correctly.
+*/
+/*
+    Turbo Vision Theme (ja-jp edition)
+    by oplax-counterpoint, 2024
+ */
+
+ /* Inlined Images */
+:root {
+  /* logo (1).png
+      by Croquembouche, 2021
+      licensed under Creative Commons Attribution-ShareAlike 3.0 License
+   */
+  --img-logo: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATAAAAB5CAYAAAC+233jAAAABmJLR0QAAAAAAAD5Q7t/AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4ggTFTo6HMzFyQAAAa5JREFUeNrt3DGOwzAMAEEzQP7/4BROqS4pCMKkNFMfcA5lbyUwrqT7vj/XwSLi3fn5Tj+f7PmZX+/v42XEwFQCBggYgIABCBggYAACBiBgAAAAAAAAAAAALGHfUfGAk/uQnM+z52P+vc/HRVZgLAEDBAxAwAAEDBAwAAEDEDAAAAAAAAAAAACW9vvAsvu0srLz2X3fVPX5VM9n+vNX/77u76eLrMBYAgYIGICAAQgYIGAAAgYgYAAAAAAAAAAAACwxfR9VegDD943tPp/pTv++qt8/F1mBsQQMEDAAAQMQMEDAAAQMQMAAAAAAAAAAAABYovof2Df2e5+RfWB78/7Xvj8usgJjCRggYAACBiBggIABCBiAgAEAAAAAAAAAALBEdl9R931RT+9jmr4P7Onzr57P9Oef/n1mucgKCBiAgAEIGCBgAAIGIGAAAgYAAAAAAAAAALCBmL6Pqv2Ak/uYnM+z53P6/LvvE3ORFRhLwAABAxAwAAEDBAxAwAAEDAAAAAAAAAAAgCX+/YF9SL33ITm/2vP1/tsHBiBgAAIGCBiAgAEIGCBgAAIGUOcLVI50gWhjaj4AAAAASUVORK5CYII=");
+  /* small (1).png
+      by JakdragonX, 2021
+      licensed under Creative Commons Attribution-ShareAlike 3.0 License
+   */
+  --img-background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAACvCAYAAADaKn9TAAAAfElEQVRIS+1VQQqAMAxLP+F3dtMn+Lx2fnSiIm7dLk4RhOwYRgJJ0wqGOSF7QoB+XPPAcWA9uB1OB9gGtoFt+GEbQpjKq94FjJ7DAWZL+eMdICZAABzcYmaPVWLcSLMz3yCtVBygqiVHg9SpqFaytx3rSu55+rlbewyfACvenROenh5nvgAAAABJRU5ErkJggg==");
+
+  /* border_white.svg, border_white2.svg, border_black2.svg
+      by Croquembouche, 2021
+      licensed under Creative Commons Attribution-ShareAlike 3.0 License
+   */
+   --svg-border-white:   url("data:image/svg+xml,%3C%3Fxml version='1.0'%3F%3E%3C!DOCTYPE svg%3E%3Csvg xmlns='http://www.w3.org/2000/svg' shape-rendering='crispEdges' viewBox='0 0 17.462 17.463' height='66' width='66'%3E%3Cpath d='M1.323 2.646v12.17H16.14V2.647zm.53.264H15.61v11.642H1.852z' fill='%23fff'/%3E%3C/svg%3E");
+   --svg-border-white2:  url("data:image/svg+xml,%3C%3Fxml version='1.0'%3F%3E%3C!DOCTYPE svg%3E%3Csvg xmlns='http://www.w3.org/2000/svg' shape-rendering='crispEdges' viewBox='0 0 17.462 17.463' height='66' width='66'%3E%3Cg fill='%23fff'%3E%3Cpath d='M.794 2.381v12.7h15.875v-12.7zm.529.265H16.14v12.17H1.323z'/%3E%3Cpath d='M1.587 2.91v11.642h14.288V2.91zm.53.265h13.229v11.112H2.116z'/%3E%3C/g%3E%3C/svg%3E");
+   --svg-border-black2:  url("data:image/svg+xml,%3C%3Fxml version='1.0'%3F%3E%3C!DOCTYPE svg%3E%3Csvg xmlns='http://www.w3.org/2000/svg' shape-rendering='crispEdges' viewBox='0 0 17.462 17.463' height='66' width='66'%3E%3Cpath d='M.794 2.381v12.7h15.875v-12.7zm.529.265H16.14v12.17H1.323z'/%3E%3Cpath d='M1.587 2.91v11.642h14.288V2.91zm.53.265h13.229v11.112H2.116z'/%3E%3C/svg%3E");
+}
+/* Other Custom Properties */
+:root {
+  --jafont-body: "IBM Plex Sans JP", "Noto Sans JP";
+  --jafont-header: "JFDot MPlus 12";
+  --lafont-body: "IBM Plex Mono";
+
+  /* derived properties */
+  --body-font: var(--lafont-body), var(--jafont-body), sans-serif;
+  --header-font: var(--jafont-header), var(--jafont-body), monospace;
+  --rate-font: var(--header-font);
+}
+
+/* TODO Split these selectors across this one and the other one */
+
+body {
+  font-family: var(--body-font);
+  font-size: 16px;
+  line-height: 22px;
+  color: black;
+  letter-spacing: 0.5px;
+  background-color: #bfcae3;
+  image-rendering: pixelated;
+}
+
+a {
+  color: #840603;
+}
+
+a:hover {
+  text-decoration: none;
+  background-color: #11ff00;
+  color: black;
+}
+
+a:visited {
+  color: #690ba0;
+}
+
+a.newpage {
+  color: #f55;
+  text-decoration: none;
+  background: transparent;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--header-font);
+}
+
+h1,
+#page-title {
+  font-family: var(--header-font);
+  color: #940000;
+  font-weight: bold;
+  line-height: 0.85em;
+}
+
+#page-title {
+  border-color: #fff;
+}
+
+hr {
+  background-color: #fff;
+  margin: 3.5em 1em 3.5em 1em;
+}
+
+blockquote,
+div.blockquote {
+  background-color: #aaaaaa;
+  color: #000;
+  padding: 0;
+  margin-bottom: 2em;
+  border-width: var(--turbo-block-border-width);
+  border-style: solid;
+  border-image: var(--svg-border-white) 16 round;
+  box-shadow: var(--turbo-block-shadow);
+}
+
+/* ACCOUNT STUFF (OPTIONS, SEARCH BAR, ETC.) */
+
+#account-options {
+  background-color: #fff;
+}
+
+#login-status {
+  color: #000;
+  background: #aaa;
+  border: 2px solid #fff;
+  font-size: 90%;
+  z-index: 30;
+}
+
+#login-status a {
+  background: transparent;
+  color: #840603;
+}
+
+#login-status a:hover {
+  background: #11ff00 !important;
+}
+
+#search-top-box-input,
+#search-top-box-input:hover,
+#search-top-box-input:focus,
+#search-top-box-form input[type="submit"],
+#search-top-box-form input[type="submit"]:hover,
+#search-top-box-form input[type="submit"]:focus {
+  border: #fff solid 2px;
+  background: #aaaaaa;
+  box-shadow: none;
+  border-radius: 0;
+  color: #fff;
+}
+
+#side-bar .side-block.media {
+  background: #aaaaaa;
+}
+
+/* HEADER */
+
+div#container-wrap {
+  background: var(--img-background) top left repeat-x;
+}
+
+div#header {
+  position: relative;
+  height: 142px;
+  background: var(--img-logo) 3.675em 1.25em no-repeat;
+  background-size: auto 100px;
+}
+
+div#header {
+  max-width: initial;
+}
+
+div#header,
+#top-bar {
+  width: 100%;
+}
+
+div#header h1 {
+  opacity: 0;
+  width: 310px;
+  min-height: 135px;
+}
+
+div#header h2 {
+  display: none;
+}
+
+#header h1,
+#header h2 {
+  margin-left: 55px;
+}
+
+/* TOP BAR */
+
+#top-bar {
+  font-size: 100%;
+  top: 142px;
+  max-width: none;
+  height: 20px;
+}
+
+#top-bar .top-bar > ul > li > a {
+  font-weight: 700; /* Perhaps this is Sigma-10 */
+}
+
+#top-bar ul li {
+  margin: 0 4px;
+}
+
+#top-bar ul li a {
+  font-family: var(--header-font);
+  color: #000;
+  background-color: transparent;
+  padding: 0;
+  border: none;
+  line-height: 19px;
+  max-height: 36px;
+}
+
+#top-bar ul li a:hover,
+#top-bar ul li:hover a {
+  text-decoration: none;
+  border: none;
+  background-color: #11ff00 !important;
+  color: #000;
+}
+
+#top-bar ul li a:hover::before,
+#top-bar ul li a:hover::after {
+  background-color: #11ff00;
+}
+
+#top-bar ul li a:visited {
+  color: #000 !important;
+}
+
+#top-bar ul li a::first-letter {
+  color: #840603;
+}
+
+#top-bar .open-menu a {
+  border: 2px solid #3f3f47 !important;
+  border-radius: 0;
+  background-color: #aaaaaa !important;
+  color: #840603 !important;
+}
+
+/* SIDE BAR */
+
+#side-bar .side-block,
+#interwiki .side-block {
+  position: relative;
+  border-radius: 0;
+  border-width: 22px;
+  border-style: solid;
+  padding: 0;
+  border-image: var(--svg-border-white2) 16 round;
+  box-shadow: 0.5em 1em 0 0 #3e3f47;
+  margin-bottom: 2em;
+}
+
+/* REMOVE
+.turbo-block .heading {
+  position: relative;
+  border: none;
+  margin: 2em 0 0 -11px;
+  width: calc(100% + 22px);
+  max-width: none;
+}
+
+.turbo-block .heading::before {
+  content: "";
+  border-top: 3px double white;
+  position: absolute;
+  width: 100%;
+  top: calc(50% - 1.5px);
+  left: 0;
+}
+
+.turbo-block .heading p {
+  display: table;
+  position: relative;
+  padding: 0 8px;
+  background: inherit;
+  margin: 0 0 0 2em;
+  color: white;
+}
+REMOVE */
+
+
+#side-bar .heading,
+#interwiki .heading {
+  position: relative;
+  font-size: 100%;
+  border: none;
+  padding: 0;
+  margin: 1em 0 0 -11px;
+  width: calc(100% + 22px);
+}
+
+#side-bar .heading::before,
+#interwiki .heading::before {
+  content: "";
+  border-top: 1px solid white;
+  position: absolute;
+  width: 100%;
+  top: calc(50% - 1.5px);
+  left: 0;
+}
+
+#side-bar .heading p,
+#interwiki .heading p {
+  position: relative;
+  display: inline-block;
+  padding: 0 8px;
+  margin-left: 1.5em;
+  color: white;
+  font-weight: normal;
+}
+
+#side-bar .side-block,
+#side-bar .side-block .heading p,
+#interwiki .side-block,
+#interwiki .side-block .heading p {
+  background-color: #64bec4;
+  font-size: 90%;
+}
+
+#side-bar .side-block.resources,
+#side-bar .side-block.resources .heading p {
+  background-color: #aaaaaa;
+  font-size: 90%;
+}
+
+#side-bar div.menu-item a,
+#side-bar .collapsible-block-link,
+#interwiki div.menu-item a,
+#interwiki .collapsible-block-link {
+  font-weight: normal;
+}
+
+#side-bar {
+  background-color: #a4a6ba;
+}
+
+/* TABS */
+
+div.yui-navset div.yui-content {
+  color: #000000;
+  background: #aaaaaa;
+  border-radius: 0;
+  border-width: 22px;
+  border-style: solid;
+  padding: 0;
+  border-image: var(--svg-border-white) 16 round;
+  box-shadow: 0.5em 1em 0 0 #3e3f47;
+  margin-bottom: 2em;
+}
+
+.yui-navset .yui-nav a,
+div.yui-navset div.yui-navset-top .yui-nav a {
+  /* protect nested tabviews from other orientations */
+  border: #dfdfdf outset 2px;
+}
+
+.yui-navset .yui-nav,
+.yui-navset .yui-navset-top .yui-nav {
+  font-family: var(--header-font);
+}
+
+.yui-navset .yui-nav .selected a,
+.yui-navset .yui-nav .selected a em,
+.yui-navset .yui-nav a em,
+.yui-navset .yui-navset-top .yui-nav a em {
+  border-color: transparent;
+}
+
+.yui-navset .yui-nav,
+.yui-navset .yui-navset-top .yui-nav {
+  border-color: #aaaaaa;
+}
+
+div.yui-navset ul.yui-nav a,
+div.yui-navset div.yui-navset-top ul.yui-nav a {
+  background: #aaaaaa;
+  border: #dfdfdf solid 2px;
+  border-bottom: transparent 0;
+}
+
+div.yui-navset ul.yui-nav a:hover,
+div.yui-navset ul.yui-nav a:focus {
+  background: #11ff00;
+  border: #fff solid 2px;
+  border-bottom: transparent 0;
+}
+
+div.yui-navset ul.yui-nav .selected a,
+div.yui-navset ul.yui-nav .selected a:focus,
+div.yui-navset ul.yui-nav .selected a:hover {
+  background: #011657;
+  border: #fff solid 2px;
+  border-bottom: transparent 0;
+}
+
+/* FIXED ISSUE WITH BOLDING ON TAB NAVIGATION */
+.yui-nav {
+  font-weight: bold;
+}
+
+/* SIMPLE TABLES */
+
+table.wiki-content-table {
+  box-shadow: var(--turbo-block-shadow);
+  margin-bottom: 2em;
+}
+
+table.wiki-content-table td {
+  border: 1px solid #fff;
+  background-color: #aaaaaa;
+}
+
+table.wiki-content-table th {
+  border: 1px solid #011657;
+  color: #fff;
+  background-color: #011657;
+}
+
+/* RATING MODULE */
+
+#page-content .page-rate-widget-box {
+  display:inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: none;
+
+  font-family: var(--rate-font);
+  font-weight: normal;
+  line-height: 14px;
+
+  span {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+
+    height:18px;
+    box-sizing: border-box;
+  }
+}
+
+div.page-rate-widget-box .rate-points {
+  background-color: #011657;
+  border: 2px solid #011657;
+  border-radius: 0;
+  color: #fff;
+
+  font-family: inherit;
+  padding-top: 1px;
+
+  font-size: 11px;
+}
+.page-rate-widget-box .rateup,
+.page-rate-widget-box .ratedown {
+  background-color: #fff;
+  border-radius: 0;
+  border: 2px solid #011657;
+}
+.page-rate-widget-box .rateup a,
+.page-rate-widget-box .ratedown a {
+  background: transparent;
+  color: #011657;
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 0;
+  font-family: "FontAwesome";
+  font-weight: 400;
+
+  padding: 2px 5px;
+  height: 16px;
+  box-sizing: border-box;
+}
+.page-rate-widget-box .rateup a::before {
+  content: "\f067";
+  font-size: 10px;
+}
+.page-rate-widget-box .ratedown a::before {
+  content: "\f068";
+  font-size: 10px;
+}
+.page-rate-widget-box .rateup a:hover,
+.page-rate-widget-box .ratedown a:hover {
+  background: transparent;
+  color: #840603;
+}
+.page-rate-widget-box .cancel {
+  background: transparent;
+  border: 2px dashed #011657;
+  background-color: #011657;
+  border-radius: 0;
+
+  padding: 0 2px 0 3px;
+}
+.page-rate-widget-box .cancel a {
+  color: #fff;
+
+  font-family: "FontAwesome";
+  font-size: 0;
+  font-weight: 400;
+
+  padding: 3px 5px;
+  height: 12px;
+  line-height: 10px;
+}
+.page-rate-widget-box .cancel a::before {
+  content: "\f00d";
+  font-size: 10px;
+}
+.page-rate-widget-box .cancel a:hover {
+  background-color: transparent;
+  color: #840603;
+}
+
+/* CREDIT MODULE */
+
+#page-content .rate-box-with-credit-button {
+  background-color: #011657 !important;
+  border: 1px solid #011657;
+  line-height: 14px;
+  border-radius: 0;
+  color: #fff;
+  box-shadow: none;
+
+  min-width: 150px;
+
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+#page-content .rate-box-with-credit-button .creditButton {
+  background-color: inherit;
+  border: none;
+  border-radius: unset;
+  box-shadow: none;
+
+  height: 18px;
+  width: unset;
+  margin-left: unset;
+}
+#page-content .rate-box-with-credit-button .creditButton p a {
+  border-left-color: #011657;
+  border: 3px solid #011657;
+}
+#page-content .rate-box-with-credit-button .creditButton a {
+  color: #fff !important;
+
+  height: 12px;
+  font-size: 11px;
+}
+#page-content .rate-box-with-credit-button .creditButton a:hover {
+  background-color: #11ff00;
+  color: black;
+}
+
+#page-content .modalcontainer {
+  width: 29.4em; /* 0.85em:400px(25em) -> 1em:29.4em */
+}
+
+#page-content .modalbox {
+  background: #ced2eb !important;
+  color: #000;
+  box-shadow: none;
+  border-radius: 0;
+
+  hr {
+    margin: 1em 2em;
+  }
+}
+
+#u-credit-view div.credit.first {
+  /* スクロールバー分の空白を確保 */
+  padding: 0 1em;
+}
+
+/* LOCK INFO /*
+
+#lock-info {
+   background-color: #011657;
+}
+
+/* FIXING MOBILE SHIT */
+
+@media (max-width: 770px) {
+  #top-bar ul li {
+    height: 1.25em;
+  }
+}
+
+@media (max-width: 650px) {
+  div#header {
+    background-position: 3.675em 2.95em;
+    background-size: auto 75px;
+  }
+}
+[[/code]]
+[[/collapsible]]
+
+[[/iftags]]
+
+[[module CSS]]
+/* SCP-JP Wikidot navigation correction: turbo-vision rightmost submenu anchors. */
+@media (max-width: 767px) {
+  #top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul { left: auto; right: 0; }
+}
+@media (min-width: 360px) and (max-width: 767px) {
+  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto; right: 0; }
+}
+/* SCP-JP Wikidot invisible masthead bound: Turbo Vision. */
+@media (max-width: 365px) {
+  div#header h1 { max-width: calc(100% - 55px); }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Turbo Vision desktop top-bar bound: keep its source-width row within the viewport while preserving the right inset. */
+@media (min-width: 768px) {
+  #top-bar { left: 0; right: 16px; width: calc(100% - 16px); }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot narrow image-block correction: include the native right margin and border in its available width. */
+@media (max-width: 479px) {
+  .scp-image-block.block-right { max-width: calc(100% - 2em - 2px) !important; }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Turbo Vision mobile top-bar bound: preserve the right inset without negative left positioning. */
+@media (max-width: 767px) {
+  #top-bar { left: 0; right: 16px; width: calc(100% - 16px); }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot native history list: preserve the seven columns inside their own horizontal scroller. */
+@media(max-width:767px){#revision-list {max-width:100%;overflow-x:auto;}}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Turbo Vision narrow navigation rows: reserve the source gray bar for wrapped labels. */
+@media(max-width:359px){#header{padding-bottom:42px;}#top-bar{height:40px;background-color:#aaa;}}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot turbo-vision heading correction: keep wrapped pixel-font headings from striking through at mobile widths. */
+@media (max-width:768px){h1,h2,h3,#page-title{line-height:1.15}}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot turbo-vision narrow panes: keep the revision and file tables inside the viewport at phone widths. */
+@media (max-width:767px){.page-history{max-width:calc(100vw - 2.5rem)}.page-history table{width:100%;table-layout:fixed}.page-history td,.page-history th{overflow-wrap:anywhere}#action-area table.page-files{width:100%;table-layout:fixed}#action-area table.page-files td{overflow-wrap:anywhere}}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Turbo Vision documentation blockquote wrap: owner OPTION C (2026-10-29) — wrap long unbroken strings in blockquotes so they read in place at narrow widths; a localization quality improvement, divergence from verbatim upstream accepted for this package + finding. */
+.turbo-block .blockquote, .turbo-block .blockquote * { overflow-wrap: anywhere; }
+[[/module]]

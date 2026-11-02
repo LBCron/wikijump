@@ -131,10 +131,6 @@ pub struct GetPageOutput {
     pub layout: Layout,
 }
 
-/// Public display names for the people at the two page lifecycle endpoints.
-///
-/// An unavailable identity remains null. In particular, this projection never
-/// substitutes an internal user ID or account slug for a display name.
 #[derive(Serialize, Debug, Clone, PartialEq, Eq)]
 pub struct PageLifecycleIdentity {
     pub created_by: Option<String>,
@@ -200,7 +196,6 @@ pub struct MovePage<'a> {
     pub new_slug: String,
     pub revision_comments: String,
     pub user_id: i64,
-    // NOTE: slug field is a parameter, not in the body
     pub ip_address: IpAddr,
 }
 
@@ -282,7 +277,6 @@ impl From<(CreatePageRevisionOutput, i64)> for DeletePageOutput {
             page_id,
         ): (CreatePageRevisionOutput, i64),
     ) -> DeletePageOutput {
-        // There's no reason to rerender on page deletion
         debug_assert!(
             parser_errors.is_none(),
             "Parser errors from deleted page revision",
@@ -308,7 +302,6 @@ impl From<(CreatePageRevisionOutput, String)> for RestorePageOutput {
             slug,
         ): (CreatePageRevisionOutput, String),
     ) -> RestorePageOutput {
-        // We should always rerender on page restoration
         let parser_errors =
             parser_errors.expect("No parser warnings from deleted page revision");
 

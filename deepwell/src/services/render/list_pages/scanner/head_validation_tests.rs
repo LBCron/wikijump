@@ -14,8 +14,6 @@ fn quote_balance_counts_only_unescaped_quotes() {
         );
     }
 
-    // An odd quote, or a quote escaped by an odd run of backslashes, is
-    // unbalanced.
     assert!(!list_pages_head_quotes_are_balanced(r#""a"#, b'"'));
     assert!(!list_pages_head_quotes_are_balanced(r#""a\""#, b'"'));
     assert!(!list_pages_head_quotes_are_balanced(r#"'a"#, b'\''));
@@ -88,12 +86,10 @@ fn definite_invalid_heads_do_not_execute() {
         );
     }
 
-    // A plain head and an argument head with no nested module execute.
     assert!(list_pages_definite_invalid_head_can_execute("ListPages"));
     assert!(list_pages_definite_invalid_head_can_execute(
         r#"ListPages tags="a""#
     ));
-    // A nested module token inside the arguments does not.
     assert!(!list_pages_definite_invalid_head_can_execute(
         r#"ListPages tags="[[module x]]""#
     ));
@@ -135,14 +131,11 @@ fn url_value_quote_recognition_requires_the_at_url_prefix() {
     assert!(!ends(r#""other""#, 5, 0));
     assert!(!ends(r#""@URL"x""#, 7, 0));
     assert!(!ends("abc", 3, 0));
-    // A non-zero lower bound must still resolve the opening quote.
     assert!(ends(r#"xx"@URL""#, 7, 2));
 }
 
 #[test]
 fn empty_list_pages_assignment_leaves_later_arguments_and_body_available() {
-    // Frozen Wikidot oracle: listpages-head-boundary-live.jsonl,
-    // case listpages-head-boundary-empty-prepend-assignment.
     let source = concat!(
         "[[module ListPages category=\"*\" limit=\"1\" order=\"name\" prependLine=]]\n",
         "ROW|%%fullname%%\n",

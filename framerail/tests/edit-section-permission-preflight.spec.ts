@@ -42,10 +42,27 @@ test("anonymous Edit Sections viewers see denial without an editor or mutation",
   )
   await expect(page.locator("#edit-section-content form#editor")).toHaveCount(0)
   await expect(page.getByRole("status")).toHaveCount(0)
-  // The denial closes the section editor, leaving no visible action area.
   await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
   expect(actionRequests.filter((action) => action === "?/editPermission")).toHaveLength(1)
   expect(actionRequests.filter((action) => action === "?/edit")).toHaveLength(0)
+})
+
+test("Edit Sections on a page with no isolated sections shows the Wikidot error dialog", async ({
+  page
+}) => {
+  await page.setExtraHTTPHeaders(SITE_HEADERS)
+  await page.goto("/edit-section-nested-probe", { waitUntil: "domcontentloaded" })
+  await waitForSvelteDelegatedHandler(page, "#more-options-button")
+  await page.locator("#more-options-button").click()
+  await waitForSvelteDelegatedHandler(page, "#edit-sections-button")
+  await page.locator("#edit-sections-button").click()
+
+  await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
+  await expect(page.locator("#owindow-1 .title")).toHaveText(/^error$/iu)
+  await expect(page.locator("#modal-title")).toHaveText(
+    "There are no isolated sections to edit."
+  )
+  await expect(page.locator(".edit-section-button")).toHaveCount(0)
 })
 
 test("authorized Edit Sections viewers get the editor after permission succeeds", async ({

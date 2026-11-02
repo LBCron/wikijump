@@ -1,6 +1,6 @@
 {
   "schema": "theme_lab_bhl_option_authority.v1",
-  "observed_at": "2026-10-28",
+  "observed_at": "2026-11-02",
   "authority": "shared SCP-JP corpus current snapshots plus retained exact public stylesheet response",
   "pages": [
     {
@@ -133,7 +133,7 @@
   ],
   "framerail": {
     "fingerprint_tool": "../../../../src/framerail-source-fingerprint.mjs",
-    "fingerprint_sha256": "73917c99b07d846cac41c92b7a0b9041b51f9578d275e05921d4eeb0c13e7ef1",
+    "fingerprint_sha256": "6a77cc32cbc895916de7517210b4f910da129fac69923481f168ce37e04b2a52",
     "runtime_origin": "https://scpaiueouiuiuiui.wikijump.localhost:3395",
     "runtime_source_header": "x-theme-lab-runtime-source-sha",
     "runtime_version": "captured by runner at execution"
@@ -150,12 +150,12 @@
   ],
   "backend_runtime_identity": {
     "schema": "wikijump_deepwell_runtime_identity.v1",
-    "source_sha256": "2a84ce2e9905e6f1871f3d0732e61f3370500a92bf37cbb2d8825d08366bea4e",
-    "ftml_git_revision": "ef502b8af7cd9a58f7f1b1edf3639f35f48bd982",
-    "container_id": "2d13667a9f60be6f5eb811c50c3be95c6474e9a02f41933c4c07a4d763628b5b",
-    "image_id": "sha256:db7927fa45edfb29992712e3fb33bd7abcf0a294262116da150a6e70f0b133e8",
-    "binary_sha256": "d9f1697f97fce220f6d1004bd86c62a385dfd4327d6165501c20269a95c63618",
+    "source_sha256": "5cb3f3d7c91e5f1179fa4aa7185afa2e9e7fe5ed61543d1aff1186a3026de8a0",
+    "ftml_git_revision": "bcfd17dbc2bf734d29370c1b398a3386d978b874",
+    "container_id": "eaf639a45342b34994517bf99d9bab53f0901f4ac57d5af2af9c6851e7658e82",
+    "image_id": "sha256:3fee2de423fc7fcdb47f1c8d6864849007a27d3a1282de95404b7330baa8aedf",
+    "binary_sha256": "713cd8947ecdc94ead85e43d827e7b2badb94b70e362a54f8326e6056f98f4aa",
     "config_sha256": "6eeb5715be1ac0d72784a10eb2a821b14995e9d0e29cd886a146e489ff16f638",
-    "identity_sha256": "53c7476f81925cc5d3886606334fae4697c4ea413bc7e932a2762696d9a0baf8"
+    "identity_sha256": "06ddffe8a9298412ea0cc079449b9891a458e08ea6c73ce3317b438557cd0df8"
   }
 }

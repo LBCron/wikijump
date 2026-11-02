@@ -1,0 +1,143 @@
+{
+  "slug": "theme:skipos",
+  "en_source_sha256": "846904b0214ea2a126cccdd984834608efc30236df82ebd3b1b86da36c8969dd",
+  "en_updated_at": "2026-04-12T05:29:02+00:00",
+  "en_entity_uuid": "95a8834f-21e7-42ca-9a81-131fb839f6ba",
+  "jp_previous_status": "confirmed-absent-by-targeted-xmlrpc",
+  "jp_previous_source_sha256": null,
+  "jp_previous_updated_at": null,
+  "jp_previous_entity_uuid": null,
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:skipos",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": null,
+  "source_identity": {
+    "slug": "theme:skipos",
+    "title": "SkipOS Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "846904b0214ea2a126cccdd984834608efc30236df82ebd3b1b86da36c8969dd",
+      "updated_at": "2026-04-12T05:29:02+00:00",
+      "entity_uuid": "95a8834f-21e7-42ca-9a81-131fb839f6ba",
+      "tags": [
+        "_cc",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 27,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:skipos"
+      }
+    },
+    "jp": {
+      "status": "confirmed-absent-by-targeted-xmlrpc",
+      "source_path": null,
+      "sha256": null,
+      "updated_at": null,
+      "entity_uuid": null,
+      "tags": [],
+      "absence_run": "theme-jp-absence-check-20260923"
+    },
+    "existing_jp_audit": "new-jp-candidate-verified",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:skipos",
+    "en_includes": [
+      ":scp-wiki:theme:bedrock",
+      ":scp-wiki:theme:skipos",
+      "component:image-block name=https://scp-wiki.wdfiles.com/local--files/theme%3Askipos/skipos.png",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "http://www.w3.org/2000/svg",
+      "https://cdn.scpwiki.com/theme/en/basalt/basalt-bedrock-min.css",
+      "https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css",
+      "https://fonts.bunny.net/css2?family=Fira+Code:wght@400;700&display=swap",
+      "https://fonts.bunny.net/css2?family=Red+Hat+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Askipos/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Askipos/skip-default.jpg",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Askipos/skipos.png|caption=Image.|width=300px"
+    ],
+    "jp_includes": [],
+    "jp_external_dependencies": [],
+    "base_family": "basalt"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "human-port-candidate.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "human-made shared translation workspace; no current official JP counterpart",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "new-jp-candidate-verified",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/skipos/assets.json",
+  "asset_dependency_decision_count": 100,
+  "interactive_acceptance": {
+    "theme_source": {
+      "path": "upstream-en.wikidot.txt",
+      "active_tags": [
+        "_cc",
+        "theme"
+      ],
+      "evidence": "EN meta.json tags plus the current EN source CSS modules guarded by [[iftags +theme]]; imported CSS bytes already exist in the content-addressed Theme Lab cache",
+      "candidate_tags": [
+        "テーマ"
+      ]
+    },
+    "resolved_theme_css": {
+      "source_path": "upstream-en.wikidot.txt",
+      "source_sha256": "846904b0214ea2a126cccdd984834608efc30236df82ebd3b1b86da36c8969dd",
+      "active_tags": [
+        "_cc",
+        "theme"
+      ],
+      "candidate_source_sha256": "5422f618f60c010cf39c702b8d70aff2dd1a889aca66751b27cf887396ca5ea7",
+      "candidate_active_tags": [
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 1,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "db7104e8a069325316c07b8d20b0b1211abfe3b3fe34bc2aea1551a63c38b8cc",
+      "asset_receipt_path": "assets.json",
+      "assets": 94,
+      "imports": 6,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "d4433a2cdfa61e377dfd7bc925cc61b3add23aade773a891b968acf9a6ec2507",
+    "jp_overrides_sha256": "4d9ef6ecefdea5179e9b0f50eb730eadb6ba40ad61d284665ebe86fd7d349ff2",
+    "semantic_css_sha256": "c1af0771d001d3ec4111659271aa06514bb2cfee1be5db03384d83fe4454b420",
+    "canonical_override_sha256": "41772ed7f8df62ff761efe0948d898c18e227287880ad5f73a9d7e33019bb113",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "38fe938afbbe330adfc58dfd5abdce19ef26ef94324901dd0c98ec86da453624",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

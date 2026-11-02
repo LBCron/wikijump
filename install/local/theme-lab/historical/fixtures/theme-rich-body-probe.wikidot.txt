@@ -1,0 +1,71 @@
++ Theme Lab rich-body supplemental probe
+
+このページはテーマの本文要素を広く描画するための診断fixtureです。公開sourceではありません。
+
+++ 見出しレベル2
+
++++ 見出しレベル3
+
+++++ 見出しレベル4
+
++++++ 見出しレベル5
+
+++++++ 見出しレベル6
+
++++ 入れ子リスト
+
+# 順序付き項目 1
+ # 入れ子の順序付き項目
+  * さらに入れ子の箇条書き
+# 順序付き項目 2
+
+* 箇条書き項目 1
+ * 入れ子の箇条書き
+* 箇条書き項目 2
+
++++ 引用
+
+> 複数行の引用です。余白、背景色、行間と折り返しを確認します。
+> 2行目も引用として表示されます。
+
+[[div class="blockquote"]]
+独立したblockquote classの本文です。テーマ固有の引用装飾を確認します。
+[[/div]]
+
++++ 幅の広い表
+
+||~ ID ||~ 状態 ||~ 説明 ||~ 参照 ||~ 備考 ||
+|| 01 || active || 幅を確認する長めのセル内容です || [https://example.invalid/reference 参照先] || 左右の余白 ||
+|| 02 || archived || 日本語と Latin characters を混ぜたセルです || secondary || 5列目 ||
+
++++ 長いコード行
+
+[[code type="javascript"]]
+const longFixtureIdentifier_0123456789abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ = "コード領域の横幅と折り返しを確認するための長い1行です";
+console.log(longFixtureIdentifier_0123456789abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ);
+[[/code]]
+
++++ 長いURLとリンク
+
+[[a href="https://example.invalid/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]]aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa[[/a]]
+
++++ SCP画像ブロック
+
+[[div class="scp-image-block block-right"]]
+[[image https://example.invalid/theme-lab-rich-body-probe.svg width="300px"]]
+[[div class="scp-image-caption"]]
+テーマ画像ブロックのcaption。日本語の説明文です。
+[[/div]]
+[[/div]]
+
++++ 脚注ブロック
+
+本文の脚注参照その1[[footnote]]ひとつ目の脚注本文です。[[/footnote]]と脚注参照その2[[footnote]]ふたつ目の脚注本文です。[[/footnote]]を含みます。
+
++++ Collapsible
+
+[[collapsible show="詳細を開く" hide="詳細を閉じる"]]
+開いた状態の本文には長めの日本語テキスト、[https://example.invalid/short-link リンク]、箇条書きを含めます。
+* 展開後の項目1
+* 展開後の項目2
+[[/collapsible]]

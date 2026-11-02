@@ -100,6 +100,7 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
         current_site_id: i64,
         current_site_slug: &str,
         page_ref: &PageRef,
+        imported_source_site: Option<&str>,
         cache: &mut IncludeSourceCache,
     ) -> Result<Option<IncludeSource>> {
         match page_ref.site() {
@@ -171,6 +172,21 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
                 .await
             }
             _ => {
+                if page_ref.site().is_none()
+                    && let Some(source_site) = imported_source_site
+                    && let Some(source) = self
+                        .fetch_imported_cross_site_source(
+                            current_site_id,
+                            current_site_slug,
+                            source_site,
+                            page_ref.page(),
+                            cache,
+                        )
+                        .await?
+                {
+                    return Ok(Some(source));
+                }
+
                 self.fetch_include_source_from_site(
                     current_site_id,
                     current_site_slug,
@@ -180,6 +196,53 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
                 .await
             }
         }
+    }
+
+    async fn find_imported_snapshot_page_id(
+        &self,
+        current_site_id: i64,
+        source_site_slug: &str,
+        source_fullname: &str,
+    ) -> Result<Option<i64>> {
+        let statement = Statement::from_sql_and_values(
+            DatabaseBackend::Postgres,
+            r#"
+                SELECT page.page_id
+                FROM wikidot_page_snapshot AS snapshot
+                JOIN page ON page.page_id = snapshot.page_id
+                WHERE page.site_id = $1
+                  AND snapshot.source_site = $2
+                  AND snapshot.source_fullname = $3
+                  AND page.deleted_at IS NULL
+            "#,
+            [
+                current_site_id.into(),
+                source_site_slug.to_owned().into(),
+                source_fullname.to_owned().into(),
+            ],
+        );
+        self.ctx
+            .transaction()
+            .query_one_raw(statement)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to resolve imported include {source_site_slug}:{source_fullname}"
+                    ),
+                    ErrorType::DatabaseQuery,
+                )
+            })?
+            .map(|row| row.try_get::<i64>("", "page_id"))
+            .transpose()
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to read imported include {source_site_slug}:{source_fullname}"
+                    ),
+                    ErrorType::DatabaseQuery,
+                )
+            })
     }
 
     async fn fetch_imported_cross_site_source(
@@ -197,61 +260,40 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
             source_page_slug.to_owned(),
         );
         if let Some(cached) = cache.imported_cross_site_sources.get(&cache_key) {
-            return Ok(cached.as_ref().map(|(page_slug, wikitext)| IncludeSource {
+            return Ok(cached.as_ref().map(|wikitext| IncludeSource {
                 site_slug: current_site_slug.to_owned(),
-                page_slug: page_slug.clone(),
+                page_slug: source_page_slug.to_owned(),
                 wikitext: wikitext.clone(),
+                source_site: Some(source_site_slug.to_owned()),
             }));
         }
 
-        let statement = Statement::from_sql_and_values(
-            DatabaseBackend::Postgres,
-            r#"
-                SELECT page.page_id
-                FROM wikidot_page_snapshot AS snapshot
-                JOIN page ON page.page_id = snapshot.page_id
-                WHERE page.site_id = $1
-                  AND snapshot.source_site = $2
-                  AND snapshot.source_fullname = $3
-                  AND page.deleted_at IS NULL
-            "#,
-            [
-                current_site_id.into(),
-                source_site_slug.to_owned().into(),
-                source_page_slug.to_owned().into(),
-            ],
-        );
-        let page_id = self
-            .ctx
-            .transaction()
-            .query_one_raw(statement)
-            .await
-            .or_raise(|| {
-                Error::new(
-                    format!(
-                        "failed to resolve imported include {source_site_slug}:{source_page_slug}"
-                    ),
-                    ErrorType::DatabaseQuery,
-                )
-            })?
-            .map(|row| row.try_get::<i64>("", "page_id"))
-            .transpose()
-            .or_raise(|| {
-                Error::new(
-                    format!(
-                        "failed to read imported include {source_site_slug}:{source_page_slug}"
-                    ),
-                    ErrorType::DatabaseQuery,
-                )
-            })?;
+        let mut page_id = self
+            .find_imported_snapshot_page_id(
+                current_site_id,
+                source_site_slug,
+                source_page_slug,
+            )
+            .await?;
+        if page_id.is_none() {
+            for alternate in alternate_source_fullnames(source_page_slug) {
+                page_id = self
+                    .find_imported_snapshot_page_id(
+                        current_site_id,
+                        source_site_slug,
+                        &alternate,
+                    )
+                    .await?;
+                if page_id.is_some() {
+                    break;
+                }
+            }
+        }
 
         let Some(page_id) = page_id else {
             cache.imported_cross_site_sources.insert(cache_key, None);
             return Ok(None);
         };
-        // The snapshot match above is the authorization for this read:
-        // the page is an include source, not an ordinary page of this
-        // site, so the foreign-snapshot exclusion must not apply (#2690).
         let Some(page) = PageService::get_optional_including_foreign_snapshots(
             self.ctx,
             current_site_id,
@@ -295,11 +337,12 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
 
         cache
             .imported_cross_site_sources
-            .insert(cache_key, Some((page.slug.clone(), wikitext.clone())));
+            .insert(cache_key, Some(wikitext.clone()));
         Ok(Some(IncludeSource {
             site_slug: current_site_slug.to_owned(),
-            page_slug: page.slug,
+            page_slug: source_page_slug.to_owned(),
             wikitext,
+            source_site: Some(source_site_slug.to_owned()),
         }))
     }
 
@@ -351,6 +394,7 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
             site_slug: site_slug.to_owned(),
             page_slug: trim_default(page_slug).to_owned(),
             wikitext,
+            source_site: None,
         }))
     }
 }
@@ -360,6 +404,7 @@ pub(super) struct IncludeSource {
     pub(super) site_slug: String,
     pub(super) page_slug: String,
     pub(super) wikitext: String,
+    pub(super) source_site: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -371,7 +416,7 @@ enum IncludeSourceCacheEntry {
 #[derive(Debug, Default)]
 pub(super) struct IncludeSourceCache {
     sources_by_site: HashMap<i64, HashMap<String, IncludeSourceCacheEntry>>,
-    imported_cross_site_sources: HashMap<(i64, String, String), Option<(String, String)>>,
+    imported_cross_site_sources: HashMap<(i64, String, String), Option<String>>,
     sites_by_id: HashMap<i64, Option<SiteModel>>,
     sites_by_slug: HashMap<String, Option<SiteModel>>,
     pub(super) attachment_provenance: AttachmentProvenanceRegistry,
@@ -394,7 +439,6 @@ impl IncludeSourceCache {
         F: FnOnce() -> Fut,
         Fut: Future<Output = Result<Option<String>>>,
     {
-        // PageRef already normalizes the slug and separates #section or /path. PageService also treats an explicit `_default:` category as canonical.
         let page_slug = trim_default(page_slug);
         if let Some(entry) = self.get(site_id, page_slug) {
             return Ok(match entry {
@@ -404,7 +448,6 @@ impl IncludeSourceCache {
         }
 
         let wikitext = load().await?;
-        // Errors return above and are deliberately never cached. None is safe to retain within this render because missing, denied, and revision-less sources all have the same fail-closed include result.
         let entry = match &wikitext {
             Some(wikitext) => IncludeSourceCacheEntry::Available(wikitext.clone()),
             None => IncludeSourceCacheEntry::Unavailable,
@@ -451,5 +494,86 @@ impl IncludeSourceCache {
         self.sites_by_slug
             .insert(site_slug.to_owned(), site.clone());
         Ok(site)
+    }
+}
+
+fn alternate_source_fullnames(page_slug: &str) -> Vec<String> {
+    let Some(last_colon) = page_slug.rfind(':') else {
+        return Vec::new();
+    };
+    let (head, tail) = page_slug.split_at(last_colon);
+    let dash_count = head.bytes().filter(|byte| *byte == b'-').count();
+    if dash_count == 0 || dash_count > 7 {
+        return Vec::new();
+    }
+
+    let mut masks: Vec<u32> = (1..(1u32 << dash_count)).collect();
+    masks.sort_by_key(|mask| (mask.count_ones(), *mask));
+    masks
+        .into_iter()
+        .map(|mask| {
+            let mut alternate = String::with_capacity(page_slug.len());
+            let mut dash_ordinal = 0;
+            for ch in head.chars() {
+                if ch == '-' {
+                    let flip = mask & (1u32 << dash_ordinal) != 0;
+                    dash_ordinal += 1;
+                    alternate.push(if flip { ':' } else { '-' });
+                } else {
+                    alternate.push(ch);
+                }
+            }
+            alternate.push_str(tail);
+            alternate
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn multi_colon_include_page_ref_normalizes_away_from_the_stored_fullname() {
+        let page_ref =
+            PageRef::parse_include(":smlt:component:aers:classification-stuff")
+                .expect("include target parses");
+        assert_eq!(page_ref.site(), Some("smlt"));
+        assert_eq!(page_ref.page(), "component-aers:classification-stuff");
+        assert_eq!(
+            alternate_source_fullnames(page_ref.page()),
+            ["component:aers:classification-stuff"],
+        );
+
+        let page_ref =
+            PageRef::parse_include(":scp.avn.sh:component:aers:classification-stuff")
+                .expect("include target parses");
+        assert_eq!(page_ref.site(), Some("scp-avn-sh"));
+        assert_eq!(
+            alternate_source_fullnames(page_ref.page()),
+            ["component:aers:classification-stuff"],
+        );
+    }
+
+    #[test]
+    fn alternate_source_fullnames_only_rebuilds_pre_colon_segments() {
+        assert!(alternate_source_fullnames("metodologia").is_empty());
+        assert!(alternate_source_fullnames("component:license-box").is_empty());
+        assert_eq!(
+            alternate_source_fullnames("alpha-beta-gamma:delta"),
+            [
+                "alpha:beta-gamma:delta",
+                "alpha-beta:gamma:delta",
+                "alpha:beta:gamma:delta",
+            ],
+        );
+        assert_eq!(
+            alternate_source_fullnames("art-scp-5125:the-gourmand"),
+            [
+                "art:scp-5125:the-gourmand",
+                "art-scp:5125:the-gourmand",
+                "art:scp:5125:the-gourmand",
+            ],
+        );
     }
 }

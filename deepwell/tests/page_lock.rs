@@ -241,7 +241,7 @@ async fn page_lock_create_override_audits_removal_before_replacement() {
     );
     for event in &events[1..] {
         assert_eq!(event.user_id, Some(ADMIN_USER_ID));
-        assert_eq!(event.ip_address, common::IP_ADDRESS.to_string());
+        assert_eq!(event.ip_address.ip(), common::IP_ADDRESS);
         assert_eq!(event.page_id, Some(page_id));
         assert_eq!(event.site_id, Some(site_id));
     }

@@ -75,7 +75,6 @@ test("Wikidot TOC controls fold independently without inline script execution", 
   await second.locator('#toc-list a[href="#toc1"]').click()
   await expect(page).toHaveURL(/#toc1$/u)
 
-  // PageView's action stays attached when client navigation replaces its body.
   await page.locator("#page-content").evaluate((content) => {
     content.innerHTML =
       '<div id="toc"><div id="toc-action-bar"><a href="javascript:;" onclick="WIKIDOT.page.listeners.foldToc(event)">Fold</a><a style="display: none" href="javascript:;" onclick="WIKIDOT.page.listeners.unfoldToc(event)">Unfold</a></div><div class="title">Table of Contents</div><div id="toc-list"><div><a href="#next-heading">Next heading</a></div></div></div><h1 id="next-heading">Next heading</h1>'

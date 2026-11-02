@@ -1,0 +1,21 @@
+{
+  "schema": "theme_lab_run_contract_history.v1",
+  "scope": "Exact complete historical capture contracts; identity equivalence only, never screenshot or port acceptance.",
+  "contracts": [
+    {
+      "path": "220dae88647313b0f3f58b0303dea330a6593da5d7ed9d2117c5a725fb00339d.json",
+      "sha256": "220dae88647313b0f3f58b0303dea330a6593da5d7ed9d2117c5a725fb00339d",
+      "original_path": "install/local/theme-lab/ports/current-acceptance/run-contract.json"
+    },
+    {
+      "path": "e56609adfcedd9b23c3e9290cd1748c9b8eb6a684c032dc84aa251e93d8c8f02.json",
+      "sha256": "e56609adfcedd9b23c3e9290cd1748c9b8eb6a684c032dc84aa251e93d8c8f02",
+      "original_path": "install/local/theme-lab/sigma10-migration/current-campaign/run-contract.json"
+    },
+    {
+      "path": "eccbabe21701b25b4e3a54ec4af7cf0aea0bd75f308ee24f9b5e52e00c90934f.json",
+      "sha256": "eccbabe21701b25b4e3a54ec4af7cf0aea0bd75f308ee24f9b5e52e00c90934f",
+      "original_path": "install/local/theme-lab/sigma10-migration/current-campaign/run-contract.json"
+    }
+  ]
+}

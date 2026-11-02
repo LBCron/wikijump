@@ -1,0 +1,13 @@
+{
+  "schema": "theme_lab_bounded_interwiki_fixture.v1",
+  "source_url": "https://scp-jp.wikidot.com/scp-173-jp",
+  "source_artifact": "../ports/authority-evidence/replay/objects/5c/5c92d7dc050a72ac4e130aab62f56fa70105a044aa610da940c17b7fe66d2fb6",
+  "source_sha256": "5c92d7dc050a72ac4e130aab62f56fa70105a044aa610da940c17b7fe66d2fb6",
+  "fixture_sha256": "b9c58104c2aa3e1aece7ce3eeada8b55d318075de9a67a4fbbc2ae16fcdbca0b",
+  "original_frame_src": "//interwiki.scp-jp.org/interwikiFrame.html?lang=jp&community=scp&pagename=scp-173-jp",
+  "transforms": [
+    "Retain observed wrapper/iframe DOM; replace remote frame with an empty local data document."
+  ],
+  "verified_contract": "Local wrapper/iframe attachment and placement only. Remote content, links, resize messaging and live service behavior remain external and unverified.",
+  "public_writes": 0
+}

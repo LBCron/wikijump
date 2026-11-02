@@ -29,11 +29,6 @@ export function onSwipe(target: HTMLElement, opts: Partial<SwipeOpts>) {
   }
 }
 
-/**
- * Svelte `use` function for automatically handling directional key focus
- * movement. All descendants that are focusable with a non-negative
- * tabindex will be cycled through with the arrow keys.
- */
 export function focusGroup(node: HTMLElement, direction: FocusGroupDirection) {
   const observer = new FocusGroup(node, direction)
   return {
@@ -42,7 +37,6 @@ export function focusGroup(node: HTMLElement, direction: FocusGroupDirection) {
   }
 }
 
-/** Svelte `use` function for handling keypresses. */
 export function keyHandle(target: HTMLElement, handlers: InputHandler[]) {
   const observer = new KeyObserver(target, handlers)
   return {
@@ -51,7 +45,6 @@ export function keyHandle(target: HTMLElement, handlers: InputHandler[]) {
   }
 }
 
-/** Svelte `use` function for handling user locale. */
 export function userLocale(target: HTMLElement, opts: App.PageData) {
   const observer = new UserLocaleObserver(target, opts)
   return {
@@ -60,7 +53,6 @@ export function userLocale(target: HTMLElement, opts: App.PageData) {
   }
 }
 
-/** Svelte `use` function for firing callbacks when an element is held down. */
 export function whileHeld(target: HTMLElement, opts: WhileHeldOpts) {
   const observer = new HeldObserver(target, opts)
   return {
@@ -69,10 +61,6 @@ export function whileHeld(target: HTMLElement, opts: WhileHeldOpts) {
   }
 }
 
-/**
- * Svelte `use` function for firing callbacks during hover (and optionally
- * focus) events.
- */
 export function onHover(target: HTMLElement, opts: HoverOpts) {
   const observer = new HoverObserver(target, opts)
   return {
@@ -81,7 +69,6 @@ export function onHover(target: HTMLElement, opts: HoverOpts) {
   }
 }
 
-/** Svelte `use` function for firing callbacks for tree focus/blur events. */
 export function onFocus(target: HTMLElement, opts: FocusOpts) {
   const observer = new FocusObserver(target, opts)
   return {

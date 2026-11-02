@@ -1,0 +1,165 @@
+{
+  "slug": "theme:al-slop",
+  "en_source_sha256": "47f14e891d323bcdad5b9223e59fe1474004a0d8d4d642f6f6d8378bf6178485",
+  "en_updated_at": "2026-04-24T22:59:38+00:00",
+  "en_entity_uuid": "be7b893d-3452-4141-bf78-28ece91b581b",
+  "jp_previous_status": "confirmed-absent-by-targeted-xmlrpc",
+  "jp_previous_source_sha256": null,
+  "jp_previous_updated_at": null,
+  "jp_previous_entity_uuid": null,
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:al-slop",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": null,
+  "source_identity": {
+    "slug": "theme:al-slop",
+    "title": "Al Slop Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "47f14e891d323bcdad5b9223e59fe1474004a0d8d4d642f6f6d8378bf6178485",
+      "updated_at": "2026-04-24T22:59:38+00:00",
+      "entity_uuid": "be7b893d-3452-4141-bf78-28ece91b581b",
+      "tags": [
+        "_cc",
+        "co-authored",
+        "joke",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 26,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:al-slop"
+      }
+    },
+    "jp": {
+      "status": "confirmed-absent-by-targeted-xmlrpc",
+      "source_path": null,
+      "sha256": null,
+      "updated_at": null,
+      "entity_uuid": null,
+      "tags": [],
+      "absence_run": "theme-jp-absence-check-20260923"
+    },
+    "existing_jp_audit": "new-jp-candidate-verified",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:al-slop",
+    "en_includes": [
+      ":scp-wiki:component:sigma-plus",
+      ":scp-wiki:component:image-block name=https://scp-wiki.wikidot.com/local--files/theme:al-slop/alLogo.webp",
+      ":scp-wiki:component:license-box-theme",
+      ":scp-wiki:component:license-box-end"
+    ],
+    "en_external_dependencies": [
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_01.png",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_05.png",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_06.png",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_07.png",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_08.png",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_09.png",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_10.png",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_11.png",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_12.png",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_13.png",
+      "http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_Musk.mp4",
+      "https://creativecommons.org/licenses/by-sa/3.0/",
+      "https://fonts.bunny.net/css2?family=Boogaloo&display=swap",
+      "https://fonts.bunny.net/css2?family=Margarine&display=swap",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/Fallen.webp",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/Like_one_of_your_french_girls.webp",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/M_Lady.webp",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/alDespair.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/alJoy.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/alPiracy.png",
+      "https://scp-wiki.wikidot.com/dr-mackenzie-s-sketchbook",
+      "https://scp-wiki.wikidot.com/local--files/go-white-boy-go-white-boy-go/Me.jpg",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/ALCANYON.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/Fallen.webp",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/Like_one_of_your_french_girls.webp",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/M_lady.webp",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/alBanner.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/alBunker.webp",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/alDespair.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/alJoy.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/alLogo.webp",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/alPiracy.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:al-slop/alSCP.webp",
+      "https://scp-wiki.wikidot.com/theme:al-slop",
+      "https://scp-wiki.wikidot.com/theme:al-slop/code/1"
+    ],
+    "jp_includes": [],
+    "jp_external_dependencies": [],
+    "base_family": "sigma"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "human-port-candidate.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "human-made shared translation workspace; no current official JP counterpart",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "new-jp-candidate-verified",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/al-slop/assets.json",
+  "asset_dependency_decision_count": 21,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "ef64c472fbc4c6add75121aa68283f72d21823b9e7915c493c6c891bac559b70",
+    "jp_overrides_sha256": "8de3ebb609dfba3c3d073b9aa3b2fbc459598f3fbe5d77d0faee587f3303519b",
+    "semantic_css_sha256": "c4e24872691242897f1d2286edc9ce5202cda2c7c48b63a21cd95665ea929024",
+    "canonical_override_sha256": "9891451eafc240f6ea59b6aab58aa2041d76fdc12b1bc08844b73ffa481c5e92",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "d40bfa0b816c95a2ffbf7165f7cf8b772a1f696e4a842ef1f15b884d7a7823d6",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "9a6611c882f1b485cc2c3936d5a6c52d475818c7fd20d32f9a74edc192d0fc99",
+      "active_tags": [],
+      "candidate_source_sha256": "4954b888b502397c1e8612addfc74dda5c6da91c8fb260ed19f8cdc323f73122",
+      "candidate_active_tags": [
+        "theme"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "0fb7e246567d58220ee4c98ff4009fa7fad14b2c0a685c0edffeb6a2738a7677",
+      "asset_receipt_path": "assets.json",
+      "assets": 16,
+      "imports": 3,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "5bd2d00b494a875d43fcd5e270a4b323c9ddbe16b6238fb5f5b80992c3b37b0a",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

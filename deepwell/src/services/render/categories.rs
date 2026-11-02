@@ -18,8 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The Wikidot `Categories` module.
-
 use super::authorized_page_selector::AuthorizedPageSelector;
 use super::compat::CompatHtmlFragments;
 use super::literal_regions::LiteralRegionIndex;

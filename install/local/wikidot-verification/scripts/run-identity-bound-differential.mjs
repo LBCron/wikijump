@@ -51,8 +51,6 @@ async function artifact(filePath, label, {executable = false} = {}) {
   return {path: filePath, bytes: stat.size, sha256: sha256Hex(await fs.readFile(filePath))};
 }
 
-/** Run independent async checks concurrently; report the first failure in
- * declaration order, exactly as the sequential version did. */
 async function inOrder(thunks) {
   const results = await Promise.allSettled(thunks.map((thunk) => thunk()));
   for (const result of results) if (result.status === "rejected") throw result.reason;
@@ -135,8 +133,6 @@ async function validateManifest(value, manifestPath) {
   requireValue(captures.length > 0, "wikidot_evidence.captures must bind at least one saved-page capture");
 
   exactFields(value.executables, ["docker", "git", "node"], "executables");
-  // The executables are ~180 MB of hashing per verification pass; hash them
-  // concurrently (inOrder keeps which failure is reported unchanged).
   const [node, git, docker] = await inOrder([
     () => boundArtifact(value.executables.node, "executables.node", {executable: true}),
     () => boundArtifact(value.executables.git, "executables.git", {executable: true}),

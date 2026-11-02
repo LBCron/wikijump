@@ -1,5 +1,3 @@
-//! Page endpoint output assembly.
-
 use super::*;
 
 pub(super) async fn build_page_output(

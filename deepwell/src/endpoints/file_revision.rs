@@ -114,9 +114,6 @@ pub async fn file_revision_range(
         .await
         .or_raise(make_error)?;
 
-    // Like the page timeline's file history, each revision carries the
-    // author's public identity (issue #2199), so the Files pane never has
-    // to render raw user IDs.
     let authors = resolve_file_revision_authors(ctx, &revisions)
         .await
         .or_raise(make_error)?;
@@ -395,9 +392,6 @@ mod tests {
             attach_file_revision_author(revision(Vec::new()), &BTreeMap::new())
                 .expect("known revision should attach");
 
-        // Unknown, deleted, and synthetic import actors (e.g. user -1/-2)
-        // resolve to no public identity, so the pane must fall back to its
-        // deleted-user marker instead of a raw numeric ID (issue #2199).
         assert!(attached.author.is_none());
         assert_eq!(attached.revision.user_id, 37);
     }

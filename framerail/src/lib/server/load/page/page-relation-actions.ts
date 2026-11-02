@@ -1,6 +1,8 @@
 import {
   pageBacklinksView,
+  pageChildrenGet,
   pageParentGet,
+  pageParentTrace,
   pageParentUpdate,
   pageScore,
   pageWatchers,
@@ -70,6 +72,42 @@ export async function pageParentGetAction(event: RequestEvent) {
     const { pageId, slug } = requestData
     const context = await resolvePageActionRequestContext(event)
     const res = await pageParentGet(context.siteId, pageId, slug, context.requestContext)
+    return { res }
+  } catch (error) {
+    return failForActionError(error)
+  }
+}
+
+export async function pageParentTraceAction(event: RequestEvent) {
+  const { request } = event
+  try {
+    const requestData = await readActionJson(request, pageParentGetSchema)
+    const { pageId, slug } = requestData
+    const context = await resolvePageActionRequestContext(event)
+    const res = await pageParentTrace(
+      context.siteId,
+      pageId,
+      slug,
+      context.requestContext
+    )
+    return { res }
+  } catch (error) {
+    return failForActionError(error)
+  }
+}
+
+export async function pageChildrenGetAction(event: RequestEvent) {
+  const { request } = event
+  try {
+    const requestData = await readActionJson(request, pageParentGetSchema)
+    const { pageId, slug } = requestData
+    const context = await resolvePageActionRequestContext(event)
+    const res = await pageChildrenGet(
+      context.siteId,
+      pageId,
+      slug,
+      context.requestContext
+    )
     return { res }
   } catch (error) {
     return failForActionError(error)

@@ -235,11 +235,6 @@ async fn syntax_preview_preserves_other_delayed_fixture_shapes() {
     }
 }
 
-/// Reassigns a page's creating revision to another user.
-///
-/// Page creation is permission-checked against the request actor, so a fixture
-/// needing two distinct authors sets the stored author directly rather than
-/// granting create rights to a second account.
 async fn set_page_creating_user(runner: &TestRunner, page_id: i64, user_id: i64) {
     let transaction = runner.context().transaction();
     let statement = Statement::from_string(
@@ -1529,6 +1524,133 @@ async fn countpages_static_filter_direct_fragment_renders_zero_without_raw_marke
             && !html.contains("%%total%%")
             && !html.contains("[[#ifexpr"),
         "compiled output should not leak raw CountPages markers:\n{html}",
+    );
+}
+
+async fn render_countpages_preview_total(
+    runner: &TestRunner,
+    site_id: i64,
+    title: &str,
+    source: &str,
+) -> usize {
+    let body = RenderService::render_wikidot_page_preview(
+        runner.context(),
+        site_id,
+        title,
+        source.to_owned(),
+    )
+    .await
+    .expect("CountPages preview should render")
+    .html_output
+    .body;
+    assert!(
+        !body.contains("[[module CountPages") && !body.contains("%%total%%"),
+        "the all-category CountPages module should expand, not leak literally:\n{body}",
+    );
+    let total = body
+        .split("TOTAL=")
+        .nth(1)
+        .expect("expanded CountPages should substitute the total marker")
+        .chars()
+        .take_while(|character| character.is_ascii_digit())
+        .collect::<String>();
+    total
+        .parse()
+        .expect("substituted CountPages total should be numeric")
+}
+
+#[tokio::test]
+async fn countpages_all_categories_unfiltered_expands_to_exact_count() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let source = "[[module CountPages separate=\"@URL\" category=\"@URL|*\"]]TOTAL=%%total%%[[/module]]";
+    let total_before = render_countpages_preview_total(
+        &runner,
+        site_id,
+        "CountPages exact total before",
+        source,
+    )
+    .await;
+    assert!(
+        total_before > 0,
+        "the seeded site should have countable pages"
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    for (slug, title) in [
+        (
+            "countpages-exact-total-fixture-one",
+            "CountPages Exact Total Fixture One",
+        ),
+        (
+            "countpages-exact-total-fixture-two",
+            "CountPages Exact Total Fixture Two",
+        ),
+        (
+            "countpages-exact-total-fixture-three",
+            "CountPages Exact Total Fixture Three",
+        ),
+    ] {
+        run_endpoint!(
+            runner,
+            page_create,
+            json!({
+                "site_id": site_id,
+                "wikitext": "Fixture page for the CountPages exact total test.",
+                "title": title,
+                "alt_title": null,
+                "slug": slug,
+                "layout": "wikidot",
+                "revision_comments": "CountPages exact total fixture",
+                "user_id": ADMIN_USER_ID,
+                "bypass_filter": true,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+    }
+
+    let total_after = render_countpages_preview_total(
+        &runner,
+        site_id,
+        "CountPages exact total after",
+        source,
+    )
+    .await;
+    assert_eq!(
+        total_after,
+        total_before + 3,
+        "the all-category CountPages total should grow by exactly the created pages",
+    );
+}
+
+#[tokio::test]
+async fn countpages_all_categories_with_offset_remains_literal() {
+    let runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+
+    let body = RenderService::render_wikidot_page_preview(
+        runner.context(),
+        site.site.site_id,
+        "CountPages all categories offset preview",
+        "[[module CountPages category=\"*\" offset=\"1\"]]TOTAL=%%total%%[[/module]]"
+            .to_owned(),
+    )
+    .await
+    .expect("CountPages preview should render")
+    .html_output
+    .body;
+    assert!(
+        body.contains("[[module CountPages") && body.contains("%%total%%"),
+        "an invocation the exact count is not eligible for must stay literal:\n{body}",
     );
 }
 
@@ -3350,8 +3472,6 @@ async fn preview_parent_modes_do_not_invent_a_current_page_relation() {
 
 #[tokio::test]
 async fn listpages_total_counts_matches_beyond_the_rendered_page() {
-    // Deliberately outside the selector glob below; a source page that matched
-    // its own query would be counted among the results.
     const SOURCE_SLUG: &str = "total-window-holder";
 
     let mut runner = TestRunner::setup().await;
@@ -3844,8 +3964,6 @@ async fn created_by_exclusion_omits_the_containing_pages_author() {
         .expect("seeded SCP Wiki site should exist");
     let site_id = site.site.site_id;
 
-    // Both pages are created by the permitted account, then the other page's
-    // stored author is reassigned, which is what the exclusion reads.
     for (slug, author) in [(OWN_SLUG, ADMIN_USER_ID), (OTHER_SLUG, SAMPLE_USER_ID)] {
         runner.set_request_context(RequestContext {
             session: None,
@@ -3874,8 +3992,6 @@ async fn created_by_exclusion_omits_the_containing_pages_author() {
         }
     }
 
-    // The module lives on a page authored by ADMIN_USER_ID, so `-=` excludes
-    // that author's pages and keeps the other author's.
     let source = concat!(
         "[[module ListPages category=\"_default\" name=\"author-exclusion-*\" ",
         "created_by=\"-=\" separate=\"no\"]]\n",

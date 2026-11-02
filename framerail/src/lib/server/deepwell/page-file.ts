@@ -25,7 +25,6 @@ import type {
 } from "$lib/types"
 import type { RequestContext } from "../request-context"
 
-/* ----- Common Interface ----- */
 export interface PageFile {
   file_id: number
   file_created_at: string
@@ -46,7 +45,6 @@ export interface PageFile {
   hidden_fields: string[]
 }
 
-/* ----- Page File List ----- */
 export async function pageFileList(
   siteId: number,
   pageId: number,
@@ -64,8 +62,6 @@ export async function pageFileList(
   )
 }
 
-/* ----- Page File Get ----- */
-// Not used for now
 export async function pageFileGet(
   siteId: number,
   pageId: number,
@@ -83,7 +79,6 @@ export async function pageFileGet(
   })
 }
 
-/* ----- Page File Create ----- */
 interface PageFileCreate {
   file_id: number
   file_revision_id: number
@@ -136,7 +131,6 @@ export async function pageFileCreate(
   })
 }
 
-/* ----- Page File Delete ----- */
 export interface PageFileDelete {
   file_id: number
   file_revision_id: number
@@ -169,7 +163,6 @@ export async function pageFileDelete(
   )
 }
 
-/* ----- Page File Edit ----- */
 export interface PageFileEditInput {
   siteId: number
   pageId: number
@@ -253,7 +246,6 @@ async function requireFileParentEditPermission(
   }
 }
 
-/* ----- Page File Move ----- */
 export interface PageFileMoveInput {
   siteId: number
   currentPageId: number
@@ -294,7 +286,6 @@ export async function pageFileMove(
   )
 }
 
-/* ----- Page File Restore ----- */
 interface PageFileRestore {
   page_id: number
   file_id: number
@@ -345,7 +336,6 @@ export async function pageFileRestore(
   )
 }
 
-/* ----- Page File History ----- */
 export async function pageFileHistory(
   siteId: number,
   pageId: Optional<number>,
@@ -394,7 +384,6 @@ export async function pageFileRevisionHistory(
   )
 }
 
-/* ----- Page File Rollback ----- */
 export interface PageFileRollbackInput {
   siteId: number
   pageId: number
@@ -438,8 +427,6 @@ export async function pageFileRollback(
   )
 }
 
-/* ----- Page File Revision ----- */
-// Not used for now
 export async function pageFileRevision(
   siteId: number,
   pageId: Optional<number>,

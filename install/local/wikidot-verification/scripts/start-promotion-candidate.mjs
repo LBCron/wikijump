@@ -52,7 +52,6 @@ async function readJson(filePath) {
 export function candidateDeepwellConfig(source, port, {seed = true} = {}) {
   let config = source;
   for (const [before, after] of [
-    // A candidate started on a copy of standing data keeps it as standing has it.
     ["run-seeder = false", seed ? "run-seeder = true" : "run-seeder = false"],
     ['seeder-path = "seeder"', 'seeder-path = "/opt/deepwell/seeder"'],
     ['main = "wikijump.com"', 'main = "wikijump.localhost"'],
@@ -244,8 +243,6 @@ export function candidateCompose({
       depends_on: {framerail: {condition: "service_healthy"}, wws: {condition: "service_healthy"}},
     },
   };
-  // `dataVolumes` attaches volumes prepared before the start (a copy of
-  // standing data) instead of empty project volumes.
   const volume = (name) => (name ? {external: true, name} : {});
   return {
     name: project,
@@ -470,9 +467,6 @@ export async function startPromotionCandidate({sourceRoot, buildEvidencePath, ca
       deepwell_rpc_url: `http://127.0.0.1:${rpcPort}/jsonrpc`,
       deepwell_rpc_token: token,
       object_store_origin: `http://127.0.0.1:${objectStorePort}`,
-      // Deepwell signs URLs against its in-network S3 endpoint. Candidate
-      // clients bind that exact authority, then replay only the signed path
-      // through the loopback-published object-store origin above.
       presigned_origin: "http://files:9000",
       candidate_origin: `https://scp-wiki.wikijump.localhost:${publicPort}`,
     });

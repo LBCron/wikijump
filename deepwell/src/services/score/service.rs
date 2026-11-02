@@ -211,8 +211,6 @@ impl ScoreService {
         }
     }
 
-    /// Gets the correct `Scorer` implementation for this page.
-    ///
     async fn get_scorer(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -236,12 +234,6 @@ impl ScoreService {
         })
     }
 
-    /// Whether every page is scored by summing, as the bulk query assumes.
-    ///
-    /// The scorer depends only on the page's category, so it is decided once
-    /// per distinct `(site, category)`: a ListPages score filter or ordering
-    /// passes every candidate here, and deciding per page cost two queries
-    /// for each of them (9,394 pages for SCP Wiki's `rating=">75"`).
     async fn all_sum_scored(ctx: &ServiceContext<'_>, page_ids: &[i64]) -> Result<bool> {
         #[derive(FromQueryResult, Debug)]
         struct PageCategoryRow {
@@ -265,7 +257,6 @@ impl ScoreService {
             )
         })?;
 
-        // A page that does not exist fails as it did when each page was loaded.
         let found = rows.iter().map(|row| row.page_id).collect::<BTreeSet<_>>();
         if let Some(&missing) = page_ids.iter().find(|page_id| !found.contains(page_id)) {
             PageService::get_direct(ctx, missing, true).await?;
@@ -284,25 +275,10 @@ impl ScoreService {
         Ok(true)
     }
 
-    /// Helper method for retrieving a `VoteMap` for a page.
-    /// Takes inputs as used in `Scorer.score()`.
-    ///
-    /// This can become a full service method, see above.
     pub(crate) async fn collect_votes(
         txn: &DatabaseTransaction,
         condition: Condition,
     ) -> Result<VoteMap> {
-        // Query for votes aggregated by value.
-        //
-        // As raw SQL:
-        //
-        // SELECT value, COUNT(value)
-        // FROM page_vote
-        // WHERE page_id = $1
-        // AND deleted_at IS NULL
-        // AND disabled_at IS NULL
-        // GROUP BY value;
-
         #[derive(FromQueryResult, Debug)]
         struct VoteCountRow {
             value: VoteValue,
@@ -319,7 +295,6 @@ impl ScoreService {
             .await
             .or_raise(|| Error::new("failed to collect votes", ErrorType::PageVote))?;
 
-        // Gather results into map
         let mut map = VoteMap::new();
 
         for VoteCountRow { value, count } in counts {
@@ -329,7 +304,6 @@ impl ScoreService {
         Ok(map)
     }
 
-    /// The imported aggregate baseline for a page, if one was imported.
     pub(crate) async fn imported_rating(
         ctx: &ServiceContext<'_>,
         page_id: i64,

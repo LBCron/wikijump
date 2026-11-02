@@ -1,0 +1,176 @@
+[[module themepreviewer noUi="true"theme_url=" "]]
+
+[[>]]
+[[module rate]]
++ @@ @@
+> = **Wikifot**――我々のプラットフォームWikidotが時折ぶつかる技術的問題全般を、コミュニティがまとめて呼ぶための冗談めいた便利語。
+> ,,――//[[[Glossary of Terms|用語集]]]//,,[[/>]]
++ @@ @@
++ いったい何を見せられているんだ？
+知るかよ。
++ いや本気で、いったい何を見せられているんだ？
+読みやすいページに「色」だの「想像力」だの「可読性」だのという小うるさいものが割り込んでくるのに、もううんざりしていませんか？ 白、もっと白、さらに白、まだまだ白、白って言ったっけ――ああ、あと青もある配色が本当に好きなのかもしれません。あるいはあなたはマゾなのかもしれません。
+
+いずれにせよ、Wikifotテーマはあなたにぴったりです！
++ @@ @@
++ 使用方法
+任意のwikiでWikifotテーマを使うには、ページ内の任意の場所に次の文字列をコピーしてください。
+[[code]][[/code]]
+
+注意として、「:scp-jp:」を外すと、他のwikiで使ったときにテーマが壊れます。ですから、目に悪い代物をわざわざ抱え込まず、こいつが這い出てきた深淵の穴へ蹴り落としておくことをおすすめします。
+[[code]][[/code]]
++ @@ @@
++ 例
+
+水平線（下に見えるもの）は、ハイフン4つ「- - - -」で作成でき、ページ全体に伸びます。実際に使うときは各ハイフンの間のスペースを消すものだと言ってくる人もいます。耳を貸してはいけません。あなたをガスライティングしています。
+----
++ @@ @@
+見出しは、望む大きさに応じて行頭に1個から6個の+を置くことで作れます。
+[[collapsible]]
++ あなたは
+++ たった今
++++ ザ・
+++++ ゲームに
++++++ 負け
+++++++ ました
+[[/collapsible]]
++ @@ @@
+[[tabview]][[tab タブ表示]]これはタブビューです。[[/tab]][[tab タブ作成]]これもタブビューです。[[/tab]][[tab タブ生成中]]さて、ここには何があるのでしょう？ 秘密のイースターエッグ？ 役に立つ人生相談かも？ 今日の髪型を褒めてくれるのかも？
+
+バカ言え、ただの別のタブビューだよ。[[/tab]][[tab 長いタブ]]she
+
+wi
+
+on
+
+my
+
+ki
+
+til
+
+i
+
+fot[[/tab]][[tab タブー]][[/tab]][[tab オタマジャクシチャレンジ: 禁断の果実を食べますか？]][[/tab]][[tab おい、ゲームがAlt-Tabした]][[/tab]][[tab 昔、5人家族をまるごと轢いて殺したことがある。誰も知らない。警察が来る前に走り去れたんだ。葬式にこっそり行こうかとも考えたが、どうしてもその気になれなかった。毎晩、眠るたびに彼らのことを考える。内側から食い荒らされる。あの道を通るたびに、俺は――待って、「タブ駄洒落はどこ？」ってどういう意味？]][[/tab]][[tab 主であり救世主であるイエス・キリストの話、タブん聞いた？]][[/tab]][[tab 君のタブにつけとくよ]][[/tab]][[tab 我々はタブ社会に生きている]][[/tab]][[tab タブフォルニア・ガールズ]]野生化した豚の群れみたいに単純なもので家族が引き裂かれるなんて、本当に悲しいことだ。[[/tab]][[/tabview]]
++ @@ @@
+= これは表です。[[=image table.png]]
+= もう表の作り方は知っているはずです。
++ @@ @@
++ カスタムDIV
+Wikifotテーマは、色鮮やかで派手で発作を誘発しかねないDIVボックスを各種提供します。思慮も節度もなくページ中に塗りたくるためのものです。例をいくつか挙げます。
+> {{@@[[div class="blockquote"]]@@}}
+> 昔ながらの引用ブロック！
+> {{[[/div]]}}
+{{@@[[div class="black-box"]]@@}}
+黒い箱！
+{{[[/div]]}}
+
+{{@@[[div class="white-box"]]@@}}
+白い箱！
+{{[[/div]]}}
+
+{{@@[[div class="rainbow-box"]]@@}}
+虹色の箱！
+{{[[/div]]}}
+
+{{@@[[div class="sparkly-box"]]@@}}
+きらきらの箱！
+{{[[/div]]}}
+
+{{@@[[div class="fancy-box"]]@@}}
+おしゃれな箱！
+{{[[/div]]}}
+
+{{@@[[div class="shiny-box"]]@@}}
+🦀
+{{[[/div]]}}
+
+{{@@[[div class="normal-box"]]@@}}
+普通の箱。
+{{[[/div]]}}
+
+{{@@[[div class="box-box"]]@@}}
+箱箱！
+{{[[/div]]}}
+
+{{@@[[div class="what"]]@@}}
+なに
+{{[[/div]]}}
+
+{{@@[[div class="sexy-box"]]@@}}
+UWU
+{{[[/div]]}}
+> {{@@[[div class="blockquote-2"]]@@}}
+> 引用ブロック2: ブロレクトリック・クーガルー！
+> {{[[/div]]}}
+（注: カスタムdivは100%の確率で完全に描画に失敗する//かもしれません//）
++ @@ @@
++ ダークモード
+その通りです。Wikifotテーマは、ページ内ダークモード切替を導入することで劣悪な睡眠習慣を奨励する境界を押し広げています。こんな機能、他のどのテーマでも未だかつて見たことがありません！ 試してみましょう。
++ @@ @@
+[[div id="darkmode"]]
+= [[span class="toggle"style="font-size:2em"]]**[#u-darkmode ダークモード切替]**[[/span]][[# u-darkmode]][[div class="wikifot"]]
+[[div_ style="float:right;padding-top:15px;width:250px"]]
+##222|,,Flickrで[https://flickr.com/tags/bsod bsodタグ付きの写真や動画]をもっと見る,,##[[/div]][[div style="margin-right:300px"]]
+[[size 2em]]**もう一度お試しください**[[/size]]
+
+もう一度お試しください - 要求されたページの取得中に問題が発生しました。多くの場合、[[a]]Reload[[/a]]をクリックするかCtrl-Rを押せば、期待どおりにページが表示されます。
+
+この種のエラーが多数表示されている場合、Wikidotに負荷がかかっている可能性があります。
+
+このサイトをご訪問いただきありがとうございます。そして、あなたが
+wikidot.comをソーシャルウェブプロジェクトに使っている1,000,000人のユーザーの一人なら、ありがとうございます。
+
+[[span style="font-family:monospace"]]##666|,,ERROR CODE: FU200,,##[[/span]][[/div]][[/div]][[/div]]
++ @@ @@
+= 本文フォントはVerdanaです。 _
+ヘッダーフォントはVerdanaです。 _
+サブヘッダーフォントはVerdanaです。 _
+等幅フォントはVerdanaです。
++ @@ @@
++ ソースコード:
+[[collapsible]]
+[[code]]ソース？ 俺がでっち上げたんだよ。[[/code]]
+[[/collapsible]]
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

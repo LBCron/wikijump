@@ -1,0 +1,66 @@
+[[div class="tl-component tl-heading"]]
++ Heading One
+++ Heading Two
+Paragraph with **bold**, //italic//, __underline__, --deleted--, {{monospace}}, and [https://example.invalid a link].
+[[/div]]
+
+[[div class="tl-component tl-list"]]
+* Unordered item one
+* Unordered item two
+ * Nested item
+# Ordered item one
+# Ordered item two
+[[/div]]
+
+[[div class="tl-component tl-quote"]]
+> A representative blockquote with enough text to expose padding, width, font, and overflow regressions.
+> Second quoted line.
+[[/div]]
+
+[[div class="tl-component tl-table"]]
+||~ Header A ||~ Header B ||~ Header C ||
+|| alpha || beta || gamma ||
+|| a deliberately longer cell for responsive width checks || 12345 || omega ||
+[[/div]]
+
+[[div class="tl-component tl-code"]]
+[[code language="css"]]
+.theme-lab-example {
+  display: grid;
+  gap: 0.5rem;
+}
+[[/code]]
+[[/div]]
+
+[[div class="tl-component tl-collapsible"]]
+[[collapsible show="Open torture collapsible" hide="Close torture collapsible"]]
+Collapsible body with **formatted text**.
+[[/collapsible]]
+[[/div]]
+
+[[div class="tl-component tl-tabview"]]
+[[tabview]]
+[[tab First]]First tab body.[[/tab]]
+[[tab Second]]Second tab body with more text.[[/tab]]
+[[/tabview]]
+[[/div]]
+
+[[div class="tl-component tl-footnote"]]
+A statement with a footnote[[footnote]]Theme-lab footnote body.[[/footnote]].
+
+[[bibliography]]
+[[/div]]
+
+[[div class="tl-component tl-math"]]
+[[math]]
+x^2 + y^2 = z^2
+[[/math]]
+[[/div]]
+
+[[div class="tl-component tl-toc"]]
+[[toc]]
+[[/div]]
+
+[[div class="tl-component tl-rate"]]
+The torture runner supplies the retained native rating component in this slot.
+[[/div]]

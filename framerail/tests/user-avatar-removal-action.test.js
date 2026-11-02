@@ -7,12 +7,6 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
-/**
- * Build the multipart request the profile editor submits. Superforms reads
- * the submitted values from `__superform_json`; a real file is restored
- * from its `__superform_file_avatar` entry, while an empty file input
- * submits no file.
- */
 const editRequest = ({ json, file }) => {
   const data = new FormData()
   data.set("__superform_json", JSON.stringify(json))
@@ -74,13 +68,11 @@ test("only an explicit boolean removal flag clears the stored avatar", async () 
     const userEdits = () => calls.filter(({ method }) => method === "user_edit")
     const reset = () => (calls.length = 0)
 
-    // 1. Omitted flag and an empty file input never touch the association.
     await userEditAction(eventFor(editRequest({ json: [{ avatar: -1 }] })))
     assert.equal(userEdits().length, 1)
     assert.equal("avatar_uploaded_blob_id" in userEdits()[0].params, false)
     reset()
 
-    // 2. The explicit boolean flag clears the association for the session user.
     const removed = await userEditAction(
       eventFor(editRequest({ json: [{ avatar: -1, removeAvatar: 1 }, true] }))
     )
@@ -90,7 +82,6 @@ test("only an explicit boolean removal flag clears the stored avatar", async () 
     assert.equal(userEdits()[0].params.avatar_uploaded_blob_id, null)
     reset()
 
-    // 3. A flag that is not a literal boolean is rejected before any mutation.
     for (const flag of ["true", null, 1]) {
       const rejected = await userEditAction(
         eventFor(editRequest({ json: [{ avatar: -1, removeAvatar: 1 }, flag] }))
@@ -99,7 +90,6 @@ test("only an explicit boolean removal flag clears the stored avatar", async () 
       assert.equal(userEdits().length, 0)
     }
 
-    // 4. A removal flag never accompanies a real new image.
     const conflict = await userEditAction(
       eventFor(
         editRequest({

@@ -1,0 +1,12 @@
+{
+  "schema": "theme_lab_frozen_shell_markup.v1",
+  "url": "https://scp-jp.wikidot.com/scp-173-jp",
+  "source_dom_sha256": "5c92d7dc050a72ac4e130aab62f56fa70105a044aa610da940c17b7fe66d2fb6",
+  "source_path": "ports/authority-evidence/replay/objects/5c/5c92d7dc050a72ac4e130aab62f56fa70105a044aa610da940c17b7fe66d2fb6",
+  "selectors": [
+    "#header h1",
+    "#header h2"
+  ],
+  "fixture_sha256": "797caf30903a44c24e7cacdee3709a402a7ae9cc443194f0aa9380daf758c872",
+  "public_writes": 0
+}

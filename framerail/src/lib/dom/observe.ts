@@ -33,7 +33,6 @@ export function pauseObservation(
   const async = method.constructor.name === "AsyncFunction"
 
   if (async) {
-    // counts how many instances of the function are running to prevent races
     let runCount = 0
 
     descriptor.value = async function (this: typeof target, ...args: unknown[]) {

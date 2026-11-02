@@ -1,0 +1,158 @@
+[[module Rate]]
+
+[[div class="dd-mobile-nav"]]
+[#side-bar ☰ メニュー]　[#page-content 閉じる]
+[[/div]]
+
+[[div class="dd-introduction"]]
+[[=]]
++ 導入前に
+[[/=]]
+
+このテーマはSCP財団世界の架空の独裁体制を描くための文学的な意匠です。実在する政権や政策を支持するものではありません。
+
+使用する記事では、評価欄とフッターにも同じ注意書きを表示します。
+[[/div]]
+
+[[div class="dd-emblem"]]
+[[/div]]
+
+[[div class="chapter"]]
+敬愛する独裁者 テーマ
+[[/div]]
+
+[[=]]
+このテーマは韓国支部の「경애하는 독재자 꾸밈양식」をSCP-JPの文書構造へ移植したものです。
+
+> @@[[include theme:dear-dictator-jp]]@@
+[[/=]]
+
+-----
+
+[[=]]
++ 配色
+[[/=]]
+
+[[table class="dd-palette"]]
+[[row]]
+[[cell style="background: var(--red); color: white;"]]
+主題の赤
+@@--red@@
+#892B21
+[[/cell]]
+[[cell style="background: var(--gold);"]]
+装飾の金
+@@--gold@@
+#C6AF5F
+[[/cell]]
+[[/row]]
+[[row]]
+[[cell style="background: var(--bg);"]]
+背景の白
+@@--bg@@
+#FFFFFF
+[[/cell]]
+[[cell style="background: var(--brown); color: white;"]]
+本文の茶
+@@--brown@@
+#362622
+[[/cell]]
+[[/row]]
+[[/table]]
+
+[[=]]
++ 文字と本文
+[[/=]]
+
+革命的な見出しと、紙面を思わせる本文の組み合わせを確認します。**太字**、//斜体//、[[span class="kim"]]強調語[[/span]]、および [[[scp-jp:main|リンク]]] の色と読みやすさを見ます。
+
+[[div class="blockquote"]]
+[[div class="chapter"]]
+文書の引用
+[[/div]]
+
+通常の引用ブロックは、幅の狭い画面でも余白と罫線を保つ必要があります。
+[[/div]]
+
+> 記録はこの形式で続く。折り返しが増えても本文が画面外へはみ出さないこと。
+
+[[tabview]]
+[[tab 文書1]]
+最初の文書。通常の段落と強調表示を含みます。
+[[/tab]]
+[[tab 文書2]]
+二番目の文書。タブを切り替えても文字色と背景色が読めます。
+[[/tab]]
+[[/tabview]]
+
+[[collapsible show="+ 補足を開く" hide="- 補足を閉じる"]]
+折りたたみの本文です。開閉リンク、本文の罫線、狭い画面での配置を確認します。
+[[/collapsible]]
+
+[[div class="dd-warning"]]
+このテーマは架空の独裁体制を扱う創作上の意匠です。
+[[/div]]
+
+原作テーマ・画像: [https://scpko.wikidot.com/theme:dear-dictator thd-glasses / SCP-KO]。このページはSCP-JP向けの移植見本です。
+
+[[div class="tower"]]
+[[/div]]
+[[div class="towerline"]]
+[[/div]]
+[[div class="toweron"]]
+[[/div]]
+[[div class="toweroff"]]
+[[/div]]
+[[div class="light"]]
+[[/div]]
+[[div class="lighton"]]
+[[/div]]
+[[div class="lightoff"]]
+[[/div]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Dear Dictator navigation correction: anchor only the overflowing rightmost menus at their mobile row endpoints. */
+@media (max-width: 359px) {
+  #top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul { left: auto; right: 0; }
+  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto; right: 0; }
+}
+@media (min-width: 360px) and (max-width: 767px) {
+  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto; right: 0; }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot dear-dictator credit correction: keep the modal rating in document flow below the license control. */
+#u-credit-view .modalbox .modalbox-ratemodule { position: static; }
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Dear Dictator control correction: keep mobile navigation inside the viewport above the search layer. */
+@media (max-width: 767px) {
+  #top-bar { z-index: 20 !important; }
+  #top-bar .mobile-top-bar { position: fixed !important; inset: 0 0 auto 0 !important; z-index: 20 !important; }
+  #search-top-box { z-index: 14 !important; width: auto !important; max-width: calc(100vw - 7rem) !important; }
+  #search-top-box-form { width: auto !important; }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Dear Dictator mobile search correction: keep search below an unwrapped, readable navigation row. */
+@media (max-width: 979px) {
+  #search-top-box { top: 1.5rem !important; }
+}
+@media (max-width: 359px) {
+  #top-bar .mobile-top-bar > ul {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #top-bar .mobile-top-bar > ul > li {
+    flex: 0 0 auto !important;
+    white-space: nowrap;
+  }
+}
+[[/module]]

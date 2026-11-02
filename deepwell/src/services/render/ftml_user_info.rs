@@ -22,7 +22,6 @@ use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::wikidot_user::{
     self, Entity as WikidotUser, Model as WikidotUserModel,
 };
-use crate::services::ServiceContext;
 use crate::services::page_query::{
     normalize_wikidot_author_name, wikidot_author_name_sql,
 };
@@ -30,6 +29,7 @@ use crate::services::render::wikidot_user_resources::{
     WIKIDOT_AVATAR_BASE, WIKIDOT_USER_INFO_URL,
 };
 use crate::services::user::User;
+use crate::services::{BlobService, ServiceContext};
 use crate::utils::now;
 use ftml::data::UserInfo;
 use ftml::render::UserInfoResolver;
@@ -68,11 +68,15 @@ impl UserInfoSnapshot {
         let users = if layout == ftml::prelude::Layout::Wikidot {
             load_observed_wikidot_identities(ctx, &slugs).await?
         } else {
-            load_visible_wikidot_users(ctx, &slugs, &BTreeSet::new())
-                .await?
+            let models =
+                load_visible_wikidot_users(ctx, &slugs, &BTreeSet::new()).await?;
+            let avatar_hashes = wikidot_avatar_hashes(&models);
+            let mut users = models
                 .into_iter()
                 .filter_map(wikidot_user_info)
-                .collect()
+                .collect::<Vec<_>>();
+            apply_stored_avatars(ctx, &mut users, &avatar_hashes).await;
+            users
         };
         let mut users_by_name = BTreeMap::new();
         let mut collisions = BTreeSet::new();
@@ -117,17 +121,13 @@ async fn load_observed_wikidot_identities(
                 ErrorType::Render,
             )
         })?;
-    // Wikidot stamps a compiled avatar with its compile time.
     let avatar_timestamp = now().unix_timestamp();
-    Ok(users
+    let mut users = users
         .into_iter()
         .map(|user| UserInfo {
             user_id: user.user_id,
             user_name: std::borrow::Cow::Owned(user.name),
             user_slug: std::borrow::Cow::Owned(user.slug.clone()),
-            // Wikidot layout never emits this field: karma is obtained through
-            // userkarma.php. Sparse observations must not supply profile metadata
-            // to the Wikijump layout or user-directory/profile interfaces.
             user_karma: ftml::data::KarmaLevel::Zero,
             user_avatar_data: std::borrow::Cow::Owned(wikidot_avatar_url(
                 user.user_id,
@@ -138,15 +138,106 @@ async fn load_observed_wikidot_identities(
                 user.slug
             )),
         })
-        .collect())
+        .collect::<Vec<_>>();
+    let user_ids = users.iter().map(|user| user.user_id).collect::<Vec<_>>();
+    let avatar_hashes = load_wikidot_avatar_hashes(ctx, &user_ids).await?;
+    apply_stored_avatars(ctx, &mut users, &avatar_hashes).await;
+    Ok(users)
 }
 
-/// The `avatar.php` URL Wikidot compiles into a printuser avatar. FTML
-/// escapes it once more, as Wikidot's compiled HTML does.
 fn wikidot_avatar_url(user_id: i64, avatar_timestamp: i64) -> String {
     format!(
         "{WIKIDOT_AVATAR_BASE}/avatar.php?userid={user_id}&amp;size=small&amp;timestamp={avatar_timestamp}"
     )
+}
+
+fn wikidot_avatar_hashes(users: &[WikidotUserModel]) -> BTreeMap<i64, Vec<u8>> {
+    users
+        .iter()
+        .filter_map(|user| {
+            user.avatar_s3_hash
+                .clone()
+                .map(|hash| (i64::from(user.user_id), hash))
+        })
+        .collect()
+}
+
+async fn load_wikidot_avatar_hashes(
+    ctx: &ServiceContext<'_>,
+    user_ids: &[i64],
+) -> Result<BTreeMap<i64, Vec<u8>>> {
+    let ids = user_ids
+        .iter()
+        .filter_map(|user_id| i32::try_from(*user_id).ok())
+        .collect::<Vec<_>>();
+    if ids.is_empty() {
+        return Ok(BTreeMap::new());
+    }
+
+    let users = WikidotUser::find()
+        .filter(wikidot_user::Column::UserId.is_in(ids))
+        .filter(wikidot_user::Column::AvatarS3Hash.is_not_null())
+        .all(ctx.transaction())
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to load stored Wikidot user avatars",
+                ErrorType::Render,
+            )
+        })?;
+    Ok(wikidot_avatar_hashes(&users))
+}
+
+async fn apply_stored_avatars(
+    ctx: &ServiceContext<'_>,
+    users: &mut [UserInfo<'static>],
+    avatar_hashes: &BTreeMap<i64, Vec<u8>>,
+) {
+    for user in users.iter_mut() {
+        let Some(hash) = avatar_hashes.get(&user.user_id) else {
+            continue;
+        };
+        match load_stored_avatar(ctx, hash).await {
+            Some(data_uri) => user.user_avatar_data = std::borrow::Cow::Owned(data_uri),
+            None => warn!(
+                "Failed to load stored avatar for Wikidot user {}, keeping the avatar.php URL",
+                user.user_id,
+            ),
+        }
+    }
+}
+
+async fn load_stored_avatar(ctx: &ServiceContext<'_>, hash: &[u8]) -> Option<String> {
+    let metadata = BlobService::get_metadata(ctx, hash).await.ok()?;
+    let data = BlobService::get(ctx, hash).await.ok()?;
+    stored_avatar_data_uri(&metadata.mime, &data)
+}
+
+fn stored_avatar_data_uri(mime: &str, data: &[u8]) -> Option<String> {
+    const STORED_AVATAR_MIME_TYPES: &[&str] = &[
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "image/gif",
+        "image/webp",
+        "image/bmp",
+        "image/x-icon",
+        "image/vnd.microsoft.icon",
+    ];
+
+    let mime = mime
+        .split(';')
+        .next()
+        .unwrap_or_default()
+        .trim()
+        .to_ascii_lowercase();
+    if !STORED_AVATAR_MIME_TYPES.contains(&mime.as_str()) {
+        return None;
+    }
+    Some(format!(
+        "data:{mime};base64,{}",
+        data_encoding::BASE64.encode(data)
+    ))
 }
 
 fn index_user_info(
@@ -175,12 +266,6 @@ fn index_user_info(
     }
 }
 
-/// Split authored `[[user]]` lookup text into normalized name keys.
-///
-/// Live treats the complete positional text as a name key, including text
-/// that happens to be numeric, so every key resolves through the shared
-/// slug/display-name namespace. There is deliberately no identifier
-/// namespace: pure-digit input must error like any unknown name.
 fn user_reference_sets(names: &[String]) -> BTreeSet<String> {
     let mut slugs = BTreeSet::new();
     for name in names {
@@ -204,12 +289,14 @@ pub(super) async fn load_wikidot_user_info_by_ids(
         return Ok(BTreeMap::new());
     }
 
-    let users = load_visible_wikidot_users(ctx, &BTreeSet::new(), &user_ids).await?;
-    Ok(users
+    let models = load_visible_wikidot_users(ctx, &BTreeSet::new(), &user_ids).await?;
+    let avatar_hashes = wikidot_avatar_hashes(&models);
+    let mut users = models
         .into_iter()
         .filter_map(wikidot_user_info)
-        .map(|user| (user.user_id, user))
-        .collect())
+        .collect::<Vec<_>>();
+    apply_stored_avatars(ctx, &mut users, &avatar_hashes).await;
+    Ok(users.into_iter().map(|user| (user.user_id, user)).collect())
 }
 
 async fn load_visible_wikidot_users(
@@ -222,8 +309,6 @@ async fn load_visible_wikidot_users(
         reference =
             reference.add(wikidot_user::Column::Slug.is_in(slugs.iter().cloned()));
         reference = reference.add(
-            // Keep values bound through `is_in`; this uses the shared
-            // Unicode White_Space, lowercase, and separator contract.
             Expr::cust(wikidot_author_name_sql("wikidot_user.name"))
                 .is_in(slugs.iter().cloned()),
         );
@@ -279,6 +364,32 @@ mod tests {
             wikidot_avatar_url(3158795, 1791147832),
             "https://www.wikidot.com/avatar.php?userid=3158795&amp;size=small&amp;timestamp=1791147832",
         );
+    }
+
+    #[test]
+    fn stored_avatar_data_uri_encodes_safe_image_types() {
+        assert_eq!(
+            stored_avatar_data_uri("image/png", &[0x89, 0x50, 0x4e, 0x47]),
+            Some("data:image/png;base64,iVBORw==".to_owned()),
+        );
+        assert_eq!(
+            stored_avatar_data_uri("IMAGE/JPEG", b"abc"),
+            Some("data:image/jpeg;base64,YWJj".to_owned()),
+        );
+    }
+
+    #[test]
+    fn stored_avatar_data_uri_normalizes_mime_parameters() {
+        assert_eq!(
+            stored_avatar_data_uri("image/jpeg; charset=binary", &[0xff, 0xd8, 0xff]),
+            Some("data:image/jpeg;base64,/9j/".to_owned()),
+        );
+    }
+
+    #[test]
+    fn stored_avatar_data_uri_rejects_types_ftml_will_not_pass_through() {
+        assert_eq!(stored_avatar_data_uri("image/svg+xml", b"<svg/>"), None);
+        assert_eq!(stored_avatar_data_uri("text/html", b"hi"), None);
     }
 
     #[test]
@@ -339,8 +450,6 @@ mod tests {
 
     #[test]
     fn digit_lookup_keys_stay_in_the_name_namespace() {
-        // Live treats pure-digit positional text as a name key: real
-        // numeric identities error instead of linking by ID.
         let references = [" 122357 ".to_owned(), "System User".to_owned()];
 
         assert_eq!(

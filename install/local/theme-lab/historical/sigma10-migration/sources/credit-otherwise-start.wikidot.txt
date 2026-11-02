@@ -1,0 +1,75 @@
+~~~~
+[[ul class="creditRateOtherwise"]]
+[[li class="folded"]]
+[[ul]][[li]]_[[/li]][[/ul]]
+[[div_ class="foldable-list-container"]]
+[# その他のライセンス]
+[[/div]]
+
+[[div id="credit-otherwise"]]
+[[div_ class="fader foldable-list-container"]]
+[# close]
+[[/div]]
+
+[[div class="modalcontainer"]]
+[[div class="modalbox"]]
+[[div_ class="modalbox-title"]]
+++* その他
+[[/div]]
+----
+[[div class="credit otherwise"]]
+
+[[module css]]
+#u-credit-otherwise {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: fixed;
+    display: flex;
+    z-index: 10;
+}
+:not(.unfolded) > #u-credit-otherwise {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+#u-credit-otherwise {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    transition: opacity 0.105s linear, visibility 0.105s;
+}
+
+ul.creditRateOtherwise {
+    display: inline-flex;
+    float: right;
+}
+
+ul.creditRateOtherwise>li {
+    display: inline-block;
+    list-style: none;
+    line-height: initial;
+    text-align: initial;
+}
+
+ul.creditRateOtherwise>li>ul {
+    display: none;
+}
+
+ul.creditRateOtherwise .fader {
+    background-color: transparent;
+}
+
+ul.creditRateOtherwise .modalbox .modalbox-title+hr {
+    color: unset;
+    background: unset;
+}
+
+.creditRateOtherwiseBottom {
+    height: 1.875rem;
+    text-align: center;
+}
+[[/module]]

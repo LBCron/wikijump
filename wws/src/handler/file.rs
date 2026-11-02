@@ -41,11 +41,8 @@ use std::fmt::Write;
 const MULTIPART_BOUNDARY_PREFIX: &str = "wikijump_byteranges_";
 const MULTIPART_BOUNDARY_RANDOM_LENGTH: usize = 16;
 
-/// Maximum total bytes we'll buffer for a `multipart/byteranges` response.
-/// Beyond this, the multipart request is rejected with 416 (Range Not Satisfiable)
-const MAX_MULTIPART_BYTES: u64 = 8 * 1024 * 1024; // 8 MiB
+const MAX_MULTIPART_BYTES: u64 = 8 * 1024 * 1024;
 
-/// Wikidot's terminal response for a missing file URL.
 const WIKIDOT_MISSING_FILE_HTML: &str = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n     \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n    <head>\n        <title>The file does not exist</title>\n    </head>\n    <body>\n        <p>The file does not exist.</p>\n        <p><a href=\"/\">Go to the site the file comes from</a>.</p>\n    </body>\n</html>\n\n";
 
 fn wikidot_missing_file_response() -> Response {
@@ -76,8 +73,6 @@ fn local_lab_wikidot_file_fallback(headers: &HeaderMap, uri: &Uri) -> Option<Str
         .next()?
         .trim_end_matches('.')
         .to_ascii_lowercase();
-    // Any loopback files host of a local environment: `wjfiles.localhost`
-    // (standing) or `wjfiles.dev.localhost` (the local development stack).
     let environment = request_host.strip_prefix(&format!("{site_slug}.wjfiles."))?;
     if environment != "localhost" && !environment.ends_with(".localhost") {
         return None;
@@ -133,10 +128,6 @@ async fn serve_file(
     let last_modified = httpdate::fmt_http_date(file_info.revision_created_at.into());
     let is_head = *method == Method::HEAD;
     let content_type = response_content_type(filename, &file_info.mime);
-    // Script-capable uploads (HTML, SVG, XML) must never render inline in the
-    // files origin, so the inline routes force a download for them. Benign
-    // types (images, audio, video, PDF, plain text) keep inline behavior so
-    // normal wiki embedding is unaffected. See issue #2554.
     let as_attachment = as_attachment || is_active_content_type(&file_info.mime);
     let params = ServeParams {
         etag: &etag,
@@ -337,8 +328,6 @@ async fn serve_multi_range(
     )
 }
 
-// ------------ Public handlers ------------
-
 pub async fn handle_local_file(
     state: State<ServerState>,
     method: Method,
@@ -452,8 +441,6 @@ pub async fn handle_file_download(
     .await
 }
 
-// ------------ Response builders ------------
-
 fn response_content_type<'a>(filename: &str, mime: &'a str) -> &'a str {
     if filename
         .rsplit_once('.')
@@ -538,7 +525,6 @@ fn generate_multipart_boundary() -> String {
     boundary
 }
 
-// Compute the `Content-Length` of a `multipart/byteranges` body (so HEAD can skip s3)
 fn multipart_content_length(
     boundary: &str,
     mime: &str,
@@ -547,24 +533,17 @@ fn multipart_content_length(
 ) -> usize {
     let mut len: usize = 0;
     for range in ranges {
-        // --boundary\r\n
         len += 2 + boundary.len() + 2;
-        // Content-Type: {mime}\r\n
         len += "Content-Type: ".len() + mime.len() + 2;
-        // Content-Range: bytes {start}-{end}/{file_size}\r\n
         let cr = format!(
             "Content-Range: bytes {}-{}/{file_size}\r\n",
             range.start, range.end
         );
         len += cr.len();
-        // blank line
         len += 2;
-        // data
         len += range.len() as usize;
-        // trailing \r\n
         len += 2;
     }
-    // --boundary--\r\n
     len += 2 + boundary.len() + 2 + 2;
     len
 }
@@ -676,8 +655,6 @@ mod tests {
                     "id": id
                 })
             }
-            // The category-merged form must never resolve: it is what the
-            // old files-host lookup produced for multi-colon slugs (#2688).
             "page_get" if request["params"]["page"] == "art-scp-8200:the-phantom-sea" => {
                 json!({"jsonrpc": "2.0", "result": null, "id": id})
             }
@@ -1070,8 +1047,6 @@ mod tests {
         let state =
             test_state_with_endpoints(&deepwell_endpoint, &s3_server.endpoint).await;
 
-        // Script-capable SVG upload: the inline route must force a download
-        // instead of rendering in the files origin. See issue #2554.
         let active = handle_file_fetch(
             State(Arc::clone(&state)),
             Method::GET,
@@ -1094,7 +1069,6 @@ mod tests {
             "nosniff",
         );
 
-        // Benign type: stays inline, but still gets nosniff.
         let benign = handle_file_fetch(
             State(state),
             Method::GET,
@@ -1117,7 +1091,6 @@ mod tests {
     #[tokio::test]
     async fn avatar_serves_active_types_as_attachment_with_nosniff() {
         let (deepwell_endpoint, deepwell_server) = spawn_file_handler_rpc().await;
-        // One head_object plus one get_object_stream per avatar fetch.
         let svg = b"<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>";
         let png = b"\x89PNG\r\n\x1a\n";
         let s3_server = spawn_s3_server_with_content_type(vec![
@@ -1125,17 +1098,12 @@ mod tests {
             (200, "image/svg+xml; charset=us-ascii", svg),
             (200, "image/png", png),
             (200, "image/png", png),
-            // Stored SVG bytes under a non-SVG MIME stay inline (same as
-            // the file lane); the nosniff assertion below is what keeps
-            // the browser from executing them.
             (200, "application/octet-stream", svg),
             (200, "application/octet-stream", svg),
         ]);
         let state =
             test_state_with_endpoints(&deepwell_endpoint, &s3_server.endpoint).await;
 
-        // Script-capable SVG avatar: must download instead of executing
-        // in the files origin. See issue #2653.
         let active = handle_user_avatar(
             State(Arc::clone(&state)),
             Path("20001200".to_owned()),
@@ -1157,7 +1125,6 @@ mod tests {
             "nosniff",
         );
 
-        // Raster avatar: stays inline, but still gets nosniff.
         let benign = handle_user_avatar(
             State(Arc::clone(&state)),
             Path("20001201".to_owned()),
@@ -1173,9 +1140,6 @@ mod tests {
             "nosniff",
         );
 
-        // Mislabelled case: SVG bytes stored as application/octet-stream
-        // stay inline exactly like the file lane, so the nosniff header
-        // pinned here is the layer that stops the browser executing them.
         let mislabelled =
             handle_user_avatar(State(state), Path("20001202".to_owned()), site_headers())
                 .await;
@@ -1197,8 +1161,6 @@ mod tests {
 
     #[tokio::test]
     async fn avatar_missing_user_still_returns_not_found() {
-        // Removal invalidation (#2556) must keep working after the serving
-        // policy fix: no avatar means 404, not a policy response.
         let (deepwell_endpoint, deepwell_server) = spawn_file_handler_rpc().await;
         let s3_server = spawn_s3_server(vec![]);
         let state =
@@ -1284,10 +1246,6 @@ mod tests {
 
     #[tokio::test]
     async fn multicolon_page_slug_resolves_by_exact_slug() {
-        // #2688: attachments on pages whose slug holds more than one colon
-        // (category `art`, the rest is the name) must resolve locally for
-        // both the Wikidot-compat and the internal file routes, not fall
-        // back to wdfiles or a missing-file document.
         let (deepwell_endpoint, deepwell_server) = spawn_file_handler_rpc().await;
         let s3_server = spawn_s3_server(vec![(200, b"abcdef"), (200, b"abcdef")]);
         let state =

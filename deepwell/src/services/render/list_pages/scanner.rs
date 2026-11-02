@@ -120,9 +120,6 @@ pub(in crate::services::render) fn has_count_pages_module_opening_candidate(
     first_module_opening_candidate(source, b"countpages", false).is_some()
 }
 
-/// Whether `body` contains the module name `countpages` at all; neither
-/// CountPages shape below can match without it, so the literal-region index
-/// they need is built only then. Each nested ListPages occurrence asks.
 fn mentions_count_pages(body: &str) -> bool {
     body.as_bytes()
         .windows(b"countpages".len())
@@ -953,9 +950,6 @@ impl<'a> ModuleEventScanner<'a> {
                 return $result;
             }};
         }
-        // Opening-head recognition is speculative. Keep tokenizer ownership local
-        // until a complete head commits; malformed rollback must leave the outer
-        // scanner's monotone cursor at its prior position.
         let mut head_tokens = self.text_tokens.clone();
         let mut subname_end = module_name_end;
         if skip_module_subname_delimiter(bytes, &mut subname_end).is_some() {
@@ -1064,10 +1058,6 @@ impl<'a> ModuleEventScanner<'a> {
                 }
                 let resume = rollback_marker.unwrap_or(run_end);
                 if list_pages_compatibility && !definite_invalid_boundary {
-                    // An unquoted `[[` makes the pinned head malformed whether
-                    // the run owns a block token or a competing link token.
-                    // Runtime bare-value parsing can still consume that head,
-                    // so it is unsafe to choose either structure.
                     self.ambiguous_whole_head = true;
                     finish_head_scan!(run_end, ModuleOpeningEnd::Malformed { resume });
                 }
@@ -1409,7 +1399,6 @@ pub(in crate::services::render) fn find_list_pages_module_matches(
     find_list_pages_module_matches_with_cursor_work(source).0
 }
 
-/// The work value measures source-cursor displacement, speculative head bytes, literal-range cursor advances, projection-offset advances, and projected/direct event merge advances.
 fn find_list_pages_module_matches_with_cursor_work(
     source: &str,
 ) -> (Vec<ListPagesModuleMatch<'_>>, usize, usize) {
@@ -1523,8 +1512,6 @@ fn find_list_pages_module_matches_with_cursor_work_context_lowercase<'a>(
     ) {
         Ok(indexes) => indexes,
         Err(whole_head_scan_work) => {
-            // Preserve authored source when literal ownership cannot be
-            // established within the source-proportional work budget.
             return (Vec::new(), whole_head_scan_work, 0);
         }
     };
@@ -1782,10 +1769,6 @@ fn find_list_pages_module_matches_with_cursor_work_context_lowercase<'a>(
                         runtime_safe: module.runtime_safe,
                         preserve_original: false,
                         preserve_as_module654: false,
-                        // A recovered malformed head with a real closing
-                        // module owns that close even when Wikidot selects
-                        // its default row template. Keep the close inside
-                        // the replacement instead of exposing it as prose.
                         consume_empty_tail,
                     });
                 }

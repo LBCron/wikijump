@@ -87,6 +87,12 @@ static WIKIDOT_INTERWIKI_FRAME_IFRAME_REGEX: LazyLock<Regex> = LazyLock::new(|| 
     )
     .unwrap()
 });
+static WIKIDOT_INTERWIKI_SRC_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"^(?:https?:)?//interwiki\.(?:scpwiki\.com|scp-jp\.org|scpwikicn\.com)/(?P<file>interwikiFrame|styleFrame)\.html(?:\?(?P<query>[^"]*))?$"#,
+    )
+    .unwrap()
+});
 
 impl RenderService {
     pub(in crate::services::render) fn protect_list_pages_wikidot_embed_iframes(
@@ -145,10 +151,6 @@ impl RenderService {
         iframes
     }
 
-    /// Keep the same-origin styleFrame compatibility path out of untrusted
-    /// fragment and Ajax renders. Saved pages and page previews retain the
-    /// live Wikidot behavior; those contexts are explicitly allowed by the
-    /// render lifecycle before this prepass runs.
     pub(in crate::services::render) fn neutralize_untrusted_wikidot_styleframe_embeds(
         wikitext: &mut String,
     ) {
@@ -271,6 +273,160 @@ impl RenderService {
             format!("{WIKIDOT_LOCAL_INTERWIKI_BASE}/{local_file_name}?{query}");
 
         iframe.replace(original_src, &local_src)
+    }
+
+    /// The frame a saved `[[html]]` block holds when the block carries one
+    /// of the SCPnet interwiki frames, emitted through the local interwiki
+    /// routes instead of the hosted html-block wrapper.
+    ///
+    /// `[[embed]]`-carried frames are rewritten by
+    /// [`Self::allowed_wikidot_embed_iframe`]. A `[[html]]`-carried frame
+    /// would otherwise be served from the hosted wrapper, which cannot
+    /// populate the other-languages box, and an import may have replaced
+    /// the stored frame source with an empty inline document, so the box
+    /// would stay empty even once it is served.
+    ///
+    /// Two source shapes are recognized. The live Wikidot source keeps its
+    /// query, except that `pagename` binds to the page being viewed, as on
+    /// Wikidot, where the sidebar frame reports the viewed page regardless
+    /// of which component page carries the block. The neutralized source an
+    /// import substituted — an inline `data:` document — carries nothing
+    /// to recover, so the frame is identified by its surviving authored
+    /// attributes and its target is rebuilt from the render's own page and
+    /// language.
+    pub(in crate::services::render) fn wikidot_html_block_interwiki_iframe(
+        html_block: &str,
+        root_page_full_slug: &str,
+        page_language: &str,
+    ) -> Option<String> {
+        let parsed = Self::parse_wikidot_html_block_iframe(html_block)?;
+        if parsed.attribute_count("src") != 1 {
+            return None;
+        }
+        let src = parsed.attribute_value("src")?;
+
+        if let Some(captures) = WIKIDOT_INTERWIKI_SRC_REGEX.captures(src) {
+            let file = captures
+                .name("file")
+                .expect("interwiki source capture has file")
+                .as_str();
+            let local_src = if file == "interwikiFrame" {
+                Self::wikidot_interwiki_frame_src(
+                    captures.name("query").map(|query| query.as_str()),
+                    root_page_full_slug,
+                )
+            } else {
+                let query = captures
+                    .name("query")
+                    .map(|query| format!("?{}", query.as_str()))
+                    .unwrap_or_default();
+                format!("{WIKIDOT_LOCAL_INTERWIKI_BASE}/styleFrame.html{query}")
+            };
+            return Some(parsed.iframe.replace(src, &local_src));
+        }
+
+        if !src.to_ascii_lowercase().starts_with("data:") {
+            return None;
+        }
+
+        // The visible frame keeps the SCPnet component's class. The SCPnet
+        // component serves the SCP community's branches, so the rebuilt
+        // frame addresses that community.
+        let class = parsed.attribute_value("class").unwrap_or("");
+        if class
+            .split_whitespace()
+            .any(|token| token == "scpnet-interwiki-frame")
+        {
+            let query = format!(
+                "lang={}&community=scp&pagename={}",
+                Self::wikidot_interwiki_language(page_language),
+                Self::escape_wikidot_interwiki_pagename(root_page_full_slug),
+            );
+            let local_src =
+                format!("{WIKIDOT_LOCAL_INTERWIKI_BASE}/interwikiFrame.html?{query}");
+            return Some(parsed.iframe.replace(src, &local_src));
+        }
+
+        // The hidden style frame is exactly an iframe with a `src` and a
+        // `display: none` style; its authored parameters went away with
+        // the neutralized source, and the local style frame route serves
+        // a fixed document that takes no parameters.
+        let style = parsed.attribute_value("style")?;
+        let compact_style: String = style
+            .chars()
+            .filter(|character| !character.is_whitespace())
+            .collect();
+        if parsed.attributes.len() == 2
+            && parsed.attribute_value("class").is_none()
+            && compact_style.to_ascii_lowercase().contains("display:none")
+        {
+            let local_src = format!("{WIKIDOT_LOCAL_INTERWIKI_BASE}/styleFrame.html");
+            return Some(parsed.iframe.replace(src, &local_src));
+        }
+
+        None
+    }
+
+    fn wikidot_interwiki_frame_src(
+        query: Option<&str>,
+        root_page_full_slug: &str,
+    ) -> String {
+        let pagename = Self::escape_wikidot_interwiki_pagename(root_page_full_slug);
+        let mut parameters: Vec<String> = query
+            .unwrap_or("")
+            .split('&')
+            .filter(|parameter| !parameter.is_empty())
+            .map(str::to_owned)
+            .collect();
+        let mut bound = false;
+        for parameter in &mut parameters {
+            if parameter == "pagename" || parameter.starts_with("pagename=") {
+                *parameter = format!("pagename={pagename}");
+                bound = true;
+            }
+        }
+        if !bound {
+            parameters.push(format!("pagename={pagename}"));
+        }
+        format!(
+            "{WIKIDOT_LOCAL_INTERWIKI_BASE}/interwikiFrame.html?{}",
+            parameters.join("&"),
+        )
+    }
+
+    /// The interwiki branch code for an FTML page language. The frame
+    /// routes key their language branches by Wikidot's site codes, which
+    /// differ from the FTML locale codes for a few languages.
+    fn wikidot_interwiki_language(page_language: &str) -> &str {
+        match page_language {
+            "ja" => "jp",
+            "zh" => "cn",
+            "vi" => "vn",
+            "pt-BR" | "pt-br" => "ptbr",
+            language => language,
+        }
+    }
+
+    fn escape_wikidot_interwiki_pagename(slug: &str) -> String {
+        let mut encoded = String::with_capacity(slug.len());
+        for byte in slug.bytes() {
+            match byte {
+                b'A'..=b'Z'
+                | b'a'..=b'z'
+                | b'0'..=b'9'
+                | b'-'
+                | b'.'
+                | b'_'
+                | b'~'
+                | b':' => {
+                    encoded.push(byte as char);
+                }
+                _ => {
+                    encoded.push_str(&format!("%{byte:02X}"));
+                }
+            }
+        }
+        encoded
     }
 
     pub(in crate::services::render) fn decode_rendered_embed_block(

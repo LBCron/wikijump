@@ -1,0 +1,47 @@
+{
+  "schema": "theme_lab_wikidot_preview_read.v1",
+  "url": "https://pseudo-scp-jp.wikidot.com/sigma-10:main",
+  "site": "pseudo-scp-jp",
+  "observed_at": "2026-09-29T19:25:41.533654+00:00",
+  "public_writes": 0,
+  "edit_locks": 0,
+  "source_reads": [
+    {
+      "page": "sigma-10:main",
+      "page_id": 1453534386,
+      "file": "sigma-10-main.wikidot.txt",
+      "sha256": "a5d6668735ee53c21460672fd9564f02c78158496645d94345c4c799d1a8e6fb"
+    },
+    {
+      "page": "sigma-10:credit:start",
+      "page_id": 1458593272,
+      "file": "sigma-10-credit-start.wikidot.txt",
+      "sha256": "61f1591ed7d3e90dca18e3d473a0387f30b35a14f495cf2a4276451a71a67c75"
+    },
+    {
+      "page": "sigma-10:credit:style",
+      "page_id": 1458746931,
+      "file": "sigma-10-credit-style.wikidot.txt",
+      "sha256": "3a63b14639af9ab5dd447567319156e9dee0baaa223b5e4b5725738ee113e645"
+    },
+    {
+      "page": "sigma-10:info:style",
+      "page_id": 1458746392,
+      "file": "sigma-10-info-style.wikidot.txt",
+      "sha256": "d59fc333b77412ba8f49f095c5f5ec726d383f432d9ac46d35d59958a10318d0"
+    }
+  ],
+  "preview_request": {
+    "moduleName": "edit/PagePreviewModule",
+    "mode": "page",
+    "source_sha256": "a5d6668735ee53c21460672fd9564f02c78158496645d94345c4c799d1a8e6fb",
+    "title": "Sigma-10 read-only preview evidence"
+  },
+  "result": {
+    "status": "ok",
+    "body_bytes": 9424,
+    "sha256": "2f5a067ea273d722dd0ce0edaf0a8667176a53a8850a6ee4a88f72b4f027ed8a",
+    "has_creditRate": true,
+    "has_info_style": false
+  }
+}

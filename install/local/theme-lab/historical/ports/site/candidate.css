@@ -1,0 +1,25 @@
+/* no inline CSS module */
+
+
+/* SCP-JP Wikidot narrow image-block correction: include the native right margin and border in its available width. */
+@media (max-width: 479px) {
+  .scp-image-block.block-right { max-width: calc(100% - 2em - 2px) !important; }
+}
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+
+/* SCP-JP Wikidot tablet sidebar: contain documented literal HTML-block preview source while preserving horizontal access. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #side-bar { overflow-x: auto !important; }
+}
+
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+
+/* SCP-JP Wikidot narrow mobile navigation: keep the penultimate submenu within its owning row. */
+@media (max-width: 359px) {
+  #top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul { left: -4px; right: auto; }
+}
+
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+
+/* SCP-JP Wikidot navigation labels: lift the Sigma-9 one-pixel clip on top-level labels so the label text keeps its line box. */
+#top-bar .top-bar > ul > li > a, #top-bar .mobile-top-bar > ul > li > a { max-height: none; overflow: visible; }

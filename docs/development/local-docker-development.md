@@ -8,8 +8,8 @@ not rebuild an image or reinstall dependencies.
 
 ## Deterministic toolchain
 
-Rust is selected by `rust-toolchain.toml` (`1.95.0`). The local Rust images are
-pinned to `rust:1.95.0@sha256:f49565f188ee00bc2a18dd418183f2c5f23ef7d6e691890517ed341a598f67c3`.
+Rust is selected by `rust-toolchain.toml` (`1.99.1`). The local Rust images are
+pinned to `rust:1.99.1@sha256:09027f873d45b8ecd1dc86f1fa13b7a62b875c961f017a0e331267b350430137`.
 Node and pnpm are pinned to `24.22.1` and `11.10.0`; the local Node image is
 `node:24.22.1-alpine@sha256:6a1c190e17215d844926b0677f4bf87273ff7d5e54db06d3b5b5863ab0b09a3d`.
 The Rust watcher helpers are `cargo-watch 8.5.3` and `sqlx-cli 0.9.0`.
@@ -21,8 +21,8 @@ local Dockerfiles. The exact values and host tool versions are copied into
 
 The repository `.cargo/config.toml` selects the shared `target/` directory.
 Inside local Rust containers that path is `/src/target`, backed by the named
-volume `local-rust-1-95-0-target`. Registry and Git caches use
-`local-rust-1-95-0-cargo-registry` and `local-rust-1-95-0-cargo-git`. Deepwell
+volume `local-rust-1-99-1-target`. Registry and Git caches use
+`local-rust-1-99-1-cargo-registry` and `local-rust-1-99-1-cargo-git`. Deepwell
 and WWS mount the same three volumes. No checkout `target/` directory is
 mounted into a container. Promotion images build in Docker with their own
 BuildKit cache mounts (`docs/development/cargo-target-policy.md`).

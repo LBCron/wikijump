@@ -191,7 +191,6 @@ mod tests {
             );
         }
 
-        // Months and years clamp the day to the target month length.
         assert_eq!(
             subtract_wikidot_relative_time(base, 1, "month"),
             Some(utc(2024, time::Month::February, 29)),
@@ -205,7 +204,6 @@ mod tests {
             Some(utc(2023, time::Month::February, 28)),
         );
 
-        // An unknown unit, or an amount that overflows, is rejected.
         assert_eq!(subtract_wikidot_relative_time(base, 1, "fortnight"), None,);
         assert_eq!(subtract_wikidot_relative_time(base, i64::MAX, "days"), None,);
     }

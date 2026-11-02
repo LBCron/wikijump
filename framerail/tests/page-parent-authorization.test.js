@@ -53,8 +53,6 @@ test("parent lookup forwards only the trusted site and page selector", async () 
   assert.deepEqual(bySlug, { res: ["parent-page"] })
   assert.deepEqual(calls[0].params, { site_id: SITE_ID, page: "main" })
 
-  // A request that claims a different site than the trusted context is
-  // rejected before any parent lookup reaches Deepwell.
   calls.length = 0
   const spoofed = await actions.parentGet(
     requestEvent({ body: { slug: "main" }, siteId: SITE_ID + 1 })

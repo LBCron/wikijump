@@ -1,0 +1,30 @@
+{
+  "schema": "scp_jp_credit_source_snapshot.v1",
+  "recorded_at": "2026-09-24",
+  "pages": {
+    "credit:start": {
+      "snapshot": "source-snapshots/credit-start.wikidot.txt",
+      "source_sha256": "58f1b3a0c9f3b0e97629466568752e71ff8ff698c827552ab526b6776285a2b6",
+      "updated_at": "2022-01-08T10:19:12+00:00",
+      "entity_id": "c678c974-9aa0-4b8b-8c35-c0534997c3e0"
+    },
+    "credit:otherwise": {
+      "snapshot": "source-snapshots/credit-otherwise.wikidot.txt",
+      "source_sha256": "83d795434beacfbd548b2e5831112f67acc337a7302f220daef7e85191651ec3",
+      "updated_at": "2022-01-08T10:16:34+00:00",
+      "entity_id": "57f57230-d815-4376-96a9-052456f88774"
+    },
+    "credit:end": {
+      "snapshot": "source-snapshots/credit-end.wikidot.txt",
+      "source_sha256": "3e3bef1f0cde0bc506ef526aba0825b57bf2af4f055f133b1a3d665d749db9f5",
+      "updated_at": "2022-01-08T10:17:06+00:00",
+      "entity_id": "ef716671-ba6e-43b3-84f9-01c7c29e0e11"
+    },
+    "credit:style": {
+      "snapshot": "source-snapshots/credit-style.wikidot.txt",
+      "source_sha256": "d5585f3ab045bb13d75342fbc1a60bccc8e5c0cddab151a4ec575e126362184b",
+      "updated_at": "2022-08-19T16:56:45+00:00",
+      "entity_id": "9e35062d-8182-4a55-aa9d-d5dd2e12ee99"
+    }
+  }
+}

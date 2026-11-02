@@ -1,23 +1,13 @@
 import { fixtureState } from "./context.js"
 import { sendRpcError } from "./response.js"
 
-/**
- * Session token that `session_get` resolves to the avatar-owning fixture
- * user.
- */
 const AVATAR_OWNER_SESSION_TOKEN = "fixture-authenticated-session-token"
 
-/** Stored avatar hash (SHA-512, serialized as Deepwell's byte array). */
 const AVATAR_HASH_HEX = "ab".repeat(64)
 const AVATAR_HASH_BYTES = Array.from(Buffer.from(AVATAR_HASH_HEX, "hex"))
 
-/**
- * Route target whose public user view resolves to `user_missing`, matching
- * the missing-user branch of the public profile route.
- */
 const MISSING_PROFILE_FIXTURE = "missing-profile-action-probe"
 
-/** A 1x1 PNG served for the stored avatar hash through `blob_get`. */
 const AVATAR_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
   "base64"
@@ -103,10 +93,6 @@ export const handleProfileRpc = ({ rpcRequest, request, response }) => {
     return undefined
   }
 
-  // The own-account profile follows the live fixture user so a saved edit is
-  // reflected, and carries a stored avatar so the removal action renders and
-  // the `blob_get` fixture above matches. The displayed name stays the avatar
-  // fixture's own name.
   if (params.session_token === AVATAR_OWNER_SESSION_TOKEN && params.user === undefined) {
     return {
       result: {
@@ -124,14 +110,10 @@ export const handleProfileRpc = ({ rpcRequest, request, response }) => {
 
   if (params.session_token !== undefined) return undefined
 
-  // A named missing target keeps the public profile route's HTTP 200
-  // missing-user body observable in the browser.
   if (params.user === MISSING_PROFILE_FIXTURE) {
     return { result: { type: "user_missing" } }
   }
 
-  // Only exact roster slugs resolve; inherited Object.prototype keys such as
-  // "constructor" must keep failing closed instead of serving a bogus profile.
   const profile = Object.hasOwn(PROFILE_FIXTURES, params.user)
     ? PROFILE_FIXTURES[params.user]
     : undefined
@@ -235,8 +217,6 @@ const PROFILE_FIXTURES = {
     name: "Profile Action Probe",
     website: null
   },
-  // Owned by the authenticated fixture session (user 6000008) and stored with an
-  // avatar, so the own and public profiles both render the avatar image.
   "avatar-probe": {
     user_id: 6000008,
     name: "Avatar Probe",

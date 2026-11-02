@@ -20,6 +20,7 @@ pub(super) mod wikidot_social;
 
 pub(super) use self::color_and_inline_protection::sanitize_wikidot_compat_inline_tag;
 pub(super) use self::fallback_code::{
-    CompatCodeBlock, WikidotCompatibilityFallbackOutput, scan_compat_code_blocks,
+    CompatCodeBlock, WikidotCompatibilityFallbackOutput, WikidotHtmlBlockEmission,
+    mark_comment_wrapped_code_blocks, scan_compat_code_blocks,
 };
 pub(super) use self::html_fragments::CompatHtmlFragments;

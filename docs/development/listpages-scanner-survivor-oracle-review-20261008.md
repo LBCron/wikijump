@@ -78,9 +78,9 @@ unaccepted. The retained report is
    Wikidot's *recorded* output or run an independently controlled Wikidot probe.
 2. Only then add source-grounded assertions to the appropriate existing
    scanner/integration owner, and replay targeted `cargo-mutants` candidates.
-3. Reconcile targeted outcomes by **mutation identity** with
-   `scripts/reconcile-test-quality-mutants.mjs`; do not sum retries as new
-   inventory entries. Record any nonmonotonic compilation outcomes explicitly.
+3. Reconcile targeted outcomes by **mutation identity** (the reconciliation
+   script was removed with the test-quality audit programme); do not sum
+   retries as new inventory entries. Record any nonmonotonic compilation outcomes explicitly.
 4. Keep the entire owner `replayed_unreviewed_survivors` until every survivor
    has a concrete independent disposition. Passing a new local test alone is
    insufficient to reclassify a mutation as equivalent or accepted.

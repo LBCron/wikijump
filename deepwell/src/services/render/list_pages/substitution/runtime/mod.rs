@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Runtime ListPages row substitution and its focused regressions.
-
 mod value_safety;
 
 use self::value_safety::{
@@ -97,8 +95,6 @@ pub(in crate::services::render::list_pages) fn substitute_list_pages_variables_i
     let html_body_ranges = collect_list_pages_html_body_ranges(template);
     let html_escape_ranges = collect_list_pages_html_escape_ranges(template);
     let full_slug = page.slug.as_deref().unwrap_or("");
-    // Page-query rows already retain Wikidot's normalized full slug, including
-    // a non-default category prefix. Reconstructing it would duplicate that prefix.
     let slug = if context.category.is_empty() {
         full_slug
     } else {
@@ -292,10 +288,6 @@ pub(in crate::services::render::list_pages) fn substitute_list_pages_variables_i
     } else {
         String::new()
     };
-    // The frozen corpus predates vote-count capture. Keep this value typed as
-    // optional provenance and select the component's explicit zero-vote state
-    // when it is absent; inventing a count from the net rating would create a
-    // visibly plausible but false upvote/downvote ratio.
     let rating_votes = runtime
         .map(|runtime| runtime.rating_votes)
         .or_else(|| snapshot.and_then(|snapshot| snapshot.rating_votes))
@@ -503,12 +495,8 @@ pub(in crate::services::render::list_pages) fn substitute_list_pages_variables_i
                 "commented_by_unix" | "commented_by_id" if commented_by.is_empty() => {
                     String::new()
                 }
-                "commented_by_unix" => commented_by_slug
-                    .clone()
-                    .unwrap_or_else(|| captures[0].to_owned()),
-                "commented_by_id" => commented_by_id
-                    .clone()
-                    .unwrap_or_else(|| captures[0].to_owned()),
+                "commented_by_unix" => commented_by_slug.clone().unwrap_or_default(),
+                "commented_by_id" => commented_by_id.clone().unwrap_or_default(),
                 "commented_at" | "commentedat" => protect_list_pages_generated_html(
                     format_list_pages_created_at(
                         commented_at,

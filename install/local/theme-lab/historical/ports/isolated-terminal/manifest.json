@@ -1,0 +1,221 @@
+{
+  "slug": "theme:isolated-terminal",
+  "en_source_sha256": "120ce0a71fa1ca235d3ed1955957ebe037bdb8e4a160b7099fe810d61f17a257",
+  "en_updated_at": "2026-02-01T03:34:54+00:00",
+  "en_entity_uuid": "84535295-6775-4362-92bd-cc9a1d180064",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "7b004be4cad79ce61c5c092e5aa714d40c95369ab8422a465025917ab0bd8ea4",
+  "jp_previous_updated_at": "2026-09-24T10:21:35+00:00",
+  "jp_previous_entity_uuid": "1725b727-8cc8-44ca-9980-cae2f35eee66",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:isolated-terminal",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:isolated-terminal",
+    "title": "Isolated Terminal Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "120ce0a71fa1ca235d3ed1955957ebe037bdb8e4a160b7099fe810d61f17a257",
+      "updated_at": "2026-02-01T03:34:54+00:00",
+      "entity_uuid": "84535295-6775-4362-92bd-cc9a1d180064",
+      "tags": [
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 122,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:isolated-terminal"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "7b004be4cad79ce61c5c092e5aa714d40c95369ab8422a465025917ab0bd8ea4",
+      "updated_at": "2026-09-24T10:21:35+00:00",
+      "entity_uuid": "1725b727-8cc8-44ca-9980-cae2f35eee66",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:isolated-terminal"
+      },
+      "revisions": 14
+    },
+    "existing_jp_audit": "existing-jp-current-and-valid",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive",
+    "existing_jp_rebase": {
+      "previous_sha256": "4cffaa491e5f88926e9793f732bdb80616f0c8a91282b2544478e1b9caa41e30",
+      "previous_snapshot": "existing-jp-pre-rebase-20261005.wikidot.txt",
+      "current_revision": 14,
+      "current_updated_at": "2026-09-24T10:21:35+00:00",
+      "current_sha256": "7b004be4cad79ce61c5c092e5aa714d40c95369ab8422a465025917ab0bd8ea4",
+      "diff_assessment": "provenance refresh; source freshness audit found no theme CSS/runtime behavior delta"
+    }
+  },
+  "dependencies": {
+    "slug": "theme:isolated-terminal",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:info:start",
+      ":scp-wiki:info:more",
+      ":scp-wiki:info:end",
+      ":scp-wiki:component:theme-squares -=-",
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:isolated-terminal",
+      "component:image-block name=https://scp-wiki.wikidot.com/local--files/theme:isolated-terminal/pxlogo.png",
+      ":scp-wiki:component:toggle-sidebar-bhl",
+      ":scp-wiki:component:centered-header-bhl",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "http://www.w3.org/2000/svg",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Aisolated-terminal/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "https://scp-wiki.wdfiles.com/local--files/theme:isolated-terminal/profontwindows.css",
+      "https://scp-wiki.wdfiles.com/local--files/theme:isolated-terminal/terminus.css",
+      "https://scp-wiki.wdfiles.com/local--files/theme:isolated-terminal/vga8.css",
+      "https://scp-wiki.wikidot.com/local--files/theme:isolated-terminal/pxlogo.png|caption=Image.|width=200px"
+    ],
+    "jp_includes": [
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:component:theme-squares -=-",
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:theme:isolated-terminal",
+      "component:image-block name=https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-10-4g1r/pxlogo.png",
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:theme:isolated-terminal",
+      ":scp-jp:component:ayu18",
+      ":scp-jp:component:toggle-sidebar-bhl",
+      ":scp-jp:component:centered-header-bhl",
+      ":scp-jp:component:interwiki-style"
+    ],
+    "jp_external_dependencies": [
+      "http://jikasei.me/font/jf-dotfont/",
+      "http://jikasei.me/font/jf-dotfont/|JFドットjiskan24h",
+      "http://jikasei.me/font/jf-dotfont/|JFドット東雲明朝16",
+      "http://jikasei.me/font/kh-dotfont/|日比谷24",
+      "http://scp-jp.wikidot.com/scp-5999|SCP-5999",
+      "http://scp-jp.wikidot.com/theme:black-highlighter-theme",
+      "http://www.w3.org/2000/svg",
+      "https://fonts.google.com/noto/specimen/Noto+Sans+JP|Google",
+      "https://fonts.google.com/noto/specimen/Noto+Sans+JP|Noto",
+      "https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap",
+      "https://openfontlicense.org/open-font-license-official-text/|SIL",
+      "https://openfontlicense.org/|SIL",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-10-4g1r/pxlogo.png|caption=画像|width=200px",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-2-mfzo/JFDotShinonomeMing16.css",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-3-ci8u/profontwindows.css",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-5-t5lr/terminus.css",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A9042763-6-aeo3/jiskan24.css",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Aisolated-terminal/1",
+      "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "https://scp-wiki.wikidot.com/theme:isolated-terminal",
+      "https://terminus-font.sourceforge.net/",
+      "https://terminus-font.sourceforge.net/|Terminus",
+      "https://www.fontsquirrel.com",
+      "https://www.fontsquirrel.com/fonts/ProFontWindows",
+      "https://www.fontsquirrel.com/fonts/profontwindows|ProFontWindows",
+      "https://www.fontsquirrel.com/license/ProFontWindows|ProFont"
+    ],
+    "base_family": "black-highlighter"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "candidate_source_hash": "6b94bca87217df526f33816d4abc26239fa1136725fa9901e531cb57526a16fe",
+  "page_assets": [
+    {
+      "filename": "black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615,
+      "asset_file": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593.svg",
+      "source_urls": [
+        "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg"
+      ],
+      "acquired_from": "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-current-and-valid",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/isolated-terminal/assets.json",
+  "asset_dependency_decision_count": 53,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "e2a79c2965b4558f59b4a0884fc18563a7ee8c6ad17d27d6e5f219856044459c",
+    "jp_overrides_sha256": "fe2d3cd74c461f0bfbd87de4bec767ea673b18fdc5f2d0c6ef0b13df8a5e7698",
+    "semantic_css_sha256": "24e5b668b30852f87280f30fecb4565c875b99fa36ea054ef8f84cff826f737f",
+    "canonical_override_sha256": "abce4424450bdd63324c05b02e836f2ab06a3f92e81739d4002eda2f325e568c",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "e3c83b88e401141bcaf210f7179f4d516a48222bbcc102e5938bec7ef1f09f0e",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "8d94e5301b2d8defe39877fa97953287ca77acb73b49b58daf4fa1d5edc43a1a",
+      "active_tags": [],
+      "candidate_source_sha256": "528f4a52a34ac4dd3de8133a2fff4dd6c0b56da8be0b4b10c8b6c3b21a4e1e26",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 2,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "4b8fb8dd0aca57923f47143d4e2dc55192b35d2173b54b93dfc25785ed1511d8",
+      "asset_receipt_path": "assets.json",
+      "assets": 41,
+      "imports": 11,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "875497dc164526da0940bc91a56d9b3cb6839e30cb02881e47245d662982a621",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

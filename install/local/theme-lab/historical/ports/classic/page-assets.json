@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "slug": "theme:classic",
+  "mode": "Wikidot page attachments; upload each named file to this theme page before publication",
+  "assets": [
+    {
+      "filename": "base_image_frame.png",
+      "sha256": "c5a79a414173aa6ccd5013fea65aae666b35826b53c30e0a20b4534f475e5a6f",
+      "bytes": 2283,
+      "asset_file": "c5a79a414173aa6ccd5013fea65aae666b35826b53c30e0a20b4534f475e5a6f.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:7657035-48-7ahr/base_image_frame.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:7657035-48-7ahr/base_image_frame.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "scp_foundation_logo.png",
+      "sha256": "975a510eefe55e44930b50076b7c4e729c202e0d7f4c9049cd90e38a70516ed0",
+      "bytes": 9225,
+      "asset_file": "975a510eefe55e44930b50076b7c4e729c202e0d7f4c9049cd90e38a70516ed0.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:7657035-49-8um1/scp_foundation_logo.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file:7657035-49-8um1/scp_foundation_logo.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "dependency_decisions": [
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "base_image_frame.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:7657035-48-7ahr/base_image_frame.png"
+      ],
+      "sha256": "c5a79a414173aa6ccd5013fea65aae666b35826b53c30e0a20b4534f475e5a6f",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "scp_foundation_logo.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file:7657035-49-8um1/scp_foundation_logo.png"
+      ],
+      "sha256": "975a510eefe55e44930b50076b7c4e729c202e0d7f4c9049cd90e38a70516ed0",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ]
+}

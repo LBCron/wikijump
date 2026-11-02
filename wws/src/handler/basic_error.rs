@@ -54,40 +54,26 @@ fn basic_error_from_request<'a>(
     error_code: &str,
     headers: &'a HeaderMap,
 ) -> StdResult<BasicError<'a>, FallbackError> {
-    // This header can only be set internally, so let's check it before
-    // returning any error information.
     if headers.get(HEADER_BASIC_ERROR).is_none() {
-        // XF-1002
         return Err(FallbackError::BasicErrorDirect);
     }
 
-    // Build the appropriate BasicError enum case
     let input = match error_code {
-        // Required headers:
-        // - x-wikijump-site-slug
         "site-slug" => {
             let site_slug = get_site_slug(headers);
             BasicError::SiteSlug { site_slug }
         }
-        // No required headers
         "site-custom" => BasicError::SiteCustom { host },
-        // Required headers:
-        // - x-wikijump-page-slug
         "page-slug" => {
             let site_id = get_site_id(headers);
             let page_slug = get_page_slug(headers);
             BasicError::PageSlug { site_id, page_slug }
         }
-        // Required headers:
-        // - x-wikijump-page-slug
         "page-fetch" => {
             let site_id = get_site_id(headers);
             let page_slug = get_page_slug(headers);
             BasicError::PageFetch { site_id, page_slug }
         }
-        // Required headers:
-        // - x-wikijump-page-slug
-        // - x-wikijump-filename
         "file-name" => {
             let site_id = get_site_id(headers);
             let page_slug = get_page_slug(headers);
@@ -98,9 +84,6 @@ fn basic_error_from_request<'a>(
                 filename,
             }
         }
-        // Required headers:
-        // - x-wikijump-page-slug
-        // - x-wikijump-filename
         "file-fetch" => {
             let site_id = get_site_id(headers);
             let page_slug = get_page_slug(headers);
@@ -111,11 +94,8 @@ fn basic_error_from_request<'a>(
                 filename,
             }
         }
-        // No required headers
         "file-root" => BasicError::FileRoot,
-        // Invalid
         _ => {
-            // XF-1000
             error!("Invalid basic error code: {error_code}");
             return Err(FallbackError::BasicErrorCode);
         }

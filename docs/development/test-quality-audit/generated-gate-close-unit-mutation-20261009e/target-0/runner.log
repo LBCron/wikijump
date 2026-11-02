@@ -1,9 +1,0 @@
-Found 39 mutants to test
-ok       Unmutated baseline in 1s build + 13s test
- INFO Auto-set test timeout to 66s
-MISSED   src/services/render/list_pages/scanner.rs:234:45: replace + with - in generated_gate_module_close in 20s build + 13s test
-MISSED   src/services/render/list_pages/scanner.rs:236:67: replace + with - in generated_gate_module_close in 20s build + 13s test
-TIMEOUT  src/services/render/list_pages/scanner.rs:263:24: replace += with *= in generated_gate_module_close in 21s build + 66s test
-TIMEOUT  src/services/render/list_pages/scanner.rs:269:24: replace + with - in generated_gate_module_close in 20s build + 66s test
-TIMEOUT  src/services/render/list_pages/scanner.rs:269:24: replace + with * in generated_gate_module_close in 20s build + 66s test
-39 mutants tested in 25m: 2 missed, 33 caught, 1 unviable, 3 timeouts

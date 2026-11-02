@@ -32,9 +32,6 @@ impl RenderService {
         Self::render_wikidot_preview(ctx, site_id, title, wikitext, false).await
     }
 
-    /// Render only the FTML/Wikidot syntax layer. Runtime modules are kept in
-    /// their delayed form so verifier fixtures can check the local syntax
-    /// contract without comparing it with Wikidot's executed module output.
     pub async fn render_wikidot_syntax_preview(
         ctx: &ServiceContext<'_>,
         site_id: i64,

@@ -1,0 +1,23 @@
+#header
+#header h1
+#header h2
+#top-bar
+#side-bar
+#main-content
+#page-title
+#page-content
+#page-info
+#page-options-container
+.page-rate-widget-box
+.page-rate-widget-box .rate-points
+.yui-navset
+.collapsible-block
+.scp-image-block
+table
+blockquote
+.footnotes-footer
+#toc
+.colors-container .colors
+.colors-container .subcolors
+.colors-container .colors .color
+.colors-container .color[data-has-light-text="1"]

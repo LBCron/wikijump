@@ -1,10 +1,3 @@
-//! Wikidot `iftags` selection against runtime page tags.
-//!
-//! Real Wikidot evaluates root-level gates once. If an active gate contains
-//! another `iftags` pair, the nested pair remains literal instead of becoming
-//! another condition. Render preparation has several passes, so nested tokens
-//! are registered temporarily to keep later passes from evaluating them.
-
 use super::compat::text_fragments::CompatTextFragments;
 use super::literal_regions::LiteralRegionIndex;
 use regex::Regex;
@@ -53,6 +46,7 @@ pub(super) fn resolve_outermost_wikidot_iftags(
         UnmatchedBoundaryMode::Preserve,
         false,
     );
+    strip_wikidot_generated_spec_markers(wikitext);
 }
 
 pub(super) fn resolve_outermost_wikidot_iftags_before_include_expansion(
@@ -60,9 +54,6 @@ pub(super) fn resolve_outermost_wikidot_iftags_before_include_expansion(
     tags: &[Cow<'_, str>],
     preserved: &mut CompatTextFragments,
 ) {
-    // An included target can open a gate that a later caller token closes (and
-    // vice versa). Resolve only self-contained roots here; the caller-level
-    // pass finalizes recovery or literal protection after textual expansion.
     resolve_outermost_wikidot_iftags_with_mode(
         wikitext,
         tags,
@@ -76,10 +67,6 @@ pub(super) fn resolve_outermost_wikidot_iftags_before_include_expansion_for_page
     wikitext: &mut String,
     preserved: &mut CompatTextFragments,
 ) {
-    // Anonymous PagePreviewModule has no page conditional context: both
-    // positive and negative `iftags` branches are omitted. Keep this mode
-    // limited to the include prepass; ListPages row templates resolve their
-    // own conditions later against the selected row.
     resolve_outermost_wikidot_iftags_with_mode(
         wikitext,
         &[],
@@ -101,11 +88,6 @@ fn resolve_outermost_wikidot_iftags_with_mode(
     let mut replacements = Vec::<Replacement>::new();
     let mut inactive_literal_scopes =
         HashMap::<(usize, usize), InactiveLiteralScope>::new();
-    // Whether a gate opener the scan skips (and so leaves raw) precedes the
-    // current token. A closer following such an opener may still complete a
-    // pair the pinned FTML resolves natively, so it stays raw; a closer with
-    // no visible opener anywhere before it can never pair, and escaping it
-    // keeps truly malformed closers literal without FTML parse errors.
     let mut seen_skipped_opener = false;
 
     for captures in IFTAGS_TOKEN_REGEX.captures_iter(wikitext) {
@@ -156,13 +138,6 @@ fn resolve_outermost_wikidot_iftags_with_mode(
         }
 
         let Some(outer) = stack.pop() else {
-            // An unmatched closer stays raw when a skipped opener precedes
-            // it: the pair may still resolve natively in the pinned FTML,
-            // and escaping the closer would freeze it as authored text and
-            // blind that recovery. With no visible opener anywhere before
-            // it the closer can never pair, so Preserve keeps escaping it;
-            // that keeps truly malformed closers literal without FTML parse
-            // errors, exactly as the malformed-iftags evidence requires.
             if unmatched_mode == UnmatchedBoundaryMode::Preserve && !seen_skipped_opener {
                 replacements.push(Replacement {
                     range: token.start()..token.end(),
@@ -318,17 +293,117 @@ fn preserve_nested_tokens(
     output
 }
 
+pub(super) const WIKIDOT_GENERATED_SPEC_MARKER: &str = "+wikijump:generated-spec";
+
+pub(super) fn mark_wikidot_generated_iftags_specs(wikitext: &mut String) {
+    if !wikitext.contains("[[#")
+        || !wikitext
+            .as_bytes()
+            .windows("[[iftags".len())
+            .any(|window| window.eq_ignore_ascii_case(b"[[iftags"))
+    {
+        return;
+    }
+
+    let literal_regions = LiteralRegionIndex::new_wikidot_conditional_syntax(wikitext);
+    let mut insertions = Vec::new();
+    let mut search = 0usize;
+    while search < wikitext.len() {
+        let Some(open) = wikitext.as_bytes()[search..]
+            .windows("[[iftags".len())
+            .position(|window| window.eq_ignore_ascii_case(b"[[iftags"))
+        else {
+            break;
+        };
+        let start = search + open;
+        search = start + "[[iftags".len();
+        if literal_regions.contains(start) {
+            continue;
+        }
+        let Some(head_len) = wikidot_iftags_head_len(&wikitext[start..]) else {
+            continue;
+        };
+        let head_end = start + head_len;
+        if wikitext[start..head_end].contains("[[#") {
+            insertions.push(head_end - "]]".len());
+        }
+        search = search.max(head_end);
+    }
+
+    for position in insertions.into_iter().rev() {
+        wikitext.insert_str(position, WIKIDOT_GENERATED_SPEC_MARKER);
+        wikitext.insert(position, ' ');
+    }
+}
+
+fn wikidot_iftags_head_len(source: &str) -> Option<usize> {
+    let bytes = source.as_bytes();
+    let mut depth = 0usize;
+    let mut index = 0usize;
+    while index < bytes.len() {
+        if depth <= 1 && matches!(bytes[index], b'\n' | b'\r') {
+            return None;
+        }
+        if bytes[index..].starts_with(b"[[") {
+            depth += 1;
+            index += 2;
+            continue;
+        }
+        if bytes[index..].starts_with(b"]]") {
+            depth = depth.checked_sub(1)?;
+            index += 2;
+            if depth == 0 {
+                return Some(index);
+            }
+            continue;
+        }
+        index += 1;
+        if index > 16_384 {
+            return None;
+        }
+    }
+    None
+}
+
+fn strip_wikidot_generated_spec_markers(wikitext: &mut String) {
+    if !wikitext.contains(WIKIDOT_GENERATED_SPEC_MARKER) {
+        return;
+    }
+    let suffix = format!(" {WIKIDOT_GENERATED_SPEC_MARKER}]]");
+    let stripped =
+        IFTAGS_TOKEN_REGEX.replace_all(wikitext, |captures: &regex::Captures<'_>| {
+            let Some(open) = captures.name("open") else {
+                return captures[0].to_owned();
+            };
+            let open = open.as_str();
+            match open.strip_suffix(&suffix) {
+                Some(head) => format!("{head}]]"),
+                None => open.to_owned(),
+            }
+        });
+    if let std::borrow::Cow::Owned(stripped) = stripped {
+        *wikitext = stripped;
+    }
+}
+
 pub(super) fn wikidot_tag_conditions_match(spec: &str, tags: &[Cow<'_, str>]) -> bool {
     if spec.trim().is_empty() {
-        return false;
+        return !tags.is_empty();
     }
 
     let mut required = true;
     let mut prohibited = true;
     let mut present = false;
     let mut had_present = false;
+    let mut had_condition = false;
+    let mut saw_generated_marker = false;
 
     for raw_condition in spec.split_whitespace() {
+        if raw_condition == WIKIDOT_GENERATED_SPEC_MARKER {
+            saw_generated_marker = true;
+            continue;
+        }
+        had_condition = true;
         let (operator, tag) = raw_condition.split_at(usize::from(
             raw_condition.starts_with('+') || raw_condition.starts_with('-'),
         ));
@@ -345,6 +420,10 @@ pub(super) fn wikidot_tag_conditions_match(spec: &str, tags: &[Cow<'_, str>]) ->
                 present |= has_tag;
             }
         }
+    }
+
+    if saw_generated_marker && !had_condition {
+        return false;
     }
 
     if !had_present {
@@ -371,6 +450,161 @@ mod tests {
             resolve_outermost_wikidot_iftags(&mut source, &tags, &mut preserved);
         }
         preserved.restore(&source)
+    }
+
+    #[test]
+    fn bare_gate_follows_whether_the_page_carries_tags() {
+        let source = "before\n[[iftags]]shown[[/iftags]]\nafter\n";
+        assert_eq!(resolve(source, &["alpha"], 1), "before\nshown\nafter\n");
+        assert_eq!(resolve(source, &[], 1), "before\n\nafter\n");
+    }
+
+    #[test]
+    fn empty_spec_matches_only_when_the_page_carries_tags() {
+        let tags = [Cow::Borrowed("alpha")];
+        assert!(wikidot_tag_conditions_match("", &tags));
+        assert!(wikidot_tag_conditions_match("  ", &tags));
+        assert!(!wikidot_tag_conditions_match("", &[]));
+        assert!(!wikidot_tag_conditions_match("  ", &[]));
+    }
+
+    #[test]
+    fn generated_spec_marker_only_matches_when_real_conditions_pass() {
+        let tags = [Cow::Borrowed("alpha")];
+        assert!(!wikidot_tag_conditions_match(
+            WIKIDOT_GENERATED_SPEC_MARKER,
+            &tags
+        ));
+        assert!(wikidot_tag_conditions_match(
+            &format!("- {WIKIDOT_GENERATED_SPEC_MARKER}"),
+            &tags
+        ));
+        assert!(wikidot_tag_conditions_match(
+            &format!("+alpha {WIKIDOT_GENERATED_SPEC_MARKER}"),
+            &tags
+        ));
+        assert!(!wikidot_tag_conditions_match(
+            &format!("+beta {WIKIDOT_GENERATED_SPEC_MARKER}"),
+            &tags
+        ));
+    }
+
+    #[test]
+    fn marking_generated_heads_leaves_authored_heads_untouched() {
+        let mut source = concat!(
+            "[[iftags]]bare[[/iftags]]\n",
+            "[[iftags +alpha]]plain[[/iftags]]\n",
+            "[[iftags [[#ifexpr 1 == 0 | - ]]]]generated[[/iftags]]\n",
+        )
+        .to_owned();
+        mark_wikidot_generated_iftags_specs(&mut source);
+        assert!(source.contains("[[iftags]]bare"), "{source}");
+        assert!(source.contains("[[iftags +alpha]]plain"), "{source}");
+        assert_eq!(
+            source.matches(WIKIDOT_GENERATED_SPEC_MARKER).count(),
+            1,
+            "{source}"
+        );
+        assert!(
+            source.contains(&format!("- ]] {WIKIDOT_GENERATED_SPEC_MARKER}]]")),
+            "{source}"
+        );
+    }
+
+    #[test]
+    fn marking_heads_with_multibyte_first_tag_does_not_panic() {
+        for spec in [
+            "+\u{d15c}\u{d50c}\u{b9bf}",
+            "+\u{ad6c}\u{c131}\u{c694}\u{c18c}",
+            "+_\u{6e90}\u{4ee3}\u{7801}",
+            "+\u{7248}\u{5f0f}",
+        ] {
+            let mut source = format!(
+                "[[iftags {spec}]]authored[[/iftags]]\n[[iftags [[#ifexpr 1 == 0 | - ]]]]generated[[/iftags]]\n"
+            );
+            mark_wikidot_generated_iftags_specs(&mut source);
+            assert!(
+                source.contains(&format!("[[iftags {spec}]]authored")),
+                "{source}"
+            );
+            assert_eq!(
+                source.matches(WIKIDOT_GENERATED_SPEC_MARKER).count(),
+                1,
+                "{source}"
+            );
+        }
+    }
+
+    #[test]
+    fn marking_heads_with_mixed_and_later_multibyte_tags_does_not_panic() {
+        let mut source = concat!(
+            "[[iftags +alpha +\u{d15c}\u{d50c}\u{b9bf} -\u{7248}\u{5f0f}]]mixed[[/iftags]]\n",
+            "[[iftags +alpha \u{ad6c}\u{c131}\u{c694}\u{c18c}]]later[[/iftags]]\n",
+            "[[iftags [[#ifexpr 1 == 0 | - ]]]]generated[[/iftags]]\n",
+        )
+        .to_owned();
+        mark_wikidot_generated_iftags_specs(&mut source);
+        assert!(
+            source.contains(
+                "[[iftags +alpha +\u{d15c}\u{d50c}\u{b9bf} -\u{7248}\u{5f0f}]]mixed"
+            ),
+            "{source}"
+        );
+        assert!(
+            source.contains("[[iftags +alpha \u{ad6c}\u{c131}\u{c694}\u{c18c}]]later"),
+            "{source}"
+        );
+        assert_eq!(
+            source.matches(WIKIDOT_GENERATED_SPEC_MARKER).count(),
+            1,
+            "{source}"
+        );
+    }
+
+    #[test]
+    fn multibyte_tag_conditions_keep_ascii_semantics() {
+        let tags = [
+            Cow::Borrowed("\u{ad6c}\u{c131}\u{c694}\u{c18c}"),
+            Cow::Borrowed("alpha"),
+        ];
+        assert!(wikidot_tag_conditions_match(
+            "+\u{ad6c}\u{c131}\u{c694}\u{c18c}",
+            &tags
+        ));
+        assert!(!wikidot_tag_conditions_match(
+            "+\u{d15c}\u{d50c}\u{b9bf}",
+            &tags
+        ));
+        assert!(wikidot_tag_conditions_match("-\u{7248}\u{5f0f}", &tags));
+        assert!(!wikidot_tag_conditions_match(
+            "-\u{ad6c}\u{c131}\u{c694}\u{c18c}",
+            &tags
+        ));
+        assert!(wikidot_tag_conditions_match(
+            "\u{ad6c}\u{c131}\u{c694}\u{c18c}",
+            &tags
+        ));
+        assert!(!wikidot_tag_conditions_match(
+            "\u{6e90}\u{4ee3}\u{7801}",
+            &tags
+        ));
+        assert!(wikidot_tag_conditions_match(
+            "+alpha +\u{ad6c}\u{c131}\u{c694}\u{c18c} -\u{7248}\u{5f0f}",
+            &tags
+        ));
+    }
+
+    #[test]
+    fn resolves_gates_with_multibyte_tags() {
+        let source = concat!(
+            "[[iftags +\u{ad6c}\u{c131}\u{c694}\u{c18c}]]yes[[/iftags]]\n",
+            "[[iftags +\u{d15c}\u{d50c}\u{b9bf}]]no[[/iftags]]\n",
+            "[[iftags -\u{7248}\u{5f0f}]]kept[[/iftags]]\n",
+        );
+        assert_eq!(
+            resolve(source, &["\u{ad6c}\u{c131}\u{c694}\u{c18c}"], 1),
+            "yes\n\nkept\n"
+        );
     }
 
     #[test]
@@ -849,9 +1083,6 @@ mod tests {
     #[test]
     fn pinned_url_adjacent_raw_delimiter_keeps_iftags_literal() {
         let source = "[[iftags +component]]https://e.test/a@@b[[/iftags]]@@tail";
-        // FTML exposes the URL-adjacent `@@` as an inline-raw opener. The
-        // conditional closer is consequently inside that literal region and
-        // the whole malformed gate is preserved for the later parser pass.
         assert_eq!(resolve(source, &[], 1), source);
         assert_eq!(resolve(source, &["component"], 1), source);
     }

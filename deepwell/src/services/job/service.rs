@@ -40,17 +40,8 @@ pub const JOB_QUEUE_NAME: &str = "job";
 /// above what a job should take to run this risk is minimal.
 pub const JOB_QUEUE_PROCESS_TIME: Option<Duration> = Some(Duration::from_secs(30));
 
-/// How long to wait before messages are delivered to consumers.
 pub const JOB_QUEUE_DELAY: Option<Duration> = None;
 
-/// The maximum size, in bytes, that a job payload is allowed to be
-///
-/// Presently, our jobs are mostly unit types, and the biggest variant
-/// is composed of three integers, so this is more than large enough.
-/// If larger jobs become a thing in the future, this may need to be updated.
-///
-/// (But as a general code principle there shouldn't be huge jobs, they should
-/// just use IDs and references to items in the database.)
 pub const JOB_QUEUE_MAXIMUM_SIZE: Option<i64> = Some(1024);
 
 #[derive(Debug)]
@@ -92,14 +83,6 @@ impl JobService {
         Ok(())
     }
 
-    /// Queues a page for being rerendered soon.
-    ///
-    /// # Arguments
-    /// | Argument  | Description |
-    /// |-----------|-------------|
-    /// | `site-id` | The ID of the site the page is on. |
-    /// | `page-id` | The ID of the page. |
-    /// | `depth` | If rerendering a page causes more pages to be rerendered due to outdating, then this value should be incremented with each layer of job depth. This way we can avoid infinite loop conditions where jobs endlessly pile onto the queue, rerendering each other. |
     pub async fn queue_rerender_page(
         ctx: &ServiceContext<'_>,
         id: PageId,
@@ -121,10 +104,6 @@ impl JobService {
         .await
     }
 
-    /// Queues a page's navigation page data for rerendering soon.
-    ///
-    /// # Arguments
-    /// Same as `queue_rerender_page()`.
     pub async fn queue_rerender_nav_page(
         ctx: &ServiceContext<'_>,
         id: PageId,

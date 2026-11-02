@@ -1,0 +1,157 @@
+{
+  "schema": "theme_lab_real_wikidot_authority_visual_review.v1",
+  "status": "reviewed",
+  "reviewed_at": "2026-10-30T07:35:34.000Z",
+  "reviewer": "Muse visual review",
+  "decision_authority": "REAL_WIKIDOT_TARGET_AB_VISUAL_REVIEW_ONLY",
+  "package": "flopstyle-dark",
+  "candidate_source_sha256": "4900476d5cf31e094370d52e8cb09ff1e24d939ef8edea00562658cacc07dbec",
+  "candidate_css_sha256": "4e9f17d162d5e0cf393e5a6d287c246b84efb0f82fdb97c05c56e3d537a8b446",
+  "capture_receipt": {
+    "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/receipt.json",
+    "sha256": "410504671ab77676e3606f4b9bf52d6fc1eeeeb913eb242938abdf1028e254f7"
+  },
+  "review_scope": {
+    "url": "https://scp-jp.wikidot.com/scp-173-jp",
+    "engine": "firefox",
+    "browser_version": "157.0",
+    "state": [
+      "navigation-action"
+    ],
+    "widths": [
+      320,
+      390
+    ]
+  },
+  "reviewed_screenshots": [
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/without-320-navigation-action-0.png",
+      "sha256": "9affd86e0e3d55ea565cb5174462edc9a64e4ce0d698c1fca36e27b3b8a8cf33"
+    },
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/without-320-navigation-action-1.png",
+      "sha256": "f62ee821de533b422dd57b789c55d84cbe4a944934081191eaa11a6dd1109d67"
+    },
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/without-320-navigation-action-2.png",
+      "sha256": "51007bee82b1cb6d92c9d2577693dd72f56059ddedf545c0831793d0abecad44"
+    },
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/without-320-navigation-action-3.png",
+      "sha256": "0f4cd47fc44b0c4353d7d804815fa32a3d76e12f2724f6c3569d72dc0f3767da"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/with-320-navigation-action-0.png",
+      "sha256": "9affd86e0e3d55ea565cb5174462edc9a64e4ce0d698c1fca36e27b3b8a8cf33"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/with-320-navigation-action-1.png",
+      "sha256": "f62ee821de533b422dd57b789c55d84cbe4a944934081191eaa11a6dd1109d67"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/with-320-navigation-action-2.png",
+      "sha256": "c9424dca2b6cf0c8e5566e55d24c4939a96c26f1a71a4263ee03e90114decaa4"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/with-320-navigation-action-3.png",
+      "sha256": "0f4cd47fc44b0c4353d7d804815fa32a3d76e12f2724f6c3569d72dc0f3767da"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/without-390-navigation-action-0.png",
+      "sha256": "d7cf1e6cd54e142cd9e27a0a70c2120f79f2d34ba02c85e72d949a4f4a1ec091"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/without-390-navigation-action-1.png",
+      "sha256": "2d4746f2f0de11b5e72439ba819c4133c6472666b9d97e90c2fb37a22ad9ae3a"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/without-390-navigation-action-2.png",
+      "sha256": "8894efaf22aaebd9022a69c1e5afed4774c38243d66e1d4a59865cd26e30c59d"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/without-390-navigation-action-3.png",
+      "sha256": "3a0349b8947edda85294f8938f2baaf1f2ce7710379f2fc47255b2139c3d1874"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/with-390-navigation-action-0.png",
+      "sha256": "d7cf1e6cd54e142cd9e27a0a70c2120f79f2d34ba02c85e72d949a4f4a1ec091"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/with-390-navigation-action-1.png",
+      "sha256": "2d4746f2f0de11b5e72439ba819c4133c6472666b9d97e90c2fb37a22ad9ae3a"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/with-390-navigation-action-2.png",
+      "sha256": "8894efaf22aaebd9022a69c1e5afed4774c38243d66e1d4a59865cd26e30c59d"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/firefox/with-390-navigation-action-3.png",
+      "sha256": "0fd760540db693bcf503a724ce3036197c6c23c9c579e931a62a57924dbf7459"
+    }
+  ],
+  "findings": "Directly inspected the four Firefox frames at the two certified failure points (without/with at 320px index 2 and 390px index 3) and verified the remaining frames through the receipt's measured bounds. Without the block, the opened endpoint submenus are thrown off the left viewport edge and their items are clipped to unreadable fragments (76.92px off-left at 320px, 82.85px at 390px), reproducing the certified demonstrated need exactly. With the V2b candidate, the same submenus open fully inside the viewport, anchored to the bar list's right edge, with every item legible and no clipping or horizontal overflow; all 16 measured rows show off-left 0 and off-right 0. The real target's top bar wraps to two rows at both widths, and the container anchoring contains the row-endpoint submenus regardless of which row an endpoint lands on."
+}

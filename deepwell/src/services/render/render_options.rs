@@ -18,13 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Which page and request a render run is happening for.
-//!
-//! These describe the surroundings of a render rather than the wikitext being
-//! rendered: which site and page the run belongs to, how much include
-//! expansion it may spend, whether a corpus trace is collecting timings, and
-//! which Wikidot URL path arguments the request carried.
-
 use super::diagnostics::{CorpusRenderScope, CorpusRenderTrace};
 use super::list_pages::ListPagesPagerRoute;
 use super::render_budget::SharedRenderCostBudget;
@@ -39,12 +32,13 @@ pub(super) enum RenderLifecycle {
     PagePreview,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) struct RenderContext {
     pub(super) current_site_id: Option<i64>,
     pub(super) current_category_id: Option<i64>,
     pub(super) current_page_id: Option<i64>,
     pub(super) text_block_page_id: Option<i64>,
+    pub(super) html_block_owner_slug: Option<String>,
     pub(super) lifecycle: RenderLifecycle,
     pub(super) suppress_nested_list_pages: bool,
 }
@@ -60,23 +54,17 @@ pub(super) struct RenderInnerOptions<'a> {
     pub(super) trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
     pub(super) persist_compiled_text: bool,
 
-    /// The Wikidot URL path arguments this request carried. Empty for every
-    /// render that is not serving a page view, including the render that
-    /// produces a revision's stored HTML.
     pub(super) url: UrlArguments<'a>,
 }
 
-/// What distinguishes one page render from another beyond its wikitext.
 #[derive(Clone, Debug)]
 pub(super) struct RenderPageOptions<'a> {
     pub(super) max_include_expansions: usize,
     pub(super) viewer_user_id: Option<i64>,
     pub(super) current_page_data_form_values: Option<BTreeMap<String, String>>,
 
-    /// Whether this render may update compiled text and hosted page blocks.
     pub(super) persist_page_artifacts: bool,
 
-    /// The Wikidot URL path arguments this request carried.
     pub(super) url: UrlArguments<'a>,
 
     pub(super) trace: Option<&'a CorpusRenderTrace>,
@@ -104,6 +92,7 @@ impl RenderContext {
             current_site_id: None,
             current_category_id: None,
             current_page_id: None,
+            html_block_owner_slug: None,
             text_block_page_id: None,
             lifecycle: RenderLifecycle::Standalone,
             suppress_nested_list_pages: false,
@@ -115,6 +104,7 @@ impl RenderContext {
             current_site_id: Some(site_id),
             current_category_id: Some(category_id),
             current_page_id: Some(page_id),
+            html_block_owner_slug: None,
             text_block_page_id: Some(page_id),
             lifecycle: RenderLifecycle::SavedPage,
             suppress_nested_list_pages: false,
@@ -126,17 +116,24 @@ impl RenderContext {
             current_site_id: Some(site_id),
             current_category_id: Some(category_id),
             current_page_id: Some(page_id),
+            html_block_owner_slug: None,
             text_block_page_id: None,
             lifecycle: RenderLifecycle::SavedPage,
             suppress_nested_list_pages: false,
         }
     }
 
-    pub(super) fn page_nav(site_id: i64, category_id: i64, current_page_id: i64) -> Self {
+    pub(super) fn page_nav(
+        site_id: i64,
+        category_id: i64,
+        current_page_id: i64,
+        html_block_owner_slug: Option<String>,
+    ) -> Self {
         Self {
             current_site_id: Some(site_id),
             current_category_id: Some(category_id),
             current_page_id: Some(current_page_id),
+            html_block_owner_slug,
             text_block_page_id: None,
             lifecycle: RenderLifecycle::SavedPage,
             suppress_nested_list_pages: false,
@@ -148,6 +145,7 @@ impl RenderContext {
             current_site_id: Some(site_id),
             current_category_id: None,
             current_page_id: Some(0),
+            html_block_owner_slug: None,
             text_block_page_id: None,
             lifecycle: RenderLifecycle::AjaxModule,
             suppress_nested_list_pages: false,
@@ -162,6 +160,7 @@ impl RenderContext {
             current_site_id: Some(site_id),
             current_category_id: None,
             current_page_id,
+            html_block_owner_slug: None,
             text_block_page_id: None,
             lifecycle: RenderLifecycle::PagePreview,
             suppress_nested_list_pages: false,
@@ -178,19 +177,18 @@ impl RenderContext {
             current_site_id: Some(site_id),
             current_category_id: (!page_preview).then_some(category_id),
             current_page_id: (!page_preview).then_some(page_id),
+            html_block_owner_slug: None,
             text_block_page_id: None,
             lifecycle: if page_preview {
                 RenderLifecycle::PagePreview
             } else {
                 RenderLifecycle::SavedPage
             },
-            // The surrounding ListPages render owns any protected source markers
-            // and restores them after this selected-content render returns.
             suppress_nested_list_pages: true,
         }
     }
 
-    pub(super) fn list_pages_pager_route(self) -> ListPagesPagerRoute {
+    pub(super) fn list_pages_pager_route(&self) -> ListPagesPagerRoute {
         match self.lifecycle {
             RenderLifecycle::Standalone | RenderLifecycle::SavedPage => {
                 ListPagesPagerRoute::SavedPage
@@ -214,6 +212,7 @@ mod tests {
                 current_site_id: Some(7),
                 current_category_id: None,
                 current_page_id: None,
+                html_block_owner_slug: None,
                 text_block_page_id: None,
                 lifecycle: RenderLifecycle::PagePreview,
                 suppress_nested_list_pages: false,

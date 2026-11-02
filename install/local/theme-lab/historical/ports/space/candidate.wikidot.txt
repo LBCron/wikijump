@@ -1,0 +1,991 @@
+
+
+
+
+
+
+**タイトル:** 普遍的宇宙テーマ
+**翻訳責任者:** nebula2700
+**翻訳年:** 2024
+**原題:** Generic Space Theme
+**著作権者:** EstrellaYoshte
+**作成年:** 2023
+**初訳時参照リビジョン:** 28
+**元記事リンク:** [https://scp-wiki.wikidot.com/theme:space ソース]
+
+
+これはEstrellaYoshteによって作られた美しさを追求したテーマです。
+
+このテーマを使用するには、以下を挿入してください:
+
+> {{@@[[include :scp-jp:theme:space]]@@}}
+
+普遍的宇宙テーマは[[[component:sigma-plus|]]]テーマです。
+
+------
+
+
+
+上の装飾付きの罫線は、5つのハイフン「- - - - - 」を使用して作成できます。
+
+見出しは、行の先頭に1～6文字の「+」を置くことで作成できます。
+@@ @@
+
+[[collapsible show="+ 折りたたみ - 私をクリックして！" hide="- 折りたたみ - 私をクリックして！"]]
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブを作る]]
+これはタブです。
+[[/tab]]
+[[tab タブが作られた]]
+見てください、ここにもテキストがあります。
+
+なんと奇妙な。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。テキストがたくさん入っています。[[footnote]] これは脚注です。 [[/footnote]]
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+[[/tab]]
+
+[[tab もっと長いタブ]]
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+
+これも長いタブです。テキストがたくさん入っています。
+[[/tab]]
+
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+
+@@ @@
+
+> これは引用ブロックです。各行の先頭に半角の「> 」を置くことで作成されます。
+>
+> 追加のテキスト
+> -----
+> これは罫線です
+>
+>> 入れ子になった引用ブロック
+
+@@ @@
+
+||~ これは ||~ テーブルです ||
+||もう || 作り方は ||
+||||知っているはずです ||
+
+[[footnoteblock]]
+
+[[=]]
++++* ヘッダーフォントはUrbanist。
+
+BodyフォントはM PLUS 1p[[footnote]] 訳注: 原語版ではDM Sansだが、日本語非対応のため変更。 [[/footnote]]。
+
+{{等幅フォントはMartian Mono。}}
+[[/=]]
+
+------
+
+++* ソースコード
+[[collapsible]]
+[[code type="CSS"]]
+/*
+    Generic Space Theme
+    [2023 Wikidot Theme]
+    By EstrellaYoshte
+    Based on:
+       Oceanbound Theme by EstrellaYoshte
+ 
+    Edited for SCP-JP by nebula2700
+*/
+ 
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+1p&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;700&display=swap');
+
+/* @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap'); */
+ 
+:root {
+    --header-title: "SCP FOUNDATION";
+    --header-subtitle: "Stars, Comets, Planets";
+ 
+    --sp_area-max-width: 67.25rem;
+    --sp_side-bar-width: 14.675rem;
+ 
+    --sp_header-logo: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-3e2m/spacelogo.png);
+    --sp_header-height: calc(22.5rem + 14.5vw);
+    --sp_header-title-scale: 1.375;
+    --sp_header-subtitle-scale: 1.75;
+ 
+    --sp_top-bar-height: 2.25rem;
+    --sp_top-bar-link-color: rgb(var(--space-planet));
+    --sp_top-bar-link-hover-color: rgb(var(--space-sun));
+    --sp_top-bar-link-hover-background: rgb(var(--space-moon) / 0.175);
+    --sp_dropdown-background: rgb(var(--space-void) / 0.625);
+    --sp_dropdown-link-hover-color: rgb(var(--space-void));
+    --sp_dropdown-link-hover-background: rgb(var(--space-planet));
+    --sp_dropdown-link-border: none;
+    --sp_dropdown-link-color: var(--sp_top-bar-link-color);
+ 
+    --sp_rate-module-background: rgb(var(--space-void));
+    --sp_rate-module-text-color: rgb(var(--space-sun));
+    --sp_rate-module-sub-color: rgb(var(--space-moon));
+    --sp_rate-module-active-color: rgb(var(--space-planet));
+    --sp_rate-module-button-color: rgb(var(--space-sun));
+    --sp_rate-module-button-background: transparent;
+    --sp_rate-module-button-hover-color: rgb(var(--space-void));
+    --sp_rate-module-button-hover-background: rgb(var(--space-planet));
+ 
+    --sp_tab-text-color: rgb(var(--space-starlight));
+    --sp_tab-background: rgb(var(--space-void));
+    --sp_tab-hover-text-color: rgb(var(--space-planet));
+    --sp_tab-hover-background: var(--sp_tab-background);
+    --sp_tab-selected-text-color: rgb(var(--space-void));
+    --sp_tab-selected-background: rgb(var(--space-planet));
+ 
+    --space-body-bg: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-qcsr/spacebg.jpg);
+    --space-header-layer-0: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-3o7f/Milky_way.jpg);
+    --space-header-layer-1: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-iq50/spacehead-layer1.png);
+    --space-footer-bg: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-7h49/spacefooter.png);
+    --space-blackhole: 0 0 0;
+    --space-void: 22 23 33;
+    --space-starlight: 255 255 255;
+    --space-planet: 92 222 236;
+    --space-nebula: 95 172 188;
+    --space-sun: 255 191 165;
+    --space-moon: 229 214 157;
+ 
+    --space-star-mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 348.4 429.4'%3E%3Cg data-name='Layer 2'%3E%3Cpath d='M348.4 186.2C191 207.6 193 219.6 174.3 429.5c-18.9-210-16.9-222-174.3-243.4C157.4 164.8 152.8 157.4 174.2 0c21.4 157.4 16.8 164.8 174.3 186.2Z' data-name='Layer 1' style='fill:%23231f20'/%3E%3C/g%3E%3C/svg%3E");
+    --space-constellation-mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 700 700'%3E%3Cpath d='M518 218.4c-9.5 0-18 4-24 10l-94.2-54.2c.6-2.3.6-4 .6-6.2a26 26 0 0 0-6.2-17.4l26.4-39.7A27.7 27.7 0 0 0 456.4 84c0-15.7-12.3-28-28-28s-28 12.3-28 28a26 26 0 0 0 6.2 17.4L380.2 141c-2.8-.5-5-1.1-7.8-1.1-15.7 0-28 12.3-28 28s12.3 28 28 28c7.3 0 14-2.8 19-7.3l94.7 54.3a41 41 0 0 0-1.1 9c0 6.2 1.6 11.8 4.4 16.2L391 363.4c-5-3.3-11.2-5-17.4-5-2.2 0-5 0-7.3.6l-29.6-58.8a29 29 0 0 0 8.4-20.2c0-15.7-12.4-28-28-28-15.7 0-28 12.3-28 28v2.2l-80.1 33a33.8 33.8 0 0 0-26.9-12.8 33.7 33.7 0 0 0-33.6 33.6 33.7 33.7 0 0 0 42 32.5l49.3 88.5c-4.5 5-7.3 11.7-7.3 19 0 15.7 12.3 28 28 28a27.7 27.7 0 0 0 26.3-37l65-48.7a33.3 33.3 0 0 0 20.7 7.3A33.7 33.7 0 0 0 406 392c0-6.2-1.7-11.8-4.5-16.2l98.6-95.2c5 3.3 11.2 5 17.3 5A33.7 33.7 0 0 0 551 252a33.2 33.2 0 0 0-33-33.6zM428.4 72.8a11.2 11.2 0 1 1 0 22.4 11.2 11.2 0 0 1 0-22.4zm-56 106.4a11.2 11.2 0 1 1 0-22.4 11.2 11.2 0 0 1 0 22.4zm-56 89.6a11.2 11.2 0 1 1 0 22.4 11.2 11.2 0 0 1 0-22.4zM165.2 336c0-9.5 7.3-16.8 16.8-16.8s16.8 7.3 16.8 16.8-7.3 16.8-16.8 16.8-16.8-7.3-16.8-16.8zm50.4 0c0-1.7 0-3.4-.6-4.5l80.1-33c5 6.1 12.9 10 21.3 10 1.7 0 2.8 0 4.5-.5l29.7 59.4a30.8 30.8 0 0 0-11.8 24.6c0 4.5 1.1 9 2.8 12.9l-64.4 48.7c-5-3.4-10.6-5.6-16.8-5.6-2.2 0-4 0-5.6.6L205.5 360a33.8 33.8 0 0 0 10.1-24.1zm44.8 151.2a11.2 11.2 0 1 1 0-22.4 11.2 11.2 0 0 1 0 22.4zm112-78.4c-9.5 0-16.8-7.3-16.8-16.8s7.3-16.8 16.8-16.8 16.8 7.3 16.8 16.8-7.3 16.8-16.8 16.8zm145.6-140c-9.5 0-16.8-7.3-16.8-16.8s7.3-16.8 16.8-16.8 16.8 7.3 16.8 16.8-7.3 16.8-16.8 16.8z'/%3E%3C/svg%3E");
+    --space-orbit-mask: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 468.1 468.1'%3E%3Cpath d='M234 468.1c-8.2 0-16.6-.4-24.7-1.3a11 11 0 1 1 2.3-21.7 212.7 212.7 0 0 0 150-41.4 21 21 0 0 1-.7-5.6 28.5 28.5 0 0 1 35.6-27.5A212.4 212.4 0 0 0 213.9 22.8 11 11 0 0 1 211.8 1a232.5 232.5 0 0 1 187.8 67.5A232.5 232.5 0 0 1 468 234.2c0 58.2-21.5 114-60.5 157a11 11 0 0 1-14.5 1.7 6.5 6.5 0 0 0-10.3 5.3c0 1.3.4 2.4 1 3.5a11 11 0 0 1-2.4 14.3 234.6 234.6 0 0 1-147.2 52zm-76.7-13.5c-1.3 0-2.5-.2-3.8-.7A233.5 233.5 0 0 1 0 234.1C0 135 62.6 46.4 155.9 13.4a11 11 0 0 1 7.3 20.6A212.6 212.6 0 0 0 21.9 234 213 213 0 0 0 161 433.5a11 11 0 0 1-3.7 21.2z'/%3E%3Cpath d='M234 424.4A190.5 190.5 0 0 1 76.8 127a28.3 28.3 0 0 1 34.5-38.3 189.6 189.6 0 0 1 88-41.8 11 11 0 1 1 4 21.5c-30.9 5.7-59.5 20-82.8 41.3a11 11 0 0 1-13.8.8 6.6 6.6 0 0 0-8.7 9.7 11 11 0 0 1 .6 13.7A168.6 168.6 0 0 0 234 402.5a168.4 168.4 0 0 0 20.3-335.7 11 11 0 0 1 2.6-21.7 190.3 190.3 0 0 1-22.8 379.3z'/%3E%3Cpath d='M247.8 423.9a11 11 0 0 1-.8-21.9 169 169 0 0 0 155.5-168A169.2 169.2 0 0 0 234.1 65.7a168 168 0 0 0-106 37.5 28.4 28.4 0 0 1-35.4 39.4 167 167 0 0 0-27 91.6c0 78.9 53.5 146.4 130.3 164a11 11 0 1 1-5 21.4A190.8 190.8 0 0 1 81 121a11 11 0 0 1 17-.7c.8.8 2.4 2.2 5 2.2a6.6 6.6 0 0 0 3.7-11.9 11 11 0 0 1-1-17 189.8 189.8 0 0 1 131.7-49.8c50.2.8 97.2 21 132.4 56.8A189.2 189.2 0 0 1 424.4 234c0 48.3-18.1 94.3-51 129.6A189.6 189.6 0 0 1 247.8 424z'/%3E%3Cpath d='M234 332.5a98.6 98.6 0 0 1-27.5-193 28.5 28.5 0 0 1 55.1 0A98.7 98.7 0 0 1 313 293a99.3 99.3 0 0 1-49.6 35.2 11 11 0 0 1-6.5-21 76.7 76.7 0 0 0-7.6-148.1 11 11 0 0 1-8.7-12.4 6.6 6.6 0 1 0-13 .6 11 11 0 0 1-8.8 11.8A76.7 76.7 0 0 0 234 310.6a11 11 0 0 1 0 22z'/%3E%3Cpath d='M234 332.5a98.6 98.6 0 0 1-19.5-195 11 11 0 0 1 13 9.7 6.5 6.5 0 0 0 6.6 6c3.4 0 6.2-2.6 6.5-6a11 11 0 0 1 21.7-.6 11 11 0 0 1 12.2-2.3A98.6 98.6 0 0 1 234 332.5zm-24.2-171a76.7 76.7 0 1 0 55.8 2.8 10.9 10.9 0 0 1-5.7-5.8 28.3 28.3 0 0 1-25.8 16.5 28.3 28.3 0 0 1-24.3-13.6z'/%3E%3Cpath d='M234 175a28.3 28.3 0 0 1-28.4-28.4 28.5 28.5 0 1 1 28.5 28.4zm0-35a6.6 6.6 0 1 0 0 13.1 6.6 6.6 0 0 0 0-13zm155.4 286.6a28.3 28.3 0 0 1-28.5-28.5 28.5 28.5 0 1 1 28.5 28.5zm0-35a6.6 6.6 0 1 0 0 13.1 6.6 6.6 0 0 0 0-13.1ZM102.8 144.4a28.5 28.5 0 1 1 0-57 28.5 28.5 0 0 1 0 57zm0-35a6.6 6.6 0 1 0 0 13.1 6.6 6.6 0 0 0 0-13.1zm132.4 175a49.3 49.3 0 1 1 0-98.6 49.3 49.3 0 0 1 0 98.6zm0-76.6a27.4 27.4 0 1 0 0 54.8 27.4 27.4 0 0 0 0-54.8z'/%3E%3C/svg%3E");
+ 
+    --header-font: "Urbanist", Nanum Gothic, sans-serif;
+    --body-font: "M PLUS 1p", sans-serif;
+    --mono-font: 'Martian Mono', monospace;
+}
+ 
+body {
+    font-family: var(--body-font);
+    font-size: 0.925rem;
+    color: rgb(var(--space-starlight));
+    background-color: rgb(var(--space-void));
+    background-image: var(--space-body-bg);
+    background-size: calc(50rem + 20%);
+    background-attachment: fixed;
+}
+body, li, p { line-height: 1.5; }
+ 
+tt, .page-source, .code, pre {
+    font-family: var(--mono-font);
+}
+tt, .page-source, .code {
+    font-size: 0.85em;
+}
+ 
+::selection {
+    background-color: rgb(var(--space-nebula) / 0.925);
+    color: rgb(var(--space-starlight));
+}
+ 
+/*---------- SCROLLBAR ----------*/
+ 
+::-webkit-scrollbar {
+  width: 0.5rem;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--space-planet));
+  border: none;
+}
+::-webkit-scrollbar-track {
+  background: rgb(var(--space-blackhole));
+}
+ 
+:root {
+    scrollbar-color: rgb(var(--space-planet)) rgb(var(--space-blackhole));
+    scrollbar-width: thin;
+}
+ 
+/*--------- HEADER ----------*/
+ 
+#extrac-div-1 {
+    pointer-events: none;
+    z-index: -2;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: var(--sp_final-header-height);
+    background-image: var(--space-header-layer-0);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+#extrac-div-1::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%; width: 100%;
+    background-color: rgb(var(--space-planet) / 10%);
+}
+#extrac-div-1 > span {
+    display: block;
+    position: absolute; top: 0; left: 0;
+    width: 100%;  height: 100%;
+    background-image: var(--space-header-layer-1);
+    background-position: center bottom;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+#extrac-div-1::after {
+    content: "";
+    position: absolute;
+    top: 100%; left: 0;
+    height: 42rem; width: 100%;
+    background: linear-gradient(to bottom, rgb(var(--space-blackhole)) 5%, rgb(var(--space-blackhole) / 0));
+}
+/* fuck u safari */
+@supports (-webkit-hyphens:none) {
+#extrac-div-1 {
+     background-attachment: scroll;
+}
+}
+ 
+#header {
+    background: none;
+    grid-template-areas:
+        ". login login ."
+        ". . search ."
+        ". h1 h1 ."
+        ". h2 h2 ."
+        ". . . ."
+        "top-bar top-bar top-bar top-bar";
+    grid-template-rows: auto 1fr auto auto 1.25fr auto;
+}
+#header::before {
+    background-size: contain;
+    align-self: end;
+    grid-column: 2/4; grid-row: 2/3;
+    height: calc(100% - 0.5rem);
+    width: 100%;
+    mix-blend-mode: overlay;
+}
+ 
+#header h1, #header h2 {
+    padding-inline-start: 0;
+    text-align: center;
+}
+#header h1 a {
+    font-family: var(--header-font);
+    font-weight: 400;
+    text-shadow: 0 0 .375rem currentColor;
+    color: rgb(var(--space-starlight));
+    line-height: 0.9125;
+}
+#header h2  span {
+    color: rgb(var(--space-sun));
+    text-shadow: none;
+}
+ 
+/*--------- LOGIN ----------*/
+ 
+#login-status { color: inherit; }
+#login-status a {
+    color: rgb(var(--space-planet));
+}
+ 
+a#account-topbutton {
+    margin: 0;
+    border: none;
+    position: relative;
+    display: inline-block;
+    padding: 0.175rem;
+    width: 0.95rem;
+    color: transparent;
+    background-color: rgb(var(--space-nebula) / 0.25);
+}
+a#account-topbutton::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    box-sizing: border-box;
+    width: 100%; height: 100%;
+    background-color: rgb(var(--space-planet));
+    -webkit-mask-image: var(--space-star-mask);
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-image: var(--space-star-mask);
+    mask-size: contain;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    transform: scale(0.875);
+}
+ 
+#account-options {
+    border: none;
+    text-align: center;
+    width: 10.5em;
+    background: rgb(var(--space-void));
+}
+#account-options li a {
+    color: rgb(var(--space-planet));
+    padding: 0.375rem 0.5rem;
+}
+#account-options li a:is(:hover,:focus) {
+    color: rgb(var(--space-starlight));
+    background-color: rgb(var(--space-nebula) / 0.325);
+    text-decoration: none;
+}
+ 
+/*--------- SEARCH ----------*/
+ 
+#search-top-box {
+    grid-area: search;
+    align-self: self-start;
+    margin-block-start: 0.625rem;
+}
+ 
+#search-top-box-form input[type='submit'].btn {
+    border-radius: 0;
+    box-shadow: none;
+    background: rgb(var(--space-void));
+    color: rgb(var(--space-moon));
+    border: solid 0.05rem currentColor;
+}
+#search-top-box-form input[type='submit'].btn:is(:hover,:focus) {
+    color: rgb(var(--space-sun));
+}
+ 
+/*--------- TOP BAR ----------*/
+ 
+#top-bar {
+    background: none;
+}
+#top-bar div[class*="top-bar"] > ul {
+    justify-content: center;
+}
+#top-bar div[class*="top-bar"] > ul > li { flex-grow: 1; }
+#top-bar div[class*="top-bar"] > ul > li >a  {
+    text-transform: uppercase;
+}
+ 
+#top-bar :is(.top-bar, .mobile-top-bar) ul li ul {
+    border: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: blur(0.125rem);
+    backdrop-filter: blur(0.125rem);
+}
+ 
+#top-bar :is(.top-bar, .mobile-top-bar) ul li ul li a {
+    padding: 0.5em 0.675em;
+    text-align: center;
+    font-weight: bold;
+}
+ 
+/*--------- SIDE BAR ----------*/
+ 
+div#side-bar {
+    align-self: flex-start;
+    background-color: rgb(var(--space-void));
+    padding: 0;
+}
+ 
+:is(#side-bar, #interwiki) .side-block {
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    padding: .5rem 0.675rem;
+}
+#side-bar .side-block.media {
+    background-color: rgb(var(--space-moon) / 0.375);
+}
+#side-bar .side-block.resources {
+    background-color: rgb(var(--space-planet) / 0.175);
+}
+.side-block.sns, .side-block[style="background-color: #fff0f0;"], [style="background-color: #f0f0f0;"], [style="background-color: #a7dba2;"] {
+    background-color: rgb(var(--space-void)) !important;
+}
+ 
+:is(#side-bar, #interwiki) .heading {
+    color: rgb(var(--space-moon));
+    font-family: var(--header-font);
+    border-bottom: solid 0.05rem currentColor;
+    padding-left: 0;
+    margin-top: 0;
+    margin-bottom: 0.25rem;
+    text-align: center;
+    font-size: 0.875em;
+    font-weight: normal;
+}
+ 
+#side-bar a, #interwiki a { color: rgb(var(--space-planet)); }
+ 
+#top-bar div.open-menu a {
+    border-radius: 0;
+    border: none !important;
+    padding: 0.175rem;
+    background-color: rgb(var(--space-void)) !important;
+    color: rgb(var(--space-sun)) !important;
+}
+ 
+div.scpnet-interwiki-wrapper {
+    margin: 0;
+}
+ 
+/*--------- OWINDOW ----------*/
+ 
+.owindow {
+    border: none;
+    background-color: rgb(var(--space-void));
+}
+.owindow .title {
+    cursor: initial;
+    padding: 0.375rem 0.675rem;
+    background-color: rgb(var(--space-nebula) / 0.125);
+    height: auto;
+}
+ 
+/*--------- RATE ----------*/
+ 
+:not(.rate-box-with-credit-button) > div.page-rate-widget-box,
+div.rate-box-with-credit-button {
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    border-bottom: solid 0.05em rgb(var(--space-sun));
+}
+ 
+div.page-rate-widget-box, .creditButton {
+    box-shadow: none !important;
+}
+
+.rate-box-with-credit-button {
+    border-bottom: none !important;
+}
+
+.fa-info, .page-rate-widget-box {
+    border-bottom: solid 0.05em rgb(var(--space-sun)) !important;
+    background-color: rgb(var(--space-void)) !important;
+}
+
+.fa-info {
+    padding-top: 0.25rem;
+    padding-bottom: 2.5px;
+}
+
+.page-rate-widget-box :is(.rateup, .ratedown, .cancel) a {
+    display: block;
+    height: 100%;
+    width: 0.95em;
+    text-align: center;
+}
+ 
+.page-rate-widget-box .cancel a {
+    margin-bottom: 4px !important;
+    width: 10px;
+}
+ 
+span.cancel.btn.btn-default {
+    width: 18px !important;
+    height: 18px;
+}
+ 
+.page-rate-widget-box .rateup a,
+.page-rate-widget-box .ratedown a {
+    padding: 0 0.25rem;
+    margin: 0 0.25rem;
+}
+ 
+div.creditButton p a {
+    border: none;
+    padding: 0;
+    --sp_rate-module-text-color: rgb(var(--space-moon));
+    --sp_rate-module-button-hover-color:  rgb(var(--space-planet));
+}
+ 
+div.creditButton {
+    display: inline-block !important;
+    background: none !important;
+    border: none !important;
+    margin-left: 0 !important;
+}
+ 
+.creditButton a {
+    color: rgb(var(--space-sun)) !important;
+}
+ 
+.creditButton a:hover {
+    color: rgb(var(--space-planet)) !important;
+}
+ 
+.fader {
+    background-color: rgb(var(--space-blackhole) / 0.625);
+}
+div.modalbox {
+    color: rgb(var(--space-starlight));
+    background: rgb(var(--space-void));
+    padding: 0.25rem 0.75rem;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%)
+             translateY(-50%);
+}
+#u-credit-otherwise .modalbox {
+  background-color: rgb(var(--space-void)) !important;
+}
+.modalbox hr {
+    margin: 0;
+    --hr-icon-size: 2.5rem;
+}
+.modalbox > .credit {
+    margin: 0.5rem;
+}
+.modalbox .cc {
+    color: rgb(var(--space-sun)) !important;
+}
+.modalbox-title {
+    background: rgb(var(--space-void)) !important;
+}
+ 
+/*--------- TABS----------*/
+ 
+.yui-navset .yui-nav {
+    border-bottom: solid 0.125rem rgb(var(--space-planet));
+    font-family: var(--header-font);
+}
+ 
+.yui-navset .yui-content {
+    border: none;
+    position: relative;
+    padding: 0.375rem 0.75rem;
+    background-color: rgb(var(--space-blackhole) / 0.325);
+    box-shadow: 0 0 .675rem .125rem rgb(var(--space-starlight) / 0.05);
+}
+ 
+.yui-navset.yui-navset-top .yui-nav li { flex-grow: 1; }
+.yui-navset.yui-navset-top .yui-nav li a {
+    border: none;
+    padding: 0.575rem;
+}
+ 
+/*--------- CODE ----------*/
+ 
+.code {
+    background: rgb(var(--space-void));
+    border: none;
+}
+.hl-code,
+.hl-default,
+.hl-brackets,
+.hl-quotes,
+.hl-string,
+.hl-identifier {
+    color: rgb(var(--space-starlight));
+}
+.hl-special {
+    color: rgb(var(--space-nebula));
+}
+.hl-number {
+    color: rgb(var(--space-sun));
+}
+.hl-reserved {
+    color: rgb(var(--space-planet));
+}
+ 
+/*--------- LINK ----------*/
+ 
+:any-link { color: rgb(var(--space-planet)); }
+a:visited { color: rgb(var(--space-nebula)); }
+ 
+/*--------- PAGE ELEMENT ----------*/
+ 
+#page-title, .meta-title {
+    color: rgb(var(--space-sun));
+    font-weight: bold;
+    font-family: var(--header-font);
+    border-color: currentColor;
+}
+ 
+h1,h2,h3,h4,h5,h6 {
+    color: rgb(var(--space-moon));
+    font-weight: bold;
+    font-family: var(--header-font);
+}
+:where(#main-content) :is(h1,h2,h3)::before {
+    content: "";
+    display: inline-block;
+    position: relative;
+    margin-inline-end: 0.325rem;
+    background-color: currentColor;
+    height: 0.95em;
+    width: 1.05rem;
+    top: 0.15em;
+    -webkit-mask-image: var(--space-star-mask);
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-image: var(--space-star-mask);
+    mask-size: contain;
+    mask-position: center;
+    mask-repeat: no-repeat;
+}
+ 
+blockquote, div.blockquote, #toc {
+    background-color: rgb(var(--space-void) / 0.575);
+    border: none;
+    padding: 0.25rem 1.325rem;
+}
+ 
+blockquote, div.blockquote {
+    position: relative;
+    min-height: 2rem;
+}
+:where(blockquote, div.blockquote)::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    box-sizing: border-box;
+    width: 100%; height: 100%;
+    border: solid 0.1rem rgb(var(--space-moon));
+    clip-path: polygon(100% 0, 100% 100%, 0 100%, 0 1.425rem, 1.125rem 0);
+    pointer-events: none;
+}
+:where(blockquote, div.blockquote)::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    box-sizing: border-box;
+    width: 2rem; height: 2rem;
+    background-color: rgb(var(--space-moon));
+    -webkit-mask-image: var(--space-star-mask);
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-image: var(--space-star-mask);
+    mask-size: contain;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    transform: translate(-50%, -42.5%);
+}
+ 
+table.wiki-content-table :is(th,td) {
+    border-color: rgb(var(--space-nebula));
+}
+table.wiki-content-table th {
+    background-color: rgb(var(--space-nebula));
+    color: rgb(var(--space-void));
+}
+ 
+/*--------- HR ----------*/
+ 
+hr {
+    --hr-icon-mask: var(--space-constellation-mask);
+    --hr-icon-size: 3.75rem;
+    margin: .5rem 0;
+    background: transparent;
+    height: var(--hr-icon-size);
+    display: grid;
+    place-items: center;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+}
+hr::before, hr::after {
+    content: "";
+    display: grid;
+    grid-column: 1/2;
+    grid-row: 1/2;
+    background-color: rgb(var(--space-sun));
+}
+hr::before {
+    height: 0.05rem;
+    width: 100%;
+    -webkit-mask-image: linear-gradient(90deg, black calc(50% - var(--hr-icon-size)/2 - 0.125rem), transparent calc(50% - var(--hr-icon-size)/2 - 0.125rem), transparent calc(50% + var(--hr-icon-size)/2 + 0.125rem), black calc(50% + var(--hr-icon-size)/2 + 0.125rem));
+    mask-image: linear-gradient(90deg, black calc(50% - var(--hr-icon-size)/2 - 0.125rem), transparent calc(50% - var(--hr-icon-size)/2 - 0.125rem), transparent calc(50% + var(--hr-icon-size)/2 + 0.125rem), black calc(50% + var(--hr-icon-size)/2 + 0.125rem));
+}
+hr::after {
+    width: var(--hr-icon-size);
+    height: var(--hr-icon-size);
+    -webkit-mask-image: var(--hr-icon-mask);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center;
+    mask-image: var(--hr-icon-mask);
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    mask-position: center;
+}
+ 
+/*--------- IMAGE BLOCK ----------*/
+ 
+.scp-image-block {
+    border: none;
+    box-shadow: none;
+    position: relative;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    background: rgb(var(--space-blackhole) / 0.175);
+    -webkit-backdrop-filter: blur(0.125rem);
+    backdrop-filter: blur(0.125rem);
+}
+.scp-image-block.block-left { margin-left: 0; }
+.scp-image-block.block-right { margin-right: 0; }
+ 
+.scp-image-block::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: solid 0.1rem rgb(var(--space-moon));
+    box-sizing: border-box;
+    pointer-events: none;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.325rem), calc(100% - 1.325rem) 100%, 0 100%);
+}
+.scp-image-block::after {
+    content: "";
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 2rem; height: 2rem;
+    background-color: rgb(var(--space-moon));
+    -webkit-mask-image: var(--space-orbit-mask);
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-image: var(--space-orbit-mask);
+    mask-size: contain;
+    mask-position: center;
+    mask-repeat: no-repeat;
+    transform: translate(46.5%, 46.5%);
+}
+ 
+.scp-image-block .scp-image-caption {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    padding-top: 0.25rem;
+    color: rgb(var(--space-moon));
+    font-weight: normal;
+    font-size: .95em;
+}
+ 
+:is(.footnotes-footer, .bibitems) .title {
+    color: rgb(var(--space-moon));
+    font-family: var(--header-font);
+    font-size: 1.5em;
+}
+ 
+.hovertip {
+    padding: 0.375rem;
+    --sp_hovertip-background: rgb(var(--space-void) / 0.5);
+    --sp_hovertip-border: none;
+    -webkit-backdrop-filter: blur(0.25rem);
+    backdrop-filter: blur(0.25rem);
+}
+ 
+/*--------- MISC ----------*/
+ 
+textarea, input.text {
+    background-color: rgb(var(--space-void));
+    color: inherit;
+}
+ 
+#lock-info {
+    font-family: var(--mono-font);
+    font-size: 0.825em;
+    border: none;
+    background-color: rgb(var(--space-void));   
+}
+ 
+div.buttons input, input.button, button, a.button, .owindow .button-bar a {
+    font-family: var(--mono-font);
+    font-size: 0.925em;
+    margin: 0.125rem;
+    padding: 0.25rem 0.675rem;
+    text-decoration: none;
+    background-color: rgb(var(--space-void) / 0.375);
+    border: solid 0.05rem currentColor;
+    color: rgb(var(--space-moon));
+    cursor: pointer;
+}
+:is(div.buttons input, input.button, button, a.button, .owindow .button-bar a):is(:hover,:focus) {
+    color: rgb(var(--space-sun));
+    background-color: rgb(var(--space-sun) / 0.175);
+    font-weight: bold;
+}
+ 
+#main-content .page-tags span {
+    border-color: rgb(var(--space-sun));
+}
+ 
+.page-source {
+    border: none;
+    background: rgb(Var(--space-void) / 0.575);
+}
+ 
+.inline-diff :is(del,ins) {
+    color: rgb(var(--space-blackhole));
+}
+ 
+table.page-files .highlight { background: transparent; }
+ 
+#action-area a.action-area-close {
+    color: rgb(var(--space-sun));
+    background-color: transparent;
+}
+ 
+#who-rated-page-area span:not(.printuser) {
+    color: inherit!important;
+}
+ 
+/*--------- BOTTOM AREA ----------*/
+ 
+#footer {
+    position: relative;
+    background-color: transparent;
+    color: rgb(var(--space-starlight));
+    margin-top: calc(7.25rem + 11.25vw);
+    overflow: unset;
+    isolation: isolate;
+}
+#footer .options a {
+    color: rgb(var(--space-moon));
+}
+ 
+#footer::before {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0;
+    height: calc(8rem + 13.25vw); width: 100%;
+    background-image: var(--space-footer-bg);
+    background-size: cover;
+    background-position: center top;
+    z-index: -1;
+    pointer-events: none;
+}
+ 
+#license-area, #footer-bar {
+    color: inherit;
+    background-color: rgb(var(--space-blackhole));
+    padding-block: 0.95rem;
+}
+ 
+/*--------- MOBILE QUERY ----------*/
+ 
+@media screen and (max-width: 767px) {
+    #header {
+        grid-template-rows: auto 1.5fr auto auto 1fr auto;
+    }
+ 
+    #top-bar div[class*="top-bar"] > ul > li {
+        position: static;
+    }
+    #top-bar :is(.top-bar, .mobile-top-bar) ul li ul li a {
+        padding: 0.75em 0.675em;
+    }
+}
+[[/code]]
+[[/collapsible]]
+
+
+
+
+
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

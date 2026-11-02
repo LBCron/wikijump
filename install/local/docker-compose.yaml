@@ -80,9 +80,9 @@ services:
       - "CARGO_TARGET_DIR=/src/target"
       - "RUSTFLAGS=${RUSTFLAGS:-}"
     volumes:
-      - local-rust-1-95-0-target:/src/target
-      - local-rust-1-95-0-cargo-registry:/usr/local/cargo/registry
-      - local-rust-1-95-0-cargo-git:/usr/local/cargo/git
+      - local-rust-1-99-1-target:/src/target
+      - local-rust-1-99-1-cargo-registry:/usr/local/cargo/registry
+      - local-rust-1-99-1-cargo-git:/usr/local/cargo/git
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wikijump-health-check"]
@@ -160,9 +160,9 @@ services:
       - "CARGO_TARGET_DIR=/src/target"
       - "RUSTFLAGS=${RUSTFLAGS:-}"
     volumes:
-      - local-rust-1-95-0-target:/src/target
-      - local-rust-1-95-0-cargo-registry:/usr/local/cargo/registry
-      - local-rust-1-95-0-cargo-git:/usr/local/cargo/git
+      - local-rust-1-99-1-target:/src/target
+      - local-rust-1-99-1-cargo-registry:/usr/local/cargo/registry
+      - local-rust-1-99-1-cargo-git:/usr/local/cargo/git
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wikijump-health-check"]
@@ -214,12 +214,12 @@ volumes:
     name: local-minio-data
   local-valkey-data:
     name: local-valkey-data
-  local-rust-1-95-0-target:
-    name: local-rust-1-95-0-target
-  local-rust-1-95-0-cargo-registry:
-    name: local-rust-1-95-0-cargo-registry
-  local-rust-1-95-0-cargo-git:
-    name: local-rust-1-95-0-cargo-git
+  local-rust-1-99-1-target:
+    name: local-rust-1-99-1-target
+  local-rust-1-99-1-cargo-registry:
+    name: local-rust-1-99-1-cargo-registry
+  local-rust-1-99-1-cargo-git:
+    name: local-rust-1-99-1-cargo-git
   local-node-24-18-0-pnpm-store:
     name: local-node-24-18-0-pnpm-store
   local-framerail-node-modules:

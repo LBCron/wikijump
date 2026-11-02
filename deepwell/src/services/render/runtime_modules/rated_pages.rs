@@ -1,5 +1,3 @@
-//! Wikidot RatedPages runtime expansion.
-
 use super::{
     AuthorSelector, BTreeMap, CategoriesSelector, ComparisonOperation,
     CompatHtmlFragments, Cow, DateSelector, FoundPageFields, IncludedCategories,

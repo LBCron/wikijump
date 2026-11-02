@@ -1,32 +1,4 @@
 #!/usr/bin/env node
-// Single-page on-demand import runner (operator-only local tool).
-//
-// Given one or more corpus page slugs, makes them viewable on the local
-// Wikijump mirror in one command: verifies the sources exist in the corpus
-// (fail-closed; never fetches from live Wikidot), resolves the dependency
-// closure against the corpus inventory, imports the missing pages plus
-// dependencies via apply-corpus-import-manifest.mjs (attachments included),
-// and runs the V2 render-health check on the imported pages.
-//
-// Usage:
-//   import-page.mjs --slug <page> [--slug <page>...] \
-//     --corpus-root <path> --output-dir <dir> \
-//     [--inventory <corpus-inventory.lock.json>] [--branch en] [--family EN] \
-//     [--site scp-wiki] [--site-id <id>] [--source-site <site>] [--source-branch <branch>] \
-//     [--host <site>.wikijump.localhost] [--rpc-url http://127.0.0.1:2747/jsonrpc] \
-//     [--db-container <name>] [--attachment-user-id -1] \
-//     [--batch-size 40] [--max-depth 8] [--adopt-existing] [--skip-health] [--dry-run]
-//
-// Fail-closed rules: requested slugs missing from the corpus abort the run
-// (exit 2); dependency closure exit codes 1 (unclassified out-of-bundle) and
-// 2 (structural) abort the run; out-of-bundle dependencies are reported, not
-// imported. Exit 0 means every requested page imported (or already present)
-// and the health check ran; import failures exit 1.
-//
-// Auth: set DEEPWELL_SESSION_TOKEN, or the runner logs in
-// per batch via the local Deepwell RPC using WIKIDOT_VERIFY_ADMIN_EMAIL /
-// WIKIDOT_VERIFY_ADMIN_PASS (defaults match the local seed admin, same as
-// preview-source.mjs). Tokens expire after ~5 minutes, hence per-batch login.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -166,9 +138,6 @@ export async function main(argv = process.argv.slice(2)) {
   fs.mkdirSync(args.outputDir, { recursive: true });
   const out = (...parts) => path.join(args.outputDir, ...parts);
 
-  // 1. Fail closed on requested slugs missing from the corpus. Live Wikidot
-  // is never consulted; pages outside the corpus are reported and the run
-  // stops before mutating anything.
   const corpusProblems = {};
   for (const slug of args.slugs) {
     const status = corpusPageStatus(args.corpusRoot, args.branch, slug);
@@ -178,8 +147,6 @@ export async function main(argv = process.argv.slice(2)) {
     fail(2, { error: 'requested pages missing from corpus', corpus_root: args.corpusRoot, branch: args.branch, pages: corpusProblems });
   }
 
-  // 2. Dependency closure (optional but recommended). Without --inventory the
-  // requested pages import alone and unresolved includes surface in V2.
   let plan = planImportSet({ requestedSlugs: args.slugs });
   let closureSummary = null;
   if (args.inventory) {
@@ -209,8 +176,6 @@ export async function main(argv = process.argv.slice(2)) {
     console.error('WARN: no --inventory given; importing without dependency closure');
   }
 
-  // Dependencies present in the inventory but not in this corpus checkout are
-  // skipped (recorded), so one damaged dependency cannot block the page.
   const dependencySlugs = [];
   const skippedDependencies = {};
   for (const slug of plan.dependencySlugs) {
@@ -220,7 +185,6 @@ export async function main(argv = process.argv.slice(2)) {
   }
   const importSlugs = [...dependencySlugs, ...args.slugs];
 
-  // 3. Build the manifest for exactly the import set.
   const manifestPath = out('manifest.jsonl');
   const build = runNode('build-corpus-import-manifest.mjs', [
     '--corpus-root', args.corpusRoot,
@@ -235,8 +199,6 @@ export async function main(argv = process.argv.slice(2)) {
     fail(2, { error: 'manifest build failed', log: out('build-manifest.log') });
   }
 
-  // 4. Resolve the target site id explicitly; the apply default is the
-  // template site, which is a known mis-import trap.
   let siteId = args.siteId;
   if (siteId === null) {
     const site = await rpcCall(args.rpcUrl, 'site_get', { site: args.site });
@@ -246,7 +208,6 @@ export async function main(argv = process.argv.slice(2)) {
     siteId = site.site_id;
   }
 
-  // 5. Apply in batches with a fresh login per batch (~5 minute token TTL).
   const manifestLines = fs.readFileSync(manifestPath, 'utf8').split('\n').filter(Boolean);
   const rowBySlug = new Map(manifestLines.map((line) => [JSON.parse(line).fullname, line]));
   const batches = batchSlugs(importSlugs, args.batchSize);
@@ -287,7 +248,6 @@ export async function main(argv = process.argv.slice(2)) {
     }
   }
 
-  // 6. V2 render-health over the imported set.
   let healthVerdict = null;
   if (!args.skipHealth && !args.dryRun) {
     const health = runNode('render-health-sweep.mjs', [

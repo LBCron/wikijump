@@ -54,8 +54,6 @@ pub async fn site_get_domain(
         .await
         .or_raise(|| Error::new("failed to get site domain", ErrorType::SiteSettings))?;
 
-    // Consumers build absolute URLs from this value (sitemap and robots.txt),
-    // so it carries the public HTTPS port when that port is not 443.
     Ok(DomainService::preferred_authority(config, &site))
 }
 
@@ -71,8 +69,6 @@ pub async fn site_custom_domain_create(
         Error::new("failed to add a new custom domain", ErrorType::SiteSettings)
     })
 }
-
-// TODO rename
 
 pub async fn site_custom_domain_remove(
     ctx: &ServiceContext<'_>,

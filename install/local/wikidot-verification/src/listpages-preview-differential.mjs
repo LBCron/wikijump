@@ -263,8 +263,6 @@ export class DeepwellJsonRpcClient {
     timeoutMs = DEFAULT_LISTPAGES_RPC_TIMEOUT_MS,
   }) {
     validateRpcTimeout(timeoutMs);
-    // Validate the destination before deriving or retaining the bearer token.
-    // A caller-controlled URL must never receive the verifier credential.
     this.rpcUrl = validateLocalDeepwellRpcUrl(rpcUrl);
     this.fetchImpl = fetchImpl;
     this.timeoutMs = timeoutMs;

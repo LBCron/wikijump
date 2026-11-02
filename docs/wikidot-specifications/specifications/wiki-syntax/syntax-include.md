@@ -36,6 +36,11 @@ These seams are recommendations. The implementation agent must present and confi
   missing-page response, and ListPages, category/site queries, the sitemap,
   the changes feed, and backlinks exclude it, while cross-site include
   resolution keeps finding it by (`source_site`, `source_fullname`).
+  Its page slug is storage only: the corpus importer stores it at
+  `_foreign:<source_site>:<fullname>`, so one fullname can be held from
+  several source sites (amoris includes `:scp-int:theme:fogwalker`, which
+  includes `:scpko:theme:fogwalker`). Relative attachments in an included
+  source keep the source fullname as their owner.
   Evidence: includes pull from *another* site (`[[include :sitename:pagename]]`,
   L0007 above — the page belongs to the named site, not the including
   one), and links to pages that do not exist on a site render red

@@ -1,0 +1,484 @@
+
+
+
+
+
+[[=]]
+[[module Rate]]
++ これは何?
+ええと、これはBHL用のダークテーマです。
+//もしあなたがお望みなら。//
+[[/=]]
+[[div_ style="border: 0.0625rem solid rgb(var(--swatch-secondary-color));padding: 1em;text-align:center;"]]
++ 使い方
+[[div_ style="filter: invert(1) brightness(110%);display:flex;"]]
+[[image black-highlighter-logo.svg]]
+[[/div]]
+
+任意のwikiで:
+
+[[div class="code"]]
+@@[[include :scp-jp:theme:black-highlighter-theme]]@@
+@@[[include :scp-jp:theme:extra-black-highlighter-theme]]@@
+[[/div]]
+[[/div]]
+-----
+
+[[=]]
++ テーマカラー
+[[/=]]
+
+[[div_ class="colors-container"]]
+[[div_ class="colors"]]
+[[div class="color" style="background-color: rgb(66, 66, 72);" data-variable="palette-color1" data-has-light-text="1"]]
+Payne's Grey[[span class="css-variable"]]@@--gray-monochrome@@[[/span]][[span class="css-variable"]](66, 66, 72)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(133, 0, 5);" data-variable="palette-color2" data-has-light-text="1"]]
+Rosewood[[span class="css-variable"]]@@--bright-accent@@[[/span]][[span class="css-variable"]](133, 0, 5)[[/span]]
+[[/div]]
+[[/div]]
+[[div_ class="subcolors"]]
+[[div class="color" style="background-color: rgb(215, 215, 215);" data-variable="palette-subcolor1" data-has-light-text="0"]]
+Alto[[span class="css-variable"]]@@--very-light-gray-monochrome@@[[/span]][[span class="css-variable"]](215, 215, 215)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(244, 244, 244);" data-variable="palette-subcolor2" data-has-light-text="0"]]
+White Smoke[[span class="css-variable"]]@@--pale-gray-monochrome@@[[/span]][[span class="css-variable"]](244, 244, 244)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(48, 48, 52);" data-variable="palette-subcolor3" data-has-light-text="1"]]
+Bastille[[span class="css-variable"]]@@--dark-gray-monochrome@@[[/span]][[span class="css-variable"]](48, 48, 52)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(100, 46, 44);" data-variable="palette-subcolor4" data-has-light-text="1"]]
+Buccaneer[[span class="css-variable"]]@@--medium-accent@@[[/span]][[span class="css-variable"]](100, 46, 44)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(100, 3, 15);" data-variable="palette-subcolor5" data-has-light-text="1"]]
+Maroon[[span class="css-variable"]]@@--dark-accent@@[[/span]][[span class="css-variable"]](100, 3, 15)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(221, 102, 17);" data-variable="palette-subcolor6" data-has-light-text="0"]]
+Mango Tango[[span class="css-variable"]]@@--newpage-color@@[[/span]][[span class="css-variable"]](221, 102, 17)[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+
++ 例
+
+
+
+水平方向の罫線は5つのハイフン "@@-----@@" で作ることができ、何か(例 引用ブロック)の中に配置されなければページ全体に広がります。このドキュメントを区切る線が罫線です。
+
+-----
+
+見出しは行頭に1~6つの "+" を置くことで作成できます
+
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブ]]
+これはタブです。
+[[/tab]]
+[[tab タブが作られた]]
+見てください、ここにもテキストが。
+
+なんと奇妙な。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+
+これは長いタブです。たくさんのテキストが入っています。
+[[/tab]]
+[[tab この空のタブにはなぜか非常に長い名前がついています。何故でしょう？とても奇妙です。]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックで、行頭に"> "を置くことで作成できます。
+>
+> 追加のテキスト
+> -----
+> これは罫線です
+>
+>> 入れ子になった引用ブロック
+
+||~ これは ||~ テーブルです ||
+||作り方は || もう既に ||
+||||知っていますね ||
+
+[[=]]
+[[span style="font-family:var(--body-font); font-size: calc(var(--base-font-size) * 1.25);"]]bodyのフォントは [https://fonts.google.com/specimen/Raleway Raleway]。[[/span]]
+[[span style="font-family:var(--header-font); font-size: calc(var(--base-font-size) * 1.25);"]]ヘッダーと見出しのフォントは [https://fonts.google.com/specimen/Poppins Poppins]。[[/span]]
+[[span style="font-family:var(--mono-font); font-size: calc(var(--base-font-size) * 1.25);"]]等幅フォントは [https://fonts.google.com/specimen/Recursive Recursive]。[[/span]]
+[[/=]]
+[[collapsible show="+ テーマのコードを表示" hide="- テーマのコードを隠す"]]
+[[code type="css"]]
+@supports(display:grid) {
+    :root {
+     /* S-CSS-P Integration */
+     /* If you're making a new CSS theme, please include the following three variables at minimum. */
+     --theme-base: "black-highlighte";
+     /* must be either "nuscp" or "sigma9" */
+     --theme-id: "Extra-BHL-theme";
+     /* set this to the URL of your theme's page - eg for "component:ar-theme", set it to "ar-theme" */
+     --theme-name: "Extra Black Highlighter Theme";
+     /* set this to your theme's full name */
+     /* New Vars */
+     --swatch-menubg-extra-dark-color: 30, 30, 32;
+
+     /* Old Vars */
+     --black-monochrome: 20, 22, 24;
+     --light-pale-gray-monochrome: 250, 250, 250;
+     --bright-accent: var(--pale-accent);
+     /* Primary Theme Colors */
+     --swatch-background: var(--swatch-menubg-black-color);
+     /* Background and Header Colors */
+     --background-gradient-color: 10, 10, 10;
+     --header-gradient-color-bottom: var(--medium-accent);
+     --header-gradient-color-middle: var(--swatch-menubg-black-color);
+     --header-gradient-color-top: var(--swatch-menubg-black-color);
+     /* Primary Text Colors */
+     --swatch-text-light: var(--light-pale-gray-monochrome);
+     --swatch-text-general: var(--swatch-text-light);
+     /* Primary Menu Colors */
+     --swatch-menubg-color: var(--swatch-menubg-black-color);
+     --swatch-menutxt-general-color: var(--swatch-menutxt-light-color);
+     /* Colors for Secondary & Tertiary items like Blockquote and YUI Tabs */
+     --swatch-secondary-color: var(--swatch-menubg-dark-color);
+     --swatch-tertiary-color: var(--swatch-menubg-medium-dark-color);
+     --swatch-alternate-color: var(--swatch-primary);
+
+     /* Text Colors for Secondary & Tertiary items like Sidebar Headers and Top-Bar Menu Text */
+     --swatch-text-secondary-color: var(--swatch-menutxt-light-color);
+     --swatch-text-tertiary-color: var(--swatch-menutxt-light-color);
+
+     /* Primary Header Colors */
+     --swatch-topmenu-border-color: var(--swatch-menubg-black-color);
+     --swatch-topmenu-bg-color: var(--swatch-menubg-extra-dark-color);
+
+     --rating-module-text-color: var(--swatch-text-general);
+     --rating-module-button-color: var(--swatch-text-general);
+     --rating-module-button-cancel-color: 100, 100, 100;
+
+     --ui-wght: 500;
+     --ui-hvr-wght: 600;
+
+     --gradient-header: linear-gradient(to bottom,
+     rgb(var(--header-gradient-color-bottom)) 0%,
+     rgb(var(--header-gradient-color-middle)) 90%,
+     rgb(var(--header-gradient-color-top)) 100%);
+
+     --diagonal-stripes: repeating-linear-gradient(45deg,
+     hsla(0, 0%, 100%, 0),
+     hsla(0, 0%, 100%, 0) 0.25vh,
+     rgba(var(--swatch-menubg-extra-dark-color), 0.1) 0.35vh,
+     rgba(var(--swatch-menubg-extra-dark-color), 0.2) 0.5vh);
+    }
+
+    #main-content {
+     --pagetags-title-text: var(--swatch-text-secondary-color);
+    }
+
+    #header {
+     --search-icon-color: var(--swatch-text-tertiary-color);
+    }
+
+    #top-bar {
+     /* ===DROPDOWN MENU=== */
+     --dropdown-bg-color: var(--swatch-menubg-extra-dark-color), 0.9;
+    }
+
+    ::-moz-selection {
+     background: rgb(var(--swatch-primary-darkest));
+    }
+
+    ::selection {
+     background: rgb(var(--swatch-primary-darkest));
+    }
+
+    body {
+     -webkit-font-smoothing: subpixel-antialiased;
+     -moz-osx-font-smoothing: auto;
+    }
+
+    #search-top-box-input {
+     background-color: rgb(var(--swatch-menubg-extra-dark-color));
+    }
+
+    #account-options {
+     background: var(--gradient-header);
+    }
+
+    #login-status {
+     color: rgba(var(--swatch-menutxt-light-color), 0.5);
+    }
+
+    #login-status ul a {
+     color: rgb(var(--swatch-menutxt-light-color));
+    }
+
+    span.printuser {
+     color: rgb(var(--swatch-menutxt-light-color));
+    }
+
+    .page-rate-widget-box {
+     background: linear-gradient(to bottom,
+     rgba(var(--header-gradient-color-bottom), 0.5) 0%,
+     rgba(var(--header-gradient-color-middle), 0.15) 90%,
+     rgba(var(--header-gradient-color-top), 0.15) 100%);
+     border: 0.0625rem solid rgba(var(--swatch-menubg-medium-color), 0.25);
+    }
+
+    #top-bar div.mobile-top-bar>ul>li>ul>li>a,
+    #top-bar div.top-bar>ul>li>ul>li>a {
+     box-shadow: inset 0 0 0 0.0625rem rgba(var(--swatch-menubg-medium-color), 0.15);
+    }
+
+    #interwiki {
+     background-color: transparent;
+    }
+
+    #interwiki .heading p,
+    #side-bar .heading p,
+    #side-bar .collapsible-block .collapsible-block-link {
+     color: rgb(var(--swatch-menutxt-light-color));
+    }
+
+    blockquote,
+    .blockquote,
+    .code {
+     --swatch-border-color: var(--swatch-menubg-light-color);
+     border-color: rgba(var(--swatch-border-color), 0.25);
+    }
+
+    .yui-navset .yui-nav,
+    .yui-navset .yui-navset-top .yui-nav {
+     --box-shadow: rgb(var(--swatch-primary-darkest));
+     border-color: rgb(var(--swatch-primary-darkest));
+    }
+
+    .yui-navset .yui-nav li,
+    .yui-navset .yui-navset-top .yui-nav li {
+     --box-shadow: rgb(var(--swatch-primary-darkest));
+    }
+
+    .yui-navset .yui-nav a,
+    .yui-navset .yui-navset-top .yui-nav a {
+     background-color: rgb(var(--swatch-menubg-extra-dark-color));
+     color: rgb(var(--swatch-text-general));
+    }
+
+    .yui-navset .yui-nav .selected,
+    .yui-navset .yui-navset-top .yui-nav .selected {
+     background-color: rgb(var(--swatch-primary-darkest));
+    }
+
+    table.wiki-content-table th {
+     background: rgb(var(--swatch-secondary-color));
+    }
+
+    table.wiki-content-table th,
+    table.wiki-content-table tr {
+     border: 0.0625rem solid rgba(var(--swatch-menubg-medium-color), 0.25) !important;
+    }
+
+    table.wiki-content-table td {
+     border: 0.0625rem solid rgba(var(--swatch-menubg-light-color), 0.25) !important;
+    }
+
+    textarea,
+    input.text,
+    input.checkbox,
+    div.note,
+    #lock-info {
+     border: 0.0625rem solid rgba(var(--swatch-menubg-light-color), 0.25);
+     background-color: rgb(var(--swatch-menubg-extra-dark-color));
+     color: rgb(var(--swatch-text-light));
+    }
+
+    .code pre span[class*="hl-"] {
+     -webkit-filter: invert(1) hue-rotate(180deg);
+     filter: invert(1) hue-rotate(180deg);
+    }
+
+    .owindow .modal-body img {
+     background-color: transparent !important;
+    }
+
+    .hovertip {
+     border: 0.0625rem solid rgba(var(--swatch-menubg-light-color), 0.25);
+     background-color: rgb(var(--swatch-menubg-extra-dark-color)) !important;
+     color: rgb(var(--swatch-text-light)) !important;
+    }
+
+    #main-content .page-tags span a:not([href^="/system:page-tags/tag/_"]),
+    #main-content .page-tags span a:visited:not([href^="/system:page-tags/tag/_"]) {
+     color: rgb(var(--swatch-primary-secondary-color));
+    }
+
+    #footer,
+    #license-area {
+     --link-color: var(--swatch-text-tertiary-color);
+     --hover-link-color: var(--swatch-text-tertiary-color);
+     --visited-link-color: var(--swatch-text-tertiary-color);
+     color: rgb(var(--swatch-text-general));
+    }
+
+    div[id*="page-options-bottom"]>a::after {
+     background-color: rgb(var(--swatch-text-secondary-color));
+    }
+
+    /* ===BUTTONS=== */
+    div[id*="page-options-bottom"]>a::after {
+     background-color: rgb(var(--swatch-text-tertiary-color));
+    }
+}
+
+[[/code]]
+[[/collapsible]]
+
+
+
+
+
+
+
+
+
+[[module CSS]]
+td { vertical-align: top; }
+td strong { white-space: nowrap; }
+.options table.wiki-content-table td { border: none; padding: 0.7em 1em; }
+.colors-container {
+  width: 98%;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  font-weight: 700;
+  font-family: var(--title-font, Verdana);
+  color: black;
+}
+
+.colors-container .colors, .colors-container .subcolors {
+  width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.colors-container .color {
+  flex-grow: 2;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  color: rgb(var(--swatch-text-dark, 0, 0, 0));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.colors-container .colors .color {
+  height: 7rem;
+  flex-basis: calc((100% / 2) - 2rem);
+}
+
+.colors-container .subcolors .color {
+  height: 4rem;
+  font-size: 75%;
+  text-align: center;
+  flex-basis: calc((100% / 6) - 2rem);
+}
+
+.colors-container .css-variable {
+  font-size: 75%;
+  letter-spacing: 0.1em;
+  font-family: var(--body-font, Verdana);
+}
+
+/* Hide a colour that's not been provided by seeing if the variable starts with "{$" */
+.colors-container [data-variable^=\{\$] {
+  display: none;
+}
+
+.colors-container [data-has-light-text="1"] {
+  color: white;
+  color: rgb(var(--swatch-text-light, 255, 255, 255));
+}
+[[/module]]
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

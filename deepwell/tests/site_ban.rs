@@ -184,8 +184,6 @@ async fn assert_site_ban_remove_denied(
     assert_contains_error!(error, ErrorType::PermissionDenied);
 }
 
-// The registered-RPC harness commits an independent transaction and cannot
-// share these rollback-contained fixtures, so this exercises the endpoint seam.
 #[tokio::test]
 async fn lifecycle_membership_blocking_and_audit() {
     let mut runner = TestRunner::setup().await;
@@ -229,7 +227,6 @@ async fn lifecycle_membership_blocking_and_audit() {
         }),
     );
 
-    // A malformed request must fail before creating a ban.
     let error = run_endpoint_err!(
         runner,
         site_ban_set,
@@ -256,7 +253,6 @@ async fn lifecycle_membership_blocking_and_audit() {
     );
     assert!(ban.is_none(), "Malformed request created a site ban");
 
-    // Add the user as a member before banning them.
     run_endpoint!(
         runner,
         membership_set,
@@ -288,7 +284,6 @@ async fn lifecycle_membership_blocking_and_audit() {
     let create_audit_count =
         audit_event_count(&runner, "site_ban.create", site_id, user_id).await;
 
-    // Ordinary actor on the target site.
     assert_site_ban_set_denied(
         &mut runner,
         request_actor(Some(UNKNOWN_USER_ID)),
@@ -298,8 +293,6 @@ async fn lifecycle_membership_blocking_and_audit() {
     )
     .await;
 
-    // Grant that actor role:assign on a different site; target-site authority
-    // must remain unchanged.
     let other_site_id =
         run_endpoint!(runner, site_get, json!({"site": "scpaiueouiuiuiui"}),)
             .expect("Seeded editable site not found")
@@ -386,7 +379,6 @@ async fn lifecycle_membership_blocking_and_audit() {
 
     runner.set_request_context(request_actor(Some(ADMIN_USER_ID)));
 
-    // Creating the ban must remove the existing membership.
     run_endpoint!(
         runner,
         site_ban_set,
@@ -444,7 +436,6 @@ async fn lifecycle_membership_blocking_and_audit() {
         "Banning the user did not remove their site role",
     );
 
-    // A banned user must not be able to become a member again.
     let error = run_endpoint_err!(
         runner,
         membership_set,
@@ -478,7 +469,6 @@ async fn lifecycle_membership_blocking_and_audit() {
         "Failed membership attempt left a partial relation",
     );
 
-    // A banned user must not receive a new site role.
     let error = run_endpoint_err!(
         runner,
         grant_role_to_user,
@@ -508,11 +498,10 @@ async fn lifecycle_membership_blocking_and_audit() {
         "Failed role-grant attempt restored the removed role",
     );
 
-    // Verify the ban creation audit event.
     let create_event =
         latest_audit_event(&runner, "site_ban.create", site_id, user_id).await;
 
-    assert_eq!(create_event.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(create_event.ip_address.ip(), common::IP_ADDRESS);
     assert_eq!(create_event.user_id, Some(user_id));
     assert_eq!(create_event.site_id, Some(site_id));
     assert_eq!(create_event.extra_id_1, Some(ADMIN_USER_ID));
@@ -543,7 +532,6 @@ async fn lifecycle_membership_blocking_and_audit() {
 
     runner.set_request_context(request_actor(Some(ADMIN_USER_ID)));
 
-    // Removing the ban must soft-delete it and add another audit event.
     let removed = run_endpoint!(
         runner,
         site_ban_remove,
@@ -572,7 +560,7 @@ async fn lifecycle_membership_blocking_and_audit() {
     let remove_event =
         latest_audit_event(&runner, "site_ban.remove", site_id, user_id).await;
 
-    assert_eq!(remove_event.ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(remove_event.ip_address.ip(), common::IP_ADDRESS);
     assert_eq!(remove_event.user_id, Some(user_id));
     assert_eq!(remove_event.site_id, Some(site_id));
     assert_eq!(remove_event.extra_id_1, Some(ADMIN_USER_ID));
@@ -789,7 +777,6 @@ async fn expiration_cleanup_preserves_future_and_permanent_bans() {
     clear_site_ban(&runner, site_id, user_id).await;
     clear_site_membership(&runner, site_id, user_id).await;
 
-    // Banning a non-member must succeed.
     run_endpoint!(
         runner,
         site_ban_set,
@@ -839,7 +826,7 @@ async fn expiration_cleanup_preserves_future_and_permanent_bans() {
     let expiry_event =
         latest_audit_event(&runner, "site_ban.remove", site_id, user_id).await;
 
-    assert_eq!(expiry_event.ip_address, "::1");
+    assert_eq!(expiry_event.ip_address.ip().to_string(), "::1");
     assert_eq!(expiry_event.user_id, Some(user_id));
     assert_eq!(expiry_event.site_id, Some(site_id));
     assert_eq!(expiry_event.extra_id_1, Some(SYSTEM_USER_ID));
@@ -850,7 +837,6 @@ async fn expiration_cleanup_preserves_future_and_permanent_bans() {
     );
     assert_eq!(expiry_event.extra_string_2, None);
 
-    // A future ban must survive the cleanup operation.
     run_endpoint!(
         runner,
         site_ban_set,
@@ -894,7 +880,6 @@ async fn expiration_cleanup_preserves_future_and_permanent_bans() {
         }),
     );
 
-    // A permanent ban must also survive cleanup.
     run_endpoint!(
         runner,
         site_ban_set,

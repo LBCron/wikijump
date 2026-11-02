@@ -13,7 +13,6 @@ import {
   withServer
 } from "./helpers.js"
 
-// The stored nonce must never replay: the header nonce is fresh and matches the body.
 const renewedNonceFrom = (cspHeader) => {
   const nonce = cspHeader.match(/'nonce-([^']+)'/u)?.[1]
   assert.ok(nonce && nonce !== "cached-nonce", "CSP nonce must be renewed on replay")

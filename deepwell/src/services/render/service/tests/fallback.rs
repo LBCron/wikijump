@@ -103,8 +103,6 @@ fn corpus_replay_worker_preparation_uses_production_protection_order() {
 
 #[test]
 fn corpus_replay_worker_preprocesses_many_flat_collapsibles() {
-    // Flat collapsible galleries are no longer fallback pages (#2606): the
-    // replay worker runs them through the normal pipeline.
     let mut wikitext = String::new();
     for index in 0..65 {
         wikitext.push_str(&format!(
@@ -162,9 +160,6 @@ fn dense_style_resource_page_has_no_name_gate() {
         source.push_str("ordinary corpus prose line\n");
     }
 
-    // The score still measures density, but it no longer routes anything to
-    // the fallback by itself, and the style-resource name buys no special
-    // treatment (#2606).
     assert!(
         RenderService::wikidot_compat_parse_complexity_score(&source)
             > MAX_FTML_COMPAT_DENSE_PARSE_SCORE
@@ -831,9 +826,6 @@ fn wikidot_compatibility_fallback_preserves_tabview_bodies_in_hidden_panels() {
 
 #[test]
 fn many_flat_collapsibles_with_images_and_headings_stay_parse_eligible() {
-    // Gallery-shaped pages like scp-buns carry far more than 48 flat
-    // collapsibles with images and headings; they render through FTML, so
-    // the count gate must not route them to the literal fallback (#2606).
     let mut source = String::new();
     for index in 0..65 {
         source.push_str(&format!(
@@ -855,10 +847,6 @@ fn many_flat_collapsibles_with_images_and_headings_stay_parse_eligible() {
 
 #[test]
 fn large_tabbed_corpus_page_stays_parse_eligible() {
-    // The removed tabview shape gate (#337: 64 KB with 12 tabs) no longer
-    // routes anything to the fallback by itself (#2606). The July 2026 hang
-    // it was measured against does not reproduce on the pinned FTML, which
-    // renders that page in 0.13 s.
     let mut source = String::new();
     source.push_str("[[tabview]]\n");
     for index in 0..12 {
@@ -882,10 +870,6 @@ fn large_tabbed_corpus_page_stays_parse_eligible() {
 }
 
 fn large_tabbed_gallery_source() -> String {
-    // Gallery-shaped tabbed pages like zal-cryptid-s-artwork-hub carry a
-    // dozen tabs of collapsibles with images and headings. Titles and
-    // headings use no spaces so the rendered text is asserted verbatim
-    // (the renderer may encode spaces inside link labels).
     let mut source = String::new();
     source.push_str("[[tabview]]\n");
     for tab in 0..14 {
@@ -911,9 +895,6 @@ fn large_tabbed_gallery_source() -> String {
 
 #[test]
 fn large_tabbed_page_with_collapsible_images_and_headings_stays_parse_eligible() {
-    // The tabview shape must not route gallery-shaped pages to the
-    // fallback, whose line-oriented parser drops same-line collapsible
-    // bodies and shreds tab bodies (#2606).
     let source = large_tabbed_gallery_source();
 
     assert!(source.len() < MAX_FTML_COMPAT_PARSE_BYTES);
@@ -950,11 +931,6 @@ fn large_tabbed_page_with_collapsible_images_and_headings_stays_parse_eligible()
 
 #[test]
 fn large_tabbed_gallery_renders_every_collapsible_body_and_image() {
-    // Routing eligibility alone does not prove the bodies survive: render
-    // the gallery fixture through FTML (the path parse-eligible pages
-    // take) and require every collapsible body and image in the output
-    // (#2606). zal-cryptid-s-artwork-hub lost all 14 tab bodies and all
-    // but 2 of its 415 images to the fallback; FTML must keep all of them.
     const TABS: usize = 14;
     const COLLAPSIBLES_PER_TAB: usize = 30;
     const BODIES: usize = TABS * COLLAPSIBLES_PER_TAB;
@@ -1426,6 +1402,164 @@ fn renders_wikidot_interwiki_embed_in_compat_fallback() {
     );
 }
 
+const NEUTRALIZED_INTERWIKI_FRAME: &str = r#"<iframe src="data:text/html,%3C!doctype%20html%3E%3Chtml%20lang=ja%3E%3Cbody%3E%3C/body%3E%3C/html%3E" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#;
+const NEUTRALIZED_STYLE_FRAME: &str = r#"<iframe src="data:text/html,%3C!doctype%20html%3E%3Chtml%20lang=ja%3E%3Cbody%3E%3C/body%3E%3C/html%3E" style="display: none"></iframe>"#;
+
+#[test]
+fn html_block_with_intact_interwiki_frame_rewrites_to_local_frame() {
+    let rewritten = rewrite_single_html_block_body(
+        r#"<iframe src="//interwiki.scp-jp.org/interwikiFrame.html?lang=jp&community=scp&pagename=%%name%%" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#,
+    );
+
+    assert!(rewritten.contains(
+        r#"<iframe src="/-/wikidot-interwiki/interwikiFrame.html?lang=jp&community=scp&pagename=replay" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#
+    ));
+    assert!(!rewritten.contains("/replay/html/1"));
+    assert!(!rewritten.contains("%%name%%"));
+}
+
+#[test]
+fn html_block_with_intact_style_frame_rewrites_to_local_frame() {
+    let rewritten = rewrite_single_html_block_body(
+        r#"<iframe src="//interwiki.scp-jp.org/styleFrame.html?priority=0&theme=https://example.test/sigma.min.css" style="display: none"></iframe>"#,
+    );
+
+    assert!(rewritten.contains(
+        r#"<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=0&theme=https://example.test/sigma.min.css" style="display: none"></iframe>"#
+    ));
+    assert!(!rewritten.contains("/replay/html/1"));
+}
+
+#[test]
+fn html_block_with_neutralized_interwiki_frame_rebuilds_the_local_frame() {
+    let mut page_info = fallback_test_page_info("replay", "Replay");
+    page_info.language = Cow::Borrowed("ja");
+    let body = concat!(
+        "<p>",
+        r#"<iframe src="https://example.com/" allowtransparency="true" frameborder="0" class="html-block-iframe"></iframe>"#,
+        "</p>",
+    )
+    .to_owned();
+    let rewritten = RenderService::rewrite_wikidot_html_block_iframe_urls(
+        body,
+        &page_info,
+        &[NEUTRALIZED_INTERWIKI_FRAME.to_owned()],
+        None,
+    );
+
+    // The FTML language code ja maps to the interwiki branch code jp.
+    assert!(rewritten.contains(
+        r#"<iframe src="/-/wikidot-interwiki/interwikiFrame.html?lang=jp&community=scp&pagename=replay" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#
+    ));
+    assert!(!rewritten.contains("data:text/html"));
+    assert!(!rewritten.contains("/replay/html/1"));
+}
+
+#[test]
+fn html_block_with_neutralized_style_frame_rebuilds_the_local_frame() {
+    let rewritten = rewrite_single_html_block_body(NEUTRALIZED_STYLE_FRAME);
+
+    assert!(rewritten.contains(
+        r#"<iframe src="/-/wikidot-interwiki/styleFrame.html" style="display: none"></iframe>"#
+    ));
+    assert!(!rewritten.contains("data:text/html"));
+    assert!(!rewritten.contains("/replay/html/1"));
+}
+
+#[test]
+fn html_block_rewrite_keys_hosted_blocks_to_the_owner_page() {
+    let page_info = fallback_test_page_info("main", "Main");
+    let placeholder = r#"<iframe src="https://example.com/" allowtransparency="true" frameborder="0" class="html-block-iframe"></iframe>"#;
+    let body = format!("<p>{placeholder}</p><p>{placeholder}</p>");
+    let html_blocks = vec![
+        r#"<iframe src="//interwiki.scpwiki.com/interwikiFrame.html?lang=en&community=scp" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#
+            .to_owned(),
+        "<b>hosted</b>".to_owned(),
+    ];
+    let rewritten = RenderService::rewrite_wikidot_html_block_iframe_urls(
+        body,
+        &page_info,
+        &html_blocks,
+        Some("nav:side"),
+    );
+
+    // The interwiki frame binds to the viewed page even when the assembly
+    // is owned by another page, and a missing pagename is appended.
+    assert!(rewritten.contains("pagename=main"));
+    assert!(rewritten.contains(r#"src="/nav:side/html/2""#));
+    assert!(!rewritten.contains("/main/html/"));
+}
+
+#[test]
+fn html_block_with_unrecognized_attribute_stays_hosted() {
+    let rewritten = rewrite_single_html_block_body(
+        r#"<iframe src="data:text/html,%3Chtml%3E" class="html-block-iframe scpnet-interwiki-frame" onload="alert(1)"></iframe>"#,
+    );
+
+    assert!(rewritten.contains(r#"src="/replay/html/1""#));
+    assert!(!rewritten.contains("wikidot-interwiki"));
+    assert!(!rewritten.contains("onload"));
+}
+
+#[test]
+fn wikidot_compatibility_fallback_rewrites_intact_interwiki_html_block() {
+    let source = concat!(
+        "[[html]]\n",
+        r#"<iframe src="//interwiki.scp-jp.org/interwikiFrame.html?lang=jp&community=scp&pagename=%%name%%" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#,
+        "\n[[/html]]",
+    );
+
+    let output = RenderService::render_wikidot_compatibility_fallback_output_for_context(
+        source,
+        Some("scp-002"),
+        Some("scp-jp"),
+        None,
+    );
+
+    assert_eq!(output.html_block_texts.len(), 1);
+    assert!(output.body.contains(
+        r#"src="/-/wikidot-interwiki/interwikiFrame.html?lang=jp&community=scp&pagename=scp-002""#
+    ));
+    assert!(!output.body.contains("/scp-002/html/1"));
+}
+
+#[test]
+fn wikidot_compatibility_fallback_keys_nav_html_blocks_to_the_nav_page() {
+    let source = format!(
+        "[[div class=\"scpnet-interwiki-wrapper interwiki-stylable\"]]\n\
+         [[html]]\n{frame}\n[[/html]]\n[[/div]]\n\
+         [[html]]\n{style}\n[[/html]]\n\
+         [[html]]\n<b>hosted</b>\n[[/html]]\n",
+        frame = NEUTRALIZED_INTERWIKI_FRAME,
+        style = NEUTRALIZED_STYLE_FRAME,
+    );
+
+    let output = RenderService::render_wikidot_compatibility_fallback_output_for_emission(
+        &source,
+        Some("main"),
+        Some("scp-jp"),
+        None,
+        crate::services::render::service::WikidotHtmlBlockEmission {
+            owner_page_slug: Some("nav:side"),
+            root_page_slug: Some("main"),
+            page_language: Some("ja"),
+        },
+    );
+
+    assert_eq!(output.html_block_texts.len(), 3);
+    assert!(output.body.contains(
+        r#"src="/-/wikidot-interwiki/interwikiFrame.html?lang=jp&community=scp&pagename=main""#
+    ));
+    assert!(
+        output
+            .body
+            .contains(r#"src="/-/wikidot-interwiki/styleFrame.html""#)
+    );
+    assert!(output.body.contains(r#"src="/nav:side/html/3""#));
+    assert!(!output.body.contains("/main/html/"));
+    assert!(!output.body.contains("data:text/html"));
+}
+
 #[test]
 fn leaves_unsupported_embed_literal_in_compat_fallback() {
     let rendered =
@@ -1454,6 +1588,7 @@ fn rewrite_single_html_block_body(html_block: &str) -> String {
         body,
         &page_info,
         &[html_block.to_owned()],
+        None,
     )
 }
 
@@ -1479,8 +1614,6 @@ fn direct_html_iframe_with_data_src_falls_back_to_hosted_frame() {
         r#"<iframe src="data:text/html,<script>alert(1)</script>"></iframe>"#,
     );
 
-    // The data URL contains angle brackets, so the direct-iframe shape
-    // rejects it before the scheme gate; either way it must stay hosted.
     assert!(rewritten.contains(r#"<iframe src="/replay/html/1""#));
     assert!(!rewritten.contains("data:text/html"));
 }
@@ -1540,7 +1673,6 @@ fn direct_html_iframe_with_uppercase_scheme_falls_back_to_hosted_frame() {
         r#"<iframe src="HTTPS://example.com/a"></iframe>"#,
     );
 
-    // Matches the legacy [[iframe]] gate, which is case-sensitive.
     assert!(rewritten.contains(r#"<iframe src="/replay/html/1""#));
 }
 
@@ -1575,8 +1707,6 @@ fn direct_html_iframe_with_http_src_passes_through_verbatim() {
 
 #[test]
 fn direct_html_iframe_with_embedded_allowlisted_scheme_falls_back_to_hosted_frame() {
-    // Anchoring pin: the gate is starts_with, not contains. A dangerous
-    // scheme with an allowlisted URL embedded later must still fall back.
     let rewritten = rewrite_single_html_block_body(
         r#"<iframe src="javascript:http://example.com/x"></iframe>"#,
     );
@@ -1598,8 +1728,6 @@ fn direct_html_iframe_with_padded_dangerous_src_falls_back_to_hosted_frame() {
 
 #[test]
 fn direct_html_iframe_with_padded_legitimate_src_falls_back_to_hosted_frame() {
-    // Documents the deliberate stricter-than-legacy behavior: even a padded
-    // https URL falls back instead of passing through.
     let rewritten = rewrite_single_html_block_body(
         r#"<iframe src=" https://example.com/a"></iframe>"#,
     );
@@ -1609,7 +1737,6 @@ fn direct_html_iframe_with_padded_legitimate_src_falls_back_to_hosted_frame() {
 
 #[test]
 fn direct_html_iframe_with_entity_encoded_scheme_falls_back_to_hosted_frame() {
-    // The raw & fails starts_with, so no decoding can smuggle a scheme past.
     let rewritten = rewrite_single_html_block_body(
         r#"<iframe src="&#106;avascript:alert(1)"></iframe>"#,
     );
@@ -1635,5 +1762,299 @@ fn direct_html_iframe_with_scheme_free_src_forms_falls_back_to_hosted_frame() {
     assert!(
         !rewrite_single_html_block_body(r#"<iframe src=javascript:alert(1)></iframe>"#)
             .contains("javascript:")
+    );
+}
+
+#[test]
+fn wikidot_line_block_scans_treat_one_line_blocks_as_complete() {
+    let source = "[[html]]\n<p>x</p>\n[[/html]]\nafter\n";
+    assert!(RenderService::is_inside_wikidot_html_block(
+        source,
+        source.find("<p>").unwrap()
+    ));
+    assert!(!RenderService::is_inside_wikidot_html_block(
+        source,
+        source.find("after").unwrap()
+    ));
+
+    let source = "[[html]]<hr>[[/html]]\nafter\n";
+    assert!(RenderService::is_inside_wikidot_html_block(
+        source,
+        source.find("<hr>").unwrap()
+    ));
+    assert!(!RenderService::is_inside_wikidot_html_block(
+        source,
+        source.find("after").unwrap()
+    ));
+
+    let source = "[[html]]\n<p>x</p>\nafter\n";
+    assert!(RenderService::is_inside_wikidot_html_block(
+        source,
+        source.find("after").unwrap()
+    ));
+
+    let source = "[[code]][MEMETIC KILL AGENT NEUTRALIZED][[/code]]\nafter\n";
+    assert!(RenderService::is_inside_wikidot_code_block(
+        source,
+        source.find("MEMETIC").unwrap()
+    ));
+    assert!(!RenderService::is_inside_wikidot_code_block(
+        source,
+        source.find("after").unwrap()
+    ));
+
+    let source = "[[code type=\"css\"]].x { color: red; }[[/code]]\nafter\n";
+    assert!(!RenderService::is_inside_wikidot_code_block(
+        source,
+        source.find("after").unwrap()
+    ));
+    let source = "[[code]]\nlet x = 1;\n[[/code]]\nafter\n";
+    assert!(RenderService::is_inside_wikidot_code_block(
+        source,
+        source.find("let x").unwrap()
+    ));
+    assert!(!RenderService::is_inside_wikidot_code_block(
+        source,
+        source.find("after").unwrap()
+    ));
+}
+
+#[test]
+fn embed_after_one_line_html_block_is_claimed() {
+    let mut wikitext = concat!(
+        "[[html]]<hr>[[/html]]\n",
+        "[[embed]]\n",
+        r#"<iframe src="//interwiki.scpwiki.com/styleFrame.html?priority=1&theme=https://example.com/a.css&css={$css}" style="display: none"></iframe>"#,
+        "\n[[/embed]]\n",
+    )
+    .to_owned();
+
+    let iframes = RenderService::protect_wikidot_embed_iframes(&mut wikitext);
+    assert_eq!(
+        iframes,
+        vec![
+            r#"<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=1&theme=https://example.com/a.css&css={$css}" style="display: none"></iframe>"#
+                .to_owned()
+        ],
+    );
+    assert!(!wikitext.contains("[[embed]]"));
+}
+
+#[test]
+fn embed_after_one_line_code_block_is_claimed() {
+    let mut wikitext = concat!(
+        "[[code]][MEMETIC KILL AGENT NEUTRALIZED][[/code]]\n",
+        "[[embed]]\n",
+        r#"<iframe src="//interwiki.scpwiki.com/styleFrame.html?priority=1&theme=https://example.com/a.css&css={$css}" style="display: none"></iframe>"#,
+        "\n[[/embed]]\n",
+    )
+    .to_owned();
+
+    let iframes = RenderService::protect_wikidot_embed_iframes(&mut wikitext);
+    assert_eq!(
+        iframes,
+        vec![
+            r#"<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=1&theme=https://example.com/a.css&css={$css}" style="display: none"></iframe>"#
+                .to_owned()
+        ],
+    );
+    assert!(!wikitext.contains("[[embed]]"));
+}
+
+fn render_embed_claims_after_preparation(
+    wikitext: &str,
+) -> (Vec<String>, String, String) {
+    let page_info = fallback_test_page_info("embed-include", "Embed Include");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let outer = RenderService::prepare_outer_render_wikitext(
+        super::super::ExpandedRenderWikitext {
+            theme_previewer_blank: false,
+            wikidot_compat_html: CompatHtmlFragments::new(wikitext),
+            wikidot_compat_text: CompatTextFragments::new(wikitext),
+            wikitext: wikitext.to_owned(),
+            included_pages: Vec::new(),
+            expanded_include_count: 0,
+            url_offset_list_pages_content_bytes: 0,
+            runtime_css_insertions: Vec::new(),
+        },
+        &page_info,
+        &settings,
+    );
+    let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
+    let claims = inner.wikidot_embed_iframes.clone();
+    let prepared = inner.wikitext.clone();
+    let tokens = ftml::tokenize(&inner.wikitext);
+    let (tree, _errors) = ftml::parse(&tokens, &page_info, &settings).into();
+    let html = HtmlRender.render(&tree, &page_info, &settings).body;
+    let html = RenderService::restore_protected_wikidot_embed_iframes(html, &claims);
+    let html = inner.protection.restore(|protection| {
+        let html = protection.compat_html().restore(&html);
+        protection.compat_text().restore(&html)
+    });
+    (claims, prepared, html)
+}
+
+fn interwiki_style_component(priority: &str, theme: &str) -> String {
+    let mut source = String::new();
+    source.push_str(
+        "[!--\nStyling component for the EN Interwiki.\n--]\n\n[[embed]]\n<iframe src=\"//interwiki.scpwiki.com/styleFrame.html?priority=",
+    );
+    source.push_str(priority);
+    source.push_str("&theme=");
+    source.push_str(theme);
+    source.push_str("&css={$css}\" style=\"display: none\"></iframe>\n[[/embed]]\n");
+    source
+}
+
+#[test]
+fn include_carried_styleframe_embeds_are_claimed_and_rendered() {
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+
+    let theme_source = concat!(
+        "[[module CSS]]\n",
+        ".theme { display: block; }\n",
+        "[[/module]]\n",
+        "\n",
+        "[[div_ style=\"display: none\"]]\n",
+        "[[include :scp-wiki:component:interwiki-style\n",
+        "| priority=1\n",
+        "| theme=https://example.com/a.css\n",
+        "]]\n",
+        "\n",
+        "[[include :scp-wiki:component:interwiki-style\n",
+        "| priority=2\n",
+        "| theme=https://example.com/b.css\n",
+        "]]\n",
+        "[[/div]]\n",
+    );
+    let (theme_assembled, _) = ftml::include(
+        theme_source,
+        &settings,
+        PreparedIncluder {
+            pages: vec![
+                Some(interwiki_style_component("1", "https://example.com/a.css")),
+                Some(interwiki_style_component("2", "https://example.com/b.css")),
+            ],
+            missing_replacements: Default::default(),
+        },
+        include_error,
+    )
+    .expect("theme includes should expand");
+
+    let root_source = concat!(
+        "[[html]]<hr>[[/html]]\n",
+        "[[include :scp-wiki:theme:black-highlighter-theme]]\n",
+        "Body text.\n",
+    );
+    let (assembled, _) = ftml::include(
+        root_source,
+        &settings,
+        PreparedIncluder {
+            pages: vec![Some(theme_assembled)],
+            missing_replacements: Default::default(),
+        },
+        include_error,
+    )
+    .expect("root include should expand");
+
+    let (claims, prepared, html) = render_embed_claims_after_preparation(&assembled);
+    assert_eq!(claims.len(), 2, "{prepared}");
+    assert!(
+        claims[0].contains("priority=1&theme=https://example.com/a.css"),
+        "{claims:?}"
+    );
+    assert!(
+        claims[1].contains("priority=2&theme=https://example.com/b.css"),
+        "{claims:?}"
+    );
+    assert!(!prepared.contains("[[embed]]"), "{prepared}");
+    assert!(
+        html.contains(
+            r#"<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=1&theme=https://example.com/a.css&css={$css}" style="display: none"></iframe>"#
+        ),
+        "{html}"
+    );
+    assert!(
+        html.contains(
+            r#"<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=2&theme=https://example.com/b.css&css={$css}" style="display: none"></iframe>"#
+        ),
+        "{html}"
+    );
+    assert!(!html.contains("[[embed]]"), "{html}");
+    assert!(!html.contains("&lt;iframe"), "{html}");
+}
+
+#[test]
+fn include_carried_unsupported_embed_payloads_fail_closed() {
+    for payload in [
+        r#"<iframe src="//evil.example/widget" style="display: none"></iframe>"#,
+        r#"<iframe src="//interwiki.example.com/styleFrame.html?priority=1" style="display: none"></iframe>"#,
+        r#"<iframe src="//interwiki.scpwiki.com/styleFrame.html?priority=1" style="display: none" onload="alert(1)"></iframe>"#,
+    ] {
+        let assembled = format!(
+            "[[html]]<hr>[[/html]]\n[[div_ style=\"display: none\"]]\n[[embed]]\n{payload}\n[[/embed]]\n[[/div]]\n"
+        );
+        let (claims, prepared, _html) = render_embed_claims_after_preparation(&assembled);
+        assert_eq!(
+            claims,
+            vec![
+                r#"<div class="error-block">Sorry, no match for the embedded content.</div>"#
+                    .to_owned()
+            ],
+            "{payload}: {prepared}"
+        );
+    }
+}
+
+#[test]
+fn list_pages_embed_after_one_line_html_block_is_protected() {
+    let mut body = concat!(
+        "[[html]]<hr>[[/html]]\n",
+        "[[embed]]\n",
+        r#"<iframe src="//interwiki.scpwiki.com/styleFrame.html?priority=1&theme=https://example.com/a.css&css={$css}" style="display: none"></iframe>"#,
+        "\n[[/embed]]\n",
+    )
+    .to_owned();
+    let mut fragments = CompatHtmlFragments::new(&body);
+
+    RenderService::protect_list_pages_wikidot_embed_iframes(&mut body, &mut fragments);
+
+    assert!(!body.contains("[[embed]]"), "{body}");
+    let restored = fragments.restore(&body);
+    assert!(
+        restored.contains(
+            r#"<iframe src="/-/wikidot-interwiki/styleFrame.html?priority=1&theme=https://example.com/a.css&css={$css}" style="display: none"></iframe>"#
+        ),
+        "{restored}"
+    );
+}
+
+#[test]
+fn include_carried_embedvideo_resolves_after_one_line_html_block() {
+    // [[embedvideo]] is an FTML typed element rather than a claimed
+    // [[embed]] block, so carriage through an include already reaches the
+    // parser; this pins that the one-line html block ahead of it changes
+    // nothing and the full YouTube payload set resolves.
+    let source = concat!(
+        "[[html]]<hr>[[/html]]\n",
+        "[[embedvideo]]\n",
+        r#"<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>"#,
+        "\n[[/embedvideo]]\n",
+    );
+    let page_info = fallback_test_page_info("embedvideo-include", "EmbedVideo Include");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let tokenization = ftml::tokenize(source);
+    let (tree, errors) = ftml::parse(&tokenization, &page_info, &settings).into();
+    assert!(errors.is_empty(), "{errors:#?}");
+    let mut output = HtmlRender.render(&tree, &page_info, &settings);
+    assert!(RenderService::resolve_wikidot_embed_video_requirements(
+        &mut output
+    ));
+    assert!(
+        output
+            .body
+            .contains("https://www.youtube.com/embed/dQw4w9WgXcQ"),
+        "{}",
+        output.body
     );
 }

@@ -29,16 +29,7 @@ use tower_http::set_header::SetResponseHeaderLayer;
 use tower_http::trace::TraceLayer;
 
 pub fn build_router(state: ServerState) -> Router {
-    // NOTE: For all GET routes, axum automatically handles HEAD requests.
-    //       The same logic is run, but the body is removed, which is very
-    //       convenient for us.
-    //
-    //       If we can avoid an expensive operation in a HEAD, then add
-    //       a "method: http::Method" parameter in the request then check
-    //       that before doing the relevant operation.
-
     Router::new()
-        // Wikidot redirects
         .route(
             "/local--files/{page_slug}/{filename}",
             any(handle_local_file),
@@ -56,7 +47,6 @@ pub fn build_router(state: ServerState) -> Router {
             any(handle_invalid_method),
         )
         .route("/local--html/{page_slug}/{id}", any(handle_html_redirect))
-        // Wikijump redirects
         .route("/-/files/{page_slug}/{filename}", any(handle_file_redirect))
         .route(
             "/{page_slug}/code",
@@ -70,7 +60,6 @@ pub fn build_router(state: ServerState) -> Router {
             "/{page_slug}/download/{filename}",
             any(handle_download_redirect),
         )
-        // Files
         .route("/-/file/{page_slug}/{filename}", get(handle_file_fetch))
         .route("/-/file/{page_slug}/{filename}", any(handle_invalid_method))
         .route(
@@ -91,25 +80,19 @@ pub fn build_router(state: ServerState) -> Router {
         )
         .route("/-/avatar/{user_id}", get(handle_user_avatar))
         .route("/-/avatar/{user_id}", any(handle_invalid_method))
-        // Code and HTML
         .route("/-/code/{page_slug}/{index}", get(handle_code_block))
         .route("/-/code/{page_slug}/{index}", any(handle_invalid_method))
         .route("/-/html/{page_slug}/{id}", get(handle_html_block))
         .route("/-/html/{page_slug}/{id}", any(handle_invalid_method))
-        // System routes
         .route("/-/health-check", any(handle_health_check))
         .route("/-/basic-error/{error_code}", get(handle_basic_error))
         .route("/-/basic-error/{error_code}", any(handle_invalid_method))
-        // General routes
         .route("/robots.txt", get(handle_robots_txt))
         .route(
             "/common--theme/base/css/html-block.css",
             get(handle_html_block_css),
         )
-        .route(
-            "/common--theme/{*path}",
-            get(handle_common_theme),
-        )
+        .route("/common--theme/{*path}", get(handle_common_theme))
         .route(
             "/common--javascript/html-block-iframe.js",
             get(handle_html_block_iframe_js),
@@ -118,14 +101,10 @@ pub fn build_router(state: ServerState) -> Router {
             "/common--javascript/resize-iframe.html",
             get(handle_resize_iframe_html),
         )
-        .route(
-            "/common--javascript/{*path}",
-            get(handle_common_javascript),
-        )
+        .route("/common--javascript/{*path}", get(handle_common_javascript))
         .route("/.well-known", any(handle_well_known))
         .route("/.well-known/{*path}", any(handle_well_known))
         .fallback(redirect_to_main)
-        // Middleware
         .layer(TraceLayer::new_for_http())
         .layer(NormalizePathLayer::trim_trailing_slash())
         .layer(SetResponseHeaderLayer::if_not_present(
@@ -197,8 +176,6 @@ mod tests {
                 assert_eq!(request["params"][0], 42);
                 json!(domain.lock().unwrap().clone())
             }
-            // The robots handler checks sitemap presence before resolving the
-            // canonical domain; this public site answers the index query.
             "wikidot_sitemap" => {
                 assert_eq!(request["params"]["site_id"], 42);
                 assert_eq!(request["params"]["shard"], 0);
@@ -288,8 +265,6 @@ mod tests {
         body: Bytes,
     ) -> ([(axum::http::HeaderName, &'static str); 1], String) {
         let request: Value = serde_json::from_slice(&body).unwrap();
-        // A site with no public inventory answers the index query with null,
-        // and the robots handler must not consult the domain RPC for it.
         assert_eq!(request["method"], "wikidot_sitemap");
         assert_eq!(request["params"]["site_id"], 7);
         assert_eq!(request["params"]["shard"], 0);
@@ -358,6 +333,40 @@ mod tests {
         for (path, location) in [
             ("/category%3Apage/code", "/-/code/category:page/1"),
             ("/category%3Apage/code/2", "/-/code/category:page/2"),
+        ] {
+            let response = client
+                .get(format!("http://{address}{path}"))
+                .header(crate::handler::HEADER_SITE_ID, "1")
+                .send()
+                .await
+                .unwrap();
+
+            assert_eq!(response.status(), StatusCode::PERMANENT_REDIRECT);
+            assert_eq!(response.headers().get(LOCATION).unwrap(), location);
+        }
+
+        server.abort();
+    }
+
+    #[tokio::test]
+    async fn underscore_local_code_route_redirects_to_the_internal_code_route() {
+        let state = build_server_state(false, test_secrets()).await.unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            axum::serve(listener, build_router(state)).await.unwrap();
+        });
+        let client = reqwest::Client::builder()
+            .redirect(reqwest::redirect::Policy::none())
+            .build()
+            .unwrap();
+
+        for (path, location) in [
+            ("/local--code/category%3Apage/2", "/-/code/category:page/2"),
+            (
+                "/local--code_/category%3Apage/2",
+                "/-/code/category%3Apage/2",
+            ),
         ] {
             let response = client
                 .get(format!("http://{address}{path}"))

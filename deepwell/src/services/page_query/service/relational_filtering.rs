@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Page-query filters that resolve relationships through auxiliary tables.
-
 use super::{
     AuthorSelector, ColumnTrait, Condition, ConnectionType, Expr, ExprTrait,
     PageConnection, PageParent, PageParentSelector, PageService, Query, Reference,
@@ -244,9 +242,6 @@ pub(super) async fn outgoing_link_condition(
         return Ok(None);
     }
 
-    // ListPages link_to= filters read page_connection just like the dedicated
-    // Backlinks/OrphanedPages/WantedPages modules. Render-ahead must rerender
-    // these readers after other pages update their links in the full pass.
     ctx.note_link_graph_read();
 
     let mut condition = Condition::all();

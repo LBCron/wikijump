@@ -27,7 +27,6 @@ import { createPinnedSourceAccess } from "../src/compatibility-inventory/pinned-
 import {
   CATALOG_SOURCE_ATTRIBUTION,
   applyCatalogSourceAttribution as applyCatalogSourceAttributionFromEvidence,
-  applyFramerailRouteActionEvidence as applyFramerailRouteActionEvidenceFromEvidence,
   applyWwsContractEvidence as applyWwsContractEvidenceFromEvidence
 } from "../src/compatibility-inventory/evidence-projection.mjs"
 import {
@@ -95,8 +94,6 @@ const AUDITED_OWNERSHIP_REPORTS = Object.freeze([
     sha256: "ef87c37c9bd2ebf661d003c361f386c5d979b30aeebb18a6b44c307124f0636c"
   }
 ])
-// Audited ownership attaches to the catalog's feature identity set. Other
-// catalog metadata, such as live observation bindings, does not alter owners.
 const AUDITED_CATALOG_SURFACE_IDS_SHA256 = "230b734b715f15dc5b82e94f224bb8ae4a2717696d6bf23e9e57a103b83e1e28"
 async function loadSupportedWikidotPySource(root) {
   const value = await readJson(root, "docs/development/wikidot-py-supported-source.json")
@@ -477,15 +474,6 @@ async function discoverFramerailRoutes(root) {
   ).map((descriptor) => surface(descriptor))
 }
 
-async function applyFramerailRouteActionEvidence(root, records, sourceRevision) {
-  return applyFramerailRouteActionEvidenceFromEvidence(root, records, sourceRevision, {
-    readJson,
-    preloadPinnedRevisionTexts,
-    isCanonicalRepositoryReference,
-    gitRevisionContains
-  })
-}
-
 async function applyWwsContractEvidence(root, records, sourceRevision) {
   return applyWwsContractEvidenceFromEvidence(root, records, sourceRevision, {
     readJson,
@@ -600,13 +588,7 @@ async function buildInventory(root, sourceRevision) {
   const auditedOwnershipActive = sha256(
     `${catalog.map(({ surface_id: surfaceId }) => surfaceId).sort().join("\n")}\n`
   ) === AUDITED_CATALOG_SURFACE_IDS_SHA256
-  const projectedFramerailRoutes = auditedOwnershipActive
-    ? await applyFramerailRouteActionEvidence(
-        root,
-        framerailRoutes,
-        sourceRevision
-      )
-    : framerailRoutes
+  const projectedFramerailRoutes = framerailRoutes
   const projectedAmcEvidence = await applySiteChangesEvidence(root, amc)
   const projectedAmc = auditedOwnershipActive
     ? applyFramerailAmcTests(root, projectedAmcEvidence, sourceRevision)

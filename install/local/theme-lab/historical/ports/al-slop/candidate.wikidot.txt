@@ -1,0 +1,565 @@
+
+
+
+
+
+[[>]]
+[[module rate]]
+[[/>]]
+
+これはscp wikiで最悪のテーマです。なんでこんなの使うんですか？ 私ことhaydensaintpascalは自分の創造物を恥じていますし、このページを見ているあなたも恥じるべきです。
+
+> {{@@[[ここは栄誉ある場所ではありません]]@@}}
+
+----
+
+このテキストの上にある行は、"@@----@@"と入力して作ったHRです。
+
+[[div class="blockquote"]]
+これは引用です。
+[[div class="blockquote"]]
+これは入れ子の引用です
+[[/div]]
+
+このテーマは本当に邪悪です
+
+----
+
+いまのが別のhrです
+
+[[/div]]
+
+行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年。
+
+
+
+
+行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年 行け白人少年。
+
+~~~~
+
+[[collapsible show="クリックして" hide="クリックして"]]
++ タイトル
+++ タイトル
++++ タイトル
+++++ タイトル
++++++ タイトル
+++++++ タイトル
+[[/collapsible]]
+
+[[>]]
++ タイトルフォントはBoogaloo
+本文フォントはMargarine
+[[/>]]
+
+[[code type="CSS"]]
+@import url('https://fonts.bunny.net/css2?family=Boogaloo&display=swap');
+@import url('https://fonts.bunny.net/css2?family=Margarine&display=swap');
+
+:root {
+  --whiteboy: #fff5f3; /* alからスポイトした色 */
+  --jolly-roger: #221f1e; /* alの帽子からスポイトした色 */
+  --poop: #544446; /* コメントなし */
+  --body-text: #222;
+  
+  --sp_top-bar-gradient-top-color: var(--poop);
+  --sp_top-bar-gradient-bottom-color: var(--jolly-roger);
+  --sp_top-bar-height: 1.8rem;
+  --header-subtitle: "";
+  --sp_rate-module-background: var(--jolly-roger);
+  --sp_header-logo: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alLogo.webp");
+  --sp_header-logo-size: 18rem;
+  --sp_header-height: 16rem;
+  
+  --header-font: "Boogaloo", "Noto Sans JP", sans-serif;
+  --body-font: "Margarine", "Noto Sans JP", sans-serif;
+}
+
+body {
+  background-color: var(--whiteboy);
+  font-family: var(--body-font);
+  color: var(--body-text);
+}
+
+/* ヘッダー */
+
+#header {
+  background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alBanner.png"), url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alBanner.png"), url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alBanner.png"), url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alBanner.png");
+  background-size: auto 50%, auto 100%, auto 60%, auto 40%;
+  background-position: bottom left, bottom center, top right, top -20% center;
+}
+
+#header h1 a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  filter: drop-shadow(0 0 3px black);
+}
+
+#header h1 a::before {
+  content: "";
+  height: 8rem;
+  width: 100%;
+  display: block;
+  background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alSCP.webp");
+  background-size: contain;
+  background-position: left -1rem center;
+  background-repeat-y: no-repeat;
+}
+
+#header::before {
+  filter: drop-shadow(0 0 3px white);
+}
+
+#login-status {
+  background-color: var(--jolly-roger);
+  width: max-content;
+  margin-left: auto;
+  padding: 0.3rem;
+  margin-top: 0.8rem;
+  outline: solid 4px var(--poop);
+  border-radius: 0.3rem;
+}
+
+#top-bar .open-menu a {
+  border: none;
+  background-color: var(--whiteboy);
+  color: transparent;
+  top: 0.2rem;
+  left: 0.2rem;
+  height: 4rem;
+  width: 4rem;
+  background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/ALCANYON.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#search-top-box-form input[type="submit"] {
+  background: var(--jolly-roger);
+  border: 0;
+  outline: solid 4px var(--poop);
+  padding: 0.2rem 0.4rem;
+}
+
+#search-top-box-form input[type="submit"]:is(:hover, :focus, :active) {
+  background: var(--poop);
+  border: 0;
+}
+
+/* フェードイン */
+
+#extra-div-1 {
+    position: absolute;
+    top:0; left: 0;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, #00000000 0%, #00000000 40%, #000000 100%);
+    z-index: -1;
+}
+
+#extra-div-1 span {
+    position: fixed;
+    top:0; left:0;
+    width: 100%;
+    height: 100%;
+    height: 100lvh;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.25;
+    background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/Fallen.webp");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    max-width: 100vw;
+}
+
+/* フッター */
+
+#footer {
+  background-color: var(--jolly-roger);
+  margin-top: 15rem;
+  position: relative;
+  overflow: unset;
+}
+
+#footer::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 14rem;
+  width: 100%;
+  background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alBanner.png");
+  background-size: auto 100%;
+  z-index: -1;
+}
+
+/* 見出し */
+
+#page-title, h1, h2, h3, h4, h5, h6 {
+  font-family: var(--header-font);
+}
+
+/* ページ要素 */
+
+blockquote, div.blockquote {
+  position: relative;
+}
+
+blockquote > *, div.blockquote > * {
+  position: relative;
+  z-index: 2;
+}
+
+:is(blockquote, div.blockquote):before {
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-image: url(https://scp-wiki.wikidot.com/local--files/theme:al-slop/Like_one_of_your_french_girls.webp);
+  background-size: 6rem;
+  background-position: center;
+  opacity: 0.2;
+  z-index: 0;
+}
+
+hr {
+  height: 4rem;
+  background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alBunker.webp");
+  background-color: transparent;
+  background-size: 100% 100%;
+  margin: 0;
+}
+
+tt {
+  font-weight: bold;
+}
+
+/* 評価モジュール */
+
+div.page-rate-widget-box .cancel a {
+  color: white;
+}
+
+div.page-rate-widget-box {
+  outline: solid 4px var(--poop);
+  margin: 0 3rem;
+}
+
+.rateup, .ratedown, .cancel {
+  position: relative;
+}
+
+:is(.rateup, .ratedown, .cancel)::before {
+  content: "";
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  height: 6rem;
+  width: 9rem;
+  background-size: cover;
+  background-position: center;
+  transform: translateX(-50%);
+  clip-path: polygon(100% 94%, 60% 94%, 50% 100%, 40% 94%, 0 94%, 0 0, 100% 0);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-in 1s;
+}
+
+:is(.rateup, .ratedown, .cancel):has(a:active)::before {
+  opacity: 1;
+  transition: none;
+}
+
+.rateup::before {
+  background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alJoy.png");
+}
+
+.ratedown::before {
+  background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alDespair.png");
+}
+
+.cancel::before {
+  background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/alPiracy.png");
+}
+
+/* サイドバー */
+
+#side-bar .side-block {
+  position: relative;
+}
+
+#side-bar .side-block > * {
+  position: relative;
+  z-index: 1;
+}
+
+#side-bar .side-block.resources::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/ALCANYON.png");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+/* コード */
+
+.code {
+  position: relative;
+}
+
+.code .hl-main {
+  position: relative;
+}
+
+.code::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("https://scp-wiki.wikidot.com/local--files/theme:al-slop/M_lady.webp");
+  opacity: 0.1;
+  background-repeat: no-repeat;
+  background-position: top center;
+}
+[[/code]]
+
+
+
+> **ファイル名:** alBanner.png
+> **作者:** BAD_DATAおよびAWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+
+この画像は以下の派生物です。
+
+> **ファイル名:** me.jpg
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [https://scp-wiki.wikidot.com/local--files/go-white-boy-go-white-boy-go/Me.jpg SCP Foundation Wiki]
+> **補足:** 背景を除去したのは BAD_DATA
+
+> **名称:** Al_06.png
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_06.png Wikidot]
+> **補足:** 背景を除去したのは BAD_DATA
+
+> **名称:** Al_07.png
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_07.png Wikidot]
+> **補足:** 背景を除去したのは BAD_DATA
+
+> **名称:** Al_08.png
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_08.png Wikidot]
+> **補足:** 背景を除去したのは BAD_DATA
+
+> **名称:** Al_09.png
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_09.png Wikidot]
+> **補足:** 背景を除去したのは BAD_DATA
+
+> **名称:** Al_10.png
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_10.png Wikidot]
+> **補足:** 背景を除去したのは BAD_DATA
+
+> **名称:** Al_11.png
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_11.png Wikidot]
+> **補足:** 背景を除去したのは BAD_DATA
+
+> **名称:** Al_Musk.mp4
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_Musk.mp4 Wikidot]
+> **補足:** 動画から単一フレームを取得。 背景を除去したのは BAD_DATA
+
+> **名称:** Al_00.png
+> **作者:** Sevencix
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box Wikidot]
+> **補足:** 背景を除去したのは BAD_DATA.
+
+----
+
+> **名称:** AlBunker.webp
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [https://scp-wiki.wikidot.com/local--files/theme:al-slop/alBunker.webp SCP Foundation Wiki]
+> **補足:** 背景を除去したのは BAD_DATA.
+
+----
+
+> **名称:** ALCANYON.png
+> **作者:** GraveCreations
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [https://scp-wiki.wikidot.com/local--files/theme:al-slop/ALCANYON.png SCP Foundation Wiki]
+
+----
+
+> **名称:** alDespair.png
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/alDespair.png SCP Foundation Wiki]
+
+----
+
+> **名称:** alJoy.png
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/alJoy.png SCP Foundation Wiki]
+
+----
+
+> **ファイル名:** alLogo.webp
+> **作者:** BAD_DATAおよびAWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+
+この画像は以下の派生物です。
+
+> **ファイル名:** Al_05.png
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_05.png Wikidot]
+> **補足:** 背景を除去したのは BAD_DATA
+
+> **ファイル名:** SCP-Logo-2400.png
+> **作者:** Aelanna
+> **ライセンス:** [*https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典リンク:** [*https://scp-wiki.wikidot.com/dr-mackenzie-s-sketchbook SCP Foundation Wiki]
+
+----
+
+> **名称:** alPiracy.png
+> **作者:** AWhiteBoy
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/alPiracy.png SCP Foundation Wiki]
+
+----
+
+> **ファイル名:** AlSCP.png
+> **作者:** AWhiteBoyおよびBAD_DATA
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+
+この画像は以下の派生物です。
+
+> **ファイル名:** Al_01.png
+> **作者:** AWhiteBoyおよびBAD_DATA
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_01.png Wikidot]
+> **補足:** 背景を除去し、画像を歪ませたのは BAD_DATA
+
+> **ファイル名:** Al_12.png
+> **作者:** AWhiteBoyおよびBAD_DATA
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_12.png Wikidot]
+> **補足:** 背景を除去したのは BAD_DATA
+
+> **ファイル名:** Al_13.png
+> **作者:** AWhiteBoyおよびBAD_DATA
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [http://wackbox.wikidot.com/local--files/alabaster-licence-box/Al_13.png Wikidot]
+> **補足:** 背景を除去したのは BAD_DATA
+
+----
+
+> **名称:** Fallen.webp
+> **作者:** AWhiteBoyおよびBAD_DATA
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/Fallen.webp SCP Foundation Wiki]
+> **補足:** 背景を除去したのは BAD_DATA
+
+----
+
+> **名称:** Like_one_of_your_french_girls.webp
+> **作者:** AWhiteBoyおよびBAD_DATA
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/Like_one_of_your_french_girls.webp SCP Foundation Wiki]
+> **補足:** 背景を除去したのは BAD_DATA
+
+----
+
+> **名称:** M_Lady.webp
+> **作者:** AWhiteBoyおよびBAD_DATA
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [https://scp-wiki.wdfiles.com/local--files/theme%3Aal-slop/M_Lady.webp SCP Foundation Wiki]
+> **補足:** 背景を除去したのは BAD_DATA
+
+----
+
+> **名称:** every-single-theme-desktop.webp, every-single-theme-desktop-thumb.webp, every-single-theme-mobile.webp, every-single-theme-mobile-thumb.webp
+> **作者:** AWhiteBoy, BAD_DATA, HaydenSaintPascal, radian628
+> **ライセンス:** [https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]
+> **出典:** [https://scp-wiki.wikidot.com/theme:al-slop SCP Foundation Wiki]
+> **補足:** Al Slopテーマの派生物。スクリーンショット撮影者は radian628.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

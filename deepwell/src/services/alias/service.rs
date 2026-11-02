@@ -46,7 +46,6 @@ enum AliasConflictVerification {
 }
 
 impl AliasService {
-    /// Creates a new site or user alias.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         input: CreateAlias,
@@ -59,11 +58,6 @@ impl AliasService {
         .await
     }
 
-    /// Creates an alias for a target whose canonical slug will change in the same transaction.
-    ///
-    /// Target existence, reserved-name, filter, and user-name checks still run. Only the canonical
-    /// target-slug conflict check and the final cross-table invariant check are deferred. The
-    /// caller must update the target row and call `AliasService::verify()` before committing.
     pub(crate) async fn create_for_pending_target_rename(
         ctx: &ServiceContext<'_>,
         input: CreateAlias,
@@ -103,9 +97,6 @@ impl AliasService {
             )
         };
 
-        // Platform hostnames are routing infrastructure, not ordinary content
-        // filters. They must remain reserved even when a trusted caller bypasses
-        // database-backed filters (as the seeder and rename path do).
         if alias_type == AliasType::Site
             && SiteService::is_reserved_platform_hostname_slug(&slug)
         {
@@ -121,24 +112,12 @@ impl AliasService {
             ));
         }
 
-        // Perform filter validation
         if !bypass_filter {
             Self::run_filter(ctx, alias_type, &slug, target_id, ip_address)
                 .await
                 .or_raise(make_error)?;
         }
 
-        // Check for existence and conflicts
-        //
-        // If "target_id" does not refer to an actual object of that type,
-        // we should return an error.
-        //
-        // Then we check that the new slug doesn't already exist.
-        // This also checks aliases, though we also verify down below that
-        // it actually finds conflicts properly.
-        //
-        // If the alias is for a user, also ensures that it is at least
-        // the minimum name length in bytes and chars.
         match alias_type {
             AliasType::Site => {
                 if !SiteService::exists(ctx, Reference::Id(target_id))
@@ -212,8 +191,6 @@ impl AliasService {
                     ));
                 }
 
-                // Do user name checks
-
                 let config = ctx.config();
                 if slug.len() < config.minimum_name_bytes {
                     error!(
@@ -249,7 +226,6 @@ impl AliasService {
             }
         }
 
-        // Insert new model
         let alias = alias::ActiveModel {
             alias_type: Set(alias_type),
             created_by: Set(created_by),
@@ -264,14 +240,12 @@ impl AliasService {
             .or_raise(make_error)?
             .last_insert_id;
 
-        // Perform verification
         if conflict_verification == AliasConflictVerification::Immediate {
             Self::verify(ctx, alias_type, &slug)
                 .await
                 .or_raise(make_error)?;
         }
 
-        // Return
         Ok(CreateAliasOutput { alias_id, slug })
     }
 
@@ -303,7 +277,7 @@ impl AliasService {
     }
 
     #[inline]
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         alias_type: AliasType,
@@ -354,15 +328,6 @@ impl AliasService {
         Ok(aliases)
     }
 
-    /// Used for when a site or user renames to an old slug.
-    ///
-    /// This takes the old user alias and renames the slug in-place, without having to do
-    /// `create()` / `delete()` (which runs into a dependency issue as `create()` checks
-    /// `SiteService` or `UserService` to ensure that a target object doesn't already
-    /// exist with that name.
-    ///
-    /// The database uniqueness constraint enforces that the `slug` doesn't collide with another
-    /// alias of the same type.
     pub async fn swap(
         ctx: &ServiceContext<'_>,
         alias_id: i64,
@@ -382,7 +347,7 @@ impl AliasService {
 
         let txn = ctx.transaction();
         let model = alias::ActiveModel {
-            created_at: Set(now()), // instead of deleting and recreating, we just pretend it was
+            created_at: Set(now()),
             alias_id: Set(alias_id),
             slug: Set(str!(new_slug)),
             ..Default::default()
@@ -392,10 +357,6 @@ impl AliasService {
         Ok(())
     }
 
-    /// Removes all aliases for this target.
-    ///
-    /// # Returns
-    /// The number of deleted aliases.
     pub async fn remove_all(
         ctx: &ServiceContext<'_>,
         alias_type: AliasType,
@@ -432,10 +393,6 @@ impl AliasService {
         Ok(rows_affected)
     }
 
-    /// Verifies that the main and alias tables are consistent.
-    ///
-    /// These tables have a uniqueness invariant wherein a slug is only
-    /// present in at most one of these two tables, but not both.
     pub async fn verify(
         ctx: &ServiceContext<'_>,
         alias_type: AliasType,
@@ -466,10 +423,6 @@ impl AliasService {
             .await
             .or_raise(make_error)?;
 
-        // Check the target and alias result.
-        //
-        // If they're both present, then somewhere we have a bug,
-        // since the invariant is not being upheld, so we panic.
         match alias_type {
             AliasType::Site => {
                 let site_opt = Site::find()
@@ -532,7 +485,6 @@ impl AliasService {
         let (filter_type, target_object) = match alias_type {
             AliasType::User => (FilterType::User, ObjectScope::User(target_id)),
             AliasType::Site => {
-                // No database-backed filter with this type, skip verification
                 debug!(
                     "No need to run database-backed filter verification for site alias"
                 );

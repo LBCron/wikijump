@@ -44,7 +44,7 @@ def response_envelope(result: object) -> dict[str, Any]:
             envelope["status_code"] = status_code
         return envelope
 
-    data = result.json()  # type: ignore[union-attr]
+    data = result.json()
     if not isinstance(data, dict):
         raise TypeError(f"AMC response must be an object, got {type(data).__name__}")
     return {"kind": "response", **data}

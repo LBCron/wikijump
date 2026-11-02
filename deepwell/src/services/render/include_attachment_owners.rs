@@ -1,5 +1,3 @@
-//! Attachment ownership carried across Wikidot include expansion.
-
 use std::collections::HashMap;
 use std::ops::Range;
 use std::sync::LazyLock;
@@ -372,6 +370,9 @@ fn find_wikidot_directive_end_with_value_quote_policy(
     let mut depth = 1usize;
     while offset < scan_limit {
         if let Some(expected) = quote {
+            if bytes[offset] == b'\n' {
+                return None;
+            }
             if bytes[offset] == expected && !quote_is_escaped_at(source, offset) {
                 quote = None;
             }
@@ -920,6 +921,37 @@ mod tests {
                 unclosed.len(),
             ),
             None,
+        );
+    }
+
+    #[test]
+    fn image_block_directive_end_unterminated_quote_cannot_pair_with_later_lines() {
+        let crossed = concat!(
+            "[[include component:image-block name=a.png|link=\"https://example.com/a.png|width=100%]]\n",
+            "[[/collapsible]]\n",
+            "[[[some-page|Label \"Quoted\" title]]]\n",
+        );
+        assert_eq!(
+            find_wikidot_image_block_directive_end(
+                crossed,
+                "[[include component:image-block ".len(),
+                crossed.len(),
+            ),
+            None,
+        );
+
+        let multiline = concat!(
+            "[[include component:image-block\n",
+            "caption=\"quoted ]] | closer\" |\n",
+            "width=100%]]\n",
+        );
+        assert_eq!(
+            find_wikidot_image_block_directive_end(
+                multiline,
+                "[[include component:image-block ".len(),
+                multiline.len(),
+            ),
+            Some(multiline.len() - 1),
         );
     }
 

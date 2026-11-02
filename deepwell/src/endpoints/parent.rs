@@ -18,13 +18,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use std::collections::{HashMap, HashSet};
+
 use super::prelude::*;
 use crate::models::page::Model as PageModel;
 use crate::models::page_parent::Model as PageParentModel;
 use crate::services::page::GetPageReference;
 use crate::services::parent::{
-    DirectParentMetadata, GetParentRelationships, ParentDescription, RemoveParentOutput,
-    UpdateParents, UpdateParentsOutput,
+    DirectParentMetadata, GetChildOutput, GetParentRelationships, ParentDescription,
+    RemoveParentOutput, TraceParents, TraceParentsOutput, UpdateParents,
+    UpdateParentsOutput,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::types::{Action, Permission, Reference, Resource};
@@ -52,16 +55,6 @@ pub async fn parent_relationships_get(
         })
 }
 
-/// Resolve the one direct parent visible to the current request actor.
-///
-/// The registered JSON-RPC method starts a repeatable-read transaction before
-/// resolving its request context, so session lookup, relationship selection,
-/// visibility checks, and the deliberately narrow metadata projection observe
-/// one coherent database snapshot. This does not claim that authorization
-/// cannot change before the response is delivered. A missing or hidden child,
-/// or a missing, ambiguous, deleted, cross-site, or hidden parent, is represented
-/// by the same null result so callers cannot use this method as a visibility
-/// oracle.
 pub async fn parent_get_direct_metadata(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -367,6 +360,210 @@ pub async fn parent_update(
     Ok(UpdateParentsOutput {
         added: creation,
         removed: removal,
+    })
+}
+
+pub async fn child_get_all(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<Vec<GetChildOutput>> {
+    let make_error = || {
+        Error::new(
+            "failed to get all children pages for a parent page",
+            ErrorType::PageParent,
+        )
+    };
+
+    let GetPageReference { site_id, page } = params.parse().or_raise(make_error)?;
+
+    info!(
+        "Getting children for parent {:?} in site ID {}",
+        page, site_id,
+    );
+
+    let parents: Vec<Reference<'_>> = ParentService::get_children(ctx, site_id, page)
+        .await
+        .or_raise(make_error)?
+        .iter()
+        .map(|p| Reference::from(p.child_page_id))
+        .collect();
+
+    let page_revision_ids: Vec<i64> =
+        PageService::get_pages(ctx, site_id, parents.as_slice())
+            .await
+            .or_raise(make_error)?
+            .into_iter()
+            .filter_map(|p| p.latest_revision_id)
+            .collect();
+
+    let page_details = PageRevisionService::get_revisions(ctx, page_revision_ids)
+        .await
+        .or_raise(make_error)?
+        .into_iter()
+        .map(|p| GetChildOutput {
+            slug: p.slug,
+            title: p.title,
+            page_id: p.page_id,
+        })
+        .collect();
+
+    Ok(page_details)
+}
+
+pub async fn parent_trace(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<TraceParentsOutput> {
+    let make_error = || {
+        Error::new(
+            "failed to get trace parent tree for a page",
+            ErrorType::PageParent,
+        )
+    };
+
+    let TraceParents {
+        site_id,
+        page,
+        depth,
+    } = params.parse().or_raise(make_error)?;
+
+    let page_id = PageService::get_id(ctx, site_id, page)
+        .await
+        .or_raise(make_error)?;
+    let page_details = PageRevisionService::get_latest(ctx, site_id, page_id)
+        .await
+        .or_raise(make_error)?;
+
+    let mut children_map: HashMap<i64, Vec<i64>> = HashMap::new();
+    let mut parent_map: HashMap<i64, Vec<i64>> = HashMap::new();
+    let mut detail_map: HashMap<i64, GetChildOutput> = HashMap::new();
+    let mut current_node_list: Vec<i64> = vec![page_id];
+    let mut checked_pages: HashSet<i64> = HashSet::new();
+    let mut root_parents: HashSet<i64> = HashSet::new();
+
+    detail_map.insert(
+        page_id,
+        GetChildOutput {
+            slug: page_details.slug,
+            title: page_details.title,
+            page_id,
+        },
+    );
+
+    use std::collections::hash_map::Entry;
+
+    let mut i = 1;
+
+    while if let Some(depth) = depth {
+        i < depth
+    } else {
+        true
+    } {
+        let parents = ParentService::get_parents_multi(ctx, current_node_list.clone())
+            .await
+            .or_raise(make_error)?;
+
+        checked_pages.extend(current_node_list.iter());
+
+        if parents.is_empty() {
+            break;
+        };
+
+        let mut current_child_list: HashSet<i64> = HashSet::new();
+
+        for p in &parents {
+            if let Entry::Vacant(e) = children_map.entry(p.parent_page_id) {
+                e.insert(vec![p.child_page_id]);
+            } else {
+                children_map
+                    .get_mut(&p.parent_page_id)
+                    .unwrap()
+                    .push(p.child_page_id);
+            }
+            if let Entry::Vacant(e) = parent_map.entry(p.child_page_id) {
+                e.insert(vec![p.parent_page_id]);
+            } else {
+                parent_map
+                    .get_mut(&p.child_page_id)
+                    .unwrap()
+                    .push(p.parent_page_id);
+            }
+            current_child_list.insert(p.child_page_id);
+        }
+
+        let current_root_parents: Vec<i64> = current_node_list
+            .into_iter()
+            .collect::<HashSet<i64>>()
+            .difference(&current_child_list)
+            .map(|id| id.to_owned())
+            .collect();
+
+        root_parents.extend(current_root_parents);
+
+        current_node_list = parents
+            .clone()
+            .into_iter()
+            .filter_map(|p| {
+                if checked_pages.contains(&p.parent_page_id) {
+                    None
+                } else {
+                    Some(p.parent_page_id)
+                }
+            })
+            .collect();
+
+        let parent_pages_id: Vec<Reference<'_>> = current_node_list
+            .iter()
+            .map(|i| Reference::Id(*i))
+            .collect();
+
+        let page_revision_ids: Vec<i64> =
+            PageService::get_pages(ctx, site_id, parent_pages_id.as_slice())
+                .await
+                .or_raise(make_error)?
+                .into_iter()
+                .filter_map(|p| p.latest_revision_id)
+                .collect();
+
+        let details = PageRevisionService::get_revisions(ctx, page_revision_ids)
+            .await
+            .or_raise(make_error)?
+            .into_iter()
+            .map(|p| {
+                (
+                    p.page_id,
+                    GetChildOutput {
+                        slug: p.slug,
+                        title: p.title,
+                        page_id: p.page_id,
+                    },
+                )
+            });
+
+        detail_map.extend(details);
+
+        i += 1;
+    }
+
+    root_parents.extend(current_node_list);
+
+    Ok(TraceParentsOutput {
+        children_map: children_map
+            .drain()
+            .map(|(id, mut ch)| {
+                ch.insert(0, id);
+                ch
+            })
+            .collect(),
+        parent_map: parent_map
+            .drain()
+            .map(|(id, mut ch)| {
+                ch.insert(0, id);
+                ch
+            })
+            .collect(),
+        details: detail_map.drain().map(|(_id, ch)| ch).collect(),
+        root_parents: root_parents.into_iter().collect(),
     })
 }
 

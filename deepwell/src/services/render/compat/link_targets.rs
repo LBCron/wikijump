@@ -1,19 +1,3 @@
-//! Restoring compatibility-protected text inside parsed link targets.
-//!
-//! Text that FTML must not interpret (unbound `{$variables}`, stray `##`
-//! color markers, ...) is replaced by opaque markers before parsing and put
-//! back into the rendered HTML afterwards. A marker inside a link target
-//! cannot be put back that way: FTML lowercases and slug-normalizes page
-//! targets, and the link rows Deepwell records come from the parsed targets,
-//! not from the restored HTML. Wikidot itself never sees a marker; it builds
-//! the link from the authored text, so `[[[{$previous-url} | ...]]]` links to
-//! `/previous-url`.
-//!
-//! Restoring the authored text into the parsed link locations before page
-//! existence is resolved and HTML is rendered lets FTML's normal link
-//! handling produce the same target, class, and recorded link as for any
-//! other authored target.
-
 use super::text_fragments::CompatTextFragments;
 use ftml::data::PageRef;
 use ftml::tree::{
@@ -23,8 +7,6 @@ use ftml::tree::{
 use std::borrow::Cow;
 use wikidot_normalize::normalize;
 
-/// Nesting deeper than this is left as parsed; FTML bounds pathological
-/// nesting itself, and an unrestored marker only reproduces the old output.
 const MAX_DEPTH: usize = 512;
 
 pub(in crate::services::render) fn restore_compat_text_in_link_targets(
@@ -201,11 +183,6 @@ fn label_derived_from_target(
     }
 }
 
-/// Put the authored text back into a link label. A label derived from the
-/// target follows the restored, normalized target (Wikidot links
-/// `[[[{$prev}|]]]` as `prev`); an authored label keeps its authored text
-/// (`[[[{$link}]]]` and `[[[target | {$title}]]]` show the variable as
-/// written).
 fn restore_label(
     label: &mut LinkLabel<'_>,
     location: &LinkLocation<'_>,
@@ -218,8 +195,6 @@ fn restore_label(
                 Some(site) => format!("{site}:{page}"),
                 None => page.clone(),
             };
-            // An empty label stays a title label, so an existing target still
-            // shows its page title.
             *label = match label {
                 LinkLabel::Title(_) => LinkLabel::Title(Cow::Owned(text)),
                 _ => LinkLabel::Text(Cow::Owned(text)),

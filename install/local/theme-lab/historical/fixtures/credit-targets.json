@@ -1,0 +1,20 @@
+{
+  "schema": "theme_lab_credit_target_contracts.v1",
+  "sigma9_historical": {
+    "source_identity": "../ports/interactive-visual-fixture/source-identity.json",
+    "return_container": ".credit-back",
+    "real_control": "remote backmodule iframe",
+    "diagnostic_substitute": ".credit-back-link",
+    "fixture_authority": "SYNTHETIC_DIAGNOSTIC_ONLY",
+    "port_conclusion_eligible": false,
+    "scope": "Frozen 2026-09-24 credit source; the local direct anchor is synthetic. Current production behavior requires exact read-only capture."
+  },
+  "sigma10": {
+    "url": "https://pseudo-scp-jp.wikidot.com/sigma-10:main",
+    "evidence": "../ports/authority-evidence/sigma-credit-final/receipt.json",
+    "return_container": ".creditRateOtherwiseBottom .return-credits",
+    "real_control": "a[href='#u-credit-view']",
+    "absent_selector": ".credit-back",
+    "scope": "Saved-page Wikidot DOM only; preview-state stylesheet cascade remains unverified."
+  }
+}

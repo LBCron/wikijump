@@ -294,8 +294,6 @@ export async function discoverPageActionSurfaces(root, helpers) {
         )
       }
       identityPaths.add(identity.path)
-      // The registry names the owning sources; their bytes are bound here, at
-      // the inventory's own source revision, so an edit needs no hand re-pin.
       const sourceText = await readText(root, identity.path)
       sourceIdentities.push({ path: identity.path, sha256: sha256(sourceText) })
     }

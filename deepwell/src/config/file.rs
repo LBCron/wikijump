@@ -31,15 +31,6 @@ use std::path::PathBuf;
 use std::time::Duration as StdDuration;
 use time::Duration as TimeDuration;
 
-/// Structure representing a configuration file.
-///
-/// This differs from the `Config` struct because
-/// it contains sub-sections which are used within
-/// the TOML file which are then flattened before
-/// being used during execution.
-///
-/// This also lets us customize certain parts of
-/// how serialization and deserialization occur.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 pub struct ConfigFile {
@@ -58,10 +49,6 @@ pub struct ConfigFile {
     message: Message,
 }
 
-/// Structure containing extra fields not found in `ConfigFile`.
-///
-/// This is meta-information not contained within the configuration
-/// file itself, but are stored in the final `Config` structure.
 #[derive(Debug, Clone)]
 pub struct ExtraConfig {
     pub raw_toml: String,
@@ -204,7 +191,6 @@ struct Email {
     newsletter_address: String,
 }
 
-// NOTE: Name conflict with std::fs::File
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 struct FileSection {
@@ -235,12 +221,10 @@ impl ConfigFile {
             )
         };
 
-        // Read TOML
         let mut file = File::open(&path).or_raise(make_error)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents).or_raise(make_error)?;
 
-        // Parse and build objects
         let config = toml::from_str(&contents).or_raise(make_error)?;
         let extra = ExtraConfig {
             raw_toml: contents,
@@ -250,10 +234,8 @@ impl ConfigFile {
         Ok((config, extra))
     }
 
-    /// Deconstruct the `ConfigFile` and flatten it as a `Config` object.
     pub fn into_config(self, extra: ExtraConfig) -> Config {
         macro_rules! time_duration {
-            // Convert a stdlib duration into a 'time' crate duration
             ($method:ident, $value:expr $(,)?) => {{
                 let std_duration = StdDuration::$method($value);
                 let time_duration = TimeDuration::try_from(std_duration)
@@ -375,12 +357,9 @@ impl ConfigFile {
                 },
         } = self;
 
-        // Assertions for bad values
         const RSMQ_DELAY_LIMIT: u64 = 9999999;
 
         assert!(https_port != 0, "Public HTTPS port must not be zero");
-        // The public port is configured once, as `https-port`. A domain that
-        // also spells a port would leak it into hostname comparisons.
         assert!(
             is_bare_hostname(&main_domain),
             "Main domain must be a bare hostname (set the port with https-port): {main_domain:?}",
@@ -411,13 +390,9 @@ impl ConfigFile {
             "Expired punishment cleanup job period time too long",
         );
 
-        // Prefix domains with '.' so we can do easy subdomain checks
-        // and concatenations.
         let (main_domain, main_domain_no_dot) = prefix_domain(main_domain);
         let (files_domain, files_domain_no_dot) = prefix_domain(files_domain);
 
-        // Treats empty strings (which aren't valid paths anyways)
-        // as null for the purpose of pid_file.
         if let Some(ref path) = pid_file
             && path.as_os_str().is_empty()
         {
@@ -436,7 +411,7 @@ impl ConfigFile {
             https_port,
             files_domain,
             files_domain_no_dot,
-            watch_files: false, // Not set in config file. Always false by default.
+            watch_files: false,
             run_seeder,
             seeder_path,
             sqlx_logging,
@@ -525,7 +500,6 @@ impl ConfigFile {
     }
 }
 
-/// Whether a configured domain is a hostname alone, without a scheme, port, or path.
 fn is_bare_hostname(domain: &str) -> bool {
     let domain = domain.strip_prefix('.').unwrap_or(domain);
     !domain.is_empty()
@@ -545,10 +519,6 @@ fn test_is_bare_hostname() {
     assert!(!is_bare_hostname(""));
 }
 
-/// Takes a domain, and returns a value with and without a leading `.`
-///
-/// # Returns
-/// Tuple with two items. First has a leading `.`, second does not.
 fn prefix_domain(domain: String) -> (String, String) {
     if domain.starts_with('.') {
         let mut no_dot = domain.clone();

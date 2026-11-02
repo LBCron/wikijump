@@ -1,5 +1,3 @@
-//! Sealed read-only forum route and Ajax surfaces observed on Wikidot.
-
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 
@@ -59,15 +57,6 @@ pub enum WikidotForumFeedKind {
     Posts,
 }
 
-/// The Wikidot scope of a forum RSS feed.
-///
-/// Wikidot publishes one site-wide feed pair (`/feed/forum/threads.xml`,
-/// `/feed/forum/posts.xml`) plus the scoped family
-/// (`/feed/forum/ct-<category-id>.xml`, `/feed/forum/cp-<category-id>.xml`
-/// and `/feed/forum/t-<thread-id>.xml`). The IDs in the scoped routes are the
-/// same identifiers Wikidot exposes in the HTML forum routes; imported objects
-/// carry their legacy Wikidot ID directly (see `docs/compatibility-ids.md`), so
-/// locally created objects share one ID space and resolve the same way.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum WikidotForumFeedScope {
     Site,
@@ -196,7 +185,6 @@ struct ForumThreadView {
     category_name: String,
     title: String,
     description: String,
-    /// The discussed page for a per-page discussion thread.
     page_slug: Option<String>,
     page_title: Option<String>,
     created_at: time::OffsetDateTime,
@@ -584,8 +572,6 @@ fn render_forum_thread(thread: &ForumThreadView, posts: &str) -> String {
     )
 }
 
-/// A per-page discussion thread names its page with a link instead of the
-/// stored summary; other threads show their summary under a `Summary:` head.
 fn render_forum_thread_description(thread: &ForumThreadView) -> String {
     match thread.page_slug.as_deref() {
         Some(page_slug) => {
@@ -607,8 +593,6 @@ fn render_forum_thread_description(thread: &ForumThreadView) -> String {
     }
 }
 
-/// Render one page of a thread: ten root posts with their nested replies,
-/// between identical top and bottom pagers. `None` for a page past the end.
 async fn render_forum_thread_page(
     ctx: &ServiceContext<'_>,
     site_id: i64,
@@ -974,10 +958,6 @@ impl RenderService {
             return Ok(None);
         }
 
-        // A scoped feed names its category or thread in the channel, so the
-        // target must be resolved through the same visibility rules the
-        // site-wide feed applies to rows. A hidden, deleted or nonexistent
-        // target is indistinguishable from a missing one: no existence leak.
         let scope_metadata = match scope {
             WikidotForumFeedScope::Site => None,
             WikidotForumFeedScope::Category(category_id) => {
@@ -1070,8 +1050,6 @@ impl RenderService {
             }
         }
 
-        // If a site has an unusual concentration of hidden rows, do not return
-        // an incomplete newest-first feed or continue scanning without a bound.
         if offset >= FORUM_FEED_SCAN_LIMIT && items.len() < FORUM_FEED_ITEM_LIMIT {
             return Ok(None);
         }
@@ -1386,8 +1364,6 @@ fn forum_feed_candidate_sql(
                 ),
             ),
         };
-    // The scoped routes add one predicate to the site-wide candidate query so
-    // the same ordering, visibility and bounding rules stay identical.
     let scope_filter = match scope {
         WikidotForumFeedScope::Site => String::new(),
         WikidotForumFeedScope::Category(category_id) => {
@@ -1507,7 +1483,6 @@ mod tests {
         let thread_html = render_forum_thread(&thread, "");
         assert!(thread_html.contains(ICON));
 
-        // Forum user chrome still links to Wikidot profiles; only the RSS icon is pinned local here.
         for rendered in [category, thread_html] {
             assert!(!rendered.contains("www.wikidot.com/common--theme"));
         }

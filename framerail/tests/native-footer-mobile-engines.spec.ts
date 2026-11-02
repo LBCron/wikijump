@@ -84,8 +84,6 @@ test("native footer stays reachable across mobile widths and browser engines", a
       expect(creditBounds!.x).toBeGreaterThanOrEqual(0)
       expect(creditBounds!.x + creditBounds!.width).toBeLessThanOrEqual(width + 1)
 
-      // Starting on the first footer link and tabbing checks the native order
-      // without following links or changing fixture state.
       const footerLinks = await links.all()
       await footerLinks[0].focus()
       for (const link of footerLinks) {

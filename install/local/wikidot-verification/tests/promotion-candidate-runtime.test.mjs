@@ -80,7 +80,6 @@ test("promotion candidate makes public registration deterministic", async () => 
   assert.doesNotMatch(candidateConfig, /mock-mailcheck = false/u);
   assert.match(candidateConfig, /main = "wikijump\.localhost"/u);
   assert.match(candidateConfig, /https-port = 20443/u);
-  // The port is configured once, as https-port; a domain is a bare hostname.
   assert.match(candidateConfig, /files = "wjfiles\.localhost"\n/u);
 });
 

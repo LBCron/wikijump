@@ -1,0 +1,16 @@
+{
+  "schema": "theme_lab_frozen_native_component.v1",
+  "source_url": "https://scp-jp.wikidot.com/scp-173",
+  "public_writes": 0,
+  "external_requests": 0,
+  "source": {
+    "path": "ports/authority-evidence/replay/objects/7e/7ea072e9a220d11713dd399ea999ef06c1152a938696ac6ad6777e01d9d9c29b",
+    "sha256": "7ea072e9a220d11713dd399ea999ef06c1152a938696ac6ad6777e01d9d9c29b"
+  },
+  "component": {
+    "path": "fixtures/wikidot-rate-widget.html",
+    "sha256": "707e039bcf7008462fc451dd8e330f68625f7fcb941f96936902d50151e32a33",
+    "selector": ".page-rate-widget-box"
+  },
+  "scope": "Native rating primitive geometry only. Torture capture does not activate voting links."
+}

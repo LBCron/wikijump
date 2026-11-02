@@ -18,18 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Post-creation bootstrap for browser-created sites (refs #2052).
-//!
-//! `SiteService::create` only persists the site row, the synthetic site user
-//! and the audit record. A usable site additionally needs the baseline
-//! role/permission model with the creator bound as administrator. The role
-//! templates come from the same `seeder/roles.json` the database seeder
-//! applies to every seeded site, so browser creation inherits the identical
-//! permission model instead of a second hand-maintained copy. The seeder
-//! keeps its own application loop (it also grants the fixture admin and runs
-//! outside request transactions); consolidating the two call sites is a
-//! follow-up once this path is cargo-validated.
-
 use std::borrow::Cow;
 use std::net::IpAddr;
 
@@ -49,8 +37,6 @@ use crate::services::site::{SiteService, UpdateSiteBody};
 use crate::types::{Action, Maybe, Permission, Reference, Resource};
 use crate::utils::now;
 
-/// Baseline role/permission templates shared with the database seeder.
-/// Field-for-field the shape of the seeder's `Role` records.
 #[derive(serde::Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 struct RoleTemplate {
@@ -63,12 +49,6 @@ struct RoleTemplate {
 
 const BASELINE_ROLES_JSON: &str = include_str!("../../../seeder/roles.json");
 
-/// Initial pages of the Standard wiki template: (slug, title, wikitext).
-/// Content is compiled in from the same `.ftml` sources the seeder loads
-/// for `template-en`, so browser-created sites start with the identical
-/// standard set (home/start, navigation, search, site management, system
-/// pages) the Community guide describes. Titles mirror `seeder/pages.json`;
-/// the build-lane parity test below pins them together.
 pub const STANDARD_TEMPLATE_PAGES: &[(&str, &str, &str)] = &[
     (
         "start",
@@ -135,9 +115,6 @@ pub struct BootstrapNewSite {
 }
 
 impl SiteService {
-    /// Build the baseline role/permission graph for a new site and bind the
-    /// creator as administrator. Runs in the caller's transaction, so a
-    /// bootstrap failure rolls back the whole creation.
     pub async fn bootstrap_site(
         ctx: &ServiceContext<'_>,
         BootstrapNewSite {
@@ -206,8 +183,6 @@ impl SiteService {
                         action: parse_or_raise!(action, Action, make_error),
                     },
                     _ => {
-                        // Templates are load-bearing: a malformed spec must
-                        // fail the bootstrap, not silently drop a permission.
                         return Err(Error::new(
                             format!(
                                 "invalid permission '{perm_spec}' for role '{}' in site {site_id}",
@@ -240,12 +215,6 @@ impl SiteService {
             }
         }
 
-        // Bind the creator as administrator in the normal role model, so the
-        // creator carries site:edit (and /_admin entry) without fixture-only
-        // privilege grants. Seeded/system creation passes no creator.
-        // A missing admin role with a creator present is a bootstrap
-        // defect, not a skippable grant: fail closed rather than leave the
-        // creator without administration.
         if let Some(creator) = creator_user_id {
             let Some(admin_role_id) = admin_role_id else {
                 return Err(Error::new(
@@ -269,11 +238,6 @@ impl SiteService {
             .or_raise(make_error)?;
         }
 
-        // Seed the Standard template's initial pages with the creator as
-        // author, exactly as the seeder does for template-en. Categories
-        // resolve through PageService's get-or-create, and the first
-        // revision compiles inline against the role graph built above, so
-        // no post-hoc rerender is needed.
         let site_user_id = RelationService::get_site_user_id_for_site(ctx, site_id)
             .await
             .or_raise(make_error)?;
@@ -318,7 +282,6 @@ impl SiteService {
             .or_raise(make_error)?;
         }
 
-        // Land visitors on the template's home page.
         SiteService::update(
             ctx,
             Reference::Id(site_id),

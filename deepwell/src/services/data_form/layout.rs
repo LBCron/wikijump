@@ -10,20 +10,10 @@
  * (at your option) any later version.
  */
 
-//! Wikidot custom data-form layout variable substitution.
-
 use super::DataFormDefinition;
 use super::scalar::{valid_wikidot_bare_url_scalar, valid_wikidot_ftp_url};
 use std::collections::BTreeMap;
 
-/// Expands the documented direct-page `form_data` and `form_raw` variables in
-/// a custom data-form layout before normal Wikidot parsing.
-///
-/// Only field types whose current create/edit scalar contract is established
-/// are expanded here. A file field expands only via `form_raw`, which is the
-/// documented image/value seam; `form_data` for a file field and other
-/// unsupported field types remain literal rather than acquiring guessed
-/// display semantics.
 pub fn substitute_wikidot_data_form_layout_variables(
     layout: &str,
     definition: &DataFormDefinition,

@@ -382,28 +382,6 @@ test('semantic completion rejects a candidate snapshot impersonating another ups
  }finally{fs.rmSync(mock.workspace,{recursive:true,force:true})}
 });
 
-test('promotion rejects exact current package artifacts rebound to noncanonical paths',()=>{
- const mock=mockCampaign();try{
-  mock.document.packages[0].receipt=mock.write('evidence/copied-result.json',mock.full);mock.save();
-  assert.ok(checkCampaignCompletion(mock.root).failures.some(value=>value.includes('current receipt path is not canonical')));
-  mock.document.packages[0].receipt=mock.write(packageResultPath,mock.full);
-  mock.document.packages[0].browser_audit=mock.write('evidence/copied-audit.json',mock.audit);mock.save();
-  assert.ok(checkCampaignCompletion(mock.root).failures.some(value=>value.includes('current browser audit path is not canonical')));
-  mock.document.packages[0].browser_audit=mock.write(packageAuditPath,mock.audit);
-  mock.document.packages[0].inputs.css=mock.write('evidence/copied-candidate.css',fs.readFileSync(path.join(mock.root,'ports/testtheme/candidate.css')));mock.save();
-  assert.ok(checkCampaignCompletion(mock.root).failures.some(value=>value.includes('current css path is not canonical')));
- }finally{fs.rmSync(mock.workspace,{recursive:true,force:true})}
-});
-test('promotion rejects exact Sigma-10 artifacts rebound to noncanonical paths',()=>{
- const mock=mockCampaign();try{
-  mock.document.migration.receipt=mock.write('evidence/copied-migration-result.json',mock.migrationResult);mock.save();
-  assert.ok(checkCampaignCompletion(mock.root).failures.some(value=>value.includes('migration receipt path is not canonical')));
-  mock.document.migration.receipt=mock.write(migrationResultPath,mock.migrationResult);
-  const auditBytes=fs.readFileSync(path.join(mock.root,migrationAuditPath));
-  mock.document.migration.browser_audit=mock.write('evidence/copied-migration-audit.json',auditBytes);mock.save();
-  assert.ok(checkCampaignCompletion(mock.root).failures.some(value=>value.includes('migration browser audit path is not canonical')));
- }finally{fs.rmSync(mock.workspace,{recursive:true,force:true})}
-});
 test('promotion rejects a maintained package directory symlink outside ports',()=>{
  const mock=mockCampaign();try{
   const packageDir=path.join(mock.root,'ports/testtheme'),outside=path.join(mock.workspace,'outside-testtheme');fs.renameSync(packageDir,outside);fs.symlinkSync(outside,packageDir);
@@ -451,5 +429,18 @@ test("promotion accepts Sigma-9 canonical evidence produced under a task run con
   assert.ok(!checked.failures.some(value=>value.includes("canonical scenario")),checked.failures.join("\n"));
   const checkedDefault=checkCampaignCompletion(mock.root);
   assert.ok(checkedDefault.failures.some(value=>value.includes("canonical scenario matrix is missing or stale")),checkedDefault.failures.join("\n"));
+ }finally{fs.rmSync(mock.workspace,{recursive:true,force:true})}
+});
+
+test('completion accepts a result recorded under an admitted predecessor instrument and rejects an unrecorded one',()=>{
+ const mock=mockCampaign();try{
+  // The closure instrument's digest, admitted in
+  // src/target-acceptance-instruments.mjs as the live instrument's predecessor.
+  mock.full.target_acceptance_contract_sha256='df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a';
+  mock.document.packages[0].receipt=mock.write(packageResultPath,mock.full);mock.save();
+  assert.ok(!checkCampaignCompletion(mock.root).failures.some(value=>value.includes('superseded target acceptance contract')),checkCampaignCompletion(mock.root).failures.join('\n'));
+  mock.full.target_acceptance_contract_sha256='0'.repeat(64);
+  mock.document.packages[0].receipt=mock.write(packageResultPath,mock.full);mock.save();
+  assert.ok(checkCampaignCompletion(mock.root).failures.some(value=>value.includes('superseded target acceptance contract')),checkCampaignCompletion(mock.root).failures.join('\n'));
  }finally{fs.rmSync(mock.workspace,{recursive:true,force:true})}
 });

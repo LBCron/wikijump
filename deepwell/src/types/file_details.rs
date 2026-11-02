@@ -21,6 +21,5 @@
 #[derive(Serialize, Deserialize, Debug, Default, Copy, Clone, PartialEq, Eq)]
 #[serde(default)]
 pub struct FileDetails {
-    /// Include the contents of the file.
     pub data: bool,
 }

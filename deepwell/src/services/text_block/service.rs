@@ -18,20 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Manages the storage for hosted text blocks.
-//!
-//! This does _not_ have any methods for doing CRUD
-//! on individual entries, since text blocks are only
-//! updated when the underlying page is, which means
-//! they all get replaced in one operation.
-//!
-//! The only other operation is page deletion, where
-//! all the hosted text block data is removed.
-//! (If a page is resurrected, then all this data gets
-//! re-inserted as part of creating the new revision.)
-//!
-//! Additionally, WWS fetches text blocks directly from S3.
-
 use super::structs::{TextBlock, TextBlockIndex};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt, StdResult};
 use crate::models::page;
@@ -43,9 +29,9 @@ use crate::utils::ConvertToI16;
 use futures::{StreamExt, stream::FuturesUnordered};
 use s3::bucket::Bucket;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DeleteResult, EntityTrait,
-    JoinType, QueryFilter, QueryOrder, QuerySelect, RelationTrait, Set, Statement,
-    TransactionTrait,
+    ActiveModelTrait, ColumnTrait, Condition, ConnectionTrait, DatabaseTransaction,
+    DbErr, EntityTrait, JoinType, QueryFilter, QueryOrder, QuerySelect, RelationTrait,
+    Set, SqlErr, Statement, TransactionTrait,
 };
 use sha1::{Digest, Sha1};
 use std::collections::HashSet;
@@ -54,13 +40,13 @@ use uuid::Uuid;
 /// Keep each SeaORM insert well below PostgreSQL's 65,535 bind-parameter limit.
 const TEXT_BLOCK_INSERT_BATCH_SIZE: usize = 1_000;
 
-/// Bound concurrent object-store writes while avoiding one network round trip per block.
 const TEXT_BLOCK_UPLOAD_CONCURRENCY: usize = 16;
+
+const TEXT_BLOCK_REPLACE_ATTEMPTS: u32 = 3;
 
 const TEXT_BLOCK_WIKIDOT_SHA1_BACKFILL_BATCH_SIZE: u64 = 256;
 const MAX_TEXT_BLOCK_OBJECT_BYTES: usize = 16 * 1024 * 1024;
 
-/// ponytail: 32-candidate fail-closed ceiling; upgrade to permission-filtered SQL when visibility can be resolved in the query.
 const MAX_WIKIDOT_SHA1_CANDIDATES: usize = 32;
 
 async fn sha1_s3_object(bucket: &Bucket, s3_filename: &str) -> Result<Vec<u8>> {
@@ -129,11 +115,6 @@ async fn cleanup_uploaded_text_blocks(bucket: &Bucket, filenames: &[String]) {
 pub struct TextBlockService;
 
 impl TextBlockService {
-    /// Validates both hosted text block collections for a page.
-    ///
-    /// Render preflights both counts together before writing either collection
-    /// to S3, so an invalid later collection cannot leave objects from the
-    /// earlier collection behind when the database transaction rolls back.
     pub(crate) fn validate_page_block_counts(
         html_count: usize,
         code_count: usize,
@@ -143,11 +124,6 @@ impl TextBlockService {
         Ok(())
     }
 
-    /// Replaces the text blocks associated with this page with the ones given.
-    ///
-    /// This is to be run after ftml returns the lists of code and html blocks
-    /// found in the source, which will replace the existing text block data
-    /// to be replaced.
     pub async fn add_blocks(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -176,31 +152,18 @@ impl TextBlockService {
         let txn = ctx.transaction();
         let bucket = ctx.s3_tblocks_bucket();
 
-        // First, get the stored filenames for this block type.
-        // After the new blocks are uploaded and the transaction commits, all
-        // old filenames are removed from S3.
         let previous_filenames =
             Self::get_block_s3_filenames(ctx, page_id, Some(block_type))
                 .await
                 .or_raise(make_error)?;
-
-        // If there's no additional work for us, quit early
 
         if blocks.is_empty() && previous_filenames.is_empty() {
             debug!("Not inserting any blocks, no prior blocks to remove");
             return Ok(());
         }
 
-        // Validate the maximum 1-indexed block index before uploading
-        // anything to S3. S3 writes are external side effects and are not
-        // rolled back with the database transaction, so all deterministic
-        // range errors must happen before the first upload.
         let max_index = max_text_block_index(blocks.len()).or_raise(make_error)?;
 
-        // Prepare and validate the complete replacement before starting external
-        // writes. The object-store uploads then run with bounded concurrency so a
-        // page containing many hosted blocks does not pay one network round trip
-        // after another.
         let mut uploads = Vec::with_capacity(blocks.len());
         let mut models = Vec::with_capacity(blocks.len());
         let mut new_filenames = Vec::with_capacity(blocks.len());
@@ -213,7 +176,6 @@ impl TextBlockService {
                 mut name,
             } = block;
 
-            // Deny invalid block names
             if let Some(mut value) = name {
                 value = value.trim();
                 if !valid_block_name(&mut previous_block_names, value) {
@@ -267,38 +229,31 @@ impl TextBlockService {
             return Err(error);
         }
 
-        // Then, delete the blocks from the database.
-        //
-        // This doesn't require us to know which need to be kept
-        // because we're just INSERTing over all of it.
-
+        let mut displaced_filenames = previous_filenames.clone();
         let database_result: Result<()> = async {
-            let DeleteResult { rows_affected, .. } = TextBlockTable::delete_many()
-                .filter(
-                    Condition::all()
-                        .add(text_block::Column::BlockType.eq(block_type))
-                        .add(text_block::Column::PageId.eq(page_id)),
-                )
-                .exec(txn)
-                .await
-                .or_raise(make_error)?;
-
-            debug_assert_eq!(
-                rows_affected,
-                previous_filenames.len() as u64,
-                "Deleted row count does not match previous text block filename count",
-            );
-
-            // Finally, insert the new text block rows in bounded batches. SeaORM
-            // emits one statement per insert_many call, so an unbounded batch can
-            // exceed PostgreSQL's bind limit after the S3 uploads have succeeded.
-            for range in text_block_insert_ranges(models.len()) {
-                TextBlockTable::insert_many(models[range].iter().cloned())
-                    .exec(txn)
-                    .await
-                    .or_raise(make_error)?;
+            let mut attempt = 0;
+            loop {
+                attempt += 1;
+                match Self::replace_block_rows(txn, page_id, block_type, &models).await {
+                    Ok(()) => break Ok(()),
+                    Err(error) => {
+                        let retryable = matches!(
+                            error.sql_err(),
+                            Some(SqlErr::UniqueConstraintViolation(_)),
+                        );
+                        if !retryable || attempt >= TEXT_BLOCK_REPLACE_ATTEMPTS {
+                            break Err(error).or_raise(make_error);
+                        }
+                        debug!(
+                            "Text block replacement for page ID {page_id} lost a concurrent-write race on attempt {attempt}; retrying",
+                        );
+                        displaced_filenames =
+                            Self::get_block_s3_filenames(ctx, page_id, Some(block_type))
+                                .await
+                                .or_raise(make_error)?;
+                    }
+                }
             }
-            Ok(())
         }
         .await;
         if let Err(error) = database_result {
@@ -306,7 +261,7 @@ impl TextBlockService {
             return Err(error);
         }
 
-        if let Err(error) = ctx.defer_text_block_cleanup(previous_filenames) {
+        if let Err(error) = ctx.defer_text_block_cleanup(displaced_filenames) {
             cleanup_uploaded_text_blocks(bucket, &new_filenames).await;
             return Err(error);
         }
@@ -314,7 +269,43 @@ impl TextBlockService {
         Ok(())
     }
 
-    /// Populate the identity for legacy HTML rows before the server accepts requests.
+    async fn replace_block_rows(
+        txn: &DatabaseTransaction,
+        page_id: i64,
+        block_type: TextBlockType,
+        models: &[text_block::ActiveModel],
+    ) -> StdResult<(), DbErr> {
+        let nested = txn.begin().await?;
+        let result: StdResult<(), DbErr> = async {
+            TextBlockTable::delete_many()
+                .filter(
+                    Condition::all()
+                        .add(text_block::Column::BlockType.eq(block_type))
+                        .add(text_block::Column::PageId.eq(page_id)),
+                )
+                .exec(&nested)
+                .await?;
+
+            for range in text_block_insert_ranges(models.len()) {
+                TextBlockTable::insert_many(models[range].iter().cloned())
+                    .exec(&nested)
+                    .await?;
+            }
+            Ok(())
+        }
+        .await;
+        match result {
+            Ok(()) => {
+                nested.commit().await?;
+                Ok(())
+            }
+            Err(error) => {
+                let _ = nested.rollback().await;
+                Err(error)
+            }
+        }
+    }
+
     pub(crate) async fn backfill_wikidot_sha1(state: &ServerState) -> Result<()> {
         let make_error = || {
             Error::new(
@@ -423,7 +414,6 @@ impl TextBlockService {
         Ok(())
     }
 
-    /// Gets the index and associated S3 name for a block accessed via name/alias.
     pub async fn get_block_index(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -471,7 +461,6 @@ impl TextBlockService {
         }
     }
 
-    /// Gets the index and associated S3 name for a block accessed via numeric index.
     pub async fn get_block_by_index(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -518,8 +507,6 @@ impl TextBlockService {
         }
     }
 
-    /// Finds HTML blocks by their indexed raw-byte SHA-1.
-    ///
     pub(crate) async fn get_blocks_by_wikidot_sha1(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -570,7 +557,6 @@ impl TextBlockService {
             })
     }
 
-    /// Returns the S3 filenames for text blocks of a type on a page.
     async fn get_block_s3_filenames(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -599,14 +585,8 @@ impl TextBlockService {
             })
     }
 
-    /// Delete all hosted text blocks stored for a page.
-    ///
-    /// This is run when a page is deleted, since the page
-    /// becomes inaccessible and storing this redundant information
-    /// becomes unnecessary.
     pub async fn delete_blocks(ctx: &ServiceContext<'_>, page_id: i64) -> Result<()> {
         let txn = ctx.transaction();
-        let bucket = ctx.s3_tblocks_bucket();
         let make_error = || {
             Error::new(
                 format!("failed to delete text blocks on page ID {}", page_id),
@@ -618,17 +598,13 @@ impl TextBlockService {
             .await
             .or_raise(make_error)?;
 
-        for filename in &filenames {
-            debug!("Deleting text block {filename}");
-            bucket.delete_object(filename).await.or_raise(make_error)?;
-        }
-
-        // Now that S3 is cleared out, we can delete all the
-        // database rows in one sweep.
         TextBlockTable::delete_many()
             .filter(text_block::Column::PageId.eq(page_id))
             .exec(txn)
             .await
+            .or_raise(make_error)?;
+
+        ctx.defer_text_block_cleanup(filenames)
             .or_raise(make_error)?;
 
         Ok(())
@@ -646,7 +622,6 @@ fn html_block_sha1(text: &str) -> Vec<u8> {
     Sha1::digest(text.as_bytes()).to_vec()
 }
 
-/// Returns the largest 1-indexed text block index for this block count.
 fn max_text_block_index(count: usize) -> StdResult<i16, std::num::TryFromIntError> {
     count.try_into_i16()
 }
@@ -659,9 +634,7 @@ fn text_block_insert_ranges(
         .map(move |start| start..(start + TEXT_BLOCK_INSERT_BATCH_SIZE).min(count))
 }
 
-/// Ensures that this name can be used to reference a block.
 fn valid_block_name<'n>(previous: &mut HashSet<&'n str>, name: &'n str) -> bool {
-    // To prevent shenanigans with excessively-long block aliases.
     const MAX_BLOCK_NAME_LEN: usize = 32;
 
     if name.is_empty() {
@@ -685,7 +658,6 @@ fn valid_block_name<'n>(previous: &mut HashSet<&'n str>, name: &'n str) -> bool 
         return false;
     }
 
-    // Now that all checks have passed, add this as one of the already-used names.
     previous.insert(name);
     true
 }

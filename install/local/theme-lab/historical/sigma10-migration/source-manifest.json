@@ -1,0 +1,138 @@
+{
+  "schema": "theme_lab_sigma10_sources.v1",
+  "checked_at": "2026-09-27T05:15:06+09:00",
+  "pages": {
+    "pseudo-scp-jp:sigma-10:theme:site": {
+      "site": "pseudo-scp-jp",
+      "fullname": "sigma-10:theme:site",
+      "source_url": "http://pseudo-scp-jp.wikidot.com/sigma-10:theme:site",
+      "file": "sources/theme-site.wikidot.txt",
+      "sha256": "41c4cba18c12f4684d957f8eabe0bcdf849640de7623863ce92303d708bd627c",
+      "bytes": 317,
+      "include_dependencies": []
+    },
+    "pseudo-scp-jp:sigma-10:main": {
+      "site": "pseudo-scp-jp",
+      "fullname": "sigma-10:main",
+      "source_url": "http://pseudo-scp-jp.wikidot.com/sigma-10:main",
+      "file": "sources/main.wikidot.txt",
+      "sha256": "a5d6668735ee53c21460672fd9564f02c78158496645d94345c4c799d1a8e6fb",
+      "bytes": 3932,
+      "include_dependencies": [
+        "pseudo-scp-jp:sigma-10:credit:start",
+        "pseudo-scp-jp:sigma-10:credit:otherwise-start",
+        "pseudo-scp-jp:sigma-10:credit:otherwise-end",
+        "pseudo-scp-jp:sigma-10:credit:end"
+      ]
+    },
+    "pseudo-scp-jp:sigma-10:nav:side": {
+      "site": "pseudo-scp-jp",
+      "fullname": "sigma-10:nav:side",
+      "source_url": "http://pseudo-scp-jp.wikidot.com/sigma-10:nav:side",
+      "file": "sources/nav-side.wikidot.txt",
+      "sha256": "d18bac7f763ccffc82dc251538660144404152310b9b029557a04d373f3b473f",
+      "bytes": 5017,
+      "include_dependencies": [
+        "pseudo-scp-jp:sigma-10:nav:interwiki",
+        "scp-jp:component:interwiki-style"
+      ]
+    },
+    "pseudo-scp-jp:sigma-10:nav:top": {
+      "site": "pseudo-scp-jp",
+      "fullname": "sigma-10:nav:top",
+      "source_url": "http://pseudo-scp-jp.wikidot.com/sigma-10:nav:top",
+      "file": "sources/nav-top.wikidot.txt",
+      "sha256": "78584fd8e30b7fe1657debd772f50fd71df5a4bdc993aa882a5e1fbcc35592f5",
+      "bytes": 3988,
+      "include_dependencies": []
+    },
+    "pseudo-scp-jp:sigma-10:nav:interwiki": {
+      "site": "pseudo-scp-jp",
+      "fullname": "sigma-10:nav:interwiki",
+      "source_url": "http://pseudo-scp-jp.wikidot.com/sigma-10:nav:interwiki",
+      "file": "sources/nav-interwiki.wikidot.txt",
+      "sha256": "f53a2757204bc581471cc7a3eb400457fbc673fa9168f0e7da4bbe7c469d7ccd",
+      "bytes": 337,
+      "include_dependencies": []
+    },
+    "pseudo-scp-jp:sigma-10:credit:start": {
+      "site": "pseudo-scp-jp",
+      "fullname": "sigma-10:credit:start",
+      "source_url": "http://pseudo-scp-jp.wikidot.com/sigma-10:credit:start",
+      "file": "sources/credit-start.wikidot.txt",
+      "sha256": "61f1591ed7d3e90dca18e3d473a0387f30b35a14f495cf2a4276451a71a67c75",
+      "bytes": 2226,
+      "include_dependencies": []
+    },
+    "pseudo-scp-jp:sigma-10:credit:otherwise-start": {
+      "site": "pseudo-scp-jp",
+      "fullname": "sigma-10:credit:otherwise-start",
+      "source_url": "http://pseudo-scp-jp.wikidot.com/sigma-10:credit:otherwise-start",
+      "file": "sources/credit-otherwise-start.wikidot.txt",
+      "sha256": "f6c83122d2489cf8b676e2217e8d4d690bd0cd27e995d3b4edb781998e7f806b",
+      "bytes": 1375,
+      "include_dependencies": []
+    },
+    "pseudo-scp-jp:sigma-10:credit:otherwise-end": {
+      "site": "pseudo-scp-jp",
+      "fullname": "sigma-10:credit:otherwise-end",
+      "source_url": "http://pseudo-scp-jp.wikidot.com/sigma-10:credit:otherwise-end",
+      "file": "sources/credit-otherwise-end.wikidot.txt",
+      "sha256": "a91e2120720248f3b172bc848986cc9a922b6dc94541278a768d6d6c780e3986",
+      "bytes": 202,
+      "include_dependencies": []
+    },
+    "pseudo-scp-jp:sigma-10:credit:end": {
+      "site": "pseudo-scp-jp",
+      "fullname": "sigma-10:credit:end",
+      "source_url": "http://pseudo-scp-jp.wikidot.com/sigma-10:credit:end",
+      "file": "sources/credit-end.wikidot.txt",
+      "sha256": "952f47e76840ebf80aefd455566a3165ddee194864199b6adb9a9c99bee2b397",
+      "bytes": 281,
+      "include_dependencies": []
+    },
+    "scp-jp:component:interwiki-style": {
+      "site": "scp-jp",
+      "fullname": "component:interwiki-style",
+      "source_url": "http://scp-jp.wikidot.com/component:interwiki-style",
+      "file": "sources/component-interwiki-style.wikidot.txt",
+      "sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd",
+      "bytes": 152,
+      "include_dependencies": []
+    }
+  },
+  "excluded_or_unresolved": [
+    {
+      "identity": "mkn:secret:top",
+      "referenced_by": "pseudo-scp-jp:sigma-10:nav:top",
+      "reason": "Public ViewSource is forbidden on mkn; this is a private pseudo-site include, not an SCP-JP production component. Excluded from the production migration fixture; the parent pseudo page remains frozen exactly.",
+      "owner": "external-pseudo-site-artifact"
+    },
+    {
+      "identity": "crom:pixel",
+      "referenced_by": "pseudo-scp-jp:sigma-10:nav:side",
+      "reason": "The include occurs inside a Wikidot comment and is not rendering-relevant.",
+      "owner": "no-action-commented-source"
+    }
+  ],
+  "external_runtime_contracts": [
+    {
+      "source": "pseudo-scp-jp:sigma-10:nav:interwiki",
+      "url_template": "https://interwiki.scp-jp.org/interwikiFrame.html?lang={$lang}&community={$community}&pagename=%%name%%",
+      "role": "visible interwiki iframe"
+    },
+    {
+      "source": "scp-jp:component:interwiki-style",
+      "url_template": "https://interwiki.scp-jp.org/styleFrame.html?priority={$priority}&theme={$theme}&css={$css}",
+      "role": "hidden style propagation iframe"
+    }
+  ],
+  "history": [
+    {
+      "file": "sources/history/nav-top-c546ad61972c.wikidot.txt",
+      "sha256": "c546ad61972c6f2987d10e1752417ae244ac63bc535fd20a7e841af324efae55",
+      "superseded_by_sha256": "78584fd8e30b7fe1657debd772f50fd71df5a4bdc993aa882a5e1fbcc35592f5",
+      "note": "Handoff-frozen pseudo-SCP-JP top navigation. Refetch on 2026-09-27 found only U+00A0-to-ASCII-space list indentation/blank-line normalization; exact prior bytes retained here."
+    }
+  ]
+}

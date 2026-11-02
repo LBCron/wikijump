@@ -119,7 +119,7 @@
       "status": "implemented_unverified",
       "owner": "deepwell",
       "tests": [
-        "deepwell/tests/page.rs::mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views"
+        "deepwell/tests/page.rs::mailform_renders_form_in_preview_and_saved_views"
       ],
       "implementation_commit": "f9fdcd7f899d9c0c6db19a6ab2095d40dcb20ece",
       "result": "PagePreview and saved page_view now preserve every authored MailForm marker and field as inert rendered text when no trusted action contract exists. Deepwell no longer reconstructs a one-field javascript form from post-render HTML, invents an active-looking submission surface, or drops later fields. Rendering does not issue a token or call a mutation. Central Rust execution remains outstanding."
@@ -201,7 +201,7 @@
   ],
   "central_commands": [
     "cargo fmt --manifest-path deepwell/Cargo.toml --check",
-    "node install/local/wikidot-verification/scripts/run-deepwell-integration-validation.mjs --test page mailform_without_a_trusted_action_contract_fails_closed_in_preview_and_saved_views -- --exact --nocapture",
+    "node install/local/wikidot-verification/scripts/run-deepwell-integration-validation.mjs --test page mailform_renders_form_in_preview_and_saved_views -- --exact --nocapture",
     "node install/local/wikidot-verification/scripts/run-deepwell-integration-validation.mjs --test page simpletodo_and_sendinvitations_modules_match_live_preview_basics -- --exact --nocapture",
     "node install/local/wikidot-verification/scripts/run-deepwell-integration-validation.mjs --test page imported_redirect_noredirect_renders_live_error_block -- --exact --nocapture",
     "node install/local/wikidot-verification/scripts/run-deepwell-integration-validation.mjs --test page newpage_module_resolves_existing_templates_in_rendered_pages -- --exact --nocapture",

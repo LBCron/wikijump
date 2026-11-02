@@ -1,0 +1,253 @@
+[[div class="limit"]]
+  [[div class="anchor"]]
+    [[div class="authorbox tableb"]]
+[[module ListPages name="="]]
+||~ %%title%% ||
+||= [[span class="bt bb"]]著者ㅤ[[/span]] %%created_by_linked%% ||
+||~ 公開日 %%created_at|%d %b %Y%% ||
+[[/module]]
+
+
+      [[div class="flavorbox"]]
+これは{{authorbox}}の動作見本です。詳しくは[#Sideboxes サイドボックス]の小節を参照してください。
+      [[/div]]
+      [[div class="flavorbox sml"]]
+[[collapsible folded="no" show="展開" hide="折りたたみ"]]
+= **ナビゲーション**
+**I.** [#What これは何？]
+**II.** [#How 使い方]
+@@   @@**1.** [#Cmpts 事前読み込みコンポーネント]
+@@   @@**2.** [#CVars カスタム変数]
+@@   @@**3.** [#FlopsHdr Flops Header]
+@@   @@**4.** [#Sideboxes サイドボックス]
+@@   @@**5.** [#Misc その他の変更可能箇所]
+@@   @@**6.** [#TVars テーマバリアント]
+**III.** [#GenFrmt 書式例（基本）]
+**IV.** [#AdvFrmt 書式例（応用）]
+[[/collapsible]]
+      [[/div]]
+
+    [[/div]]
+  [[/div]]
+[[/div]]
+
+
+[[div style="display: none"]]
+
+[[/div]]
+
+[[div class="limit"]]
+  [[div class="anchor"]]
+    [[div class="sidebox table1 tableb"]]
+||~ Flopstyle: DARK ||
+||= これは{{sidebox}}の動作見本です。 ||
+
+||~ [[image scp_foundation_logo.png]] ||
+
+      [[div class="flavorbox centered"]]
+これは{{flavorbox}}です
+
+詳しくは[#Sideboxes サイドボックス]の小節を参照してください。
+      [[/div]]
+    [[/div]]
+  [[/div]]
+[[/div]]
+
+[[# BTT]]
+
+[[div class="meta-title"]]
+Flopstyle: [[span class="DARK-title"]]DARK[[/span]]
+[[/div]]
+[[div class="pseudocrumbs"]]
+[[[sigma-9-themes|Sigma-9テーマ]]] >> Flopstyle: DARK
+[[/div]]
+
+[[=image alt_logo_tyrian.png style="width: 200px; padding: 2.5rem"]]
+
+= **評価**
+[[module Rate]]
+
+= **評価 + Infoモジュール**
+
++++++* [[[floppyphoenix|気に入ったなら、私の著者ページもどうぞ！]]]
+
+
+= **単体Infoモジュール**
+
+
+
+@@ @@
+
+[[div class="templateInfo"]]
+[[# What]]
++* これは何？
+----
+これはLt Flopsが作成したテーマです。ダークモードや夜間モードが好ましいあらゆる記事で、広く使えるように作られています。
+
+自分が何をしているか理解している場合にのみ使用してください。
+
+このテーマは**Black Highlighter**、**BASALT**、**Sigma+**と**__互換性がありません__**。
+[[/div]]
+[[div class="templateInfo"]]
+[[collapsible show="クレジット情報" hide="クレジット情報"]]
+Flopstyle: DARKは以下のテーマから派生しています。
+
+* [[[theme:flopstyle|]]] [[size 80%]]by [[user Lt Flops]][[/size]]
+* [[[theme:penumbra|]]] [[size 80%]]by [[user EstrellaYoshte]][[/size]]
+
+大きなクレジットは、[*https://scp-wiki.wdfiles.com/local--files/theme%3Aflopstyle-dark/alt_logo_bw.png テーマ] [*https://scp-wiki.wdfiles.com/local--files/theme%3Aflopstyle-dark/alt_logo_tyrian.png ロゴ]（[*https://creativecommons.org/licenses/by-sa/3.0/ CC BY-SA 3.0]）を作成した[[user JackalRelated]]にあります。
+
+最後に、テーマ全体をレビューした[[user stormbreath]]と、いくつかの箇所について意見をくれた[[user Croquembouche]]に感謝します。
+[[/collapsible]]
+[[/div]]
+[[div class="templateInfo"]]
++++++* >> [[[/forum/t-14594014/theme:flopstyle-dark#post-5253227|パッチノート]]] <<
+[[/div]]
+
+@@ @@
+
+[[div class="templateInfo"]]
+[[# How]]
++* 使い方
++++* 必須情報
+----
+= あなたのページでFlopstyle: DARKを設定する前に、この導入セクションを読んでください。
+[[/div]]
+[[div class="templateInfo"]]
+@@      @@[[span class="bt bb"]]ステップ1. テーマをincludeする[[/span]] この構文をコピーし、ページの最上部に貼り付けてください。
+
+[[div class="code terminal terminal--dark"]]
+= **##var(--c-keyword)|[[include##** ##var(--c-symbol)|:scp-jp:theme:flopstyle-dark##**##var(--c-keyword)|]]##**
+[[/div]]
+[[/div]]
+[[div class="templateInfo templatePadding"]]
+@@      @@[[span class="terminal-span"]][任意][[/span]] [[span class="bt bb"]]ステップ2. bylineを追加する[[/span]] この構文をコピーし、次のように評価モジュールの直下へ貼り付けてください。
+
+[[div class="code terminal terminal--dark" style="padding-bottom: 1rem"]]
+**##var(--c-keyword)|[[module##** ##var(--c-builtin)|Rate##**##var(--c-keyword)|]]##**
+
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"byline"##**##var(--c-keyword)|]]##**
+**##var(--c-builtin)|@@[[span]]@@##** by authorLink **##var(--c-builtin)|@@[[/span]]@@##**[[span class="pointer"]](A)[[/span]]
+**##var(--c-builtin)|@@[[span]]@@##** # **##var(--c-builtin)|@@[[/span]]@@##**[[span class="pointer"]](B)[[/span]]
+**##var(--c-keyword)|@@[[/div]]@@##**
+[[/div]]
+
+@@      @@**2. (A)** {{authorLink}}を、著者や共著者の名前、および関連する著者ページへのリンクに置き換えてください。
+
+@@      @@**2. (B)** {{#}}を、読者が記事を読み終えるまでの推定時間（**分**）に置き換えてください。読了時間を見積もるには、記事本文を[*https://niram.org/read/ Read-o-Meter]に貼り付け、最も近い分数へ**切り上げ**または**切り下げ**します。[[span class="fnnum"]].[[/span]][[span class="fncon"]][[span class="bt bb"]]免責[[/span]] Read-o-Meterはあなたのデータを記録・保存しません。[[/span]]
+
+@@      @@[[size 120%]]‼️[[/size]] spanを含む行の間に空行を入れないでください。入れると意図通りに動きません。
+
+[[div class="tableb"]]
+
+[[/div]]
+[[/div]]
+[[div class="templateInfo"]]
+@@      @@[[span class="bt bb"]]ステップ3. ページタイトルを設定する[[/span]] 記事の開始位置を示したい場所に、この構文をコピーして貼り付けてください。
+
+[[div class="code terminal terminal--dark"]]
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"meta-title"##**##var(--c-keyword)|]]##**
+ここにタイトル
+**##var(--c-keyword)|@@[[/div]]@@##**
+[[/div]]
+
+アクセシビリティ上の理由から、Flopstyle: DARKを使うすべてのページでこれは**必須**です。
+[[/div]]
+[[div class="templateInfo templatePadding"]]
+@@      @@[[span class="bt bb"]]ステップ4. [wikipedia:Breadcrumb_navigation パンくずリスト]を設定する[[/span]] この構文をコピーし、ページタイトルの直下へ貼り付けてください。
+
+[[div class="code terminal terminal--dark"]]
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"pseudocrumbs"##**##var(--c-keyword)|]]##**
+@@[[[parent-page-url1|1番目の親ページタイトル]]] » 子ページタイトル@@
+@@[[[parent-page-url2|2番目の親ページタイトル]]] » 子ページタイトル@@
+**##var(--c-keyword)|@@[[/div]]@@##**
+[[/div]]
+
+@@      @@[[size 120%]]‼️[[/size]] [[[listpages-magic-and-you|ListPages]]]の使用が必要な記事を作っていても心配はいりません。通常通り[[[listpages-magic-and-you#toc20|fragmentに親ページを設定]]]できますが、その場合は従来の方法で設定してください。この場合は形式より機能を優先します。
+
+[[div class="tableb"]]
+
+[[/div]]
+[[/div]]
+[[div class="templateInfo"]]
+さて……Flopstyle: DARKに求めるのが基本的な見た目だけなら、このコードを持っていって構いません！ ただ、さらに下へ進めば、この沼がどれほど深いかお見せできます。
+[[/div]]
+
+@@ @@
+@@ @@
+@@ @@
+
+[[div class="templateInfo"]]
+= [[span class="tb"]]Flopstyle: DARKは、以下のコンポーネントを前提に設計されています……[[/span]]
+[[/div]]
+
+@@ @@
+@@ @@
+@@ @@
+
+[[div class="templateInfo templateMargin"]]
+[[# Cmpts]]
++++* 1. 事前読み込みコンポーネント
+----
+このテーマには、以下の6つのコンポーネントが最初から同梱されています。
+
+@@      @@**1.1.** [[[component:acs-animation|ACS Animation]]] [[size 80%]]by [[user EstrellaYoshte]][[/size]]
+@@      @@**1.2.** [[[component:betterfootnotes|BetterFootnotes]]] [[size 80%]]by [[user EstrellaYoshte]][[/size]]
+@@      @@**1.3.** [[[component:croqstyle|Croqstyle CSS]]] [[size 80%]]by [[user Croquembouche]][[/size]]
+@@      @@**1.4.** [[[component:fade-in|Fade In]]] (set at {{speed=1}}) [[size 80%]]by [[user Croquembouche]][[/size]]
+@@      @@**1.5.** [[[component:text-style|Text Style]]] [[size 80%]]by [[user JaonHax]][[/size]]
+@@      @@**1.6.** [[[component:toggle-sidebar|Toggle Sidebar]]] [[size 80%]]by [[user EstrellaYoshte]][[/size]]
+[[/div]]
+[[div class="templateInfo"]]
+[[# CVars]]
++++* 2. カスタム変数
+++++++* （自分が何をしているか理解している場合にのみ変更してください）
+----
+変数の変更はすべてCSSモジュール{{##**
+[[/div]]
+[[/div]]
+[[div class="templateInfo templateMargin templatePadding"]]
+[[# FlopsHdr]]
++++* 3. [[[component:flops-header|Flops Header]]]
+----
+Flopstyle: DARKでは、Flops Headerのダークモード向け版を利用できます。
+
+[[div class="code terminal terminal--dark"]]
+**##var(--c-keyword)|
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

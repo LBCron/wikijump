@@ -1,0 +1,182 @@
+{
+  "audit_date": "2026-10-05",
+  "scope": {
+    "packages": ["al-slop", "flopstyle-dark", "inkblot", "space"],
+    "read_only": true,
+    "browser_matrix_run": false,
+    "repository_or_corpus_modified": false,
+    "live_authority": "Anonymous read-only wikidot.py page/source reads; revision and updated_at checked against corpus."
+  },
+  "component_authorities": [
+    {
+      "slug": "component:croqstyle",
+      "en": {"exists": true, "revision": 44, "updated_at": "2026-06-12T10:31:56Z", "live_source_sha256": "9c8b316516f374d664c92042a1913268e9018a7eaeaaac1f5011e16546bab529"},
+      "jp": {"exists": false},
+      "semantic_role": "Generic Wikidot/SCP CSS utilities: editor/code, hovertips, image blocks, Imgur replacement, typography, and terminal styling. Explicit source usage says it can be used on any wiki.",
+      "localization_notes": "Mostly branch-neutral CSS. Google Fonts and SCP-Wiki-hosted imgurblock.png are external runtime resources; documentation is component-tagged."
+    },
+    {
+      "slug": "component:text-style",
+      "en": {"exists": true, "revision": 33, "updated_at": "2025-02-16T04:02:36Z", "live_source_sha256": "e3a5a66146f647d29675138ae6edab6ad8236e5221d8e79d94a10ceb546433c5"},
+      "jp": {"exists": false},
+      "semantic_role": "Self-contained CSS for class-scoped message/chat bubbles (.text-container, .sent, .recv, .text).",
+      "localization_notes": "No external assets, branch-specific URLs, or visible prose in ordinary consumer context; example/docs are guarded by +component."
+    },
+    {
+      "slug": "component:sigma-plus",
+      "en": {"exists": true, "revision": 38, "updated_at": "2025-12-11T06:28:08Z", "live_source_sha256": "2ee01c9b8a8b4ad082abc030944a41e4d9624d7eda46ea3ecf1dcf9046d66498"},
+      "jp": {"exists": false},
+      "semantic_role": "Shared Sigma base-layout assistance: responsive header/top bar/dropdowns, rate/info module, tabs, and layout variables.",
+      "localization_notes": "Site-baseline coupled, SCP-Wiki default logo/source identity, and significant shared base CSS. Both consuming themes require the behavior."
+    },
+    {
+      "slug": "component:license-box-theme",
+      "en": {"exists": true, "revision": 3, "updated_at": "2023-05-04T21:35:07Z", "live_source_sha256": "fe760774f2d6809a88a311d8fa8a0813cbe6bc701e933c217b49143e5d057c61"},
+      "jp": {"exists": false},
+      "transitive_en": {"slug": "component:license-box-backend", "revision": 10, "updated_at": "2025-08-14T21:27:43Z", "live_source_sha256": "0ad4d70241570b29f65dead92c9051145e76180c5a6a062f4aa86e1fa5d7b6f6"},
+      "jp_functional_counterpart": {"slug": "component:license-box-backend", "revision": 9, "updated_at": "2026-09-25T02:24:12Z", "live_source_sha256": "f1e98ccb0adc48a8d457115f92cd909a0cc3d6b2c250b81291e71b9b8d7467c9", "corpus_stale_revision": 8},
+      "semantic_role": "Thin wrapper over EN backend that generates a theme preview/credit license box.",
+      "localization_notes": "EN backend cites SCP-Wiki. Current JP backend emits JP source attribution and localized licensing text."
+    },
+    {
+      "slug": "component:interwiki-style",
+      "en": {"exists": true, "revision": 4, "updated_at": "2026-06-14T16:49:02Z", "live_source_sha256": "0450ad3c256930db4d98fc63ab0e59743257d8e89e2f7266e793a69d35dc73c7"},
+      "jp": {"exists": true, "revision": 6, "updated_at": "2023-01-08T08:30:25Z", "live_source_sha256": "51ad052297c3ea8bf38549b93154eebb20995448b316458911f97677b9cee2dd"},
+      "semantic_role": "Hidden iframe to Interwiki styleFrame with priority/theme/css parameters.",
+      "localization_notes": "Same parameter and behavior contract; JP source targets interwiki.scp-jp.org while EN targets interwiki.scpwiki.com."
+    }
+  ],
+  "dependencies": [
+    {
+      "dependency": "component:sigma-plus",
+      "used_by": ["al-slop", "space"],
+      "foreign_source_authority": {"branch": "en", "revision": 38, "updated_at": "2025-12-11T06:28:08Z"},
+      "jp_counterpart": null,
+      "runtime_role": "mandatory runtime/base-layout dependency",
+      "localization_sensitive": true,
+      "recommended_policy": "C",
+      "policy_text": "Create a shared SCP-JP component:sigma-plus from current EN functional source, localize visible documentation/assets, and validate against SCP-JP Sigma-9 and Sigma-10.",
+      "publication_deliverable": "New page component:sigma-plus; publish before theme:al-slop and theme:space.",
+      "theme_source_change": true,
+      "dependent_themes": ["theme:al-slop", "theme:space"],
+      "confidence": "medium-high",
+      "evidence": ["install/local/theme-lab/ports/al-slop/candidate.wikidot.source.txt:1", "install/local/theme-lab/ports/space/candidate.wikidot.source.txt:1", "install/local/theme-lab/ports/al-slop/source-css-includes.json", "install/local/theme-lab/ports/space/source-css-includes.json", "corpus/en/pages/component:sigma-plus/source.wikidot.txt", "corpus/en/pages/component:sigma-plus/meta.json"]
+    },
+    {
+      "dependency": "component:license-box-theme",
+      "used_by": ["al-slop"],
+      "foreign_source_authority": {"branch": "en", "revision": 3, "updated_at": "2023-05-04T21:35:07Z", "transitive_backend_revision": 10, "transitive_backend_updated_at": "2025-08-14T21:27:43Z"},
+      "jp_counterpart": {"slug": "component:license-box-backend", "revision": 9, "updated_at": "2026-09-25T02:24:12Z", "corpus_snapshot_revision": 8},
+      "runtime_role": "showcase/documentation credit only; nested EN backend is transitive",
+      "localization_sensitive": true,
+      "recommended_policy": "B",
+      "policy_text": "For Al Slop, replace wrapper include with existing SCP-JP component:license-box-backend, preserving intended author input.",
+      "publication_deliverable": "Al Slop theme source update only; no page creation/update. Existing JP backend is already live; bind to live rev 9.",
+      "theme_source_change": true,
+      "confidence": "medium-high",
+      "evidence": ["install/local/theme-lab/ports/al-slop/candidate.wikidot.source.txt:7-520", "install/local/theme-lab/ports/space/candidate.wikidot.source.txt:12-952", "corpus/en/pages/component:license-box-theme/source.wikidot.txt", "corpus/en/pages/component:license-box-backend/source.wikidot.txt", "live SCP-JP component:license-box-backend source rev 9"]
+    },
+    {
+      "dependency": "component:license-box-theme",
+      "used_by": ["space"],
+      "foreign_source_authority": {"branch": "en", "revision": 3, "updated_at": "2023-05-04T21:35:07Z"},
+      "jp_counterpart": {"slug": "component:license-box-backend", "revision": 9, "updated_at": "2026-09-25T02:24:12Z"},
+      "runtime_role": "removed from current candidate/final source; old human-port input contained a showcase-only include",
+      "localization_sensitive": true,
+      "recommended_policy": "E",
+      "policy_text": "Keep the EN wrapper removed; current candidate.wikidot.source.txt and maintenance/final.wikidot.txt contain no license-box-theme include. The old human-port input and dependency graph are stale for this edge.",
+      "publication_deliverable": "None for this edge; no current theme source change or page creation required.",
+      "theme_source_change": false,
+      "confidence": "high",
+      "evidence": ["install/local/theme-lab/ports/space/human-port-candidate.wikidot.txt:881", "install/local/theme-lab/ports/space/candidate.wikidot.source.txt", "install/local/theme-lab/ports/space/maintenance/final.wikidot.txt", "/tmp/theme-lab-final-publication-dependency-graph-20261005.md"]
+    },
+    {
+      "dependency": "component:croqstyle",
+      "used_by": ["flopstyle-dark"],
+      "foreign_source_authority": {"branch": "en", "revision": 44, "updated_at": "2026-06-12T10:31:56Z"},
+      "jp_counterpart": null,
+      "runtime_role": "unconditional shared CSS utility layer",
+      "localization_sensitive": "limited; generic CSS with SCP-Wiki-hosted imgurblock.png caveat",
+      "recommended_policy": "A",
+      "policy_text": "Retain intentionally as shared cross-wiki upstream; author source explicitly documents use on any wiki.",
+      "publication_deliverable": "No page or theme source change for this dependency; preserve foreign-asset caveat for publication review.",
+      "theme_source_change": false,
+      "confidence": "medium",
+      "evidence": ["install/local/theme-lab/ports/flopstyle-dark/candidate.wikidot.source.txt:5061", "install/local/theme-lab/ports/flopstyle-dark/source-includes/croqstyle.wikidot.txt", "corpus/en/pages/component:croqstyle/source.wikidot.txt", "corpus/en/pages/component:croqstyle/meta.json"]
+    },
+    {
+      "dependency": "component:croqstyle",
+      "used_by": ["inkblot"],
+      "foreign_source_authority": {"branch": "en", "revision": 44, "updated_at": "2026-06-12T10:31:56Z"},
+      "jp_counterpart": null,
+      "runtime_role": "theme-showcase/documentation only; guarded by +theme",
+      "localization_sensitive": "limited; foreign image is unnecessary for base runtime",
+      "recommended_policy": "E",
+      "policy_text": "Remove the showcase-only include; no JP component is needed for Inkblot runtime.",
+      "publication_deliverable": "Theme source change only; no new page.",
+      "theme_source_change": true,
+      "confidence": "high",
+      "evidence": ["install/local/theme-lab/ports/inkblot/candidate.wikidot.source.txt:1-3", "install/local/theme-lab/ports/inkblot/source-css-includes.json", "corpus/en/pages/component:croqstyle/source.wikidot.txt"]
+    },
+    {
+      "dependency": "component:text-style",
+      "used_by": ["flopstyle-dark"],
+      "foreign_source_authority": {"branch": "en", "revision": 33, "updated_at": "2025-02-16T04:02:36Z"},
+      "jp_counterpart": null,
+      "runtime_role": "optional class-opt-in message styling; include is unconditional",
+      "localization_sensitive": false,
+      "recommended_policy": "A",
+      "policy_text": "Retain as a generic cross-wiki style utility; no JP duplicate is evidenced as necessary.",
+      "publication_deliverable": "No page or theme source change.",
+      "theme_source_change": false,
+      "confidence": "medium-high",
+      "evidence": ["install/local/theme-lab/ports/flopstyle-dark/candidate.wikidot.source.txt:5063", "install/local/theme-lab/ports/flopstyle-dark/source-includes/text-style.wikidot.txt", "corpus/en/pages/component:text-style/source.wikidot.txt", "corpus/en/pages/component:text-style/meta.json"]
+    },
+    {
+      "dependency": "component:interwiki-style",
+      "used_by": ["inkblot"],
+      "foreign_source_authority": {"branch": "en", "revision": 4, "updated_at": "2026-06-14T16:49:02Z"},
+      "jp_counterpart": {"slug": "component:interwiki-style", "revision": 6, "updated_at": "2023-01-08T08:30:25Z", "host": "interwiki.scp-jp.org"},
+      "runtime_role": "runtime Interwiki style in non-theme branch and tagged theme preview branch",
+      "localization_sensitive": true,
+      "recommended_policy": "B",
+      "policy_text": "Use the functionally equivalent JP component in both Inkblot source branches.",
+      "publication_deliverable": "Inkblot theme source change only; no new page or component update.",
+      "theme_source_change": true,
+      "confidence": "high",
+      "evidence": ["install/local/theme-lab/ports/inkblot/candidate.wikidot.source.txt:13-27", "corpus/en/pages/component:interwiki-style/source.wikidot.txt", "corpus/jp/pages/component:interwiki-style/source.wikidot.txt", "corpus/en/pages/component:interwiki-style/meta.json", "corpus/jp/pages/component:interwiki-style/meta.json"]
+    },
+    {
+      "dependency": "component:interwiki-style",
+      "used_by": ["space", "flopstyle-dark"],
+      "foreign_source_authority": {"branch": "en", "revision": 4, "updated_at": "2026-06-14T16:49:02Z"},
+      "jp_counterpart": {"slug": "component:interwiki-style", "revision": 6, "updated_at": "2023-01-08T08:30:25Z"},
+      "runtime_role": "runtime dependency, already branch-localized in current package source",
+      "localization_sensitive": true,
+      "recommended_policy": "B",
+      "policy_text": "Keep existing JP binding; no source change required by this audit.",
+      "publication_deliverable": "None for these dependency edges.",
+      "theme_source_change": false,
+      "confidence": "high",
+      "evidence": ["install/local/theme-lab/ports/space/candidate.wikidot.source.txt:5-10", "install/local/theme-lab/ports/flopstyle-dark/candidate.wikidot.source.txt:5072-5075"]
+    }
+  ],
+  "package_impacts": [
+    {"package":"al-slop","required_actions":["Create and bind JP component:sigma-plus","Replace showcase license-box-theme with JP license-box-backend"]},
+    {"package":"flopstyle-dark","required_actions":["Retain Croqstyle as intentional shared dependency","Retain Text Style as generic optional CSS utility","Keep current JP Interwiki binding"],"out_of_scope":"Separate upstream revision 401 rebase"},
+    {"package":"inkblot","required_actions":["Remove +theme-only Croqstyle include","Replace both EN Interwiki includes with JP counterpart"]},
+    {"package":"space","required_actions":["Create and bind JP component:sigma-plus","Keep current JP Interwiki binding","Keep license-box-theme removed from current source"]}
+  ],
+  "publication_actions": [
+    {"action":"create_page","slug":"component:sigma-plus","upstream":"SCP-EN component:sigma-plus rev 38 updated 2025-12-11T06:28:08Z","construction":"Port functional CSS; preserve variables/cascade; localize visible docs and JP-visible assets; review Sigma-9 and Sigma-10","dependents":["theme:al-slop","theme:space"],"publish_before":["theme:al-slop","theme:space"]},
+    {"action":"update_theme_source","slug":"theme:al-slop","changes":["Bind new JP sigma-plus","Use existing JP license-box-backend in showcase"]},
+    {"action":"update_theme_source","slug":"theme:space","changes":["Bind new JP sigma-plus"]},
+    {"action":"update_theme_source","slug":"theme:inkblot","changes":["Remove Croqstyle showcase include","Switch both Interwiki includes to JP counterpart"]},
+    {"action":"no_change","slug":"theme:flopstyle-dark","details":"No source change required by these dependency policies; separate rev 401 upstream rebase remains out of scope."}
+  ],
+  "uncertain_points": [
+    "Croqstyle's SCP-Wiki-hosted imgurblock.png was not visually inspected; its English-facing appearance may matter for JP publication despite the explicit cross-wiki usage contract.",
+    "A constructed JP Sigma+ page still requires normal Sigma-9/Sigma-10 acceptance; this audit establishes the page policy and ordering only.",
+    "JP license-box-backend corpus is stale (rev 8); current live authority is rev 9 updated 2026-09-25. This matters for Al Slop; Space current candidate/final source no longer uses the wrapper."
+  ]
+}

@@ -1,7 +1,5 @@
 /** @typedef {{ key: string; expiresAt: number; heapIndex: number }} ExpiryEntry */
 
-// An indexed min-heap: replacements and evictions remove their own deadline,
-// so the index stays bounded by live entries even under unlimited churn.
 export class ExpiryHeap {
   /** @type {ExpiryEntry[]} */
   entries = []
@@ -47,7 +45,6 @@ export class ExpiryHeap {
 
   /** @param {ExpiryEntry} entry */
   insert(entry) {
-    // Preserve the cache's existing comparison semantics: NaN never expires.
     if (Number.isNaN(entry.expiresAt)) return
     entry.heapIndex = this.entries.length
     this.entries.push(entry)

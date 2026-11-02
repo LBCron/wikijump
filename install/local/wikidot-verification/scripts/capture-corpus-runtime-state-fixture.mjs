@@ -111,7 +111,6 @@ function includedPages(site, wikitext) {
     try {
       pages.push(pageKey(targetSite, target));
     } catch {
-      // Dynamic and malformed include targets remain outside the static closure.
     }
   }
   return pages;

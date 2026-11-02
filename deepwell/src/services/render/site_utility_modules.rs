@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Fail-closed rendering for site utility modules with frozen anonymous output.
-
 mod admin_read_models;
 
 use std::borrow::Cow;

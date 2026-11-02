@@ -1,0 +1,320 @@
+
+
+
+
+[[div class="nametag"]]
++ Bedrock
+[[module Rate]]
+[[/div]]
+
+**Bedrock**は、EstrellaYoshte、Liryn、Placeholder McDが作成した美的基盤テーマです。GitHub面で支援したaismallard、編集エリアボタンのSVGと全般的な相談に協力したWoedenazにも特別な感謝を捧げます。
+
+これは[https://scp-wiki.wikidot.com/theme:basalt Basalt 2.0]の基盤構造として機能します。
+
+[[div_ class="colors-container"]]
+[[div_ class="colors"]]
+[[div class="color" style="background-color: rgb(254,254,254);" data-variable="palette-color1" data-has-light-text="0"]]
+石英[[span class="css-variable"]]@@--basalt-primary-color@@[[/span]][[span class="css-variable"]]254,254,254[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(247,248,250);" data-variable="palette-color2" data-has-light-text="0"]]
+方解石[[span class="css-variable"]]@@--basalt-secondary-color@@[[/span]][[span class="css-variable"]]247,248,250[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(16,76,184);" data-variable="palette-color3" data-has-light-text="1"]]
+ラピスラズリ[[span class="css-variable"]]@@--basalt-bright-element-color@@[[/span]][[span class="css-variable"]]16,76,184[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(61,71,202);" data-variable="palette-color4" data-has-light-text="1"]]
+アメジスト[[span class="css-variable"]]@@--basalt-undertone@@[[/span]][[span class="css-variable"]]61,71,202[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(56,60,64);" data-variable="palette-color5" data-has-light-text="1"]]
+粘板岩[[span class="css-variable"]]@@--basalt-overtone@@[[/span]][[span class="css-variable"]]56,60,64[[/span]]
+[[/div]]
+[[/div]]
+[[div_ class="subcolors"]]
+[[div class="color" style="background-color: rgb(218,219,222);" data-variable="palette-subcolor1" data-has-light-text="0"]]
+花崗岩[[span class="css-variable"]]@@--basalt-tertiary-color@@[[/span]][[span class="css-variable"]]218,219,222[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(155,154,162);" data-variable="palette-subcolor2" data-has-light-text="1"]]
+安山岩[[span class="css-variable"]]@@--basalt-sub-text-color@@[[/span]][[span class="css-variable"]]155,154,162[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(255,132,0);" data-variable="palette-subcolor3" data-has-light-text="0"]]
+日長石[[span class="css-variable"]]@@--basalt-alternate-color@@[[/span]][[span class="css-variable"]]255,132,0[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(26,180,28);" data-variable="palette-subcolor4" data-has-light-text="1"]]
+エメラルド[[span class="css-variable"]]@@--basalt-positive-color@@[[/span]][[span class="css-variable"]]26,180,28[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(255,48,48);" data-variable="palette-subcolor5" data-has-light-text="1"]]
+ルビー[[span class="css-variable"]]@@--basalt-negative-color@@[[/span]][[span class="css-variable"]]255,48,48[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(18,20,150);" data-variable="palette-subcolor6" data-has-light-text="1"]]
+サファイア[[span class="css-variable"]]@@--basalt-dark-element-color@@[[/span]][[span class="css-variable"]]18,20,150[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+ページで使用するには、以下を追加してください。
+> {{@@@@}}
+
+[[toc]]
+
++ 使用例
+
+水平線はハイフン4つ@@「----」@@で作成できます[[footnote]]これは今もPlaceholder McDをなだめるための仕様です。[[/footnote]]。引用ブロックなどの中に置かれていなければ、ページ全体に広がります。この文書のセクションを区切る線は水平線です。
+
+
+
+行頭に1個から6個のプラス記号「+」を置くと、タイトルを作成できます。
+
+[[collapsible show="折り畳み - クリック" hide="折り畳み - クリック"]]
++* 第一タイトル
+
+++* 第二タイトル
+
++++* 第三タイトル
+
+++++* 第四タイトル
+
++++++* 第五タイトル
+
+++++++* 第六タイトル
+[[/collapsible]]
+
+~~~~
+
+[[tabview]]
+[[tab タビュレーター]]
+これはタブビューです。
+[[/tab]]
+[[tab タブ表示]]
+ほら、ここにさらにテキストがあります。
+
+趣がありますね。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+[[/tab]]
+[[tab このタブにはなぜかとても長い名前があります。なぜでしょう？ とても奇妙です。]]
+これは脚注付きのタブです[[footnote]]これは別の脚注です。[[/footnote]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックです。各行の先頭に「> 」を置くと作成できます。
+>
+> さらにテキスト
+> -----
+> これは水平線です
+>
+>> 入れ子の引用ブロック
+
+||~ これは ||~ 表です ||
+||表の作り方は || 知っておくべきです ||
+||||これで || 完成 ||
+
+[[footnoteblock]]
+
+[[=]]
++++* ヘッダーフォントはLexendです。
+
+本文フォントはInterです。
+
+[[span style="font-family: var(--UI-font);"]]UIフォントはJostです。[[/span]]
+
+{{等幅フォントはJetBrains Monoです。}}
+[[/=]]
+
+------
+
++ CSS変数
+
+Bedrockは一連のCSS変数で構築されており、それらを変更すると外観を変えられます。主な上位変数の一部は次の通りです。
+
+[[code type="css"]]
+:root {
+    --basalt-primary-color: 254,254,254;
+    --basalt-secondary-color: 247,248,250;
+    --basalt-tertiary-color: 218,219,222;
+    --basalt-main-text-color: 20,20,20;
+    --basalt-overtone: 50,50,50;
+    --basalt-undertone: 61,71,202;
+
+    --basalt-bright-element-color: 16,76,184;
+    --basalt-dark-element-color: 18,20,150;
+    --basalt-alternate-color: 255,132,0;
+    --basalt-positive-color: 24,163,20;
+    --basalt-negative-color: 255,48,48;
+    --basalt-cancel-color: var(--basalt-negative-color);
+    --basalt-sub-text-color: 155,154,162;
+    --basalt-light-text-color: var(--basalt-primary-color);
+
+    --basalt-UI-dark-palette: var(--basalt-overtone);
+    --basalt-focus-color: var(--basalt-undertone);
+    --basalt-background-color: var(--basalt-primary-color);
+}
+[[/code]]
+
+色変数はRGB形式です。
+
+[[code type="css"]]
+:root {
+    --header-font-primary: 'Lexend', 'Noto Sans JP';
+    --UI-font-primary: 'Jost', 'Noto Sans JP';
+    --body-font-primary: 'Inter', 'Noto Sans JP';
+    --mono-font-primary: 'JetBrains Mono', 'Noto Sans Mono CJK JP';
+}
+[[/code]]
+
+Bedrockで使用される4種類のフォントです。
+
+[[code type="css"]]
+:root {
+    --header-logo: url('https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg');
+    --header-title: 'SCP財団';
+    --header-subtitle: '確保 - 収容 - 保護';
+    --title-size: 1.5rem;
+    --subtitle-size: 0.825rem;
+
+    --base-font-size: 1rem;
+    --main-content-width: 67.5rem;
+    --side-bar-width: 19rem;
+}
+[[/code]]
+
+CSSの{{calc()}}関数の仕組みにより、remやpxのような長さ単位を持つ変数は、値を0にする場合でも単位を省かないでください。たとえば//{{@@--subtitle-size: 0rem;@@}}//ならサブタイトルは消えますが、{{calc()}}関数は無効になりません。
+
+{{@@--main-content-width@@}}には%単位を設定しないでください。メイン領域を画面幅いっぱいにしたい場合は、代わりに十分大きなrem値を使用してください。
+
+------
+
++ その他
+このテーマのソースコードは[https://basalt-team.github.io/Basalt/ GitHub]ページで確認できます。
+
+Bedrockは現在Common Themeと互換性がありません。
+
+
+
+
+
+[[module CSS]]
+td { vertical-align: top; }
+td strong { white-space: nowrap; }
+.options table.wiki-content-table td { border: none; padding: 0.7em 1em; }
+.colors-container {
+  width: 98%;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  font-weight: 700;
+  font-family: var(--title-font, Verdana);
+  color: black;
+}
+
+.colors-container .colors, .colors-container .subcolors {
+  width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.colors-container .color {
+  flex-grow: 2;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  color: rgb(var(--swatch-text-dark, 0, 0, 0));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.colors-container .colors .color {
+  height: 7rem;
+  flex-basis: calc((100% / 2) - 2rem);
+}
+
+.colors-container .subcolors .color {
+  height: 4rem;
+  font-size: 75%;
+  text-align: center;
+  flex-basis: calc((100% / 6) - 2rem);
+}
+
+.colors-container .css-variable {
+  font-size: 75%;
+  letter-spacing: 0.1em;
+  font-family: var(--body-font, Verdana);
+}
+
+/* Hide a colour that's not been provided by seeing if the variable starts with "{$" */
+.colors-container [data-variable^=\{\$] {
+  display: none;
+}
+
+.colors-container [data-has-light-text="1"] {
+  color: white;
+  color: rgb(var(--swatch-text-light, 255, 255, 255));
+}
+[[/module]]
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[module Rate]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

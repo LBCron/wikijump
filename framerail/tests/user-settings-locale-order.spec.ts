@@ -42,8 +42,6 @@ test("ordered display languages persist Japanese-first above English", async ({
   await page.locator(".locale-add-row button").click()
   await expect(preferenceLabels).toHaveText(["Primary: English", "Fallback 1: 日本語"])
 
-  // Keyboard activation must also reorder: focus the move control and
-  // press Enter rather than clicking it.
   await page.getByRole("button", { name: "Move 日本語 up" }).focus()
   await page.keyboard.press("Enter")
   await expect(preferenceLabels).toHaveText(["Primary: 日本語", "Fallback 1: English"])
@@ -56,8 +54,6 @@ test("ordered display languages persist Japanese-first above English", async ({
   await page.locator(".user-settings-actions .button-save").click()
   await saveResponse
 
-  // A reload proves the server persisted the requested order instead of
-  // re-serializing the fixed select option order.
   await page.reload()
   await waitForSvelteDelegatedHandler(page, "#user-display-locales button")
   await expect(page.locator("#user-display-locales li span")).toHaveText([
@@ -65,8 +61,6 @@ test("ordered display languages persist Japanese-first above English", async ({
     "Fallback 1: English"
   ])
 
-  // The inverse ordering must persist as well: English-first is a real
-  // preference, not the fallback when ordering is lost.
   await page.getByRole("button", { name: "Move English up" }).click()
   await expect(page.locator("#user-display-locales li span")).toHaveText([
     "Primary: English",

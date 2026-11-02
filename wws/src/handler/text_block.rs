@@ -35,6 +35,8 @@ use sha1::{Digest, Sha1};
 
 const MAX_TEXT_BLOCK_OBJECT_BYTES: usize = 16 * 1024 * 1024;
 
+const MAX_TEXT_BLOCK_ATTEMPTS: u32 = 3;
+
 const HTML_BLOCK_DOCUMENT_PREFIX: &[u8] = br#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html id="html-block-html" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-type" content="text/html; charset=utf-8"/><link rel="stylesheet" href="/common--theme/base/css/html-block.css"/></head><body>
 "#;
@@ -53,7 +55,6 @@ pub async fn handle_html_block(
         "Returning HTML block data",
     );
 
-    // HTML blocks can't have named aliases
     handle_text_block(
         &state,
         &headers,
@@ -83,53 +84,69 @@ pub async fn handle_html_terminal(
         )
         .await;
     };
-    let block_info = match state
-        .deepwell
-        .get_text_block_by_hash(site_id, sha1, get_session_token(&headers))
-        .await
-    {
-        Ok(Some(block_info)) => block_info,
-        Ok(None) => {
-            let mut response = build_basic_error_response(
-                &state,
-                &headers,
-                BasicError::TextBlock {
-                    site_id,
-                    index: &id,
-                    block_type: TextBlockType::Html,
-                    reason: TextBlockErrorReason::Missing,
-                },
-            )
-            .await;
-            *response.status_mut() = StatusCode::OK;
-            return response;
-        }
-        Err(error) => {
-            error!("Unable to retrieve hashed HTML text block: {error}");
-            return build_basic_error_response(
-                &state,
-                &headers,
-                BasicError::TextBlock {
-                    site_id,
-                    index: &id,
-                    block_type: TextBlockType::Html,
-                    reason: TextBlockErrorReason::Fetch,
-                },
-            )
-            .await;
-        }
-    };
+    let mut attempt = 0;
+    loop {
+        attempt += 1;
+        let block_info = match state
+            .deepwell
+            .get_text_block_by_hash(site_id, sha1, get_session_token(&headers))
+            .await
+        {
+            Ok(Some(block_info)) => block_info,
+            Ok(None) => {
+                let mut response = build_basic_error_response(
+                    &state,
+                    &headers,
+                    BasicError::TextBlock {
+                        site_id,
+                        index: &id,
+                        block_type: TextBlockType::Html,
+                        reason: TextBlockErrorReason::Missing,
+                    },
+                )
+                .await;
+                *response.status_mut() = StatusCode::OK;
+                return response;
+            }
+            Err(error) => {
+                error!("Unable to retrieve hashed HTML text block: {error}");
+                return build_basic_error_response(
+                    &state,
+                    &headers,
+                    BasicError::TextBlock {
+                        site_id,
+                        index: &id,
+                        block_type: TextBlockType::Html,
+                        reason: TextBlockErrorReason::Fetch,
+                    },
+                )
+                .await;
+            }
+        };
 
-    serve_text_block(
-        &state,
-        &headers,
-        TextBlockType::Html,
-        None,
-        block_info.index.get(),
-        block_info.s3_filename,
-        Some(sha1),
-    )
-    .await
+        match serve_text_block(
+            &state,
+            &headers,
+            TextBlockType::Html,
+            None,
+            block_info.index.get(),
+            block_info.s3_filename,
+            Some(sha1),
+        )
+        .await
+        {
+            TextBlockServeOutcome::Answered(response) => return response,
+            TextBlockServeOutcome::ObjectMissing => {
+                if attempt >= MAX_TEXT_BLOCK_ATTEMPTS {
+                    return FallbackError::TextBlockS3Fetch.into_response();
+                }
+                warn!(
+                    attempt,
+                    "Hashed text block object vanished between lookup and fetch, re-looking up",
+                );
+            }
+        }
+    }
 }
 
 pub async fn handle_code_block(
@@ -143,7 +160,6 @@ pub async fn handle_code_block(
         "Returning code block data",
     );
 
-    // Determine if it's an alias or a regular numeric index
     let index = if value.chars().all(|c| c.is_ascii_digit()) {
         BlockId::Index(value)
     } else {
@@ -165,45 +181,9 @@ async fn handle_text_block(
         try_response!(state.get_page_fresh_or_response(headers, site_id, page_slug));
     let session_token = get_session_token(headers);
 
-    let (index, s3_filename) = match block_id {
-        // Parse the index value if numeric
+    let (lookup_id, display_index): (TextBlockId<'_>, &str) = match &block_id {
         BlockId::Index(value) => match value.parse() {
-            Ok(index) => match get_text_block_info(
-                state,
-                headers,
-                TextBlockLookup {
-                    site_id,
-                    page_id,
-                    block_type,
-                    block_id: TextBlockId::Index(index),
-                    session_token,
-                    display_index: &value,
-                },
-            )
-            .await
-            {
-                Ok(Some(TextBlockIndex { index, s3_filename })) => (index, s3_filename),
-                Ok(None) => {
-                    error!(
-                        page_id = page_id,
-                        block_type = block_type.value(),
-                        index = value,
-                        "No text block found with given index",
-                    );
-                    return build_basic_error_response(
-                        state,
-                        headers,
-                        BasicError::TextBlock {
-                            site_id,
-                            index: &value,
-                            block_type,
-                            reason: TextBlockErrorReason::Missing,
-                        },
-                    )
-                    .await;
-                }
-                Err(response) => return response,
-            },
+            Ok(index) => (TextBlockId::Index(index), value.as_str()),
             Err(_) => {
                 error!(
                     index = value,
@@ -215,7 +195,7 @@ async fn handle_text_block(
                     headers,
                     BasicError::TextBlock {
                         site_id,
-                        index: &value,
+                        index: value,
                         block_type,
                         reason: TextBlockErrorReason::Invalid,
                     },
@@ -223,57 +203,80 @@ async fn handle_text_block(
                 .await;
             }
         },
-        // Retrieve the index from DEEPWELL
-        BlockId::Name(name) => {
-            match get_text_block_info(
-                state,
-                headers,
-                TextBlockLookup {
-                    site_id,
-                    page_id,
-                    block_type,
-                    block_id: TextBlockId::Name(&name),
-                    session_token,
-                    display_index: &name,
-                },
-            )
-            .await
-            {
-                Ok(Some(TextBlockIndex { index, s3_filename })) => (index, s3_filename),
-                Ok(None) => {
-                    error!(
-                        page_id = page_id,
-                        block_type = block_type.value(),
-                        name = name,
-                        "No text block found with given name",
-                    );
-                    return build_basic_error_response(
-                        state,
-                        headers,
-                        BasicError::TextBlock {
-                            site_id,
-                            index: &name,
-                            block_type,
-                            reason: TextBlockErrorReason::Missing,
-                        },
-                    )
-                    .await;
-                }
-                Err(response) => return response,
-            }
-        }
+        BlockId::Name(name) => (TextBlockId::Name(name.as_str()), name.as_str()),
     };
 
-    serve_text_block(
-        state,
-        headers,
-        block_type,
-        Some(page_id),
-        index.get(),
-        s3_filename,
-        None,
-    )
-    .await
+    let mut attempt = 0;
+    loop {
+        attempt += 1;
+        let (index, s3_filename) = match get_text_block_info(
+            state,
+            headers,
+            TextBlockLookup {
+                site_id,
+                page_id,
+                block_type,
+                block_id: lookup_id,
+                session_token,
+                display_index,
+            },
+        )
+        .await
+        {
+            Ok(Some(TextBlockIndex { index, s3_filename })) => (index, s3_filename),
+            Ok(None) => {
+                error!(
+                    page_id = page_id,
+                    block_type = block_type.value(),
+                    index = display_index,
+                    "No text block found with given index or name",
+                );
+                return build_basic_error_response(
+                    state,
+                    headers,
+                    BasicError::TextBlock {
+                        site_id,
+                        index: display_index,
+                        block_type,
+                        reason: TextBlockErrorReason::Missing,
+                    },
+                )
+                .await;
+            }
+            Err(response) => return response,
+        };
+
+        match serve_text_block(
+            state,
+            headers,
+            block_type,
+            Some(page_id),
+            index.get(),
+            s3_filename,
+            None,
+        )
+        .await
+        {
+            TextBlockServeOutcome::Answered(response) => return response,
+            TextBlockServeOutcome::ObjectMissing => {
+                if attempt >= MAX_TEXT_BLOCK_ATTEMPTS {
+                    return FallbackError::TextBlockS3Fetch.into_response();
+                }
+                warn!(
+                    page_id = page_id,
+                    block_type = block_type.value(),
+                    index = display_index,
+                    attempt,
+                    "Text block object vanished between lookup and fetch, re-looking up",
+                );
+            }
+        }
+    }
+}
+
+enum TextBlockServeOutcome {
+    Answered(Response),
+    ObjectMissing,
 }
 
 async fn serve_text_block(
@@ -284,7 +287,7 @@ async fn serve_text_block(
     index: u16,
     s3_filename: String,
     expected_sha1: Option<&str>,
-) -> Response {
+) -> TextBlockServeOutcome {
     info!(
         "Fetching {} text block from S3 object '{s3_filename}' (index {index})",
         block_type.value()
@@ -296,6 +299,15 @@ async fn serve_text_block(
                 (metadata, status_code)
             }
             Ok((_, status_code)) => {
+                if status_code == StatusCode::NOT_FOUND.as_u16() {
+                    info!(
+                        page_id,
+                        block_type = block_type.value(),
+                        s3_filename,
+                        "S3 text block object is missing",
+                    );
+                    return TextBlockServeOutcome::ObjectMissing;
+                }
                 error!(
                     page_id,
                     block_type = block_type.value(),
@@ -303,7 +315,9 @@ async fn serve_text_block(
                     status_code,
                     "S3 text block HEAD returned an unexpected status",
                 );
-                return FallbackError::TextBlockS3Fetch.into_response();
+                return TextBlockServeOutcome::Answered(
+                    FallbackError::TextBlockS3Fetch.into_response(),
+                );
             }
             Err(error) => {
                 error!(
@@ -312,7 +326,9 @@ async fn serve_text_block(
                     s3_filename,
                     "Cannot HEAD text block data: {error}",
                 );
-                return FallbackError::TextBlockS3Fetch.into_response();
+                return TextBlockServeOutcome::Answered(
+                    FallbackError::TextBlockS3Fetch.into_response(),
+                );
             }
         };
     if metadata.content_length.is_some_and(|length| {
@@ -327,7 +343,9 @@ async fn serve_text_block(
             limit = MAX_TEXT_BLOCK_OBJECT_BYTES,
             "S3 text block exceeds the byte limit",
         );
-        return FallbackError::TextBlockS3Fetch.into_response();
+        return TextBlockServeOutcome::Answered(
+            FallbackError::TextBlockS3Fetch.into_response(),
+        );
     }
     let content_type = match metadata.content_type {
         Some(content_type) => content_type,
@@ -338,7 +356,9 @@ async fn serve_text_block(
                 s3_filename,
                 "S3 text block has no content type"
             );
-            return FallbackError::TextBlockS3Fetch.into_response();
+            return TextBlockServeOutcome::Answered(
+                FallbackError::TextBlockS3Fetch.into_response(),
+            );
         }
     };
     let etag = match metadata.e_tag {
@@ -350,7 +370,9 @@ async fn serve_text_block(
                 s3_filename,
                 "S3 text block has no ETag"
             );
-            return FallbackError::TextBlockS3Fetch.into_response();
+            return TextBlockServeOutcome::Answered(
+                FallbackError::TextBlockS3Fetch.into_response(),
+            );
         }
     };
 
@@ -361,6 +383,15 @@ async fn serve_text_block(
     {
         Ok(response) if response.status_code == status_code => response,
         Ok(response) => {
+            if response.status_code == StatusCode::NOT_FOUND.as_u16() {
+                info!(
+                    page_id,
+                    block_type = block_type.value(),
+                    s3_filename,
+                    "S3 text block object is missing",
+                );
+                return TextBlockServeOutcome::ObjectMissing;
+            }
             error!(
                 page_id,
                 block_type = block_type.value(),
@@ -368,7 +399,9 @@ async fn serve_text_block(
                 status_code = response.status_code,
                 "S3 text block returned an unexpected status",
             );
-            return FallbackError::TextBlockS3Fetch.into_response();
+            return TextBlockServeOutcome::Answered(
+                FallbackError::TextBlockS3Fetch.into_response(),
+            );
         }
         Err(error) => {
             error!(
@@ -377,7 +410,9 @@ async fn serve_text_block(
                 s3_filename,
                 "Cannot get text block data: {error}",
             );
-            return FallbackError::TextBlockS3Fetch.into_response();
+            return TextBlockServeOutcome::Answered(
+                FallbackError::TextBlockS3Fetch.into_response(),
+            );
         }
     };
 
@@ -392,11 +427,15 @@ async fn serve_text_block(
                     s3_filename,
                     "Cannot read text block data from S3: {error}",
                 );
-                return FallbackError::TextBlockS3Fetch.into_response();
+                return TextBlockServeOutcome::Answered(
+                    FallbackError::TextBlockS3Fetch.into_response(),
+                );
             }
         };
         let Some(total) = raw_body.len().checked_add(chunk.len()) else {
-            return FallbackError::TextBlockS3Fetch.into_response();
+            return TextBlockServeOutcome::Answered(
+                FallbackError::TextBlockS3Fetch.into_response(),
+            );
         };
         if total > MAX_TEXT_BLOCK_OBJECT_BYTES {
             error!(
@@ -406,7 +445,9 @@ async fn serve_text_block(
                 limit = MAX_TEXT_BLOCK_OBJECT_BYTES,
                 "S3 text block exceeds the byte limit",
             );
-            return FallbackError::TextBlockS3Fetch.into_response();
+            return TextBlockServeOutcome::Answered(
+                FallbackError::TextBlockS3Fetch.into_response(),
+            );
         }
         raw_body.extend_from_slice(&chunk);
     }
@@ -422,17 +463,19 @@ async fn serve_text_block(
                 actual_sha1,
                 "S3 text block bytes do not match requested SHA-1",
             );
-            return build_basic_error_response(
-                state,
-                headers,
-                BasicError::TextBlock {
-                    site_id: get_site_id(headers),
-                    index: expected_sha1,
-                    block_type: TextBlockType::Html,
-                    reason: TextBlockErrorReason::Missing,
-                },
-            )
-            .await;
+            return TextBlockServeOutcome::Answered(
+                build_basic_error_response(
+                    state,
+                    headers,
+                    BasicError::TextBlock {
+                        site_id: get_site_id(headers),
+                        index: expected_sha1,
+                        block_type: TextBlockType::Html,
+                        reason: TextBlockErrorReason::Missing,
+                    },
+                )
+                .await,
+            );
         }
     }
     if headers
@@ -440,13 +483,9 @@ async fn serve_text_block(
         .and_then(|value| value.to_str().ok())
         .is_some_and(|value| value.trim() == etag)
     {
-        return StatusCode::NOT_MODIFIED.into_response();
+        return TextBlockServeOutcome::Answered(StatusCode::NOT_MODIFIED.into_response());
     }
     let body = Body::from(text_block_response_body(block_type, raw_body));
-    // Every hosted text response carries `nosniff`: stylesheets, scripts,
-    // HTML documents and plain text all have evidenced inline consumers
-    // (theme `@import`, component `<script src>`, `[[iframe]]` gadgets), so
-    // they keep the stored Content-Type exactly and stay inline.
     let mut builder = Response::builder()
         .header(header::CONTENT_TYPE, &content_type)
         .header(header::ETAG, &etag)
@@ -456,20 +495,15 @@ async fn serve_text_block(
     }
     let result = builder.body(body);
 
-    match result {
+    TextBlockServeOutcome::Answered(match result {
         Ok(response) => response,
         Err(error) => {
             error!("Unable to convert response: {error}");
             StatusCode::INTERNAL_SERVER_ERROR.into_response()
         }
-    }
+    })
 }
 
-/// Whether a hosted text block must download instead of rendering inline.
-///
-/// Only XML-essence payloads take this path. The rule mirrors the file
-/// lane's XML essence check without sharing it, so neither lane can change
-/// the other's behavior by editing a common helper.
 fn text_block_serves_as_attachment(content_type: &str) -> bool {
     let essence = content_type
         .split(';')
@@ -611,7 +645,6 @@ mod tests {
         etag: String,
     }
 
-    // Since this thing isn't returning a case-insensitive map...
     fn get_headers(headers: HashMap<String, String>) -> Headers {
         let mut content_type = None;
         let mut etag = None;
@@ -637,12 +670,18 @@ mod tests {
     const CODE_XML_S3_KEY: &str = "text-blocks/immutable-code-xml";
     const CODE_CSS_S3_KEY: &str = "text-blocks/immutable-code-css";
     const CODE_JS_S3_KEY: &str = "text-blocks/immutable-code-js";
+    const REPLACED_OLD_S3_KEY: &str = "text-blocks/replaced-old-object";
+    const REPLACED_NEW_S3_KEY: &str = "text-blocks/replaced-new-object";
+    const GONE_S3_KEY: &str = "text-blocks/gone-object";
+    const REPLACED_INDEX: u64 = 9;
+    const GONE_INDEX: u64 = 10;
     const MISMATCH_SHA1: &str = "1234567890abcdef1234567890abcdef12345678";
     const MISSING_SHA1: &str = "abcdef0123456789abcdef0123456789abcdef01";
 
     #[derive(Debug)]
     struct MutableTextBlockMock {
         pages: Mutex<HashMap<String, i64>>,
+        block_lookups: Mutex<HashMap<u64, usize>>,
     }
 
     impl MutableTextBlockMock {
@@ -650,6 +689,22 @@ mod tests {
             let mut pages = self.pages.lock().unwrap();
             pages.remove("old-page");
             pages.insert("new-page".to_owned(), PAGE_ID);
+        }
+
+        fn count_block_lookup(&self, index: u64) -> usize {
+            let mut lookups = self.block_lookups.lock().unwrap();
+            let count = lookups.entry(index).or_insert(0);
+            *count += 1;
+            *count
+        }
+
+        fn block_lookup_count(&self, index: u64) -> usize {
+            self.block_lookups
+                .lock()
+                .unwrap()
+                .get(&index)
+                .copied()
+                .unwrap_or(0)
         }
     }
 
@@ -665,6 +720,7 @@ mod tests {
         async fn spawn() -> Self {
             let mock = Arc::new(MutableTextBlockMock {
                 pages: Mutex::new(HashMap::from([("old-page".to_owned(), PAGE_ID)])),
+                block_lookups: Mutex::new(HashMap::new()),
             });
             let services = Router::new()
                 .route("/", post(mock_rpc))
@@ -787,12 +843,21 @@ mod tests {
                     "index": 1,
                     "s3_filename": match request["params"]["block_type"].as_str().unwrap() {
                         "html" => HTML_BLOCK_S3_KEY,
-                        // Each code index stands in for one stored language:
-                        // plain text, XML, CSS, JavaScript.
                         "code" => match request["params"]["index"].as_u64() {
                             Some(2) => CODE_XML_S3_KEY,
                             Some(3) => CODE_CSS_S3_KEY,
                             Some(4) => CODE_JS_S3_KEY,
+                            Some(REPLACED_INDEX) => {
+                                if state.count_block_lookup(REPLACED_INDEX) == 1 {
+                                    REPLACED_OLD_S3_KEY
+                                } else {
+                                    REPLACED_NEW_S3_KEY
+                                }
+                            }
+                            Some(GONE_INDEX) => {
+                                state.count_block_lookup(GONE_INDEX);
+                                GONE_S3_KEY
+                            }
                             _ => CODE_BLOCK_S3_KEY,
                         },
                         block_type => panic!("unexpected text block type: {block_type}"),
@@ -815,6 +880,12 @@ mod tests {
     }
 
     async fn mock_text_block_s3(Path(path): Path<String>) -> Response {
+        if path.ends_with(REPLACED_OLD_S3_KEY) || path.ends_with(GONE_S3_KEY) {
+            return Response::builder()
+                .status(StatusCode::NOT_FOUND)
+                .body(Body::empty())
+                .unwrap();
+        }
         let (content_type, body): (&'static str, &'static [u8]) =
             if path.ends_with(HTML_BLOCK_S3_KEY) {
                 ("text/html", HTML_BLOCK_BYTES)
@@ -824,6 +895,8 @@ mod tests {
                 ("text/css", b"moved content")
             } else if path.ends_with(CODE_JS_S3_KEY) {
                 ("text/javascript", b"moved content")
+            } else if path.ends_with(REPLACED_NEW_S3_KEY) {
+                ("text/plain", b"replacement content")
             } else {
                 ("text/plain", b"moved content")
             };
@@ -1024,9 +1097,6 @@ mod tests {
     async fn code_block_serving_policy_follows_stored_mime() {
         let app = TextBlockTestApp::spawn().await;
 
-        // Index 1 is plain text, 2 is XML, 3 is CSS, 4 is JavaScript. Only
-        // the XML essence downloads; the evidenced inline lanes keep the
-        // stored Content-Type exactly, and every response carries nosniff.
         for (index, content_type, downloads) in [
             ("1", "text/plain", false),
             ("2", "application/xml", true),
@@ -1356,5 +1426,30 @@ mod tests {
 
         assert!(is_deepwell_permission_denied(&denied));
         assert!(!is_deepwell_permission_denied(&other));
+    }
+
+    #[tokio::test]
+    async fn code_block_replaced_between_lookup_and_fetch_is_served() {
+        let app = TextBlockTestApp::spawn().await;
+
+        let response = app.get(&format!("/-/code/old-page/{REPLACED_INDEX}")).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.bytes().await.unwrap(),
+            &b"replacement content\n"[..]
+        );
+        assert_eq!(app.mock.block_lookup_count(REPLACED_INDEX), 2);
+    }
+
+    #[tokio::test]
+    async fn code_block_with_a_permanently_missing_object_still_errors() {
+        let app = TextBlockTestApp::spawn().await;
+
+        let response = app.get(&format!("/-/code/old-page/{GONE_INDEX}")).await;
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(
+            app.mock.block_lookup_count(GONE_INDEX),
+            MAX_TEXT_BLOCK_ATTEMPTS as usize
+        );
     }
 }

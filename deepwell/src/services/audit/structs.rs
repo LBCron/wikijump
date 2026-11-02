@@ -30,11 +30,6 @@ use std::borrow::Cow;
 use std::net::IpAddr;
 use time::Date;
 
-// Main structs
-
-/// An event on the audit log.
-///
-/// Each type of event has a different set of fields that it provides
 #[derive(Debug, Clone)]
 pub enum AuditEvent<'a> {
     UserCreate {
@@ -1060,7 +1055,6 @@ impl<'a> AuditEvent<'a> {
     }
 }
 
-/// The raw data fields to be inserted into the `audit_log` table.
 #[derive(Debug, Clone)]
 pub struct RawAuditEvent<'a> {
     pub event_type: &'static str,
@@ -1074,8 +1068,6 @@ pub struct RawAuditEvent<'a> {
     pub extra_string_2: Option<Cow<'a, str>>,
     pub extra_number: Option<i32>,
 }
-
-// Ancillary structures
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum ObjectScope {
@@ -1095,18 +1087,12 @@ pub struct UserFields<'a> {
     pub slug: Maybe<Cow<'a, str>>,
     #[serde(skip_serializing_if = "Maybe::is_unset")]
     pub email: Maybe<&'a str>,
-    // NOTE: We don't log the password value, hash or otherwise,
-    //       instead we record whether a password value is *present*
-    //       or not. See DISABLED_PASSWORD_HASH in UserService.
     #[serde(skip_serializing_if = "Maybe::is_unset")]
     pub password: Maybe<bool>,
     #[serde(skip_serializing_if = "Maybe::is_unset")]
     pub locales: Maybe<&'a [String]>,
-    // NOTE: This is simply whether an avatar is set or not, not its value.
     #[serde(skip_serializing_if = "Maybe::is_unset")]
     pub avatar: Maybe<bool>,
-    // NOTE: Forum signature source is user-authored content. Audit only the
-    // presence transition so private account history does not duplicate it.
     #[serde(skip_serializing_if = "Maybe::is_unset")]
     pub forum_signature: Maybe<bool>,
     #[serde(skip_serializing_if = "Maybe::is_unset")]

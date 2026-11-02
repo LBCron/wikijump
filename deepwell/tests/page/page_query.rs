@@ -1250,6 +1250,133 @@ async fn page_query_vote_filter_and_order_use_imported_snapshot_vote_counts() {
 }
 
 #[tokio::test]
+async fn page_query_vote_count_falls_back_to_imported_roster_without_snapshot_votes_count()
+ {
+    const IMPORT_RUN_ID: i64 = 7_130_778;
+    const ROSTER: &str = "fixture-vote-fallback-roster";
+    const MIXED: &str = "fixture-vote-fallback-mixed";
+    const KEYED: &str = "fixture-vote-fallback-keyed";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title) in [
+        (ROSTER, "Vote Fallback Roster"),
+        (MIXED, "Vote Fallback Mixed"),
+        (KEYED, "Vote Fallback Keyed"),
+    ] {
+        create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "Vote count fallback fixture.",
+        )
+        .await;
+    }
+
+    let roster_id = listpages_test_page_id(&runner, site_id, ROSTER).await;
+    let mixed_id = listpages_test_page_id(&runner, site_id, MIXED).await;
+    let keyed_id = listpages_test_page_id(&runner, site_id, KEYED).await;
+
+    // Roster page: four active imported votes (+1, +1, +1, -1; sum +2, the
+    // imported baseline). Mixed page: two imported votes (+1, +1; the
+    // baseline) plus two local votes (+1, -1). Keyed page: two imported
+    // votes and one local vote, with a snapshot votes_count figure of 7.
+    let transaction = runner.context().transaction();
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO page_vote (from_wikidot, page_id, user_id, value) VALUES \
+             (true, $1, $4, 1), \
+             (true, $1, $5, 1), \
+             (true, $1, $6, 1), \
+             (true, $1, $7, -1), \
+             (true, $2, $4, 1), \
+             (true, $2, $5, 1), \
+             (false, $2, $6, 1), \
+             (false, $2, $7, -1), \
+             (true, $3, $4, 1), \
+             (true, $3, $5, 1), \
+             (false, $3, $6, 1)",
+            [
+                Value::from(roster_id),
+                Value::from(mixed_id),
+                Value::from(keyed_id),
+                Value::from(ADMIN_USER_ID),
+                Value::from(SAMPLE_USER_ID),
+                Value::from(SYSTEM_USER_ID),
+                Value::from(UNKNOWN_USER_ID),
+            ],
+        ))
+        .await
+        .expect("vote-count fallback fixtures should be inserted");
+
+    create_listpages_test_import_run(&runner, site_id, IMPORT_RUN_ID, 1).await;
+    for (page_id, slug, suffix) in [
+        (roster_id, ROSTER, 7_130_901),
+        (mixed_id, MIXED, 7_130_902),
+        (keyed_id, KEYED, 7_130_903),
+    ] {
+        mark_imported_page_with_author_snapshot(
+            &runner,
+            site_id,
+            IMPORT_RUN_ID,
+            (page_id, slug, suffix, "Imported Vote Author"),
+        )
+        .await;
+    }
+    // Every snapshot's imported baseline is the imported roster sum (+2).
+    // Only the keyed page's snapshot carries a votes_count meta figure;
+    // the other two keep the helper's empty meta, the shape the corpus
+    // import actually writes.
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE wikidot_page_snapshot SET imported_rating = 2 WHERE page_id IN ($1, $2, $3)",
+            [
+                Value::from(roster_id),
+                Value::from(mixed_id),
+                Value::from(keyed_id),
+            ],
+        ))
+        .await
+        .expect("vote-count fallback baselines should be set");
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE wikidot_page_snapshot SET meta_json = jsonb_build_object('votes_count', '7') WHERE page_id = $1",
+            [Value::from(keyed_id)],
+        ))
+        .await
+        .expect("keyed vote-count fixture should receive snapshot votes");
+
+    assert_eq!(
+        PageQueryService::effective_vote_count(runner.context(), roster_id)
+            .await
+            .expect("roster vote count should load"),
+        4,
+        "a snapshot without votes_count must fall back to the imported vote roster",
+    );
+    assert_eq!(
+        PageQueryService::effective_vote_count(runner.context(), mixed_id)
+            .await
+            .expect("mixed vote count should load"),
+        4,
+        "the roster fallback must combine imported rows with local votes",
+    );
+    assert_eq!(
+        PageQueryService::effective_vote_count(runner.context(), keyed_id)
+            .await
+            .expect("keyed vote count should load"),
+        8,
+        "a present votes_count figure must keep combining with local votes only",
+    );
+}
+
+#[tokio::test]
 async fn page_query_data_form_field_ordering_uses_static_form_values() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

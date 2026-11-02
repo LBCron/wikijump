@@ -1,0 +1,951 @@
+
+
+
+
+
+
+
+
+
+
+
+
+**タイトル:** HANSARP Theme
+**作者:** EstrellaYoshte
+**原題:** HANSARP Theme
+**作成年:** 2022
+
+
+WoedenazはHANSARPテーマで何か使えそうなものを作れないかと俺に挑戦を申し込んできた。俺は受けたさ。
+
+[[div_ class="colors-container"]]
+[[div_ class="colors"]]
+[[div class="color" style="background-color: rgb(60, 84, 111);" data-variable="palette-color1" data-has-light-text="1"]]
+Maybe Green?[[span class="css-variable"]]@@--medium-accent@@[[/span]][[span class="css-variable"]](60, 84, 111)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(222, 71, 30);" data-variable="palette-color2" data-has-light-text="1"]]
+Not Red[[span class="css-variable"]]@@--bright-accent@@[[/span]][[span class="css-variable"]](222, 71, 30)[[/span]]
+[[/div]]
+[[/div]]
+[[div_ class="subcolors"]]
+[[div class="color" style="background-color: rgb(226, 191, 130);" data-variable="palette-subcolor1" data-has-light-text="0"]]
+Manicla[[span class="css-variable"]]@@--pale-gray-monochrome@@[[/span]][[span class="css-variable"]](226, 191, 130)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(242, 230, 212);" data-variable="palette-subcolor2" data-has-light-text="0"]]
+Lalalight[[span class="css-variable"]]@@--white-monochrome@@[[/span]][[span class="css-variable"]](242, 230, 212)[[/span]]
+[[/div]]
+[[div class="color" style="background-color: rgb(48,48,52);" data-variable="palette-subcolor3" data-has-light-text="1"]]
+Barely Blue[[span class="css-variable"]]@@--dark-gray-monochrome@@[[/span]][[span class="css-variable"]](48,48,52)[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+[[div class="scp-image-block block-right" style="max-width:300px;"]]
+[[image hansarplogo.png width="250px"]]
+[[div class="scp-image-caption" style="max-width: 300px;"]]
+HANSARPロゴ by Woedenaz
+[[/div]]
+[[/div]]
+
++ 使い方
+
+注: これは**Black Highlighter**ベースのテーマです。このテーマを使用するにはBlack Highlighterテーマもインポートする必要があります。[[[theme:black-highlighter-theme|詳細については、ここを参照してください]]]。
+~~~~
+どんなウィキでも:
+
+[[div class="code"]]
+@@@@
+@@@@
+[[/div]]
+
++ 例
+
+罫線は、5つのハイフン「@@-----@@」を使用して作成でき、何かの内側（例: ブロック引用）に配置されていなければページ全体に適用されます。このドキュメントのセクションを区切る線は罫線です。
+
+-----
+
+見出しは、行の先頭に1～6文字の「+」を置くことで作成できます
+
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブを作る]]
+これはタブです。
+
+[[/tab]]
+[[tab タブが作られた]]
+見てください、ここにもテキストがあります。
+
+なんと奇妙な。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックです。各行の先頭に半角の「> 」を置くことで作成されます。
+>
+> 追加のテキスト
+> -----
+> これは罫線です
+>
+>> 入れ子になった引用ブロック
+
+||~ これは ||~ テーブルです ||
+||もう || 作り方は ||
+||||知っているはずです ||
+
+[[=]]
+[[span style="font-family: var(--header-font);"]]ヘッダー&見出しのフォントはPermanent Marker。[[/span]]
+bodyフォントはMali。
+[[span style="font-family: var(--mono-font);"]]等幅フォントはAzeret Mono。[[/span]]
+[[span style="font-family: var(--UI-font);"]]UIフォントはKlee One。[[/span]]
+[[/=]]
+
++ ソースコード: 
+
+[[collapsible]]
+[[code type="CSS"]]
+@import url('https://fonts.googleapis.com/css2?family=Azeret+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Klee+One:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mali:wght@400;700&display=swap');
+
+:root {
+    /* S-CSS-P Integration */
+    /* If you're making a new CSS theme, please include the following three variables at minimum. */
+    --theme-base: "black-highlighter";
+    /* must be either "black-highlighter" or "sigma9" */
+    --theme-id: "hansarp";
+    /* set this to the URL of your theme's page - eg for "component:ar-theme", set it to "ar-theme" */
+    --theme-name: "HANSARP Theme";
+    /* set this to your theme's full name */
+
+    /* Typefaces */
+    --header-font: 'Permanent Marker', cursive;
+    --title-font: 'Permanent Marker', cursive;
+    --body-font: 'Mali', cursive;
+    --mono-font: 'Azeret Mono', monospace;
+    --UI-font: 'Klee One', cursive;
+
+    /* Header */
+    --logo-image: none;
+    --diagonal-stripes: initial;
+    --header-height-on-desktop: 10.5rem;
+    --header-height-on-mobile: 10.5rem;
+    --background-gradient-distance: 0rem;
+
+
+    /* Standard Colors */
+    --white-monochrome: 242, 230, 212;
+    --pale-gray-monochrome: 226, 191, 130;
+    --bright-accent: 222, 71, 30;
+    --medium-accent: 60, 84, 111;
+    --dark-accent: 38, 44, 51;
+    --pale-accent: var(--bright-accent);
+
+
+    --topbar-height-on-desktop: 2.5rem;
+    --swatch-topmenu-bg-color: var(--dark-accent);
+    --swatch-topmenu-border-color: var(--bright-accent);
+
+    --hoverblock-header-bg: var(--swatch-primary-darkest);
+}
+
+#main-content {
+    --blockquote-bg-color: var(--dark-accent);
+    --tables-border: var(--bright-accent);
+}
+
+/*-----------------------------------*/
+/*-----------------------------------*/
+
+body {
+    background: radial-gradient(rgba(var(--swatch-secondary-color), 1) 1.5px, transparent 1.5px),
+     radial-gradient(rgba(var(--swatch-secondary-color), 1) 1.5px, rgba(var(--white-monochrome), 1) 1.5px);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+}
+
+#header {
+    --header-h1-font-size: calc(var(--base-font-size)*3.25);
+    --header-title: "WHAT IS HANSARP?";
+    --header-title-mobile: "HANSARP?";
+    --swatch-headerh1-color: var(--bright-accent);
+}
+
+@media only screen and (max-width: 34.25rem) {
+    #header {
+     --header-title: var(--header-title-mobile);
+    }
+}
+
+#header h1 {
+    transform: rotate(-10deg);
+}
+
+#header h1 a {
+    margin-left: calc(var(--header-height-on-desktop)/1.25 - 1.5rem);
+    padding-top: 2.5rem;
+}
+
+#header h1 a::before {
+    -webkit-filter: drop-shadow(-3.95em -1.15em 0 rgb(var(--dark-accent)));
+            filter: drop-shadow(-3.95em -1.15em 0 rgb(var(--dark-accent)));
+}
+
+#header h2 {
+    display: none;
+}
+
+#extrac-div-1 {
+    width: 100%;
+    height: calc(var(--final-header-height-on-desktop)*1.025);
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+#extrac-div-1::before,
+#extrac-div-1::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    height: calc(var(--final-header-height-on-desktop)*0.975);
+    width: calc(var(--final-header-height-on-desktop)*0.975);
+    box-sizing: border-box;
+    border-radius: 50%;
+}
+
+#extrac-div-1::before {
+    top: -2rem;
+    left: -5rem;
+    border: solid 3.5rem rgb(var(--bright-accent));
+    box-shadow: 4rem 1rem 0 rgb(var(--medium-accent));
+}
+
+#extrac-div-1::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    height: calc(var(--final-header-height-on-desktop)*0.975);
+    width: calc(var(--final-header-height-on-desktop)*0.975);
+    border-radius: 76% 64% 66% 80%;
+    background-color: rgb(var(--medium-accent));
+    right: calc(36vw - 15rem);
+    top: calc(var(--final-header-height-on-desktop)/-3);
+    transform: skew(0deg, 10deg) rotate(52deg) scale(1.6, 1.75);
+    box-shadow: -7rem 3rem 0 rgb(var(--dark-accent));
+    z-index: -2;
+}
+
+#extrac-div-1 span {
+    display: block;
+    position: absolute;
+    height: calc(var(--final-header-height-on-desktop)*0.75);
+    width: calc(var(--final-header-height-on-desktop)*0.75);
+    background-image: url(https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-42-9f6d/hansarplogo.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    left: calc(60% + 4rem);
+    bottom: 1.5rem;
+    transform: rotate(30deg);
+}
+
+/*-----------------------------------*/
+
+#page-content>*:nth-child(3n):not(.image-block, .scp-image-block, .page-rate-widget-box, .collapsible-block, .colmod-block) {
+    transform: rotate(0.68deg);
+}
+
+#page-content>*:nth-child(3n):not(.image-block, .scp-image-block, .page-rate-widget-box) {
+    transform: rotate(-0.68deg);
+}
+
+/*-----------------------------------*/
+/*-----Top Menu-----*/
+/*-----------------------------------*/
+#top-bar .top-bar {
+    position: relative;
+    background: linear-gradient(90deg, rgb(var(--bright-accent)) 10%, rgb(var(--swatch-topmenu-bg-color)) 30%, rgb(var(--swatch-topmenu-bg-color)) 70%, rgb(var(--medium-accent)) 90%);
+}
+
+#header #top-bar .top-bar ul>li>ul {
+    background: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+    -webkit-filter: drop-shadow(0.3rem 0.35rem 0 rgb(var(--bright-accent)));
+            filter: drop-shadow(0.3rem 0.35rem 0 rgb(var(--bright-accent)));
+}
+
+#header #top-bar .top-bar ul>li>ul>li::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-color: rgb(var(--medium-accent));
+}
+
+#header #top-bar .top-bar ul>li>ul>li:nth-child(2n)::before {
+    background-color: rgb(var(--dark-accent));
+}
+
+#top-bar .top-bar>ul>li ul>li:nth-child(2n) {
+    transform: perspective(1rem) rotateY(1.5deg) scale(1.02);
+}
+
+#top-bar .top-bar>ul>li ul>li:nth-child(2n-1) {
+    transform: perspective(1rem) rotateY(-1.5deg) scale(1.02);
+}
+
+#extrac-div-2 {
+    width: 100%;
+    height: calc(var(--final-header-height-on-desktop)*1.5);
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    z-index: -1;
+    pointer-events: none;
+}
+
+#extrac-div-2::before,
+#extrac-div-2::after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 80%;
+    height: 5.5rem;
+}
+
+#extrac-div-2::before {
+    left: 0;
+    bottom: calc(var(--final-header-height-on-desktop)*0.5);
+    background-color: rgb(var(--bright-accent));
+    -webkit-clip-path: polygon(0 0, 100% 100%, 0 100%);
+            clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+
+#extrac-div-2::after {
+    right: 0;
+    top: var(--header-height-on-desktop);
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0) 30%, rgb(var(--medium-accent)) 30%);
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+/*-----------------------------------*/
+/*-----Side Bar-----*/
+/*-----------------------------------*/
+
+#side-bar,
+#interwiki {
+    --sidebar-bg-color: var(--swatch-secondary-color);
+    --swatch-menubg-color: var(--sidebar-bg-color);
+}
+
+#side-bar>.scpnet-interwiki-wrapper {
+    --swatch-primary: var(--sidebar-bg-color);
+}
+
+#interwiki .side-block,
+#side-bar .side-block {
+    box-shadow: 0.25rem 0.25rem 0 rgb(var(--dark-gray-monochrome)), 0.5rem 0.5rem 0 rgb(var(--bright-accent));
+}
+
+#interwiki .side-block>*:nth-child(2n),
+#side-bar .side-block>*:nth-child(2n) {
+    --sidebar-links-hover-bg-color: var(--medium-accent);
+}
+
+#interwiki .heading,
+#side-bar .heading {
+    box-shadow: none;
+    position: relative;
+}
+
+#interwiki .heading p,
+#side-bar .heading p {
+    color: rgb(var(--white-monochrome));
+    display: inline-block;
+    position: relative;
+    padding: 0.45em 1em;
+    text-indent: 0; 
+    transform: perspective(7em) rotateY(19deg) scale(1.05);
+}
+
+#side-bar .heading p {
+    margin: 0 1.5em 0 auto;
+}
+
+#interwiki .heading p {
+    margin: 0 0 0 auto;
+}
+
+#interwiki .heading p:first-letter,
+#side-bar .heading p:first-letter {
+    background-color: rgb(var(--white-monochrome));
+    color: rgb(var(--dark-accent));
+    padding: 0 0.25em;
+    margin-right: 0.2em;
+}
+
+#interwiki .heading p::after,
+#side-bar .heading p::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(var(--dark-accent));
+    z-index: -1;
+    transform: skewX(-30deg) translateY(0.1em);
+    box-shadow: 1.5em 0.25em 0 rgb(var(--swatch-primary));
+}
+
+
+/*-----------------------------------*/
+/*-----------------------------------*/
+
+/*-----Links-----*/
+
+#main-content a:not(a.footnoteref, .footnote-footer>a:first-child, ul.yui-nav a, .page-rate-widget-box a, .rate-box-with-credit-button a, div[id*="page-options-bottom"] a, #edit-page-form a, .page-tags a) {
+    color: rgb(var(--link-color));
+    display: inline-block;
+    position: relative;
+    text-decoration: underline;
+    padding: 0.05em 0.25em;
+    margin: 0.1em 0 0.1em -0.25em;
+    --hover-link-color: var(--white-monochrome);
+    --link-color: var(--bright-accent);
+
+    transition: transform 0.125s ease;
+}
+
+#main-content a:not(a.footnoteref, .footnote-footer>a:first-child, ul.yui-nav a, .page-rate-widget-box a, .rate-box-with-credit-button a, div[id*="page-options-bottom"] a, #edit-page-form a, .page-tags a)::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    transform: none;
+    transform-style: flat;
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0 73.5%);
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 73.5%);
+    transition: transform 0.125s ease-out, background-color 0.01s ease;
+    z-index: -2;
+}
+
+#main-content a:not(a.footnoteref, .footnote-footer>a:first-child, ul.yui-nav a, .page-rate-widget-box a, .rate-box-with-credit-button a, div[id*="page-options-bottom"] a, #edit-page-form a, .page-tags a)::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    transition: background-color 0.075s linear;
+    z-index: -1;
+}
+
+#main-content a:not(a.footnoteref, .footnote-footer>a:first-child, ul.yui-nav a, .page-rate-widget-box a, .rate-box-with-credit-button a, div[id*="page-options-bottom"] a, #edit-page-form a, .page-tags a):is(:hover, :focus) {
+    text-decoration: none;
+    color: rgb(var(--hover-link-color));
+    margin-right: -0.465em;
+    transform: scale(1.05) rotate(3deg);
+    z-index: 2;
+}
+
+#main-content a:not(a.footnoteref, .footnote-footer>a:first-child, ul.yui-nav a, .page-rate-widget-box a, .rate-box-with-credit-button a, div[id*="page-options-bottom"] a, #edit-page-form a, .page-tags a):is(:hover, :focus)::before {
+    background-color: rgb(var(--bright-accent));
+    transform: skew(-20deg) scale(1.06, 1.4) rotate(-4deg) translate(0.25em, calc(0.12em + 9%));
+}
+
+#main-content a:not(a.footnoteref, .footnote-footer>a:first-child, ul.yui-nav a, .page-rate-widget-box a, .rate-box-with-credit-button a, div[id*="page-options-bottom"] a, #edit-page-form a, .page-tags a):is(:hover, :focus)::after {
+    background-color: rgb(var(--dark-accent));
+}
+
+#main-content a:not(a.footnoteref, .footnote-footer>a:first-child, ul.yui-nav a, .page-rate-widget-box a, .rate-box-with-credit-button a, div[id*="page-options-bottom"] a, #edit-page-form a, .page-tags a):is(:hover, :focus):first-letter {
+    background-color: rgb(var(--white-monochrome));
+    color: rgb(var(--dark-accent));
+    padding: 0 0.15em;
+    margin-right: 0.1em;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+/*Firefox Styling*/
+@supports (-moz-appearance:none) {
+
+    #main-content a:not(a.footnoteref, .footnote-footer>a:first-child, ul.yui-nav a, .page-rate-widget-box a, .rate-box-with-credit-button a, div[id*="page-options-bottom"] a, #edit-page-form a, .page-tags a):is(:hover, :focus) {
+     margin-right: -0.65em;
+    }
+
+    #main-content a:not(a.footnoteref, .footnote-footer>a:first-child, ul.yui-nav a, .page-rate-widget-box a, .rate-box-with-credit-button a, div[id*="page-options-bottom"] a, #edit-page-form a, .page-tags a)::before {
+     display: none;
+    }
+
+    #main-content a:not(a.footnoteref, .footnote-footer>a:first-child, ul.yui-nav a, .page-rate-widget-box a, .rate-box-with-credit-button a, div[id*="page-options-bottom"] a, #edit-page-form a, .page-tags a):is(:hover, :focus)::after {
+     transition: background-color 0.075s linear, box-shadow 0.08s ease-out 0.03s, transform 0.05s;
+     box-shadow: 0.35em 0.25em 0 rgb(var(--bright-accent));
+     transform: translatex(-3%) scaleY(1.1) skew(-15deg);
+    }
+
+}
+
+/*-----Blockquote-----*/
+
+#main-content blockquote,
+#main-content div.blockquote {
+    color: rgb(var(--white-monochrome));
+    background-color: transparent;
+    box-shadow: none;
+    margin-left: 3.5rem;
+    margin-bottom: calc(8% + 2.5rem);
+    margin-top: 1rem;
+    padding: 1.85rem 1.75rem 1.45rem 1.35rem;
+    position: relative;
+    -webkit-filter: brightness(1.14) hue-rotate(2deg) drop-shadow(0.65rem 0.45rem 0 rgb(var(--swatch-primary)));
+            filter: brightness(1.14) hue-rotate(2deg) drop-shadow(0.65rem 0.45rem 0 rgb(var(--swatch-primary)));
+}
+
+#page-content>blockquote,
+#page-content>div.blockquote {
+    -webkit-filter: drop-shadow(0.65rem 0.45rem 0 rgb(var(--swatch-primary)));
+            filter: drop-shadow(0.65rem 0.45rem 0 rgb(var(--swatch-primary)));
+}
+
+:is(blockquote, div.blockquote)::before,
+:is(blockquote, div.blockquote)::after {
+    content: "";
+    display: block;
+    position: absolute;
+    background-color: rgb(var(--blockquote-bg-color));
+    z-index: -1;
+}
+
+:is(blockquote, div.blockquote)::before {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-clip-path: polygon(0 1rem, 100% 0, calc(100% - 1rem) 100%, 0.5rem calc(100% - 0.5rem));
+            clip-path: polygon(0 1rem, 100% 0, calc(100% - 1rem) 100%, 0.5rem calc(100% - 0.5rem));
+}
+
+:is(blockquote, div.blockquote)::after {
+    top: calc(97.5% - 0.75rem);
+    right: calc(90% - 2rem);
+    width: calc(15% + 5rem);
+    height: calc(10% + 3rem);
+    -webkit-clip-path: polygon(0 55%, 40% 40%, 37% 0, 100% 30%, 93% 83%, 60% 64%, 56% 84%);
+            clip-path: polygon(0 55%, 40% 40%, 37% 0, 100% 30%, 93% 83%, 60% 64%, 56% 84%);
+    transform: rotate(-25deg);
+}
+
+@media only screen and (max-width: 42.5rem) {
+    :is(blockquote, div.blockquote)::after {
+     display: none;
+    }
+
+    #main-content blockquote,
+    #main-content div.blockquote {
+     margin: 1rem auto;
+     padding: 1.75rem 1.75rem 1.15rem 1.5rem;
+    }
+}
+
+/*-----Page Title, h1-6-----*/
+#page-title,
+.meta-title {
+    text-align: center;
+    position: relative;
+    display: flow-root;
+    font-size: 2.5em;
+    margin: 0.25em 0.5rem;
+}
+
+#main-content :is(h1, h2, h3, h4, h5, h6) {
+    position: relative;
+    display: flow-root;
+    margin: 0.35em 0.5rem;
+}
+
+#page-title:first-letter,
+.meta-title:first-letter,
+#main-content :is(h1, h2, h3, h4, h5, h6):first-letter {
+    font-size: 135%;
+    color: rgb(var(--swatch-primary));
+}
+
+#page-title::after,
+.meta-title::after,
+#main-content :is(h1, h2, h3, h4, h5, h6)::after {
+    content: "";
+    position: absolute;
+    bottom: -0.05em;
+    left: 0;
+    width: 100%;
+    height: 0.65em;
+    margin: 0;
+    z-index: -1;
+    background-color: rgba(var(--pale-gray-monochrome), 0.65);
+    transform: skewX(25deg);
+}
+
+/*-----Rate Module-----*/
+.page-rate-widget-box:not(.rateBox .page-rate-widget-box),
+#page-content .rate-box-with-credit-button {
+    transform: skew(-15deg) scale(1.03) !important;
+    box-shadow: 0.35rem 0.15rem 0 0.05rem rgb(var(--rating-module-bottom-border-color)), -0.75rem 0.45rem 0 0.1rem rgb(var(--medium-accent)) !important;
+}
+
+.page-rate-widget-box:not(.rateBox .page-rate-widget-box)>*,
+#page-content .creditButton .rate-box-with-credit-button>* {
+    transform: skew(15deg);
+}
+
+#page-content .creditRate.creditModule .rate-box-with-credit-button {
+     height: 20.69px;
+}
+
+.creditButton {
+     margin: 0 !important;
+}
+
+/*-----Horizontal Rule-----*/
+hr {
+    position: relative;
+    background-color: transparent;
+    border: none;
+    height: 0.75rem;
+    --hrmask: linear-gradient(#000 0 0) center/calc(100% - 1.5rem) calc(100% - 1.5rem) no-repeat, conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) 0 0/1.5rem 0.75rem space no-repeat, conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 0 100%/1.5rem 0.75rem space no-repeat, conic-gradient(from 45deg at left, #0000, #000 1deg 89deg, #0000 90deg) 0 0/0.75rem 1.5rem no-repeat space, conic-gradient(from -135deg at right, #0000, #000 1deg 89deg, #0000 90deg) 100% 0/0.75rem 1.5rem no-repeat space;
+}
+
+hr::before,
+hr::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(var(--dark-accent));
+    -webkit-mask: var(--hrmask);
+    mask: var(--hrmask);
+}
+
+hr::before {
+    top: 0.4rem;
+    left: 0.4rem;
+    background-color: rgb(var(--swatch-primary));
+}
+
+/*-----Image Block-----*/
+#page-content :is(.image-block, .scp-image-block) {
+    box-shadow: 0.75rem 0.75rem 0 rgb(var(--swatch-primary)), 1.5rem 1.5rem 0 rgb(var(--dark-accent));
+    padding: 0.8rem;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, rgb(var(--medium-accent)), rgb(var(--dark-accent)));
+    margin-bottom: 2rem;
+}
+
+:is(.image-block, .scp-image-block):not(.block-center) {
+    transform: perspective(4rem) rotateY(-1.5deg) translateZ(-5px) scale(1.06);
+}
+
+#page-content :is(.image-block, .scp-image-block).block-left {
+    box-shadow: -0.75rem 0.75rem 0 rgb(var(--swatch-primary)), -1.5rem 1.5rem 0 rgb(var(--dark-accent));
+    transform: perspective(4rem) rotateY(1.5deg) translateZ(-5px) scale(1.06);
+}
+
+#page-content :is(.image-block, .scp-image-block):not(.block-center) {
+    margin-top: calc(5% + 0.65rem);
+    margin-bottom: calc(5% + 0.65rem);
+}
+
+:is(.image-block, .scp-image-block):not(.block-center) img.image {
+    transform: perspective(4rem) rotateY(1.5deg) translateZ(-5px) scale(1.06);
+}
+
+:is(.image-block, .scp-image-block).block-left img.image {
+    transform: perspective(4rem) rotateY(-1.5deg) translateZ(-5px) scale(1.06);
+}
+
+:is(.image-block, .scp-image-block) .scp-image-caption {
+    font-size: 1em;
+    margin-top: 0.425rem;
+    box-shadow: none;
+}
+
+:is(.image-block, .scp-image-block):not(.block-center) .scp-image-caption {
+    transform: perspective(6rem) rotateY(4.5deg) rotateZ(-2.5deg) rotateX(-1deg) skew(-2deg, -0.35deg);
+}
+
+:is(.image-block, .scp-image-block).block-left .scp-image-caption {
+    transform: perspective(6rem) rotateY(-4.5deg) rotateZ(2.5deg) rotateX(-1deg) skew(2deg, 0.35deg);
+}
+
+/*-----Tabs-----*/
+.yui-navset.yui-navset-top {
+    display: grid;
+    grid-template: "content tabs";
+    grid-template-columns: 1fr 9rem;
+}
+
+.yui-navset.yui-navset-top>.yui-nav {
+    -ms-grid-row: 1;
+    -ms-grid-column: 2;
+    grid-area: tabs;
+    display: flex;
+    -webkit-clip-path: none;
+            clip-path: none;
+    align-items: stretch;
+    align-self: flex-start;
+    flex-direction: column;
+    position: -webkit-sticky;
+    position: sticky;
+    top: var(--topbar-height-on-mobile);
+}
+
+.yui-navset.yui-navset-top>.yui-nav>li {
+    flex-grow: 0;
+}
+
+.yui-navset .yui-nav .selected {
+    transform: perspective(6em) rotateY(-15deg) translateZ(1.5em) scale(0.835) translateX(-0.7em);
+}
+
+.yui-navset .yui-nav .selected a em,
+.yui-navset .yui-nav a em {
+    white-space: break-spaces;
+}
+
+.yui-navset.yui-navset-top>.yui-content {
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
+    grid-area: content;
+    border: none;
+    border-right: solid 0.35rem rgb(var(--swatch-primary));
+}
+
+/*-----Hovertip-----*/
+.hovertip[style*="display: block"] {
+    -webkit-filter: drop-shadow(-0.45em -0.45em 0 rgb(var(--swatch-primary)));
+            filter: drop-shadow(-0.45em -0.45em 0 rgb(var(--swatch-primary)));
+}
+
+.hovertip:before {
+    box-shadow: none !important;
+}
+
+.hovertip .content {
+    box-shadow: -0.5em -0.5em 0 rgb(var(--swatch-primary-darkest));
+}
+
+.hovertip .f-heading {
+    transform: perspective(5em) rotateY(12deg) rotateZ(0.25deg) scale(1.15) translateY(0.2em);
+}
+
+
+/*-----------------------------------*/
+/*-----Edit Area-----*/
+/*-----------------------------------*/
+
+div[id*="page-options-bottom"]:not(.page-rate-widget-box):not(#search-top-box-form)>a.btn {
+    transition: border-color .2s cubic-bezier(.4, 0, .2, 1),
+     box-shadow .2s cubic-bezier(.4, 0, .2, 1),
+     color .15s cubic-bezier(.4, 0, .2, 1),
+     background-color .15s cubic-bezier(.4, 0, .2, 1),
+     font-weight .2s cubic-bezier(.4, 0, .2, 1),
+     font-variation-settings .2s cubic-bezier(.4, 0, .2, 1),
+     transform 0.15s;
+}
+
+div[id*="page-options-bottom"]:not(.page-rate-widget-box):not(#search-top-box-form)>a.btn:is(:hover, :active) {
+    transform: scale(0.9) skew(-5deg);
+    box-shadow: 0 0 0 .125rem rgb(var(--ui-button-hover-outline)),
+     inset var(--icon-size) 0 0 0 rgb(var(--ui-icon-hover-bg)),
+     0.45rem .35rem 0 .1rem rgb(var(--ui-icon-bg));
+}
+
+.page-source {
+    background-color: rgba(var(--tabs-content-bg-color));
+}
+
+[[/code]]
+[[/collapsible]]
+
+
+
+
+
+
+
+
+
+
+
+
+
+[[module CSS]]
+td { vertical-align: top; }
+td strong { white-space: nowrap; }
+.options table.wiki-content-table td { border: none; padding: 0.7em 1em; }
+.colors-container {
+  width: 98%;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  font-weight: 700;
+  font-family: var(--title-font, Verdana);
+  color: black;
+}
+
+.colors-container .colors, .colors-container .subcolors {
+  width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.colors-container .color {
+  flex-grow: 2;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  color: rgb(var(--swatch-text-dark, 0, 0, 0));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.colors-container .colors .color {
+  height: 7rem;
+  flex-basis: calc((100% / 2) - 2rem);
+}
+
+.colors-container .subcolors .color {
+  height: 4rem;
+  font-size: 75%;
+  text-align: center;
+  flex-basis: calc((100% / 6) - 2rem);
+}
+
+.colors-container .css-variable {
+  font-size: 75%;
+  letter-spacing: 0.1em;
+  font-family: var(--body-font, Verdana);
+}
+
+/* Hide a colour that's not been provided by seeing if the variable starts with "{$" */
+.colors-container [data-variable^=\{\$] {
+  display: none;
+}
+
+.colors-container [data-has-light-text="1"] {
+  color: white;
+  color: rgb(var(--swatch-text-light, 255, 255, 255));
+}
+[[/module]]
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

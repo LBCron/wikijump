@@ -1,0 +1,89 @@
+[[div class="tl-component tl-heading"]]
++ Heading One
+++ Heading Two
+Paragraph with **bold**, //italic//, __underline__, --deleted--, {{monospace}}, and [https://example.invalid an external link].
+[[/div]]
+
+[[div class="tl-component tl-links"]]
+[[[run-owned:theme-lab-corpus-existing|Existing internal page]]]
+[[[run-owned:theme-lab-corpus-missing|Missing internal page]]]
+[[/div]]
+
+[[div class="tl-component tl-list"]]
+* Unordered item one
+* Unordered item two
+ * Nested item
+# Ordered item one
+# Ordered item two
+[[/div]]
+
+[[div class="tl-component tl-quote"]]
+> A representative blockquote with enough text to expose padding, width, font, and overflow regressions.
+> Second quoted line.
+[[/div]]
+
+[[div class="tl-component tl-table"]]
+||~ Header A ||~ Header B ||~ Header C ||
+|| alpha || beta || gamma ||
+|| a deliberately longer cell for responsive width checks || 12345 || omega ||
+[[/div]]
+
+[[div class="tl-component tl-code"]]
+[[code language="css"]]
+.theme-lab-example {
+  display: grid;
+  gap: 0.5rem;
+}
+[[/code]]
+[[/div]]
+
+[[div class="tl-component tl-collapsible"]]
+[[collapsible show="Open canonical collapsible" hide="Close canonical collapsible"]]
+Collapsible body with **formatted text**.
+[[/collapsible]]
+[[/div]]
+
+[[div class="tl-component tl-tabview"]]
+[[tabview]]
+[[tab First]]First tab body.[[/tab]]
+[[tab Second]]Second tab body with more text.[[/tab]]
+[[/tabview]]
+[[/div]]
+
+[[div class="tl-component tl-footnote"]]
+A statement with a footnote[[footnote]]Theme-lab footnote body.[[/footnote]].
+[[/div]]
+
+[[div class="tl-component tl-bibliography-reference"]]
+Canonical bibliography reference ((bibcite alpha)).
+[[/div]]
+
+[[bibliography]]
+: alpha : Theme Lab canonical bibliography entry.
+[[/bibliography]]
+
+[[div class="tl-component tl-math"]]
+[[math]]
+x^2 + y^2 = z^2
+[[/math]]
+[[/div]]
+
+[[div class="tl-component tl-toc"]]
+[[toc]]
+[[/div]]
+
+[[div class="tl-component tl-rate"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]Rating: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+
+[[div class="tl-component tl-tag-positive"]]
+[[iftags +theme]]THEME_TAG_ACTIVE[[/iftags]]
+[[/div]]
+[[div class="tl-component tl-tag-negative"]]
+[[iftags -theme]]THEME_TAG_INACTIVE[[/iftags]]
+[[/div]]

@@ -1,0 +1,202 @@
+{
+  "slug": "theme:aesthetic-theme",
+  "en_source_sha256": "35234ec38792ffc739258798c50bb91d993575fb23eb6b6a51c58c2d02b26efd",
+  "en_updated_at": "2026-04-10T05:10:37+00:00",
+  "en_entity_uuid": "6a04aa9c-9d23-4847-a489-ac026499344e",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "da06a9e340ca0f6faa0f900117f1c165eaffed070d2269df0a99aec038b06338",
+  "jp_previous_updated_at": "2026-03-17T14:48:29+00:00",
+  "jp_previous_entity_uuid": "c7771e6a-2f88-4ce6-b2a0-ff756da3bcab",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:aesthetic-theme",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:aesthetic-theme",
+    "title": "  ░▒▓ A E S T H E T I C  T H E M E ▓▒░",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "35234ec38792ffc739258798c50bb91d993575fb23eb6b6a51c58c2d02b26efd",
+      "updated_at": "2026-04-10T05:10:37+00:00",
+      "entity_uuid": "6a04aa9c-9d23-4847-a489-ac026499344e",
+      "tags": [
+        "_cc",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 70,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:aesthetic-theme"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "da06a9e340ca0f6faa0f900117f1c165eaffed070d2269df0a99aec038b06338",
+      "updated_at": "2026-03-17T14:48:29+00:00",
+      "entity_uuid": "c7771e6a-2f88-4ce6-b2a0-ff756da3bcab",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:aesthetic-theme"
+      }
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:aesthetic-theme",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:theme-squares -=-",
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:aesthetic-theme",
+      ":scp-wiki:component:toggle-sidebar-bhl",
+      ":scp-wiki:component:centered-header-bhl",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "http://www.w3.org/1999/xlink",
+      "http://www.w3.org/2000/svg",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Aaesthetic-theme/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "https://scp-wiki.wdfiles.com/local--files/theme:aesthetic-theme/AESTHETIC_logo.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:aesthetic-theme/AESTHETIC_mtns_vs2.svg",
+      "https://use.typekit.net/afb2wxe.css"
+    ],
+    "jp_includes": [
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:component:theme-squares -=-",
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:theme:aesthetic-theme",
+      ":scp-jp:component:toggle-sidebar-bhl",
+      ":scp-jp:component:centered-header-bhl",
+      ":scp-jp:component:interwiki-style"
+    ],
+    "jp_external_dependencies": [
+      "http://www.w3.org/1999/xlink",
+      "http://www.w3.org/2000/svg",
+      "https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap",
+      "https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap",
+      "https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap",
+      "https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-57-rycj/AESTHETIC_logo.svg",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-jp.github.io/files/theme/aesthetic-theme/AESTHETIC_mtns_vs2.svg",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Aaesthetic-theme/1",
+      "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "https://scp-wiki.wikidot.com/theme:aesthetic-theme"
+    ],
+    "base_family": "black-highlighter"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "candidate_source_hash": "2fa92fec43511ef1b671b0ba9163e127039369c1b13aca4d5067c3f1c1ab57e5",
+  "page_assets": [
+    {
+      "filename": "AESTHETIC_logo.svg",
+      "sha256": "64ca862d41f0aebc7f0fc6c9f0af82bc93b0dba29fc87e83bf18e9a8ba58c8e7",
+      "bytes": 15578,
+      "asset_file": "64ca862d41f0aebc7f0fc6c9f0af82bc93b0dba29fc87e83bf18e9a8ba58c8e7.svg",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-57-rycj/AESTHETIC_logo.svg"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-57-rycj/AESTHETIC_logo.svg",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615,
+      "asset_file": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593.svg",
+      "source_urls": [
+        "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg"
+      ],
+      "acquired_from": "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/aesthetic-theme/assets.json",
+  "asset_dependency_decision_count": 66,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "336b7b50a4969b60b1b8926b17975d54fe5f2297ef3354d56c41c20ede8d164c",
+    "jp_overrides_sha256": "41fa78e3531868fbad99dce719ea0f1d78b2d526c4ea8e99b7a7c5bbb2e05612",
+    "semantic_css_sha256": "dd2dcaf8f1a14bc7b5b372813df4a2f7656886e693ad814eeda22749b59163f9",
+    "canonical_override_sha256": "70bab390e54cec515ab6a5ca83bb92ae41a3430b0283d274026ce9587da4443a",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "2e01c18bfc206d312f0cd9b52ca489265d6a94110bb3982044204e46c2d94e3e",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "e80f23c0464a6a330996706854384cbc909da111cf08a2114af967ca503835d8",
+      "active_tags": [],
+      "candidate_source_sha256": "f2c421f4711c9fac2bae3cc5aaa6e656247599a22182aef2892002b99d6a278f",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 1,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "05f0a7bfbd9581f913a87093e70ec51d5133efba15b07e34ba1c2f107f797b09",
+      "asset_receipt_path": "assets.json",
+      "assets": 54,
+      "imports": 10,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "875497dc164526da0940bc91a56d9b3cb6839e30cb02881e47245d662982a621",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

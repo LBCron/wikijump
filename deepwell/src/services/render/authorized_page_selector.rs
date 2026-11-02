@@ -1,9 +1,3 @@
-/*
- * services/render/authorized_page_selector.rs
- *
- * Deepwell's render-time page-selector authorization seam.
- */
-
 use std::collections::BTreeMap;
 
 use crate::error::Result;
@@ -14,9 +8,6 @@ use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::render::{ViewablePageRef, view_decisions_for_scanned_pages};
 use crate::types::{Action, Permission, Reference, Resource};
 
-/// Resolves page candidates only after applying the page-view permission for
-/// the viewer of this render. The cache is deliberately render-scoped and is
-/// keyed by the complete page identity, not merely its category.
 pub(crate) struct AuthorizedPageSelector<'a, 'ctx> {
     ctx: &'a ServiceContext<'ctx>,
     viewer_user_id: Option<i64>,
@@ -37,11 +28,6 @@ impl<'a, 'ctx> AuthorizedPageSelector<'a, 'ctx> {
         }
     }
 
-    /// Decides every page of the batch together: one permission derivation
-    /// per site and one category probe per distinct category, with pages the
-    /// viewer is attributed to checked individually
-    /// (`view_decisions_for_scanned_pages`). A render resolves dozens of link
-    /// targets at once, and a full derivation per target dominated it.
     pub(crate) async fn filter_models(
         &mut self,
         pages: impl IntoIterator<Item = PageModel>,

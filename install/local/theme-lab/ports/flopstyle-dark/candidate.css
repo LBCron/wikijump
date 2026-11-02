@@ -4345,7 +4345,7 @@ tt {
 /* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
 
 /* SCP-JP Wikidot Flopstyle Dark Firefox submenu: anchor the third parent endpoint at mobile widths. */
-@supports (-moz-appearance:none){@media(max-width:359px){#top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul {left:0;right:auto;}}@media(min-width:360px) and (max-width:767px){#top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul {left:auto;right:0;}#top-bar .mobile-top-bar > ul > li:last-child > ul {left:0;right:auto;}}}
+@supports (-moz-appearance:none){@media(max-width:359px){#top-bar .mobile-top-bar > ul {position:relative;}#top-bar .mobile-top-bar > ul > li:nth-last-child(2) {position:static;}#top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul {left:auto;right:0;}}@media(min-width:360px) and (max-width:767px){#top-bar .mobile-top-bar > ul {position:relative;}#top-bar .mobile-top-bar > ul > li:last-child {position:static;}#top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul {left:auto;right:0;}#top-bar .mobile-top-bar > ul > li:last-child > ul {left:auto;right:0;}}}
 
 /* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
 

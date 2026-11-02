@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "slug": "theme:scpedia",
+  "mode": "Wikidot page attachments; upload each named file to this theme page before publication",
+  "assets": [],
+  "decisions": [
+    {
+      "source_url": "https://scp-wiki.wdfiles.com/local--files/estrellayoshte/u.png",
+      "action": "remove-obsolete",
+      "reason": "The current source URL returned an HTML \"file does not exist\" page instead of an image. It is an optional author-credit illustration and no current SCP-JP counterpart exists; the textual attribution remains."
+    }
+  ],
+  "dependency_decisions": []
+}

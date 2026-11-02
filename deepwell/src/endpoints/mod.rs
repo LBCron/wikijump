@@ -18,15 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Definitions of endpoints invoked by different API routes.
-//!
-//! The structure of the internal API is specified in `api.rs`, not here.
-//! This module contains implementations of those endpoints only.
-//!
-//! The module should not contain core business logic of its own, which should
-//! instead live in `services`. Endpoint definitions should ideally be wrappers
-//! around service calls, or possibly perform modest data conversion for HTTP.
-
 #[macro_use]
 mod macros;
 
@@ -62,6 +53,7 @@ pub mod all {
     pub use super::info::*;
     pub use super::link::*;
     pub use super::locale::*;
+    pub use super::mail_form::*;
     pub use super::message::*;
     pub use super::mirror_scope::*;
     pub use super::normalize::*;
@@ -99,6 +91,7 @@ pub mod import;
 pub mod info;
 pub mod link;
 pub mod locale;
+pub mod mail_form;
 pub mod message;
 pub mod mirror_scope;
 pub mod normalize;

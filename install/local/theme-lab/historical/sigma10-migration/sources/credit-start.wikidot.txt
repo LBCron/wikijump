@@ -1,0 +1,72 @@
+[[module CSS]]
+@import url("https://pseudo-scp-jp.wdfiles.com/local--code/sigma-10%3Acredit%3Astyle/1");
+
+.heritage-wrap > .rate-box-with-credit-button {
+    display: flex;
+}
+
+.heritage-wrap .heritage-emblem img {
+    width: 20px;
+}
+
+.creditButton.heritageButton {
+    width: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+}
+
+.modalbox.heritage {
+    background: linear-gradient(to bottom, #fff6f0, #fff);
+    border: #633 solid 7px;
+    box-shadow: 2px 2px 6px rgba(204, 192, 102, 0.8), -2px -2px 6px rgba(204, 192, 102, 0.8);
+    padding: 0;
+}
+.modalbox.heritage .modalbox-title {
+    background: linear-gradient(to bottom, #633, #966);
+    color: #fff;
+    border-radius: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 50px;
+}
+
+[[/module]]
+
+[[ul class="creditRate"]]
+[[li class="rateBox folded [[iftags 殿堂入り]]heritage-wrap[[/iftags]]"]]
+[[ul]][[li]]_[[/li]][[/ul]]
+[[div_ class="rate-box-with-credit-button" [[iftags -殿堂入り]]style="display:none;"[[/iftags]]]]
+[[div_ class="heritage-emblem"]]
+[[image https://scp-jp.wdfiles.com/local--files/componen%3Aheritage-rating/scp-heritage-v3.png link="[[iftags +殿堂入り +en]]archived:heritage-collection[[/iftags]][[iftags +殿堂入り +jp]]heritage-collection-jp[[/iftags]][[iftags +殿堂入り +fr]]patrimoine-francais-de-la-fondation-scp[[/iftags]]" style="max-width: none;"]]
+[[/div]]
+[[module Rate]]
+[[div class="creditButton foldable-list-container [[iftags 殿堂入り]]heritageButton[[/iftags]]"]]
+[# ]
+[[/div]]
+[[/div]]
+
+[[div_ class="rate-box-with-credit-button" [[iftags +殿堂入り]]style="display:none;"[[/iftags]]]]
+[[module Rate]]
+[[div class="creditButton foldable-list-container"]]
+[# ]
+[[/div]]
+[[/div]]
+[[div id="credit-view"]]
+[[div_ class="fader foldable-list-container"]]
+[# close]
+[[/div]]
+
+[[div class="modalcontainer"]]
+[[div class="modalbox [[iftags 殿堂入り]]heritage[[/iftags]]"]]
+[[div_ class="modalbox-title [[iftags 殿堂入り]]heritage[[/iftags]]"]]
+++* クレジット
+[[/div]]
+------
+[[div_ class="close-credits foldable-list-container"]]
+[# X]
+[[/div]]
+[[div class="credit first"]]

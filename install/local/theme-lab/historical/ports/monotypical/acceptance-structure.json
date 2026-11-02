@@ -1,0 +1,16 @@
+{
+  "schema": "theme_lab_source_owned_structure.v1",
+  "source_file": "candidate.wikidot.source.txt",
+  "upstream_file": "upstream-en.wikidot.txt",
+  "excerpt": {
+    "path": "acceptance-structure.wikidot.txt",
+    "sha256": "5940fcf5e753e130a81af6b13fef738b0e30fb71aae8905ea89f0c2e102758cd"
+  },
+  "html": {
+    "path": "acceptance-structure.html",
+    "sha256": "711426e0f07ee8523d27b3e5cad0f3add4baf4fc186ac78f5a078817119262d7"
+  },
+  "transform": "Expand the source-owned div and anchors; close the wrapper after omitting the separately frozen Interwiki include. No new control or CSS is invented.",
+  "authority": "SOURCE_THEME",
+  "public_writes": 0
+}

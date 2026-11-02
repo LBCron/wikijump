@@ -30,19 +30,10 @@ fn record_email_bytes_examined(count: usize) {
 }
 
 enum EmailScan {
-    Token {
-        end: usize,
-    },
-    /// No alphanumeric start before this stop can produce an email token.
-    Failed {
-        safe_until: usize,
-    },
+    Token { end: usize },
+    Failed { safe_until: usize },
 }
 
-/// URL and email spans owned by the pinned FTML tokenizer.
-///
-/// Literal-looking bytes inside either token must not be reinterpreted as
-/// source-level delimiters. Ranges and membership checks are both monotone.
 #[derive(Clone)]
 pub(in crate::services::render) struct TextTokenIndex {
     ranges: Arc<[Range<usize>]>,
@@ -71,9 +62,6 @@ impl TextTokenIndex {
                     continue;
                 }
                 let identifier_end = scan_identifier(bytes, cursor);
-                // Failed email scans share the same next reserved stop for every
-                // later identifier in the scanned span. URL recognition still
-                // runs above before this proof lets us skip the email rescan.
                 if cursor >= failed_email_until {
                     match scan_email(bytes, cursor, identifier_end) {
                         EmailScan::Token { end } => {
@@ -215,8 +203,6 @@ fn is_email_label_byte(byte: u8) -> bool {
     byte.is_ascii_alphanumeric() || byte == b'-'
 }
 
-/// Scans `part(.part)*` from `start`, stopping before a `.` that does not
-/// begin another non-empty part.
 fn scan_email_dotted(bytes: &[u8], start: usize, part: fn(u8) -> bool) -> usize {
     let mut end = start;
     while bytes.get(end).copied().is_some_and(part) {
@@ -229,9 +215,6 @@ fn scan_email_dotted(bytes: &[u8], start: usize, part: fn(u8) -> bool) -> usize 
     end
 }
 
-/// Like FTML's scanner: takes the `str` the caller already holds, because
-/// validating the whole input again for each URL made a long page with many
-/// URLs quadratic.
 fn scan_url(source: &str, start: usize) -> Option<usize> {
     let bytes = source.as_bytes();
     let body_start = if bytes[start..].starts_with(b"http://") {
@@ -343,8 +326,6 @@ pub(super) fn find_block_close(
     None
 }
 
-/// Return whether the pinned tokenizer emits `RightBlock` at `start` and the
-/// number of bytes consumed by the bracket token it emits there.
 pub(in crate::services::render) fn right_bracket_token(
     bytes: &[u8],
     start: usize,
@@ -388,10 +369,6 @@ pub(in crate::services::render) fn classify_wikidot_right_bracket_and_advance_te
     right_bracket_token(bytes, start, end)
 }
 
-/// Return the pinned tokenizer's possible `LeftBlock` or `LeftBlockEnd`
-/// start in the contiguous `[` run containing `candidate`, plus that run's
-/// exclusive end. The tokenizer consumes one bracket at every fourth offset,
-/// then three-bracket link tokens; a two-byte remainder is a block token.
 pub(in crate::services::render) fn left_block_start_in_run(
     bytes: &[u8],
     candidate: usize,
@@ -410,9 +387,6 @@ pub(in crate::services::render) fn left_block_start_in_run(
     (block_start.filter(|start| *start >= candidate), run_end)
 }
 
-/// Return the earliest nested position that must be reconsidered if an outer
-/// speculative head rolls back. A competing bracket run may contain no
-/// `LeftBlock` token while still containing an unresolved `[[#` marker.
 pub(in crate::services::render) fn rollback_start_in_left_run(
     bytes: &[u8],
     candidate: usize,
@@ -1034,8 +1008,6 @@ mod tests {
 
     #[test]
     fn many_urls_in_a_long_page_index_in_linear_time() {
-        // Each URL once validated the whole page again: SCP-9317 with its
-        // includes (750 KB) spent most of a 1.8 s render building this index.
         let source =
             "see https://scp-wiki.wikidot.com/scp-173 and ü日本\n".repeat(32_768);
         let started = std::time::Instant::now();

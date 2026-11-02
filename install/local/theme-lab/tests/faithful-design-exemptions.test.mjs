@@ -17,7 +17,10 @@ test('the committed ledger carries the authorized G2-47 cosmonaut entry first',(
  assert.equal(entry.decision,'G2-47');
  assert.equal(entry.package,'cosmonaut');
  assert.equal(entry.instrument,'full_check_target');
- assert.equal(entry.target_acceptance_contract_sha256,TARGET_ACCEPTANCE_CONTRACT_SHA256);
+ // The committed ledger was recorded under the closure instrument and
+ // stays stamped with it; the registry admits it alongside the live
+ // successor (src/target-acceptance-instruments.mjs).
+ assert.equal(entry.target_acceptance_contract_sha256,'df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a');
  assert.equal(entry.candidate_css_sha256,sha(readPackageFile('candidate.css')));
  assert.equal(entry.candidate_source_sha256,sha(readPackageFile('candidate.wikidot.source.txt')));
  const bytes=fs.readFileSync(new URL('../ports/current-acceptance/faithful-design-exemptions.json',import.meta.url));
@@ -133,7 +136,7 @@ test('OD-T3-a entries carry the exact TL-02 bindings and claim no reference pari
   assert.equal(entry.candidate_base_css_sha256,null);
   assert.equal(entry.full_check_input_bindings_sha256,want.inputs);
   assert.equal(entry.full_check_raw_result_sha256,want.raw);
-  assert.equal(entry.target_acceptance_contract_sha256,TARGET_ACCEPTANCE_CONTRACT_SHA256);
+  assert.equal(entry.target_acceptance_contract_sha256,'df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a'); // closure instrument, as recorded
   assert.equal(sha(readThemeFile(want.package,'candidate.css')),want.css);
   assert.equal(sha(readThemeFile(want.package,'candidate.wikidot.source.txt')),want.source);
   assert.equal(sha(readThemeFile(want.package,'candidate.wikidot.txt')),want.preview);

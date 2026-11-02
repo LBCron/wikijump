@@ -1,0 +1,188 @@
+{
+  "slug": "theme:ouroborous-theme",
+  "en_source_sha256": "b172231574fa6f71b41be2fb5065293aafc9c772d808a268009798e7aba4ab4f",
+  "en_updated_at": "2023-05-05T17:15:28+00:00",
+  "en_entity_uuid": "a6f68a47-ca92-445f-8eb1-f1d3749e9747",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "154b816e5c5de3fef3ea3fa0f0b9dbe5688cbd936d8ba60eeb60fb8eb5d35b58",
+  "jp_previous_updated_at": "2025-01-19T12:38:49+00:00",
+  "jp_previous_entity_uuid": "dd9291fc-8ec5-4c66-9cb8-3e8b0b926e87",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:ouroborous-theme",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:ouroborous-theme",
+    "title": "Ouroborous Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "b172231574fa6f71b41be2fb5065293aafc9c772d808a268009798e7aba4ab4f",
+      "updated_at": "2023-05-05T17:15:28+00:00",
+      "entity_uuid": "a6f68a47-ca92-445f-8eb1-f1d3749e9747",
+      "tags": [
+        "_cc",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 41,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:ouroborous-theme"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "154b816e5c5de3fef3ea3fa0f0b9dbe5688cbd936d8ba60eeb60fb8eb5d35b58",
+      "updated_at": "2025-01-19T12:38:49+00:00",
+      "entity_uuid": "dd9291fc-8ec5-4c66-9cb8-3e8b0b926e87",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:ouroborous-theme"
+      }
+    },
+    "existing_jp_audit": "existing-jp-current-and-valid",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:ouroborous-theme",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:theme-squares -=-",
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:ouroborous-theme",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "http://www.w3.org/2000/svg",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Aouroborous-theme/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aouroborous-theme/ouroborous_logo.svg",
+      "https://use.typekit.net/mst2dnj.css"
+    ],
+    "jp_includes": [
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:component:theme-squares -=-",
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:theme:ouroborous-theme",
+      ":scp-jp:component:interwiki-style"
+    ],
+    "jp_external_dependencies": [
+      "http://www.w3.org/2000/svg",
+      "https://pseudo-scp-jp.wdfiles.com/local--code/theme%3Aouroborous-theme/1",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-46-l81f/ouroborous_logo.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-47-m0s5/ouroborous_logo.svg",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg"
+    ],
+    "base_family": "black-highlighter"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "flattened_css_transforms": "localization-transforms.json",
+  "candidate_origin": "current official SCP-JP page source",
+  "candidate_source_hash": "7df28edb8551211e95ca844f819148a0d7de77561b0ef28baca38bec39e0bed9",
+  "page_assets": [
+    {
+      "filename": "black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615,
+      "asset_file": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593.svg",
+      "source_urls": [
+        "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg"
+      ],
+      "acquired_from": "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "ouroborous_logo.png",
+      "sha256": "6ce2cde35401f36f7d44966903821ee9df970033eb22d77979d21195dbaeabac",
+      "bytes": 172768,
+      "asset_file": "6ce2cde35401f36f7d44966903821ee9df970033eb22d77979d21195dbaeabac.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-46-l81f/ouroborous_logo.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-46-l81f/ouroborous_logo.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-current-and-valid",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/ouroborous-theme/assets.json",
+  "asset_dependency_decision_count": 52,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "0fa23f59bcaafa19dd4cd7bf135cd29e4726de0c507f9357343d23a12a927d2f",
+    "jp_overrides_sha256": "def2974c0900300a25832dbe69868ce6ca9de5669f9e87ef5f7d4db0cd9ee80a",
+    "semantic_css_sha256": "dc1651e76a135e57c74a2356cfdd448091442645e0399ac4faf9415cad2a0fdc",
+    "canonical_override_sha256": "af22b6ab9fda0e40ebf3a9d3d8bb062cd1d7bfe1f282c1986e17bd9f42b79a3c",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "6b2209bb4f90fcd1a5cb705258ee880bd7b50cdacb74efdff4abaa3e92cc44b8",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "1df7d1cb87f4158c3de90db6250817f3079bdd3a9187cc7450242cc69067d07d",
+      "active_tags": [],
+      "candidate_source_sha256": "ec5eadaa0d7f13636259c8209ad6f5ab2f20c52a882ed92a59ebcd2f7469299d",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 1,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "0102ff1156947176ae4bca48829e758982331d11c45df6b7b8f8ef5d453d402e",
+      "asset_receipt_path": "assets.json",
+      "assets": 42,
+      "imports": 8,
+      "localization_transforms": 0,
+      "localization_transform_manifest": {
+        "path": "localization-transforms.json",
+        "sha256": "5bb0dafbbd0203a6f543149c23e996b022fc69f735b60495d296030abe295cf5"
+      },
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

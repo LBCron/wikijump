@@ -1,0 +1,170 @@
+{
+  "slug": "theme:cosmonaut",
+  "en_source_sha256": "7d315826293db9af4419d47ffd594a19bfbe6bd458493de0dc410f34693a18a4",
+  "en_updated_at": "2025-12-14T11:15:02+00:00",
+  "en_entity_uuid": "984e9112-604c-4dbd-ae86-2901d9f8bbf1",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "857c48d316a054139c6c667fcfadd14208885fcf1c3103b56c9a661a620e5fd2",
+  "jp_previous_updated_at": "2025-03-11T09:05:30+00:00",
+  "jp_previous_entity_uuid": "fc3efb5b-3598-44e3-bd1e-62f9e337c710",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:cosmonaut",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:cosmonaut",
+    "title": "Cosmonaut Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "7d315826293db9af4419d47ffd594a19bfbe6bd458493de0dc410f34693a18a4",
+      "updated_at": "2025-12-14T11:15:02+00:00",
+      "entity_uuid": "984e9112-604c-4dbd-ae86-2901d9f8bbf1",
+      "tags": [
+        "_cc",
+        "oneiroi",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 27,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:cosmonaut"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "857c48d316a054139c6c667fcfadd14208885fcf1c3103b56c9a661a620e5fd2",
+      "updated_at": "2025-03-11T09:05:30+00:00",
+      "entity_uuid": "fc3efb5b-3598-44e3-bd1e-62f9e337c710",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:cosmonaut"
+      }
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "warn"
+  },
+  "dependencies": {
+    "slug": "theme:cosmonaut",
+    "en_includes": [
+      ":scp-wiki:theme:cosmonaut",
+      ":scp-wiki:theme:cosmonaut twilight=--",
+      "component:image-block name= hpl2.png"
+    ],
+    "en_external_dependencies": [
+      "http://www.serif.com/",
+      "http://www.w3.org/1999/xlink",
+      "http://www.w3.org/2000/svg",
+      "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd",
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/AtkinsonHyperlegibleNext-Bold.woff2",
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/AtkinsonHyperlegibleNext-BoldItalic.woff2",
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/AtkinsonHyperlegibleNext-Regular.woff2",
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/AtkinsonHyperlegibleNext-RegularItalic.woff2",
+      "https://commons.wikimedia.org/wiki/File:Book_decoration_BPPxii.svg",
+      "https://commons.wikimedia.org/wiki/File:Fine_Ornament_Black_L.svg",
+      "https://commons.wikimedia.org/wiki/File:Ornamental_corner_by_S._H._Redmond_02.svg",
+      "https://fonts.bunny.net/css?family=anonymous-pro:400,400i,700,700i",
+      "https://fonts.bunny.net/css?family=berkshire-swash:400",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Acosmonaut/1",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Acosmonaut/2",
+      "https://scp-wiki.wdfiles.com/local--files/number-27-oneiroi-station/Canine.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Acosmonaut/particles.css"
+    ],
+    "jp_includes": [
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:theme:cosmonaut",
+      ":scp-jp:theme:cosmonaut twilight=--",
+      ":scp-jp:component:image-block name= https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-74-cf41/hpl2.png",
+      ":scp-jp:component:interwiki-style"
+    ],
+    "jp_external_dependencies": [
+      "http://www.w3.org/2000/svg",
+      "https://api.fonts.coollabs.io/css2?family=Anonymous+Pro:wght@400;700&display=swap",
+      "https://api.fonts.coollabs.io/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap",
+      "https://api.fonts.coollabs.io/css2?family=Berkshire+Swash&display=swap",
+      "https://commons.wikimedia.org/wiki/File:Book_decoration_BPPxii.svg?uselang=ja",
+      "https://commons.wikimedia.org/wiki/File:Fine_Ornament_Black_L.svg?uselang=ja",
+      "https://commons.wikimedia.org/wiki/File:Ornamental_corner_by_S._H._Redmond_02.svg?uselang=ja",
+      "https://fonts.googleapis.com/css2?family=Kaisei+Opti:wght@700&display=swap",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-74-cf41/hpl2.png|caption=画像。|width=240px",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-75-r6x7/particles.css",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-76-l5bn/Canine.png",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Acosmonaut/1",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Acosmonaut/2",
+      "https://scp-wiki.wikidot.com/theme:cosmonaut"
+    ],
+    "base_family": "independent"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "final_verdict": "warn",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/cosmonaut/assets.json",
+  "asset_dependency_decision_count": 21,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "e750036fbf808494c66552806ea74f30c8bbed43a239ee383d955c8c630fd0e1",
+    "jp_overrides_sha256": "fddcaccf5f24f235d0065a8132cb8fc6a85b3c0117770aae537ca04865089f7b",
+    "semantic_css_sha256": "6ca3e7026513f3ec228604457a34a58be41da1f4d2fc597f089b3dde9419cf61",
+    "canonical_override_sha256": "6a8e9718dfa8b28d1c7e35d503b15739ccaef8200cd20c762c61912aa96671bf",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "0ab5c10680a2ef9d06e2857b13cb48c47f3049ae3b3dc347dab2c7e099049862",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "8521e659db311e79a1371ec5e8744184744df8fa9d34ec9cc75699c2e2e8df6e",
+      "active_tags": [],
+      "candidate_source_sha256": "155fd2fa7eba52281b87c34e446bf6ad1b587936efdadd291dff0081c59da179",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "7f9e282e6cff16e19473549be91d979cf9f1037a8510ebe9bf318a6fd1a527ce",
+      "asset_receipt_path": "assets.json",
+      "assets": 15,
+      "imports": 6,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "warn",
+    "port_verdict": "pass",
+    "target_status": "warn"
+  }
+}

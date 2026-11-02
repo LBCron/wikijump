@@ -125,8 +125,6 @@ where
 {
     let mut matches = command().get_matches_from(args);
 
-    // Read configuration from path
-
     let config_path = matches
         .remove_one::<PathBuf>("config-file")
         .expect("Required argument not provided");
@@ -138,8 +136,6 @@ where
             process::exit(1);
         }
     };
-
-    // Process remaining arguments and modify config
 
     if matches.remove_one::<bool>("disable-log") == Some(true) {
         config.logger = false;

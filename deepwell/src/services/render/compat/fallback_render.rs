@@ -37,8 +37,8 @@ use super::wikidot_inline_markers::{
     WikidotCompatInlineMarkerKind, next_wikidot_compat_inline_marker,
 };
 use super::{
-    WikidotCompatibilityFallbackOutput, sanitize_wikidot_compat_inline_tag,
-    scan_compat_code_blocks,
+    WikidotCompatibilityFallbackOutput, WikidotHtmlBlockEmission,
+    sanitize_wikidot_compat_inline_tag, scan_compat_code_blocks,
 };
 use crate::config::Config;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
@@ -97,10 +97,6 @@ struct FallbackParagraph {
 }
 
 impl RenderService {
-    /// Remove only reserved runtime protection tokens that survived the
-    /// compatibility fallback's owning registries. The fallback may combine
-    /// expanded content whose registry is no longer in scope; exposing those
-    /// tokens is never useful to readers.
     pub(in crate::services::render) fn strip_residual_wikidot_protection_markers(
         html: &str,
     ) -> String {
@@ -128,23 +124,6 @@ impl RenderService {
             return true;
         }
 
-        // Collapsible count and page name/title used to gate this fallback
-        // (#2606). Flat collapsible galleries render normally through FTML
-        // (59 Standing pages, all nesting depth 1), and page identity is
-        // never a content-shape rule. The dense-parse score cannot replace
-        // the name gate either: the real scp-style-resource scores 191,950
-        // while 47 healthy pages score higher (up to 1,132,500), so no
-        // threshold separates them. The tabview shape gate (64 KB with 12
-        // tabs, #337) is removed for the same reason: the July 2026 hang it
-        // was measured against (a-plague-of-philosophical-zombies holding a
-        // worker to a 300 s timeout) no longer reproduces on the pinned
-        // FTML, which renders that page in 0.13 s and the two remaining
-        // tabbed gallery pages (zal-cryptid-s-artwork-hub,
-        // personnel-and-character-dossier) with all bodies and images in
-        // under 0.4 s. Cost stays bounded by the byte cap above and the
-        // render timeouts (tabbed pages keep their extended deadline);
-        // pages that genuinely cannot render fail closed per-page through
-        // the timeout path.
         false
     }
 
@@ -246,10 +225,6 @@ impl RenderService {
             .collect::<Vec<_>>();
         let mut authorized_selector =
             super::super::AuthorizedPageSelector::new(ctx, viewer_user_id);
-        // Keep duplicate-slug selection identical to the singular lookup. The
-        // batch lookup must retain every candidate until that selection is
-        // made; filtering first would discard a denied candidate and make the
-        // other duplicate appear to be the singular result.
         let pages = PageService::get_pages(ctx, site_id, &references).await?;
         let mut pages_by_slug = BTreeMap::<String, Vec<_>>::new();
         for page in pages {
@@ -321,6 +296,7 @@ impl RenderService {
         config: &Config,
         current_page: Option<&str>,
         link_titles: Option<&WikidotCompatLinkTitleMap>,
+        emission: WikidotHtmlBlockEmission<'_>,
     ) -> WikidotCompatibilityFallbackOutput {
         let localized =
             Self::localize_wikidot_local_file_urls(wikitext, current_site, config);
@@ -328,20 +304,22 @@ impl RenderService {
             let marker = line.trim_start().to_ascii_lowercase();
             marker.starts_with("[[code") || marker.starts_with("[[collapsible")
         }) {
-            return Self::render_wikidot_compatibility_fallback_output_for_context(
+            return Self::render_wikidot_compatibility_fallback_output_for_emission(
                 &localized,
                 current_page,
                 current_site.map(|site| site.slug.as_str()),
                 link_titles,
+                emission,
             );
         }
 
         if Self::wikidot_compat_text_has_markup(&localized) {
-            return Self::render_wikidot_compatibility_fallback_output_for_context(
+            return Self::render_wikidot_compatibility_fallback_output_for_emission(
                 &localized,
                 current_page,
                 current_site.map(|site| site.slug.as_str()),
                 link_titles,
+                emission,
             );
         }
 
@@ -393,6 +371,22 @@ impl RenderService {
         local_file_site_slug: Option<&str>,
         link_titles: Option<&WikidotCompatLinkTitleMap>,
     ) -> WikidotCompatibilityFallbackOutput {
+        Self::render_wikidot_compatibility_fallback_output_for_emission(
+            wikitext,
+            current_page,
+            local_file_site_slug,
+            link_titles,
+            WikidotHtmlBlockEmission::default(),
+        )
+    }
+
+    pub(in crate::services::render) fn render_wikidot_compatibility_fallback_output_for_emission(
+        wikitext: &str,
+        current_page: Option<&str>,
+        local_file_site_slug: Option<&str>,
+        link_titles: Option<&WikidotCompatLinkTitleMap>,
+        emission: WikidotHtmlBlockEmission<'_>,
+    ) -> WikidotCompatibilityFallbackOutput {
         let has_code_or_collapsible = wikitext.lines().any(|line| {
             let marker = line.trim_start().to_ascii_lowercase();
             marker.starts_with("[[code") || marker.starts_with("[[collapsible")
@@ -408,6 +402,7 @@ impl RenderService {
                         current_page,
                         local_file_site_slug,
                         link_titles,
+                        emission,
                         &mut html_block_texts,
                     ),
                 );
@@ -463,6 +458,7 @@ impl RenderService {
                     current_page,
                     local_file_site_slug,
                     link_titles,
+                    emission,
                     &mut html_block_texts,
                 );
                 let block = parsed_code_blocks.next().expect("peeked code block");
@@ -481,6 +477,7 @@ impl RenderService {
                     current_page,
                     local_file_site_slug,
                     link_titles,
+                    emission,
                     &mut html_block_texts,
                 );
                 Self::push_wikidot_compat_fallback_collapsible_open(&mut body, trimmed);
@@ -497,6 +494,7 @@ impl RenderService {
                         current_page,
                         local_file_site_slug,
                         link_titles,
+                        emission,
                         &mut html_block_texts,
                     );
                     body.push_str("</div></div></div>");
@@ -518,6 +516,7 @@ impl RenderService {
             current_page,
             local_file_site_slug,
             link_titles,
+            emission,
             &mut html_block_texts,
         );
         while collapsible_depth > 0 {
@@ -536,6 +535,7 @@ impl RenderService {
                         current_page,
                         local_file_site_slug,
                         link_titles,
+                        emission,
                         &mut html_block_texts,
                     ),
                 );
@@ -570,6 +570,7 @@ impl RenderService {
             None,
             None,
             None,
+            WikidotHtmlBlockEmission::default(),
             &mut html_block_texts,
         );
     }
@@ -580,6 +581,7 @@ impl RenderService {
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
         link_titles: Option<&WikidotCompatLinkTitleMap>,
+        emission: WikidotHtmlBlockEmission<'_>,
         html_block_texts: &mut Vec<String>,
     ) {
         if chunk.is_empty() {
@@ -598,6 +600,7 @@ impl RenderService {
                 current_page,
                 local_file_site_slug,
                 link_titles,
+                emission,
                 html_block_texts,
             ));
         } else {
@@ -680,6 +683,7 @@ impl RenderService {
             current_page,
             local_file_site_slug,
             None,
+            WikidotHtmlBlockEmission::default(),
             &mut html_block_texts,
         )
     }
@@ -689,6 +693,7 @@ impl RenderService {
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
         link_titles: Option<&WikidotCompatLinkTitleMap>,
+        emission: WikidotHtmlBlockEmission<'_>,
         html_block_texts: &mut Vec<String>,
     ) -> String {
         let text = Self::strip_wikidot_comments_from_text(text);
@@ -718,6 +723,7 @@ impl RenderService {
                         current_page,
                         local_file_site_slug,
                         link_titles,
+                        emission,
                         html_block_texts,
                     ));
                 } else if let Some(body) = tabview_body.as_mut() {
@@ -730,8 +736,10 @@ impl RenderService {
             if html_body.is_some() {
                 if trimmed.eq_ignore_ascii_case("[[/html]]") {
                     let body = html_body.take().unwrap_or_default();
-                    if let Some(iframe) = Self::wikidot_compat_html_block_iframe(
+                    if let Some(iframe) = Self::wikidot_compat_html_block_emission(
+                        &body,
                         current_page,
+                        emission,
                         html_block_texts.len() + 1,
                     ) {
                         html_block_texts.push(body);
@@ -1067,6 +1075,7 @@ impl RenderService {
         current_page: Option<&str>,
         local_file_site_slug: Option<&str>,
         link_titles: Option<&WikidotCompatLinkTitleMap>,
+        emission: WikidotHtmlBlockEmission<'_>,
         html_block_texts: &mut Vec<String>,
     ) -> String {
         let Some(tabs) = Self::parse_wikidot_compat_fallback_tabs(text) else {
@@ -1083,6 +1092,7 @@ impl RenderService {
                 current_page,
                 local_file_site_slug,
                 link_titles,
+                emission,
                 html_block_texts,
             ));
             output.push_str("<p>");
@@ -1125,6 +1135,7 @@ impl RenderService {
                 current_page,
                 local_file_site_slug,
                 link_titles,
+                emission,
                 html_block_texts,
             ));
             output.push_str("</div>");
@@ -1181,6 +1192,29 @@ impl RenderService {
 
     fn wikidot_compat_horizontal_rule_marker(marker: &str) -> bool {
         marker.len() >= 4 && marker.chars().all(|character| character == '-')
+    }
+
+    fn wikidot_compat_html_block_emission(
+        body: &str,
+        current_page: Option<&str>,
+        emission: WikidotHtmlBlockEmission<'_>,
+        block_index: usize,
+    ) -> Option<String> {
+        let current_page = current_page?;
+        if let Some(iframe) = Self::wikidot_html_block_interwiki_iframe(
+            body,
+            emission.root_page_slug.unwrap_or(current_page),
+            emission.page_language.unwrap_or("en"),
+        ) {
+            return Some(iframe);
+        }
+        Self::wikidot_compat_html_block_iframe(
+            emission
+                .owner_page_slug
+                .or(emission.root_page_slug)
+                .or(Some(current_page)),
+            block_index,
+        )
     }
 
     fn wikidot_compat_html_block_iframe(

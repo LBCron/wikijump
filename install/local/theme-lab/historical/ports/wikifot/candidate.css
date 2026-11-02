@@ -1,0 +1,177 @@
+/{$side}
+.close-menu{
+	display:none;
+	height:100%;
+	left:0;
+	position:fixed;
+	top:0;
+	width:100%;
+	z-index:-1
+}
+.close-menu:hover{
+	background:none
+}
+.mobile-top-bar{
+	display:none
+}
+.open-menu a{
+	left:0;
+	position:fixed;
+	top:0
+}
+/**/
+
+/{$misc}
+#page-content{
+	min-height:100vh
+}
+#search-top-box-input{
+	display:none
+}
+#side-bar{
+	background:#fff;
+	position:absolute
+}
+.blockquote{
+	background:#f4f4f4;
+	border:1px dashed#999;
+	margin:1em 40px;
+	padding-inline:1em
+}
+.open-menu a{
+	background:#fff;
+	font-size:2em;
+	left:1rem;
+	top:1rem
+}
+.page-tags a[href*='_']{
+	display:none
+}
+.scp-image-block.block-center{
+	margin-inline:auto
+}
+.scp-image-block.block-left{
+	float:left
+}
+.scp-image-block.block-right{
+	float:right
+}
+/**/
+
+/{$comp}
+#u-credit-view{
+	transition:none
+}
+.creditRate{
+	margin:unset
+}
+.creditButton p a{
+	border:none;
+	margin-left:-4.5px;
+	line-height:normal
+}
+.modalbox{
+	background:#fff;
+	border:none;
+	border-radius:unset;
+	box-shadow:none
+}
+.page-rate-widget-box{
+	display:inline-block
+}
+.rate-box-with-credit-button{
+	background:#666;
+	border:none;
+	border-radius:unset;
+	box-shadow:none
+}
+.rate-box-with-credit-button .cancel{
+	-moz-border-radius:unset
+}
+/**/
+
+/{$rate}
+div.page-rate-widget-box a{
+	text-decoration:underline;
+	color:#00a;
+	background:unset;
+	padding:unset;
+}
+div.page-rate-widget-box .cancel,
+div.page-rate-widget-box .cancel a{
+	-moz-border-radius:unset
+}
+div.page-rate-widget-box .rate-points{
+	background:unset;
+	color:inherit;
+	font-weight:unset;
+	padding:unset;
+	-moz-border-radius:unset
+}
+.creditButton p{
+	font-size:1em
+}
+.creditButton p a{
+	color:#00a;
+	font-size:1em;
+	margin:unset;
+	text-decoration:underline;
+	width:unset
+}
+.rate-box-with-credit-button{
+	background:none;
+	-moz-border-radius:0 4px 4px 0
+}
+/**/
+
+/{$trans}
+@media (max-width:767px){
+/**//*{$trans}/
+@media (max-width:{$width}){
+/**/
+
+	/{$side}
+	#main-content{
+		margin-left:unset
+	}
+	#side-bar{
+		left:-16em;
+		position:fixed;
+		top:0;
+		z-index:99
+	}
+	#side-bar:target{
+		left:0;
+		overflow:auto;
+		height:calc(100% - 2em)
+	}
+	#side-bar:target .close-menu,.mobile-top-bar{
+		display:block
+	}
+	.top-bar{
+		display:none
+	}
+	/**/
+}
+
+
+/* SCP-JP Wikidot Wikifot mobile drawer correction: fully hide the closed drawer at its rendered width. */
+@media (max-width: 767px) {
+  #side-bar { left: 0 !important; margin-left: 0 !important; transform: translateX(-100%) !important; max-width: 100vw !important; box-sizing: border-box !important; }
+  #side-bar:target { left: 0 !important; margin-left: 0 !important; transform: none !important; width: min(16rem, 100vw) !important; }
+}
+
+
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+
+/* SCP-JP Wikidot narrow image-block correction: include the native right margin and border in its available width. */
+@media (max-width: 479px) {
+  .scp-image-block.block-right { max-width: calc(100% - 2em - 2px) !important; }
+}
+
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+
+/* SCP-JP Wikidot Wikifot narrow gutter: keep the mobile content column off the left viewport edge. */
+@media (max-width: 767px) {
+#main-content{margin-left:1rem}
+}

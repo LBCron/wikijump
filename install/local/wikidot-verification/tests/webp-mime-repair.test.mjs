@@ -36,7 +36,6 @@ test("manifest carries counts and a stable row-list sha256", () => {
   assert.equal(first.dry_run, true);
   assert.match(first.row_list_sha256, /^[0-9a-f]{64}$/);
   assert.equal(first.entries[0].to_mime, "image/webp; charset=binary");
-  // Row order in the dump does not change the hash.
   const lines = DUMP.split("\n").reverse().join("\n");
   assert.equal(buildRepairManifest(parseRowList(lines)).row_list_sha256, first.row_list_sha256);
   assert.equal(sha256Hex("abc"), "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");

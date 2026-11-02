@@ -102,7 +102,7 @@ impl FilterService {
         Ok(filter)
     }
 
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub async fn update(
         ctx: &ServiceContext<'_>,
         UpdateFilter {
@@ -191,7 +191,7 @@ impl FilterService {
         Ok(filter)
     }
 
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub async fn delete(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<()> {
         info!("Deleting filter with ID {filter_id}");
         let txn = ctx.transaction();
@@ -222,8 +222,7 @@ impl FilterService {
         Ok(())
     }
 
-    /// Restores a filter, causing it to be undeleted.
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub async fn restore(
         ctx: &ServiceContext<'_>,
         filter_id: i64,
@@ -289,19 +288,6 @@ impl FilterService {
         Ok(filter)
     }
 
-    /// Get all filters of a type.
-    ///
-    /// For the `filter_class` argument, see `FilterClass`.
-    /// Note that this argument is what provides the `site_id` argument (or not).
-    ///
-    /// The `filter_type` argument:
-    /// * If it is `Some(_)`, it determines what kind of object is being filtered.
-    /// * If it is `None`, then it returns everything.
-    ///
-    /// The `deleted` argument:
-    /// * If it is `Some(true)`, then it only returns filters which have been deleted.
-    /// * If it is `Some(false)`, then it only returns filters which are extant.
-    /// * If it is `None`, then it returns all filters regardless of deletion status.
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
         filter_class: FilterClass,
@@ -361,12 +347,6 @@ impl FilterService {
         Ok(filters)
     }
 
-    /// Get all filters of a type, specifically extracting the regular expressions.
-    ///
-    /// This only pulls extant filters, as those are the only ones which are enforced.
-    // TODO cache this somehow
-    //      maybe so that it stores the RegexSet and deletes it if an insert/update/etc
-    //      above occurs to that filter class/type
     pub async fn get_matcher(
         ctx: &ServiceContext<'_>,
         filter_class: FilterClass,
@@ -406,7 +386,6 @@ impl FilterService {
         Ok(FilterMatcher::new(regex_set, filter_data))
     }
 
-    /// Checks if creating / reinstating this filter would cause constraint violations.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         site_id: Option<i64>,
@@ -428,7 +407,6 @@ impl FilterService {
             .filter(
                 Condition::all()
                     .add(filter::Column::SiteId.eq(site_id))
-                    // Check for both case sensitive and insensitive variants
                     .add(
                         filter::Column::Regex
                             .eq(regex)

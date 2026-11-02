@@ -1,0 +1,223 @@
+
+
+[[div class="logo"]]
+[[image lgtrans.png]]
+[[/div]]
+
+[[>]]
+[[module Rate]]
+[[/>]]
+
+[[div class="header-container"]]
+
+[[div class="text-item"]]
+[[size 90%]]##grey|**アイテム番号:**##[[/size]]
+
+[[size 220%]]**9999**[[/size]]
+[[/div]]
+[[div class="text-item"]]
+[[size 90%]]##grey|**収容クラス:**##[[/size]]
+
+[[size 220%]]**THEME-IEL**[[/size]]
+[[/div]]
+
+
+[[div class="grid-item"]]
+
+[[/div]]
+
+[[/div]]
+
+[[div class="textbox"]]
+**ここに短い文章**
+
+このテキストは、"//textbox//"ブロックに含まれています。画像ブロックを含む"//grid-item//"ブロックの後に使用して、左側の余白を埋めることを目的としています。テキストが重なってしまわないよう、ここに書く段落は短いものにしてください。
+
+//Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.//
+[[/div]]
+
+ここからは通常の(どのブロックにも含まれていない)テキストが始まります。 //Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.//
+
+----
+
+このテーマは、Containment Breachのインターフェースに着想を得て、EstrellaYoshteによって作成されました。このテーマを使用するには、次のテキストをページの最初に入力してください:
+
+
+[[div class="code"]]
+@@[[include :scp-jp:theme:paperstack]]@@
+@@ @@
+@@[[div class="logo"]]@@
+@@[[image lgtrans.png]]@@
+@@[[/div]]@@
+@@ @@
+@@[[>]]@@
+@@[[module Rate]]@@
+@@[[/>]]@@
+@@ @@
+@@[[div class="header-container"]]@@
+@@[[div class="text-item"]]@@
+@@[[size 90%]]##grey|**アイテム番号:**##[[/size]]@@
+@@ @@
+@@[[size 220%]]**(番号)**[[/size]]@@
+@@[[/div]]@@
+@@ @@
+@@[[div class="text-item"]]@@
+@@[[size 90%]]##grey|**収容クラス:**##[[/size]]@@
+@@ @@
+@@[[size 220%]]**(クラス)**[[/size]]@@
+@@[[/div]]@@
+@@ @@
+@@[[div class="grid-item"]]@@
+@@[[include component:image-block name=画像URL|caption=画像キャプション|width=300px|align=center]]@@
+@@[[/div]]@@
+@@[[/div]]@@
+@@ @@
+@@[[div class="textbox"]]@@
+ここに短い文章
+@@[[/div]]@@
+[[/div]]
+
+使用する"//text-item//"ブロックの数を増減させることもできます。(4つ以下にすることを推奨します)
+
+[[div class="code"]]
+@@[[include :scp-jp:theme:paperstack]]@@
+@@ @@
+@@[[div class="logo"]]@@
+@@[[image lgtrans.png]]@@
+@@[[/div]]@@
+@@ @@
+@@[[>]]@@
+@@[[module Rate]]@@
+@@[[/>]]@@
+@@ @@
+@@[[div class="header-container"]]@@
+@@[[div class="text-item"]]@@
+@@ ここに文章を入力@@
+@@[[/div]]@@
+@@[[/div]]@@
+[[/div]]
+
+
+
+@@ @@
+
+
+
+@@ @@
+
+
+
+@@ @@
+"//logo//"ブロックの画像は任意に変更することができます。
+
+ヘッダーのタイトルも、次のコードを使用して変更できます:
+
+> @@@@
+----
+
+@@ @@
+
+[[tabview]]
+[[tab タブ]]
+これはタブです。
+[[/tab]]
+[[tab タブ]]
+おや、ここにも文章があります
+
+不思議ですね。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。こんなに長い文章を含んでいます。[[footnote]]これは脚注です。[[/footnote]]
+
+これは長いタブです。こんなに長い文章を含んでいます。
+
+これは長いタブです。こんなに長い文章を含んでいます。
+
+これは長いタブです。こんなに長い文章を含んでいます。
+
+これは長いタブです。こんなに長い文章を含んでいます。
+
+これは長いタブです。こんなに長い文章を含んでいます。
+
+これは長いタブです。こんなに長い文章を含んでいます。
+
+これは長いタブです。こんなに長い文章を含んでいます。
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックで。, 各行頭に"> "を置くことで作ることができます。
+>
+> さらなる文字列
+> -----
+> これは分割線
+>
+>> 入れ子にされた引用ブロック
+
+||~ これは ||~ テーブルです ||
+||作り方は || すでに ||
+||||知っていますね？ ||
+
+[[=]]
+
+@@ @@
+
++++ 見出しフォント: Sawarabi Gothic / [[span style="font-family: 'Josefin Sans'"]]Josefin Sans[[/span]]
+本文フォント: Noto Sans JP / [[span style="font-family: 'Oxygen'"]]Oxygen[[/span]]
+@@ @@
+{{等幅フォント: Fira Code}}
+[[/=]]
+
++++ ソースコード:
+
+
+[[div style="display: none"]]
+
+[[/div]]
+
+
+
+
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

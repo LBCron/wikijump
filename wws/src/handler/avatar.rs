@@ -114,19 +114,12 @@ pub async fn handle_user_avatar(
         Err(response) => return response,
     };
 
-    // Avatars render as <img> on profiles, but the route serves the stored
-    // blob verbatim on the files origin, so active document types (SVG,
-    // HTML, XML) must download instead of executing. Same policy as the
-    // file lane (see #2554, #2589); raster avatars stay inline.
-    // See issue #2653.
     let mut builder = Response::builder()
         .header(header::CONTENT_LENGTH, file_info.size)
         .header(header::CONTENT_TYPE, &file_info.mime)
         .header(header::ETAG, format!("\"{}\"", avatar_s3_hash)) // E-Tags have to be surrounded in double quotes
         .header(header::X_CONTENT_TYPE_OPTIONS, "nosniff");
 
-    // Avatars have no filename; a bare attachment directive is enough to
-    // keep script-capable types out of the files-origin document.
     if super::file::is_active_content_type(&file_info.mime) {
         builder = builder.header(header::CONTENT_DISPOSITION, "attachment");
     }

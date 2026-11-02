@@ -18,17 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! The view service, processing high-level requests to Framerail for rendering web routes.
-//!
-//! This is one of the highest-level services, as it bundles the data from numerous
-//! other services into responses which Framerail can use when rendering specific routes.
-//! For instance, the `PageView` structure represents a request to any page (i.e. `/slug`),
-//! gathering all the relevant data and sending it back in one convenient `PageViewOutput`
-//! response.
-//!
-//! The service also contains the core method `ViewService::get_viewer()`, which converts the
-//! requesting domain and session token into a site and user, respectively.
-
 use super::article_cache::ArticlePageCache;
 use super::module_arguments::PageModuleArguments;
 use super::module_render::render_body_for_module_arguments;
@@ -62,6 +51,7 @@ use crate::services::page_revision::RerenderType;
 use crate::services::permission::{
     CheckPermissionContext, PermissionService, PermissionTarget,
 };
+use crate::services::public_cache::PublicContentCache;
 use crate::services::relation::{
     GetPageAttributions, GetSiteBan, PageAttribution, RelationService,
 };
@@ -100,15 +90,8 @@ use time::OffsetDateTime;
 use unic_langid::LanguageIdentifier;
 use wikidot_normalize::normalize;
 
-/// The exact span the read-only Plus/PlusMinus rate module renderer emits
-/// around the score number (see `services/render/rate_module.rs`). Only the
-/// text inside this span is refreshed at view time, so the widget control
-/// markup -- and the control cardinality the rate-action registry checks
-/// against the body -- is unchanged.
 const RATE_WIDGET_SCORE_SPAN_OPEN: &str = "<span class=\"number prw54353\">";
 
-/// Replace the score text of every read-only rate widget span in the body.
-/// Spans without a closing tag are left untouched.
 fn replace_rate_widget_score_text(html: &str, formatted_score: &str) -> String {
     let mut output = String::with_capacity(html.len());
     let mut rest = html;
@@ -147,11 +130,6 @@ async fn rate_browser_actions_for_page(
         return Ok(None);
     }
 
-    // Every viewer receives the descriptor registry, including anonymous and
-    // nonmember viewers, so a control click reaches `wikidot_legacy_rate`
-    // instead of a blocked inline handler. Exposure is not authorization:
-    // that endpoint re-checks rating enablement, the page lock, members-only
-    // membership, and view permission before any vote is written.
     let current_value = match viewer_user_id {
         Some(user_id) => VoteService::get_optional(
             ctx,
@@ -208,10 +186,6 @@ fn wikidot_redirect_module_allowed(
     page: &PageModel,
     page_revision: &PageRevisionModel,
 ) -> bool {
-    // Wikidot Redirect modules are compatibility behavior for imported Wikidot
-    // pages only. Requiring both the page and the served revision to carry
-    // import provenance prevents ordinary editable wikitext from creating
-    // permanent external redirects on the local Wikijump domain.
     page.from_wikidot && page_revision.from_wikidot
 }
 
@@ -322,6 +296,8 @@ impl ViewService {
         ctx: &ServiceContext<'_>,
         mut input: GetPageView,
     ) -> Result<GetArticleViewOutput> {
+        let public_content_cache_fence =
+            PublicContentCache::cache_fence(ctx, input.site_id).await?;
         let mut preload = Self::preload(
             ctx,
             GetPreloadView {
@@ -347,7 +323,9 @@ impl ViewService {
         }
         Self::apply_article_category_license(ctx, &mut preload.viewer, &input).await?;
         let response_cache_eligible = !preload.viewer.site_settings.toolbars.bottom;
-        let cache_metadata = ArticlePageCache::metadata(ctx, &input).await?;
+        let cache_metadata =
+            ArticlePageCache::metadata(ctx, &input, Some(public_content_cache_fence))
+                .await?;
         if let Some(cache_key) =
             cache_metadata.as_ref().map(|metadata| &metadata.cache_key)
             && let Some(mut page) = ArticlePageCache::get(ctx, cache_key).await?
@@ -400,17 +378,17 @@ impl ViewService {
         }
 
         let mut page_view = Self::page(ctx, input).await?;
-        if let (Some(cache_key), GetPageViewOutput::Found {
-            page,
-            redirect_kind,
-            ..
-        }) = (
+        if let (
+            Some(cache_key),
+            GetPageViewOutput::Found {
+                page,
+                redirect_kind,
+                ..
+            },
+        ) = (
             cache_metadata.as_ref().map(|metadata| &metadata.cache_key),
             &page_view,
         ) && page.from_wikidot
-            // Random helper targets are reselected on every view. Caching
-            // the view would pin one random pick (or a stale one) behind
-            // the helper's otherwise stable body hash.
             && !matches!(redirect_kind, Some(PageRedirectKind::RandomHelper))
         {
             ArticlePageCache::set(ctx, cache_key, &page_view).await?;
@@ -445,25 +423,6 @@ impl ViewService {
         })
     }
 
-    /// Refresh the baked-in Plus/PlusMinus rate widget number with the
-    /// page's current score (issue #3341).
-    ///
-    /// Rate modules expand when the body is compiled, so the number stored
-    /// in `compiled_body_html` freezes at compile time. Vote imports and
-    /// rating baseline refreshes create no revision and never recompile,
-    /// which left imported pages showing a stale widget number next to the
-    /// live page-options score. This runs on the returned view only: the
-    /// article page cache keeps the canonical unsubstituted body, and this
-    /// is applied after the cache read (hit) and after the cache write
-    /// (miss), mirroring the wikidot breadcrumbs recomputation above.
-    ///
-    /// The refresh is gated on the rate-action registry: `page()` issues it
-    /// only when the body's widget boxes are exactly this page's own rate
-    /// modules, so a rate widget embedded from another page (for example
-    /// through ListPages content) is never overwritten with this page's
-    /// score. Stars widgets are out of scope here; their data-rating
-    /// attribute and text spans must move together, and are handled
-    /// separately.
     pub async fn refresh_rate_widget_score(
         ctx: &ServiceContext<'_>,
         output: &mut GetPageViewOutput,
@@ -583,7 +542,7 @@ impl ViewService {
             input.locales.push(site.locale);
         }
 
-        let cache_metadata = ArticlePageCache::metadata(ctx, &input).await?;
+        let cache_metadata = ArticlePageCache::metadata(ctx, &input, None).await?;
 
         Ok(GetArticleViewCacheMetadataOutput {
             article_page_cache_key: cache_metadata
@@ -703,7 +662,6 @@ impl ViewService {
         let locales = parse_locales(&locales_str)?;
         let config = ctx.config();
 
-        // Get site information
         let site = SiteService::get(ctx, Reference::Id(site_id))
             .await
             .or_raise(make_error)?;
@@ -712,7 +670,6 @@ impl ViewService {
             .await
             .or_raise(make_error)?;
 
-        // If None, means the main page for the site. Pull from site data.
         let (page_full_slug, page_extra): (&str, &str) = match &route {
             None => (&site.default_page, ""),
             Some(PageRoute { slug, extra }) => (slug, extra),
@@ -740,7 +697,6 @@ impl ViewService {
         let options = PageOptions::parse(page_extra);
         let module_arguments = PageModuleArguments::parse(page_extra);
 
-        // Get page, revision, and text fields
         let (category_slug, page_only_slug) = split_category(page_lookup_slug);
         let category_id = Self::get_category_id(ctx, site_id, category_slug)
             .await
@@ -751,20 +707,11 @@ impl ViewService {
             site: cow!(&site.slug),
             title: cow!(page_only_slug),
             alt_title: None,
-            score: ScoreValue::Integer(0), // TODO configurable default score value
+            score: ScoreValue::Integer(0),
             tags: vec![],
-            // NOTE: The [[date]] block is localized through PageInfo.language.
-            // Normalize Wikidot-only identifiers at the FTML boundary.
-            //
-            // If we ever want to change this, we need to evaluate the
-            // impact on FTML first.
             language: cow!(locale_for_ftml(&site.locale)),
         };
 
-        // The static `/_admin` route is site management, not an ordinary wiki
-        // article. Check this before looking up the authored page or revision;
-        // extra path segments and alternate renderers must not turn it back
-        // into a public page read.
         if is_reserved_admin_slug(page_full_slug) {
             let can_access_admin = PermissionService::check_user_can_access_admin(
                 ctx,
@@ -812,8 +759,6 @@ impl ViewService {
             }
         }
 
-        // Helper structures to designate which variant of GetPageViewOutput to return.
-
         #[derive(Debug)]
         enum PageStatus {
             Found {
@@ -845,7 +790,6 @@ impl ViewService {
             compiled_side_bar_html: Option<String>,
         }
 
-        // Get wikitext and HTML to return for this page.
         let PageReturn {
             page_status,
             wikitext,
@@ -867,15 +811,12 @@ impl ViewService {
         .await
         .or_raise(make_error)?
         {
-            // This page exists, return its data directly.
             Some(page) => {
-                // Get associated revision
                 let mut page_revision =
                     PageRevisionService::get_latest(ctx, site.site_id, page.page_id)
                         .await
                         .or_raise(make_error)?;
 
-                // Check user access to page
                 let session_user_id =
                     user_session.as_ref().map(|session| session.user.user_id);
                 let target = PermissionTarget::Page {
@@ -902,11 +843,6 @@ impl ViewService {
                 .await
                 .or_raise(make_error)?;
 
-                // Determine whether to return the actual page contents,
-                // or the "private page" data (_public).
-                //
-                // This returns false if the user is banned *and* the site
-                // disallows banned viewing.
                 if user_can_access_page {
                     debug!("User has page access, return text data");
 
@@ -978,9 +914,6 @@ impl ViewService {
                         compiled_side_bar_html,
                     ) = raise_multiple!(wikitext_result, compiled_body_result, compiled_body_styles_result, compiled_top_bar_result, compiled_side_bar_result; make_error);
 
-                    // The stored HTML belongs to the revision, so it answers
-                    // the page's bare URL. A request carrying module arguments
-                    // is a different question and needs its own render.
                     let compiled_body_html = render_body_for_module_arguments(
                         ctx,
                         &module_arguments,
@@ -1154,8 +1087,6 @@ impl ViewService {
                         .await
                         .or_raise(make_error)?,
 
-                        // TODO: This will need to change when IP bans are implemented.
-                        // For now, if user is not logged in, consider them not banned.
                         None => false,
                     };
 
@@ -1190,9 +1121,6 @@ impl ViewService {
                         ..
                     } = render_output;
 
-                    // Even though the page isn't visible to this user,
-                    // we display its nav pages since they're already
-                    // set up for us.
                     let (compiled_top_bar_result, compiled_side_bar_result) = join!(
                         TextService::get_option(
                             ctx,
@@ -1221,7 +1149,6 @@ impl ViewService {
                     }
                 }
             }
-            // The page is missing, fetch the "missing page" data (_404).
             None => {
                 let user_can_access_page = PermissionService::check_user_can(
                     ctx,
@@ -1339,10 +1266,6 @@ impl ViewService {
                     } = SettingsService::get_nav_page_html(ctx, site_id, category_id)
                         .await
                         .or_raise(make_error)?;
-                    // The create decision is the same authority page_create enforces.
-                    // It is exposed on every missing view so the editor and the
-                    // "Create page" entry point can both gate on it. Templates and
-                    // data-form source are only instantiated for an allowed actor.
                     let create_category = CategoryService::get_optional(
                         ctx,
                         site_id,
@@ -1466,8 +1389,6 @@ impl ViewService {
             }
         };
 
-        // TODO Check if user-agent and IP match?
-
         if options.no_redirect
             && let PageStatus::Found {
                 page,
@@ -1491,9 +1412,6 @@ impl ViewService {
             ..
         } = &page_status
             && wikidot_redirect_module_allowed(page, page_revision)
-            // An imported page without a Redirect module falls through to the
-            // random-helper check below. Stopping here would leave imported
-            // `random:*` helpers (#2080) rendered instead of redirected.
             && let Some(redirect_page) =
                 wikidot_redirect_location(&wikitext, page_full_slug, options.no_redirect)
         {
@@ -1501,10 +1419,6 @@ impl ViewService {
         } else if let PageStatus::Found { page, .. } = &page_status
             && page_extra.is_empty()
         {
-            // Source-defined random helper pages (such as the `random:*`
-            // routes) select one eligible same-site page and redirect to it.
-            // Only the bare route redirects; suffixed views (including
-            // `/noredirect/true`) render the helper itself.
             let (category_slug, _) = split_category(page_full_slug);
             let redirect_page = match find_random_helper_selector(
                 &wikitext,
@@ -1809,9 +1723,6 @@ ORDER BY breadcrumb_chain.depth ASC
                 &CheckPermissionContext {
                     user_id,
                     site_id,
-                    // View permissions are cached per category, not per page.
-                    // Supplying an ancestor ID would make page-author roles leak
-                    // one page-specific decision into other ancestors.
                     page_reference: None,
                 },
                 Permission {
@@ -1868,16 +1779,11 @@ ORDER BY breadcrumb_chain.depth ASC
             .await
             .or_raise(make_error)?;
 
-        // TODO Check if user-agent and IP match?
-
-        // Get data to return for this user.
-        // Supports either type, since we're getting a user view.
         let user = match user_ref {
             Some(ref user_ref) => UserService::get_optional(ctx, user_ref.borrow())
                 .await
                 .or_raise(make_error)?,
 
-            // For users visiting their own user info page
             None => user_session.map(|session| User::Wikijump(session.user)),
         };
 
@@ -1911,10 +1817,6 @@ ORDER BY breadcrumb_chain.depth ASC
         .await?;
         pages.sort_by(|left, right| left.slug.cmp(&right.slug));
 
-        // Resolve the viewer's access once for the whole list instead of a
-        // page-scoped permission derivation per template, then fetch the
-        // viewable templates' latest title and wikitext in one query. Only
-        // viewable pages are fetched, matching the original read scope.
         let scanned = pages
             .iter()
             .map(|page| ViewablePageRef {
@@ -1980,7 +1882,7 @@ ORDER BY breadcrumb_chain.depth ASC
         let make_error = || {
             Error::new(
                 format!(
-                    "failed to generate user view for site ID {}, locales '{:?}'",
+                    "failed to generate admin view for site ID {}, locales '{:?}'",
                     site_id, locales_str,
                 ),
                 ErrorType::GetView(ViewType::Admin),
@@ -1990,7 +1892,6 @@ ORDER BY breadcrumb_chain.depth ASC
         let locales = parse_locales(&locales_str)?;
         let config = ctx.config();
 
-        // Get site information
         let site = SiteService::get(ctx, Reference::Id(site_id))
             .await
             .or_raise(make_error)?;
@@ -2034,7 +1935,6 @@ ORDER BY breadcrumb_chain.depth ASC
             ..
         } = render_output;
 
-        // Check user access to site settings
         if user_session.is_none() {
             debug!("No user for session, disallow admin access");
             return Ok(GetAdminViewOutput::AdminPermissions {
@@ -2054,7 +1954,6 @@ ORDER BY breadcrumb_chain.depth ASC
         .await
         .or_raise(make_error)?;
 
-        // Determine whether to return the actual admin panel content
         let output = if user_can_access_admin {
             debug!("User has admin access, return data");
             let categories = CategoryService::get_all(ctx, site_id)
@@ -2079,19 +1978,6 @@ ORDER BY breadcrumb_chain.depth ASC
         Ok(output)
     }
 
-    /// Gets basic data and runs common logic for all web routes.
-    ///
-    /// All views seen by end users require a few translations before
-    /// a request can be serviced:
-    ///
-    /// * Site ID → Site data
-    /// * Session token → User ID and their permissions
-    ///
-    /// Note that we do *not* need to get the site ID from the domain
-    /// since WWS has already done the domain lookup logic for us.
-    ///
-    /// Then using this information, the caller can perform some common
-    /// operations, such as slug normalization or redirect site aliases.
     pub async fn get_viewer(
         ctx: &ServiceContext<'_>,
         mut locales: Vec<LanguageIdentifier>,
@@ -2109,8 +1995,6 @@ ORDER BY breadcrumb_chain.depth ASC
             )
         };
 
-        // Get user data from session token (if present)
-        // Sessions can only be for real users, so we assert
         let user_session = match session_token {
             Some("") | None => None,
             Some(token) => {
@@ -2121,14 +2005,7 @@ ORDER BY breadcrumb_chain.depth ASC
                     .await
                     .or_raise(make_error)?;
 
-                // Prefer what the user has set over what the browser is requesting
                 {
-                    // Get the list of user locales
-                    //
-                    // Our goal is to insert this list of user locales at the front.
-                    // For instance, if the browser is requesting [X, Y], but the user
-                    // prefers [A, B], we want to end up with [A, B, X, Y].
-                    //
                     let mut user_locales =
                         parse_locales(&user.locales).or_raise(make_error)?;
                     user_locales.append(&mut locales);
@@ -2139,7 +2016,6 @@ ORDER BY breadcrumb_chain.depth ASC
             }
         };
 
-        // Ensure at least one locale was requested
         if locales.is_empty() {
             error!("No locales specified in user settings or Accept-Language header");
             bail!(Error::new(
@@ -2148,7 +2024,6 @@ ORDER BY breadcrumb_chain.depth ASC
             ));
         }
 
-        // Get site information
         let site = SiteService::get(ctx, Reference::Id(site_id))
             .await
             .or_raise(make_error)?;
@@ -2165,7 +2040,6 @@ ORDER BY breadcrumb_chain.depth ASC
         let license_name = site.license.translate(ctx.localization(), &locales)?;
         let license_url = site.license.url();
 
-        // Return
         Ok(Viewer {
             site,
             site_settings,
@@ -2185,8 +2059,6 @@ ORDER BY breadcrumb_chain.depth ASC
     ) -> Result<Option<UserSession>> {
         let make_error = || Error::new("failed to get user session", ErrorType::Session);
 
-        // Get user data from session token (if present)
-        // Sessions can only be for real users, so we assert
         let user_session = match session_token {
             Some("") | None => None,
             Some(token) => {
@@ -2209,19 +2081,11 @@ ORDER BY breadcrumb_chain.depth ASC
         // See https://scuttle.atlassian.net/browse/WJ-330
         let mut target = slug.replace(';', ":");
 
-        // Run slug normalization.
-        // This also strips _default and merges multiple categories.
         normalize(&mut target);
 
-        // Return
         if slug == target { None } else { Some(target) }
     }
 
-    /// If this category is specified and exists, get its ID.
-    ///
-    /// * `category_slug` is `None` → `None`.
-    /// * `category_slug` is `Some` but exists → `Some`.
-    /// * `category_slug` is `Some` but doesn't exist → `None`.
     async fn get_category_id(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -2344,7 +2208,6 @@ mod rate_widget_score_refresh_tests {
         let body = format!("{WIDGET}<p>text</p>{WIDGET}");
         let refreshed = replace_rate_widget_score_text(&body, "-6");
         assert_eq!(refreshed.matches(">-6</span>").count(), 2);
-        // Widget control markup around the number is untouched.
         assert_eq!(refreshed.matches("page-rate-widget-box").count(), 2);
     }
 

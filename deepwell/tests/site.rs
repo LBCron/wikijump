@@ -243,15 +243,11 @@ async fn public_site_create_audits_authenticated_actor_and_supplied_ip_once() {
         .expect("site-create audit lookup should succeed");
     assert_eq!(events.len(), 1, "successful public creation audits once");
     assert_eq!(events[0].user_id, Some(actor_user_id));
-    assert_eq!(events[0].ip_address, common::IP_ADDRESS.to_string());
+    assert_eq!(events[0].ip_address.ip(), common::IP_ADDRESS);
 }
 
 #[tokio::test]
 async fn site_create_with_empty_description_succeeds() {
-    // Regression: the creation form supplies no description, and the
-    // empty string must not be written as the site user's biography --
-    // the user_biography_check constraint requires NULL or non-empty,
-    // so site creation rolled back entirely.
     let mut runner = TestRunner::setup().await;
     let n = next_n();
     let actor_user_id = create_user(&runner, n, "site-creator-empty-description").await;
@@ -614,10 +610,6 @@ async fn site_create_site_user_relation_and_audit_roll_back_together() {
     );
 }
 
-/// Refs #2052 slice 2. The public creation path must yield a usable site:
-/// the seeder baseline role graph with the creator bound as administrator.
-///
-/// IGNORED: slice lane has no cargo; the build lane runs this.
 #[tokio::test]
 #[ignore]
 async fn newsite_bootstrap_binds_creator_admin_with_site_edit() {
@@ -699,10 +691,6 @@ async fn newsite_bootstrap_binds_creator_admin_with_site_edit() {
     assert_eq!(updated.name, format!("Bootstrap rename {n}"));
 }
 
-/// Refs #2052 slice 2. Bootstrap runs in the creation transaction: roles
-/// created for a rolled-back site must not survive it.
-///
-/// IGNORED: slice lane has no cargo; the build lane runs this.
 #[tokio::test]
 #[ignore]
 async fn newsite_bootstrap_roles_roll_back_with_creation() {
@@ -766,10 +754,6 @@ async fn newsite_bootstrap_roles_roll_back_with_creation() {
     );
 }
 
-/// Refs #2052 slice 3. Browser creation seeds the Standard template's
-/// initial pages with the creator as author and lands on the start page.
-///
-/// IGNORED: slice lane has no cargo; the build lane runs this.
 #[tokio::test]
 #[ignore]
 async fn newsite_bootstrap_creates_template_pages_and_default_start() {
@@ -843,9 +827,6 @@ async fn newsite_bootstrap_creates_template_pages_and_default_start() {
     assert_eq!(fetched.site.default_page, "start");
 }
 
-/// Refs #2052 slice 3. The bootstrap page list must track `template-en`.
-///
-/// IGNORED: slice lane has no cargo; the build lane runs this.
 #[tokio::test]
 #[ignore]
 async fn newsite_template_pages_match_seeder_template_set() {
@@ -1036,7 +1017,7 @@ async fn public_site_update_audits_icon_set_clear_and_unset_states() {
     assert_eq!(events.len(), 3);
     for event in &events {
         assert_eq!(event.user_id, Some(user_id));
-        assert_eq!(event.ip_address, common::IP_ADDRESS.to_string());
+        assert_eq!(event.ip_address.ip(), common::IP_ADDRESS);
     }
 
     let before_set: serde_json::Value =
@@ -1886,8 +1867,6 @@ async fn site_icon_import_roundtrip_serves_retained_wikidot_bytes() {
     assert_eq!(site.favicon_source.as_deref(), Some(source));
 }
 
-/// Refreshing an icon updates it idempotently; removing the source clears
-/// the stale bytes in the same call.
 #[tokio::test]
 async fn site_icon_refresh_updates_and_removal_clears_state() {
     let runner = TestRunner::setup().await;
@@ -1909,7 +1888,6 @@ async fn site_icon_refresh_updates_and_removal_clears_state() {
     .await
     .expect("initial icon import should succeed");
 
-    // Minimal valid GIF refresh: bytes change, source stays.
     let refreshed = vec![0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00];
     let set = SiteService::set_site_icon(
         runner.context(),
@@ -1936,7 +1914,6 @@ async fn site_icon_refresh_updates_and_removal_clears_state() {
             .expect("refreshed icon should be present");
     assert_eq!(get.data, refreshed);
 
-    // Source removal clears the stale bytes with it.
     SiteService::set_site_icon(
         runner.context(),
         Reference::Id(site_id),
@@ -1962,7 +1939,6 @@ async fn site_icon_refresh_updates_and_removal_clears_state() {
     assert_eq!(site.favicon_source, None);
 }
 
-/// Inconsistent and foreign icon state stays rejected.
 #[tokio::test]
 async fn site_icon_rejects_inconsistent_and_foreign_state() {
     let runner = TestRunner::setup().await;
@@ -1971,7 +1947,6 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
     let actor = create_user(&runner, n, "icon-rejector").await;
     let ctx = runner.context();
 
-    // Unknown kinds never touch storage.
     assert!(
         SiteService::set_site_icon(
             ctx,
@@ -1992,7 +1967,6 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
             .is_err(),
     );
 
-    // Bytes without a configured source would serve undeclared routes.
     assert!(
         SiteService::set_site_icon(
             ctx,
@@ -2008,7 +1982,6 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
         .is_err(),
     );
 
-    // Bytes without a MIME type cannot be served with an identity.
     assert!(
         SiteService::set_site_icon(
             ctx,
@@ -2024,7 +1997,6 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
         .is_err(),
     );
 
-    // Non-image bytes are not icons.
     assert!(
         SiteService::set_site_icon(
             ctx,
@@ -2040,7 +2012,6 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
         .is_err(),
     );
 
-    // External sources stay rejected for local sites, as with site settings.
     assert!(
         SiteService::set_site_icon(
             ctx,
@@ -2056,14 +2027,12 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
         .is_err(),
     );
 
-    // Nothing was stored by the rejected calls.
     let get = SiteService::get_site_icon(ctx, Reference::Id(site_id), "favicon")
         .await
         .expect("get should succeed");
     assert!(get.is_none());
 }
 
-/// The JSON-RPC boundary round-trips icon import and anonymous reads.
 #[tokio::test]
 async fn site_icon_endpoints_roundtrip_as_staff_and_anonymous() {
     let mut runner = TestRunner::setup().await;
@@ -2090,7 +2059,6 @@ async fn site_icon_endpoints_roundtrip_as_staff_and_anonymous() {
     assert_eq!(set.site_id, site_id);
     assert_eq!(set.sha256_hex.as_deref(), Some(SITE_ICON_FIXTURE_SHA256));
 
-    // Anonymous readers (favicon fetches) can read the stored bytes.
     runner.set_request_context(RequestContext::default());
     let get = run_endpoint!(
         runner,
@@ -2105,7 +2073,6 @@ async fn site_icon_endpoints_roundtrip_as_staff_and_anonymous() {
     assert_eq!(get.sha256_hex, SITE_ICON_FIXTURE_SHA256);
     assert_eq!(get.data, SITE_ICON_FIXTURE);
 
-    // Anonymous writers are still refused.
     run_endpoint_err!(
         runner,
         site_icon_set,

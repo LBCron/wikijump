@@ -27,7 +27,6 @@ const NOT_CONFIGURED_HEADERS = {
   "content-type": "text/plain; charset=utf-8"
 }
 
-/** The only filenames Wikidot declares (and serves) per icon route. */
 const CANONICAL_FILENAMES: Record<SiteIconSourceKind, readonly string[]> = {
   favicon: ["favicon.gif"],
   ios: IOS_ICON_DECLARATIONS.map((declaration) => declaration.filename),
@@ -41,13 +40,6 @@ function notConfigured(): Response {
   })
 }
 
-/**
- * Serve materialized icon bytes with Wikidot's header shape.
- *
- * The content type keeps Wikidot's `charset=utf-8` suffix (observed on
- * both the favicon and Windows tile routes), and the ETag is the stored
- * SHA-256 so refreshes change the cache identity.
- */
 export function storedSiteIconResponse(stored: StoredSiteIcon): Response {
   return new Response(Buffer.from(stored.data), {
     status: 200,
@@ -59,16 +51,6 @@ export function storedSiteIconResponse(stored: StoredSiteIcon): Response {
   })
 }
 
-/**
- * Select the compatibility-route response for a site icon.
- *
- * Stored bytes win so imported mirrors never depend on Wikidot at request
- * time. Without bytes, a same-origin local file source redirects, and a
- * site-owned WDFiles attachment resolves to its local files path (which
- * serves bytes when the blob is local and keeps its own source redirect
- * otherwise). Any other source with nothing materialized is a 404 rather
- * than a hotlink back to the source origin.
- */
 export function selectSiteIconResponse(
   site: Nullable<IconRouteSite>,
   configuredSource: Nullable<string>,
@@ -88,10 +70,6 @@ export function selectSiteIconResponse(
     })
   }
 
-  // A site-owned attachment belongs to the mirror's dependency set, so the
-  // icon route hands it to the local files path instead of 404ing. That
-  // route serves local bytes when the blob exists and keeps the source
-  // redirect otherwise.
   const ownedLocalPath =
     site !== null ? siteOwnedLocalFilePath(site, configuredSource) : null
   if (ownedLocalPath !== null) {

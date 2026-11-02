@@ -134,11 +134,6 @@ const clearPasswordChange = <T extends { data: Record<string, string> }>(form: T
   return form
 }
 
-/**
- * Changes the signed-in account's password. Deepwell checks the current
- * password (under the login rate limits) and revokes the account's other
- * sessions; no submitted password is ever returned to the page.
- */
 export async function userPasswordChangeAction({
   request,
   cookies,

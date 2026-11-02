@@ -39,6 +39,13 @@
     {data.internationalization?.parents}
   </button>
   <button
+    class="action-button editor-button button-children clickable"
+    onclick={() => activatePagePane(PagePane.Children)}
+    type="button"
+  >
+    {data.internationalization?.children}
+  </button>
+  <button
     class="action-button editor-button button-lock clickable"
     onclick={() => activatePagePane(PagePane.Lock)}
     type="button"

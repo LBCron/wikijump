@@ -1,0 +1,157 @@
+{
+  "schema": "theme_lab_real_wikidot_authority_visual_review.v1",
+  "status": "reviewed",
+  "reviewed_at": "2026-10-30T07:35:34.000Z",
+  "reviewer": "Muse visual review",
+  "decision_authority": "REAL_WIKIDOT_TARGET_AB_VISUAL_REVIEW_ONLY",
+  "package": "flopstyle-dark",
+  "candidate_source_sha256": "4900476d5cf31e094370d52e8cb09ff1e24d939ef8edea00562658cacc07dbec",
+  "candidate_css_sha256": "4e9f17d162d5e0cf393e5a6d287c246b84efb0f82fdb97c05c56e3d537a8b446",
+  "capture_receipt": {
+    "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/receipt.json",
+    "sha256": "e83697d5cad8b903b8a9abefc8b9a57373ce17a090638a853eda99db198d1a64"
+  },
+  "review_scope": {
+    "url": "https://scp-jp.wikidot.com/scp-173-jp",
+    "engine": "chromium",
+    "browser_version": "156.0.8078.73",
+    "state": [
+      "navigation-action"
+    ],
+    "widths": [
+      320,
+      390
+    ]
+  },
+  "reviewed_screenshots": [
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/without-320-navigation-action-0.png",
+      "sha256": "641e6fcd9475db7b4a50be06ba83b67c3cea029a3bc7fa56c7df43600faf1aca"
+    },
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/without-320-navigation-action-1.png",
+      "sha256": "d5a0525a9d396e31a6fc3b226559697f60e6b6e92999213743503dcfed0e18ff"
+    },
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/without-320-navigation-action-2.png",
+      "sha256": "df9d7eef4d0933ef5e75dc07117174fb9116606f10293745d1736e4e014771f4"
+    },
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/without-320-navigation-action-3.png",
+      "sha256": "1fc11712790d1c14d5ab5d7d5195a611b641bc259e5feefc3c3782584e47fa85"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/with-320-navigation-action-0.png",
+      "sha256": "641e6fcd9475db7b4a50be06ba83b67c3cea029a3bc7fa56c7df43600faf1aca"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/with-320-navigation-action-1.png",
+      "sha256": "d5a0525a9d396e31a6fc3b226559697f60e6b6e92999213743503dcfed0e18ff"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/with-320-navigation-action-2.png",
+      "sha256": "df9d7eef4d0933ef5e75dc07117174fb9116606f10293745d1736e4e014771f4"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "navigation-action",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/with-320-navigation-action-3.png",
+      "sha256": "6e167992464c8304bdb31241e19caa2e33da7b79d6415d0c4350490970c17262"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/without-390-navigation-action-0.png",
+      "sha256": "1b0deb500a4ebc9b930f58dd471ed256486314b516770bdaa3a278788ca3b688"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/without-390-navigation-action-1.png",
+      "sha256": "564054d23da2ac3d4afd3b5e7f0143d888449399a2119b0c9d74d8e5de40bcc0"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/without-390-navigation-action-2.png",
+      "sha256": "d7d38975fd5ccbb2ef27b81d90b297e8ac68ec9469aded714f10fa1f653a02b7"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/without-390-navigation-action-3.png",
+      "sha256": "21d2f4f074254ca65790e9b9adc081c5fd587f51cc326b5e24732932bb0687d2"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/with-390-navigation-action-0.png",
+      "sha256": "1b0deb500a4ebc9b930f58dd471ed256486314b516770bdaa3a278788ca3b688"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 1,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/with-390-navigation-action-1.png",
+      "sha256": "564054d23da2ac3d4afd3b5e7f0143d888449399a2119b0c9d74d8e5de40bcc0"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 2,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/with-390-navigation-action-2.png",
+      "sha256": "d7d38975fd5ccbb2ef27b81d90b297e8ac68ec9469aded714f10fa1f653a02b7"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "navigation-action",
+      "index": 3,
+      "path": "authority-evidence/flopstyle-dark-firefox-submenu-recert-20261030/chromium/with-390-navigation-action-3.png",
+      "sha256": "21d2f4f074254ca65790e9b9adc081c5fd587f51cc326b5e24732932bb0687d2"
+    }
+  ],
+  "findings": "Directly inspected the with-candidate Chromium frames at 390px index 3 and 320px index 2 and verified the remaining frames through the receipt's measured bounds. With the V2b candidate, every endpoint submenu is contained inside the viewport with all items legible, identical in presentation to the pre-change Chromium rendering (the Firefox-only block is inert in Chromium and the generic block's anchoring is untouched); all 16 measured rows show off-left 0 and off-right 0 in both variants. This receipt is the route-(b) cross-engine record required by LANE-ALLOCATION-35; it is supplementary and is not the ledger-bound certification, because a Firefox-only block can demonstrate no A/B need in Chromium."
+}

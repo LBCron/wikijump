@@ -1,11 +1,3 @@
-// Dependency-closure resolution for the local Wikidot rendering lab (P2).
-//
-// Discovers page dependencies (includes, theme/component pages, CSS modules,
-// parent pages, /local--files/ attachments) from wikitext and metadata,
-// resolves them against the registered source bundles, and reports a
-// fail-closed verdict per page. Out-of-bundle dependencies are recorded and
-// classified — never silently substituted, dropped, or widened (LP-1 rule
-// applied to closure; see dependency-closure.spec.md).
 
 const INCLUDE_REGEX = /\[\[include\s+(:?)([^\s\]|]+)/gi;
 const CSS_MODULE_REGEX = /\[\[module\s+css\b/gi;
@@ -15,14 +7,11 @@ const LOCAL_FILE_REGEX =
 const LOCAL_CODE_REGEX =
   /(?:(?<scheme>https?):\/\/(?<host>[^/\s"'<>)]*))?(?:\/local--code\/|\/-\/code\/)(?<page>[^/?#\s"'<>)]*?)\/(?<index>[0-9]+)(?:[?#][^\s"'<>)]*)?/giu;
 
-// Regions whose contents are display-only and must not contribute
-// dependencies: @@raw@@ spans and [[code]] blocks.
 const ESCAPED_REGION_PATTERNS = [
   // Wikidot @@raw@@ spans are inline-only; matching across newlines would
   // let a stray @@ shift pairing for the rest of the document.
   /@@.*?@@/g,
   /\[\[code[^\]]*\]\][\s\S]*?\[\[\/code\]\]/gi,
-  // Wikidot comment blocks, which frequently carry usage examples.
   /\[!--[\s\S]*?--\]/g,
 ];
 
@@ -93,10 +82,6 @@ export function scanWikitextDependencies(wikitext) {
   };
 }
 
-// Families whose bundle natively owns a local site. Non-native rows can
-// declare the same local_site (e.g. JP rows materialized under scp-wiki for
-// cross-site includes); on key collisions the native row must win so EN
-// pages resolve against EN sources.
 const NATIVE_SITE_FAMILY = new Map([
   ["scp-wiki", "EN"],
   ["scp-jp", "JP"],
@@ -111,10 +96,6 @@ function isNativeRow(row, site) {
   );
 }
 
-// Registry over the registered source bundles: key `${site}:${slug}`.
-// Returns the map; collisions between rows claiming the same key are
-// recorded on `registry.collisions` (never silently resolved by insertion
-// order alone).
 export function buildBundleRegistry(rows) {
   const registry = new Map();
   const collisions = [];
@@ -148,9 +129,6 @@ function dependencyLabel(row) {
   );
 }
 
-// Resolve the closure for one target row. Walks includes transitively
-// (bounded by maxDepth), collecting an import order of
-// parents -> theme/component -> other includes -> target.
 export function resolveDependencyClosure({
   row,
   registry,
@@ -237,7 +215,6 @@ export function resolveDependencyClosure({
   expand(row, 0);
   activePath.pop();
 
-  // Import order: parents first, then theme/component, then other includes.
   const kindRank = {
     parent: 0,
     "theme-component": 1,

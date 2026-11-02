@@ -1,0 +1,495 @@
+[[module CSS]]
+@import url('https://scp-jp.wdfiles.com/local--code/theme:y2k/1');
+[[/module]]
+
+[[include :scp-jp:component:interwiki-style
+| priority=1
+| theme=https://scp-jp.wdfiles.com/local--code/theme:y2k/1
+]]
+[[iftags +テーマ]]
+[[>]]
+**評価:**
+[[module Rate]]
+[[/>]]
+
+[[>]]
+**クレジット付き評価モジュール:**
+[[/>]]
+
+[[include :scp-jp:credit:start-preview]]
+あなたの記事に関する情報
+[[include :scp-jp:credit:end-preview]]
+
+これはetoisleによって開発された、90年代末から2000年代初頭ごろの趣きに基づいたテーマです。このテーマは如何なるカノン、シリーズ、要注意団体と関連がありません。
+
+このテーマをあなたのページにインポートするには、次のテキストをページのどこかに挿入してください: 
+
+[[div class="code"]]
+@@[[include :scp-jp:theme:y2k]]@@
+[[/div]]
+
+-----
+
++ Examples
+
+[[include component:image-block name= http://scp-jp-storage.wikidot.com/local--files/file:4094174-4-k55r/logo.png|caption=Y2K|width=200px]]
+
+水平方向の罫線は5つのハイフン"-----"で表示できます。罫線は何かの内側に位置していない限りページを横切るように広がります(例えば引用ブロックの中など)。このページのセクション間を区切っている線が罫線です。
+
+見出しは1つから6つの"+"を文頭に挿入することで表示できます。
+
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 見出し1
+
+++ 見出し2
+
++++ 見出し3
+
+++++ 見出し4
+
++++++ 見出し5
+
+++++++ 見出し6
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブ]]
+
+これはタブです
+[[/tab]]
+[[tab タブ]]
+
+ここにもテキストが！
+
+面白いですね。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+
+これは長いタブです。たくさんのテキストを書くこともできます。
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックです。"> "を各行の行頭に挿入することで作成できます。
+> 
+> 続きのテキスト
+> -----
+> これは水平方向の罫線です
+> 
+>> ネストされた引用ブロック
+
+||~ これは ||~ テーブルです||
+||使い方は ||もう ||
+||||知っているでしょう？ ||
+
+使われているフォントはMicrosoft Sans Serifです。
+
+-----
+
++ Source code
+[[collapsible show="> Show code" hide="> Hide code"]]
+[[code type="css"]]
+/*
+    Y2K Theme
+    [2020 Wikidot Theme]
+    By etoisle
+    Based on SCP Sigma 9 Theme created by Aelanna and Dr Devan
+*/
+
+.scp-image-block.block-right {
+    margin: 0 2em 1em;
+}
+
+body {
+    background-attachment: fixed;
+    color: #000000;
+    font-family: "Microsoft Sans Serif";
+    font-size: 14px;
+    image-rendering: pixelated;
+    word-break: unset;
+    --themeColor: #008484;
+    --accentColor: #008484;
+}
+
+a {
+    color: rgb(0, 0, 255);
+}
+
+a:visited {
+    color: #800080;
+}
+
+h1 {
+    color: #000084;
+    font-family: "Microsoft Sans Serif";
+}
+
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Microsoft Sans Serif";
+}
+
+blockquote,
+div.blockquote {
+    border: #DFDFDF outset 2px;
+    background-color: #C0C0C0;
+    color: black;
+    color: #000;
+}
+
+#account-topbutton{
+    border: 1px solid #000;
+}
+
+div#container-wrap {
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A4094174-5-12sw/bg.png');
+}
+
+div#header {
+    background-image: url('https://scp-jp-storage.wdfiles.com/local--files/file%3A4094174-4-k55r/logo.png');
+    image-rendering: pixelated;
+}
+
+.scp-image-block {
+    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.2);
+    border-radius: 0;
+    margin: 0 2em 1em;
+}
+
+div#side-bar div.side-block,
+#interwiki div.side-block {
+    background: #C0C0C0;
+    border: #DFDFDF outset 2px;
+    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.2);
+    border-radius: 0;
+}
+
+div#side-bar div.side-block div.heading,
+#interwiki div.side-block div.heading,
+div#side-bar div.collapsible-block-unfolded-link,
+div#side-bar div.collapsible-block-unfolded-link div.collapsible-block-link {
+    color: black;
+    border-color: black;
+}
+
+div.yui-navset div.yui-content {
+    color: #000000;
+    background: #C0C0C0;
+    border-left: #DFDFDF outset 2px;
+    border-right: #DFDFDF outset 2px;
+    border-bottom: #DFDFDF outset 2px;
+    border-top: transparent 0;
+}
+
+.yui-navset .yui-nav a,
+div.yui-navset div.yui-navset-top .yui-nav a {
+    /* protect nested tabviews from other orientations */
+    border: #DFDFDF outset 2px;
+}
+
+.yui-navset .yui-nav .selected a,
+.yui-navset .yui-nav .selected a em,
+.yui-navset .yui-nav a em,
+.yui-navset .yui-navset-top .yui-nav a em {
+    border-color: transparent;
+}
+
+.yui-navset .yui-nav,
+.yui-navset .yui-navset-top .yui-nav {
+    border-color: #008484;
+}
+
+div.yui-navset ul.yui-nav a,
+div.yui-navset div.yui-navset-top ul.yui-nav a {
+    background: #C0C0C0;
+    border-left: #DFDFDF outset 2px;
+    border-right: #DFDFDF outset 2px;
+    border-top: #DFDFDF outset 2px;
+    border-bottom: transparent 0;
+}
+
+div.yui-navset ul.yui-nav a:hover,
+div.yui-navset ul.yui-nav a:focus {
+    background: #C0C0C0;
+    border-left: #DFDFDF inset 2px;
+    border-right: #DFDFDF inset 2px;
+    border-top: #DFDFDF inset 2px;
+    border-bottom: transparent 0;
+}
+
+div.yui-navset ul.yui-nav .selected a,
+div.yui-navset ul.yui-nav .selected a:focus,
+div.yui-navset ul.yui-nav .selected a:hover {
+    background: #008484;
+    border-left: #DFDFDF outset 2px;
+    border-right: #DFDFDF outset 2px;
+    border-top: #DFDFDF outset 2px;
+    border-bottom: transparent 0;
+}
+
+#top-bar .open-menu a {
+    color: black;
+    border-color: black;
+}
+
+div.page-rate-widget-box {
+    box-shadow: 4px 5px 0 0 rgba(0, 0, 0, 0.2);
+    border-radius: 0;
+}
+
+div.page-rate-widget-box span.rate-points,
+div.page-rate-widget-box span.cancel {
+    background-color: #C0C0C0 !important;
+    border: #DFDFDF outset 2px;
+    border-radius: 0;
+}
+
+div.page-rate-widget-box span.rateup,
+div.page-rate-widget-box span.ratedown {
+    border: #DFDFDF outset 2px;
+}
+
+div.page-rate-widget-box span.rate-points,
+div.page-rate-widget-box span.cancel a,
+div.page-rate-widget-box span.cancel a:hover {
+    color: #000000;
+}
+
+div.page-rate-widget-box span.rateup,
+div.page-rate-widget-box span.ratedown {
+    background-color: #C0C0C0 !important;
+}
+
+div.page-rate-widget-box span.rateup a,
+div.page-rate-widget-box span.ratedown a {
+    color: #000000;
+}
+
+div.page-rate-widget-box span.cancel a:hover,
+div.page-rate-widget-box span.rateup a:hover,
+div.page-rate-widget-box span.ratedown a:hover {
+    background: transparent;
+    color: #008484;
+}
+
+
+/* Info Pane */
+
+#page-content .rate-box-with-credit-button {
+    background-color: #C0C0C0;
+    border: #DFDFDF outset 2px;
+    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.2);
+    border-radius: 0;
+}
+
+#page-content .rate-box-with-credit-button .fa-info {
+    border: transparent 0px;
+    border-radius: 0;
+    color: #000000;
+}
+
+#page-content .rate-box-with-credit-button .fa-info:hover {
+    background: transparent;
+    color: #008484;
+}
+
+#page-content .rate-box-with-credit-button .cancel {
+    border: #DFDFDF outset 2px;
+}
+
+.close-credits,
+.credit-back {
+    filter: hue-rotate(288deg);
+}
+
+#page-content .modalbox{
+    background: #fff;
+    border: #000 solid 1px;
+    border-radius: 0px;
+    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.2);
+}
+
+#side-bar a,
+#interwiki a {
+    color: rgb(0, 0, 255);
+}
+#side-bar a:visited,
+#interwiki a:visited,
+#top-bar a,
+#top-bar ul li.sfhover a,
+#top-bar ul li:hover a,
+#login-status ul a,
+#login-status ul a:hover {
+    color: #800080;
+}
+
+#page-title {
+    color: #000084;
+}
+
+#login-status,
+#login-status a {
+    color: white;
+}
+
+table.wiki-content-table td {
+    border: 1px solid #000;
+    background-color: #FFFFFF;
+}
+
+table.wiki-content-table th {
+    border: 1px solid #000;
+    background-color: #DFDFDF;
+}
+
+@media (max-width: 767px) {
+    #side-bar {
+     background-color: #C0C0C0;
+    }
+}
+
+#interwiki .menu-item img {
+    filter: hue-rotate(250deg);
+}
+
+#footer {
+    background: transparent;
+}
+
+#search-top-box-input,
+#search-top-box-input:hover,
+#search-top-box-input:focus,
+#search-top-box-form input[type=submit],
+#search-top-box-form input[type=submit]:hover,
+#search-top-box-form input[type=submit]:focus {
+    border: #DFDFDF outset 2px;
+    background: #C0C0C0;
+    box-shadow: none;
+    border-radius: 0;
+    color: #000000;
+}
+
+#search-top-box input.empty {
+    color: #8b8b8b;
+}
+
+hr {
+    margin: 1em 2em;
+    padding: 0;
+    height: 0;
+    border-top: #F0F0F0 groove 2px;
+    /*color: #555545;*/
+    /*background-color: #555545;*/
+}
+
+#header h1 span {
+    font-family: "Microsoft Sans Serif";
+    color: #ffffff;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6);
+}
+
+#header h2 span::before {
+    font-family: "Microsoft Sans Serif";
+    content: 'A New Millennium in Security';
+    color: #ffffff;
+    text-shadow: none;
+}
+
+#header h1 a,
+#header h2 span {
+    color: transparent;
+    text-shadow: none;
+}
+
+.scp-image-block.block-right {
+    margin: 0 2em 1em;
+}
+
+.code {
+    border: 1px solid #000000;
+    background-color: #ffffff;
+    font-family: 'Andale Mono', 'Courier New', Courier, monospace;
+    padding: 3px;
+    margin: 0.2em 0;
+    overflow: auto;
+}
+
+.interwiki {
+    font-family: "Microsoft Sans Serif";
+    background-color: #C0C0C0;
+    border: #DFDFDF outset 2px;
+    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.2);
+}
+
+#top-bar ul li ul {
+    border: solid 1px #000;
+    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.2);
+}
+
+/*日本語ローカライズ*/
+#footer a {
+    color: #008484;
+}
+#page-content .creditRate .page-rate-widget-box{
+    box-shadow: unset;
+}
+#page-content .rate-box-with-credit-button .creditButton {
+    border: #DFDFDF outset 2px;
+    border-radius: 0;
+    background-color: #C0C0C0 !important;
+    margin: 0;
+    height: 14px;
+    box-shadow: unset;
+}
+[[/code]]
+[[/collapsible]]
+[[/iftags]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Y2K navigation correction: anchor only the overflowing rightmost menus at their mobile row endpoints. */
+@media (max-width: 359px) {
+  #top-bar .mobile-top-bar > ul > li:nth-last-child(2) > ul { left: auto; right: 0; }
+}
+@media (min-width: 360px) and (max-width: 767px) {
+  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto; right: 0; }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot narrow image-block correction: include the native right margin and border in its available width. */
+@media (max-width: 479px) {
+  .scp-image-block.block-right { max-width: calc(100% - 2em - 2px) !important; }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot y2k narrow top bar: give the narrow top bar the theme teal ground so its labels stay readable over the halftone band. */
+@media (max-width:767px){#top-bar{background-color:#0c4f47}}
+[[/module]]

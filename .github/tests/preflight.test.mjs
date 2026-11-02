@@ -38,6 +38,7 @@ emit_scope() {
         locales/validator/src/main.rs
       ;;
     deepwell) printf '%s\\0' deepwell/src/lib.rs ;;
+    theme_lab) printf '%s\\0' install/local/theme-lab/src/example.mjs ;;
     deepwell_space) printf '%s\\0' 'deepwell/src/file with space.rs' ;;
     none) ;;
     docs) printf '%s\\0' docs/development.md ;;
@@ -154,6 +155,7 @@ test("checkpoint preflight avoids compiled checks for every selected group", (t)
     "cargo fmt --manifest-path deepwell/Cargo.toml --check",
     "cargo fmt --manifest-path wws/Cargo.toml --check",
     "pnpm --dir framerail lint",
+    "node install/local/theme-lab/scripts/check-runtime-drift.mjs",
     "pnpm --dir framerail test:unit",
     "cargo fmt --manifest-path locales/validator/Cargo.toml --all -- --check"
   ])
@@ -212,6 +214,7 @@ test("final preflight is the single explicit full-check barrier", (t) => {
     "cargo test --manifest-path wws/Cargo.toml --locked --all-features -- --nocapture --test-threads 1",
     "node --test wws/tests/resize-iframe.test.mjs",
     "pnpm --dir framerail lint",
+    "node install/local/theme-lab/scripts/check-runtime-drift.mjs",
     "pnpm --dir framerail test:unit",
     "pnpm --dir framerail build",
     "cargo fmt --manifest-path locales/validator/Cargo.toml --all -- --check",
@@ -264,6 +267,37 @@ test("final preflight runs groups side by side with the same checks, ordered log
   assert.ok(lastTimed >= 0 && firstDeepwell > lastTimed, order.join("\n"))
 })
 
+test("the archival Theme Lab checks run only when Theme Lab or the barrier script changed, or when forced", (t) => {
+  const archive = [
+    "node install/local/theme-lab/sigma10-migration/check-final.mjs --historical-only",
+    "node install/local/theme-lab/scripts/check-campaign-record-integrity.mjs"
+  ]
+  const always = [
+    "node install/local/theme-lab/ports/scripts/check-adaptation-authority.mjs",
+    "node install/local/theme-lab/scripts/check-post-closure-changes.mjs --base " + remoteOid
+  ]
+  const ran = (scope, overrides = {}) => {
+    const harness = createHarness(t)
+    const result = harness.runPreflight(["--base", remoteOid, "--final", "--groups", "theme_lab"], {
+      PREFLIGHT_REMOTE_SCOPE: scope,
+      ...overrides
+    })
+    assert.equal(result.status, 0, result.stdout + result.stderr)
+    return { commands: harness.commands(), stdout: result.stdout }
+  }
+
+  const unchanged = ran("deepwell")
+  for (const command of always) assert.ok(unchanged.commands.some((line) => line.endsWith(command.replace(/^node /u, "")) || line === command), command)
+  for (const command of archive) assert.ok(!unchanged.commands.some((line) => line.includes(command.slice(5))), command)
+  assert.match(unchanged.stdout, /^preflight: Theme Lab archive checks skipped .*PREFLIGHT_THEME_LAB_ARCHIVE=always/mu)
+  assert.doesNotMatch(unchanged.stdout, /Theme Lab campaign record integrity: ok/u)
+
+  for (const run of [ran("theme_lab"), ran("deepwell", { PREFLIGHT_THEME_LAB_ARCHIVE: "always" })]) {
+    for (const command of archive) assert.ok(run.commands.some((line) => line.includes(command.slice(5))), command)
+    assert.doesNotMatch(run.stdout, /archive checks skipped/u)
+  }
+})
+
 test("verification and specification inputs run only the final verification barrier", async (t) => {
   const checkpointExpected = [
     "node install/local/wikidot-verification/scripts/verify-repository-generated-contracts.mjs"
@@ -296,6 +330,31 @@ test("verification and specification inputs run only the final verification barr
   }
 })
 
+test("specification generator is excluded only when PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1", (t) => {
+  const skipped = createHarness(t)
+  const skippedResult = skipped.runPreflight(["--base", remoteOid, "--final"], {
+    PREFLIGHT_REMOTE_SCOPE: "verification",
+    PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR: "1"
+  })
+  assert.equal(skippedResult.status, 0, skippedResult.stderr)
+  assert.ok(
+    !skipped.commands().includes("node scripts/generate-wikidot-specifications.mjs --check"),
+    skipped.commands().join("\n")
+  )
+  assert.match(
+    skippedResult.stdout,
+    /^preflight: wikidot specification generator skipped \(PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1\).*WIKIDOT_DOCUMENTATION_CORPUS/mu
+  )
+
+  const ran = createHarness(t)
+  const ranResult = ran.runPreflight(["--base", remoteOid, "--final"], {
+    PREFLIGHT_REMOTE_SCOPE: "verification"
+  })
+  assert.equal(ranResult.status, 0, ranResult.stderr)
+  assert.ok(ran.commands().includes("node scripts/generate-wikidot-specifications.mjs --check"))
+  assert.doesNotMatch(ranResult.stdout, /specification generator skipped/u)
+})
+
 test("explicit groups run without a change-set and unknown groups are refused", (t) => {
   const listed = createHarness(t)
   const result = listed.runPreflight(["--base", remoteOid, "--final", "--groups", "theme_lab", "--list"], {
@@ -305,7 +364,10 @@ test("explicit groups run without a change-set and unknown groups are refused", 
   assert.doesNotMatch(result.stdout, /nothing to check/)
   assert.match(result.stdout, /^preflight: groups: .*theme_lab=true/mu)
   const steps = [...result.stdout.matchAll(/^  would run: (.+)$/gmu)].map((match) => match[1])
-  assert.ok(steps.includes("Theme Lab current campaign completion"), result.stdout)
+  assert.ok(steps.includes("Theme Lab campaign record integrity"), result.stdout)
+  assert.ok(steps.includes("Theme Lab post-closure changes"), result.stdout)
+  assert.ok(steps.includes("Theme Lab runtime drift report"), result.stdout)
+  assert.ok(!steps.includes("Theme Lab current campaign completion"), result.stdout)
 
   const unknown = createHarness(t)
   const refused = unknown.runPreflight(["--base", remoteOid, "--final", "--groups", "theme_lba", "--list"], {
@@ -320,4 +382,32 @@ test("explicit groups run without a change-set and unknown groups are refused", 
   assert.equal(quiet.status, 0, quiet.stderr)
   assert.match(quiet.stdout, /nothing to check/)
   assert.deepEqual(idle.commands(), [])
+})
+
+test("listing without a change-set still prints the group plan (the nightly shape)", (t) => {
+  // A scheduled consolidated-validation run has base == head, so the
+  // diff is empty by construction; the workflow plan step reads the
+  // group universe from the --list output and applies its own (nightly)
+  // selection. The listing must therefore print the plan - every group,
+  // nothing selected - instead of the "nothing to check" early return.
+  const harness = createHarness(t)
+  const result = harness.runPreflight(["--base", remoteOid, "--final", "--list"], {
+    PREFLIGHT_REMOTE_SCOPE: "none"
+  })
+  assert.equal(result.status, 0, result.stderr)
+  assert.doesNotMatch(result.stdout, /nothing to check/)
+  const groupsLine = result.stdout.match(/^preflight: groups: (.*)$/mu)?.[1] ?? ""
+  for (const group of ["deepwell", "wws", "framerail", "locales", "workflow", "theme_lab", "verification"]) {
+    assert.ok(groupsLine.includes(`${group}=false`), `${group} missing or selected in: ${groupsLine}`)
+  }
+  assert.doesNotMatch(result.stdout, /would run:/)
+  assert.deepEqual(harness.commands(), [])
+
+  // The gate shape is unchanged: without --list the same empty
+  // change-set still ends at "nothing to check" and runs nothing.
+  const gated = createHarness(t)
+  const quiet = gated.runPreflight(["--base", remoteOid, "--final"], { PREFLIGHT_REMOTE_SCOPE: "none" })
+  assert.equal(quiet.status, 0, quiet.stderr)
+  assert.match(quiet.stdout, /nothing to check/)
+  assert.deepEqual(gated.commands(), [])
 })

@@ -267,6 +267,140 @@ class CampaignEvidenceStoreTests(unittest.TestCase):
         self.assertEqual(restored['status'], 'applied')
         self.assertEqual((self.restored / LAB / 'current-campaign-acceptance.json').read_bytes(), self.files['current-campaign-acceptance.json'])
 
+    # --- LA-34 successor-bound exception --------------------------------
+    RECEIPT_REL = 'ports/black-highlighter-theme/option-scenarios/runs/receipt-a.json'
+    REVIEW_REL = 'ports/black-highlighter-theme/option-scenarios/runs/visual-review.json'
+    PNG_REL = 'ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/shot-a.png'
+    PNG2_REL = 'ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/shot-b.png'
+    CLOSURE_PNG = b'closure-png-bytes'
+
+    def _sha(self, body):
+        import hashlib
+        return hashlib.sha256(body).hexdigest()
+
+    def _write(self, lab, rel, body):
+        target = lab / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(body, str):
+            body = body.encode()
+        target.write_bytes(body)
+        return target
+
+    def _receipt_body(self, png_sha, marker, png_rel=None):
+        recorded = f'/home/roku/checkout/install/local/theme-lab/{png_rel or self.PNG_REL}'
+        return json.dumps({'schema': 'test-receipt', 'marker': marker,
+                           'rows': [{'screenshot': recorded, 'screenshot_sha256': png_sha}]}) + '\n'
+
+    def _successor_fixture(self, *, freeze_receipt_sha=None, freeze_review_sha=None,
+                           receipt_unbound=False, png_row=True):
+        """Inventory closure BHL bytes, then lay successor bytes plus a
+        candidate freeze into the restore destination."""
+        successor_png = b'successor-png-bytes!'
+        closure_receipt = self._receipt_body(self._sha(self.CLOSURE_PNG), 'closure')
+        if png_row:
+            successor_receipt = self._receipt_body(self._sha(successor_png), 'successor')
+        else:
+            successor_receipt = self._receipt_body(self._sha(successor_png), 'successor',
+                                                   png_rel=self.PNG2_REL)
+        closure_review = b'{"review":"closure"}\n'
+        successor_review = b'{"review":"successor"}\n'
+        self._write(self.theme_lab, self.RECEIPT_REL, closure_receipt)
+        self._write(self.theme_lab, self.REVIEW_REL, closure_review)
+        self._write(self.theme_lab, self.PNG_REL, self.CLOSURE_PNG)
+        self.build()
+        lab = self.restored / LAB
+        self._write(lab, self.RECEIPT_REL, successor_receipt)
+        self._write(lab, self.REVIEW_REL, successor_review)
+        self._write(lab, self.PNG_REL, successor_png)
+        bindings = {'scenario_id': 'bhl-options-test',
+                    'visual_review': {'path': self.REVIEW_REL,
+                                      'sha256': freeze_review_sha or self._sha(successor_review)},
+                    'receipts': [] if receipt_unbound else
+                                [{'path': self.RECEIPT_REL,
+                                  'sha256': freeze_receipt_sha or self._sha(successor_receipt.encode())}]}
+        freeze = {'schema': 'test-freeze', 'targeted_evidence_bindings': [bindings]}
+        self._write(lab, 'publication/frozen-candidate-set.json', json.dumps(freeze) + '\n')
+        return {'png': successor_png, 'receipt': successor_receipt, 'review': successor_review}
+
+    def test_successor_bound_receipt_png_and_review_are_accepted(self):
+        bodies = self._successor_fixture()
+        result = self.restore(apply=True, link=True)
+        self.assertEqual(result['successor_bound_count'], 3)
+        self.assertEqual(result['inventory_files'], 10)
+        self.assertEqual(result['bindings_verified'], 3)
+        bound = {row['path']: row for row in result['successor_bound']}
+        self.assertEqual(set(bound), {self.RECEIPT_REL, self.REVIEW_REL, self.PNG_REL})
+        self.assertEqual(bound[self.RECEIPT_REL]['bound_by'], 'targeted_evidence_bindings.receipts')
+        self.assertEqual(bound[self.REVIEW_REL]['bound_by'], 'targeted_evidence_bindings.visual_review')
+        self.assertTrue(bound[self.PNG_REL]['bound_by'].endswith(self.RECEIPT_REL))
+        self.assertEqual(bound[self.PNG_REL]['checkout_sha256'], self._sha(bodies['png']))
+        self.assertEqual(bound[self.PNG_REL]['inventory_sha256'], self._sha(self.CLOSURE_PNG))
+        lab = self.restored / LAB
+        self.assertEqual((lab / self.PNG_REL).read_bytes(), bodies['png'])
+        self.assertEqual((lab / self.RECEIPT_REL).read_bytes(), bodies['receipt'].encode())
+        # The frozen closure blob is still archived and verified.
+        campaign.store.verify_file(self.blob(self.PNG_REL), self._sha(self.CLOSURE_PNG),
+                                   len(self.CLOSURE_PNG), 'stored blob')
+
+    def test_successor_unbound_receipt_fails_closed(self):
+        self._successor_fixture(receipt_unbound=True)
+        with self.assertRaisesRegex(ValueError, 'existing checkout evidence size/SHA-256 mismatch'):
+            self.restore(apply=True)
+
+    def test_successor_png_with_stale_receipt_binding_fails_closed(self):
+        self._successor_fixture(freeze_receipt_sha='0' * 64)
+        with self.assertRaisesRegex(ValueError, 'existing checkout evidence size/SHA-256 mismatch'):
+            self.restore(apply=True)
+
+    def test_successor_png_without_matching_row_fails_closed(self):
+        self._successor_fixture(png_row=False)
+        with self.assertRaisesRegex(ValueError, 'existing checkout evidence size/SHA-256 mismatch'):
+            self.restore(apply=True)
+
+    def test_successor_review_sha_mismatch_fails_closed(self):
+        self._successor_fixture(freeze_review_sha='0' * 64)
+        with self.assertRaisesRegex(ValueError, 'existing checkout evidence size/SHA-256 mismatch'):
+            self.restore(apply=True)
+
+    def test_successor_binding_outside_the_prefixes_still_fails_closed(self):
+        self.build()
+        lab = self.restored / LAB
+        rel = 'ports/current-acceptance/audit/a.json'
+        successor = b'{"row":"successor"}\n'
+        self._write(lab, rel, successor)
+        bindings = {'scenario_id': 'outside',
+                    'visual_review': {'path': self.REVIEW_REL, 'sha256': '1' * 64},
+                    'receipts': [{'path': rel, 'sha256': self._sha(successor)}]}
+        self._write(lab, 'publication/frozen-candidate-set.json',
+                    json.dumps({'targeted_evidence_bindings': [bindings]}) + '\n')
+        with self.assertRaisesRegex(ValueError, 'existing checkout evidence size/SHA-256 mismatch'):
+            self.restore(apply=True)
+
+    def test_successor_missing_frozen_blob_fails_closed(self):
+        self._successor_fixture()
+        campaign.store.blob_path(self.store, self._sha(self.CLOSURE_PNG)).unlink()
+        with self.assertRaisesRegex(ValueError, 'missing SHA-pinned blob'):
+            self.restore(apply=True)
+
+    def test_successor_symlinked_freeze_fails_closed(self):
+        self._successor_fixture()
+        lab = self.restored / LAB
+        freeze = lab / 'publication/frozen-candidate-set.json'
+        elsewhere = self.root / 'freeze-copy.json'
+        elsewhere.write_bytes(freeze.read_bytes())
+        freeze.unlink()
+        freeze.symlink_to(elsewhere)
+        with self.assertRaisesRegex(ValueError, 'symlink in evidence path'):
+            self.restore(apply=True)
+
+    def test_successor_absent_checkout_file_restores_the_frozen_copy(self):
+        self._successor_fixture()
+        lab = self.restored / LAB
+        (lab / self.PNG_REL).unlink()
+        result = self.restore(apply=True, link=True)
+        self.assertEqual(result['successor_bound_count'], 2)
+        self.assertEqual((lab / self.PNG_REL).read_bytes(), self.CLOSURE_PNG)
+
 
 if __name__ == '__main__':
     unittest.main()

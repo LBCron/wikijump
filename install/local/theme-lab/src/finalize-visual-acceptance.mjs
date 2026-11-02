@@ -4,6 +4,7 @@ import {bindVisualAcceptance} from './visual-acceptance.mjs';
 import {overallAcceptance,summarizeVisual} from './verdict.mjs';
 import {ACCEPTANCE_VIEWPORT_IDS} from './acceptance-viewports.mjs';
 import {TARGET_ACCEPTANCE_CONTRACT_SHA256} from './target-acceptance-contract.mjs';
+import {isAdmittedTargetAcceptanceContract} from './target-acceptance-instruments.mjs';
 const sha=value=>crypto.createHash('sha256').update(value).digest('hex');
 // Faithful-design exemption ledger (TAIL-PLAN TL-05). An entry waives one
 // measured finding only while every recorded measurement, selector set and
@@ -112,7 +113,11 @@ function surfaceFindingMatches(entry,spec,result,finding,options){
 function fullCheckFindingMatches(entry,result,finding,options={}){
  if(entry?.instrument!=='full_check_target'||finding?.severity!=='error')return false;
  if(entry.candidate_css_sha256!==result?.candidate_css_sha256||entry.candidate_source_sha256!==result?.candidate_source_sha256)return false;
- if(entry.target_acceptance_contract_sha256!==result?.target_acceptance_contract_sha256)return false;
+ const entryContract=entry.target_acceptance_contract_sha256,resultContract=result?.target_acceptance_contract_sha256;
+ // A ledger entry and a result recorded under different admitted instruments
+ // (src/target-acceptance-instruments.mjs) still match: admission certifies
+ // their measurements comparable. Any other contract drift re-fails.
+ if(entryContract!==resultContract&&!(isAdmittedTargetAcceptanceContract(entryContract)&&isAdmittedTargetAcceptanceContract(resultContract)))return false;
  if(entry.full_check_input_bindings_sha256!==result?.full_check_input_bindings?.sha256)return false;
  const spec=(entry.findings??[]).find(row=>row.viewport===finding.viewport&&row.kind===finding.kind&&(finding.kind!==SURFACE_NEW_VIEWPORT_OVERFLOW_KIND||(row.surface===finding.surface&&row.state===finding.state)));
  if(!spec)return false;
@@ -193,7 +198,7 @@ export function reviewCompletionTime(review){
 // Review completes the image dimension of a captured full check. It does not
 // rerender unchanged surfaces or reinterpret any failed/unknown port dimension.
 export async function finalizeVisualAcceptance({result,review,css,baseCss='',source,preview,fullCheckInputBindings=null}){
- if(result.target_acceptance_contract_sha256!==TARGET_ACCEPTANCE_CONTRACT_SHA256)throw new Error('Current full check uses a superseded target acceptance contract');
+ if(result.target_acceptance_contract_sha256!==TARGET_ACCEPTANCE_CONTRACT_SHA256&&!isAdmittedTargetAcceptanceContract(result.target_acceptance_contract_sha256))throw new Error('Current full check uses a superseded target acceptance contract');
  if(fullCheckInputBindings&&result.full_check_input_bindings?.sha256!==fullCheckInputBindings.sha256)throw new Error('Current full check uses superseded package check inputs');
  for(const [key,bytes] of [['candidate_css_sha256',css],['candidate_source_sha256',source],['candidate_preview_sha256',preview]])if(result[key]!==sha(bytes))throw new Error(`Current full check uses superseded ${key}`);
  if((result.candidate_base_css_sha256??null)!==(baseCss?sha(baseCss):null))throw new Error('Current full check uses superseded base CSS');

@@ -1,0 +1,828 @@
+
+
+
+
+
+
+
+[[div style="display: none;"]]
+
+[[/div]]
+
+[[=]]
+
+[[<]]
+**タイトル:** Foxtrotテーマ
+**著者:** Liryn
+**原題:** [https://scp-wiki.wikidot.com/theme:foxtrot Foxtrot Theme]
+**作成年:** 2022
+[[/<]]
+
+[[/=]]
+
+
+
+
+= ##grey|自己紹介## @@ @@ @@ @@ **[[[https://scp-wiki.wikidot.com/azamo |著者ページ]]]** @@ @@ / @@ @@ **[[[https://twitter.com/wispfinder |Twitter]]]**
+
+= ##grey|プロジェクト## @@ @@ @@ @@ **[[[https://scp-wiki.wikidot.com/admonition-hub |訓戒]]]** @@ @@ / @@ @@ **[[[https://scp-wiki.wikidot.com/metafoundation |メタファウンデーション]]]** @@ @@ / @@ @@ **[[[https://scp-wiki.wikidot.com/theme:basalt |Basalt]]]**
+
+
+= @@ @@
+
+[[div style="width: fit-content; margin: auto;"]]
+[[=]]
+= **シグマ-9のどのページでも:**
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+[[/=]]
+[[/div]]
+
+= @@ @@
+
+= @@ @@
+
+[[=]]
++ これは何?
+[[/=]]
+
+[[div class="slimtxt" style="margin: auto; width: 70%;"]]
+**Foxtrot**はシグマ-9用の美的テーマで、現代的なフラットデザインと、従来のシグマ-9の癖のある初期Web的な使用感を融合し、近々実装される[[[theme:basalt|Basalt]]]の大規模アップデートのルック・アンド・フィールを模してデザインされました。
+
+このテーマはBasaltの新しい外見を途中まで見ようとする人々のための移行用テーマとして見做すこともできます。
+
+Foxtrotは、[[[theme:blankstyle |Blankstyle]]]や[[[theme:penumbra|Penumbra]]]を筆頭とする、これまでの無数のテーマたちを基に作られています。ライトモードとダークモードが用意されており、使用時にシームレスに切り替えることができます。
+
+[[/div]]
+
+= @@ @@
+
+= @@ @@
+
+= @@ @@
+
+[[=]]
++ [[size 150%]]##crimson|1## @@ @@ テーマ設定[[/size]]
+[[/=]]
+
+------
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.1## @@ @@ @@ @@ オンガード43
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image canada_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image canada_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.2## @@ @@ @@ @@ S&Cプラスチック
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image slothspit_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image slothspit_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.3## @@ @@ @@ @@ 120の記録書庫より
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image poland_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image poland_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.4## @@ @@ @@ @@ ヴァンガード
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image vanguard_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image vanguard_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+[[collapsible show="+ テーマ設定をさらに表示する" hide="- 追加のテーマ設定を閉じる"]]
+[[<]]
+
+[[=]]
+++ 1##crimson|.5## @@ @@ @@ @@ スレッショルド
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image threshold_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image threshold_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.6## @@ @@ @@ @@ 監督司令部
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image overwatch_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image overwatch_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.7## @@ @@ @@ @@ サメ殴りセンター
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image spc_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image spc_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.8## @@ @@ @@ @@ 釣魚評議会
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image fishing_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image fishing_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.9## @@ @@ @@ @@ ナイトフォール
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image nightfall_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image nightfall_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.10## @@ @@ @@ @@ 全ての戦線で戦え
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image hybrasil_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image hybrasil_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.11## @@ @@ @@ @@ 世界オカルト連合
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image goc_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image goc_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.12## @@ @@ @@ @@ ハロウィン
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+@@@@
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[=image spooky_light-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[=image spooky_dark-JP.png style="width: 380px; border-radius: 15px; border: solid 2px grey;"]]
+[[/div]]
+[[/=]]
+
+[[/<]]
+[[/collapsible]]
+[[/=]]
+
+= @@ @@
+
+= @@ @@
+
+[[=]]
+++ 1##crimson|.13## @@ @@ @@ @@ ダークモード
+[[/=]]
+
+ダークモードを適用するには、**{{##green|dark=a##}}修飾子**を追加してください。複数の修飾子を使用するときは、このように{{|}}で区切ります。
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+**{{@@@@}}**
+[[/div]]
+
+= @@ @@
+
+= @@ @@
+
+[[=]]
++ [[size 150%]]##crimson|2## @@ @@ カスタマイズ[[/size]]
+[[/=]]
+
+------
+
+= @@ @@
+
+[[=]]
+++ 2##crimson|.1## @@ @@ @@ @@ 変数
+[[/=]]
+
+= テーマの外観を操作するためのCSS変数を下記に紹介します。
+
+= @@ @@
+
+[[=]]
+[[collapsible show="+ 基本設定" hide="- 基本設定"]]
+[[<]]
+[[div class="note"]]
+
+**基本設定**
+
+* **{{@@--header-title@@}}** @@ @@ -- @@ @@ ヘッダータイトルの文字列。
+ * デフォルト値: @@ @@ {{"SCP財団"}}
+
+* **{{@@--header-subtitle@@}}** @@ @@ -- @@ @@ ヘッダーサブタイトルの文字列。
+ * デフォルト値: @@ @@ {{"確保、収容、保護"}}
+
+* **{{@@--logo-img@@}}** @@ @@ -- @@ @@ ヘッダーロゴの画像。
+ * デフォルト値: @@ @@ {{url(__@@http://scp-jp-storage.wdfiles.com/local--files/file:5722815-58-kjwu/fxtrt-scp_logo_lightmode.svg@@__)}}
+ * デフォルト値 (ダークモード): @@ @@ {{url(__@@http://scp-jp-storage.wdfiles.com/local--files/file:5722815-59-l1ls/fxtrt-scp_logo_darkmode.svg@@__)}}
+
+* **{{@@--logo-opacity@@}}** @@ @@ -- @@ @@ ヘッダーロゴ画像の不透明度。
+ * デフォルト値: @@ @@ {{14%}}
+ * デフォルト値 (ダークモード): @@ @@ {{30%}}
+
+[[/div]]
+[[/<]]
+[[/collapsible]]
+[[/=]]
+
+[[=]]
+[[collapsible show="+ 色彩設定" hide="- 色彩設定"]]
+[[<]]
+[[div class="note"]]
+
+**色彩設定**
+
+* **{{@@--accent@@}}** @@ @@ -- @@ @@ テーマのアクセントカラーのRGB値。
+ * デフォルト値: @@ @@ {{59, 59, 59}}
+ * デフォルト値 (ダークモード): @@ @@ {{153, 187, 255}}
+
+* **{{@@--header-txt-color@@}}** @@ @@ -- @@ @@ ヘッダータイトルの文字色。
+ * デフォルト値: @@ @@ {{#333333}}
+ * デフォルト値 (ダークモード): @@ @@ {{@@rgb(var(--accent))@@}}
+
+* **{{@@--misc-txt-color@@}}** @@ @@ -- @@ @@ ヘッダー内・ヘッダー周辺の様々な要素の文字色。
+ * デフォルト値: @@ @@ {{#464646}}
+ * デフォルト値 (ダークモード): @@ @@ {{@@var(--dark-txt-color)@@}}
+
+* **{{@@--link-txt-color@@}}** @@ @@ -- @@ @@ リンクの文字色・ホバー時の背景色。
+ * デフォルト値: @@ @@ {{#E6283C}}
+ * デフォルト値 (ダークモード): @@ @@ {{@@rgb(var(--accent))@@}}
+
+* **{{@@--darkmode-gradient-top@@}}** @@ @@ -- @@ @@ ダークモード使用時のページトップの背景グラデーションの開始色。
+ * デフォルト値 (ダークモード): @@ @@ {{@@var(--dark-bg-1)@@}}
+
+* **{{@@--darkmode-gradient-bottom@@}}** @@ @@ -- @@ @@ The color of the bottom (or main body) of the page background gradient in dark mode.
+* ダークモード使用時のページの背景グラデーションの終了色 (ページのメイン部分の背景色)。
+ * デフォルト値　(ダークモード): @@ @@ {{@@var(--dark-bg-2)@@}}
+
+* **{{@@--dark-bg-1@@}}** @@ @@ -- @@ @@ ダークモード使用時の全要素に適用される2種類の背景色の1つ。
+ * デフォルト値 (ダークモード): @@ @@ {{#21252E}}
+
+* **{{@@--dark-bg-2@@}}** @@ @@ -- @@ @@ ダークモード使用時の全要素に適用される2種類の背景色の1つ。
+ * デフォルト値 (ダークモード): @@ @@ {{#2F333C}}
+
+* **{{@@--dark-txt-color@@}}** @@ @@ -- @@ @@ ダークモード使用時の標準の文字色。
+ * デフォルト値 (ダークモード): @@ @@ {{#EDEDED}}
+
+[[/div]]
+[[/<]]
+[[/collapsible]]
+
+[[collapsible show="+ 書体設定" hide="- 書体設定"]]
+[[<]]
+[[div class="note"]]
+
+**書体設定**
+
+* **{{@@--head-font@@}}** @@ @@ -- @@ @@ ヘッダーと見出しに適用されるフォント。
+ * デフォルト値: @@ @@ {{Lexend}} / {{M PLUS 1p}} (日本語)
+
+* **{{@@--page-font@@}}** @@ @@ -- @@ @@ ページコンテンツに適用されるフォント。
+ * デフォルト値: @@ @@ {{Inter}} / {{游ゴシック体}} (日本語)
+
+* **{{@@--ui-font@@}}** @@ @@ -- @@ @@ ページコンテンツ以外のインターフェース要素に適用されるフォント。
+ * デフォルト値: @@ @@ {{Sofia Sans}} / {{Noto Sans JP}} (日本語)
+
+* **{{@@--mono-font@@}}** @@ @@ -- @@ @@ ページソースの閲覧・編集時のボックスに適用されるフォント。
+ * デフォルト値: @@ @@ {{JetBrains Mono}}
+
+* **{{@@--base-font-size@@}}** @@ @@ -- @@ @@ ページコンテンツ以外のインターフェース要素の文字サイズ
+ * デフォルト値: @@ @@ {{0.9rem}}
+
+* **{{@@--page-font-size@@}}** @@ @@ -- @@ @@ ページコンテンツの文字サイズ。
+ * デフォルト値: @@ @@ {{0.84rem}}
+
+[[/div]]
+[[/<]]
+[[/collapsible]]
+[[/=]]
+
+= @@ @@
+
+= @@ @@
+
+[[=]]
++ [[size 150%]]##crimson|3## @@ @@ 要素[[/size]]
+[[/=]]
+
+------
+
+= @@ @@
+
+[[=]]
+++ 3##crimson|.1## @@ @@ @@ @@ div要素
+[[/=]]
+
+= このテーマで新しく追加される、あるいは改変されるdivブロックです。
+
+= @@ @@
+
+[[div class="blockquote"]]
+= **{{##333|@@[[div class="blockquote"]]@@##}}**
+[[/div]]
+
+[[div class="modal"]]
+= **{{##333|@@[[div class="modal"]]@@##}}**
+[[/div]]
+
+[[div class="jotting"]]
+= **{{##333|@@[[div class="jotting"]]@@##}}**
+[[/div]]
+
+[[div class="paper"]]
+= **{{##333|@@[[div class="paper"]]@@##}}**
+[[/div]]
+
+[[div class="notation"]]
+= **{{##333|@@[[div class="notation"]]@@##}}**
+[[/div]]
+
+= @@ @@
+
+= @@ @@
+
+[[=]]
+++ 3##crimson|.2## @@ @@ @@ @@ 彩色
+[[/=]]
+
+= **{{tableX}}**クラスのdivタグで囲むことで、様々な要素に彩色を施すことができます。
+
+[[div style="display: flex; justify-content: center;"]]
+[[div]]
+**{{table1}}**は**緑色**に対応しており、
+**{{table2}}**は**青色**に対応しており、
+**{{table3}}**は**黄色**に対応しており、
+**{{table4}}**は**橙色**に対応しており、
+**{{table5}}**は**赤色**に対応しており、
+**{{table6}}**は**紫色**に対応しています。
+[[/div]]
+[[/div]]
+
+この仕組みは[[[anomaly-classification-system-guid|アノマリー分類システム]]]のカラーパレットに紐づけて、各色が異なるセキュリティクリアランスレベルを表すようにデザインされました。
+
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+[[div]]
+||~ 通常のテーブル ||
+||= ここに文章 ||
+||= ここに文章 ||
+||= ここに文章 ||
+[[/div]]
+
+[[div class="table2"]]
+||~ **{{table2}}**クラスのテーブル ||
+||= ここに文章 ||
+||= ここに文章 ||
+||= ここに文章 ||
+[[/div]]
+
+[[div class="table5"]]
+||~ **{{table5}}**クラスのテーブル ||
+||= ここに文章 ||
+||= ここに文章 ||
+||= ここに文章 ||
+[[/div]]
+[[/div]]
+
+= @@ @@
+
+[[div style="display: flex; flex-direction: row; justify-content: space-evenly; flex-wrap: wrap;"]]
+
+[[div class="blockquote" style="width: fit-content; margin: auto;"]]
+= 通常の引用ブロック
+[[/div]]
+
+[[div class="blockquote table1" style="width: fit-content; margin: auto;"]]
+= **{{table1}}**クラス付きの引用ブロック
+[[/div]]
+
+[[div class="blockquote table3" style="width: fit-content; margin: auto;"]]
+= **{{table3}}**クラス付きの引用ブロック
+[[/div]]
+
+[[/div]]
+
+= @@ @@
+
+= @@ @@
+
+[[=]]
+++ 3##crimson|.3## @@ @@ @@ @@ その他
+[[/=]]
+
+= オマケのヒントをいくつか。
+
+= @@ @@
+
+* Collapsibles, heavily styled in this theme, can be reverted back their original look if wrapped inside a div with the **{{default-col}}** class.
+* テーマによって装飾された折り畳みリンクは、**{{default-col}}**クラスのdivタグで囲むことで元の外見に戻すことができます。
+
+[[div style="display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap; text-align: center;"]]
+
+[[div style="margin: 10px;"]]
+[[collapsible]]
+あのイーハトーヴォの
+[[/collapsible]]
+[[/div]]
+
+[[div class="default-col" style="padding-bottom: 4px; padding-left: 7px; padding-right: 9px; margin: 15px 10px;"]]
+[[collapsible]]
+すきとおった風
+[[/collapsible]]
+[[/div]]
+
+[[/div]]
+
+= @@ @@
+
+* ほとんどの要素は、**{{round}}**クラスを付けたり**{{round}}**クラスのdivタグで囲んだりすることで角丸にすることができます。
+
+[[div class="blockquote" style="margin-top: 2rem;"]]
+= 通常の引用ブロック
+[[/div]]
+
+[[div class="blockquote round"]]
+= 角丸の引用ブロック
+[[/div]]
+
+= @@ @@
+
+* **{{##green|hidetitle=a##}}**設定を適用することで、ページタイトルを非表示化できます。
+
+* **{{##green|wide=a##}}**設定を適用することで、ページの横幅が広くなります。ただし、サイドボックスがある場合には干渉する可能性があります。(サイドボックス自体はこのテーマであらかじめ利用可能になっています)
+
+* **{{##green|verdana=a##}}**設定を適用することで、メインフォントをテーマ適用前のものに戻すことができます。
+
+* **{{##green|infostyle=a##}}**設定を適用することで、クレジットモジュールをInfoモジュールと似た外見に変更できます。Infoモジュールとは併用しないでください。
+
+= @@ @@
+
+= @@ @@
+
+= @@ @@
+
+[[div style="height: 10px; border-radius: 10px; background-image: linear-gradient(to right, rgb(237, 34, 36), rgb(243, 91, 34), rgb(249, 150, 33), rgb(245, 193, 30), rgb(241, 235, 27) 27%, rgb(241, 235, 27), rgb(241, 235, 27) 33%, rgb(99, 199, 32), rgb(12, 155, 73), rgb(33, 135, 141), rgb(57, 84, 165), rgb(97, 55, 155), rgb(147, 40, 142));"]]
+[[/div]]
+
+= @@ @@
+
+[[=]]
+[[collapsible show="+ ソースコードを表示" hide="- 閉じる"]]
+= @@ @@
+
+[[div style="display: none"]]
+
+[[<]]
+
+[[/<]]
+[[/div]]
+
+
+
+
+[[/collapsible]]
+[[/=]]
+
+
+>[[ift{$wide}gs -テーマ]]
+>
+
+>
+>[[/ift{$wide}gs]]
+
+>[[ift{$hidetitle}gs -テーマ]]
+>
+
+>
+>[[/ift{$hidetitle}gs]]
+
+>[[ift{$verdana}gs -テーマ]]
+>
+
+>
+>[[/ift{$verdana}gs]]
+
+
+>THEME VARIANTS
+
+>[[ift{$canada}gs -テーマ]]
+>
+
+>
+>[[/ift{$canada}gs]]
+
+>[[ift{$poland}gs -テーマ]]
+>
+
+>
+>[[/ift{$poland}gs]]
+
+>[[ift{$slothspit}gs -テーマ]]
+>
+
+>
+>[[/ift{$slothspit}gs]]
+
+>[[ift{$vanguard}gs -テーマ]]
+>
+
+>
+>[[/ift{$vanguard}gs]]
+
+>[[ift{$threshold}gs -テーマ]]
+>
+
+>
+>[[/ift{$threshold}gs]]
+
+>[[ift{$overwatch}gs -テーマ]]
+>
+
+>
+>[[/ift{$overwatch}gs]]
+
+>[[ift{$wyoming}gs -テーマ]]
+>
+
+>
+>[[/ift{$wyoming}gs]]
+
+>[[ift{$spc}gs -テーマ]]
+>
+
+>
+>[[/ift{$spc}gs]]
+
+>[[ift{$fishing}gs -テーマ]]
+>
+
+>
+>[[/ift{$fishing}gs]]
+
+>[[ift{$nightfall}gs -テーマ]]
+>
+
+>
+>[[/ift{$nightfall}gs]]
+
+>[[ift{$hybrasil}gs -テーマ]]
+>
+
+>
+>[[/ift{$hybrasil}gs]]
+
+>[[ift{$goc}gs -テーマ]]
+>
+
+>
+>[[/ift{$goc}gs]]
+
+>[[ift{$spooky}gs -テーマ]]
+>
+
+>
+>[[/ift{$spooky}gs]]
+
+>[[ift{$dark}gs -テーマ]]
+>
+
+
+
+
+>
+>[[/ift{$dark}gs]]
+
+>[[ift{$infostyle}gs -テーマ]]
+>
+
+>
+>[[/ift{$infostyle}gs]]
+
+>[[/ift{$dark}gs]]
+>[[/ift{$canada}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$slothspit}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$poland}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$vanguard}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$threshold}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$overwatch}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$wyoming}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$spc}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$fishing}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$nightfall}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$hybrasil}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$goc}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$spooky}gs]]
+>
+
+
+>
+
+>[[/ift{$dark}gs]]
+>[[/ift{$infostyle}gs]]
+>
+
+>
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

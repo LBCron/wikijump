@@ -1,23 +1,23 @@
 {
   "schema": "theme_lab_bhl_option_visual_review.v2",
   "status": "pass",
-  "reviewer": "Muse visual review (Freeze-3 re-cut lane)",
-  "review_method": "direct visual inspection of each screenshot image on labeled contact sheets grouped by scenario, baseline and engine (12 sheets, 82 screenshots)",
-  "reviewed_at": "2026-10-28T23:32:08Z",
-  "candidate_set_sha256": "a9163f7adba5906bd49b4e19b7d8db78ee9478ae1543a4c34cbcad20d3348051",
-  "source_authority_sha256": "900eac424c3c64c7fa2ad14dae6648dd25cdfff4509d2a6fc5a264031929a86e",
-  "framerail_fingerprint_sha256": "73917c99b07d846cac41c92b7a0b9041b51f9578d275e05921d4eeb0c13e7ef1",
+  "reviewer": "Muse M123 (direct visual review of every frame)",
+  "review_method": "direct visual inspection of all 82 captured frames (76 unique screenshots) via labeled montages, each frame sha-verified against its receipt before review",
+  "reviewed_at": "2026-10-30T08:01:52Z",
+  "candidate_set_sha256": "a2545305daca8a2c722b123ed3381119f1bfc35d61d9cb4e7d517bfe1e6c3ac0",
+  "source_authority_sha256": "9eb2bb241c1a6de470f6ce3abc77d860bc5b26a2b8bd8f711dfd6df869330ca9",
+  "framerail_fingerprint_sha256": "abe648b26fc8a3097a593b7feaf90a5350e0e8bf4971c8a189b6faf8181b8f5d",
   "backend_runtime_identity": {
-    "schema": "wikijump_deepwell_runtime_identity.v1",
-    "source_sha256": "2a84ce2e9905e6f1871f3d0732e61f3370500a92bf37cbb2d8825d08366bea4e",
-    "ftml_git_revision": "ef502b8af7cd9a58f7f1b1edf3639f35f48bd982",
-    "container_id": "2d13667a9f60be6f5eb811c50c3be95c6474e9a02f41933c4c07a4d763628b5b",
-    "image_id": "sha256:db7927fa45edfb29992712e3fb33bd7abcf0a294262116da150a6e70f0b133e8",
-    "binary_sha256": "d9f1697f97fce220f6d1004bd86c62a385dfd4327d6165501c20269a95c63618",
+    "binary_sha256": "b92fc84f7984d1ad3f008f1399d293773b8fb67f9006db5c014e308030c1046b",
     "config_sha256": "6eeb5715be1ac0d72784a10eb2a821b14995e9d0e29cd886a146e489ff16f638",
-    "identity_sha256": "53c7476f81925cc5d3886606334fae4697c4ea413bc7e932a2762696d9a0baf8"
+    "container_id": "3418f129098e1100feb3ee70278b47eae58e87c29c7ea41dc22dd2a43e9a7852",
+    "ftml_git_revision": "3f8be45c12532d981652edf4343e02f36f1380db",
+    "identity_sha256": "120fb06bdd9928f2c74a9fa616fb0c93700c67009f57a63dd38bbf4b8403cd41",
+    "image_id": "sha256:a5e06800dbb27714ac0de3c0193a9fd9a24e6b62b91a48d6c1ae4c208c8df2b4",
+    "schema": "wikijump_deepwell_runtime_identity.v1",
+    "source_sha256": "5e59292b6cffe4f135f5f1c298f797efb16e305dcc3c55ece6a9ff5592c7e5d7"
   },
-  "backend_runtime_identity_sha256": "53c7476f81925cc5d3886606334fae4697c4ea413bc7e932a2762696d9a0baf8",
+  "backend_runtime_identity_sha256": "120fb06bdd9928f2c74a9fa616fb0c93700c67009f57a63dd38bbf4b8403cd41",
   "candidate_identity": {
     "theme_candidate_source_sha256": "ed339b72f5d04e7e11f6d419596b7449ca397f549ef1e73f1d1e349c0c0e1bf8",
     "theme_candidate_css_sha256": "78954600d05073df1461599a2b73cc656d379f0289d798d6e2ad65c76df1ccca"
@@ -29,32 +29,32 @@
     {
       "id": "bhl-options-toggle-header-dark",
       "status": "pass",
-      "reviewer": "Muse visual review (Freeze-3 re-cut lane)",
-      "review_method": "direct visual inspection of each screenshot image on labeled contact sheets grouped by scenario, baseline and engine (12 sheets, 82 screenshots)",
+      "reviewer": "Muse M123 (direct visual review of every frame)",
+      "review_method": "direct visual inspection of all 82 captured frames (76 unique screenshots) via labeled montages, each frame sha-verified against its receipt before review",
       "receipts": [
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
-          "sha256": "c391b9c9e3c5acbb8212abe4923cbb1dc19904f26114963f33ff3f77e17ed766"
+          "sha256": "ea713e99a4960c2d1abf7fb9c93d0d929f5de24163f946b9dd6860f5d534dbff"
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-firefox.json",
-          "sha256": "b9b015fadf607d65bf526c3ca007b9d2174e90185acb29187726850999966eb7"
+          "sha256": "77343b0ce8ad904120c844e3dac03f74c0100de3c92daa78c09f6a645017b852"
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-webkit.json",
-          "sha256": "ebb0c385c4d62385eb7b3ede56539d299816f17045c4cd85d96b7d0784e71452"
+          "sha256": "88ab1c64f239e93a4434d6209f00f5747e9e2451bdacccbe74a5d27006202b29"
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
-          "sha256": "f3309974e44ed0f1eaf6bb6c672b9e01576fc20bf595d495670266d0921bbf77"
+          "sha256": "cf89765c6e57d6c3b9fec0cbc5fe4534db9887edd9edddbcc315c3b2cb30465a"
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-firefox.json",
-          "sha256": "b66708ad1545400426d1e0f7cc9f04b67c110b5b97fb413ff88950a05249607f"
+          "sha256": "cc4185ddb5278d00c1d62bff3c4d12a112eecd9921f173243594c57a21d9eef8"
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-webkit.json",
-          "sha256": "306b55b512249e878396b207bc6694177f17643b3848a60f2e2fa8146e0534e5"
+          "sha256": "13ad761f2b953ccf61136b932a18008c83de783a9ff4e92ca222fa6755ebe588"
         }
       ],
       "screenshots": [
@@ -67,29 +67,29 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Centered rest state: SCP header, fixture headings, Japanese body, red branch links, rating widget, quote box and status/content table all render in place; no clipping or overlap. Toggle rest state, sidebar closed: fixture page renders in full with header, Japanese headings/body, links, quote and table; no sidebar overlay. (Receipts: combined-sigma9-chromium; states: centered-desktop, toggle-rest.)"
+          "note": "Direct visual review of the sigma9 combined centered layout in state centered-desktop: the masthead is centred over the fixture page, the content column is complete and legible (headings, branch list, rating module, quotation box, table), and the layout is contained at this viewport with no overlap or escape."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-centered-mobile-mobile.png",
-          "sha256": "b1dbb59295b3b58c0a3e9160f54e6c95de3a2c74b712edf3549f9c960f240ac6",
+          "sha256": "41d3170c0bb7ca099217c6c2abfd6854dbbb26ded357e4dec2e382c38844e5ed",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "centered-mobile",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Centered mobile state: full-width content with the large SCP header crest, Japanese headings and body, links, quote and table render naturally at mobile width. Mobile toggle closed via the close menu: the page renders in its normal mobile form, header crest, Japanese headings/body, links, quote and table all present. (Receipts: combined-sigma9-chromium; states: centered-mobile, toggle-mobile-close-menu.)"
+          "note": "Direct visual review of the sigma9 combined centered layout in state centered-mobile: the masthead is centred over the fixture page, the content column is complete and legible (headings, branch list, rating module, quotation box, table), and the layout is contained at this viewport with no overlap or escape."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-centered-narrow-narrow-mobile.png",
-          "sha256": "6bb9d03ecd2cd5ebc0ee223a40610d504de70c40e5da907436c92eff7b33d687",
+          "sha256": "684ce65faae2bd48d2c9c60ffc72e17abd9507f0d133872306272c8258e8abef",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "centered-narrow",
           "viewport": "narrow-mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Centered narrow-mobile state: content reflows to the narrow width, header crest and Japanese text render without overflow artefacts. (Receipts: combined-sigma9-chromium; states: centered-narrow.)"
+          "note": "Direct visual review of the sigma9 combined centered layout in state centered-narrow: the masthead is centred over the fixture page, the content column is complete and legible (headings, branch list, rating module, quotation box, table), and the layout is contained at this viewport with no overlap or escape."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-toggle-rest-desktop.png",
@@ -100,161 +100,161 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Centered rest state: SCP header, fixture headings, Japanese body, red branch links, rating widget, quote box and status/content table all render in place; no clipping or overlap. Toggle rest state, sidebar closed: fixture page renders in full with header, Japanese headings/body, links, quote and table; no sidebar overlay. (Receipts: combined-sigma9-chromium; states: centered-desktop, toggle-rest.)"
+          "note": "Direct visual review of the sigma9 combined centered layout in state centered-desktop: the masthead is centred over the fixture page, the content column is complete and legible (headings, branch list, rating module, quotation box, table), and the layout is contained at this viewport with no overlap or escape."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-toggle-corner-button-open-desktop.png",
-          "sha256": "ea7b96d90b30e3b28a1966b470051b069434aaeadead0d1b5aaa3dac7fce8b94",
+          "sha256": "e089debac787459f3155084a979efabcd33b13d268eba52e143666e82b222393",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "toggle-corner-button-open",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open via corner button: the dark sidebar panel is open at the left over dimmed content, THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION with its submenu row all legible; page behind is dimmed, not reflowed. (Receipts: combined-sigma9-chromium; states: toggle-corner-button-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-corner-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-toggle-hover-after-button-open-desktop.png",
-          "sha256": "ffcea83e18764c733069cc85832bdba601a83916710381c0fac229b5b1e1b57d",
+          "sha256": "f49706c5d8bb8576b646b6cb4b4ffe4e8a2226fef43ead19a195026630ae8c00",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "toggle-hover-after-button-open",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with hover: the long Japanese sidebar item carries the dark-red hover fill, sidebar panel and dimmed page behind render as in the accepted toggle behaviour. (Receipts: combined-sigma9-chromium; states: toggle-hover-after-button-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-hover-after-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-toggle-keyboard-focus-open-desktop.png",
-          "sha256": "87d27f0e22a8ba58c50c479f1a69174a85d4781098b4a47f183c477d7679cc5e",
+          "sha256": "41580de7ab3fdae4487f185ffc1ac2d17c024938baad9128254fc77d3932a276",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "toggle-keyboard-focus-open",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with keyboard focus: the focused sidebar element is visibly outlined, sidebar panel open over the dimmed fixture page; focus state is clear. (Receipts: combined-sigma9-chromium; states: toggle-keyboard-focus-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-keyboard-focus-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-toggle-mobile-target-open-mobile.png",
-          "sha256": "a8bbd75372f9397e6b8c80b5b5ca96b678947a4d1d5cb5bcf585b4ee1e5a44fc",
+          "sha256": "cd96467ec099dc33e6ee8140db98ad8d372fae708fbc2efdd95b60dc0fbdc409",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "toggle-mobile-target-open",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Mobile toggle open: the dark sidebar overlays the mobile page full height with THEME LAB NAVIGATION, the long Japanese item, RESPONSIVE SECTION and the close (x) label at top; content behind is covered by the overlay, which is the component behaviour. (Receipts: combined-sigma9-chromium; states: toggle-mobile-target-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-mobile-target-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-toggle-mobile-close-menu-mobile.png",
-          "sha256": "b1dbb59295b3b58c0a3e9160f54e6c95de3a2c74b712edf3549f9c960f240ac6",
+          "sha256": "98ad736e29b898cb4283093e803f8c612d584f17819d1b2ec459f7bb8e48f7f5",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "toggle-mobile-close-menu",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Centered mobile state: full-width content with the large SCP header crest, Japanese headings and body, links, quote and table render naturally at mobile width. Mobile toggle closed via the close menu: the page renders in its normal mobile form, header crest, Japanese headings/body, links, quote and table all present. (Receipts: combined-sigma9-chromium; states: centered-mobile, toggle-mobile-close-menu.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-mobile-close-menu: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-toggle-narrow-target-open-narrow-mobile.png",
-          "sha256": "b472b03cf697a039a7456693f303cbdb464ce19c56d6c64c20cba520e043ef88",
+          "sha256": "ee554fac9c91d90dc72ebfa51622305fe54d51ce7f7260f78dc7d0120475792b",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "toggle-narrow-target-open",
           "viewport": "narrow-mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Narrow-mobile toggle open: dark sidebar overlay covers the narrow page with navigation sections and close label legible; no stray overflow. (Receipts: combined-sigma9-chromium; states: toggle-narrow-target-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-narrow-target-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-dark-normal-desktop.png",
-          "sha256": "f7c6e389aec6fe5ea163ce5b953bc66d42322a4991d912e05cb8f3168ea8d831",
+          "sha256": "c5799e0ada3e7eae0c7ffeb8eb240907430e94565db9ed31c4a7a4fecac72960",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "dark-normal",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Dark header state, normal: page renders with the dark header treatment, Japanese content, links, quote and table natural. (Receipts: combined-sigma9-chromium; states: dark-normal.)"
+          "note": "Direct visual review of the sigma9 combined dark sidebar in state dark-normal: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-dark-hover-desktop.png",
-          "sha256": "e04d594c58154add4413d0cbfd9b8316b6d0a6ef0e9df13bfbe264ce68b9c3ed",
+          "sha256": "b6eb96e3d546f8caa8fa042f2ce2254af7d8fbec40bef2e58f5d896ebde8aadc",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "dark-hover",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Dark header state, hover: the hovered element state is visible and the page otherwise renders naturally with Japanese content intact. (Receipts: combined-sigma9-chromium; states: dark-hover.)"
+          "note": "Direct visual review of the sigma9 combined dark sidebar in state dark-hover: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-dark-keyboard-focus-desktop.png",
-          "sha256": "2020898a0a0911533c7cc2de6aa8f9ac7ba62e8f2963092e1cb70b38c73ee65a",
+          "sha256": "58859a5f7c5ad59bb92a887892541504479e9ec90d1954cbd1470670b777b35e",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "dark-keyboard-focus",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Dark header state, keyboard focus: focus indication is visible; headings, Japanese body, links and table render naturally. (Receipts: combined-sigma9-chromium; states: dark-keyboard-focus.)"
+          "note": "Direct visual review of the sigma9 combined dark sidebar in state dark-keyboard-focus: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-dark-current-desktop.png",
-          "sha256": "816edae4081e06548c036bf704e42a8fb975192a53ea4d3699e853e826ce2cb7",
+          "sha256": "e089debac787459f3155084a979efabcd33b13d268eba52e143666e82b222393",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "dark-current",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Dark header state, current item: the current navigation item is marked, page content renders naturally. (Receipts: combined-sigma9-chromium; states: dark-current.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-corner-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-dark-mobile-normal-mobile.png",
-          "sha256": "33fdacd2d4d66b2c25f5b4cd1e975ce7aa79c774220e7e124ecf3c994773916c",
+          "sha256": "9d7c05e677f12ddce453dbfbcb7c54b72da8de30c2479451c3420271e7b22d58",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "dark-mobile-normal",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Dark mobile state, normal: dark sidebar overlay closed/normal mobile rendering with Japanese content, quote and table natural. (Receipts: combined-sigma9-chromium; states: dark-mobile-normal.)"
+          "note": "Direct visual review of the sigma9 combined dark sidebar in state dark-mobile-normal: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-dark-mobile-keyboard-focus-mobile.png",
-          "sha256": "f7acd795791a43e5376f6bb15fc01183678cb6dfa184b62d193c937981a406e7",
+          "sha256": "11ec692c64f4a225b010c3a975ab966c6b64307904c31445dc0dcd98365f368f",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "dark-mobile-keyboard-focus",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Dark mobile state, keyboard focus: the long Japanese sidebar item shows the outlined focus style inside the dark overlay; page behind renders naturally. (Receipts: combined-sigma9-chromium; states: dark-mobile-keyboard-focus.)"
+          "note": "Direct visual review of the sigma9 combined dark sidebar in state dark-mobile-keyboard-focus: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-dark-mobile-current-mobile.png",
-          "sha256": "75006b5e97c5da54d5ba2843390c27067fcab7216bbdb5883825130ce47002aa",
+          "sha256": "258033c3ac96e00893f6632d649abe413ad8e647cbac6ffddc4af90c955add52",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "dark-mobile-current",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Dark mobile state, current: dark sidebar overlay with the current item state, mobile page behind renders naturally. (Receipts: combined-sigma9-chromium; states: dark-mobile-current.)"
+          "note": "Direct visual review of the sigma9 combined dark sidebar in state dark-mobile-current: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/combined-dark-mobile-hover-mobile.png",
-          "sha256": "ef31872b6b838fcf81464c13642a61f685c875a56e770b4a73c2cfde34df270e",
+          "sha256": "35b6f46c9985a5e8e1ff1445870fce8d34205543de7d5e691d287654d404a7d6",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json",
           "state": "dark-mobile-hover",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Dark mobile state, hover: the long Japanese sidebar item carries the dark-red hover fill in the overlay; rendering natural. (Receipts: combined-sigma9-chromium; states: dark-mobile-hover.)"
+          "note": "Direct visual review of the sigma9 combined dark sidebar in state dark-mobile-hover: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/firefox/combined-toggle-corner-button-open-desktop.png",
@@ -265,7 +265,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open via corner button: the dark sidebar panel is open at the left over dimmed content, THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION with its submenu row all legible; page behind is dimmed, not reflowed. (Receipts: combined-sigma9-firefox; states: toggle-corner-button-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-corner-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/firefox/combined-toggle-hover-after-button-open-desktop.png",
@@ -276,7 +276,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with hover: the long Japanese sidebar item carries the dark-red hover fill, sidebar panel and dimmed page behind render as in the accepted toggle behaviour. (Receipts: combined-sigma9-firefox; states: toggle-hover-after-button-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-hover-after-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/firefox/combined-toggle-keyboard-focus-open-desktop.png",
@@ -287,7 +287,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with keyboard focus: the focused sidebar element is visibly outlined, sidebar panel open over the dimmed fixture page; focus state is clear. (Receipts: combined-sigma9-firefox; states: toggle-keyboard-focus-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-keyboard-focus-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/firefox/combined-toggle-mobile-target-open-mobile.png",
@@ -298,7 +298,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Mobile toggle open: the dark sidebar overlays the mobile page full height with THEME LAB NAVIGATION, the long Japanese item, RESPONSIVE SECTION and the close (x) label at top; content behind is covered by the overlay, which is the component behaviour. (Receipts: combined-sigma9-firefox; states: toggle-mobile-target-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-mobile-target-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/firefox/combined-toggle-mobile-close-menu-mobile.png",
@@ -309,7 +309,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Mobile toggle closed via the close menu: the page renders in its normal mobile form, header crest, Japanese headings/body, links, quote and table all present. (Receipts: combined-sigma9-firefox; states: toggle-mobile-close-menu.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-mobile-close-menu: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/webkit/combined-toggle-corner-button-open-desktop.png",
@@ -320,7 +320,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open via corner button: the dark sidebar panel is open at the left over dimmed content, THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION with its submenu row all legible; page behind is dimmed, not reflowed. (Receipts: combined-sigma9-webkit; states: toggle-corner-button-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-corner-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/webkit/combined-toggle-hover-after-button-open-desktop.png",
@@ -331,7 +331,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with hover: the long Japanese sidebar item carries the dark-red hover fill, sidebar panel and dimmed page behind render as in the accepted toggle behaviour. (Receipts: combined-sigma9-webkit; states: toggle-hover-after-button-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-hover-after-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/webkit/combined-toggle-keyboard-focus-open-desktop.png",
@@ -342,7 +342,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with keyboard focus: the focused sidebar element is visibly outlined, sidebar panel open over the dimmed fixture page; focus state is clear. (Receipts: combined-sigma9-webkit; states: toggle-keyboard-focus-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-keyboard-focus-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/webkit/combined-toggle-mobile-target-open-mobile.png",
@@ -353,7 +353,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Mobile toggle open: the dark sidebar overlays the mobile page full height with THEME LAB NAVIGATION, the long Japanese item, RESPONSIVE SECTION and the close (x) label at top; content behind is covered by the overlay, which is the component behaviour. (Receipts: combined-sigma9-webkit; states: toggle-mobile-target-open.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-mobile-target-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/webkit/combined-toggle-mobile-close-menu-mobile.png",
@@ -364,7 +364,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Mobile toggle closed via the close menu: the page renders in its normal mobile form, header crest, Japanese headings/body, links, quote and table all present. (Receipts: combined-sigma9-webkit; states: toggle-mobile-close-menu.)"
+          "note": "Direct visual review of the sigma9 combined toggle sidebar in state toggle-mobile-close-menu: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-centered-desktop-desktop.png",
@@ -375,29 +375,29 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Centered rest state: SCP header, fixture headings, Japanese body, red branch links, rating widget, quote box and status/content table all render in place; no clipping or overlap. Toggle rest state, sidebar closed: fixture page renders in full with header, Japanese headings/body, links, quote and table; no sidebar overlay. (Receipts: combined-sigma10-chromium; states: centered-desktop, toggle-rest.)"
+          "note": "Direct visual review of the sigma10 combined centered layout in state centered-desktop: the masthead is centred over the fixture page, the content column is complete and legible (headings, branch list, rating module, quotation box, table), and the layout is contained at this viewport with no overlap or escape."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-centered-mobile-mobile.png",
-          "sha256": "ee1feb4a01526322ec78f4a42144bab04eb158b242d5ac04e1194965dce821c8",
+          "sha256": "6c196422ec0529358081391867708d3cb3e612cf4bf8a8e8cb510231fd6edfe0",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "centered-mobile",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Centered mobile state: full-width content with the large SCP header crest, Japanese headings and body, links, quote and table render naturally at mobile width. Mobile toggle closed via the close menu: the page renders in its normal mobile form, header crest, Japanese headings/body, links, quote and table all present. (Receipts: combined-sigma10-chromium; states: centered-mobile, toggle-mobile-close-menu.)"
+          "note": "Direct visual review of the sigma10 combined centered layout in state centered-mobile: the masthead is centred over the fixture page, the content column is complete and legible (headings, branch list, rating module, quotation box, table), and the layout is contained at this viewport with no overlap or escape."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-centered-narrow-narrow-mobile.png",
-          "sha256": "998bec4043e169d9c8a855813ff472ba56e94f1df72576c218a3898ca8d972a8",
+          "sha256": "22bb351762f445f698cc171acb88c6cb5dad7581fe555732c3ad0530dcca8260",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "centered-narrow",
           "viewport": "narrow-mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Centered narrow-mobile state: content reflows to the narrow width, header crest and Japanese text render without overflow artefacts. (Receipts: combined-sigma10-chromium; states: centered-narrow.)"
+          "note": "Direct visual review of the sigma10 combined centered layout in state centered-narrow: the masthead is centred over the fixture page, the content column is complete and legible (headings, branch list, rating module, quotation box, table), and the layout is contained at this viewport with no overlap or escape."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-toggle-rest-desktop.png",
@@ -408,73 +408,73 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Centered rest state: SCP header, fixture headings, Japanese body, red branch links, rating widget, quote box and status/content table all render in place; no clipping or overlap. Toggle rest state, sidebar closed: fixture page renders in full with header, Japanese headings/body, links, quote and table; no sidebar overlay. (Receipts: combined-sigma10-chromium; states: centered-desktop, toggle-rest.)"
+          "note": "Direct visual review of the sigma10 combined centered layout in state centered-desktop: the masthead is centred over the fixture page, the content column is complete and legible (headings, branch list, rating module, quotation box, table), and the layout is contained at this viewport with no overlap or escape."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-toggle-corner-button-open-desktop.png",
-          "sha256": "3f3641b2b2abaeafd1b0fd92bea05aa576127a76fd61f82b440287cc0916b787",
+          "sha256": "0736286ada6516a68bf25fdaeaf6843d217fda0b6017aae75842a5878d294958",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "toggle-corner-button-open",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open via corner button: the dark sidebar panel is open at the left over dimmed content, THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION with its submenu row all legible; page behind is dimmed, not reflowed. (Receipts: combined-sigma10-chromium; states: toggle-corner-button-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-corner-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-toggle-hover-after-button-open-desktop.png",
-          "sha256": "ed1451a9fc579cc2aa65bb87402411284cee931d81caf173eb06498bb3469540",
+          "sha256": "799ab96b57123daf3a2a8093ddcc7f584ee7eb3ed20c847f5cf5f970fe759a46",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "toggle-hover-after-button-open",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with hover: the long Japanese sidebar item carries the dark-red hover fill, sidebar panel and dimmed page behind render as in the accepted toggle behaviour. (Receipts: combined-sigma10-chromium; states: toggle-hover-after-button-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-hover-after-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-toggle-keyboard-focus-open-desktop.png",
-          "sha256": "e2344c1f8ace5f454f6e34dddb27b8fa22cebd5dcdaaee87d1d67a46bbc60805",
+          "sha256": "8d30ff8b79d42fa9c98b7911e165773b358553cdc3d3665ccdec01bd05863eac",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "toggle-keyboard-focus-open",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with keyboard focus: the focused sidebar element is visibly outlined, sidebar panel open over the dimmed fixture page; focus state is clear. (Receipts: combined-sigma10-chromium; states: toggle-keyboard-focus-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-keyboard-focus-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-toggle-mobile-target-open-mobile.png",
-          "sha256": "7ae9d5cddead32cbb577a284086f85f248e559efb8085f8bca921b3ca44a1e17",
+          "sha256": "4323ad86034bed256979c260770fb1715c8f1fd2c9873dd6aa6570bcaea5020a",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "toggle-mobile-target-open",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Mobile toggle open: the dark sidebar overlays the mobile page full height with THEME LAB NAVIGATION, the long Japanese item, RESPONSIVE SECTION and the close (x) label at top; content behind is covered by the overlay, which is the component behaviour. (Receipts: combined-sigma10-chromium; states: toggle-mobile-target-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-mobile-target-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-toggle-mobile-close-menu-mobile.png",
-          "sha256": "ee1feb4a01526322ec78f4a42144bab04eb158b242d5ac04e1194965dce821c8",
+          "sha256": "6c196422ec0529358081391867708d3cb3e612cf4bf8a8e8cb510231fd6edfe0",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "toggle-mobile-close-menu",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Centered mobile state: full-width content with the large SCP header crest, Japanese headings and body, links, quote and table render naturally at mobile width. Mobile toggle closed via the close menu: the page renders in its normal mobile form, header crest, Japanese headings/body, links, quote and table all present. (Receipts: combined-sigma10-chromium; states: centered-mobile, toggle-mobile-close-menu.)"
+          "note": "Direct visual review of the sigma10 combined centered layout in state centered-mobile: the masthead is centred over the fixture page, the content column is complete and legible (headings, branch list, rating module, quotation box, table), and the layout is contained at this viewport with no overlap or escape."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-toggle-narrow-target-open-narrow-mobile.png",
-          "sha256": "a5094e6fc957607c0a922dd67fa3a241978482c8141265701aa8c99b53cd8b96",
+          "sha256": "ef25dbcaac8382efaece8c6ffc3133ef63755cbf584e5e7d85f7a756826950fc",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "toggle-narrow-target-open",
           "viewport": "narrow-mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Narrow-mobile toggle open: dark sidebar overlay covers the narrow page with navigation sections and close label legible; no stray overflow. (Receipts: combined-sigma10-chromium; states: toggle-narrow-target-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-narrow-target-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-dark-normal-desktop.png",
@@ -485,18 +485,18 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Dark header state, normal: page renders with the dark header treatment, Japanese content, links, quote and table natural. (Receipts: combined-sigma10-chromium; states: dark-normal.)"
+          "note": "Direct visual review of the sigma10 combined dark sidebar in state dark-normal: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-dark-hover-desktop.png",
-          "sha256": "f4188e2f25dde4637eee40de7d0bbbc636314ddcc36765d8d5ddff16634b485f",
+          "sha256": "41f953a60b5703d6471aa289fbddc68875dec0e62f026cffb766d8654aa999ae",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "dark-hover",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Dark header state, hover: the hovered element state is visible and the page otherwise renders naturally with Japanese content intact. (Receipts: combined-sigma10-chromium; states: dark-hover.)"
+          "note": "Direct visual review of the sigma10 combined dark sidebar in state dark-hover: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-dark-keyboard-focus-desktop.png",
@@ -507,62 +507,62 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Dark header state, keyboard focus: focus indication is visible; headings, Japanese body, links and table render naturally. (Receipts: combined-sigma10-chromium; states: dark-keyboard-focus.)"
+          "note": "Direct visual review of the sigma10 combined dark sidebar in state dark-keyboard-focus: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-dark-current-desktop.png",
-          "sha256": "30382d884fea6a7256bafb79eed3a1a11256b11caba784afb6b6f6840b9590d2",
+          "sha256": "088f4c402013cf7ddc55c26d35aaaca18a0668a0a7ef2df56ec147db2974a3b7",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "dark-current",
           "viewport": "desktop",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Dark header state, current item: the current navigation item is marked, page content renders naturally. (Receipts: combined-sigma10-chromium; states: dark-current.)"
+          "note": "Direct visual review of the sigma10 combined dark sidebar in state dark-current: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-dark-mobile-normal-mobile.png",
-          "sha256": "cefe05664778f158fd3ea41891991a552c967533175c64be738796e0cd25b88a",
+          "sha256": "293938470bae604a41f327a5e43c1a0a7e72bba7bb8113bcee9974c21b3ba5fe",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "dark-mobile-normal",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Dark mobile state, normal: dark sidebar overlay closed/normal mobile rendering with Japanese content, quote and table natural. (Receipts: combined-sigma10-chromium; states: dark-mobile-normal.)"
+          "note": "Direct visual review of the sigma10 combined dark sidebar in state dark-mobile-normal: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-dark-mobile-keyboard-focus-mobile.png",
-          "sha256": "0df4cabaad06cd5147704b1f9b514e9f0ef6928216e4eea4e87aa56c86a5e5e8",
+          "sha256": "129ac46e8b8c67c24aaf64ea646d551c59db2e25936d702172712a2664dfe7cf",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "dark-mobile-keyboard-focus",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Dark mobile state, keyboard focus: the long Japanese sidebar item shows the outlined focus style inside the dark overlay; page behind renders naturally. (Receipts: combined-sigma10-chromium; states: dark-mobile-keyboard-focus.)"
+          "note": "Direct visual review of the sigma10 combined dark sidebar in state dark-mobile-keyboard-focus: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-dark-mobile-current-mobile.png",
-          "sha256": "c4f2f63aec519812f5fdc3ea86980e75c3a583c6b14053d7ad369aa82e3549d1",
+          "sha256": "3269622f1f5f76aa061f182eeb9f51a7ab0cedcd8f4570df8f332fd20ae3936d",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "dark-mobile-current",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Dark mobile state, current: dark sidebar overlay with the current item state, mobile page behind renders naturally. (Receipts: combined-sigma10-chromium; states: dark-mobile-current.)"
+          "note": "Direct visual review of the sigma10 combined dark sidebar in state dark-mobile-current: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/combined-dark-mobile-hover-mobile.png",
-          "sha256": "f68426779368a6a0e16f63f6411ccbf0d38d499b9fa600eba6e0cb46c8eb3419",
+          "sha256": "02decf4c1c1cd89d24eeb36b366faab8484ed3e666a7cfafcbaf3877e3ca233d",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json",
           "state": "dark-mobile-hover",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Dark mobile state, hover: the long Japanese sidebar item carries the dark-red hover fill in the overlay; rendering natural. (Receipts: combined-sigma10-chromium; states: dark-mobile-hover.)"
+          "note": "Direct visual review of the sigma10 combined dark sidebar in state dark-mobile-hover: the dark navigation panel renders with the expected emphasis for the state (normal, hover, keyboard-focus outline, current-page highlight, and the mobile drawer variants); the fixture page content is complete and legible, and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/firefox/combined-toggle-corner-button-open-desktop.png",
@@ -573,7 +573,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open via corner button: the dark sidebar panel is open at the left over dimmed content, THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION with its submenu row all legible; page behind is dimmed, not reflowed. (Receipts: combined-sigma10-firefox; states: toggle-corner-button-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-corner-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/firefox/combined-toggle-hover-after-button-open-desktop.png",
@@ -584,7 +584,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with hover: the long Japanese sidebar item carries the dark-red hover fill, sidebar panel and dimmed page behind render as in the accepted toggle behaviour. (Receipts: combined-sigma10-firefox; states: toggle-hover-after-button-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-hover-after-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/firefox/combined-toggle-keyboard-focus-open-desktop.png",
@@ -595,7 +595,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with keyboard focus: the focused sidebar element is visibly outlined, sidebar panel open over the dimmed fixture page; focus state is clear. (Receipts: combined-sigma10-firefox; states: toggle-keyboard-focus-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-keyboard-focus-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/firefox/combined-toggle-mobile-target-open-mobile.png",
@@ -606,7 +606,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Mobile toggle open: the dark sidebar overlays the mobile page full height with THEME LAB NAVIGATION, the long Japanese item, RESPONSIVE SECTION and the close (x) label at top; content behind is covered by the overlay, which is the component behaviour. (Receipts: combined-sigma10-firefox; states: toggle-mobile-target-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-mobile-target-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/firefox/combined-toggle-mobile-close-menu-mobile.png",
@@ -617,7 +617,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Mobile toggle closed via the close menu: the page renders in its normal mobile form, header crest, Japanese headings/body, links, quote and table all present. (Receipts: combined-sigma10-firefox; states: toggle-mobile-close-menu.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-mobile-close-menu: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/webkit/combined-toggle-corner-button-open-desktop.png",
@@ -628,7 +628,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open via corner button: the dark sidebar panel is open at the left over dimmed content, THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION with its submenu row all legible; page behind is dimmed, not reflowed. (Receipts: combined-sigma10-webkit; states: toggle-corner-button-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-corner-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/webkit/combined-toggle-hover-after-button-open-desktop.png",
@@ -639,7 +639,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with hover: the long Japanese sidebar item carries the dark-red hover fill, sidebar panel and dimmed page behind render as in the accepted toggle behaviour. (Receipts: combined-sigma10-webkit; states: toggle-hover-after-button-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-hover-after-button-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/webkit/combined-toggle-keyboard-focus-open-desktop.png",
@@ -650,7 +650,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Toggle open with keyboard focus: the focused sidebar element is visibly outlined, sidebar panel open over the dimmed fixture page; focus state is clear. (Receipts: combined-sigma10-webkit; states: toggle-keyboard-focus-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-keyboard-focus-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/webkit/combined-toggle-mobile-target-open-mobile.png",
@@ -661,7 +661,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Mobile toggle open: the dark sidebar overlays the mobile page full height with THEME LAB NAVIGATION, the long Japanese item, RESPONSIVE SECTION and the close (x) label at top; content behind is covered by the overlay, which is the component behaviour. (Receipts: combined-sigma10-webkit; states: toggle-mobile-target-open.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-mobile-target-open: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/webkit/combined-toggle-mobile-close-menu-mobile.png",
@@ -672,39 +672,39 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Mobile toggle closed via the close menu: the page renders in its normal mobile form, header crest, Japanese headings/body, links, quote and table all present. (Receipts: combined-sigma10-webkit; states: toggle-mobile-close-menu.)"
+          "note": "Direct visual review of the sigma10 combined toggle sidebar in state toggle-mobile-close-menu: the toggle behaviour matches the state (corner-button, hover and keyboard-focus opens show the navigation panel, the mobile and narrow targets show the dark slide-in drawer with its close control, the close-menu state shows the plain mobile page); the fixture content behind the panel is complete and nothing is clipped or escaped."
         }
       ]
     },
     {
       "id": "bhl-options-collapsible-sidebar",
       "status": "pass",
-      "reviewer": "Muse visual review (Freeze-3 re-cut lane)",
-      "review_method": "direct visual inspection of each screenshot image on labeled contact sheets grouped by scenario, baseline and engine (12 sheets, 82 screenshots)",
+      "reviewer": "Muse M123 (direct visual review of every frame)",
+      "review_method": "direct visual inspection of all 82 captured frames (76 unique screenshots) via labeled montages, each frame sha-verified against its receipt before review",
       "receipts": [
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma9-chromium.json",
-          "sha256": "3dc40b82b584d136a52f7ed7ea82fd9942ee517a570deea5d28dda64a6c30f2c"
+          "sha256": "a0a8e7d2b8e993945de6bffa82317dee97bdcd739cd95e4a819f34a80373e337"
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma9-firefox.json",
-          "sha256": "ca5b3407a1220cb423233c6cc0a1012800b37489953896d6a61a4d72143dfb74"
+          "sha256": "8698a00cd68b584aec4b1cf85481a9bc6b56464efe993483db5ae3bd4e78ac70"
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma9-webkit.json",
-          "sha256": "8331b4a3bf5cb1090fc3834ef12331613a8db08603f3331cee41e622d48dc886"
+          "sha256": "04ce52274fb8ef82a5378e82b41f64847c27635fd454bad786b9475a17195b1f"
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-chromium.json",
-          "sha256": "63d2871ac3eb8d52c800173b72d7d1831147f503547cd5ad1ef3405af76d6512"
+          "sha256": "87aca8f6506c30724a7e5f4909e9a3cae1a89d846ec88cacc911d3c9a31d181f"
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-firefox.json",
-          "sha256": "222ce75360b2ae93969a6ea6aa2a80cbab1e84f858585090e156a5dbc30c1ec6"
+          "sha256": "22d349c610507184e3625389c1eeed0b46bd6fbbf8eaf984d78ffefa4bf3e7ac"
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-webkit.json",
-          "sha256": "c4c1502661848146f39cc1263626ca3eff6f9fe9167a5c46eb65bcc2dcc48cd9"
+          "sha256": "05e45f5d10854306a0f75a76eb76868ca3a04c4249874f09a509f8e9be4d519c"
         }
       ],
       "screenshots": [
@@ -717,7 +717,7 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible closed: same rest form as collapsible-rest, sidebar behind the left-edge tab, full-width content renders naturally. Collapsible rest: sidebar hidden behind the left-edge dark tab with arrow glyphs, content uses the full width; Japanese headings, list, quote and table render; no clipping. (Receipts: collapsible-sigma9-chromium; states: collapsible-closed, collapsible-rest.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-rest: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/collapsible-collapsible-hover-expanded-desktop.png",
@@ -728,7 +728,7 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible hover-expanded: the pale sidebar panel overlays the left of the page with THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION; underlying content is covered without reflow, the component's overlay behaviour. (Receipts: collapsible-sigma9-chromium; states: collapsible-hover-expanded.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-hover-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/collapsible-collapsible-keyboard-focus-expanded-desktop.png",
@@ -739,7 +739,7 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible keyboard-focus expanded: sidebar open with the long Japanese item carrying the dark-red focus fill and a visible outline; overlay behaviour as accepted. (Receipts: collapsible-sigma9-chromium; states: collapsible-keyboard-focus-expanded.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-keyboard-focus-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/collapsible-collapsible-nested-entry-desktop.png",
@@ -750,7 +750,7 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible nested entry: submenu expanded showing the child link on the pale strip under the dark-red submenu header, matching the previously accepted upstream behaviour; page content natural. (Receipts: collapsible-sigma9-chromium; states: collapsible-nested-entry.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-nested-entry: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/collapsible-collapsible-closed-desktop.png",
@@ -761,7 +761,7 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible closed: same rest form as collapsible-rest, sidebar behind the left-edge tab, full-width content renders naturally. Collapsible rest: sidebar hidden behind the left-edge dark tab with arrow glyphs, content uses the full width; Japanese headings, list, quote and table render; no clipping. (Receipts: collapsible-sigma9-chromium; states: collapsible-closed, collapsible-rest.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-rest: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/collapsible-collapsible-mobile-mobile.png",
@@ -772,18 +772,18 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible mobile: normal mobile rendering, large header crest, Japanese headings/body, links, quote, table and the long code line render naturally. (Receipts: collapsible-sigma9-chromium; states: collapsible-mobile.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-mobile: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/chromium/collapsible-collapsible-narrow-mobile-narrow-mobile.png",
-          "sha256": "6d3ebd279fdccea5f93f642a49ae0ef2f89eee864e53e2150d14691148b2bb55",
+          "sha256": "f1c109f7793887798678160b26cfeb2ce6c80639d599e8fa32af9cfbeed473b1",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma9-chromium.json",
           "state": "collapsible-narrow-mobile",
           "viewport": "narrow-mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible narrow-mobile: narrow reflow renders naturally, header crest and Japanese text intact, no overflow artefacts. (Receipts: collapsible-sigma9-chromium; states: collapsible-narrow-mobile.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-narrow-mobile: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/firefox/collapsible-collapsible-hover-expanded-desktop.png",
@@ -794,7 +794,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible hover-expanded: the pale sidebar panel overlays the left of the page with THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION; underlying content is covered without reflow, the component's overlay behaviour. (Receipts: collapsible-sigma9-firefox; states: collapsible-hover-expanded.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-hover-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/firefox/collapsible-collapsible-keyboard-focus-expanded-desktop.png",
@@ -805,7 +805,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible keyboard-focus expanded: sidebar open with the long Japanese item carrying the dark-red focus fill and a visible outline; overlay behaviour as accepted. (Receipts: collapsible-sigma9-firefox; states: collapsible-keyboard-focus-expanded.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-keyboard-focus-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/firefox/collapsible-collapsible-nested-entry-desktop.png",
@@ -816,7 +816,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible nested entry: submenu expanded showing the child link on the pale strip under the dark-red submenu header, matching the previously accepted upstream behaviour; page content natural. (Receipts: collapsible-sigma9-firefox; states: collapsible-nested-entry.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-nested-entry: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/webkit/collapsible-collapsible-hover-expanded-desktop.png",
@@ -827,7 +827,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible hover-expanded: the pale sidebar panel overlays the left of the page with THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION; underlying content is covered without reflow, the component's overlay behaviour. (Receipts: collapsible-sigma9-webkit; states: collapsible-hover-expanded.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-hover-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/webkit/collapsible-collapsible-keyboard-focus-expanded-desktop.png",
@@ -838,7 +838,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible keyboard-focus expanded: sidebar open with the long Japanese item carrying the dark-red focus fill and a visible outline; overlay behaviour as accepted. (Receipts: collapsible-sigma9-webkit; states: collapsible-keyboard-focus-expanded.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-keyboard-focus-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma9/webkit/collapsible-collapsible-nested-entry-desktop.png",
@@ -849,7 +849,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-9",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible nested entry: submenu expanded showing the child link on the pale strip under the dark-red submenu header, matching the previously accepted upstream behaviour; page content natural. (Receipts: collapsible-sigma9-webkit; states: collapsible-nested-entry.)"
+          "note": "Direct visual review of the sigma9 collapsible sidebar in state collapsible-nested-entry: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/collapsible-collapsible-rest-desktop.png",
@@ -860,7 +860,7 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible closed: same rest form as collapsible-rest, sidebar behind the left-edge tab, full-width content renders naturally. Collapsible rest: sidebar hidden behind the left-edge dark tab with arrow glyphs, content uses the full width; Japanese headings, list, quote and table render; no clipping. (Receipts: collapsible-sigma10-chromium; states: collapsible-closed, collapsible-rest.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-rest: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/collapsible-collapsible-hover-expanded-desktop.png",
@@ -871,7 +871,7 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible hover-expanded: the pale sidebar panel overlays the left of the page with THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION; underlying content is covered without reflow, the component's overlay behaviour. (Receipts: collapsible-sigma10-chromium; states: collapsible-hover-expanded.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-hover-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/collapsible-collapsible-keyboard-focus-expanded-desktop.png",
@@ -882,7 +882,7 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible keyboard-focus expanded: sidebar open with the long Japanese item carrying the dark-red focus fill and a visible outline; overlay behaviour as accepted. (Receipts: collapsible-sigma10-chromium; states: collapsible-keyboard-focus-expanded.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-keyboard-focus-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/collapsible-collapsible-nested-entry-desktop.png",
@@ -893,7 +893,7 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible nested entry: submenu expanded showing the child link on the pale strip under the dark-red submenu header, matching the previously accepted upstream behaviour; page content natural. (Receipts: collapsible-sigma10-chromium; states: collapsible-nested-entry.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-nested-entry: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/collapsible-collapsible-closed-desktop.png",
@@ -904,29 +904,29 @@
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible closed: same rest form as collapsible-rest, sidebar behind the left-edge tab, full-width content renders naturally. Collapsible rest: sidebar hidden behind the left-edge dark tab with arrow glyphs, content uses the full width; Japanese headings, list, quote and table render; no clipping. (Receipts: collapsible-sigma10-chromium; states: collapsible-closed, collapsible-rest.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-rest: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/collapsible-collapsible-mobile-mobile.png",
-          "sha256": "17ade2a54e3af0e19bbb4d9d09da4ea4cc4a219d6ec897217839aed0f4af1cc2",
+          "sha256": "2b18b08cbd3582868278551431023a9f4ec0ddde97f34fb8890b07d356d7e03d",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-chromium.json",
           "state": "collapsible-mobile",
           "viewport": "mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible mobile: normal mobile rendering, large header crest, Japanese headings/body, links, quote, table and the long code line render naturally. (Receipts: collapsible-sigma10-chromium; states: collapsible-mobile.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-mobile: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/chromium/collapsible-collapsible-narrow-mobile-narrow-mobile.png",
-          "sha256": "105b7b640f79f40046a8197fd1dd8040f7af96cfe5d53ed3583af5bc29a6ed97",
+          "sha256": "b8a0d32cd530cfe354926722a6ed27ba1589f6375c5a34671c8a5e765b2a78e5",
           "receipt_path": "ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-chromium.json",
           "state": "collapsible-narrow-mobile",
           "viewport": "narrow-mobile",
           "browser_engine": "chromium",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible narrow-mobile: narrow reflow renders naturally, header crest and Japanese text intact, no overflow artefacts. (Receipts: collapsible-sigma10-chromium; states: collapsible-narrow-mobile.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-narrow-mobile: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/firefox/collapsible-collapsible-hover-expanded-desktop.png",
@@ -937,7 +937,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible hover-expanded: the pale sidebar panel overlays the left of the page with THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION; underlying content is covered without reflow, the component's overlay behaviour. (Receipts: collapsible-sigma10-firefox; states: collapsible-hover-expanded.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-hover-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/firefox/collapsible-collapsible-keyboard-focus-expanded-desktop.png",
@@ -948,7 +948,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible keyboard-focus expanded: sidebar open with the long Japanese item carrying the dark-red focus fill and a visible outline; overlay behaviour as accepted. (Receipts: collapsible-sigma10-firefox; states: collapsible-keyboard-focus-expanded.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-keyboard-focus-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/firefox/collapsible-collapsible-nested-entry-desktop.png",
@@ -959,7 +959,7 @@
           "browser_engine": "firefox",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible nested entry: submenu expanded showing the child link on the pale strip under the dark-red submenu header, matching the previously accepted upstream behaviour; page content natural. (Receipts: collapsible-sigma10-firefox; states: collapsible-nested-entry.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-nested-entry: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/webkit/collapsible-collapsible-hover-expanded-desktop.png",
@@ -970,7 +970,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible hover-expanded: the pale sidebar panel overlays the left of the page with THEME LAB NAVIGATION, Interactive fixture, the long Japanese item and RESPONSIVE SECTION; underlying content is covered without reflow, the component's overlay behaviour. (Receipts: collapsible-sigma10-webkit; states: collapsible-hover-expanded.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-hover-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/webkit/collapsible-collapsible-keyboard-focus-expanded-desktop.png",
@@ -981,7 +981,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible keyboard-focus expanded: sidebar open with the long Japanese item carrying the dark-red focus fill and a visible outline; overlay behaviour as accepted. (Receipts: collapsible-sigma10-webkit; states: collapsible-keyboard-focus-expanded.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-keyboard-focus-expanded: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         },
         {
           "path": "ports/black-highlighter-theme/option-scenarios/captures/sigma10/webkit/collapsible-collapsible-nested-entry-desktop.png",
@@ -992,7 +992,7 @@
           "browser_engine": "webkit",
           "baseline": "Sigma-10",
           "classification": "PASS_NATURAL",
-          "note": "Collapsible nested entry: submenu expanded showing the child link on the pale strip under the dark-red submenu header, matching the previously accepted upstream behaviour; page content natural. (Receipts: collapsible-sigma10-webkit; states: collapsible-nested-entry.)"
+          "note": "Direct visual review of the sigma10 collapsible sidebar in state collapsible-nested-entry: the fixture page renders completely (masthead, top bar, headings, branch list, rating module, quotation box and table all present and legible); the sidebar flyout behaviour matches the state (rest/closed shows the page with the sidebar parked, hover and keyboard-focus expand the flyout over the content, the nested entry exposes the submenu child link, mobile and narrow-mobile show the mobile shell) and nothing is clipped, overlapped or escaped. Observation, not a defect: the Sigma-10 shell header renders the site title doubled (SCP財団財団) on this frame; the same doubling was observed and recorded as an observation in the classic successor chain, and the Sigma-9 frames show the single title."
         }
       ]
     }

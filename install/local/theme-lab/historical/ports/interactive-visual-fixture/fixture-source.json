@@ -1,0 +1,46 @@
+{
+  "schema": "theme_lab_interactive_fixture.v1",
+  "slug": "theme-lab-visual-acceptance-20260924",
+  "title": "SCP-JP Theme Lab Interactive Visual Fixture",
+  "source_sha256": "c4dd52bf17dfd4e8d5b2f854e5c37645027e2aae362ca6504c0fdd086aa423b8",
+  "source_bytes": 13324,
+  "variants": {
+    "normal": "fixture.wikidot.txt",
+    "no_rate": "fixture-no-rate.wikidot.txt",
+    "heritage": {
+      "source": "fixture-heritage.wikidot.txt",
+      "tag": "殿堂入り"
+    }
+  },
+  "credit_source_identity": "source-identity.json",
+  "target_version": "SIGMA9_HISTORICAL_SOURCE_WITH_SYNTHETIC_SUBSTITUTIONS",
+  "decision_authority": "SYNTHETIC_DIAGNOSTIC_ONLY",
+  "port_conclusion_eligible": false,
+  "synthetic_selectors": [
+    ".credit-back-link"
+  ],
+  "real_target_contracts": "../../fixtures/credit-targets.json",
+  "module_source_adaptation": "Credit component markup is frozen from historical Sigma-9 JP source. Remote style is flattened from credit:style; remote decorative backmodule iframes and images are represented by local equivalent text/controls so replay does not send requests. Original snapshots and hashes are retained. The iframe replacement anchor is synthetic and cannot authorize a published CSS adaptation; it is not Sigma-10 markup.",
+  "features": [
+    "Rate",
+    "historical Sigma-9 credit:start/otherwise/end markup",
+    "credit view and otherwise hash targets",
+    "Japanese reader components",
+    "TOC",
+    "tabs",
+    "collapsible",
+    "table",
+    "blockquote",
+    "code",
+    "footnote"
+  ],
+  "uncovered_features": [
+    "h3-h6 headings",
+    "ordered and nested lists",
+    "scp-image-block",
+    "wide five-column table",
+    "blockquote class",
+    "long unbroken link",
+    "bibliography module"
+  ]
+}

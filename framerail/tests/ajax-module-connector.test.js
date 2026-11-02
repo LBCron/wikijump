@@ -2514,8 +2514,6 @@ test("rejects catastrophic NewPage format patterns without running them", async 
 })
 
 test("rejects sequential quantified NewPage atoms before executing the regex", async () => {
-  // A separate quantified atom at each position can backtrack combinatorially
-  // even though the original group-local nested-quantifier check accepts it.
   for (const format of [
     `/^${"a*".repeat(12)}b$/`,
     "/^(?:a|aa)*b$/",
@@ -2701,4 +2699,131 @@ test("WikiCategoriesPageListModule rejects forged or malformed category selector
     assert.equal(body.status, "not_ok")
     assert.equal(called, false)
   }
+})
+
+test("dispatches MailForm sendForm and maps field errors in definition order", async () => {
+  let received
+  const response = await handleAjaxModuleConnectorRequest(
+    request({
+      action: "wiki/MailFormAction",
+      event: "sendForm",
+      moduleName: "Empty",
+      callbackIndex: "3",
+      wikidot_token7: "client-token",
+      formdata: JSON.stringify({ name: "abc", affiliation: "" }),
+      formdef: "6d19847ac53b5eb4cbc49cbf3e5dbb8b_1793489522"
+    }),
+    {
+      siteId: 6000006,
+      submitMailForm: async (input) => {
+        received = input
+        return {
+          status: "form_errors",
+          errors: [
+            { field: "name", message: "This field is too short." },
+            { field: "affiliation", message: "This field is required." }
+          ]
+        }
+      }
+    }
+  )
+
+  assert.equal(response.status, 200)
+  const body = await response.json()
+  assert.equal(body.status, "form_errors")
+  assert.deepEqual(body.errors, {
+    name: "This field is too short.",
+    affiliation: "This field is required."
+  })
+  assert.equal(body.callbackIndex, "3")
+  assert.equal(Number.isSafeInteger(body.CURRENT_TIMESTAMP), true)
+  assert.deepEqual(received, {
+    siteId: 6000006,
+    formdef: "6d19847ac53b5eb4cbc49cbf3e5dbb8b_1793489522",
+    values: { name: "abc", affiliation: "" }
+  })
+})
+
+test("dispatches MailForm sendForm success with the success page redirect", async () => {
+  const response = await handleAjaxModuleConnectorRequest(
+    request({
+      action: "wiki/MailFormAction",
+      event: "sendForm",
+      moduleName: "Empty",
+      callbackIndex: "0",
+      formdata: JSON.stringify({ name: "Roku" }),
+      formdef: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_42"
+    }),
+    {
+      siteId: 6000006,
+      submitMailForm: async () => ({
+        status: "ok",
+        success_msg: "<p>The form has been sent. Thank you!</p>",
+        success_page: "form-thanks"
+      })
+    }
+  )
+
+  const body = await response.json()
+  assert.equal(body.status, "ok")
+  assert.equal(body.successMsg, "<p>The form has been sent. Thank you!</p>")
+  assert.equal(body.successPage, "form-thanks")
+  assert.equal(body.callbackIndex, "0")
+  assert.equal(Number.isSafeInteger(body.CURRENT_TIMESTAMP), true)
+})
+
+test("dispatches MailForm sendForm success without a success page", async () => {
+  const response = await handleAjaxModuleConnectorRequest(
+    request({
+      action: "wiki/MailFormAction",
+      event: "sendForm",
+      moduleName: "Empty",
+      formdata: JSON.stringify({ note: "hi" }),
+      formdef: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_42"
+    }),
+    {
+      siteId: 6000006,
+      submitMailForm: async () => ({
+        status: "ok",
+        success_msg: "<p>The form has been sent. Thank you!</p>",
+        success_page: null
+      })
+    }
+  )
+
+  const body = await response.json()
+  assert.equal(body.status, "ok")
+  assert.equal(body.successMsg, "<p>The form has been sent. Thank you!</p>")
+  assert.equal("successPage" in body, false)
+})
+
+test("fails closed for unobserved MailForm shapes before Deepwell", async () => {
+  let calls = 0
+  const submitMailForm = async () => {
+    calls += 1
+    return { status: "ok" }
+  }
+  const base = {
+    action: "wiki/MailFormAction",
+    event: "sendForm",
+    moduleName: "Empty",
+    formdata: "{}",
+    formdef: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_42"
+  }
+  for (const form of [
+    { ...base, extra: "1" },
+    { ...base, moduleName: "mailform/MailFormModule" },
+    { ...base, formdata: "not json" },
+    { ...base, formdata: JSON.stringify(["name"]) },
+    { ...base, formdata: JSON.stringify({ name: 3 }) },
+    { ...base, formdef: "" }
+  ]) {
+    const response = await handleAjaxModuleConnectorRequest(request(form), {
+      siteId: 6000006,
+      submitMailForm
+    })
+    const body = await response.json()
+    assert.equal(body.status, "not_ok", JSON.stringify(form))
+  }
+  assert.equal(calls, 0)
 })

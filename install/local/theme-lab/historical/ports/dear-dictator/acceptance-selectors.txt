@@ -1,0 +1,17 @@
+#header h1 a
+#header-extra-div-1
+#extra-div-1
+#side-bar:has(.side-block)
+#page-title
+#page-content:has(.page-rate-widget-box)
+#page-content:has(.chapter)
+#page-content:has(.kim)
+#page-content:has(.blockquote)
+#page-content:has(.yui-navset)
+#page-content:has(.collapsible-block)
+#page-content:has(table)
+#content-wrap
+#main-content
+#page-content
+#footer
+#license-area

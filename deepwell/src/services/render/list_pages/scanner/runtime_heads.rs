@@ -47,10 +47,6 @@ pub(super) fn list_pages_bare_comparison_key_is_evidenced(key: &str) -> bool {
     )
 }
 
-/// Wikidot accepts the corpus-backed legacy boundary where an @URL value is
-/// closed by the quote immediately before a following created_by= pair.
-/// Keep this recovery deliberately narrow: arbitrary unbalanced quoted text
-/// remains fail-closed.
 pub(super) fn list_pages_url_quote_crossing_head_can_execute(head: &str) -> bool {
     let lower = head.to_ascii_lowercase();
     let Some(offset_start) = lower.find("offset=\"@url|") else {

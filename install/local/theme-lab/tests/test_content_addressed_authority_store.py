@@ -93,6 +93,42 @@ class AuthorityBlobStoreTests(unittest.TestCase):
         again = self.run_store('restore', apply=True, source=None, link=True)
         self.assertEqual(again['checkout_files_missing'], 0)
 
+    def test_linked_restore_does_not_hash_the_files_it_links_a_second_time(self):
+        self.run_store('ingest', apply=True)
+        with patch.object(blobs, 'verify_file', side_effect=AssertionError('relinked file was hashed again')):
+            self.run_store('restore', apply=True, source=None, link=True)
+        for rel in (self.a, self.b):
+            self.assertEqual((self.dest / rel).read_bytes(), self.body)
+
+    def test_a_blob_swapped_between_verification_and_linking_is_refused(self):
+        self.run_store('ingest', apply=True)
+        blob = blobs.blob_path(self.store, self.digest)
+        real_link = blobs.os.link
+
+        def swap_then_link(source, destination, **options):
+            replacement = blob.with_name('replacement')
+            replacement.write_bytes(b'{"swapped":"after verification"}\n')
+            replacement.chmod(0o444)
+            replacement.replace(blob)
+            return real_link(source, destination, **options)
+
+        with patch.object(blobs.os, 'link', side_effect=swap_then_link):
+            with self.assertRaisesRegex(ValueError, 'linked evidence size/SHA-256 mismatch'):
+                self.run_store('restore', apply=True, source=None, link=True)
+        self.assertFalse((self.dest / self.a).exists())
+
+    def test_a_trusted_inode_with_a_different_digest_is_still_hashed(self):
+        self.run_store('ingest', apply=True)
+        blob = blobs.blob_path(self.store, self.digest)
+        info = blob.stat()
+        destination = self.dest / 'linked.json'
+        # The identity table names this inode under another digest: not a match, so the bytes are hashed.
+        with self.assertRaisesRegex(ValueError, 'linked evidence size/SHA-256 mismatch'):
+            blobs.link_file(blob, destination, '0' * 64, info.st_size, {(info.st_dev, info.st_ino): self.digest})
+        self.assertFalse(destination.exists())
+        blobs.link_file(blob, destination, self.digest, info.st_size, {(info.st_dev, info.st_ino): self.digest})
+        self.assertEqual(destination.read_bytes(), self.body)
+
     def test_linked_restore_refuses_a_writable_blob(self):
         self.run_store('ingest', apply=True)
         blobs.blob_path(self.store, self.digest).chmod(0o644)

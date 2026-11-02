@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Pager targets and RSS-link presentation for ListPages.
-
 use super::super::compat::text_fragments::escape_html_text;
 use super::super::percent_encoding::percent_encode_path_segment;
 use super::super::service::{
@@ -149,8 +147,6 @@ pub(in crate::services::render) fn list_pages_feed_info_html(
         .rss_title
         .as_deref()
         .filter(|title| !title.is_empty())?;
-    // Keep generated feed links on the current site's origin. The feed route
-    // derives its own canonical origin from the incoming request.
     let mut url = String::from("/feed/pages");
 
     if let Some(pagetype) = arguments.rss_path.pagetype.as_deref() {

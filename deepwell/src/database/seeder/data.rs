@@ -44,45 +44,36 @@ impl SeedData {
 
         let mut path: PathBuf = directory.join("filename");
 
-        // Load user data
         let users: Vec<User> =
             Self::load_json(&mut path, "users").or_raise(make_error)?;
 
-        // Load site data
         let sites: Vec<Site> =
             Self::load_json(&mut path, "sites").or_raise(make_error)?;
 
-        // Load page data
         let mut site_pages: HashMap<String, Vec<Page>> =
             Self::load_json(&mut path, "pages").or_raise(make_error)?;
 
         for (site, pages) in &mut site_pages {
-            // Verify that the site exists
             assert!(
                 sites.iter().any(|s| &s.slug == site),
                 "No site with slug {site}",
             );
 
-            // Fetch wikitext from file
             for page in pages {
                 page.wikitext = Self::load_wikitext(&mut path, &page.wikitext_filename)
                     .or_raise(make_error)?;
             }
         }
 
-        // Load file data
         let files: HashMap<String, HashMap<String, Vec<File>>> =
             Self::load_json(&mut path, "files").or_raise(make_error)?;
 
-        // Load filter data
         let filters: Vec<Filter> =
             Self::load_json(&mut path, "filters").or_raise(make_error)?;
 
-        // Load roles template
         let roles: Vec<Role> =
             Self::load_json(&mut path, "roles").or_raise(make_error)?;
 
-        // Build and return
         Ok(SeedData {
             users,
             sites,
@@ -217,6 +208,9 @@ pub struct Page {
 
     #[serde(rename = "wikitext")]
     pub wikitext_filename: PathBuf,
+
+    #[serde(default)]
+    pub parents: Option<Vec<String>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -314,10 +308,6 @@ mod tests {
             .find(|page| page.slug == "system:list-all-pages")
             .expect("default list-all-pages page");
         assert_eq!(list_all_pages.title, "List All Pages");
-        // Frozen source: shared EN corpus capture run-20260816-100230,
-        // entity 1c9408e8-ca66-4d9e-8913-122cbb9aca6b; payload SHA-256
-        // e4e03500edf018fe7784750eaf8c78a3dbf408a0aa90bc55d0c6bb5fbfeab27a,
-        // source file SHA-256 14da20ce7b6208b5552361e71a09d214c8b5823e00c4e603d797fcf1023549a5.
         assert_eq!(
             list_all_pages.wikitext,
             "[[module ListPages separate=\"@URL\" category=\"@URL|*\" order=\"@URL|title\" perPage=\"@URL|50\"]]\n%%title_linked%%\n[[/module]]"
@@ -373,7 +363,6 @@ mod tests {
         let mut rest = wikitext;
         while let Some(offset) = find_module_open(rest) {
             let mut after = &rest[offset + "[[module".len()..];
-            // Only a whitespace boundary starts a module invocation.
             if !after.starts_with(|b: char| b.is_whitespace()) {
                 rest = after;
                 continue;
@@ -392,11 +381,6 @@ mod tests {
 
     #[test]
     fn www_platform_site_serves_new_site_system_page() {
-        // Refs #2052: the canonical platform site must resolve /new-site as
-        // the special system page whose source is [[module NewSite]], so
-        // browsers receive the NewSite runtime state instead of missing-page
-        // UI. Anonymous output is the retained Wikidot state; submission,
-        // bootstrap, and redirect remain open lifecycle work tracked there.
         let seeder_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("seeder");
         let seed = SeedData::load(&seeder_path).expect("seed data should load");
         let pages = seed.pages.get("www").expect("www platform pages");
@@ -409,14 +393,6 @@ mod tests {
 
     #[test]
     fn www_platform_pages_contain_only_owned_modules() {
-        // Refs #2064: first-party platform pages must never ship module
-        // syntax with no runtime owner. Owned here means a Deepwell runtime
-        // expansion exists: PlatformActivity and PlatformSites render from
-        // live instance state (platform_directory.rs), SearchAll renders the
-        // frozen form/unavailable contract (search_feed.rs), and SearchUsers
-        // renders through the account-module runtime (runtime_modules.rs).
-        // Adding a module to these pages without an owner must fail here
-        // instead of leaking raw [[module ...]] source to end users.
         const OWNED: &[&str] = &[
             "platformactivity",
             "platformsites",
@@ -476,7 +452,6 @@ mod tests {
             .find(|page| page.slug == "scp-3922")
             .expect("scp-3922 seed page");
         assert_eq!(scp_3922.title, "SCP-3922");
-        // Full source tag set carried into the seed (Refs #2077).
         assert_eq!(
             scp_3922.tags,
             [
@@ -499,7 +474,6 @@ mod tests {
             .find(|page| page.slug == "scp-9506")
             .expect("scp-9506 seed page");
         assert_eq!(scp_9506.title, "National Fog Safety Initiative");
-        // Full source tag set carried into the seed (Refs #2077).
         assert_eq!(
             scp_9506.tags,
             [
@@ -577,28 +551,6 @@ mod tests {
 
     #[test]
     fn mirror_seed_prefers_source_pages_over_generic_seed_pages() {
-        // Refs #2083: during mirror bootstrap a source-owned page from the
-        // imported corpus takes precedence over a generic seed page with the
-        // same slug. The scp-wiki mirror seed must therefore materialize the
-        // source title, tags, and wikitext for every slug the source site
-        // owns as a page, and must never reuse the generic seed file there.
-        //
-        // Source authority is the shared corpus (branch `en` == scp-wiki),
-        // run-20261011-230158, status active for each slug below:
-        // * system:join (entity ee8f6558-4ebc-471d-b293-cbc353250a59,
-        //   payload sha256:2c466eb6, title "Join the Site", tags
-        //   admin/policy, 15 KB custom membership guide with tabview);
-        // * system:members (entity a51810aa-071c-4030-96db-f8c0a71c6606,
-        //   payload sha256:5552baf0, title "Site Members", tags admin,
-        //   custom "+ Acceptance" section with [[module WhoInvited]]);
-        // * system:page-tags (entity 338ff32c-c525-46ff-acc7-f4a03c91df87,
-        //   payload sha256:dfd444df, title "Page Tags", tags admin, 2.4 KB
-        //   custom tag browser with TagCloud limit="2000").
-        // system:recent-changes is source-owned too (entity
-        // f9f2c958-e512-40d5-a9bc-5ccc753a53ce, payload sha256:3a601fe4),
-        // but its source (`[[module SiteChanges]]`) is byte-equivalent to
-        // the generic default, so sharing the generic seed file there is
-        // source-consistent and intentionally retained.
         let seeder_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("seeder");
         let seed = SeedData::load(&seeder_path).expect("seed data should load");
 
@@ -611,20 +563,12 @@ mod tests {
                 .unwrap_or_else(|| panic!("{site} seed page {slug}"))
         };
 
-        // Ownership table: (slug, source title, source tags, markers only
-        // the source page carries, markers only the generic seed carries).
-        // Every entry here is page-owned by the source site, so the mirror
-        // seed must carry the source page, not the generic default.
         let source_owned = [
             (
                 "system:join",
                 "Join the Site",
                 vec!["admin", "policy"],
                 vec!["[[tabview]]", "Joining the Site", "Guide for Newcomers"],
-                // NOTE: the source guide itself embeds [[module
-                // MembershipApply]] inside its application tab, so only
-                // the generic starter's instruction line and its
-                // MembershipByPassword module discriminate here.
                 vec!["Please customize this page", "MembershipByPassword"],
             ),
             (
@@ -655,9 +599,6 @@ mod tests {
                 .find(|page| page.slug == slug)
                 .unwrap_or_else(|| panic!("scp-wiki seed page {slug}"));
 
-            // The mirror must not reuse the generic seed file for a
-            // source-owned slug; it carries a mirror-specific source copy
-            // (scp-*.ftml, mirroring the scp-topbar.ftml precedent).
             assert_ne!(
                 mirror.wikitext_filename, generic.wikitext_filename,
                 "mirror {slug} must not reuse the generic seed file",
@@ -670,14 +611,11 @@ mod tests {
                 "mirror {slug} must carry a mirror-specific source copy",
             );
 
-            // Source title and tags win over the generic seed entry.
             assert_eq!(mirror.title, expected_title);
             let expected_tags: Vec<String> =
                 expected_tags.into_iter().map(str::to_owned).collect();
             assert_eq!(mirror.tags, expected_tags);
 
-            // Source content wins: source markers present, generic markers
-            // absent.
             for marker in source_markers {
                 assert!(
                     mirror.wikitext.contains(marker),
@@ -696,14 +634,9 @@ mod tests {
             );
         }
 
-        // system:recent-changes documents the byte-equivalent exception: the
-        // source page is `[[module SiteChanges]]`, so the shared generic
-        // seed file already materializes the source content.
         let mirror_changes = seed_page("scp-wiki", "system:recent-changes");
         assert_eq!(mirror_changes.wikitext.trim(), "[[module SiteChanges]]");
 
-        // Control: fresh native sites keep the generic defaults (#2066 owns
-        // their presentation, not this precedence rule).
         for site in ["template-en", "www"] {
             let generic_join = seed_page(site, "system:join");
             assert_eq!(
@@ -720,21 +653,6 @@ mod tests {
 
     #[test]
     fn mirror_seed_prefers_source_pages_for_scp_jp() {
-        // Refs #2083: the scp-jp mirror seed must carry the source-owned
-        // system pages the same way the scp-wiki seed does, so a fresh JP
-        // mirror bootstrap includes them without a separate repair import.
-        // Source authority is the shared corpus (branch `jp` == scp-jp),
-        // run-xmlrpc-resume-jp-20260807-text-only-rate1, status active:
-        // * system:join (title "SCP財団参加の手引き", tags jp/管理);
-        // * system:members (title "サイトメンバー", tags jp/管理);
-        // * system:page-tags (title "Page Tags", tags jp/管理).
-        //
-        // NOTE: this test pins the open JP-bootstrap gap and is expected
-        // to fail until JP source seed content lands (the scp-jp seed
-        // currently holds only `boundary-check`). Either mirror-specific
-        // source copies (the scp-*.ftml precedent) or a checked-in
-        // bootstrap import manifest closes it; do not weaken this test to
-        // accept the generic seed there.
         let seeder_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("seeder");
         let seed = SeedData::load(&seeder_path).expect("seed data should load");
 

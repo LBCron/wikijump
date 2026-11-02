@@ -1,12 +1,3 @@
-// V3 golden-pair comparator for the local Wikidot rendering lab.
-//
-// Compares a locally rendered page against its frozen live Wikidot capture
-// per specs/comparator-normalization.spec.md: every normalization channel is
-// declared and logged. Volatile normalization that hides a difference is a
-// finding; the only accepted exception is an explicit, allowlisted environment
-// identity translation (for example a live file host to its local file host).
-// Local output is never its own oracle — the live side always comes from the
-// frozen golden-pair evidence.
 
 export const RENDER_COMPARE_SCHEMA = 'wikijump_local_lab.render_compare.v1';
 
@@ -23,10 +14,6 @@ const PLACEHOLDER_PATTERNS = [
   /\b(?:content|page|body|text|render(?:ed|ing)?)\s+placeholder\b/i,
 ];
 
-// Declared normalization channels (spec §3). Each is independently
-// switchable; the applied set is recorded in the verdict. whitespace_collapse
-// is implemented but ships OFF by default pending the spec's open question —
-// enabling it requires an explicit flag so the decision is visible in logs.
 export const DEFAULT_CHANNELS = {
   hostname_map: true,
   request_id: true,
@@ -357,20 +344,6 @@ function uniqueLedgerRefs(entries) {
   return refs;
 }
 
-/**
- * Compare one golden pair.
- *
- * @param {object} input
- * @param {string} input.fixtureId
- * @param {string} input.sourceVisibleText  frozen live-capture visible text
- * @param {string} input.localVisibleText   locally rendered visible text
- * @param {string} [input.sourceUrl]
- * @param {string} [input.localUrl]
- * @param {string} [input.sourceArtifact]
- * @param {string} [input.localArtifact]
- * @param {object} [input.channels]         normalization channel switches
- * @param {object[]} [input.ledger]         accepted-diff ledger entries
- */
 export function comparePair(input) {
   const channels = { ...DEFAULT_CHANNELS, ...(input.channels ?? {}) };
   const ledger = input.ledger ?? [];
@@ -403,8 +376,6 @@ export function comparePair(input) {
     const normalizedLocal = normalizeText(local, channels);
     appliedChannels = normalizedSource.applied;
     if (normalizedSource.text === normalizedLocal.text) {
-      // The difference is fully explained by declared channels. Whitespace
-      // collapse hiding a visible-text difference is the spec's guard case.
       const withoutWhitespace = normalizeText(source, { ...channels, whitespace_collapse: false });
       const withoutWhitespaceLocal = normalizeText(local, { ...channels, whitespace_collapse: false });
       if (channels.whitespace_collapse && withoutWhitespace.text !== withoutWhitespaceLocal.text) {
@@ -414,8 +385,6 @@ export function comparePair(input) {
           ...firstDifference(withoutWhitespace.text, withoutWhitespaceLocal.text),
         });
       }
-      // Differences explained by non-whitespace declared channels are
-      // recorded (not silent) but do not fail the pair.
       findings.push({
         category: 'normalized_difference',
         detail: `difference explained by declared channels: ${appliedChannels.join(', ')}`,

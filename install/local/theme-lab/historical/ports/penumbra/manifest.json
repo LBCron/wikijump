@@ -1,0 +1,182 @@
+{
+  "slug": "theme:penumbra",
+  "en_source_sha256": "befb285563d3f8d956f49726d2272a051bdab6ac4b9a84dd0ba856490c0890b5",
+  "en_updated_at": "2026-04-12T05:16:38+00:00",
+  "en_entity_uuid": "94f238b1-d448-4ba2-81f6-3da09e32ab94",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "9ab03d7a81385d6867dd7cf6fabcad33b3257b8f11296479924031b9eb1cbec0",
+  "jp_previous_updated_at": "2026-09-24T17:15:44+00:00",
+  "jp_previous_entity_uuid": "bc01c0f2-dead-43d0-832c-c7a071205b12",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:penumbra",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:penumbra",
+    "title": "Penumbra Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "befb285563d3f8d956f49726d2272a051bdab6ac4b9a84dd0ba856490c0890b5",
+      "updated_at": "2026-04-12T05:16:38+00:00",
+      "entity_uuid": "94f238b1-d448-4ba2-81f6-3da09e32ab94",
+      "tags": [
+        "_cc",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 155,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:penumbra"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "9ab03d7a81385d6867dd7cf6fabcad33b3257b8f11296479924031b9eb1cbec0",
+      "updated_at": "2026-09-24T17:15:44+00:00",
+      "entity_uuid": "bc01c0f2-dead-43d0-832c-c7a071205b12",
+      "tags": [
+        "en",
+        "テーマ",
+        "要翻訳"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:penumbra"
+      },
+      "revisions": 8
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "warn",
+    "existing_jp_rebase": {
+      "previous_sha256": "f164a9b83100be37a9695d067604cc3563032bcd1cfd6016e7e5200ad21a72b7",
+      "previous_snapshot": "existing-jp-pre-rebase-20261005.wikidot.txt",
+      "current_revision": 8,
+      "current_updated_at": "2026-09-24T17:15:44+00:00",
+      "current_sha256": "9ab03d7a81385d6867dd7cf6fabcad33b3257b8f11296479924031b9eb1cbec0",
+      "diff_assessment": "provenance refresh; source freshness audit found no theme CSS/runtime behavior delta"
+    }
+  },
+  "dependencies": {
+    "slug": "theme:penumbra",
+    "en_includes": [
+      ":scp-wiki:info:start",
+      ":scp-wiki:info:more",
+      ":scp-wiki:info:end",
+      ":scp-wiki:theme:penumbra",
+      "component:image-block name= tb.png",
+      ":scp-wiki:component:toggle-sidebar",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/Josefin-Sans-Bold-Italic.woff2",
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/Josefin-Sans-Bold.woff2",
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/Josefin-Sans-Italic.woff2",
+      "https://cdn.jsdelivr.net/gh/SYwaves/Webfont-Archive@master/Josefin-Sans.woff2",
+      "https://fonts.bunny.net/css2?family=Fira+Code:wght@300..700&display=swap",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Apenumbra/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Apenumbra/logo.png"
+    ],
+    "jp_includes": [
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:theme:penumbra",
+      "component:image-block name=http://scp-jp-storage.wdfiles.com/local--files/file%3A3396310-44-yz1t/tb.png",
+      ":scp-jp:component:toggle-sidebar"
+    ],
+    "jp_external_dependencies": [
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A3396310-43-tbvr/logo.png",
+      "http://scp-jp-storage.wdfiles.com/local--files/file%3A3396310-44-yz1t/tb.png|caption=画像|width=200px",
+      "https://fonts.googleapis.com/css2?family=Fira+Code&display=swap",
+      "https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+    ],
+    "base_family": "independent"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "final_verdict": "warn",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/penumbra/assets.json",
+  "asset_dependency_decision_count": 77,
+  "interactive_acceptance": {
+    "theme_source": {
+      "path": "upstream-en.wikidot.txt",
+      "active_tags": [
+        "_cc",
+        "theme"
+      ],
+      "evidence": "Current SCP-EN page metadata tags and active CSS module; imports resolved from the existing content-addressed Theme Lab cache without network access.",
+      "candidate_tags": [
+        "テーマ"
+      ]
+    },
+    "resolved_theme_css": {
+      "source_path": "upstream-en.wikidot.txt",
+      "source_sha256": "befb285563d3f8d956f49726d2272a051bdab6ac4b9a84dd0ba856490c0890b5",
+      "active_tags": [
+        "_cc",
+        "theme"
+      ],
+      "candidate_source_sha256": "439b21910d1a4363c35845490fdc2585a286b26577c2d692f130c2f790681b9e",
+      "candidate_active_tags": [
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "2d8436acd87691323a742583e715e7f69c96bfd53c355dac5b2fe27b8ceeb5da",
+      "asset_receipt_path": "assets.json",
+      "assets": 75,
+      "imports": 2,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "d4d80ebcc0e2afb61490420a96b3f0b4cc29dfc9de532029e062af1ee80028ae",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "391cf19d439895bf739b604bf0a12cc6a8ced5002d6c7f12c4410f6b3e6dd08a",
+    "jp_overrides_sha256": "6069e2d0c6e032e781ceb1f83787a41c07c1d91307721882d0dabb5a028410e0",
+    "semantic_css_sha256": "966dced8ac45b90ebbfd3a3cc68bf5c20eee787065ae3b9f3bfc69d8f4182d33",
+    "canonical_override_sha256": "caebda19833d428725afe18e580bdafd268baa678be4e108b08ffd863a111dc9",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "5a33801752bb7e831cd7a34bb2e73a3c8cfec0555b6feb48a447ee707cb086da",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "warn",
+    "port_verdict": "pass",
+    "target_status": "warn"
+  }
+}

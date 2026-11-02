@@ -24,7 +24,6 @@ use self::data::SeedData;
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::error::prelude::*;
 use crate::runtime::ServerState;
-use crate::services::ServiceContext;
 use crate::services::alias::{AliasService, CreateAlias};
 use crate::services::domain::{CreateCustomDomain, DomainService};
 use crate::services::file::{
@@ -33,6 +32,7 @@ use crate::services::file::{
 use crate::services::filter::{CreateFilter, FilterService};
 use crate::services::page::{CreatePage, PageService};
 use crate::services::page_revision::{PageRevisionService, RerenderType};
+use crate::services::parent::ParentDescription;
 use crate::services::permission::PermissionService;
 use crate::services::relation::{
     PageAttributionEntry, PageAttributionKind, PageAttributionMetadata, RelationService,
@@ -43,6 +43,7 @@ use crate::services::role::{
 };
 use crate::services::site::{CreateSite, CreateSiteOutput, SiteService, UpdateSiteBody};
 use crate::services::user::{CreateUser, CreateUserOutput, UpdateUserBody, UserService};
+use crate::services::{ParentService, ServiceContext};
 use crate::types::{
     Action, AliasType, Maybe, PageId, Permission, Reference, RerenderDepth, Resource,
 };
@@ -58,7 +59,6 @@ use std::io::Read;
 use std::net::{IpAddr, Ipv6Addr};
 use std::path::{Path, PathBuf};
 
-/// The IP address to record for any seeded data.
 pub const SEED_IP_ADDRESS: IpAddr = IpAddr::V6(Ipv6Addr::LOCALHOST);
 
 pub async fn seed(state: &ServerState) -> Result<()> {
@@ -143,7 +143,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         info!("Creating seed user '{}' (ID {})", user.name, user.id);
 
         if user.id > 0 {
-            // Specially seeded users should have negative values.
             panic!("Seed user '{}' has positive ID {}", user.name, user.id);
         }
 
@@ -187,10 +186,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         .await
         .or_raise(make_error)?;
 
-        // Queue up aliases to add
-        //
-        // This has to be a separate list, since the alias is "added"
-        // by the "system" user, which may not have been created yet.
         user_aliases.push((user_id, user.aliases));
 
         debug!("User created with slug '{slug}'");
@@ -267,9 +262,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             );
         }
 
-        // Seeded loopback custom domains (`scp-jp.localhost`) sit beside this
-        // deployment's platform domain, so each local environment has its own
-        // names: `scp-jp.dev.localhost` beside `wikijump.dev.localhost`.
         let loopback_parent = loopback_parent(&ctx.config().main_domain_no_dot);
         let preferred_domain = site
             .preferred_domain
@@ -318,7 +310,7 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             .await
             .or_raise(make_error)?;
 
-        for page in pages {
+        for page in &pages {
             info!("Creating page '{}' (slug {})", page.title, page.slug);
             let page_created_by = page.created_by.unwrap_or(SYSTEM_USER_ID);
             let page_attribution_user_id = page.created_by.unwrap_or(site_user_id);
@@ -327,11 +319,11 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                 &ctx,
                 CreatePage {
                     site_id,
-                    wikitext: page.wikitext,
-                    title: page.title,
-                    alt_title: page.alt_title,
-                    tags: page.tags,
-                    slug: page.slug,
+                    wikitext: page.wikitext.to_owned(),
+                    title: page.title.to_owned(),
+                    alt_title: page.alt_title.to_owned(),
+                    tags: page.tags.to_owned(),
+                    slug: page.slug.to_owned(),
                     layout: None,
                     revision_comments: str!(),
                     user_id: page_created_by,
@@ -367,6 +359,31 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                     .or_raise(make_error)?;
             seeded_page_ids.push(PageId::from_page_model(&page_model));
         }
+
+        for page in pages {
+            if let Some(parents) = page.parents {
+                let page_id = page_ids
+                    .get(&(site_id, page.slug.clone()))
+                    .unwrap_or_else(|| panic!("Page {} should exist", page.slug));
+
+                for parent in parents {
+                    let parent_id = page_ids
+                        .get(&(site_id, parent.clone()))
+                        .unwrap_or_else(|| panic!("Parent page {} should exist", parent));
+
+                    ParentService::create(
+                        &ctx,
+                        ParentDescription {
+                            site_id,
+                            parent: Reference::Id(parent_id.to_owned()),
+                            child: Reference::Id(page_id.to_owned()),
+                        },
+                    )
+                    .await
+                    .or_raise(make_error)?;
+                }
+            }
+        }
     }
 
     {
@@ -376,18 +393,12 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             let make_error =
                 || Error::new("failed to load seeder file", ErrorType::DatabaseSeeder);
 
-            // Accept only bare filenames so the seeder cannot pull files from
-            // another directory.
             assert_eq!(
                 file_path.parent(),
                 Some(Path::new("")),
                 "File paths must not contain any directory component",
             );
 
-            // Then update the path and retrieve the file body.
-            //
-            // Also check the file type for safety. We're not allowing symlinks for
-            // the same reason we're not allowing non-local paths.
             buffer.push(file_path);
 
             let file_path = &buffer;
@@ -448,8 +459,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
 
                     let mut last_revision_id = file_revision_id;
 
-                    // If we are uploading an extra revision, do so now.
-                    // We can use our helper function to handle the file upload.
                     if let Some(path) = file.overwrite {
                         let data = load_file(&mut path_buffer, &path)
                             .await
@@ -480,7 +489,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
                         }
                     }
 
-                    // If we are deleting the file, do so now.
                     if file.deleted {
                         FileService::delete(
                             &ctx,
@@ -620,8 +628,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
             .await
             .or_raise(make_error)?;
 
-            // Make test user admin
-            // TODO: remove in prod
             if role_template.name == "admin" {
                 let user = UserService::get_real(&ctx, Reference::from(ADMIN_USER_ID))
                     .await
@@ -644,15 +650,6 @@ pub async fn seed(state: &ServerState) -> Result<()> {
         }
     }
 
-    // Fresh pages are first compiled while later pages/files/roles may still be absent.
-    // Recompile once after dependencies and virtual role permissions exist.
-    //
-    // Role and permission mutations normally defer permission-cache invalidation
-    // until the API wrapper commits. The seeder owns the transaction manually, so
-    // drain those Redis-side invalidations before rerendering with the final role
-    // graph. Page rerenders queued while seeding (dependents of pages created
-    // later) are covered by the full rerender below, and would otherwise run
-    // in a separate transaction that cannot see the uncommitted seed.
     let actions = ctx
         .drain_post_commit_actions()
         .or_raise(make_error)?
@@ -699,11 +696,6 @@ async fn restart_sequence_with(
         "New sequence start value {new_start_value} is not positive",
     );
 
-    // SAFETY: Like the above, except we have to bake in the integer value too because
-    //         I cannot figure out Sea-ORM's raw query parameterization.
-    //
-    //         This is unfortunate, but no positive integer value can result in a SQL injection,
-    //         and like the sequence name, this is a hardcoded value.
     run_query(
         txn,
         format!("ALTER SEQUENCE {sequence_name} RESTART WITH {new_start_value}"),
@@ -717,9 +709,6 @@ async fn restart_sequence_with(
     })
 }
 
-/// The parent of a loopback platform domain: `dev.localhost` for
-/// `wikijump.dev.localhost`, `localhost` for `wikijump.localhost`, and `None`
-/// for a public domain.
 fn loopback_parent(main_domain: &str) -> Option<&str> {
     if !main_domain.ends_with(".localhost") {
         return None;
@@ -728,7 +717,6 @@ fn loopback_parent(main_domain: &str) -> Option<&str> {
     main_domain.split_once('.').map(|(_, parent)| parent)
 }
 
-/// Moves a seeded `*.localhost` custom domain under the platform's loopback parent.
 fn rebase_loopback_domain(domain: String, loopback_parent: Option<&str>) -> String {
     match (loopback_parent, domain.strip_suffix(".localhost")) {
         (Some(parent), Some(name)) if parent != "localhost" => format!("{name}.{parent}"),

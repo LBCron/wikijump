@@ -1,20 +1,4 @@
 #!/usr/bin/env node
-// V3 golden-pair comparison (agent-runnable): compare local renders against
-// frozen live Wikidot captures from the golden-pairs catalog.
-//
-// Modes:
-//   frozen  — compare the frozen live capture against the frozen local capture
-//             (equivalence proving against the historical validator verdicts).
-//   records — compare the frozen live capture against a FRESH local capture
-//             records.json produced by capture-browser-rendering.mjs.
-//
-// Usage:
-//   compare-render-evidence.mjs --pairs <golden-pairs.catalog.json> \
-//     --output-dir <dir> [--mode frozen|records] [--records <records.json>] \
-//     [--ledger <accepted-diff-ledger.jsonl>] [--run-id <id>] \
-//     [--channel <name>=on|off ...]
-//
-// Exit codes: 0 zero regressions, 1 regressions present, 2 structural failure.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -76,8 +60,6 @@ function loadLedger(ledgerPath) {
     .map((line) => JSON.parse(line));
 }
 
-// Extract the evidence record for a fixture from a
-// wikijump_full_parity.browser_rendering_evidence.v1 records.json.
 function recordsByFixture(recordsJson) {
   const byFixture = new Map();
   for (const record of recordsJson.evidence ?? []) {
@@ -87,7 +69,6 @@ function recordsByFixture(recordsJson) {
 }
 
 function frozenRecordFor(pair, catalogDir) {
-  // evidence_directory may be relative to the catalog file (CI subset) or absolute.
   const evidenceDir = pair.evidence_directory
     ? path.resolve(catalogDir, pair.evidence_directory)
     : null;
@@ -162,7 +143,6 @@ export function main(argv) {
       2,
     ),
   );
-  // Skipped pairs are structural: the catalog promised evidence we could not read.
   return skipped.length > 0 ? 2 : exitCode;
 }
 

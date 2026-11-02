@@ -1,0 +1,180 @@
+{
+  "slug": "theme:extra-black-highlighter-theme",
+  "en_source_sha256": "7f4834eabf433320747d1334a18987e5cd9d976fba3872031e2c67cdf9ad6e31",
+  "en_updated_at": "2026-04-12T04:59:50+00:00",
+  "en_entity_uuid": "c5231e3b-aee5-4df7-8f35-594757920ae0",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "9fd030b51393568f0701d43d31f25c61ac7ad2350995f04a98e2f8d1fcedcaf5",
+  "jp_previous_updated_at": "2024-06-07T02:17:29+00:00",
+  "jp_previous_entity_uuid": "2ba3a6c7-ebdf-4d96-9c57-b12813226d43",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:extra-black-highlighter-theme",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:extra-black-highlighter-theme",
+    "title": "Extra Black Highlighter Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "7f4834eabf433320747d1334a18987e5cd9d976fba3872031e2c67cdf9ad6e31",
+      "updated_at": "2026-04-12T04:59:50+00:00",
+      "entity_uuid": "c5231e3b-aee5-4df7-8f35-594757920ae0",
+      "tags": [
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 23,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:extra-black-highlighter-theme"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "9fd030b51393568f0701d43d31f25c61ac7ad2350995f04a98e2f8d1fcedcaf5",
+      "updated_at": "2024-06-07T02:17:29+00:00",
+      "entity_uuid": "2ba3a6c7-ebdf-4d96-9c57-b12813226d43",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:extra-black-highlighter-theme"
+      }
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:extra-black-highlighter-theme",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:extra-black-highlighter-theme",
+      ":scp-wiki:component:theme-squares -=-",
+      "component:image-block name=https://scp-wiki.wikidot.com/local--files/theme:extra-black-highlighter-theme/logo.svg",
+      ":scp-wiki:component:bhl-dark-sidebar",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "https://fonts.google.com/specimen/Poppins",
+      "https://fonts.google.com/specimen/Raleway",
+      "https://fonts.google.com/specimen/Recursive",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Aextra-black-highlighter-theme/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "https://scp-wiki.wikidot.com/local--files/theme:extra-black-highlighter-theme/logo.svg|caption=SCP"
+    ],
+    "jp_includes": [
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:theme:extra-black-highlighter-theme",
+      ":scp-jp:component:theme-squares -=-",
+      "component:image-block name=https://scp-jp.github.io/Black-Highlighter/img/logo.svg",
+      ":scp-jp:component:bhl-dark-sidebar",
+      ":scp-jp:component:interwiki-style"
+    ],
+    "jp_external_dependencies": [
+      "https://fonts.google.com/specimen/Poppins",
+      "https://fonts.google.com/specimen/Raleway",
+      "https://fonts.google.com/specimen/Recursive",
+      "https://pseudo-scp-jp.wdfiles.com/local--code/theme%3Aextra-black-highlighter-theme/1",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-jp.github.io/Black-Highlighter/img/logo.svg|caption=SCP財団ロゴ|width=200px",
+      "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg"
+    ],
+    "base_family": "black-highlighter"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "candidate_source_hash": "be1822fa4b177265b411dbc7b8fd9e96acf714683c2be9021e6ad9fbe267c797",
+  "page_assets": [
+    {
+      "filename": "black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615,
+      "asset_file": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593.svg",
+      "source_urls": [
+        "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg"
+      ],
+      "acquired_from": "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/extra-black-highlighter-theme/assets.json",
+  "asset_dependency_decision_count": 40,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "b0a5bdc62ba1eccb494b073861ed269baf71c0a3549dc2a1a5c3854d9d6d4a5a",
+    "jp_overrides_sha256": "8a67450ae90b0e33c12f529cab83ffa5bd11c9e93f1842b2880188501ed529c6",
+    "semantic_css_sha256": "a376943093515308b814ef872872bd74dba1ebd2eb84e98ab66e0494dcc52e22",
+    "canonical_override_sha256": "70bab390e54cec515ab6a5ca83bb92ae41a3430b0283d274026ce9587da4443a",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "afc436072922bcaad48ebe3391402083b4f6c0bf867d78902bc38067644d0a3c",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "8dbfc268b989e2afcd15c48f446dfef150a0388569db7d2f63f6bad1eb51fa8d",
+      "active_tags": [],
+      "candidate_source_sha256": "b8753485c88e904e91db1e1d54659aca2542ad3cdb9353667d38af1527bc44f6",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 1,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "31e5af9285e5643840ab5f205e6d5d3a4a33726a4649383abc7eb1392c5ed3e9",
+      "asset_receipt_path": "assets.json",
+      "assets": 32,
+      "imports": 7,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "cd3d596a415e550ead1e145717d6d12d583f881a966bc85607571a1d0e2162e0",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

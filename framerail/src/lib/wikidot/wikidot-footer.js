@@ -2,30 +2,6 @@
 import { showWikidotReadonlyDialog } from "./wikidot-readonly-dialog.js"
 import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
 
-/**
- * Wikidot-compatible footer destinations.
- *
- * These are platform-global links: they point at Wikidot's own host and
- * never at the wiki being viewed, so they must not be fitted to any
- * captured page. The frozen live Wikidot footer for an anonymous page on
- * `sandbox-for-codex` (retained capture, 2026-09-15) and the current live
- * DOM for both SCP-Wiki and SCP-JP (`scp-173`, captured 2026-09-29) emit
- * exactly these targets, in this order:
- *
- * Help https://www.wikidot.com/doc Terms of Service
- * https://www.wikidot.com/legal:terms-of-service Privacy
- * https://www.wikidot.com/legal:privacy-policy Report a bug javascript:;
- * Flag as objectionable javascript:;
- *
- * Each anchor carries Wikidot's control id, which its hovertips attach to.
- * `Report a bug` and `Flag as objectionable` are inert anchors on Wikidot
- * too. The click runs `WIKIDOT.page.listeners.pageBugReport` /
- * `flagPageObjectionable`, which request the in-page
- * `report/BugReportModule` and `report/FlagPageModule` Ajax modules
- * instead of navigating. Reproducing the current site's root `/` for them
- * sent readers to the wrong site, which is the placeholder behaviour this
- * replaces.
- */
 export const WIKIDOT_FOOTER_LINKS = Object.freeze([
   { label: "Help", href: "https://www.wikidot.com/doc", id: "wikidot-help-button" },
   {
@@ -52,10 +28,6 @@ export const WIKIDOT_FOOTER_LINKS = Object.freeze([
   }
 ])
 
-/**
- * Japanese Wikidot footer destinations. The live SCP-JP footer captured
- * 2026-09-29 emits the same targets with the Japanese labels.
- */
 export const WIKIDOT_FOOTER_LINKS_JA = Object.freeze([
   { label: "ヘルプ", href: "https://www.wikidot.com/doc", id: "wikidot-help-button" },
   {
@@ -84,10 +56,6 @@ export const WIKIDOT_FOOTER_LINKS_JA = Object.freeze([
 
 export const WIKIDOT_POWERED_BY = "Powered by Wikidot.com"
 
-/**
- * Inline style the standard Wikidot server template puts on `#footer` and
- * its `div.options`.
- */
 export const WIKIDOT_FOOTER_STYLE = "display: block; visibility: visible;"
 
 /**
@@ -118,12 +86,6 @@ export const buildWikidotFooterHtml = (locale) => {
   )
 }
 
-/**
- * The exact inline handlers of the standard footer controls. They stay in
- * the served DOM for parity; CSP-safe bindings render evidenced read-only
- * modules. Unsupported actor/locale paths and the consent dialog stay
- * inert.
- */
 export const WIKIDOT_FOOTER_ONCLICKS = Object.freeze([
   "WIKIDOT.page.listeners.pageBugReport(event)",
   "WIKIDOT.page.listeners.flagPageObjectionable(event)",
@@ -169,7 +131,6 @@ export const wikidotFooterControls = (root, parameters = {}) => {
   }
 }
 
-// Standard public BugReportModule bodies. No report submission is made.
 const BUG_REPORT_DIALOG = Object.freeze({
   "en": '<div class="title">Bug report</div>\n<div class="content">\n\t<h1>Report a problem with Wikidot.com</h1>\n\t\n\t<p>\n\t\tIf you think you have found a bug or simply something does not work as expected,       please fill a bug report.             <br/><br/>             Currently the list of bugs is maintained at:\t</p>\n\t<p style="font-weight: bold; font-size: 180%; text-align: center">\n\t\t<a href="https://feedback.wikidot.com/">feedback.wikidot.com</a>\n\t</p>\n</div>\n<div class="button-bar">\n\t<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">Close window</a> \n</div>',
   "ja": '<div class="title">バグ報告</div>\n<div class="content">\n\t<h1>Wikidot.comに問題を報告</h1>\n\t\n\t<p>\n\t\tあなたがバグを発見したり、単に何かが期待どおりに動かない場合は、バグレポートを記入してください。<br/><br/>現在、バグリストは次の場所で管理されています:\t</p>\n\t<p style="font-weight: bold; font-size: 180%; text-align: center">\n\t\t<a href="https://feedback.wikidot.com/">feedback.wikidot.com</a>\n\t</p>\n</div>\n<div class="button-bar">\n\t<a href="javascript:;" onclick="OZONE.dialog.cleanAll()">ウィンドウを終了</a> \n</div>'
@@ -177,8 +138,6 @@ const BUG_REPORT_DIALOG = Object.freeze({
 export const buildWikidotBugReportDialogHtml = (locale) =>
   BUG_REPORT_DIALOG[isJapaneseWikidotLocale(locale) ? "ja" : "en"]
 
-// The observed anonymous English FlagPageModule denial. Authenticated
-// reporting and untranslated dialog chrome remain unsupported.
 export const WIKIDOT_ANONYMOUS_FLAG_DIALOG =
   '<div class="title modal-header">Permission error</div><div class="content modal-body"><h1>Please note:</h1><p>Please create a Wikidot account and/or sign in first</p></div><div class="button-bar modal-footer"><a href="javascript:;" class="btn btn-default button button-close-message">close message</a></div>'
 

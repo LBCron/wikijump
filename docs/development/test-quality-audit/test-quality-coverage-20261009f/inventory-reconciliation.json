@@ -1,9 +1,0 @@
-{
-  "schema": "wikijump.test_quality_coverage_inventory_reconciliation.v1",
-  "measurement_inventory_digest": "1b23d5bfa5f3efcd85bf11830af61092bec30dc332e0e603fa9ffa1cd16a34a8",
-  "current_inventory_digest": "1b23d5bfa5f3efcd85bf11830af61092bec30dc332e0e603fa9ffa1cd16a34a8",
-  "production_records_identical": true,
-  "entrypoint_paths_and_hashes_identical": true,
-  "changed_entries": [],
-  "coverage_scope_note": "All measured source records and test entrypoints bind to the same inventory digest and source revision."
-}

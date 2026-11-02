@@ -1,11 +1,3 @@
-/*
- * services/render/replay/ddmin.rs
- *
- * Deterministic line-oriented delta debugging. The caller supplies the exact
- * failure-signature predicate, so minimization cannot drift to an unrelated
- * timeout or parser error.
- */
-
 use super::model::sha256_hex;
 use futures::{StreamExt, stream};
 use std::collections::BTreeMap;
@@ -89,8 +81,6 @@ where
         }
     }
 
-    // Close the small gap left by chunk partitioning and make the artifact
-    // explicitly 1-minimal with respect to line deletion.
     while current.len() > 1 && probes < max_probes {
         let candidates = (0..current.len())
             .map(|index| {
@@ -151,9 +141,6 @@ where
             *cache_hits += 1;
             outcomes[index] = Some(*result);
         } else if let Some(indices) = waiting.get_mut(&digest) {
-            // Repeated source lines can produce the same candidate many times
-            // in one partition. One worker result is sufficient for all of
-            // them and must not consume the probe budget repeatedly.
             *cache_hits += 1;
             indices.push(index);
         } else if *probes + jobs.len() < max_probes {

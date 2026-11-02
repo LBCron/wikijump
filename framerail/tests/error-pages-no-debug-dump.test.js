@@ -18,8 +18,6 @@ test("no route dumps its page state except the explicit wiki-page debug view", (
     const source = readFileSync(file, "utf8")
     const dumps = source.split('<textarea class="debug">').length - 1
     if (dumps === 0) continue
-    // The wiki page's /debug option is the one deliberate state dump, and
-    // each occurrence sits directly under its `data.options?.debug` guard.
     assert.ok(file.endsWith("PageView.svelte"), `${file} renders a debug dump`)
     const guarded =
       source.split(

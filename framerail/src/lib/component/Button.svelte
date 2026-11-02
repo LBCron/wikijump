@@ -19,7 +19,6 @@
     href = "",
     submit = false,
 
-    // -- STYLE
     wide = false,
     primary = false,
     baseline = false,
@@ -30,50 +29,30 @@
     children,
     ...others
   }: {
-    /**
-     * If provided, the button will be displayed as an icon instead. This
-     * will replace any slotted content - it does not preprend an icon.
-     */
     i?: string
-    /** Disables the button. */
     disabled?: boolean
 
-    /** Makes the button appear in an activated state. */
     active?: boolean
 
-    /** Text displayed for the tooltip. */
     tip?: string
 
-    /** Sets the size of the button by scaling the font-size. */
     size?: string
 
-    /** If given, the button will act as a link. */
     href?: string
 
-    /** If true, the button will submit forms. */
     submit?: boolean
 
-    // -- STYLE
 
-    /** Makes the button as wide as possible. */
     wide?: boolean
 
-    /** Denotes the button as being important, which changes how it appears. */
     primary?: boolean
 
-    /** Removes most of the styling. */
     baseline?: boolean
 
-    /** Removes most of the padding around the button's icon or text. */
     compact?: boolean
 
-    /**
-     * Styles the button to be disconnected from the background. Good for
-     * buttons that are placed outside layout flow.
-     */
     floating?: boolean
 
-    /** Removes the round corners (`border-radius`) from the styling. */
     sharp?: boolean
 
     children?: Snippet
@@ -283,7 +262,6 @@
       }
     }
 
-    // click only, so not using active class
     &:active {
       &.is-baseline {
         background: var(--col-border);

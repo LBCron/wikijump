@@ -1,0 +1,61 @@
+{
+  "schema": "theme_lab_real_wikidot_authority_visual_review.v1",
+  "status": "reviewed",
+  "reviewed_at": "2026-10-30T07:41:50.000Z",
+  "reviewer": "Muse visual review",
+  "decision_authority": "REAL_WIKIDOT_TARGET_AB_VISUAL_REVIEW_ONLY",
+  "package": "flopstyle-dark",
+  "candidate_source_sha256": "4900476d5cf31e094370d52e8cb09ff1e24d939ef8edea00562658cacc07dbec",
+  "candidate_css_sha256": "4e9f17d162d5e0cf393e5a6d287c246b84efb0f82fdb97c05c56e3d537a8b446",
+  "capture_receipt": {
+    "path": "authority-evidence/flopstyle-dark-successor-sigma10-credit-otherwise-20261030/receipt.json",
+    "sha256": "e8c90207388a16dee7c71c0e5637e059cd329d5b8052fad5c198e28ff19adba2"
+  },
+  "review_scope": {
+    "url": "https://pseudo-scp-jp.wikidot.com/sigma-10:main",
+    "engine": "chromium",
+    "browser_version": "156.0.8078.73",
+    "state": [
+      "credit-otherwise"
+    ],
+    "widths": [
+      320,
+      390
+    ]
+  },
+  "reviewed_screenshots": [
+    {
+      "variant": "without",
+      "width": 320,
+      "state": "credit-otherwise",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-successor-sigma10-credit-otherwise-20261030/without-320-credit-otherwise-0.png",
+      "sha256": "430bfac2079e5865890d98129d7615075a970c85be6dc9a2411d85b860e29547"
+    },
+    {
+      "variant": "with",
+      "width": 320,
+      "state": "credit-otherwise",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-successor-sigma10-credit-otherwise-20261030/with-320-credit-otherwise-0.png",
+      "sha256": "8203e962f1caec789b2b4bac15b2544b1b9ce430fb72169c66990647d05bd005"
+    },
+    {
+      "variant": "without",
+      "width": 390,
+      "state": "credit-otherwise",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-successor-sigma10-credit-otherwise-20261030/without-390-credit-otherwise-0.png",
+      "sha256": "8bc63598306f6917e9ddaf2e287a9d1ebd4813163c8943f60a8cb33ecb15b052"
+    },
+    {
+      "variant": "with",
+      "width": 390,
+      "state": "credit-otherwise",
+      "index": 0,
+      "path": "authority-evidence/flopstyle-dark-successor-sigma10-credit-otherwise-20261030/with-390-credit-otherwise-0.png",
+      "sha256": "fd3155dcf40c785f41ffd291035b489c2472d79c984979262d02fe7202024801"
+    }
+  ],
+  "findings": "Directly inspected all four with/without credit-otherwise screenshots at 320px and 390px. With the successor V2b candidate the page renders in the Flopstyle Dark styling (dark background, pink accents); the credit attribution box is open with the complete attribution (title, original title, translator, original author, source links, years, CC BY-SA 3.0 license) legible, and the rating/return control row renders in theme styling below it. The without variant is the unchanged native rendering of the same frozen snapshot. No horizontal overflow, clipping or overlap at either width; all four measured rows pass with document width equal to the viewport width. Successor re-capture of the post-freeze binding after the #3390 candidate change, on the same retained snapshot as the Freeze-2 capture it supersedes."
+}

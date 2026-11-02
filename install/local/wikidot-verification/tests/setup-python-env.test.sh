@@ -79,7 +79,6 @@ grep -F -- "fetch --quiet --depth 1 origin aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 grep -F -- "checkout --quiet --detach FETCH_HEAD" "${FIXTURE_ROOT}/git-arguments" >/dev/null
 grep -F -- "rev-parse HEAD" "${FIXTURE_ROOT}/git-arguments" >/dev/null
 
-# Refuse to bootstrap the venv with a vulnerable uv trust bundle.
 : >"${FIXTURE_ROOT}/pip-arguments"
 : >"${FIXTURE_ROOT}/git-arguments"
 : >"${FIXTURE_ROOT}/uv-arguments"

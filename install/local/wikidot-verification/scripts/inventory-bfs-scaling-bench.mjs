@@ -1,9 +1,3 @@
-// Scaling bench for the campaign documentation inventory BFS.
-//
-// Runs buildDocumentationInventory over synthetic corpora and reports wall clock
-// plus the number of extracted reference edges.
-//
-// Usage: node install/local/wikidot-verification/scripts/inventory-bfs-scaling-bench.mjs
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -28,8 +22,6 @@ const medianMs = async (fn, samples = 5) => {
 
 const rows = [];
 
-// Fixture construction is deliberately outside the timed region; only the
-// traversal is measured.
 for (const [pages, fanIn] of [
   [200, 20],
   [400, 20],
@@ -43,8 +35,6 @@ for (const [pages, fanIn] of [
 
   const ms = await medianMs(() => buildDocumentationInventory({ docsRoot }));
 
-  // The inventory is awaited outside timing for the summary, and the assertion
-  // below re-runs it to prove the shape is what the bench claims.
   const inventory = await buildDocumentationInventory({ docsRoot });
   const edgeCount = inventory.references.length;
   const docCount = inventory.summary.inspected_document_count;

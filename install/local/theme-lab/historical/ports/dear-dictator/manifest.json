@@ -1,0 +1,33 @@
+{
+  "schema": "theme_lab_retained_source_authority.v1",
+  "source_branch": "SCP-KO",
+  "source_url": "https://scpko.wikidot.com/theme:dear-dictator",
+  "source_file": "upstream-ko.wikidot.txt",
+  "source_sha256": "c1ea9924128e15584be83c20a30866244e56561b2a18ec2151c87f7802ea0c78",
+  "source_updated_at": "2025-10-04T04:06:35+00:00",
+  "source_revision": 67,
+  "retained_capture": {
+    "capture_id": "48a76e91ebe46215d0fcdcc7674b70d4825acd54df0ac44599011ddf397aae6a",
+    "entity_id": "fbe4365b-9617-4bc5-b0be-be92ee919d94",
+    "fullname": "theme:dear-dictator",
+    "payload_sha256": "sha256:3c5fab78cde1d01f9fe6147d6ccd20588ddbdd9dbf3ff0ae463b2a835a5cc3f1",
+    "run_id": "xmlrpc-resume-ko-20260807-text-only-rate1",
+    "schema_version": 1,
+    "status": "active"
+  },
+  "reference_css": {
+    "source_url": "https://scpko.wdfiles.com/local--code/theme:dear-dictator/1",
+    "path": "upstream-ko.css",
+    "sha256": "7e0c7e90b481a27442a9c6a98820b0355d0b8042dfca59c639ba69b7efe22bd2"
+  },
+  "scope": "Freezes the existing port’s retained public corpus source and evidenced CSS import. No source refresh, browser parity certification or candidate rewrite.",
+  "final_verdict": "inconclusive",
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  }
+}

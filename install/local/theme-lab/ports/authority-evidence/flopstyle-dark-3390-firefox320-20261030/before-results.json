@@ -1,0 +1,429 @@
+{
+ "record": "flopstyle-dark Firefox narrow-mobile top-bar endpoint probe — BEFORE (pre-fix candidate)",
+ "candidate_css_sha256": "be744e1d57f1028199f07f0aee70fbd7a96a724c3627dc7a3affdbc23d99108c",
+ "runtime_backend_identity_sha256": "120fb06bdd9928f2c74a9fa616fb0c93700c67009f57a63dd38bbf4b8403cd41",
+ "framerail_fingerprint_sha256": "abe648b26fc8a3097a593b7feaf90a5350e0e8bf4971c8a189b6faf8181b8f5d",
+ "framerail_env": "prod",
+ "engine": "firefox",
+ "fixture": "run-owned:sigma10-main",
+ "page_setup": [
+  "Open https://scpaiueouiuiuiui.wikijump.localhost:3413/run-owned%3Asigma10-main in an authenticated Firefox context (external requests aborted outside the runtime origin).",
+  "Inject the run-owned:sigma10-nav-top fixture into #top-bar and run-owned:sigma10-nav-side into #side-bar; replace the header h1/h2 from fixtures/scp-jp-header.html; set the sidebar body from fixtures/scp-jp-sidebar.html and append fixtures/scp-jp-interwiki.html.",
+  "Disable the runtime Sigma-10 stylesheet link, then append one acceptance style element containing ports/interactive-visual-fixture/runtime-asset-replay.css + sigma10-migration/sigma10-offline.css + the candidate CSS under test.",
+  "Measure #top-bar .mobile-top-bar > ul: bar-list rect, and for the last and second-to-last items their li rect, link text, submenu rect and computed submenu style, in three states: settled (no hover), hoverLast (pointer over the last item's link), hoverNth (pointer over the second-to-last item's link)."
+ ],
+ "provenance": {
+  "source_file": "/tmp/m123-probe-results.json (phase-A diagnostic probe output, WSL scratch)",
+  "measured_at": "2026-10-30 ~15:58 JST (phase A of the #3390 chain, mandate 3390-diagnostic)",
+  "runtime": "wikijump-theme-lab-m123 — the same runtime and backend identity as the after measurements; the candidate was replaced between the runs (mandate 1 commit 2d8c3dfc93), the runtime was not restarted",
+  "note": "Values are copied verbatim from the phase-A probe output; off_right/off_left per submenu were derived arithmetically from the recorded rects (off_right = max(0, submenu.right - innerWidth), off_left = max(0, -submenu.x)). The documentWidth field in the source output is the raw document scrollWidth, which on this fixture includes the unrelated UL.creditRate element (right edge 521.67 at 390px) and is therefore not a top-bar containment measure; containment is judged from the element rects."
+ },
+ "measurements": {
+  "320": {
+   "settled": {
+    "innerWidth": 320,
+    "documentWidth": 518,
+    "bodyWidth": 518,
+    "barList": {
+     "x": 22.1,
+     "y": 140,
+     "width": 275.78,
+     "height": 21,
+     "right": 297.88
+    },
+    "itemCount": 4,
+    "last": {
+     "li": {
+      "x": 249.03,
+      "y": 140,
+      "width": 48.85,
+      "height": 21,
+      "right": 297.88
+     },
+     "li_text": "ガイド",
+     "submenu": {
+      "x": 156.08,
+      "y": 161,
+      "width": 141.8,
+      "height": 126,
+      "right": 297.88,
+      "off_right": 0.0,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "-92.95px",
+      "right": "0px",
+      "display": "block",
+      "visibility": "hidden",
+      "opacity": "1"
+     }
+    },
+    "nthLast2": {
+     "li": {
+      "x": 190.78,
+      "y": 140,
+      "width": 58.25,
+      "height": 21,
+      "right": 249.03
+     },
+     "li_text": "世界観",
+     "submenu": {
+      "x": 190.78,
+      "y": 161,
+      "width": 141.8,
+      "height": 273,
+      "right": 332.58,
+      "off_right": 12.58,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "0px",
+      "right": "-83.55px",
+      "display": "block",
+      "visibility": "hidden",
+      "opacity": "1"
+     }
+    }
+   },
+   "hoverLast": {
+    "innerWidth": 320,
+    "documentWidth": 518,
+    "bodyWidth": 518,
+    "barList": {
+     "x": 22.1,
+     "y": 140,
+     "width": 275.78,
+     "height": 21,
+     "right": 297.88
+    },
+    "itemCount": 4,
+    "last": {
+     "li": {
+      "x": 249.03,
+      "y": 140,
+      "width": 48.85,
+      "height": 21,
+      "right": 297.88
+     },
+     "li_text": "ガイド",
+     "submenu": {
+      "x": 141.08,
+      "y": 161,
+      "width": 156.8,
+      "height": 135.6,
+      "right": 297.88,
+      "off_right": 0.0,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "-107.95px",
+      "right": "0px",
+      "display": "block",
+      "visibility": "visible",
+      "opacity": "1"
+     }
+    },
+    "nthLast2": {
+     "li": {
+      "x": 190.78,
+      "y": 140,
+      "width": 58.25,
+      "height": 21,
+      "right": 249.03
+     },
+     "li_text": "世界観",
+     "submenu": {
+      "x": 190.78,
+      "y": 161,
+      "width": 141.8,
+      "height": 273,
+      "right": 332.58,
+      "off_right": 12.58,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "0px",
+      "right": "-83.55px",
+      "display": "block",
+      "visibility": "hidden",
+      "opacity": "1"
+     }
+    }
+   },
+   "hoverNth": {
+    "innerWidth": 320,
+    "documentWidth": 518,
+    "bodyWidth": 518,
+    "barList": {
+     "x": 22.1,
+     "y": 140,
+     "width": 275.78,
+     "height": 21,
+     "right": 297.88
+    },
+    "itemCount": 4,
+    "last": {
+     "li": {
+      "x": 249.03,
+      "y": 140,
+      "width": 48.85,
+      "height": 21,
+      "right": 297.88
+     },
+     "li_text": "ガイド",
+     "submenu": {
+      "x": 156.08,
+      "y": 161,
+      "width": 141.8,
+      "height": 126,
+      "right": 297.88,
+      "off_right": 0.0,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "-92.95px",
+      "right": "0px",
+      "display": "block",
+      "visibility": "hidden",
+      "opacity": "1"
+     }
+    },
+    "nthLast2": {
+     "li": {
+      "x": 190.78,
+      "y": 140,
+      "width": 58.25,
+      "height": 21,
+      "right": 249.03
+     },
+     "li_text": "世界観",
+     "submenu": {
+      "x": 190.78,
+      "y": 161,
+      "width": 156.8,
+      "height": 293.8,
+      "right": 347.58,
+      "off_right": 27.58,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "0px",
+      "right": "-98.55px",
+      "display": "block",
+      "visibility": "visible",
+      "opacity": "1"
+     }
+    }
+   }
+  },
+  "390": {
+   "settled": {
+    "innerWidth": 390,
+    "documentWidth": 522,
+    "bodyWidth": 522,
+    "barList": {
+     "x": 55.03,
+     "y": 140,
+     "width": 279.92,
+     "height": 21,
+     "right": 334.95
+    },
+    "itemCount": 4,
+    "last": {
+     "li": {
+      "x": 285.07,
+      "y": 140,
+      "width": 49.88,
+      "height": 21,
+      "right": 334.95
+     },
+     "li_text": "ガイド",
+     "submenu": {
+      "x": 285.07,
+      "y": 161,
+      "width": 142.83,
+      "height": 126,
+      "right": 427.9,
+      "off_right": 37.9,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "0px",
+      "right": "-92.95px",
+      "display": "block",
+      "visibility": "hidden",
+      "opacity": "1"
+     }
+    },
+    "nthLast2": {
+     "li": {
+      "x": 225.78,
+      "y": 140,
+      "width": 59.28,
+      "height": 21,
+      "right": 285.07
+     },
+     "li_text": "世界観",
+     "submenu": {
+      "x": 142.23,
+      "y": 161,
+      "width": 142.83,
+      "height": 273,
+      "right": 285.07,
+      "off_right": 0.0,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "-83.55px",
+      "right": "0px",
+      "display": "block",
+      "visibility": "hidden",
+      "opacity": "1"
+     }
+    }
+   },
+   "hoverLast": {
+    "innerWidth": 390,
+    "documentWidth": 522,
+    "bodyWidth": 522,
+    "barList": {
+     "x": 55.03,
+     "y": 140,
+     "width": 279.92,
+     "height": 21,
+     "right": 334.95
+    },
+    "itemCount": 4,
+    "last": {
+     "li": {
+      "x": 285.07,
+      "y": 140,
+      "width": 49.88,
+      "height": 21,
+      "right": 334.95
+     },
+     "li_text": "ガイド",
+     "submenu": {
+      "x": 285.07,
+      "y": 161,
+      "width": 157.83,
+      "height": 135.6,
+      "right": 442.9,
+      "off_right": 52.9,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "0px",
+      "right": "-107.95px",
+      "display": "block",
+      "visibility": "visible",
+      "opacity": "1"
+     }
+    },
+    "nthLast2": {
+     "li": {
+      "x": 225.78,
+      "y": 140,
+      "width": 59.28,
+      "height": 21,
+      "right": 285.07
+     },
+     "li_text": "世界観",
+     "submenu": {
+      "x": 142.23,
+      "y": 161,
+      "width": 142.83,
+      "height": 273,
+      "right": 285.07,
+      "off_right": 0.0,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "-83.55px",
+      "right": "0px",
+      "display": "block",
+      "visibility": "hidden",
+      "opacity": "1"
+     }
+    }
+   },
+   "hoverNth": {
+    "innerWidth": 390,
+    "documentWidth": 522,
+    "bodyWidth": 522,
+    "barList": {
+     "x": 55.03,
+     "y": 140,
+     "width": 279.92,
+     "height": 21,
+     "right": 334.95
+    },
+    "itemCount": 4,
+    "last": {
+     "li": {
+      "x": 285.07,
+      "y": 140,
+      "width": 49.88,
+      "height": 21,
+      "right": 334.95
+     },
+     "li_text": "ガイド",
+     "submenu": {
+      "x": 285.07,
+      "y": 161,
+      "width": 142.83,
+      "height": 126,
+      "right": 427.9,
+      "off_right": 37.9,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "0px",
+      "right": "-92.95px",
+      "display": "block",
+      "visibility": "hidden",
+      "opacity": "1"
+     }
+    },
+    "nthLast2": {
+     "li": {
+      "x": 225.78,
+      "y": 140,
+      "width": 59.28,
+      "height": 21,
+      "right": 285.07
+     },
+     "li_text": "世界観",
+     "submenu": {
+      "x": 127.23,
+      "y": 161,
+      "width": 157.83,
+      "height": 293.8,
+      "right": 285.07,
+      "off_right": 0.0,
+      "off_left": 0.0
+     },
+     "submenu_style": {
+      "position": "absolute",
+      "left": "-98.55px",
+      "right": "0px",
+      "display": "block",
+      "visibility": "visible",
+      "opacity": "1"
+     }
+    }
+   }
+  }
+ }
+}

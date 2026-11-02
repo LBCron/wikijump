@@ -1,0 +1,863 @@
+/* Import fonts */
+/* latin */
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: italic;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("efb7e5f4376a557314f5bb9f5197ef837d86c0ab38e1a50a0ff5c60c3400c629.woff2") format('woff2'), url("67431ee9cf055c785b9c155c6d867ac8a23078a41e654612503d7dd354a0b8c5.woff") format('woff');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: italic;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("3874c62309273fb7aea1b2cd50345557940b621b93af608538a3e6a7c6dcc31b.woff2") format('woff2'), url("c5be2b9dc19cffed9d3083122b8592c59f5d2bc92ff15cedd613d2b12fcdfd1c.woff") format('woff');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+/* latin */
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("3eb80fbca70498126925ce16ff5c20b2fa35e67ae7123ddb46302d2778dfbf0e.woff2") format('woff2'), url("b8d4d041270ccde9d545fbd465f49a1226abfd17ed1dcdaa9748bcb0ec13cac0.woff") format('woff');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("3fc071cd0f715bfcf79df9aa61fe6112278ac62f859b486d3956fe19b64a02fb.woff2") format('woff2'), url("96f816262fc291b53e2b0bf3fdf6cdb55fc9ba1e4b5af2aab68ca0a47c556a90.woff") format('woff');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+/* latin */
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("96fa63376eed93029fa2514a02f5cb80276b016e239426858787de6e794d8619.woff2") format('woff2'), url("46ef30a54b56f9ef9f6a649a92eedeb6a9c4c6ba32b8fe5a346e9bf502e05140.woff") format('woff');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("676ac40c0c9ed3a60897731cf2879f6006a17b294e423043d5a5505ae05cb9af.woff2") format('woff2'), url("1f0aa5ac15b5aad1c09b33ce2cbf0e252f00e8c647eda3ce9cc8822b7216ee00.woff") format('woff');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+
+/* latin */
+@font-face {
+  font-family: 'Prata';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("1b85a8c794709747c9f689b791984c430a2d9716a5cf9440d955bd7d20dad9d0.woff2") format('woff2'), url("0322a2e0f31cbd23714f5f4d2f23144e2a8833f3e812aa96ea0e3e3a761a607b.woff") format('woff');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* cyrillic */
+@font-face {
+  font-family: 'Prata';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3392de5a383deac60effcad2beb8b847f40eb0eb200ffd4888c3e13d6e40845f.woff2") format('woff2'), url("c635aae42f7d3bf49044dc8edcc7eb86dea7a6e91034a5b6de6b1592a533d36b.woff") format('woff');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+/* vietnamese */
+@font-face {
+  font-family: 'Prata';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("60aab7caa7ea16a76672583f1db7f2e7ea17ee205e00e1c1027a06cc548a6a9b.woff2") format('woff2'), url("7dd88bea7c898d9a0d54d942210404355376d98d5d744fc195813ce2b140c5c7.woff") format('woff');
+  unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
+}
+
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Prata';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("1a71ca94e943aac8154d195f9ea21959d374ebf3a3a9420651d0dbb46253f897.woff2") format('woff2'), url("cb62274cfb89dc846c8e785d0310efefced8e55b535f27a53a2eb75c3d986760.woff") format('woff');
+  unicode-range: U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+
+
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("a04fdaaec9f3cd46b0cb3adc3d3e35a15264664330d22c7ba688ef6ea7d02010.woff2") format('woff2'), url("30a9d5f5c0d546988132dc599aa115934bdab34a9fa76fa958200da5a7e4f4fd.woff") format('woff');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("40aab8ec6732416aaa7c4d7797d5bf49355530b6423a6e420505c743697be89d.woff2") format('woff2'), url("d3df5f286d2afa858ced9e0fe71529d7ad7ca4d16bc684ea8048fd14b09afa71.woff") format('woff');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("6fe66d1e115c07fdde1b5169c9ef2fd93653bddbf30ace6cd489c1af654b92bd.woff2") format('woff2'), url("5aa384a6259d5b2b61d3f153531d2a2a7141aacb675b00870593e98851bc757a.woff") format('woff');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("503367079264dafdda88f8bd93631965a5b1b6a3a2628db5e595280181a9b3ae.woff2") format('woff2'), url("cbb2bef71e1b9c5ffbf287f516aa1f596089096b40b7c3d922a4fdd62366f733.woff") format('woff');
+  unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
+}
+
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 300;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("9e360bb4ddffe1290bcbe2544467e11e8def35a6dfced5a9bda79c4631f066f3.woff2") format('woff2'), url("f2130abe9dceaf906fcf3ebf77b04e46e76341fe5cab2d63b93388c12623e683.woff") format('woff');
+  unicode-range: U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("d857325c360f7128b347ca924c1974967aaa886ba47dad22e4042d6c38b26a83.woff2") format('woff2'), url("97ec588256114183969b5f3d3a53ce26d9beb1f04c8373c866f318afc85638c0.woff") format('woff');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("12fe2b174f70b732553c46dae097be6a70b3f4a3d3cf305dbbbf236ac3b182b7.woff2") format('woff2'), url("e43f70482ed5f31349432c33e73a9fbf3f73491b98b2c881fa0351dbe71b4217.woff") format('woff');
+  unicode-range: U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("1d8a4af6a50cc4f7561e8484d5bff39acda90016b8e8cbb5cee69c253bb02750.woff2") format('woff2'), url("519a67a81579600b703ed5fc636a2c48b21085d948c3c7c667136b91c831b7f5.woff") format('woff');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("c4875c3754e594f283a2dbec1086da519d784f559cb7062b6d4d9721b667acd8.woff2") format('woff2'), url("b2038f48f2a9968cca1728140bd16fbed6170973909ba91d391e6c3e5e1449a4.woff") format('woff');
+  unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB;
+}
+
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("5cdc3c54c076ef8ce55a8e21e306c9a57720c48b5f77853e28a6abd62aa23c15.woff2") format('woff2'), url("9e00d8fdf9541ec2e41da6444499631de33fa2f976136adea0af76c85dc01792.woff") format('woff');
+  unicode-range: U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F;
+}
+
+
+
+/* Set the font size back to normal */
+#page-content { font-size: 1rem; }
+body { font-family: 'Libre Baskerville', serif; }
+
+/* Hide the page title. I'll make my own damned title */
+#page-title { display: none; }
+
+
+/* - == === CUSTOM SYNTAX === == - */
+
+/* The inkblot header contains the title and the info box thingy */
+.inkblot-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  position: relative;
+  margin: 1rem 0 3rem;
+  width: 100%;
+  left: 0;
+  max-width: none !important; /* override #page-content div */
+}
+@media (min-width: 768px) {
+  /* On desktop, header expands over the top of the sidebar */
+  .inkblot-header {
+    width: calc(100% + 18 * 0.82rem);
+    left: calc(-18 * 0.82rem);
+  }
+}
+
+/* The inkblot title is a grid */
+.inkblot-title {
+  flex: 1 1 0;
+  font-size: min(4rem, 10vw);
+  font-family: 'Prata', serif;
+  display: inline-grid;
+  grid-template-areas:
+    "one two"
+    "three four";
+  grid-gap: 0.1em;
+  max-width: 100%;
+  position: relative;
+  margin: 1rem;
+}
+.inkblot-title::before {
+  content: "";
+  border-radius: 74% 26% 27% 77% / 74% 38% 73% 38%;
+  background-color: var(--inkblot-accent, transparent);
+  position: absolute;
+  height: 40%; width: 100%; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) skewY(-6deg);
+  max-width: min(50vw, 80%);
+}
+.inkblot-title > * { z-index: 1; white-space: nowrap; }
+.inkblot-title .title-1 { grid-area: one; place-self: start end; }
+.inkblot-title .title-2 { grid-area: two; place-self: start start; }
+.inkblot-title .title-3 { grid-area: three; place-self: start end; }
+.inkblot-title .title-4 { grid-area: four; place-self: start start; }
+.inkblot-title p { margin: 0; line-height: 1em; text-align: center; }
+/* Italics encroach to the right a bit, so push them back */
+.inkblot-title > em, .inkblot-title .title-1 em, .inkblot-title .title-3 em {
+  position: relative;
+  left: -0.1em;
+}
+
+@media (max-width: 767px) {
+  .inkblot-title {
+    flex-basis: 100%;
+  }
+}
+
+/* The info box is itself a flex container */
+.inkblot-info {
+  flex: 1 1 0;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.inkblot-info > p {
+  min-width: 12.5rem;
+}
+/* On desktop, if the header overflows onto two rows, it will overlap the sidebar.
+ * The max-width of the info thingy is reduced so it won't be wider than #page-content.
+ * justify-content:flex-end on .inkblot-header pushes it to the right.
+ * !important to override wikidot's default max-width on everything
+ */
+@media (min-width: 768px) {
+  .inkblot-info {
+    max-width: calc(100% - 18 * 0.82rem) !important;
+  }
+}
+
+/* The image should only be styled fancy inside the info section.
+ * It could be easily modified to allow a fancy image outside of the info
+ * section, but I don't want to do that, because this arrangement is necessary
+ * for proper line-wrapping on mobile, and the misformatted image acts as a
+ * good indicator that something has gone wrong.
+ */
+.inkblot-info .inkblot-image { flex: 0 1 10rem; min-width: 10rem; }
+.inkblot-info .inkblot-image img {
+  border-radius: 65% 35% 43% 57% / 41% 35% 65% 59%;
+  box-shadow: 0.5rem 0 var(--inkblot-accent, transparent);
+  /* The height is 8rem, but I want it slightly bigger */
+  height: 10rem; width: 10rem;
+  margin: -1rem 0;
+}
+
+/* The inksplot class makes anything blobby */
+.inksplot {
+  border-width: 0.5rem;
+  border-style: solid;
+  border-color: var(--inkblot-accent); /* if no accent, will not override */
+  padding: 2rem 4rem;
+  margin: 1rem -3rem;
+  border-radius: 38% 95% 94% 42% / 62% 56% 84% 75%;
+}
+/* On mobile, the inkblot is rectangular and boring to save space */
+@media (max-width: 960px) and (min-width: 767px), (max-width: 650px) {
+  .inksplot {
+    padding: 1rem;
+    border-radius: 5rem / 3rem;
+    margin: 1rem -1rem;
+  }
+}
+
+
+/* - == === DISTRIBUTED BLOBS === == - */
+
+/* I want some blobs of colour down the page.
+ * Thankfully, Wikidot gives me some extra dives to play with:
+ * 6 in #container-wrap-wrap and 3 in #container.
+ * They are #extra(c?)-div-[1-6]. That's a lot of selectors. */
+
+#container-wrap-wrap, #container { position: relative; overflow: hidden; }
+
+/* Based on CSS by Murray Smith (CC BY-SA 3.0)
+ * https://stackoverflow.com/a/14451916/4958427 */
+
+[id^=extra][id*=-div-] {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  --content-width: min(1040px, 100vw);
+  --content-margin: calc(50vw - var(--content-width) / 2);
+  --blob-width: 30rem;
+  --blob-radius: calc(var(--blob-width) * 0.67);
+  background-color: var(--inkblot-accent, transparent);
+  top: var(--top-offset);
+  transform: rotate(var(--rotation))
+             translate(calc(var(--sin-rotation) * 0.866 * var(--blob-radius) / 2),
+                       calc(-1 * var(--cos-rotation) * 0.866 * var(--blob-radius) / 2))
+             skewX(-30deg)
+             scale(1, 0.866);
+}
+[id^=extra][id*=-div-]:before,
+[id^=extra][id*=-div-]:after {
+  content: '';
+  position: absolute;
+  background-color: inherit;
+}
+[id^=extra][id*=-div-],
+[id^=extra][id*=-div-]:before,
+[id^=extra][id*=-div-]:after {
+  width: var(--blob-width); height: var(--blob-width);
+  border-top-right-radius: 95%;
+}
+[id^=extra][id*=-div-]:before {
+  transform: rotate(-135deg) skewX(-45deg) scale(1.414, 0.707) translate(0,-50%);
+}
+[id^=extra][id*=-div-]:after {
+  transform: rotate(135deg) skewY(-45deg) scale(0.707, 1.414) translate(50%);
+}
+
+/* A lot of maths went into this.
+ * To centre a triangle onto its container, it needs the following translation:
+ * where A is the angle of rotation:
+ * x:
+ *   sin(N)
+ *   * 0.866 (scale offset)
+ *   * radius
+ *   / 2
+ * y:
+ *   -1
+ *   * cos(N)
+ *   * 0.866 (scale offset)
+ *   * radius
+ *   / 2
+ * Triangles have an order of symmetry around 120deg, so any angles above that are pointless.
+ */
+#extra-div-1,
+#extra-div-3,
+#extra-div-5,
+#extrac-div-1,
+#extrac-div-3 {
+  right: calc(var(--blob-radius) * -2 + var(--content-margin));
+}
+#extra-div-2,
+#extra-div-4,
+#extra-div-6,
+#extrac-div-2 {
+  left: calc(var(--blob-radius) * -2 + var(--content-margin));
+}
+#extra-div-1 {
+  --blob-width: 30rem;
+  --top-offset: 500px;
+  --rotation: 53.33deg; --sin-rotation: 0.802; --cos-rotation: 0.597;
+}
+#extra-div-2 {
+  --blob-width: 30rem;
+  --top-offset: 1300px;
+  --rotation: 40deg; --sin-rotation: 0.642; --cos-rotation: 0.766;
+}
+#extra-div-3 {
+  --blob-width: 20rem;
+  --top-offset: 2100px;
+  --rotation: 66.66deg; --sin-rotation: 0.918; --cos-rotation: 0.396;
+}
+#extra-div-4 {
+  --blob-width: 15rem;
+  --top-offset: 2900px;
+  --rotation: 13.33deg; --sin-rotation: 0.231; --cos-rotation: 0.973;
+}
+#extra-div-5 {
+  --blob-width: 40rem;
+  --top-offset: 3700px;
+  --rotation: 26.66deg; --sin-rotation: 0.448; --cos-rotation: 0.893;
+}
+#extra-div-6 {
+  --blob-width: 25rem;
+  --top-offset: 4500px;
+  --rotation: 106.66deg; --sin-rotation: 0.958; --cos-rotation: -0.286;
+}
+#extrac-div-1 {
+  --blob-width: 15rem;
+  --top-offset: 5300px;
+  --rotation: 93.33deg; --sin-rotation: 0.998; --cos-rotation: -0.058;
+}
+#extrac-div-2 {
+  --blob-width: 10rem;
+  --top-offset: 6100px;
+  --rotation: 120deg; --sin-rotation: 0.855; --cos-rotation: -0.500;
+}
+#extrac-div-3 {
+  --blob-width: 7rem;
+  --top-offset: 6900px;
+  --rotation: 80deg; --sin-rotation: 0.984; --cos-rotation: 0.173;
+}
+
+
+/* - == === HEADER === == - */
+
+/* Replace the header background */
+/* 324px is twice the height of the default header */
+div#container-wrap { background: url("4e7bfe524849f06dcd108d91d96d4cce886e610d4c8730a14f95461cd80ef0a5.svg") top left/100% 648px no-repeat; }
+
+#header { background: radial-gradient(circle at left 75px top 90px, var(--inkblot-accent, transparent) 42px, transparent 42.5px); }
+
+/* Replace the header text */
+/* Centre the text into the middle of the header */
+#header h1, #header h2 { margin-left: 0; float: none; text-align: center; }
+/* Move the subtitle down a smidge */
+#header h2 { margin-top: 0.3rem; }
+/* Hide the existing text */
+#header h1 span, #header h2 span { font-size: 0; }
+/* Style the new text */
+#header h1 a::before, #header h2::before {
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+  text-shadow: none;
+}
+/* Set the new text's content from variable */
+#header h1 a::before {
+  content: var(--header-title, "WALDON STUDIO");
+  font-weight: 300;
+}
+#header h2::before {
+  content: var(--header-subtitle, "connoisseurs of the unknown");
+  font-weight: 600;
+}
+
+/* Hide the search box and tuck the button next to the login */
+#search-top-box { top: 10px; transform: translateY(-7%); }
+#search-top-box-form > input[type=text] { display: none; }
+#search-top-box-form > input[type=submit] {
+  background:
+    url("c8017263e4ba079524385d1cb6f9dbd06c382977d9e66d7bb441a4a469cc8e7d.svg") 50%/0.8rem no-repeat,
+    var(--inkblot-accent, transparent)
+    !important /* don't revert on mouseover */;
+  border: none;
+  border-radius: 50%;
+  font-size: 0;
+  height: 1.5rem; width: 1.5rem;
+}
+#login-status { right: calc(10px + 2rem); color: #333a; }
+#login-status a { color: #b01a; }
+
+
+/* - == === LINKS === == - */
+
+/* Make links be a darkened version of the accent colour. If not set, the accent colour is assumed to be red because that ends up looking similar to baseline Sigma links. */
+a, a:visited, #side-bar a, #interwiki a {
+  color: color-mix(in srgb, black 25%, var(--inkblot-accent, red));
+
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.25rem;
+}
+:is(#side-bar a, #interwiki a):not(:hover) {
+  text-decoration: none;
+}
+:is(a, a:visited, #side-bar a, #interwiki a):hover {
+  text-decoration-style: solid;
+}
+
+/* - == === TOPBAR === == - */
+
+#top-bar { display: flex; justify-content: center; right: 0; }
+#top-bar a { color: #333d; }
+
+
+/* - == === SIDEBAR === == - */
+
+/* Move the side bar down, out of the way of the inkblot header */
+@media (min-width: 768px) {
+  #side-bar { top: 12rem; }
+}
+
+/* Make the sidebar look pretty */
+/* Keep the side block colours - I like them */
+#side-bar .side-block,
+#interwiki .side-block {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: none;
+}
+
+#side-bar .heading,
+#interwiki .heading {
+  margin: 0.6rem 0 0.5rem;
+  padding: 0;
+  color: #000a;
+  height: 1rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border: none;
+}
+#side-bar .heading::before,
+#side-bar .heading::after,
+#interwiki .heading::before,
+#interwiki .heading::after {
+  content: "";
+  height: 1px;
+  box-sizing: border-box;
+  border-bottom: 1px dotted #333;
+  margin: 0.1rem 0.5rem 0;
+  flex: 1 1 0;
+}
+#side-bar .menu-item > img,
+#interwiki .menu-item > img {
+  visibility: hidden;
+}
+
+#top-bar .open-menu a {
+  border-radius: 1px;
+  border: none;
+  border-left: 0.25rem solid var(--inkblot-accent, #333);
+  border-right: 1px dotted #333;
+  text-decoration: none;
+}
+@media (max-width: 767px) {
+  #side-bar {
+    background-image:
+      radial-gradient(
+        circle at left 10% top 90%,
+        var(--inkblot-accent, white) 25%,
+        transparent 25%
+      ),
+      linear-gradient(-75deg, #ccc 30%, white 30%);
+    border-right: 4px dotted #444 !important;
+    background-clip: padding-box;
+  }
+}
+
+
+/* - == === RATING MODULE === == - */
+
+.page-rate-widget-box { box-shadow: none; }
+.page-rate-widget-box {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  border-radius: 0;
+  border-width: 1px 0;
+  border-style: dotted;
+  border-color: #333;
+  padding: 0.1rem;
+  margin-right: 3rem;
+}
+div.page-rate-widget-box .rate-points,
+.page-rate-widget-box .cancel {
+  background-color: transparent;
+  border-radius: 0;
+  border: none;
+  color: #333;
+}
+.page-rate-widget-box .rateup,
+.page-rate-widget-box .ratedown {
+  background-color: var(--inkblot-accent, transparent);
+  border-radius: 50%;
+  border: none;
+  color: #333;
+  height: 1.5rem; width: 1.5rem;
+  position: relative;
+  margin-left: 0.25rem;
+}
+.page-rate-widget-box .cancel {
+  color: #333;
+  height: 1.5rem; width: 1.5rem;
+  position: relative;
+}
+.page-rate-widget-box .rateup a,
+.page-rate-widget-box .ratedown a,
+.page-rate-widget-box .cancel a {
+  position: absolute;
+  display: block;
+  top: 0; left: 0; height: 100%; width: 100%;
+  text-align: center; line-height: 1.5rem;
+  color: #333;
+  padding: 0;
+  margin: 0;
+  font-weight: bold;
+}
+.page-rate-widget-box .cancel a { color: transparent; }
+.page-rate-widget-box .cancel a::after {
+  content: "⤬";
+  position: absolute;
+  color: #333;
+  top: 0; left: 0; height: 100%; width: 100%;
+}
+.page-rate-widget-box .rateup a:hover { background-color: limegreen; }
+.page-rate-widget-box .ratedown a:hover { background-color: tomato; }
+.page-rate-widget-box .cancel a:hover {
+  color: transparent;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+/* Info module compatibility */
+/* More specific because will probably be imported before the info module */
+#page-content .rate-box-with-credit-button {
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  border-width: 1px 0;
+  border-style: dotted;
+  border-color: #333;
+  display: flex;
+  align-items: center;
+}
+.rate-box-with-credit-button .page-rate-widget-box {
+  border: none;
+}
+.creditButton {
+  height: 1rem;
+  width: 1rem;
+  background-color: var(--inkblot-accent, transparent);
+  border-radius: 50%;
+}
+#page-content .creditButton p a {
+  color: #333;
+  border: none;
+  line-height: 1rem;
+  margin-left: 0;
+}
+
+
+/* - == === IMAGE BLOCKS === == - */
+
+.scp-image-block {
+  border: none;
+  border-top: 1px dotted #333;
+  box-shadow: none;
+}
+.scp-image-block .scp-image-caption {
+  background: none;
+  border-top: solid 0.25rem var(--inkblot-accent, transparent);
+  padding-top: 0.5rem;
+  font-weight: normal;
+}
+.scp-image-block img {
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+@media (min-width: 768px) {
+  .scp-image-block.block-left {
+    margin-left: -100px;
+  }
+}
+@media (min-width: 1250px) {
+  .scp-image-block.block-right {
+    margin-right: -100px;
+  }
+}
+@media (max-width: 600px) {
+  .scp-image-block.block-left, .scp-image-block.block-right {
+    float: none; clear: both; margin-left: auto; margin-right: auto;
+  }
+}
+
+/* Compatibility with Woedenaz' Image Features
+ * http://scp-wiki.wikidot.com/component:image-features-source
+ * Image Features other than hover-to-zoom may need more fixes
+ */
+.image-hover-enlarge img {
+  box-shadow: none !important;
+}
+
+
+/* - == === OTHER STUFF === == - */
+
+li, p {
+  line-height: 1.6em;
+  letter-spacing: 0.01em;
+}
+
+#page-content h1, #page-content h2, #page-content h3,
+#page-content h4, #page-content h5, #page-content h6 {
+  font-family: 'Libre Baskerville', serif;
+  color: #333;
+  margin: 1em 0 0.5em 0;
+  letter-spacing: 0;
+}
+#page-content h1 {
+  font-family: 'Prata', serif; font-size: 3rem; text-align: center;
+}
+#page-content h2 { font-size: 2rem; font-weight: bold; }
+
+hr {
+  margin: 3rem;
+  height: 1rem;
+  background: radial-gradient(circle at center, var(--inkblot-accent, transparent) 0.375rem, transparent calc(0.375rem + 0.5px));
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+hr::before, hr::after {
+  content: "";
+  height: 1px;
+  box-sizing: border-box;
+  border-bottom: 1px dotted #333;
+  width: calc(50% - 3rem);
+}
+
+.page-tags span {
+  border-top: 1px dotted #333;
+}
+
+.footnotes-footer {
+  margin-top: 2rem;
+}
+
+#page-content {
+  margin-bottom: 2rem;
+}
+
+#footer {
+  background: transparent;
+}
+
+#footer a {
+  color: black;
+}
+
+#breadcrumbs, .pseudocrumbs {
+  display: flex;
+  flex-direction: row-reverse;
+  font-size: 0;
+  margin-top: -1rem;
+}
+#breadcrumbs a, .pseudocrumbs a {
+  font-size: 0.82rem;
+  margin-left: 0.3rem;
+}
+#breadcrumbs a::before, .pseudocrumbs a::before {
+  content: "«";
+  margin-right: 0.3rem;
+}
+
+.licensebox {
+  font-size: 0.82rem;
+  font-family: verdana, arial, helvetica, sans-serif;
+  margin: 1rem 0 -1.5rem;
+}
+
+span, a {
+  word-break: normal;
+}
+
+blockquote, div.blockquote {
+  border: none;
+  border-left: thick solid var(--inkblot-accent, #eee);
+  background: none;
+}
+
+
+:root {
+  --inkblot-accent: {$accent};
+}
+
+
+
+
+
+/* SCP-JP Wikidot Inkblot navigation correction: contain the third narrow mobile submenu. */
+@media (max-width: 359px) {
+  .mobile-top-bar > ul > li:nth-child(3) > ul { left: auto; right: 0; }
+}
+
+
+/* THEME_LAB_AUTHORITY_BLOCK_BOUNDARY */
+
+/* SCP-JP Wikidot Inkblot mobile endpoint correction: contain the last submenu at its parent right edge. */
+@media (min-width: 360px) and (max-width: 767px) {
+  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto; right: 0; }
+}
+
+
+@@
+:root {
+@@  --@@header-title: "WALDON STUDIO";
+@@  --@@header-subtitle: "我ら未知を鑑定する者";
+}
+@@
+
+@@
+/* Toggle Sidebar compatibility */
+#side-bar { top: 0; }
+.inkblot-header { width: 100%; left: 0; }
+@@

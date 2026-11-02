@@ -50,6 +50,7 @@ impl ArticlePageCache {
     pub(super) async fn metadata(
         ctx: &ServiceContext<'_>,
         input: &GetPageView,
+        public_content_cache_fence: Option<String>,
     ) -> Result<Option<ArticlePageCacheMetadata>> {
         if !matches!(input.session_token.as_deref(), None | Some("")) {
             return Ok(None);
@@ -137,9 +138,6 @@ impl ArticlePageCache {
             BlueprintPageService::get_page_template(ctx, input.site_id, category, page)
                 .await?;
 
-        // The cached view embeds the theme that SettingsService::get_theme
-        // resolves from the page's category (falling back to `_default`), so
-        // the key must change whenever those stored theme fields change.
         let own_category_slug = category.unwrap_or("_default");
         let theme_statement = Statement::from_sql_and_values(
             DatabaseBackend::Postgres,
@@ -173,8 +171,10 @@ impl ArticlePageCache {
             .page_updated_at
             .map(|value| value.unix_timestamp_nanos())
             .unwrap_or_default();
-        let public_content_cache_fence =
-            PublicContentCache::cache_fence(ctx, input.site_id).await?;
+        let public_content_cache_fence = match public_content_cache_fence {
+            Some(fence) => fence,
+            None => PublicContentCache::cache_fence(ctx, input.site_id).await?,
+        };
         let permission_fence =
             PermissionCache::cache_fence(ctx, input.site_id, None).await?;
         let permission_fence = permission_fence.cache_key_fragment();
@@ -270,11 +270,6 @@ struct CategoryThemeRow {
     theme_custom_css: Option<String>,
 }
 
-/// Fingerprint of the stored theme state an article view's resolved theme
-/// depends on: the page category's own row, then the `_default` row that
-/// `SettingsService::get_theme` falls back to when the category inherits.
-/// Any change to these fields must yield a different fingerprint so cached
-/// article views are not served with a stale theme (issue #2764).
 fn category_theme_fingerprint(rows: &[CategoryThemeRow], own_slug: &str) -> Vec<u8> {
     let mut hasher = Sha256::new();
     let mut slugs = vec![own_slug];
@@ -677,8 +672,6 @@ mod tests {
 
     #[test]
     fn article_page_cache_denies_random_redirect_helpers() {
-        // Every visit to a random helper reselects its target (#2080). A cached
-        // view would pin one pick, or a pre-redirect render, behind the route.
         let helper = "[[module ListPages category=\"_default\" order=\"random\" limit=\"1\" tag=\"scp\"]]\n[[include :snippets:redirect url=%%link%%]]\n[[/module]]\n";
         assert!(!anonymous_article_cache_source_eligible(helper), "{helper}");
     }
@@ -735,10 +728,8 @@ mod tests {
         ];
         let base_fp = category_theme_fingerprint(&base, "news");
 
-        // Same stored state -> same fingerprint.
         assert_eq!(base_fp, category_theme_fingerprint(&base, "news"));
 
-        // Theme kind change on the page's own category.
         let kind_changed = vec![
             row(
                 "news",
@@ -750,7 +741,6 @@ mod tests {
         ];
         assert_ne!(base_fp, category_theme_fingerprint(&kind_changed, "news"));
 
-        // External URL change only.
         let url_changed = vec![
             row(
                 "news",
@@ -765,7 +755,6 @@ mod tests {
             category_theme_fingerprint(&url_changed, "news"),
         );
 
-        // Custom CSS change on the `_default` fallback category.
         let default_css_changed = vec![
             row("news", "inherit", None, None),
             row("_default", "custom", None, Some("body { color: red; }")),
@@ -775,7 +764,6 @@ mod tests {
             category_theme_fingerprint(&default_css_changed, "news"),
         );
 
-        // A page in `_default` itself is fingerprinted from that row alone.
         let default_only = vec![row("_default", "built_in", None, None)];
         assert_eq!(
             category_theme_fingerprint(&default_only, "_default"),

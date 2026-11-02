@@ -62,16 +62,11 @@ export function finalizePreloadData(response: Viewer, locales: string[]): Preloa
   return buildPublicPreloadData(response, userSession, resolvedLocales)
 }
 
-/**
- * Loads common data that will be used in all routes, including site info,
- * user session and locales
- */
 export async function loadPreload(request: Request, cookies: Cookies) {
   const { siteId } = loadSiteInfo(request.headers)
   const sessionToken = cookies.get("wikijump_token")
   const locales = getPreloadRequestLocales(request)
 
-  // Includes fallback locale in case there is no Accept-Language header
   const backendLocales = getPreloadBackendLocales(locales)
   let response: Viewer
 

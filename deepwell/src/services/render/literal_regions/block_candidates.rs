@@ -41,7 +41,6 @@ pub(super) struct BlockCandidate {
     pub(super) range: Range<usize>,
     pub(super) provenance: BaseCandidateProvenance,
     pub(super) opener: DelimiterIdentity,
-    /// This identity becomes unavailable only if the global selector chooses this candidate.
     pub(super) terminator: Option<DelimiterIdentity>,
 }
 
@@ -109,13 +108,6 @@ struct BlockClose {
     quote_depth: usize,
 }
 
-/// Enumerate every recognizable literal block opener without selecting an owner.
-///
-/// FTML `4fc7df28` rejects quoted `code` and `raw`, but accepts quote-aware
-/// `html` and `math`. Deepwell's pre-FTML runtime deliberately protects
-/// recognizable malformed or unclosed heads and the compatibility-only
-/// empty-head `embed` form. These cases retain protection provenance so the
-/// global selector can still resurrect an overlapping exact parser candidate.
 pub(super) fn collect_block_candidates(source: &str) -> Vec<BlockCandidate> {
     if source.len() >= NO_OFFSET as usize {
         return collect_oversized_fail_closed(source);
@@ -231,9 +223,6 @@ fn parse_block_opener(
             let close = heads.next_wikidot_right_block[name_end];
             if close != NO_OFFSET {
                 let close = expanded_offset(close);
-                // The compatibility scanner recognizes whitespace-prefixed
-                // candidates so they can remain fail-closed protection, but
-                // the pinned FTML parser owns only a tight `[[code` opener.
                 let exact = skip_horizontal_whitespace(bytes, start + 2) == start + 2;
                 (close + 2, exact)
             } else {
@@ -274,7 +263,6 @@ fn parse_block_opener(
                 if expanded_offset(heads.whitespace_end[name_end]) >= close {
                     (close + 2, false)
                 } else {
-                    // Named service embeds are bodyless and are not literal candidates.
                     return None;
                 }
             } else {

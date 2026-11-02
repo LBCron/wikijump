@@ -57,9 +57,6 @@ export async function pageHistoryAction(event: RequestEvent) {
             : rawRevision.revision_number
           : rawRevision.page_revision_number
     }))
-    // The pane keeps the whole filtered timeline for the comparison selects
-    // and row actions, and slices the visible page itself. The window stays
-    // capped at HISTORY_WINDOW_LIMIT rows.
     const filtered = filterHistoryByTypes(normalized, types ?? [])
     const paged = paginateHistoryEntries(filtered, page ?? 1, perPage ?? 20)
     return {

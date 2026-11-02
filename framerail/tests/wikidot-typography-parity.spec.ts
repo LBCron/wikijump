@@ -5,9 +5,6 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 
-// Recorded from the Wikidot yossistyle live-reference contract. The fixture
-// page supplies the same body rule before the application stylesheets so this
-// test exercises the imported-page cascade rather than a page-name heuristic.
 const LIVE_YOSSISTYLE_TYPOGRAPHY = {
   body: {
     fontFamily: "verdana, arial, helvetica, sans-serif",

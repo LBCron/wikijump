@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Eclectic module containing various utilities, grouped by type.
-
 mod category;
 mod crypto;
 mod debug;

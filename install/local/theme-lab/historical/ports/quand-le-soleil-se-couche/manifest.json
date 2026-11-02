@@ -1,0 +1,118 @@
+{
+  "schema": "theme_lab_foreign_port.v1",
+  "package": "quand-le-soleil-se-couche",
+  "source_branch": "SCP-FR",
+  "source_page": "theme:quand-le-soleil-se-couche",
+  "source_url": "https://fondationscp.wikidot.com/theme:quand-le-soleil-se-couche",
+  "source_page_id": 1453535015,
+  "source_revision": 13,
+  "source_updated_at": "2025-08-12T09:09:31Z",
+  "source_sha256": "eebdb3d7e620550d2921ff5814fa44df29a98ecc96e953ba29423ad525ec281d",
+  "planned_jp_theme_page": "theme:quand-le-soleil-se-couche",
+  "surface_contract": "surface-contract.json",
+  "cross_branch_reference": {
+    "branch": "SCP-KO",
+    "url": "https://scpko.wikidot.com/theme:quand-le-soleil-se-couche",
+    "page_id": 1453993867,
+    "revision": 4,
+    "updated_at": "2024-06-08T02:14:57Z",
+    "source_sha256": "a7dac1e183074b01d4aa246e8ee1e60f56618ea2dc4a7222ab7717baa49ed497"
+  },
+  "showcase_dependency_evidence": [
+    {
+      "source_page": "component:modele-theme",
+      "file": "upstream-fr-modele-theme.wikidot.txt",
+      "sha256": "3804af17413af9704a50ed07b6c49c31b004d44ffc1a0dcda156d04f57325a20",
+      "classification": "documentation-showcase-only",
+      "page_id": 1308466157,
+      "role": "source showcase/documentation include; not shipped as a JP runtime dependency"
+    },
+    {
+      "source_page": "component:modele-theme-base",
+      "file": "upstream-fr-modele-theme-base.wikidot.txt",
+      "sha256": "cf17b935e9f84cce50d077f86987c6391c139635848512cd21ff6ceaf2e4dfa1",
+      "classification": "documentation-showcase-only",
+      "page_id": 1308466139,
+      "role": "transitive showcase body; +thème-gated documentation evidence"
+    }
+  ],
+  "current_jp_usage": {
+    "url": "https://scp-jp.wikidot.com/centre-quand-le-soleil-se-couche",
+    "page_id": 1468170722,
+    "revision": 5,
+    "updated_at": "2026-09-25T07:59:26Z",
+    "source_sha256": "ad58489823ebe90644008ddb2df87c794c71e0eced39fc0762d5f31cd6fedf5d",
+    "local_theme_page": {
+      "url": "https://scp-jp.wikidot.com/theme:quand-le-soleil-se-couche",
+      "http_status": 200,
+      "revision": 2,
+      "updated_at": "2026-09-29T15:10:19Z"
+    },
+    "active_theme_include": ":scpko:theme:quand-le-soleil-se-couche",
+    "documented_foreign_include": ":fondationscp:theme:quand-le-soleil-se-couche",
+    "documented_foreign_include_status": "translation note says FR/JP site differences prevent normal operation"
+  },
+  "assets": [
+    {
+      "name": "header-logo.png",
+      "source_url": "https://fondationscp.wdfiles.com/local--files/theme:quand-le-soleil-se-couche/header-logo.png",
+      "sha256": "e242245d05519a8b2b8d672837f580ce483ded9691f8f14c1c7653fc4c2a336a",
+      "bytes": 368742,
+      "decision": "localize-into-package",
+      "publish_attachment": "header-logo.png"
+    },
+    {
+      "name": "body_bg_grey.png",
+      "source_url": "https://fondationscp.wdfiles.com/local--files/theme:quand-le-soleil-se-couche/body_bg_grey.png",
+      "sha256": "bec371b36d3f250ca4b45a03ab46d6a31a5536481ba334cd4ec06eb985db7b0a",
+      "bytes": 4099,
+      "decision": "localize-into-package",
+      "publish_attachment": "body_bg_grey.png"
+    }
+  ],
+  "port_decisions": [
+    "retain the original sous-titre include parameter because current SCP-JP documentation already exposes it",
+    "replace the FR-only modele-theme showcase include with a local JP demonstration fixture rather than treating it as a runtime theme dependency",
+    "adopt the evidenced SCP-KO cross-branch Sigma-9 ct_* compatibility mapping",
+    "replace Korean header text with Japanese 財団",
+    "localize both required runtime images into the package",
+    "remove the upstream Space Mono import because neither the FR source nor the evidenced KO compatibility layer references that font family",
+    "remove the FR/INT/EN tag-conditional adaptation blocks from the JP candidate",
+    "preserve the SCP-JP Sigma-9 responsive header sizing instead of flattening its desktop/mobile logo geometry",
+    "bind the source-hub .flickering heading and touched SCP-JP runtime surfaces to surface-contract.json"
+  ],
+  "technical_spec_version": "1.4",
+  "current_jp_theme_page": {
+    "url": "https://scp-jp.wikidot.com/theme:quand-le-soleil-se-couche",
+    "status": "present",
+    "http_status": 200,
+    "revision": 2,
+    "updated_at": "2026-09-29T15:10:19Z",
+    "source_sha256": "d42659934387cf19af43b9135db16820ecef9e8fe478c9ee645e794b4c71a881",
+    "observed_at": "2026-10-05",
+    "authority": "live metadata crosscheck and current shared corpus"
+  },
+  "authority_refresh_verified_at": "2026-10-05",
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "final_verdict": "inconclusive",
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  },
+  "current_jp_theme_target": {
+    "branch": "jp",
+    "slug": "theme:quand-le-soleil-se-couche",
+    "status": "present",
+    "revision": 2,
+    "updated_at": "2026-09-29T15:10:19Z",
+    "entity_id": "d0274bdf-5274-4ca2-be67-1027e5c34983",
+    "source_path": "current-jp-theme.wikidot.txt",
+    "sha256": "d42659934387cf19af43b9135db16820ecef9e8fe478c9ee645e794b4c71a881",
+    "live_serialized_source_sha256": "79650874ae52b22c901e86c83a17f60ecca2eb814b9ddd90a499a352b0262851",
+    "difference": "blank-line whitespace only",
+    "latest_observation_run": "theme-lab-refresh-jp-20261005-auto1"
+  }
+}

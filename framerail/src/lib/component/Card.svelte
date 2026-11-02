@@ -13,22 +13,12 @@
     children,
     ...others
   }: {
-    /** Text to display prominently. */
     title?: string
 
-    /**
-     * Small text displayed below the title. Can be displayed by itself, as
-     * well.
-     */
     subtitle?: string
 
-    /** Determines color scheme. */
     theme?: "auto" | "light" | "dark"
 
-    /**
-     * Sets the width of the card, if desired. Can be any valid CSS `width`
-     * value.
-     */
     width?: string
 
     actions?: Snippet

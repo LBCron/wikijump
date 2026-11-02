@@ -2980,17 +2980,17 @@
     },
     {
       "package": "flopstyle-dark",
-      "purpose": "Current Sigma-10 real-Wikidot credit/otherwise return-control A/B; directly reviewed all four screenshots at 320px and 390px. Re-captured 2026-10-28 against the frozen target snapshot with the Freeze-1 candidate after the JP fix batch changed the candidate source/CSS; supersedes the 20261007 capture, whose evidence files were not retained.",
+      "purpose": "Current Sigma-10 real-Wikidot credit/otherwise return-control A/B; directly reviewed all four screenshots at 320px and 390px. Re-captured 2026-10-30 against the frozen target snapshot with the post-closure successor candidate after the #3390 Firefox navigation change (LANE-ALLOCATION-35 route (b)) changed the candidate source/CSS; supersedes the 2026-10-28 Freeze-2 capture, whose evidence remains retained in the tree.",
       "candidate_set_sha256": "38722848ea1ef40e21014f1fca201bce97ac0248668be1fae763526ab1959c36",
-      "candidate_source_sha256": "a3702c545d95bd13b7ce148c343f482b52f13e3b589933e26682031d4052203d",
-      "candidate_css_sha256": "be744e1d57f1028199f07f0aee70fbd7a96a724c3627dc7a3affdbc23d99108c",
+      "candidate_source_sha256": "4900476d5cf31e094370d52e8cb09ff1e24d939ef8edea00562658cacc07dbec",
+      "candidate_css_sha256": "4e9f17d162d5e0cf393e5a6d287c246b84efb0f82fdb97c05c56e3d537a8b446",
       "capture_receipt": {
-        "path": "ports/authority-evidence/flopstyle-dark-freeze2-sigma10-credit-otherwise-20261028/receipt.json",
-        "sha256": "713093294785323b0f125744944f7765e0175d832c7781c3d166effc516e185c"
+        "path": "ports/authority-evidence/flopstyle-dark-successor-sigma10-credit-otherwise-20261030/receipt.json",
+        "sha256": "e8c90207388a16dee7c71c0e5637e059cd329d5b8052fad5c198e28ff19adba2"
       },
       "visual_review": {
-        "path": "ports/authority-evidence/flopstyle-dark-freeze2-sigma10-credit-otherwise-20261028/visual-review.json",
-        "sha256": "bd2dbce5958f568bef9283ae96af42816fa7ff0d73cec55d42691936520406c1"
+        "path": "ports/authority-evidence/flopstyle-dark-successor-sigma10-credit-otherwise-20261030/visual-review.json",
+        "sha256": "c37deae71492a398447703f0c62a6bbf407f7dc7092965272730454c159f5faf"
       }
     },
     {

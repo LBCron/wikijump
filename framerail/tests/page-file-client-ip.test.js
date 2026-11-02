@@ -227,8 +227,6 @@ test("file revision reads forward the routed request context to Deepwell", async
       }
     ])
 
-    // A request that claims a different site than the trusted context is
-    // rejected before any file revision read reaches Deepwell.
     calls.length = 0
     const spoofed = await actions.fileHistory(
       requestEvent({ siteId: SITE_ID + 1, pageId: 42, fileId: 5 }, SITE_ID + 1)

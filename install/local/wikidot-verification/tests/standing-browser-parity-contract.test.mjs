@@ -674,3 +674,54 @@ test("completion policy is sealed and names exact external failures", () => {
     /kind/u,
   );
 });
+
+test("an unretained avatar abort is an evidence gap, not a parity failure", () => {
+  const gateAbort = {
+    kind: "request_gate_abort",
+    url: "https://www.wikidot.com/avatar.php?userid=5525011&amp;amp;size=small&amp;amp;timestamp=1793525364",
+    resource_type: "image",
+    error: "net::ERR_BLOCKED_BY_CLIENT.Inspector",
+    decision: "unretained_avatar_image",
+    abort_reason: "blockedbyclient",
+  };
+  const local = capture({ request_gate_aborts: [gateAbort] });
+  const live = capture({
+    input_url: "https://scp-wiki.wikidot.com/scp-9506",
+    final_url: "https://scp-wiki.wikidot.com/scp-9506",
+  });
+
+  const result = compareCaptures(local, live, DEFAULT_THRESHOLDS, [], null);
+
+  assert.equal(result.status, "pass");
+  assert.deepEqual(result.classified_request_gate_aborts, [
+    { ...gateAbort, classification: "parity_matched" },
+  ]);
+});
+
+test("the unretained avatar classification requires an avatar URL", () => {
+  const gateAbort = {
+    kind: "request_gate_abort",
+    url: "https://cdn.example.test/local-only.png",
+    resource_type: "image",
+    error: "net::ERR_BLOCKED_BY_CLIENT.Inspector",
+    decision: "unretained_avatar_image",
+    abort_reason: "blockedbyclient",
+  };
+  const local = capture({ request_gate_aborts: [gateAbort] });
+  const live = capture({
+    input_url: "https://scp-wiki.wikidot.com/scp-9506",
+    final_url: "https://scp-wiki.wikidot.com/scp-9506",
+  });
+
+  const result = compareCaptures(local, live, DEFAULT_THRESHOLDS, [], null);
+
+  assert.equal(result.status, "fail");
+  assert.deepEqual(result.classified_request_gate_aborts, [
+    { ...gateAbort, classification: "local_only" },
+  ]);
+  assert.ok(
+    result.anomalies.some(
+      (anomaly) => anomaly.code === "local_only_request_gate_abort",
+    ),
+  );
+});

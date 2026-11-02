@@ -36,8 +36,8 @@ test('navigation acceptance inspects later menus and detects off-left escape wit
     </style></head><body><div id="top-bar"><div class="top-bar"><ul><li>Desktop<ul><li><a href="#">Hidden desktop link</a></li></ul></li></ul></div><div class="mobile-top-bar"><ul>
     ${[1,2,3].map(i=>`<li><a href="javascript:;">Menu ${i}</a><ul><li><a href="#">Link ${i}</a></li></ul></li>`).join('')}
     </ul></div></div></body></html>`));
-  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const browser=await loadChromium().launch({headless:true});
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   try {
     const page=await browser.newPage();
     await page.goto(`http://127.0.0.1:${server.address().port}/`);

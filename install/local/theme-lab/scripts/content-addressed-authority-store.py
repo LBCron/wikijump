@@ -7,6 +7,7 @@ is never read. Offline, local-only transport; a separately backed-up copy of
 the store and inventory is required for durable operational availability.
 """
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import errno
 import hashlib
 import importlib.util
@@ -61,6 +62,54 @@ def verify_file(file, digest, size, label):
         raise ValueError(f'{label} size/SHA-256 mismatch: {file}')
 
 
+def verify_file_identity(file, digest, size, label):
+    """verify_file, plus the (device, inode) identity of the hashed bytes.
+
+    The identity comes from fstat on the open stream, so it names the
+    exact bytes whose digest was just checked.
+    """
+    if not file.is_file():
+        raise ValueError(f'{label} size/SHA-256 mismatch: {file}')
+    with file.open('rb') as stream:
+        info = os.fstat(stream.fileno())
+        if info.st_size != size or hashlib.file_digest(stream, 'sha256').hexdigest() != digest:
+            raise ValueError(f'{label} size/SHA-256 mismatch: {file}')
+    return (info.st_dev, info.st_ino)
+
+
+def _verify_job(job):
+    key, spec, digest, size, label = job
+    try:
+        if spec[0] == 'safe':
+            target = authority.safe_file(spec[1], spec[2])
+        elif spec[0] == 'collect-missing':
+            target = spec[1]
+            if not target.exists():
+                return key, 'missing', None
+        else:
+            target = spec[1]
+        return key, 'ok', verify_file_identity(target, digest, size, label)
+    except ValueError as error:
+        return key, 'error', error
+
+
+def _run_verify_jobs(jobs):
+    """Run content verifications on a thread pool; outcomes keyed by job key.
+
+    Hashing bulk file contents releases the GIL, so threads divide the
+    multi-GB verification reads across cores. Callers re-raise outcomes
+    in inventory order, so the first failure reported is the same one
+    the serial walk reported.
+    """
+    outcomes = {}
+    if jobs:
+        workers = min(8, os.cpu_count() or 1, len(jobs))
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            for key, status, payload in pool.map(_verify_job, jobs):
+                outcomes[key] = (status, payload)
+    return outcomes
+
+
 def install_file(source, destination, digest, size):
     """Byte-check while copying; atomic, non-overwriting and crash-resumable."""
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -83,12 +132,14 @@ def install_file(source, destination, digest, size):
         Path(tmp).unlink(missing_ok=True)
 
 
-def link_file(blob, destination, digest, size):
+def link_file(blob, destination, digest, size, verified_identities=None):
     """Hardlink an already verified read-only blob: no copy, no overwrite.
 
     Falls back to the checked copy when the store is on another filesystem.
-    The blob is rechecked after linking, so a blob swapped between the plan
-    and the link cannot enter the checkout.
+    A blob swapped between the plan and the link cannot enter the checkout:
+    the linked file must be the inode whose bytes were hashed under this
+    digest in this run (`verified_identities`, keyed by device and inode), and
+    anything else is hashed in full.
     """
     if blob.stat().st_mode & 0o222:
         raise ValueError(f'stored blob is writable, refusing to share it: {blob}')
@@ -101,7 +152,10 @@ def link_file(blob, destination, digest, size):
         install_file(blob, destination, digest, size)
         return
     try:
-        verify_file(destination, digest, size, 'linked evidence')
+        info = destination.lstat()
+        if not (verified_identities and info.st_size == size
+                and verified_identities.get((info.st_dev, info.st_ino)) == digest):
+            verify_file(destination, digest, size, 'linked evidence')
     except ValueError:
         destination.unlink()
         raise
@@ -136,34 +190,57 @@ def transfer(store_root, destination_root, inventory_path, expected_sha, *, mode
         raise ValueError('restore must not depend on the original source worktree')
 
     entries, objects = (reader or inventory_files)(destination, Path(inventory_path), expected_sha)
+    # Every distinct object is verified once, as in the serial walk this
+    # replaces; the hashing itself runs on a thread pool and the outcomes
+    # are re-raised in inventory order below.
+    jobs = []
+    if mode == 'ingest':
+        for rel, (digest, size) in entries.items():
+            jobs.append((('source', rel), ('safe', source, rel), digest, size, 'source evidence'))
+    for digest, size in objects.items():
+        jobs.append((('blob', digest), ('collect-missing', blob_path(store, digest)), digest, size, 'stored blob'))
+    outcomes = _run_verify_jobs(jobs)
     missing_objects = {}
-    verified_objects = set()
+    verified_identities = {}
     for rel, (digest, size) in entries.items():
         if mode == 'ingest':
-            src = authority.safe_file(source, rel)
-            verify_file(src, digest, size, 'source evidence')
-        if digest in missing_objects:
-            continue
+            status, payload = outcomes[('source', rel)]
+            if status == 'error':
+                raise payload
+            verified_identities[payload] = digest
         # Rechecking the same blob once per path can multiply multi-GB read
         # costs for deduplicated manifests. Verify each distinct SHA once.
-        if digest in verified_objects:
-            continue
-        target = blob_path(store, digest)
-        if target.exists():
-            verify_file(target, digest, size, 'stored blob')
-            verified_objects.add(digest)
+        status, payload = outcomes[('blob', digest)]
+        if status == 'error':
+            raise payload
+        if status == 'missing':
+            missing_objects.setdefault(digest, (rel, size))
         else:
-            missing_objects[digest] = (rel, size)
+            verified_identities[payload] = digest
     if mode == 'restore' and missing_objects:
         raise ValueError(f'missing SHA-pinned blob objects: {len(missing_objects)}; example {next(iter(missing_objects))}')
 
     missing_files = []
+    checkout_jobs = []
     for rel, (digest, size) in entries.items():
         target = authority.safe_file(destination, rel, existing=False)
-        if target.exists():
-            verify_file(target, digest, size, 'existing checkout evidence')
-        else:
+        if not target.exists():
             missing_files.append((rel, digest, size))
+            continue
+        # A checkout file hardlinked to an object verified above -- the
+        # shape --link restores create -- holds bytes already proven in
+        # this run under the same digest, so it is not hashed a second
+        # time. Any other file is hashed exactly as before.
+        info = target.lstat()
+        if info.st_size == size and verified_identities.get((info.st_dev, info.st_ino)) == digest:
+            continue
+        checkout_jobs.append((('checkout', rel), ('path', target), digest, size,
+                              'existing checkout evidence'))
+    checkout_outcomes = _run_verify_jobs(checkout_jobs)
+    for rel in entries:
+        outcome = checkout_outcomes.get(('checkout', rel))
+        if outcome is not None and outcome[0] == 'error':
+            raise outcome[1]
 
     if apply:
         if mode == 'ingest':
@@ -178,7 +255,7 @@ def transfer(store_root, destination_root, inventory_path, expected_sha, *, mode
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target = authority.safe_file(destination, rel, existing=False)
                 if link:
-                    link_file(blob_path(store, digest), target, digest, size)
+                    link_file(blob_path(store, digest), target, digest, size, verified_identities)
                 else:
                     install_file(blob_path(store, digest), target, digest, size)
 

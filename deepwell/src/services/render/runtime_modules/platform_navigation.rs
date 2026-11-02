@@ -1,5 +1,3 @@
-//! Wikijump platform navigation for the default site sidebar.
-
 use super::{
     Cow, DomainService, LazyLock, LiteralRegionIndex, Reference, Regex, Result,
     ServiceContext, SiteService, WikitextSettings,

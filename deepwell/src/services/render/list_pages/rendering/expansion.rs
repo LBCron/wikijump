@@ -1,5 +1,3 @@
-//! ListPages expansion orchestration.
-
 use super::{
     AuthorizedPageSelector, BTreeMap, BTreeSet, CategoryService, CompatHtmlFragments,
     CompatTextFragments, Cow, FoundPageFields, FoundPages, IncludeExpansion,
@@ -225,23 +223,10 @@ impl RenderService {
                     && list_pages_head_has_current_data_form_query_selector(head);
                 let static_category_preflight =
                     list_pages_static_category_preflight(head);
-                // Wikidot's code/html pass owns a leading body block before
-                // ListPages evaluates. The remaining ListPages opening is
-                // therefore an empty, unclosed module using the default
-                // template, while the owned block and closing module remain
-                // downstream source.
                 let body_was_preparsed =
                     list_pages_body_starts_with_preparsed_block(module.body);
-                // Fake ListPages source embedded in an HTML/script example can
-                // still reach Wikidot's module pass when its authored quotes
-                // are HTML encoded. Wikidot runs the inert/default head while
-                // consuming the evidenced script tail instead of compiling it
-                // as a per-row template.
                 let html_encoded_head_owns_script_tail =
                     list_pages_html_encoded_head_owns_script_tail(head, module.body);
-                // Wikidot also treats an explicitly empty ListPages body as
-                // an unclosed default-template invocation. The raw closer is
-                // rendered later as ordinary authored text.
                 let body_is_empty = module.body.trim().is_empty();
                 let raw_footnote_prefix_end = (body_is_empty
                     && module.end == module.body_start)
@@ -544,7 +529,6 @@ impl RenderService {
                     let ListPagesBlockPlan::Render {
                         arguments,
                         template,
-                        legacy_tail: _,
                         ..
                     } = &block.plan
                     else {

@@ -1,0 +1,181 @@
+{
+  "slug": "theme:space",
+  "en_source_sha256": "b761e86b65c8f5ac8df0e04435290c272dd928ef4bd6150f11444aa8dcabfb0f",
+  "en_updated_at": "2026-04-12T05:02:40+00:00",
+  "en_entity_uuid": "08c2e940-a61b-4fcb-b285-bcafcb11d48e",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "63bee9d3876ac78335c8a587c63b719efea9d3a9ab1bf945bdd807ce1f554c5d",
+  "jp_previous_updated_at": "2024-07-04T11:38:26+00:00",
+  "jp_previous_entity_uuid": "d83f3ed7-4796-4fe1-95c0-fd99c3c0d0c8",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:space",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:space",
+    "title": "Generic Space Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "b761e86b65c8f5ac8df0e04435290c272dd928ef4bd6150f11444aa8dcabfb0f",
+      "updated_at": "2026-04-12T05:02:40+00:00",
+      "entity_uuid": "08c2e940-a61b-4fcb-b285-bcafcb11d48e",
+      "tags": [
+        "_cc",
+        "_licensebox",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 32,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:space"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "63bee9d3876ac78335c8a587c63b719efea9d3a9ab1bf945bdd807ce1f554c5d",
+      "updated_at": "2024-07-04T11:38:26+00:00",
+      "entity_uuid": "d83f3ed7-4796-4fe1-95c0-fd99c3c0d0c8",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:space"
+      }
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:space",
+    "en_includes": [
+      ":scp-wiki:component:sigma-plus",
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:theme:space",
+      "component:image-block name= https://scp-wiki.wikidot.com/local--files/theme:space/spacelogo.webp",
+      ":scp-wiki:component:license-box-theme",
+      ":scp-wiki:component:license-box-end"
+    ],
+    "en_external_dependencies": [
+      "http://www.w3.org/2000/svg",
+      "https://commons.wikimedia.org/wiki/File:Eid_Gah_Milky_way.jpg",
+      "https://fonts.bunny.net/css?family=dm-sans:400,400i,700,700i",
+      "https://fonts.bunny.net/css?family=martian-mono:400,700",
+      "https://fonts.bunny.net/css?family=urbanist:400,400i,700,700i",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Aspace/1",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aspace/Milky_way.jpg",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aspace/spacebg.jpg",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aspace/spacefooter.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aspace/spacehead-layer1.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aspace/spacelogo.png",
+      "https://scp-wiki.wikidot.com/local--files/theme:space/spacelogo.webp",
+      "https://thenounproject.com/icon/astronomy-2359563/",
+      "https://thenounproject.com/icon/constellation-1217197/",
+      "https://www.pexels.com/photo/astronomy-blue-blue-sky-dark-358528/",
+      "https://www.pexels.com/photo/plants-under-starry-sky-355887/",
+      "https://www.pexels.com/photo/starry-night-574116/"
+    ],
+    "jp_includes": [
+      ":scp-wiki:component:sigma-plus",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:theme:space",
+      ":scp-jp:component:image-block name= https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-3e2m/spacelogo.png"
+    ],
+    "jp_external_dependencies": [
+      "http://www.w3.org/2000/svg",
+      "https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+      "https://fonts.googleapis.com/css2?family=M+PLUS+1p&display=swap",
+      "https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,700;1,400;1,700&display=swap",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-3e2m/spacelogo.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-3o7f/Milky_way.jpg",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-7h49/spacefooter.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-iq50/spacehead-layer1.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-48-qcsr/spacebg.jpg",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Aspace/1",
+      "https://scp-wiki.wikidot.com/theme:space"
+    ],
+    "base_family": "sigma"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "flattened_css_transforms": "localization-transforms.json",
+  "maintenance_classification": "maintenance-classification.json",
+  "candidate_origin": "current official SCP-JP page source",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/space/assets.json",
+  "asset_dependency_decision_count": 22,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "72ef4e7545f439aa9d8a330c566a9489980eafa02cd8e08cff327b7171b3d6aa",
+    "jp_overrides_sha256": "ad2b0c42291a784662665aef131746aba621dc7f1b309aad47adbc59253cf311",
+    "semantic_css_sha256": "d98b3f4d0934b412539c1e3ace39f7c9c7aec82ed069940ca29ec36ce37c64e7",
+    "canonical_override_sha256": "bcc9abe9443659d2b216e3b077c4fe8ead3df64a3ee40f875b2bd1a368fa4486",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "c80dafffcbdfba842970aade036d9ccfe1326132be7a860ca9716124bc47ec5c",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "718d6bfc1705006f15a492f3cb96000489e32efc1df0ab50d5ffc10b41276367",
+      "active_tags": [],
+      "candidate_source_sha256": "df6265436b06703f428f4df2ee6809634177378d104332f05e252ee77bae26f7",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "9050a943386e3975914248717c6a354ea8c88dc45eb06120ae2f58625e3eb70e",
+      "asset_receipt_path": "assets.json",
+      "assets": 17,
+      "imports": 5,
+      "localization_transforms": 0,
+      "localization_transform_manifest": {
+        "path": "localization-transforms.json",
+        "sha256": "5bb0dafbbd0203a6f543149c23e996b022fc69f735b60495d296030abe295cf5"
+      },
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "5bd2d00b494a875d43fcd5e270a4b323c9ddbe16b6238fb5f5b80992c3b37b0a",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

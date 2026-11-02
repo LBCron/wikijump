@@ -1,0 +1,446 @@
+{
+  "slug": "theme:site",
+  "en_source_sha256": "17f5d83fc92f3f171fcdb790f78fe207db86203eeca1e34f508631fb36daca34",
+  "en_updated_at": "2026-05-22T09:04:20+00:00",
+  "en_entity_uuid": "46a81a48-3784-48df-8ebc-fd74756454b1",
+  "jp_previous_status": "confirmed-absent-by-targeted-xmlrpc",
+  "jp_previous_source_sha256": null,
+  "jp_previous_updated_at": null,
+  "jp_previous_entity_uuid": null,
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:site",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": null,
+  "source_identity": {
+    "slug": "theme:site",
+    "title": "Sigma-10 Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "17f5d83fc92f3f171fcdb790f78fe207db86203eeca1e34f508631fb36daca34",
+      "updated_at": "2026-05-22T09:04:20+00:00",
+      "entity_uuid": "46a81a48-3784-48df-8ebc-fd74756454b1",
+      "tags": [
+        "admin"
+      ],
+      "attached_files": [],
+      "revisions": 10,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:site"
+      }
+    },
+    "jp": {
+      "status": "confirmed-absent-by-targeted-xmlrpc",
+      "source_path": null,
+      "sha256": null,
+      "updated_at": null,
+      "entity_uuid": null,
+      "tags": [],
+      "absence_run": "theme-jp-absence-check-20260923"
+    },
+    "existing_jp_audit": "new-jp-candidate-verified",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:site",
+    "en_includes": [],
+    "en_external_dependencies": [
+      "https://@@",
+      "https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css",
+      "https://github.com/scpwiki/sigma"
+    ],
+    "jp_includes": [],
+    "jp_external_dependencies": [],
+    "base_family": "sigma"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "human-port-candidate.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "human-made shared translation workspace; no current official JP counterpart",
+  "interactive_acceptance": {
+    "active_stylesheets": [
+      {
+        "url": "https://cdn.scpwiki.com/theme/en/sigma/css/sigma.min.css",
+        "role": "installed-base-theme",
+        "evidence": {
+          "source_path": "upstream-en.wikidot.txt",
+          "claim": "The current EN theme instructions tell the site owner to install this URL through Site Manager > Appearance and Behavior > Themes > External. The CSS URL appears in the instructions' CSS code sample; it is not a stylesheet rule in the theme page itself.",
+          "source_identity_sha256": "17f5d83fc92f3f171fcdb790f78fe207db86203eeca1e34f508631fb36daca34"
+        }
+      }
+    ],
+    "resolved_stylesheet": {
+      "path": "install/local/theme-lab/ports/site/candidate-base.css",
+      "sha256": "23b32297ee4252de0f78d0cc40ec6fc43b0c6c75ae2a3f8b78e7a71e4cba6440",
+      "css_objects": [
+        "46d01c7807f64a24c1b2853b756ef15f3a2facdf4a9f066eaf5d39c0c9935441",
+        "541ac58217a8ade1a5e292a65a0661dc9db7a49ae13654943817a4fbc6761afd",
+        "557dbab22fae5beb956bbce0524a3b177ffb7dd81e2e7d80e665425cb1da4328",
+        "fe5388a32e12934d38006694d6a64b66761990aaea536745773908bd0400edde"
+      ],
+      "assets": [
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/01dd2d491ed863177e61f6e9458813baa85453ad97b32c5c1216927d4eebfe65.woff2",
+          "sha256": "01dd2d491ed863177e61f6e9458813baa85453ad97b32c5c1216927d4eebfe65",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-Light.woff2?v=4.1",
+          "bytes": 112976
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/050265b27d11860a26c66c054210852661abb5d229c4e0bb3525757a830f3790.woff2",
+          "sha256": "050265b27d11860a26c66c054210852661abb5d229c4e0bb3525757a830f3790",
+          "source_url": "https://rsms.me/inter/font-files/Inter-LightItalic.woff2?v=4.1",
+          "bytes": 119608
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/05650cb83c70fda2a465eade0c0a1a6c25d37ec49df3cd74b7e564683f9729f1.woff2",
+          "sha256": "05650cb83c70fda2a465eade0c0a1a6c25d37ec49df3cd74b7e564683f9729f1",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-Black.woff2?v=4.1",
+          "bytes": 110308
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/0ff3e94614e1493eb556314fd247ae6c4a85a7783b4cc86be539940cf83f2a48.woff2",
+          "sha256": "0ff3e94614e1493eb556314fd247ae6c4a85a7783b4cc86be539940cf83f2a48",
+          "source_url": "https://rsms.me/inter/font-files/Inter-Medium.woff2?v=4.1",
+          "bytes": 114348
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/12ed0eed6749099b46c7b2e8198dc30c2d7e0f2a4e5fb1d12f0b6ae2c4f33cc4.woff2",
+          "sha256": "12ed0eed6749099b46c7b2e8198dc30c2d7e0f2a4e5fb1d12f0b6ae2c4f33cc4",
+          "source_url": "https://rsms.me/inter/font-files/Inter-Black.woff2?v=4.1",
+          "bytes": 111668
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/159b72ba47887032915420aa1445ae6768197e7ea732230182998f14d1cdb932.woff2",
+          "sha256": "159b72ba47887032915420aa1445ae6768197e7ea732230182998f14d1cdb932",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-ExtraBoldItalic.woff2?v=4.1",
+          "bytes": 120712
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/1b0df503de488a92082a8c5d72ddc4c0229183ceb645ae1c25c2d0d63778517c.woff2",
+          "sha256": "1b0df503de488a92082a8c5d72ddc4c0229183ceb645ae1c25c2d0d63778517c",
+          "source_url": "https://rsms.me/inter/font-files/Inter-MediumItalic.woff2?v=4.1",
+          "bytes": 120784
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/1d7378ae112da2d33aafdf0ce83bd2bccb36d6786a5c58317444367f2b9b4604.png",
+          "sha256": "1d7378ae112da2d33aafdf0ce83bd2bccb36d6786a5c58317444367f2b9b4604",
+          "source_url": "https://d3g0gp89917ko0.cloudfront.net/v--3b8418686296/common--theme/shiny/images/yuitabs.png",
+          "bytes": 5922
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/21cfe42e7f1031b410e247ed199f43fc362415af81b3a8e442a97f63b4dbe327.woff2",
+          "sha256": "21cfe42e7f1031b410e247ed199f43fc362415af81b3a8e442a97f63b4dbe327",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-Thin.woff2?v=4.1",
+          "bytes": 108820
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/23bc37619593377e128f24660fedb2869d18277b4026cb46e5637be7643faf91.woff2",
+          "sha256": "23bc37619593377e128f24660fedb2869d18277b4026cb46e5637be7643faf91",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-Bold.woff2?v=4.1",
+          "bytes": 113556
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/2d078cb3bc8f934740d53b39dd23b0678f2f97477e49ec785dd9d8acd8b96bfc.woff2",
+          "sha256": "2d078cb3bc8f934740d53b39dd23b0678f2f97477e49ec785dd9d8acd8b96bfc",
+          "source_url": "https://rsms.me/inter/font-files/Inter-Italic.woff2?v=4.1",
+          "bytes": 117700
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/308e101141e9dee3b6b121614da03969eb8179886975a9eeb5348021b04368fe.woff2",
+          "sha256": "308e101141e9dee3b6b121614da03969eb8179886975a9eeb5348021b04368fe",
+          "source_url": "https://rsms.me/inter/font-files/Inter-BlackItalic.woff2?v=4.1",
+          "bytes": 118420
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/38bad3a6a9ad1a7fcd8082e6423ba5e0baea16598f2cf304e527844f697e32b2.woff2",
+          "sha256": "38bad3a6a9ad1a7fcd8082e6423ba5e0baea16598f2cf304e527844f697e32b2",
+          "source_url": "https://rsms.me/inter/font-files/Inter-ExtraLightItalic.woff2?v=4.1",
+          "bytes": 119320
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/3a9463a58c3e7ba1e3cd65b5dbff91a35c508ff78a104cd1121feff83efeb787.woff2",
+          "sha256": "3a9463a58c3e7ba1e3cd65b5dbff91a35c508ff78a104cd1121feff83efeb787",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-Regular.woff2?v=4.1",
+          "bytes": 108948
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/44d631b2507c9bfceabf960599f9f3d2093a3e19f5d6f04d27d375efb8012f84.eot",
+          "sha256": "44d631b2507c9bfceabf960599f9f3d2093a3e19f5d6f04d27d375efb8012f84",
+          "source_url": "https://scp-wiki.wdfiles.com/local--files/component:theme/itc-bauhaus-lt-demi.eot",
+          "bytes": 79995
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/4a10532d76c90c4597c0ad4bfc9284600e597d3012dd1ec16c1d44e0ad0058ab.woff2",
+          "sha256": "4a10532d76c90c4597c0ad4bfc9284600e597d3012dd1ec16c1d44e0ad0058ab",
+          "source_url": "https://rsms.me/inter/font-files/Inter-BoldItalic.woff2?v=4.1",
+          "bytes": 121500
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/4c67b34b1b269e3a78976d3fee315d9b21d4695cdf880d25aa737f1608367a0f.svg",
+          "sha256": "4c67b34b1b269e3a78976d3fee315d9b21d4695cdf880d25aa737f1608367a0f",
+          "source_url": "https://cdn.scpwiki.com/theme/en/sigma/images/body_bg.svg",
+          "bytes": 3801
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/53bb20ba292e2ac28a0777bf0f56f31b98be432a3cc04359e2eb608c758349c7.woff2",
+          "sha256": "53bb20ba292e2ac28a0777bf0f56f31b98be432a3cc04359e2eb608c758349c7",
+          "source_url": "https://rsms.me/inter/font-files/Inter-ExtraBoldItalic.woff2?v=4.1",
+          "bytes": 121516
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/59b5be56306fd353d067aa6995c2c92bc3feb3ace73684d94e3c6e73fe2beaac.woff2",
+          "sha256": "59b5be56306fd353d067aa6995c2c92bc3feb3ace73684d94e3c6e73fe2beaac",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-LightItalic.woff2?v=4.1",
+          "bytes": 119692
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/5a0fe1f01b8777fab4a5f73c757743fa52579c7723b0291777625cb53c0a792a.woff2",
+          "sha256": "5a0fe1f01b8777fab4a5f73c757743fa52579c7723b0291777625cb53c0a792a",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-BoldItalic.woff2?v=4.1",
+          "bytes": 120432
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/5cb7103e4e605989afebc03d989c79201e54b21b5183db33981f70db9178a301.woff2",
+          "sha256": "5cb7103e4e605989afebc03d989c79201e54b21b5183db33981f70db9178a301",
+          "source_url": "https://rsms.me/inter/font-files/Inter-SemiBold.woff2?v=4.1",
+          "bytes": 114812
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/5e2a2bc3b5b9af0644f005693b10499dab18065d6aedbf46c8b74ccede27daeb.woff2",
+          "sha256": "5e2a2bc3b5b9af0644f005693b10499dab18065d6aedbf46c8b74ccede27daeb",
+          "source_url": "https://rsms.me/inter/font-files/Inter-SemiBoldItalic.woff2?v=4.1",
+          "bytes": 121416
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3.woff2",
+          "sha256": "693b77d4f32ee9b8bfc995589b5fad5e99adf2832738661f5402f9978429a8e3",
+          "source_url": "https://rsms.me/inter/font-files/InterVariable.woff2?v=4.1",
+          "bytes": 352240
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/6bf254c1a65c806c019f52818add66747da83595a314112917911bcf5fa2f5c5.woff2",
+          "sha256": "6bf254c1a65c806c019f52818add66747da83595a314112917911bcf5fa2f5c5",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-MediumItalic.woff2?v=4.1",
+          "bytes": 120560
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/6f75025856f8db1b2186e9cb89be9de9894932c8b7b20f4df5e65916ff714e34.woff2",
+          "sha256": "6f75025856f8db1b2186e9cb89be9de9894932c8b7b20f4df5e65916ff714e34",
+          "source_url": "https://rsms.me/inter/font-files/Inter-ExtraBold.woff2?v=4.1",
+          "bytes": 114856
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/70ca998635d9fc627dede8108f04d0989e6e03346183f0ad0917723e790f6973.woff2",
+          "sha256": "70ca998635d9fc627dede8108f04d0989e6e03346183f0ad0917723e790f6973",
+          "source_url": "https://rsms.me/inter/font-files/Inter-Thin.woff2?v=4.1",
+          "bytes": 109548
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/7668781daf80240168d1142c72b3502f75617be40fbbe081caae66ac7d38d571.ttf",
+          "sha256": "7668781daf80240168d1142c72b3502f75617be40fbbe081caae66ac7d38d571",
+          "source_url": "https://scp-wiki.wdfiles.com/local--files/component:theme/itc-bauhaus-lt-demi.ttf",
+          "bytes": 79779
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/8aab16649c61f865e40a66b550fc954c8e1e42e317c06b22970a14a5390e8123.png",
+          "sha256": "8aab16649c61f865e40a66b550fc954c8e1e42e317c06b22970a14a5390e8123",
+          "source_url": "https://scp-wiki.wdfiles.com/local--files/component:theme/panel-bg-gradient-reverse.png",
+          "bytes": 8264
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/9031b6d2a1a559753d50b311ecb463ddf7acaaae1d992a7e9b009620d8ce6def.woff2",
+          "sha256": "9031b6d2a1a559753d50b311ecb463ddf7acaaae1d992a7e9b009620d8ce6def",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-ExtraLight.woff2?v=4.1",
+          "bytes": 113108
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/930d666b74e0dc0c26c2821f5643b701f8a41beaf3bb95ce146298104f29169c.woff2",
+          "sha256": "930d666b74e0dc0c26c2821f5643b701f8a41beaf3bb95ce146298104f29169c",
+          "source_url": "https://rsms.me/inter/font-files/Inter-ThinItalic.woff2?v=4.1",
+          "bytes": 116880
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/9746bf2bd43fe158144b83ede747088e80396daad55b9e6ea7232e0e22ee6fce.woff2",
+          "sha256": "9746bf2bd43fe158144b83ede747088e80396daad55b9e6ea7232e0e22ee6fce",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-BlackItalic.woff2?v=4.1",
+          "bytes": 116820
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/97eeee5a6f4f22fef1f607cf8836104d65968f03e59bc068a7586bf18364a8a7.woff2",
+          "sha256": "97eeee5a6f4f22fef1f607cf8836104d65968f03e59bc068a7586bf18364a8a7",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-ExtraBold.woff2?v=4.1",
+          "bytes": 113636
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/9e540a087924a6e64790149d735cac022640e4fa6bff6bd65f5e9f41529bf0b3.ttf",
+          "sha256": "9e540a087924a6e64790149d735cac022640e4fa6bff6bd65f5e9f41529bf0b3",
+          "source_url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.ttf?v=4.3.0",
+          "bytes": 122092
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/aadc3580d2b64ff5a7e6f1425587db4e8b033efcbf8f5c332ca52a5ed580c87c.woff2",
+          "sha256": "aadc3580d2b64ff5a7e6f1425587db4e8b033efcbf8f5c332ca52a5ed580c87c",
+          "source_url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff2?v=4.3.0",
+          "bytes": 56780
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/b432066558f2c1a3e79c8e97607d966c8db473f4a8f6521f79bcfb16c9d8bd23.woff2",
+          "sha256": "b432066558f2c1a3e79c8e97607d966c8db473f4a8f6521f79bcfb16c9d8bd23",
+          "source_url": "https://cdn.scpwiki.com/theme/en/sigma/fonts/RedactRect.woff2",
+          "bytes": 4284
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/ba4fc81dbb25871f1bcabc664b1e37703fca0a05f7248a923e7db497c6d211cc.woff2",
+          "sha256": "ba4fc81dbb25871f1bcabc664b1e37703fca0a05f7248a923e7db497c6d211cc",
+          "source_url": "https://rsms.me/inter/font-files/Inter-ExtraLight.woff2?v=4.1",
+          "bytes": 112728
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/bfdef833219a6edffd9c3cbc28db72739d22bb4d20cc2e2f8d56a7a4d408a206.svg",
+          "sha256": "bfdef833219a6edffd9c3cbc28db72739d22bb4d20cc2e2f8d56a7a4d408a206",
+          "source_url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.svg?v=4.3.0#fontawesomeregular",
+          "bytes": 313398
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/cbb644d0ee730ea57dd5fbae35ef5ba4a41d57a254a6b1215de5c9ff8a321c2d.eot",
+          "sha256": "cbb644d0ee730ea57dd5fbae35ef5ba4a41d57a254a6b1215de5c9ff8a321c2d",
+          "source_url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?#iefix&v=4.3.0",
+          "bytes": 60767
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/d9f63a82b826fb0117c92715c3a52a2d2247bc321bc39341420bf52d91e8277a.woff2",
+          "sha256": "d9f63a82b826fb0117c92715c3a52a2d2247bc321bc39341420bf52d91e8277a",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-SemiBold.woff2?v=4.1",
+          "bytes": 113772
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/dd9d78314bdd5062302a73c7e2954008bab8158304fa7ac4f0ea8977b841dccb.woff2",
+          "sha256": "dd9d78314bdd5062302a73c7e2954008bab8158304fa7ac4f0ea8977b841dccb",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-SemiBoldItalic.woff2?v=4.1",
+          "bytes": 120468
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/dfd398d7372b61278e1505bfbdfc5ab0f6511ef887a47a2c90c13475eae585da.woff2",
+          "sha256": "dfd398d7372b61278e1505bfbdfc5ab0f6511ef887a47a2c90c13475eae585da",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-Italic.woff2?v=4.1",
+          "bytes": 116988
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085.woff2",
+          "sha256": "e06f6b1bc553aaea4e4668023ed0ab0a147129c3107f511bc7d03d361b0ae085",
+          "source_url": "https://rsms.me/inter/font-files/Inter-Regular.woff2?v=4.1",
+          "bytes": 111268
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/e111a1e2ad914ccda9179b95e83fb10234dd52a1932e0b93c480476227983fd9.woff2",
+          "sha256": "e111a1e2ad914ccda9179b95e83fb10234dd52a1932e0b93c480476227983fd9",
+          "source_url": "https://rsms.me/inter/font-files/Inter-Light.woff2?v=4.1",
+          "bytes": 112592
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/e3870de89716b72cb61a4bba0e17c75783b361cdaba35ea96961c3070bd8ca18.woff",
+          "sha256": "e3870de89716b72cb61a4bba0e17c75783b361cdaba35ea96961c3070bd8ca18",
+          "source_url": "https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff?v=4.3.0",
+          "bytes": 71508
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/e564f652916db6c139570fefb9524a77c4d48f30c92928de9db19b6b5c7a262a.woff2",
+          "sha256": "e564f652916db6c139570fefb9524a77c4d48f30c92928de9db19b6b5c7a262a",
+          "source_url": "https://rsms.me/inter/font-files/InterVariable-Italic.woff2?v=4.1",
+          "bytes": 387976
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/e837f75abd3f971413d6edbd30a04937f656d06fd7ee95e7953368ef3454f254.woff2",
+          "sha256": "e837f75abd3f971413d6edbd30a04937f656d06fd7ee95e7953368ef3454f254",
+          "source_url": "https://cdn.scpwiki.com/theme/en/sigma/fonts/Sans-Normalcy.woff2",
+          "bytes": 17696
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/e8d7078160ef92b82c2123857c1b3aefaa4a795a44b56df5fe3edade60d81576.woff2",
+          "sha256": "e8d7078160ef92b82c2123857c1b3aefaa4a795a44b56df5fe3edade60d81576",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-ExtraLightItalic.woff2?v=4.1",
+          "bytes": 120124
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/eff21589eacf1f6a596191038d7b47b4dd2455a096b175bb3572ecb6d026a611.woff2",
+          "sha256": "eff21589eacf1f6a596191038d7b47b4dd2455a096b175bb3572ecb6d026a611",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-ThinItalic.woff2?v=4.1",
+          "bytes": 116040
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/f1227907684853882ad00d7f97ce9f64bc17b89a2a291a7d4ec84fccfa442934.woff2",
+          "sha256": "f1227907684853882ad00d7f97ce9f64bc17b89a2a291a7d4ec84fccfa442934",
+          "source_url": "https://rsms.me/inter/font-files/InterDisplay-Medium.woff2?v=4.1",
+          "bytes": 113476
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/fa888127b6da015b65569f0351f3b5c391ad928904951f1c20e9f8462a8d95ea.woff2",
+          "sha256": "fa888127b6da015b65569f0351f3b5c391ad928904951f1c20e9f8462a8d95ea",
+          "source_url": "https://rsms.me/inter/font-files/Inter-Bold.woff2?v=4.1",
+          "bytes": 114840
+        },
+        {
+          "path": "install/local/theme-lab/ports/shared-replay-assets/fcd9f75940109475f878f0702d7eb0e1c55cd461369244c86203bb032b6dbe31.svg",
+          "sha256": "fcd9f75940109475f878f0702d7eb0e1c55cd461369244c86203bb032b6dbe31",
+          "source_url": "https://cdn.scpwiki.com/theme/en/sigma/images/header-logo.svg",
+          "bytes": 7532
+        }
+      ],
+      "network_during_resolution": 0
+    },
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "18768d711c87cec0cb6ed1b79a2d7023a53a422f35f39e841417374be0de3a69",
+      "active_tags": [],
+      "candidate_source_sha256": "6538b37accac65ba5c9ae78c88244b48ca447963251ac7e99b58e3d27334b1fc",
+      "candidate_active_tags": [],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "fa49d12c7af28d6001cccb36f6763b5539b2909a322aaf47e140a3aaf9a2ceae",
+      "asset_receipt_path": "assets.json",
+      "assets": 0,
+      "imports": 0,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "new-jp-candidate-verified",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/site/assets.json",
+  "asset_dependency_decision_count": 0,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "9074aca2aa369c62be32ef24e4e5fde31aec7bdf81405ec2dc5f2025cea02343",
+    "jp_overrides_sha256": "5246d94d522c407b9bd779380526e076606539f64aab21833c7cc7ed92f159ae",
+    "semantic_css_sha256": "f40c845331500fa21dc5d28462c42c4a509a493a5836e4e8ca24c03983a3aac6",
+    "canonical_override_sha256": "1ba923ecf012c7038cd0cbc4003adc433b373f2cdc2fc694892fe528203b7a36",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "3905cad69bbb34ea3a93e5a27a12c9266ea9e3f73e02171eb2ff880ae0678550",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

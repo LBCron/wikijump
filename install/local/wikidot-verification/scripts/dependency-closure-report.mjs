@@ -1,15 +1,4 @@
 #!/usr/bin/env node
-// Dependency-closure report: resolve include / theme / parent / attachment
-// dependencies for a set of pages against registered source bundles. A
-// closure-complete result requires the FTML parser binary. Exit codes: 0 all
-// parser-backed closures complete or all out-of-bundle deps classified, 1
-// unclassified out-of-bundle dependencies, 2 structural error or parser not
-// supplied.
-//
-// Usage:
-//   dependency-closure-report.mjs --inventory <corpus-inventory.lock.json> \
-//     --slug-file <slugs.txt> --output-dir <dir> [--family EN] [--max-depth 8]
-//     [--ftml-parser <wikidot_include_refs binary>]
 
 import fs from 'node:fs';
 import path from 'node:path';

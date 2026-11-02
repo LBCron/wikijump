@@ -181,8 +181,6 @@ const server = createServer((request, response) => {
   response.writeHead(404).end()
 })
 
-// CI's offline browser profile uses this local fixture server as a rejecting
-// proxy. Never open a CONNECT tunnel to an external origin.
 server.on("connect", (_request, socket) => {
   socket.end("HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n")
 })

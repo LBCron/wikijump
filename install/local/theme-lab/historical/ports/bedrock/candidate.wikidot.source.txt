@@ -1,0 +1,285 @@
+[[module css]]
+@import url('https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css');
+@import url('https://cdn.scpwiki.com/theme/en/basalt/basalt-bedrock-min.css');
+[[/module]]
+[[div_]]
+[[include :scp-jp:component:interwiki-style
+| priority=1
+| theme=https://cdn.scpwiki.com/theme/en/basalt/normalize-min.css
+]]
+[[include :scp-jp:component:interwiki-style
+| priority=2
+| theme=https://cdn.scpwiki.com/theme/en/basalt/basalt-bedrock-min.css
+]]
+[[/div]]
+
+[[iftags +テーマ]]
+[[div class="nametag"]]
++ Bedrock
+[[module Rate]]
+[[/div]]
+
+**Bedrock**は、EstrellaYoshte、Liryn、Placeholder McDが作成した美的基盤テーマです。GitHub面で支援したaismallard、編集エリアボタンのSVGと全般的な相談に協力したWoedenazにも特別な感謝を捧げます。
+
+これは[https://scp-wiki.wikidot.com/theme:basalt Basalt 2.0]の基盤構造として機能します。
+
+[[include :scp-jp:component:theme-squares -=-
+| color1-name=石英
+| color1-variable=--basalt-primary-color
+| color1-info=254,254,254
+| color2-name=方解石
+| color2-variable=--basalt-secondary-color
+| color2-info=247,248,250
+| color3-name=ラピスラズリ
+| color3-variable=--basalt-bright-element-color
+| color3-info=16,76,184
+| color3-has-light-text=1
+| color4-name=アメジスト
+| color4-variable=--basalt-undertone
+| color4-info=61,71,202
+| color4-has-light-text=1
+| color5-name=粘板岩
+| color5-variable=--basalt-overtone
+| color5-info=56,60,64
+| color5-has-light-text=1
+| subcolor1-name=花崗岩
+| subcolor1-variable=--basalt-tertiary-color
+| subcolor1-info=218,219,222
+| subcolor2-name=安山岩
+| subcolor2-variable=--basalt-sub-text-color
+| subcolor2-info=155,154,162
+| subcolor2-has-light-text=1
+| subcolor3-name=日長石
+| subcolor3-variable=--basalt-alternate-color
+| subcolor3-info=255,132,0
+| subcolor4-name=エメラルド
+| subcolor4-variable=--basalt-positive-color
+| subcolor4-info=26,180,28
+| subcolor4-has-light-text=1
+| subcolor5-name=ルビー
+| subcolor5-variable=--basalt-negative-color
+| subcolor5-info=255,48,48
+| subcolor5-has-light-text=1
+| subcolor6-name=サファイア
+| subcolor6-variable=--basalt-dark-element-color
+| subcolor6-info=18,20,150
+| subcolor6-has-light-text=1
+]]
+
+ページで使用するには、以下を追加してください。
+> {{@@[[include :scp-jp:theme:bedrock]]@@}}
+
+[[toc]]
+
++ 使用例
+
+水平線はハイフン4つ@@「----」@@で作成できます[[footnote]]これは今もPlaceholder McDをなだめるための仕様です。[[/footnote]]。引用ブロックなどの中に置かれていなければ、ページ全体に広がります。この文書のセクションを区切る線は水平線です。
+
+[[include :scp-jp:component:image-block name=https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg|caption=画像ブロック。|width=280px]]
+
+行頭に1個から6個のプラス記号「+」を置くと、タイトルを作成できます。
+
+[[collapsible show="折り畳み - クリック" hide="折り畳み - クリック"]]
++* 第一タイトル
+
+++* 第二タイトル
+
++++* 第三タイトル
+
+++++* 第四タイトル
+
++++++* 第五タイトル
+
+++++++* 第六タイトル
+[[/collapsible]]
+
+~~~~
+
+[[tabview]]
+[[tab タビュレーター]]
+これはタブビューです。
+[[/tab]]
+[[tab タブ表示]]
+ほら、ここにさらにテキストがあります。
+
+趣がありますね。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+
+これは長いタブです。たくさんのテキストを含んでいます。
+[[/tab]]
+[[tab このタブにはなぜかとても長い名前があります。なぜでしょう？ とても奇妙です。]]
+これは脚注付きのタブです[[footnote]]これは別の脚注です。[[/footnote]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[tab 空タブ]]
+[[/tab]]
+[[/tabview]]
+
+> これは引用ブロックです。各行の先頭に「> 」を置くと作成できます。
+>
+> さらにテキスト
+> -----
+> これは水平線です
+>
+>> 入れ子の引用ブロック
+
+||~ これは ||~ 表です ||
+||表の作り方は || 知っておくべきです ||
+||||これで || 完成 ||
+
+[[footnoteblock]]
+
+[[=]]
++++* ヘッダーフォントはLexendです。
+
+本文フォントはInterです。
+
+[[span style="font-family: var(--UI-font);"]]UIフォントはJostです。[[/span]]
+
+{{等幅フォントはJetBrains Monoです。}}
+[[/=]]
+
+------
+
++ CSS変数
+
+Bedrockは一連のCSS変数で構築されており、それらを変更すると外観を変えられます。主な上位変数の一部は次の通りです。
+
+[[code type="css"]]
+:root {
+    --basalt-primary-color: 254,254,254;
+    --basalt-secondary-color: 247,248,250;
+    --basalt-tertiary-color: 218,219,222;
+    --basalt-main-text-color: 20,20,20;
+    --basalt-overtone: 50,50,50;
+    --basalt-undertone: 61,71,202;
+
+    --basalt-bright-element-color: 16,76,184;
+    --basalt-dark-element-color: 18,20,150;
+    --basalt-alternate-color: 255,132,0;
+    --basalt-positive-color: 24,163,20;
+    --basalt-negative-color: 255,48,48;
+    --basalt-cancel-color: var(--basalt-negative-color);
+    --basalt-sub-text-color: 155,154,162;
+    --basalt-light-text-color: var(--basalt-primary-color);
+
+    --basalt-UI-dark-palette: var(--basalt-overtone);
+    --basalt-focus-color: var(--basalt-undertone);
+    --basalt-background-color: var(--basalt-primary-color);
+}
+[[/code]]
+
+色変数はRGB形式です。
+
+[[code type="css"]]
+:root {
+    --header-font-primary: 'Lexend', 'Noto Sans JP';
+    --UI-font-primary: 'Jost', 'Noto Sans JP';
+    --body-font-primary: 'Inter', 'Noto Sans JP';
+    --mono-font-primary: 'JetBrains Mono', 'Noto Sans Mono CJK JP';
+}
+[[/code]]
+
+Bedrockで使用される4種類のフォントです。
+
+[[code type="css"]]
+:root {
+    --header-logo: url('https://cdn.scpwiki.com/theme/en/basalt/basaltlogo.svg');
+    --header-title: 'SCP財団';
+    --header-subtitle: '確保 - 収容 - 保護';
+    --title-size: 1.5rem;
+    --subtitle-size: 0.825rem;
+
+    --base-font-size: 1rem;
+    --main-content-width: 67.5rem;
+    --side-bar-width: 19rem;
+}
+[[/code]]
+
+CSSの{{calc()}}関数の仕組みにより、remやpxのような長さ単位を持つ変数は、値を0にする場合でも単位を省かないでください。たとえば//{{@@--subtitle-size: 0rem;@@}}//ならサブタイトルは消えますが、{{calc()}}関数は無効になりません。
+
+{{@@--main-content-width@@}}には%単位を設定しないでください。メイン領域を画面幅いっぱいにしたい場合は、代わりに十分大きなrem値を使用してください。
+
+------
+
++ その他
+このテーマのソースコードは[https://basalt-team.github.io/Basalt/ GitHub]ページで確認できます。
+
+Bedrockは現在Common Themeと互換性がありません。
+
+
+[[module css]]
+.nametag {
+    --bs: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='517.88' height='444.8' version='1.0' viewBox='0 0 388.41 333.6'%3E%3Cpath d='M223 20.7c-4.6 4.9-23.9 24.6-42.9 43.8-19 19.3-36.5 37.1-38.9 39.6-4.2 4.5-4.5 5.4-17.8 47.9L110 195.3l8.7 18.5 8.8 18.5 8.5 3.9c4.7 2.2 9.5 4.4 10.7 4.8 2 .8 3.3-1 17.9-25.3 8.6-14.4 16.4-26.9 17.3-27.8.9-.9 3.7-2.3 6.3-3.2l4.7-1.6 31 13.5 30.9 13.5 9.9-6.3c5.4-3.4 10.1-6.6 10.4-7.1.3-.4 1.4-9.4 2.4-20 1.2-11.8 2.1-18.3 2.6-17.1.8 1.9 9.9 44.5 9.9 46.2 0 .5-2.3 3.9-5 7.5l-5.1 6.7 4.5 4.2c3.2 3.1 4.6 5.4 5.1 8.3 2.4 13.7 6.1 29.7 6.9 29.8.5.1 13.3-14.5 28.4-32.6l27.5-32.7h13.4l10.3 13.2c12.2 15.8 11.8 15.3 12.5 14.7.2-.3-1.8-12.6-4.5-27.5-4.5-24-6.6-32.4-19.8-77.4l-14.7-50.5L292 40.8c-31.6-15.7-58.2-28.7-59.1-28.7-.9-.1-5.3 3.8-9.9 8.6Zm88.4 73.6 23.3 32.7.8 28.1c.4 15.4.5 28.2.4 28.4-.2.2-5.6-12-11.9-27.1L312.5 129l-27.8-25.7c-15.3-14.2-29.9-27.7-32.5-30-2.6-2.4-4.5-4.3-4.2-4.3.3-.1 8.8-1.8 19-4 10.2-2.1 19.1-3.7 19.8-3.7.7.1 11.7 14.9 24.6 33zM63.2 183.8l-17.4 5.7-15.9 15.4c-8.8 8.5-15.8 15.9-15.5 16.6.2.7 5.2 7.8 11.1 15.8l10.6 14.5 9.2.6c5.1.3 18.2.8 29.2 1.1l20 .6 8.4-8.5 8.4-8.4-14-29.4c-7.7-16.1-14.7-29.4-15.4-29.5-.8-.1-9.2 2.3-18.7 5.5z' style='fill:%23000;stroke:none;stroke-width:.1' transform='translate(-14.4 -12.1)'/%3E%3Cpath d='m170.2 239.1-22.2 37 .2 28.7.3 28.6 49 6.2 48.9 6.1 22.1-9.8c20.4-9.1 22-10 21.7-12.2-.3-3.2-17.1-86.9-17.4-87.3-.6-.5-78.9-34.4-79.6-34.4-.4 0-10.7 16.7-23 37.1zm70.8 5.5c9.1 5.2 17 10.1 17.6 10.7 1.4 1.5 13.6 47.4 13.2 49.7-.2.9-5.9 6.7-12.8 12.9l-12.5 11.2-14.3-.7c-7.8-.3-17.7-.9-22-1.3l-7.7-.6 18.3-13.4c10-7.3 18.5-13.7 18.8-14.2.3-.5 1.1-9.7 1.7-20.3l1.1-19.4-9.7-12.1c-5.4-6.7-9.4-12.1-9-12.1.5 0 8.3 4.3 17.3 9.6zm94.5-1.4c-12.5 14.9-23 27.9-23.2 28.8-.3 1-.1 2 .4 2.3 1 .7 62.1 13.7 64.1 13.7 2.6 0 26.3-14.2 26-15.6-.3-1.4-40.9-53.4-43.1-55.3-1.1-.8-6 4.4-24.2 26.1z' style='fill:%23000;stroke:none;stroke-width:.1' transform='translate(-14.4 -12.1)'/%3E%3C/svg%3E");
+    text-align: center;
+    overflow: hidden;
+    padding-top: 2rem;
+}
+.nametag h1 {
+    font-size: 0;
+    height: 16rem;
+    width: min(16rem,90%);
+    margin: 0.5rem auto 0;
+    background-color: rgb(var(--basalt-overtone));
+    -webkit-mask-image: var(--bs);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    -webkit-mask-position: center;
+    mask-image: var(--bs);
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    mask-position: center;
+    transition: all 0.175s ease-out;
+}
+.nametag h1:hover {
+    background-color: rgb(var(--basalt-undertone));
+}
+
+#page-content .colors-container {
+    max-width: calc(var(--main-content-width)*0.75);
+    margin: 1.25rem auto;
+}
+.colors-container, .colors-container .css-variable {
+    font-family: var(--mono-font);
+}
+.colors-container .colors .color {
+    text-align: center;
+    flex-basis: calc((100% / 3) - 2rem);
+}
+.colors-container .color { margin: 0; }
+.colors-container, .colors-container .colors, .colors-container .subcolors { grid-gap: 0.375rem; }
+.colors-container .color span[style*="pre-wrap"] {
+    font-size: 85%;
+    opacity: 0.625;
+}
+[[/module]]
+[[/iftags]]

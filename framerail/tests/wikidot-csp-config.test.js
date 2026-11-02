@@ -68,8 +68,6 @@ test("allows captured Wikidot legacy asset origins in local CSP", () => {
       (source) => source === "https://d2qhngyckgiutd.cloudfront.net"
     )
   )
-  // Theme header logos and decorative images that live Wikidot loads from
-  // these hosts (jakstyle, al-slop, paperstack in the 2026-10-19 theme sweep).
   for (const origin of [
     "https://nu-scptheme.github.io",
     "https://scpwiki.github.io",
@@ -80,8 +78,6 @@ test("allows captured Wikidot legacy asset origins in local CSP", () => {
       origin
     )
   }
-  // Typekit kits (aesthetic-theme, ouroborous-theme) need the kit host for
-  // styles and fonts, and the `p.css` import host for styles only.
   assert(directives["style-src"]?.includes("https://use.typekit.net"))
   assert(directives["font-src"]?.includes("https://use.typekit.net"))
   assert(directives["style-src"]?.includes("https://p.typekit.net"))
@@ -106,13 +102,6 @@ test("allows captured Wikidot legacy asset origins in local CSP", () => {
   for (const origin of ["https://fonts.gstatic.com", "https://nu-scptheme.github.io"]) {
     assert(directives["font-src"]?.some((source) => source === origin))
   }
-  // The imported classified-decoration component `@import`s its Renner
-  // stylesheet and WOFF2 from Indestructible Type's font-hosting GitHub
-  // Pages site. Both retained shared-corpus copies of
-  // `component:classified-decoration-base` carry that import, and current
-  // Wikidot loads both assets, so the audited origin has to be allowlisted
-  // for CSS and font bytes while staying out of every other directive
-  // (issue #2213).
   for (const origin of ["https://indestructibletype-fonthosting.github.io"]) {
     assert(directives["style-src"]?.some((source) => source === origin))
     assert(directives["font-src"]?.some((source) => source === origin))

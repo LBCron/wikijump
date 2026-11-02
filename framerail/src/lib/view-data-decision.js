@@ -1,8 +1,3 @@
-/**
- * Error route data is the authoritative shell input when present. Parent
- * layout data can remain populated during error rendering and must not be
- * mixed into the error shell.
- */
 export const resolveCanonicalViewData = (errorData, pageData) =>
   errorData ?? pageData ?? null
 

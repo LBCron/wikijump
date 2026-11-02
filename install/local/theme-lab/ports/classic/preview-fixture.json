@@ -1,12 +1,11 @@
 {
-  "source_sha256": "162f067cede5e88784332a3e2a902ad411e24c48dba3b7cb349a780e9516e6be",
+  "source_sha256": "949175fc8426148dd8ca3ee3d2034f615158bef393c31e2735529fa19ef29218",
   "squares_source_sha256": "85c7b8294847156d8e2ccc1dd79591d4c83db1f2cf767747d4fb59fc80ec42c0",
   "expanded_theme_squares": 0,
   "omitted_unseeded_includes": [
     "component:interwiki-style",
     "credit:end-preview",
-    "credit:start-preview",
-    "theme:classic"
+    "credit:start-preview"
   ],
   "standard_runtime_fixture": [
     "Rate",

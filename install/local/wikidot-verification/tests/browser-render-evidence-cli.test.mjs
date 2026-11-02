@@ -10,10 +10,6 @@ import {
   browserRenderScriptPath as scriptPath,
 } from "./support/browser-render-evidence-fixture.mjs";
 
-// Independent mocked browsers must not fight over the real, process-global
-// Wikidot acquisition lock. The executable accepts this fixture-only override
-// exclusively inside the source-owned network isolation guard; without that
-// guard the production global lock remains mandatory.
 function mockCaptureEnvironment(root, extra = {}) {
   return {
     ...process.env,
@@ -254,8 +250,6 @@ exports.chromium = {
   assert.equal(records.capture.source_response_cache.entries, 0);
   if (process.env.WIKIJUMP_TEST_NETWORK_GUARD_ACTIVE === "1") {
     assert.equal(requestGateConfig.lock.path, path.join(root, "mock-capture.lock"));
-    // An explicit override without the network guard must fail before any
-    // browser request, even when a Playwright stub is supplied.
     await assert.rejects(
       execFileAsync(process.execPath, [
         scriptPath,
@@ -335,9 +329,6 @@ exports.chromium = {
   const captures = [execFileAsync(process.execPath, captureArgs(outputDir), {
     env: mockCaptureEnvironment(root),
   })];
-  // Exercise real process overlap: two mock browsers may capture at the same
-  // time, with distinct lock and durable gate paths. Real Wikidot acquisition
-  // still uses the single production lock and cannot evade it.
   const otherRoot = path.join(root, "independent");
   const otherOutputDir = path.join(otherRoot, "out");
   if (process.env.WIKIJUMP_TEST_NETWORK_GUARD_ACTIVE === "1") {

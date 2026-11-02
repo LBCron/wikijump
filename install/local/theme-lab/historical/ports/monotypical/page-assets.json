@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "slug": "theme:monotypical",
+  "mode": "Wikidot page attachments; upload each named file to this theme page before publication",
+  "assets": [
+    {
+      "filename": "mono-dracula.png",
+      "sha256": "695f4ad3654ba9a63585e61a94d740df4d340608842e93ce55e1940e6929d34a",
+      "bytes": 38179,
+      "asset_file": "695f4ad3654ba9a63585e61a94d740df4d340608842e93ce55e1940e6929d34a.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-80-rcg6/mono-dracula.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-80-rcg6/mono-dracula.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "mono-nord.png",
+      "sha256": "6a0c47c302004321e8f7bf7df6e04e18f14ac037664e1ef8b194b235616de200",
+      "bytes": 37494,
+      "asset_file": "6a0c47c302004321e8f7bf7df6e04e18f14ac037664e1ef8b194b235616de200.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-78-mugj/mono-nord.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-78-mugj/mono-nord.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "mono-solarized.png",
+      "sha256": "0830d0c7c6e4bcecb0863f88b35302c549167b41f171f2c4f9f263b49fed3b11",
+      "bytes": 37054,
+      "asset_file": "0830d0c7c6e4bcecb0863f88b35302c549167b41f171f2c4f9f263b49fed3b11.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-79-daqr/mono-solarized.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-79-daqr/mono-solarized.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "dependency_decisions": [
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "mono-dracula.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-80-rcg6/mono-dracula.png"
+      ],
+      "sha256": "695f4ad3654ba9a63585e61a94d740df4d340608842e93ce55e1940e6929d34a",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "mono-nord.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-78-mugj/mono-nord.png"
+      ],
+      "sha256": "6a0c47c302004321e8f7bf7df6e04e18f14ac037664e1ef8b194b235616de200",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "mono-solarized.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-79-daqr/mono-solarized.png"
+      ],
+      "sha256": "0830d0c7c6e4bcecb0863f88b35302c549167b41f171f2c4f9f263b49fed3b11",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ]
+}

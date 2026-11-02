@@ -45,9 +45,6 @@ test("walks the transitive include closure once per page, roots first", () => {
 });
 
 test("source and transitive include mutations change the drift proof, and reverting restores it", () => {
-  // Keep the originally imported database state while the corpus/source
-  // changes. This tests the *drift detector's* invalidation inputs, not the
-  // Deepwell renderer or propagation of compiled dependent pages.
   const source = new Map([
     ["scp-test", "[[include :scp-wiki:theme:basalt]]"],
     ["theme:basalt", "[[include :scp-wiki:component:preview]]"],
@@ -68,19 +65,15 @@ test("source and transitive include mutations change the drift proof, and revert
   assert.deepEqual(before.closure, ["scp-test", "theme:basalt", "component:preview"]);
   assert.equal(before.report.status, "current");
 
-  // Mutating a nested component invalidates the referenced source hash.
   source.set("component:preview", "updated preview");
   assert.deepEqual(observe().report.drifted, ["component:preview"]);
   source.set("component:preview", imported.get("component:preview"));
   assert.equal(observe().report.status, "current");
 
-  // Replacing the parent's nested include moves the closure to a different
-  // component, even when the root page's source was not edited.
   source.set("theme:basalt", "[[include :scp-wiki:component:acs-animation]]");
   assert.deepEqual(observe().closure, ["scp-test", "theme:basalt", "component:acs-animation"]);
   assert.deepEqual(observe().report.drifted, ["theme:basalt"]);
 
-  // A root-page edit must discover an unrelated target in the new source.
   source.set("scp-test", "[[include :scp-wiki:component:preview]]");
   assert.deepEqual(observe().closure, ["scp-test", "component:preview"]);
   assert.deepEqual(observe().report.drifted, ["scp-test"]);

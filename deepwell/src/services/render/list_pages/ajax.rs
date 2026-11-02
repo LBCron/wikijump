@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Wikidot Ajax Module Connector compatibility for ListPages requests.
-
 use std::collections::BTreeMap;
 use std::sync::LazyLock;
 
@@ -78,10 +76,6 @@ pub(in crate::services::render) fn build_wikidot_list_pages_module_request(
             return None;
         }
 
-        // Live AMC carries the ListPages pager as `p`, but `p` is request
-        // state rather than a module selector. Route it through UrlArguments
-        // so the ordinary pager clamp, generated links, and random cache key
-        // all observe the same page number.
         if normalized_key == "p" {
             if page.is_some() {
                 return None;

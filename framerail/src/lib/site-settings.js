@@ -130,7 +130,6 @@ const isOwnFilesThemeUrl = (url, ownFilesAuthority) => {
   return url.port === "" || url.port === authority.port
 }
 
-// S755_EXTERNAL_RESOURCE_FAILURE_POLICY: admission only; the browser owns redirects, timeouts, MIME, and transfer-size failures, with no server fetch or stale fallback.
 const isAllowedExternalThemeUrl = (url, ownFilesAuthority = null) =>
   url.protocol === "https:" &&
   !url.username &&
@@ -231,10 +230,6 @@ export const customThemeHeadHtml = (
  * @property {unknown} from_wikidot
  */
 
-/**
- * Separator joining a file's page and name in a presence set. Page slugs
- * and file names never contain NUL, so the join is unambiguous.
- */
 export const SITE_FILE_PRESENCE_SEPARATOR = "\0"
 
 /**
@@ -282,8 +277,6 @@ const splitAbsoluteHttpUrl = (rawUrl) => {
     : `${trimmed.slice(0, trimmed.indexOf("://")).toLowerCase()}:`
   if (scheme !== "http:" && scheme !== "https:") return null
   const authority = withoutProtocol.split("/", 1)[0]
-  // Userinfo and explicit ports never appear on Wikidot file hosts; treat
-  // either as a non-candidate rather than guessing intent.
   if (authority === "" || authority.includes("@") || authority.includes(":")) {
     return null
   }

@@ -54,23 +54,12 @@ use time::OffsetDateTime;
 
 pub const MAXIMUM_FILE_NAME_LENGTH: usize = 256;
 
-/// Partial unique index over live file rows, added for #2602.
-///
-/// Concurrent creates can both pass the `check_conflicts()` lookup before
-/// either inserts, so this index is the arbiter. Unique violations naming
-/// it map to `ErrorType::FileExists`.
 const FILE_ACTIVE_UNIQUE_INDEX: &str = "file_active_page_name_unique";
 
 #[derive(Debug)]
 pub struct FileService;
 
 impl FileService {
-    /// Creates a new file.
-    ///
-    /// Starts a file upload and tracks it as a distinct file entity.
-    ///
-    /// In the background, this stores the blob via content addressing,
-    /// meaning that duplicates are not uploaded twice.
     pub async fn create(
         ctx: &ServiceContext<'_>,
         CreateFile {
@@ -119,27 +108,18 @@ impl FileService {
             content_type,
             created: blob_created,
         } = match direct_upload {
-            None => {
-                // Normal path, finish upload of blob from user
-                BlobService::finish_page_upload(
-                    ctx,
-                    user_id,
-                    site_id,
-                    page_id,
-                    &uploaded_blob_id,
-                )
+            None => BlobService::finish_page_upload(
+                ctx,
+                user_id,
+                site_id,
+                page_id,
+                &uploaded_blob_id,
+            )
+            .await
+            .or_raise(make_error)?,
+            Some(data) => BlobService::direct_upload(ctx, data)
                 .await
-                .or_raise(make_error)?
-            }
-            Some(data) => {
-                // Special path, used only internally to directly upload a blob,
-                // for instance in the seeder
-                //
-                // This should always be None when called from API users
-                BlobService::direct_upload(ctx, data)
-                    .await
-                    .or_raise(make_error)?
-            }
+                .or_raise(make_error)?,
         };
 
         let model = file::ActiveModel {
@@ -148,10 +128,6 @@ impl FileService {
             page_id: Set(page_id),
             ..Default::default()
         };
-        // The pre-insert check_conflicts() lookup cannot see a concurrent
-        // uncommitted insert, so the losing racer reaches this insert. Map
-        // the partial unique violation to the same conflict error rather
-        // than leaking a raw database error.
         let file = match model.insert(txn).await {
             Ok(file) => file,
             Err(error) if is_file_active_unique_violation(&error) => {
@@ -201,7 +177,6 @@ impl FileService {
         Ok(output)
     }
 
-    /// Edits a file, creating a new revision.
     pub async fn edit(
         ctx: &ServiceContext<'_>,
         EditFile {
@@ -229,7 +204,6 @@ impl FileService {
         };
 
         let txn = ctx.transaction();
-        // Serialize edits before validating the revision snapshot or promoting a blob.
         File::find_by_id(file_id)
             .filter(file::Column::SiteId.eq(site_id))
             .filter(file::Column::PageId.eq(page_id))
@@ -261,10 +235,6 @@ impl FileService {
 
         let mut new_name = ActiveValue::NotSet;
 
-        // Verify name change
-        //
-        // If the name isn't changing, then we already verified thigreens
-        // when the file was originally created.
         if let Maybe::Set(ref mut name) = name {
             new_name = ActiveValue::Set(name.clone());
 
@@ -281,10 +251,6 @@ impl FileService {
             }
         }
 
-        // If a new file version was uploaded, then finalize.
-        //
-        // Get the blob struct for conditionally adding to
-        // the CreateFileRevisionBody.
         let blob = match uploaded_blob_id {
             Maybe::Unset => Maybe::Unset,
             Maybe::Set(ref id) => {
@@ -295,21 +261,14 @@ impl FileService {
                     content_type,
                     created: blob_created,
                 } = match direct_upload {
-                    Maybe::Unset => {
-                        // Normal path, finish upload of blob from user
-                        BlobService::finish_page_upload(
-                            ctx, user_id, site_id, page_id, id,
-                        )
+                    Maybe::Unset => BlobService::finish_page_upload(
+                        ctx, user_id, site_id, page_id, id,
+                    )
+                    .await
+                    .or_raise(make_error)?,
+                    Maybe::Set(data) => BlobService::direct_upload(ctx, data)
                         .await
-                        .or_raise(make_error)?
-                    }
-                    Maybe::Set(data) => {
-                        // Special path, used only internally to directly upload a blob
-                        // See FileService::create()
-                        BlobService::direct_upload(ctx, data)
-                            .await
-                            .or_raise(make_error)?
-                    }
+                        .or_raise(make_error)?,
                 };
 
                 Maybe::Set(FileBlob {
@@ -369,7 +328,6 @@ impl FileService {
         Ok(revision_output)
     }
 
-    /// Moves a file from from one page to another.
     pub async fn r#move(
         ctx: &ServiceContext<'_>,
         MoveFile {
@@ -450,11 +408,6 @@ impl FileService {
         Ok(revision_output)
     }
 
-    /// Deletes this file.
-    ///
-    /// Like other deletions throughout Wikijump, this is a soft deletion.
-    /// It marks the files as deleted but retains the contents, permitting it
-    /// to be easily reverted.
     pub async fn delete(
         ctx: &ServiceContext<'_>,
         input: DeleteFile<'_>,
@@ -462,10 +415,6 @@ impl FileService {
         Self::delete_inner(ctx, input, false).await
     }
 
-    /// Deletes this file, erasing its S3 hash in the tombstone revision.
-    ///
-    /// This is used as part of the hard deletion implementation, in the step
-    /// prior to erasing and hiding the S3 hash in all affected files.
     pub async fn delete_with_erased_s3_hash(
         ctx: &ServiceContext<'_>,
         input: DeleteFile<'_>,
@@ -473,10 +422,6 @@ impl FileService {
         Self::delete_inner(ctx, input, true).await
     }
 
-    /// Performs a file deletion.
-    ///
-    /// Contains a flag for determining if the S3 hash of the file being deleted should be wiped,
-    /// as part of the hard deletion implementation.
     async fn delete_inner(
         ctx: &ServiceContext<'_>,
         DeleteFile {
@@ -552,9 +497,6 @@ impl FileService {
         File::find_by_id(file_id).lock_exclusive()
     }
 
-    /// Restores a deleted file.
-    ///
-    /// This undeletes a file, moving it from the deleted sphere to the specified location.
     pub async fn restore(
         ctx: &ServiceContext<'_>,
         RestoreFile {
@@ -570,10 +512,6 @@ impl FileService {
         }: RestoreFile<'_>,
     ) -> Result<RestoreFileOutput> {
         let txn = ctx.transaction();
-        // Serialize restores before checking deleted state or creating the
-        // resurrection revision. A concurrent restore waits here, then sees
-        // the committed active state and fails without creating a revision or
-        // audit event.
         let file = Self::restore_file_query(file_id)
             .one(txn)
             .await
@@ -598,11 +536,6 @@ impl FileService {
 
         let mut new_name = new_name.unwrap_or(file.name);
         normalize_and_validate_file_name(&mut new_name).or_raise(make_error)?;
-
-        // Do page checks:
-        // - Page is correct
-        // - File is deleted
-        // - Name doesn't already exist
 
         if file.page_id != page_id {
             warn!(
@@ -689,9 +622,6 @@ impl FileService {
         })
     }
 
-    /// Rolls back a file to be the same as it was in a previous revision.
-    /// It changes the file to have the exact state it had in a previous
-    /// revision, regardless of any changes since.
     pub async fn rollback(
         ctx: &ServiceContext<'_>,
         RollbackFile {
@@ -794,7 +724,6 @@ impl FileService {
                     (None, None) => None,
                     _ => unreachable!("file revision descriptor columns are paired"),
                 },
-                // in a rollback, by definition the blob was already uploaded
                 blob_created: false,
             })
         };
@@ -815,7 +744,7 @@ impl FileService {
             body: CreateFileRevisionBody {
                 name: name_body,
                 blob,
-                page_id: Maybe::Unset, // rollbacks should never move files
+                page_id: Maybe::Unset,
             },
         };
 
@@ -896,13 +825,6 @@ impl FileService {
         find_or_error!(Self::get_optional(ctx, input), "file", File)
     }
 
-    /// Gets all files on a page, with potential conditions.
-    ///
-    /// The `deleted` argument:
-    /// * If it is `Some(true)`, then it only returns files which have been deleted.
-    /// * If it is `Some(false)`, then it only returns files which are extant.
-    /// * If it is `None`, then it returns all files regardless of deletion status.
-    // TODO add pagination
     pub async fn get_all(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -948,11 +870,6 @@ impl FileService {
         Ok(files)
     }
 
-    /// Loads a bounded active file inventory and each file's latest revision.
-    ///
-    /// Callers must complete the parent page's Page:View decision before invoking
-    /// this method. Keeping authorization outside this query makes it impossible
-    /// for a denied render to load file names or revision metadata speculatively.
     pub async fn get_visible_rows(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1063,7 +980,6 @@ impl FileService {
         Ok(Some(visible))
     }
 
-    /// Gets the ID of an active file within an explicit site and page scope.
     pub async fn get_id(ctx: &ServiceContext<'_>, input: GetFile<'_>) -> Result<i64> {
         Self::get(ctx, input).await.map(|file| file.file_id)
     }
@@ -1095,7 +1011,6 @@ impl FileService {
             && !allow_deleted
             && file.deleted_at.is_some()
         {
-            // If we're not looking for deleted files, then skip.
             return Ok(None);
         }
 
@@ -1115,9 +1030,6 @@ impl FileService {
         )
     }
 
-    /// Checks to see if a file already exists at the name specified.
-    ///
-    /// If so, this method fails with `ErrorType::FileExists`. Otherwise it returns nothing.
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -1164,10 +1076,6 @@ impl FileService {
         }
     }
 
-    /// This runs the regular expression-based text filters against a file's name.
-    ///
-    /// It does not check the file's contents, as that is a binary blob.
-    /// Such a hash filter would need to be implemented through a separate system.
     async fn run_filter(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -1211,11 +1119,6 @@ impl FileService {
     }
 }
 
-/// Verifies that this filename is valid.
-///
-/// This helper function is generally read-only, but if
-/// it finds a name which has leading or trailing whitespace,
-/// then it trims that off in-place.
 pub(crate) fn normalize_and_validate_file_name(name: &mut String) -> Result<()> {
     trim_spaces_in_place(name);
     debug!("Trimmed file name: '{name}'");
@@ -1248,10 +1151,6 @@ pub(crate) fn normalize_and_validate_file_name(name: &mut String) -> Result<()> 
         ));
     }
 
-    // Makes sure there aren't any control characters or slashes.
-    //
-    // Rust considers null bytes, newlines, tabs and the various unprintables to be 'control'.
-    // See https://doc.rust-lang.org/stable/std/primitive.char.html#method.is_control
     if name
         .chars()
         .any(|c| c.is_control() || c == '/' || c == '\\')
@@ -1281,9 +1180,6 @@ fn is_file_active_unique_violation(error: &DbErr) -> bool {
     )
 }
 
-/// Verifies that the `last_revision_id` argument is the most recent.
-///
-/// See the helper function with the same name in `services/page/service.rs`.
 fn check_last_revision(
     last_revision_model: &FileRevisionModel,
     arg_last_revision_id: i64,

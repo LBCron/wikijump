@@ -76,8 +76,6 @@
 
   let { children } = $props()
 
-  // Imported Wikidot layouts open Sign in in place; the href stays the native
-  // /-/login fallback for modified clicks and for activation before hydration.
   let wikidotSignInOpen = $state(false)
   function openWikidotSignIn(event: MouseEvent) {
     if (!isPlainPrimaryActivation(event)) return
@@ -107,7 +105,6 @@
 
   function resolveCurrentLayout() {
     if (page.route.id?.startsWith("/[x+2d]/")) {
-      // this is a special page, use Wikijump layout
       return Layout.WIKIJUMP
     }
 
@@ -169,8 +166,6 @@
   )
   const siteFileEvidence = $derived(viewData?.site ?? null)
   const siteFileAuthority = $derived(viewData?.site_file_domain ?? null)
-  // The site's own files authority also admits an external theme served
-  // from that host: a site may run a base theme it publishes itself.
   const effectiveTheme = $derived(
     normalizeThemeSetting(viewData?.theme, siteFileAuthority)
   )
@@ -180,11 +175,6 @@
       page.url.searchParams.get("theme_url")
     )
   )
-  // The head rewrites a WDFiles attachment URL only on two pieces of
-  // evidence together: the viewed site names the file, and the page loader
-  // confirmed that exact page file exists locally. Without both, every
-  // theme and asset URL stays literal, so a partially imported mirror
-  // keeps the working source hotlink instead of a local 404.
   const siteFilePresence = $derived(
     new Set(
       Array.isArray(viewData?.site_file_presence)
@@ -220,9 +210,6 @@
   const siteFavicon = $derived(faviconDeclaration(iconSite))
   const siteHasIosIcons = $derived(hasIosIcons(iconSite))
   const siteWindowsTile = $derived(windowsTileDeclaration(iconSite))
-  // Site-field head fallbacks minus any stored meta-tag row that replaces
-  // them. The page head projects the effective rows themselves, so the
-  // final head carries each text/social entry exactly once.
   const headMetaFallbacks = $derived(
     unsupersededHeadFallbacks(
       siteHeadFallbacks(viewData?.site ?? null),
@@ -243,8 +230,6 @@
     let stop: (() => void) | undefined
     const uninstallSearchAll = installWikidotSearchAll(window)
     const uninstallJavascriptAnchorGuard = installJavascriptAnchorGuard(document)
-    // Permission-denial `#action:login` links reuse the in-place sign-in
-    // surface while it is available; otherwise they keep their behaviour.
     const uninstallLoginActionHandler = installWikidotLoginActionHandler(document, {
       isSurfaceAvailable: () => isImportedWikidotLayout && !viewData?.user_session,
       openSurface: () => {
@@ -256,7 +241,6 @@
     const uninstallHovertips = isImportedWikidotLayout
       ? installWikidotHovertips(document)
       : () => {}
-    // Browser ODate phase (issue #2638): viewer-local text for odate spans.
     const uninstallOdates = isImportedWikidotLayout
       ? installWikidotOdates(document)
       : () => {}
@@ -283,8 +267,6 @@
     }
   })
 
-  // Keep existing child components synchronized after hydration while the
-  // top-level shell decision is available during SSR through request-local context.
   $effect.pre(() => {
     pageLayoutContext.current = currentLayout
     pageLayoutState.current = currentLayout
@@ -578,7 +560,6 @@
     max-width: 100%;
   }
 
-  // Wrap the links instead of pushing the powered-by line past narrow viewports.
   .footer-items {
     display: flex;
     flex: 1 1 auto;
@@ -600,6 +581,20 @@
   @media (max-width: $tablet-max-width) {
     .header-wordmark {
       font-size: 2rem;
+      text-align: center;
+    }
+
+    .footer-inner {
+      flex-direction: column;
+      justify-content: center;
+      padding-bottom: 1em;
+    }
+    .footer-items {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-powered-by {
       text-align: center;
     }
   }

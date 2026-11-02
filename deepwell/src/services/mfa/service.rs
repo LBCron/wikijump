@@ -39,9 +39,6 @@ const TOTP_ALGORITHM: TotpAlgorithm = TotpAlgorithm::SHA256;
 pub struct MfaService;
 
 impl MfaService {
-    /// Initializes MFA for a user.
-    ///
-    /// Fails if MFA is already configured.
     pub async fn setup(
         ctx: &ServiceContext<'_>,
         user: &UserModel,
@@ -114,9 +111,6 @@ impl MfaService {
         })
     }
 
-    /// Regenerates all / refills recovery codes for this user.
-    ///
-    /// All prior recovery codes are invalidated.
     pub async fn reset_recovery_codes(
         ctx: &ServiceContext<'_>,
         user: &UserModel,
@@ -176,10 +170,6 @@ impl MfaService {
         })
     }
 
-    /// Disables MFA for a user.
-    ///
-    /// After this is run, the user does not need MFA to sign in,
-    /// and has no recovery codes or TOTP secret.
     pub async fn disable(
         ctx: &ServiceContext<'_>,
         user_id: i64,
@@ -217,10 +207,6 @@ impl MfaService {
         Ok(())
     }
 
-    /// Verifies if the TOTP passed for this user is valid.
-    ///
-    /// # Returns
-    /// Nothing on success, yields an `InvalidAuthentication` error on failure.
     pub async fn verify(
         ctx: &ServiceContext<'_>,
         user: &UserModel,
@@ -289,13 +275,6 @@ impl MfaService {
         ));
     }
 
-    /// Verifies if the recovery code for this user is valid.
-    ///
-    /// If it is, then the code is removed from the user's list
-    /// of valid codes before returning success.
-    ///
-    /// # Returns
-    /// Nothing on success, yields an `InvalidAuthentication` error on failure.
     pub async fn verify_recovery(
         ctx: &ServiceContext<'_>,
         user: &UserModel,
@@ -317,7 +296,6 @@ impl MfaService {
             }
         };
 
-        // Constant-time, check all the recovery codes even when we know we have a match.
         let mut matched = None;
         for recovery_code_hash in recovery_code_hashes {
             if PasswordService::verify_sleep(
@@ -334,14 +312,11 @@ impl MfaService {
         }
 
         match matched {
-            // Remove the used recovery code from the list.
             Some(hash) => {
                 UserService::remove_recovery_code(ctx, user, hash).await?;
                 Ok(())
             }
 
-            // The endpoint wrapper applies one uniform delay after committing
-            // expected second-factor rejections.
             None => bail!(Error::new(
                 format!(
                     "cannot verify MFA recovery code for user '{}' (ID {})",
@@ -353,8 +328,6 @@ impl MfaService {
     }
 }
 
-/// Applies the legacy signed-seconds offset and verifies exactly one TOTP step.
-/// The configured offset is not an acceptance window.
 fn verify_totp_at_with_seconds_offset(
     totp: &TOTP,
     code: u32,
@@ -386,7 +359,6 @@ mod tests {
     #[test]
     fn totp_time_offset_is_interpreted_as_seconds_not_steps() {
         let totp = test_totp();
-        // Twenty seconds into a 30-second TOTP step.
         let timestamp = 1_700_000_000;
         let current_step_code = totp.generate_at(timestamp);
         let previous_step_code = totp.generate_at(timestamp - 30);
@@ -428,8 +400,6 @@ mod tests {
     #[test]
     fn totp_time_offset_selects_exactly_one_shifted_step() {
         let totp = test_totp();
-        // The previous and next step boundaries are 21 seconds behind and
-        // 10 seconds ahead of this timestamp, respectively.
         let timestamp = 1_700_000_000;
         let current_step_code = totp.generate_at(timestamp);
         let previous_step_code = totp.generate_at(timestamp - 21);

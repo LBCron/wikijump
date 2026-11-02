@@ -1,0 +1,23 @@
+{
+  "schema": "scp_jp_theme_visual_credit_variants.v1",
+  "site": "scpaiueouiuiuiui",
+  "provisioned_at": "2026-09-24",
+  "variants": [
+    {
+      "kind": "no-rate",
+      "slug": "run-owned:theme-lab-visual-credit-no-rate-20260924",
+      "page_id": 3001592427,
+      "source": "fixture-no-rate.wikidot.txt",
+      "source_sha256": "a916095de820d0ae05c52f20057186dca3a4a84ae10d70131058938efb34437b",
+      "tags": ["theme-lab-visual-acceptance", "jp", "日本語"]
+    },
+    {
+      "kind": "heritage",
+      "slug": "run-owned:theme-lab-visual-credit-heritage-20260924",
+      "page_id": 3001592428,
+      "source": "fixture-heritage.wikidot.txt",
+      "source_sha256": "2256558cdddac35713b72ff630cd7a323d56024c6512b8b9a08df28669868209",
+      "tags": ["theme-lab-visual-acceptance", "jp", "日本語", "殿堂入り"]
+    }
+  ]
+}

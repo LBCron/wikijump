@@ -55,13 +55,6 @@ export function usage() {
   return "Usage: verify-corpus-import-integrity.mjs --manifest <manifest.jsonl> [--site-id <id>] [--db-container <name> | --db-url <url>] [--slug <slug>...] [--require-rendered-body <slug>...] [--cross-site-coverage --attribution <attribution.json> [--check-include-errors]] [--mirror-scope <mirror-scope.json>]";
 }
 
-/**
- * Read a mirror_scope row snapshot (as written by the refresh tool's
- * mirror_scope_get, or `{declared_extras, consumed_slugs}` in either
- * snake_case or camelCase). Consumed slugs are tombstoned or renamed-away
- * source slugs: a manifest row that resolves to one is reconciled, not
- * missing.
- */
 export function readMirrorScope(text) {
   const row = JSON.parse(text);
   const declared = row.declared_extras ?? row.declaredExtras ?? [];
@@ -127,9 +120,9 @@ export function readIntegrityManifest(manifestText, selectedSlugs = []) {
 
 export function buildIntegrityQuery(args, rows) {
   const requested = rows
-    .map((row) => `(${sqlQuote(row.fullname)})`)
+    .map((row) => `(${sqlQuote(row.fullname)}, ${sqlQuote(row.source_site)})`)
     .join(",\n  ");
-  return `WITH requested(slug) AS (VALUES\n  ${requested}\n)
+  return `WITH requested(slug, source_site) AS (VALUES\n  ${requested}\n)
 SELECT requested.slug,
   COALESCE(page.page_id::text, ''),
   COALESCE(revision.revision_id::text, ''),
@@ -138,7 +131,26 @@ SELECT requested.slug,
   COALESCE(length(body.contents)::text, '-1'),
   COALESCE(latest_item.state, '')
 FROM requested
-LEFT JOIN page ON page.site_id = ${sqlInt(args.siteId)} AND page.slug = requested.slug AND page.deleted_at IS NULL
+LEFT JOIN LATERAL (
+  SELECT candidate.page_id, candidate.latest_revision_id
+  FROM (
+    SELECT 0 AS priority, held.page_id, held.latest_revision_id
+    FROM wikidot_page_snapshot held_snapshot
+    JOIN page held ON held.page_id = held_snapshot.page_id
+    WHERE held.site_id = ${sqlInt(args.siteId)}
+      AND held.deleted_at IS NULL
+      AND held_snapshot.source_site = requested.source_site
+      AND held_snapshot.source_fullname = requested.slug
+    UNION ALL
+    SELECT 1, named.page_id, named.latest_revision_id
+    FROM page named
+    WHERE named.site_id = ${sqlInt(args.siteId)}
+      AND named.slug = requested.slug
+      AND named.deleted_at IS NULL
+  ) candidate
+  ORDER BY candidate.priority, candidate.page_id
+  LIMIT 1
+) page ON true
 LEFT JOIN page_revision revision ON revision.revision_id = page.latest_revision_id
 LEFT JOIN text source ON source.hash = revision.wikitext_hash
 LEFT JOIN text body ON body.hash = revision.compiled_body_html_hash
@@ -243,11 +255,6 @@ export function verifyIntegrityRows(
   return { status: failures.length ? "fail" : "pass", pages, failures };
 }
 
-/**
- * Build the materialization query for cross-site coverage mode: for each
- * manifest row, whether a snapshot with its foreign identity is already
- * imported on the target site.
- */
 export function buildCrossSiteCoverageQuery(args, rows) {
   const requested = rows
     .map(
@@ -268,13 +275,6 @@ GROUP BY requested.source_site, requested.source_fullname
 ORDER BY requested.source_site, requested.source_fullname;`;
 }
 
-/**
- * Verify cross-site coverage: pure function over manifest rows, the
- * per-affected-page attribution map (`{ slug: { rows: ["branch:fullname"],
- * gaps, truncated } }`), and the materialization query output. A page
- * counts as covered when it has no gaps or truncation and every attributed
- * row is already materialized on the target site.
- */
 export function verifyCrossSiteCoverage(rows, attribution, output) {
   const materialized = new Set();
   for (const line of output.split("\n").filter(Boolean)) {

@@ -1,0 +1,482 @@
+{
+  "schema": "theme_lab_browser_acceptance_states.v1",
+  "states": [
+    {
+      "surface": "page.normal",
+      "state": "settled",
+      "applicable_viewports": [
+        "desktop",
+        "laptop",
+        "tablet",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "Baseline appearance is required at all five defined form factors."
+    },
+    {
+      "surface": "content.tabview",
+      "state": "second-tab-selected",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "content.collapsible",
+      "state": "expanded",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "shell.search",
+      "state": "typed-focused",
+      "applicable_viewports": [
+        "desktop",
+        "laptop",
+        "tablet"
+      ],
+      "not_applicable_reason": "This is a breakpoint-specific desktop navigation state; other pointer states are covered at the canonical desktop width."
+    },
+    {
+      "surface": "shell.search",
+      "state": "compact-submit",
+      "applicable_viewports": [
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "nav.desktop-top",
+      "state": "submenu-hover",
+      "applicable_viewports": [
+        "desktop"
+      ],
+      "not_applicable_reason": "This state belongs to the listed shell form factor; alternate form factors have a distinct state or normal-page baseline."
+    },
+    {
+      "surface": "nav.tablet-top",
+      "state": "active-navigation-expanded",
+      "applicable_viewports": [
+        "tablet"
+      ],
+      "not_applicable_reason": "This is a breakpoint-specific desktop navigation state; other pointer states are covered at the canonical desktop width."
+    },
+    {
+      "surface": "nav.mobile-top",
+      "state": "submenu-expanded",
+      "applicable_viewports": [
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "nav.sidebar",
+      "state": "open",
+      "applicable_viewports": [
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "nav.sidebar",
+      "state": "closed-after-open",
+      "applicable_viewports": [
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "nav.sidebar",
+      "state": "open-submenu",
+      "applicable_viewports": [
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "credit.default",
+      "state": "normal",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "credit.view",
+      "state": "open",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "credit.otherwise",
+      "state": "open",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "credit.close-back",
+      "state": "restored",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.options",
+      "state": "default",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.options",
+      "state": "more-expanded",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.tags",
+      "state": "open",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.history",
+      "state": "list",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.history",
+      "state": "revision-row-hovered",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.history",
+      "state": "diff",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.source",
+      "state": "open",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.files",
+      "state": "list",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.files",
+      "state": "horizontal-actions",
+      "applicable_viewports": [
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "shell.footer-license",
+      "state": "scrolled-bottom",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "shell.interwiki",
+      "state": "visible",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.backlinks",
+      "state": "list",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "page.parent",
+      "state": "pane",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "page.edit",
+      "state": "editor",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "page.rename",
+      "state": "confirm-pane",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "page.delete",
+      "state": "confirm-pane",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "credit.variant.no-rate",
+      "state": "default",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "credit.variant.no-rate",
+      "state": "view",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "credit.variant.heritage",
+      "state": "default",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "credit.variant.heritage",
+      "state": "view",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "shell.login",
+      "state": "account-hover",
+      "applicable_viewports": [
+        "desktop"
+      ],
+      "not_applicable_reason": "This state belongs to the listed shell form factor; alternate form factors have a distinct state or normal-page baseline."
+    },
+    {
+      "surface": "nav.desktop-top",
+      "state": "keyboard-focus",
+      "applicable_viewports": [
+        "desktop"
+      ],
+      "not_applicable_reason": "This state belongs to the listed shell form factor; alternate form factors have a distinct state or normal-page baseline."
+    },
+    {
+      "surface": "content.link",
+      "state": "hovered",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "content.link",
+      "state": "focused",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "content.rating",
+      "state": "focused",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "page.tags",
+      "state": "input-focused",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "credit.view",
+      "state": "scrolled-bottom",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "credit.otherwise",
+      "state": "scrolled-bottom",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "credit.otherwise",
+      "state": "back-control-click",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "credit.otherwise",
+      "state": "back-to-view",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "page.source",
+      "state": "closed",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "page.history",
+      "state": "historical-source",
+      "applicable_viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "not_applicable_reason": "Detailed interaction is checked at canonical desktop and representative mobile; laptop/tablet use the normal-page baseline and controls explicitly scoped to their breakpoint."
+    },
+    {
+      "surface": "dialog.generic",
+      "state": "edit-permission-error",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "dialog.generic",
+      "state": "close-button",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "dialog.generic",
+      "state": "escape-close",
+      "applicable_viewports": [
+        "desktop",
+        "mobile",
+        "narrow-mobile"
+      ],
+      "not_applicable_reason": "This state exercises a phone-only interaction and the SCP-JP 320px boundary; the wide shell has a separate desktop state."
+    },
+    {
+      "surface": "page.history",
+      "state": "comments-column-scroll",
+      "applicable_viewports": [],
+      "not_applicable_reason": "The retained Wikidot History evidence is an AMC fragment and does not establish whether mobile History scrolls or reflows; this layout remains unclassified."
+    }
+  ]
+}

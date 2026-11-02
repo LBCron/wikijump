@@ -1,0 +1,157 @@
+{
+  "slug": "theme:night-rush-theme",
+  "en_source_sha256": "2d1fe57ae48528ada48c2f177e2b9db9d3b83b825233e3bd105cc38931cd69ef",
+  "en_updated_at": "2022-12-20T21:40:07+00:00",
+  "en_entity_uuid": "c5b815e1-97fc-40c4-b411-a9448612a00d",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "03327c410ace73c1105b60aaf89f254336732ed63579c9c952608be0462bb132",
+  "jp_previous_updated_at": "2026-09-24T21:34:04+00:00",
+  "jp_previous_entity_uuid": "11b60ef5-308f-470c-9850-f42fcb81fa1e",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:night-rush-theme",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:night-rush-theme",
+    "title": "Night Rush Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "2d1fe57ae48528ada48c2f177e2b9db9d3b83b825233e3bd105cc38931cd69ef",
+      "updated_at": "2022-12-20T21:40:07+00:00",
+      "entity_uuid": "c5b815e1-97fc-40c4-b411-a9448612a00d",
+      "tags": [
+        "_cc",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 31,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:night-rush-theme"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "03327c410ace73c1105b60aaf89f254336732ed63579c9c952608be0462bb132",
+      "updated_at": "2026-09-24T21:34:04+00:00",
+      "entity_uuid": "11b60ef5-308f-470c-9850-f42fcb81fa1e",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:night-rush-theme"
+      },
+      "revisions": 11
+    },
+    "existing_jp_audit": "existing-jp-current-and-valid",
+    "technical_spec_version": "1.4",
+    "final_verdict": "warn",
+    "existing_jp_rebase": {
+      "previous_sha256": "05a20d5b6e1534554099e014972271405efabf5a119d6c84b8a3b2b021922453",
+      "previous_snapshot": "existing-jp-pre-rebase-20261005.wikidot.txt",
+      "current_revision": 11,
+      "current_updated_at": "2026-09-24T21:34:04+00:00",
+      "current_sha256": "03327c410ace73c1105b60aaf89f254336732ed63579c9c952608be0462bb132",
+      "diff_assessment": "provenance refresh; source freshness audit found no theme CSS/runtime behavior delta"
+    }
+  },
+  "dependencies": {
+    "slug": "theme:night-rush-theme",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:info:start",
+      ":scp-wiki:info:more",
+      ":scp-wiki:info:end",
+      ":scp-wiki:theme:night-rush-theme",
+      "component:image-block name=https://scp-wiki.wdfiles.com/local--files/scp-4755/containment"
+    ],
+    "en_external_dependencies": [
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Anight-rush-theme/1",
+      "https://scp-wiki.wdfiles.com/local--files/scp-4755/containment|caption=This",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Anight-rush-theme/night-rush-header.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Anight-rush-theme/night-rush-icon.png"
+    ],
+    "jp_includes": [
+      ":scp-wiki:info:start",
+      ":scp-wiki:info:more",
+      ":scp-wiki:info:end",
+      "theme:night-rush-theme",
+      "component:image-block name=http://scp-jp.wikidot.com/local--files/scp-4755/containment"
+    ],
+    "jp_external_dependencies": [
+      "http://scp-jp-storage.wikidot.com/local--files/file:7974444-50-9wqt/night-rush-header.png",
+      "http://scp-jp-storage.wikidot.com/local--files/file:7974444-51-jv2x/night-rush-icon.png",
+      "http://scp-jp.wikidot.com/local--files/scp-4755/containment|caption=これはテストイメージです。|width=200px|alt=黒背景に輝く財団ロゴ",
+      "https://scp-jp.github.io/files/theme/night-rush-theme/style0.css"
+    ],
+    "base_family": "independent"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "final_verdict": "warn",
+  "existing_jp_audit": "existing-jp-current-and-valid",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/night-rush-theme/assets.json",
+  "asset_dependency_decision_count": 3,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "5d0cc657cd638addbb28f8278832126dc863b1ae0ae339f216dceff45ef2f98c",
+    "jp_overrides_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "semantic_css_sha256": "f47e7a00ae85c33feb57cd171887f580b2bd41d324d0412c0f7cc13263667016",
+    "canonical_override_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "5d0cc657cd638addbb28f8278832126dc863b1ae0ae339f216dceff45ef2f98c",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "98aefb3f8877ada1322c625bdaaca3c536db5672d118c43437d3b47a010caa2f",
+      "active_tags": [],
+      "candidate_source_sha256": "5d0cc657cd638addbb28f8278832126dc863b1ae0ae339f216dceff45ef2f98c",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "6ecbb80fc4aa2e7fbf948a2ced01153aa816bd2911cfcb6cfa398bc3f534245b",
+      "asset_receipt_path": "assets.json",
+      "assets": 2,
+      "imports": 1,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "warn",
+    "port_verdict": "pass",
+    "target_status": "warn"
+  }
+}

@@ -1,0 +1,5 @@
+ここはSCP Wikiのテーマ、Sigma-10のディレクトリです。
+
+ソースコードは[https://github.com/SCP-JP/sigma GitHub]でホストされ、提供されています。
+
+サイトテーマの前バージョン(SCP Sigma-9)のコードは、[[[component:theme|こちら]]]で見ることができます。

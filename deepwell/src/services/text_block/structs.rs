@@ -20,32 +20,19 @@
 
 #[derive(Debug)]
 pub struct TextBlock<'a> {
-    /// The contents of this hosted text block.
     pub text: &'a str,
 
-    /// The user-specified text type of this block.
-    /// This is what is used to determine `mime` below.
     pub text_type: Option<&'a str>,
 
-    /// The MIME type of this text block.
-    /// This is stored in S3 and thus returned on any HTTP requests for the block.
-    /// This is determined by `mime_for_language()`.
     pub mime: &'a str,
 
-    /// An optional name for this text block.
-    ///
-    /// This permits referencing the block through a basic readable name instead
-    /// of via a numerical index. It is optional, and most blocks will not have
-    /// this set.
     pub name: Option<&'a str>,
 }
 
 #[derive(Serialize, Debug, Clone)]
 pub struct TextBlockIndex {
-    /// The text block index associated with this name/alias.
     pub index: i16,
 
-    /// The filename that this block is stored under in S3.
     pub s3_filename: String,
 }
 

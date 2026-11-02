@@ -1,5 +1,3 @@
-//! Native Wikidot list compatibility helpers.
-
 use super::{
     BTreeSet, MAX_WIKIDOT_COMPAT_FALLBACK_TITLE_LINKS, WIKIDOT_EXTERNAL_LINK_REGEX,
     WIKIDOT_LABELED_LINK_REGEX, WIKIDOT_LOCAL_LINK_REGEX, WIKIDOT_QUADRUPLE_LINK_REGEX,
@@ -567,9 +565,6 @@ fn find_matching_wikidot_span_close(value: &str) -> Option<usize> {
 
             loop {
                 if bytes[offset..].starts_with(SPAN_CLOSE) {
-                    // The candidate opener is malformed because a real
-                    // closer appears before its terminating marker. Leave the
-                    // cursor on that closer so the outer span can consume it.
                     break;
                 }
                 if bytes[offset..].starts_with(SPAN_MARKER_END) {

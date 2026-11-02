@@ -1,5 +1,3 @@
-//! Import an observed page discussion without granting source actors accounts.
-
 use super::ImportService;
 #[cfg(test)]
 use super::discussion_structs::DiscussionActor;
@@ -339,7 +337,6 @@ impl ImportService {
                 "discussion import refuses unobserved removals, restores, or locally authored posts",
             ));
         }
-        // Check every global post ID before creating any source graph rows.
         for post in &source.posts {
             if let Some(existing) = forum_post::Entity::find_by_id(post.id)
                 .lock_exclusive()
@@ -370,10 +367,6 @@ impl ImportService {
             .await?;
             execute(ctx, "INSERT INTO wikidot_identity_observation(user_id,source_sha256,observed_at,name,slug,source_reference) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING",
                 vec![actor.id.into(), manifest_hash.clone().into(), source.observed_at.into(), actor.name.clone().into(), actor.slug.clone().into(), source.reference.clone().into()]).await?;
-            // Record, not fabricate: an actor banked as an observation
-            // without an imported profile row is a gap for the identity
-            // promotion path, reported here so integrity tooling can count
-            // it. Deleted source identities stay tombstoned and are not gaps.
             let profiled = wikidot_user::Entity::find_by_id(actor.id as i32)
                 .filter(wikidot_user::Column::IsDeleted.eq(false))
                 .one(ctx.transaction())
@@ -693,8 +686,6 @@ impl ImportService {
             .one(ctx.transaction()).await.or_raise(|| Error::new("cannot retrieve import receipt", ErrorType::DatabaseImport))?.ok_or_else(|| invalid("import receipt missing"))?;
         execute(ctx, "INSERT INTO wikidot_discussion_snapshot(page_id,forum_thread_id,source_site,source_system_creator,source_post_count,last_import_run_id) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT(page_id) DO UPDATE SET last_import_run_id=EXCLUDED.last_import_run_id,source_post_count=EXCLUDED.source_post_count,source_system_creator=EXCLUDED.source_system_creator",
             vec![input.page_id.into(),source.thread.id.into(),source.site.clone().into(),matches!(source.thread.creator,DiscussionCreator::System).into(),(source.posts.len() as i32).into(),run.import_run_id.into()]).await?;
-        // Native sequences must stay above preserved source IDs. This does not
-        // renumber any existing entity or replace any historical revision.
         for (sequence, table, column) in [
             ("known_user_user_id_seq", "known_user", "user_id"),
             (

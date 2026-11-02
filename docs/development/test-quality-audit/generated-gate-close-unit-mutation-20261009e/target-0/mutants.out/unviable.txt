@@ -1,1 +1,0 @@
-src/services/render/list_pages/scanner.rs:259:13: replace && with || in generated_gate_module_close

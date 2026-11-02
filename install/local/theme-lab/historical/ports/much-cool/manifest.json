@@ -1,0 +1,165 @@
+{
+  "slug": "theme:much-cool",
+  "en_source_sha256": "e2e876a82210ed12ecbe3f0fa37f4ae084ebafa21b3fd50366ab154de244c88a",
+  "en_updated_at": "2026-04-12T05:13:12+00:00",
+  "en_entity_uuid": "6020a376-6735-4d65-8010-217e35135a87",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "aff88b307f9e26ce47d632a6f29bb786a62f9b89b1e2b41ed9ab0e74d9272988",
+  "jp_previous_updated_at": "2026-09-25T03:02:42+00:00",
+  "jp_previous_entity_uuid": "4e8ae45c-5b2f-4a66-b87d-915964dfe094",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:much-cool",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:much-cool",
+    "title": "Much Cool CSS Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "e2e876a82210ed12ecbe3f0fa37f4ae084ebafa21b3fd50366ab154de244c88a",
+      "updated_at": "2026-04-12T05:13:12+00:00",
+      "entity_uuid": "6020a376-6735-4d65-8010-217e35135a87",
+      "tags": [
+        "_cc",
+        "are-we-cool-yet",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 22,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:much-cool"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "aff88b307f9e26ce47d632a6f29bb786a62f9b89b1e2b41ed9ab0e74d9272988",
+      "updated_at": "2026-09-25T03:02:42+00:00",
+      "entity_uuid": "4e8ae45c-5b2f-4a66-b87d-915964dfe094",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:much-cool"
+      },
+      "revisions": 4
+    },
+    "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive",
+    "existing_jp_rebase": {
+      "previous_sha256": "0305019f63ac920a0451b2fe9c17aa8c84992d86ae8b2243692e3d29c7354833",
+      "previous_snapshot": "existing-jp-pre-rebase-20261005.wikidot.txt",
+      "current_revision": 4,
+      "current_updated_at": "2026-09-25T03:02:42+00:00",
+      "current_sha256": "aff88b307f9e26ce47d632a6f29bb786a62f9b89b1e2b41ed9ab0e74d9272988",
+      "diff_assessment": "provenance refresh; source freshness audit found no theme CSS/runtime behavior delta"
+    }
+  },
+  "dependencies": {
+    "slug": "theme:much-cool",
+    "en_includes": [
+      "info:start",
+      "info:end",
+      ":scp-wiki:theme:much-cool",
+      "component:image-block name=https://scp-wiki.wikidot.com/local--files/theme:much-cool/logo.png"
+    ],
+    "en_external_dependencies": [
+      "https://fonts.bunny.net/css2?family=Vollkorn+SC&display=swap",
+      "https://pixabay.com/illustrations/abstract-background-art-colour-4923424/",
+      "https://pixabay.com/vectors/ink-paint-drips-liquid-painting-5727056/",
+      "https://scp-wiki.wikidot.com//local--code/theme:much-cool/1",
+      "https://scp-wiki.wikidot.com//local--files/theme:much-cool/background.png",
+      "https://scp-wiki.wikidot.com//local--files/theme:much-cool/logo.png",
+      "https://scp-wiki.wikidot.com/are-we-cool-yet-hub|Are",
+      "https://scp-wiki.wikidot.com/kens-artistic-side",
+      "https://scp-wiki.wikidot.com/local--files/theme:much-cool/logo.png|caption=asdf|width=200px"
+    ],
+    "jp_includes": [
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:theme:much-cool",
+      ":scp-jp:component:image-block name=https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-45-w138/logo.png"
+    ],
+    "jp_external_dependencies": [
+      "http://scp-jp.wikidot.com/are-we-cool-yet-hub|Are",
+      "https://fonts.googleapis.com/css2?family=Vollkorn+SC&display=swap",
+      "https://pixabay.com/illustrations/abstract-background-art-colour-4923424/",
+      "https://pixabay.com/vectors/ink-paint-drips-liquid-painting-5727056/",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-45-fiuq/background.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-45-w138/logo.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-45-w138/logo.png|caption=asdf|width=200px",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Amuch-cool/1",
+      "https://scp-wiki.wikidot.com/kens-artistic-side"
+    ],
+    "base_family": "independent"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-valid-with-intentional-divergence",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/much-cool/assets.json",
+  "asset_dependency_decision_count": 5,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "125e50c40b0349ef982256b192fa88f713db3ab7127efbacc9c1b65288304bd4",
+    "jp_overrides_sha256": "a3fa74eedddc9aeba9353f9f0a520a1a7ac183ccd1f56c276568205ae4fe0861",
+    "semantic_css_sha256": "62584c1cf0c2642c315679bc8497bab2283545751e072651c731b296af22bcfe",
+    "canonical_override_sha256": "1ee68176f1b77210b2af4fb64efb7a8fc8ae471ce5e20ac2b83b7a84d8e8a72a",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "b6cab0de57a351313ddff1c5c9ad9d716422695d20d16c8bb7eee65187f28298",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "d47e135bc57142667778e5d08777114b60392e09a6c3f9ca875fd3588484bd61",
+      "active_tags": [],
+      "candidate_source_sha256": "799c546f83e7d257fa8b56067a9779eeebe6bda8e6bbc72a4ccbac100f6d9570",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "c8b4d4ae7d31b4d9f1f5b2c75f7b898db8371db46ee53781dc4c24b069d4acdb",
+      "asset_receipt_path": "assets.json",
+      "assets": 3,
+      "imports": 2,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

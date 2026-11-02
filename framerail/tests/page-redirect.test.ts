@@ -179,9 +179,6 @@ test("random helper redirects fail closed on non-slug locations", () => {
     "//example.test/scp-4890",
     "back\\slash"
   ]) {
-    // NOTE: a colon alone (as in "javascript:alert(1)") is not rejected:
-    // helper targets are always emitted as same-origin paths, so a colon
-    // can only address a same-site category slug, never a URL scheme.
     assert.equal(
       resolvePageRedirect(
         { redirect_page: location, redirect_kind: "random_helper" },
@@ -196,8 +193,6 @@ test("random helper redirects fail closed on non-slug locations", () => {
 })
 
 test("verified Wikidot URL spelling aliases redirect to canonical pages with HTTP 301", () => {
-  // Deepwell resolves each alias to this canonical page and performs the
-  // canonical page's permission check before Framerail sends the redirect.
   for (const source of ["scp---9506", "scp-9506_", "scp%209506", "scp-9506%09"]) {
     assert.deepEqual(
       resolvePageRedirect(

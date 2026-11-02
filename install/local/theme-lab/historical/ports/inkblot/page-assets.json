@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "slug": "theme:inkblot",
+  "mode": "Wikidot page attachments; upload each named file to this theme page before publication",
+  "assets": [
+    {
+      "filename": "pancakes.png",
+      "sha256": "8eb0eabe37b5c0fcd4f402861b8634a4505224d5bfdaccb12af1a4d739735f0a",
+      "bytes": 353234,
+      "asset_file": "8eb0eabe37b5c0fcd4f402861b8634a4505224d5bfdaccb12af1a4d739735f0a.png",
+      "source_urls": [
+        "https://scpaiueouiuiuiui.wjfiles.localhost:18443/local--resized-images//pancakes.png/medium.jpg"
+      ],
+      "acquired_from": "https://scp-wiki.wdfiles.com/local--files/theme:inkblot/pancakes.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "dependency_decisions": [
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "pancakes.png",
+      "source_urls": [
+        "https://scpaiueouiuiuiui.wjfiles.localhost:18443/local--resized-images//pancakes.png/medium.jpg"
+      ],
+      "sha256": "8eb0eabe37b5c0fcd4f402861b8634a4505224d5bfdaccb12af1a4d739735f0a",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ]
+}

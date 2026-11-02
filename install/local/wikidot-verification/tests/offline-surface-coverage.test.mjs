@@ -209,8 +209,6 @@ test("Rust test ownership follows declared modules instead of neighboring files"
 });
 
 test("declared-test extraction is not desynchronized by regex literals that contain quotes", () => {
-  // A regex such as /'nonce-([^']+)'/u contains quote characters that would
-  // otherwise open a string state and hide every later test declaration.
   const source = [
     "import test from \"node:test\";",
     "test(\"before regex\", () => {",

@@ -30,7 +30,6 @@ macro_rules! run_endpoint {
     };
 
     ($runner:expr => $endpoint:ident, $params:expr) => {
-        // Not using .expect() because we want a custom panic message
         match deepwell::endpoints::all::$endpoint($runner.context(), $params).await {
             Ok(result) => result,
             Err(error) => {
@@ -50,7 +49,6 @@ macro_rules! run_endpoint_err {
     };
 
     ($runner:expr => $endpoint:ident, $params:expr) => {
-        // Not using .expect_err() because we want a custom panic message
         match deepwell::endpoints::all::$endpoint($runner.context(), $params).await {
             Err(error) => error,
             Ok(_) => {

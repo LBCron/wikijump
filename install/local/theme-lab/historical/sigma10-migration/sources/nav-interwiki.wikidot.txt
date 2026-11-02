@@ -1,0 +1,7 @@
+[[div class="scpnet-interwiki-wrapper interwiki-stylable"]]
+[[module ListPages range="." limit="1"]]
+[[embed]]
+<iframe src="//interwiki.scp-jp.org/interwikiFrame.html?lang={$lang}&community={$community}&pagename=%%name%%" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>
+[[/embed]]
+[[/module]]
+[[/div]]

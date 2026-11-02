@@ -142,11 +142,11 @@
     "jp_overrides": "maintenance/jp-overrides.css",
     "manifest": "maintenance/manifest.json",
     "base_sha256": "26ed695187eeb1874b8e3cd3d1631d6d474294b071e169f007edb573510d6c2a",
-    "jp_overrides_sha256": "f624af884489ebe0ec695086818f0a136087d12a3a54b41be06777e189a66306",
-    "semantic_css_sha256": "fa8254125634be4f44b54b22a4a9f9bda47e3d285836e99ed2df88cb8910dc6a",
-    "canonical_override_sha256": "52adf0aa241e85974d1170b7cfadc147c7341c175c0e61d65cbac98a45fd1cca",
+    "jp_overrides_sha256": "86d7401c96928728597bd4d4694ef3c62db43790eb5cac00221e9657e6f19405",
+    "semantic_css_sha256": "a429b731cf5c021dd6ecdd8bfe6fbda6944dd1beb12a8b620ba3e2929b116c25",
+    "canonical_override_sha256": "528b4ae74ec2684f4f3cd7512d52ed06bb93720adae65e4e51d5b5f3e2cfe0fb",
     "final_source": "maintenance/final.wikidot.txt",
-    "final_source_sha256": "a9e1ec087457f2cae9bb3d9ee173d35f6285aa3408fc590a79f5552a40e6d196",
+    "final_source_sha256": "df6f8ba4489a61f9c2649cccbcf2e78e0e8cba089e88d583294a5269bbbcb428",
     "exact_duplicate_rules_removed": 0,
     "redundant_same_value_declarations_removed": 0,
     "empty_rules_removed": 0
@@ -156,7 +156,7 @@
       "source_path": "candidate-input.css",
       "source_sha256": "1f2d3cde0f8ffde0ef454d68df3cd989008970842182d573be6210b58d1aa24c",
       "active_tags": [],
-      "candidate_source_sha256": "9aa209eaeec59753e2f6dba8e0299281fb58793c720f4495559e2a1adbd48e09",
+      "candidate_source_sha256": "949175fc8426148dd8ca3ee3d2034f615158bef393c31e2735529fa19ef29218",
       "candidate_active_tags": [
         "en",
         "テーマ"
@@ -168,7 +168,7 @@
       "inactive_source_css_modules_removed_exact": 1,
       "inactive_source_css_modules_ambiguous": 0,
       "css_source_path": "candidate-source.css",
-      "candidate_css_sha256": "8d37bcdf89e9fd69aa69d369da18eb75e388106b088187de457d45c2d7342376",
+      "candidate_css_sha256": "5b00fb07f930b0a11e7526bb39b602c8d6c542e0cd75825e0351a74fe0298977",
       "asset_receipt_path": "assets.json",
       "assets": 1,
       "imports": 1,

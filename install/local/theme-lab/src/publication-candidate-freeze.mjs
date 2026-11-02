@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {isDeepStrictEqual} from 'node:util';
 import {resolveExistingContainedFile, resolveExistingContainedFileWithoutSymlinks} from './package-path.mjs';
-import {framerailSourceFingerprintSync} from './framerail-source-fingerprint.mjs';
+import {framerailSourceFingerprintSyncMemoized} from './framerail-source-fingerprint-memo.mjs';
 import {requireDeepwellRuntimeIdentity} from './deepwell-runtime-identity.mjs';
 
 const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
@@ -107,7 +107,7 @@ function validateBhlTargetedEvidence(root, frozen, graph, failures, scope = 'ful
   }
   const runtimeRepoRoot = path.resolve(root, '../../..');
   try {
-    const currentFramerail = framerailSourceFingerprintSync(runtimeRepoRoot);
+    const currentFramerail = framerailSourceFingerprintSyncMemoized(runtimeRepoRoot);
     if (currentFramerail !== authorityArtifact.value.framerail?.fingerprint_sha256 || currentFramerail !== frozen.authority?.bhl_framerail_fingerprint_sha256)
       failures.push('Frozen candidate set BHL Framerail fingerprint is stale');
   } catch (error) {

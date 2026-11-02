@@ -105,7 +105,6 @@ test("site changes feed is independently reachable without the wiki page", async
   const body = await response.text()
 
   assert.equal(response.status, 200)
-  // The route family owns the path, so the missing `feed` wiki page never renders.
   assert.doesNotMatch(body, /id="page-title"/u)
   assert.doesNotMatch(body, /<html/u)
 })

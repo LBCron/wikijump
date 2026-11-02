@@ -1,0 +1,902 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+**タイトル:** ミニマリストBHLテーマ
+**原題:** Minimalist BHL Theme
+**作者:** ©︎JakdragonX、Pedagon
+**作成年:** 2021
+
+
+> こんにちは。これは**ミニマリストBHLテーマ**です。元々はPedagon氏が自身の科学部門関連作に使用するためのものでしたが、これをより使い勝手が良くなるように改変しました。このページをincludeするには以下のコードを使用してください。
+>> 
+>> 
+> 
+> //「でもこのテーマはカッコいいと思うし、他の部門やら何やらにも使いたい！」//えー、そんなあなたに朗報です -- 使えちゃいますよ！ 上記コードの後に以下のコードをincludeするだけでヘッダーが編集できます:
+>> 
++ 例
+
+
+
+罫線は5つのハイフン "@@-----@@" で作成でき[[footnote]]この声明はPlaceholder McDを怒らせるため、そして脚注がどのように見えるのかを紹介するためだけに出されました。[[/footnote]]、何かの中でない限り  (例えば引用ブロック) ページ全体に展開されます。この文書のセクションを区切る線が罫線です。
+
+[http://www.google.com 多分一度はアクセスしたであろうリンク、知らんけど]
+
+見出しは、行の先頭に1～6文字の「+」を置くことで作成できます
+
+~~~~~~
+
+[[collapsible show="+ 見出し" hide="- 見出し"]]
++ 1番目の見出し
+
+++ 2番目の見出し
+
++++ 3番目の見出し
+
+++++ 4番目の見出し
+
++++++ 5番目の見出し
+
+++++++ 6番目の見出し
+[[/collapsible]]
+
+@@ @@
+
+[[tabview]]
+[[tab タブ]]
+シャベルの何が革新的なんだい？
+
+そいつは[[span class="ruby"]]未知[[span class="rt"]]道[[/span]][[/span]]を切り開いた道具なのさ。
+[[/tab]]
+[[tab タブが作られた]]
+ここにも文章が。
+
+なんと奇妙な。
+[[/tab]]
+[[tab 長いタブ]]
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+
+これは長いタブです。テキストがたくさん入っています。
+[[/tab]]
+[[tab この空のタブにはとても長い名前が付いています。]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[tab 空のタブ]]
+[[/tab]]
+[[/tabview]]
+@@ @@
+> これは引用ブロックです。各行の先頭に半角の「> 」を置くことで作成されます。
+> 
+> ほら！ ここにも文章が！
+> -----
+> 今のが罫線です。とても洒落ているでしょう？
+> 
+>> 紙に関するジョークを聞きたい？
+>> 
+>> 実は…… いや、何でもないです。そりゃもう薄っぺらいもんなんで[[footnote]]訳注: 原文はIt's pretty tearable。tearable (破くことのできる) とterrible (ひどい) を掛けており、「ひどいジョークだから気にしないで」という意味が暗に込められている。[[/footnote]]。
+>> 
+>>> これについては分かってきましたか？
+
+||~ これは ||~ テーブルです ||
+||もう || 作り方は ||
+||||知っているはずです ||
+
+[[=]]
+[[span style="font-family:var(--body-font); font-size: calc(var(--base-font-size) * 1.25);"]]bodyフォントは[https://fonts.google.com/specimen/Raleway Raleway]。[[/span]]
+[[span style="font-family:var(--header-font); font-size: calc(var(--base-font-size) * 1.25);"]]ヘッダーと見出しのフォントは[https://fonts.google.com/specimen/Poppins Poppins]。[[/span]]
+[[span style="font-family:var(--mono-font); font-size: calc(var(--base-font-size) * 1.25);"]]等幅フォントは[https://fonts.google.com/specimen/Recursive Recursive]。[[/span]]
+[[/=]]
+
+[[footnoteblock]]
+
+@@ @@
+
+[[collapsible show="+ テーマコードを表示" hide="- テーマコードを非表示"]]
+[[code type="css"]]
+:root {
+    /* S-CSS-P Integration */
+    /* If you're making a new CSS theme, please include the following three variables at minimum. */
+    --theme-base: "black-highlighter";
+    /* must be either "black-highlighter" or "sigma9" */
+    --theme-id: "minimalist-bhl";
+    /* set this to the URL of your theme's page - eg for "component:ar-theme", set it to "ar-theme" */
+    --theme-name: "Minimalist BHL";
+    /* set this to your theme's full name */
+
+    --header-title: "SCP財団";
+    --header-subtitle: "確保 - 収容 - 保護";
+    --logo-image: url('http://scp-jp-storage.wikidot.com/local--files/file:3324351-96-cwep/lgbtqp_logo.svg');
+    --lgurl: var(--logo-image);
+
+    --bright-accent: 245, 245, 245;
+    --dark-accent: 36, 36, 36;
+    --swatch-primary: var(--dark-accent);
+    --light-gray-monochrome: 196, 196, 196;
+    --dark-gray-monochrome: 200, 200, 200;
+    --medium-accent: var(--dark-accent);
+    --tab-border-color: var(--bright-accent);
+    --hover-link-color: var(--dark-accent);
+    --rating-module-button-color: var(--dark-accent);
+    --rating-module-button-credit-color: var(--dark-accent);
+    --swatch-background: var(--bright-accent);
+    /* Background and Header Colors */
+    --background-color: var(--bright-accent);
+    /* Primary Text Colors */
+    --swatch-text-light: var(--dark-accent);
+    --swatch-text-general: var(--dark-accent);
+    /* Primary Menu Colors */
+    --swatch-menubg-color: var(--bright-accent);
+    /* Colors for Secondary &amp;amp; Tertiary items like Blockquote and YUI Tabs */
+    --swatch-secondary-color: var(--swatch-menubg-dark-color);
+    --swatch-tertiary-color: var(--dark-accent);
+    /* Primary Header Colors */
+    --gradient-header: linear-gradient(90deg, rgba(245, 245, 245, 1) 0%, rgba(245, 245, 245, 1) 50%, rgba(245, 245, 245, 1) 100%);
+    --swatch-topmenu-border-color: var(--dark-accent);
+    --swatch-topmenu-bg-color: var(--dark-accent);
+    --background-gradient-distance: 0rem;
+    --modal-bg: var(--bright-accent);
+
+    --rating-module-text-color: var(--dark-accent);
+    --rating-module-button-cancel-color: var(--gray-monochrome);
+
+    --diagonal-stripes: none;
+
+    --toggle-button-bg: rgb(var(--bright-accent));
+    --toggle-border-color: rgb(var(--dark-accent));
+    --toggle-icon-color: rgb(var(--dark-accent));
+}
+
+/* Header Stuff, changes the background logo, makes the top bar dark and spooky too! */
+
+#header::before {
+    background-image: var(--lgurl);
+    opacity: 0.20;
+}
+
+#header div[class*=top-bar]>ul li:hover {
+    background-color: rgba(var(--bright-accent));
+}
+
+#header div[class*=top-bar]>ul>li ul>li {
+    box-shadow: inset 0 0 0 .0625rem rgb(var(--dark-accent));
+    background-color: rgb(var(--dark-accent));
+    color: rgb(var(--bright-accent));
+}
+
+#header div[class*=top-bar]>ul>li>a {
+    color: rgb(var(--bright-accent));
+}
+
+#header div#top-bar {
+    background-color: inherit;
+}
+
+#header div[class*=top-bar]>ul>li>a:after,
+#header div[class*=top-bar]>ul>li>a:before {
+    background-color: rgba(var(--dark-accent));
+}
+
+#header div[class*=top-bar]>ul>li:hover>a {
+    background-color: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+#header h1 a::before {
+    -webkit-text-stroke: 0.325rem rgb(var(--bright-accent));
+}
+
+#header h2 span::before {
+    -webkit-text-stroke: 0.25rem rgb(var(--bright-accent));
+}
+
+#header h2 span::after {
+    color: rgb(var(--dark-accent));
+}
+
+#header {
+    --login-myaccount-hover-color: var(--bright-accent) --login-line-divider-color: var(--dark-accent);
+    --login-username-color: var(--dark-accent);
+    --login-myaccount-color: var(--dark-accent);
+    --login-myaccount-underline-color: var(--bright-accent);
+    --login-myaccount-hover-bg-color: var(--dark-accent);
+    --login-arrow-color: var(--dark-accent);
+    --login-dropdown-text-color: var(--dark-accent);
+}
+
+/* This is purely just for the Top Bar, especially the hover elements and whatnot */
+
+#top-bar div.mobile-top-bar>ul>li>ul>li:hover>a,
+#top-bar div.top-bar>ul>li>ul>li:hover>a {
+    text-decoration: none;
+    color: rgb(var(--dark-accent));
+}
+
+#top-bar div.mobile-top-bar {
+    background: rgb(var(--dark-accent));
+}
+
+#top-bar div.top-bar>ul>li:hover {
+    background: rgb(var(--dark-accent));
+}
+
+#top-bar div.mobile-top-bar>ul>li.sfhover>ul,
+#top-bar div.mobile-top-bar>ul>li:hover>ul,
+#top-bar div.top-bar>ul>li.sfhover>ul,
+#top-bar div.top-bar>ul>li:hover>ul {
+    color: rgb(var(--bright-accent));
+}
+
+/* Everything below here is for the Sidebar, including the hover elements and the headings too */
+
+#side-bar {
+    --sideblock-heading-text-color: var(--bright-accent);
+    --social-icon-hover-color: var(--bright-accent);
+}
+
+#side-bar .side-block {
+    background-color: rgb(var(--bright-accent));
+}
+
+#side-bar .side-block.resources {
+    background: rgb(var(--bright-accent)) !important;
+}
+
+#side-bar .side-block.media {
+    background-color: rgba(var(--dark-accent)) !important;
+}
+
+#side-bar div.menu-item>a {
+    color: rgb(var(--dark-accent));
+    transition:
+        color 300ms cubic-bezier(.4, 0, .2, 1),
+        background-color 300ms cubic-bezier(.4, 0, .2, 1)
+}
+
+#side-bar div.menu-item>a:visited {
+    color: rgb(var(--dark-accent));
+}
+
+#side-bar div.menu-item>a:hover,
+#side-bar div.menu-item>a:active {
+    color: rgb(var(--bright-accent));
+}
+
+#side-bar div.menu-item>a:focus-within {
+    color: rgb(var(--bright-accent));
+}
+
+#side-bar div.menu-item a::before {
+    background-color: rgb(var(--dark-accent));
+    color: rgb(var(--bright-accent));
+}
+
+.side-block.media a {
+    background: transparent
+}
+
+#side-bar .collapsible-block .collapsible-block-folded,
+#side-bar .heading,
+#interwiki .heading {
+    background: rgb(var(--dark-accent));
+}
+
+/* Throwing this quick fix for the search bar up here as well, just so everything fits */
+
+#search-top-box-input {
+    background-color: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+#search-top-box-form input[type="submit"] {
+    background: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+#search-top-box-form input[type="submit"]:hover {
+    background: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+#search-top-box-input {
+    background-color: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+#search-top-box input.empty {
+    color: rgb(var(--dark-accent));
+}
+
+#search-top-box form[id=search-top-box-form]:not(:focus-within) input[type=text] {
+    background-color: rgba(var(--dark-accent));
+}
+
+@media only screen and (max-width: 56.25rem) {
+    #login-status:before {
+     background-color: rgba(var(--dark-accent));
+    }
+
+}
+
+@media only screen and (min-width: 769px) {
+    #search-top-box-form>input {
+     box-shadow: none;
+    }
+}
+
+@media only screen and (min-width: 769px) {
+ 
+    #search-top-box-form input[type="submit"],
+    #search-top-box-form input[type="submit"]:focus,
+    #search-top-box-form input[type="submit"]:hover {
+        border-left: none;
+        border-top: 0.0125rem solid rgb(var(--dark-accent));
+        border-right: 0.0125rem solid rgb(var(--dark-accent));
+        border-bottom: 0.0125rem solid rgb(var(--dark-accent));
+        box-shadow: none;
+    }
+}
+
+:not(.page-rate-widget-box):not(#search-top-box-form)>.btn,
+:not(.page-rate-widget-box):not(#search-top-box-form)>.button,
+:not(.page-rate-widget-box):not(#search-top-box-form)>.owindow .button-bar a,
+:not(.page-rate-widget-box):not(#search-top-box-form)>button,
+:not(.page-rate-widget-box):not(#search-top-box-form)>div.buttons input,
+:not(.page-rate-widget-box):not(#search-top-box-form)>input.button {
+    background-color: rgb(var(--dark-accent));
+    color: rgb(var(--bright-accent));
+}
+
+/* Since we're also up here, here's the code to mess with the account options too (and one fix for the printusers) */
+
+#login-status .printuser {
+    background: transparent;
+    color: rgb(var(--dark-accent));
+}
+
+#account-options {
+    width: auto;
+    padding: 0.5em;
+    border-color: rgba(var(--dark-accent));
+    background: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+.printuser a {
+    margin-right: -1px;
+    font-size: 14px;
+    background-color: transparent;
+    color: inherit;
+}
+
+login-status span.printuser {
+    color: rgb(var(--dark-accent));
+}
+
+/* Okay, now for the links and the body */
+
+body {
+    color: rgb(var(--dark-accent));
+}
+
+#page-content a:not([href*="user"]):not([href*="javascript:;"]):not(.fa-info):not([href*="classification-committee-memo"]):not([href="/classification-committee-memo"]):not([href*="anomaly-classification-system-guide"]):not(.danger-diamond a):not(.cc) {
+    padding: 0.15em;
+    margin: -0.15em;
+    color: inherit;
+    box-shadow: inset 0 -0.125rem 0 0rem rgba(var(--dark-accent));
+    transition: box-shadow 300ms cubic-bezier(0.4, 0.0, 0.2, 1), color 300ms cubic-bezier(0.4, 0.0, 0.2, 1), padding 300ms cubic-bezier(0.4, 0.0, 0.2, 1), margin 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+#page-content a:not([href*="user"]):not([href*="javascript:;"]):not([href*="classification-committee-memo"]):not([href="/classification-committee-memo"]):not([href*="anomaly-classification-system-guide"]):not(.fa-info):not(.danger-diamond a):not(.cc):hover {
+    padding: 0.3em 0.25em 0.2em 0.25em;
+    margin: -0.25em;
+    box-shadow: inset 0 -1.5em 0 0 rgba(var(--dark-accent));
+    text-decoration: none;
+    color: rgb(var(--bright-accent))
+}
+
+::-moz-selection {
+    background: rgb(148, 148, 148);
+}
+
+::selection {
+    background: rgb(148, 148, 148);
+}
+
+a {
+    color: inherit;
+}
+
+a:hover {
+    color: inherit;
+}
+
+a.close-menu {
+    background-color: transparent;
+}
+
+a:visited {
+    color: inherit;
+}
+
+.scp-image-block a {
+    box-shadow: none;
+}
+
+hr {
+    border-top: none;
+    background-color: rgb(var(--dark-accent));
+}
+
+:is(blockquote,.blockquote,div.blockquote,[class*=blockquote]) {
+    background-color: rgb(var(--bright-accent));
+    box-shadow: inset 0 0 0 0.0625rem rgba(var(--dark-accent)),inset .0625rem 0 0 0 rgba(var(--dark-accent)),inset 0-.0625rem 0 0 rgba(var(--dark-accent));
+}
+
+/* Fancy Collapsibles */
+
+#page-content .collapsible-block-link {
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.collapsible-block-folded a,
+.collapsible-block-unfolded-link a:not(.info-container):not(.info-container div.collapsible-block-unfolded-link):not(.info-container div.collapsible-block-folded-link):not(.info-container div.collapsible-block-unfolded):not(.info-container div.collapsible-block-folded):not(.info-container .collapsible-block-folded .collapsible-block-link):not(.info-container .collapsible-block-link) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-right: auto;
+    margin-left: auto;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: -webkit-min-content;
+    width: -moz-min-content;
+    width: min-content;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.collapsible-block-folded a,
+.collapsible-block-unfolded-link a:not(.info-container):not(.info-container div.collapsible-block-unfolded-link):not(.info-container div.collapsible-block-folded-link):not(.info-container div.collapsible-block-unfolded):not(.info-container div.collapsible-block-folded):not(.info-container .collapsible-block-folded .collapsible-block-link):not(.info-container .collapsible-block-link) {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: -webkit-min-content;
+    width: -moz-min-content;
+    width: min-content;
+    height: 100%;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+        color 0.25s linear,
+        background-color 0.25s linear;
+}
+
+.collapsible-block-folded a {
+    background-color: rgb(var(--dark-accent));
+    color: rgb(var(--bright-accent));
+}
+
+#page-content .collapsible-block-unfolded-link a {
+    background-color: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+#page-content .collapsible-block-folded a:hover,
+#page-content .collapsible-block-unfolded-link a:hover {
+    background-color: rgb(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+}
+
+#page-content .collapsible-block-unfolded-link {
+    box-shadow: none;
+}
+
+.info-container .collapsible-block-folded .collapsible-block-link,
+.info-container .collapsible-block-link {
+    padding: 0px;
+}
+
+/* Code for changing button colors */
+
+div#page-options-bottom-2>a,
+div#page-options-bottom>a {
+    color: rgb(var(--dark-accent));
+    border-color: rgb(var(--dark-accent));
+    background-color: rgb(var(--bright-accent));
+}
+
+.owindow .button-bar a,
+a.button,
+button,
+div.buttons input,
+file,
+input.button {
+    border: 0.125rem solid rgba(var(--dark-accent));
+    color: rgb(var(--dark-accent));
+    background-color: rgb(var(--bright-accent));
+}
+
+.owindow .button-bar a:hover,
+a.button:hover,
+button:hover,
+div.buttons input:hover,
+file:hover,
+input.button:hover {
+    border: .125rem solid rgba(var(--bright-accent));
+    background-color: rgba(var(--dark-accent));
+    color: rgb(var(--bright-accent));
+}
+
+div#page-options-bottom-2>a:hover,
+div#page-options-bottom>a:hover {
+    color: rgb(var(--bright-accent));
+    border-color: rgb(var(--dark-accent));
+    background-color: rgb(var(--dark-accent));
+}
+
+/* All Rating Module Code is below this line! */
+
+.modalbox {
+    box-shadow: none !important;
+    border-color: transparent !important;
+    border-radius: 0px !important;
+    padding: 4px;
+    pointer-events: auto !important;
+}
+
+.creditButton p a {
+    background-color: rgb(var(--black-accent));
+}
+
+#page-content .rate-box-with-credit-button {
+    display: inline-flex;
+    margin-bottom: .75rem;
+    border: .0625rem solid rgba(12, 12, 12, .25);
+    border: .0625rem solid rgba(var(--gray-monochrome));
+    border-radius: 0;
+    background: rgb(var(--bright-accent));
+    background-color: #fcfcfc;
+    background-color: rgb(var(--bright-accent));
+    padding: 0 .125rem;
+    height: var(--rating-module-height);
+    overflow: hidden;
+}
+
+.page-rate-widget-box {
+    background: rgb(var(--bright-accent));
+    border: 0.0625rem solid rgba(var(--dark-accent));
+}
+
+div.page-rate-widget-box .rate-points {
+    border: none;
+}
+
+#page-content div.rate-box-with-credit-button, div.page-rate-widget-box {
+    border: .0625rem solid rgba(var(--dark-accent));
+}
+
+/* Tabs */
+
+.yui-navset .yui-nav li,
+.yui-navset .yui-navset-top .yui-nav li {
+    box-shadow: none;
+}
+
+.yui-navset .yui-nav,
+.yui-navset .yui-navset-top .yui-nav {
+    box-shadow: none;
+    border-color: rgb(var(--bright-accent));
+}
+
+.yui-navset .yui-nav a:focus,
+.yui-navset .yui-nav a:hover {
+    background-color: rgb(var(--bright-accent));
+    color: rgb(var(--bright-accent));
+}
+
+
+.yui-navset .yui-nav .selected a,
+.yui-navset .yui-nav .selected a em {
+    color: rgb(var(--bright-accent));
+}
+
+.yui-navset .yui-content,
+.yui-navset .yui-navset-top .yui-content {
+    color: rgb(var(--dark-accent));
+    background: rgb(var(--bright-accent));
+    border: 1px solid rgb(var(--dark-accent));
+}
+
+.yui-navset .yui-nav li,
+.yui-navset .yui-navset-top .yui-nav li {
+    background: rgb(var(--bright-accent));
+}
+
+.yui-navset .yui-nav a,
+.yui-navset .yui-navset-top .yui-nav a {
+    border-color: rgb(var(--dark-accent));
+    background-color: rgb(var(--dark-accent));
+    color: rgb(var(--bright-accent));
+}
+
+.yui-navset-bottom .yui-nav li a,
+.yui-navset-top .yui-nav li a,
+.yui-navset .yui-nav li a {
+    color: rgb(var(--dark-accent));
+    background: rgb(var(--bright-accent));
+}
+
+/* Simple Tables */
+
+table.wiki-content-table td {
+    border: 1px solid #888;
+    padding: 0.3em 0.7em;
+    color: rgb(var(--dark-accent));
+}
+
+table.wiki-content-table th {
+    background: rgb(var(--dark-accent));
+    border: 1px solid rgb(var(--dark-accent));
+    color: rgb(var(--bright-accent));
+}
+
+table.wiki-content-table tr {
+    border: 1px solid #e3e3e3;
+    color: #e3e3e3;
+}
+
+/* Image Blocks */
+
+.scp-image-block {
+    box-shadow: none;
+}
+
+.scp-image-block a {
+    background-color: transparent;
+}
+
+:is(div.image-block,div.scp-image-block) :is(.image-caption,.scp-image-caption) {
+    background-color: rgb(var(--dark-accent));
+}
+
+:is(div.image-block,div.scp-image-block) :is(.image-caption,.scp-image-caption)>p {
+    color: rgb(var(--bright-accent));
+}
+
+/* Footer and Hovertips */
+
+.footnote {
+    color: rgb(var(--dark-accent));
+    background-color: rgb(var(--bright-accent));
+    border: 1px solid #242424;
+    padding: .625em;
+}
+
+.footnotes-footer {
+    background-color: rgba(var(--bright-accent));
+    color: rgb(var(--dark-accent));
+    border-top: 1px solid #242424;
+    border-bottom: 1px solid #242424;
+    border-right: 1px solid #242424;
+}
+
+.footnotes-footer a[href*=javascript]:before {
+    color: rgb(var(--dark-accent));
+    background-color: transparent;
+}
+
+.hovertip {
+    background-color: rgb(var(--bright-accent));
+    border: .0625rem solid rgb(var(--dark-gray-monochrome));
+    color: rgb(var(--dark-accent));
+}
+
+.hovertip .content {
+    background-color: rgb(var(--bright-accent));
+}
+
+#footer {
+    background: rgb(var(--dark-accent));
+    color: rgb(var(--bright-accent));
+}
+
+/* Michellaneous */
+
+
+textarea,
+#lock-info {
+    color: rgb(var(--dark-accent));
+}
+
+.owindow .modal-body img {
+    background-color: transparent !important;
+}
+
+
+.scpnet-interwiki-wrapper {
+    margin-top: 1em;
+}
+
+.licensebox .collapsible-block-link {
+    background: none;
+}
+
+.printuser img.small {
+    vertical-align: -0.2em;
+    height: 14px;
+}
+
+#who-rated-page-area .printuser a {
+    font-size: 100%;
+}
+
+#license-area {
+    color: rgb(var(--dark-accent));
+    background-color: rgb(var(--bright-accent));
+}
+
+
+.printuser a {
+    margin-right: -1px;
+    font-size: 14px;
+    background-color: transparent;
+    color: inherit;
+}
+
+.printuser:hover {
+    background-color: transparent;
+}
+
+.page-tags a {
+    background-color: transparent;
+    color: rgb(var(--dark-accent));
+}
+
+.page-tags a:hover {
+    color: rgb(var(--bright-accent));
+}
+
+form#edit-page-form {
+    background-color: rgba(var(--dark-accent));
+    color: rgb(var(--bright-accent));
+
+}
+
+input#edit-page-title {
+    color: rgb(var(--dark-accent));
+}
+
+form#edit-page-form .edit-help-34>a {
+    color: rgb(var(--dark-accent));
+}
+
+.danger-diamond a,
+.danger-diamond a:hover {
+    color: rgba(0, 0, 0, 0);
+    box-shadow: initial;
+}
+
+.acs-hybrid-text-bar>a {
+    background-color: transparent;
+    color: transparent;
+}
+
+@media only screen and (min-width: 769px) {
+
+    #search-top-box-form>input,
+    #search-top-box-form>input:hover,
+    #search-top-box-form>input:focus {
+     background: rgb(var(--light-accent));
+    }
+}
+
+@media (min-width: 0px) {
+    #page-content .rate-box-with-credit-button>.creditButton>p>a:before {
+     left: 4px;
+    }
+}
+
+
+@media only screen and (max-width: 768px) {
+
+    #header h2,
+    #header h2 a,
+    #header h2 a::before {
+     top: 0.45rem;
+    }
+}
+
+#u-author_block>p>a {
+    color: var(--linkColour) !important;
+}
+
+[[/code]]
+[[/collapsible]]
+
+
+
+
+
+
+
+
+
+
+
++ Theme Lab runtime fixture
+
+[[div class="creditRate"]]
+[[div class="rateBox"]]
+[[div class="rate-box-with-credit-button"]]
+[[div class="page-rate-widget-box"]]
+[[span class="rate-points"]]評価: +1[[/span]]
+[[span class="rateup btn btn-default"]]+[[/span]]
+[[span class="ratedown btn btn-default"]]–[[/span]]
+[[span class="cancel btn btn-default"]]x[[/span]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[span class="theme-lab-jp-font-probe"]]日本語の字形を確認する検体です。漢字、ひらがな、カタカナ。[[/span]]
+[[toc]]
+[[tabview]]
+[[tab 日本語サンプル]]
+SCP-JPのタブ表示
+[[/tab]]
+[[tab 第二のタブ]]
+日本語の長文は文字送りと高さを確認します。
+[[/tab]]
+[[/tabview]]
+[[collapsible show="開く" hide="閉じる"]]
+折り畳みの日本語本文です。
+[[/collapsible]]
+||~ 項目 ||~ 表示 ||
+|| ページ || 日本語の表 ||
+> 引用ブロックの日本語本文です。
+[[div class="scp-image-block block-right"]]
+画像ブロックのJP runtime surface
+[[/div]]
+脚注の日本語本文[[footnote]]日本語フォントと折返しを確認する脚注です。[[/footnote]]
+[[code]]@media (max-width: 640px) { .sample { font-family: sans-serif; } }
+日本語コード例[[/code]]

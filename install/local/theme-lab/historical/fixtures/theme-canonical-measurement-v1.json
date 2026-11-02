@@ -1,0 +1,15 @@
+{
+  "schema": "theme_lab_measurement_contract.v1",
+  "id": "canonical-browser-measurement-v1",
+  "viewports": [
+    {"id": "desktop", "width": 1440, "height": 1000},
+    {"id": "laptop", "width": 1024, "height": 900},
+    {"id": "tablet", "width": 768, "height": 1024},
+    {"id": "mobile", "width": 390, "height": 844},
+    {"id": "narrow-mobile", "width": 320, "height": 800}
+  ],
+  "browser_engines": ["chromium", "firefox", "webkit"],
+  "browser_version_policy": "exact-runtime-version-receipt",
+  "session_profiles": ["anonymous", "authenticated"],
+  "network_policy": "block-external-after-local-materialization"
+}

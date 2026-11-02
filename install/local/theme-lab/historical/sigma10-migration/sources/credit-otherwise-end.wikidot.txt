@@ -1,0 +1,16 @@
+[[/div]]
+------
+
+[[div class="creditRateOtherwiseBottom"]]
+[[div_ class="return-credits foldable-list-container"]]
+[# クレジット]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+[[/li]]
+[[/ul]]
+
+~~~~

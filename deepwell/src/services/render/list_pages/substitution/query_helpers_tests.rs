@@ -46,7 +46,6 @@ fn score_selector_requires_an_integer() {
     assert_eq!(parse_list_pages_score_selector("x"), None);
     assert_eq!(parse_list_pages_score_selector(""), None);
     assert_eq!(parse_list_pages_score_selector(">=x"), None);
-    // A leading `+` is not a digit sign; only `-` is accepted.
     assert_eq!(parse_list_pages_score_selector("+5"), None);
 }
 
@@ -74,7 +73,6 @@ fn page_type_selector_accepts_only_the_evidenced_values() {
 
 #[test]
 fn order_selector_matches_the_documented_forms() {
-    // The default is `dateCreatedDesc`: newest created first.
     assert_eq!(parse_list_pages_order(""), Some(OrderBySelector::default()));
 
     let order = |value: &str| parse_list_pages_order(value).unwrap();
@@ -93,7 +91,6 @@ fn order_selector_matches_the_documented_forms() {
         ("alttitle", OrderProperty::AltTitle, true),
         ("rating desc", OrderProperty::Score, false),
         ("rating asc", OrderProperty::Score, true),
-        // `desc desc` means ascending, so appending `desc` is always safe.
         ("rating desc desc", OrderProperty::Score, true),
     ] {
         assert_eq!(
@@ -127,8 +124,6 @@ fn order_selector_matches_the_documented_forms() {
         }
     );
 
-    // An unrecognized property, too many tokens, or an empty data-form
-    // field falls back to the default or is rejected.
     assert_eq!(
         parse_list_pages_order("bogus"),
         Some(OrderBySelector::default())
@@ -137,7 +132,6 @@ fn order_selector_matches_the_documented_forms() {
         parse_list_pages_order("name asc extra"),
         Some(OrderBySelector::default())
     );
-    // A malformed direction is not treated as `desc`.
     assert_eq!(
         parse_list_pages_order("rating bogus"),
         Some(OrderBySelector::default())
@@ -204,12 +198,10 @@ fn exact_raw_color_name_requires_a_bounded_color() {
         exact_raw_color_list_pages_name("@@##red|content##@@"),
         Some("content")
     );
-    // A hex color keeps its leading `#`.
     assert_eq!(
         exact_raw_color_list_pages_name("@@###ff0000|content##@@"),
         Some("content")
     );
-    // The color is bounded to 32 characters.
     let longest = "a".repeat(32);
     assert_eq!(
         exact_raw_color_list_pages_name(&format!("@@##{longest}|content##@@")),

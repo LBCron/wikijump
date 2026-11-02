@@ -1,12 +1,9 @@
-// so we can load this module in workers:
 let domParser: DOMParser
 try {
   domParser = new DOMParser()
 } catch {
-  // suppress no-empty lint
 }
 
-/** Takes a string of HTML and creates a {@link DocumentFragment}. */
 export function toFragment(html: string) {
   const parsed = domParser.parseFromString(html, "text/html")
   const fragment = document.createDocumentFragment()
@@ -14,11 +11,6 @@ export function toFragment(html: string) {
   return fragment
 }
 
-/**
- * **DOES NOT ESCAPE INPUT**
- *
- * Template string tag that creates a {@link DocumentFragment}.
- */
 export function html(strings: TemplateStringsArray, ...subs: (string | string[])[]) {
   const src = strings.raw.reduce((prev, cur, idx) => {
     let sub = subs[idx - 1]
@@ -28,11 +20,6 @@ export function html(strings: TemplateStringsArray, ...subs: (string | string[])
   return toFragment(src)
 }
 
-/**
- * **DOES NOT ESCAPE INPUT**
- *
- * Template string tag for creating a CSS stylesheet.
- */
 export function css(strings: TemplateStringsArray, ...subs: (string | string[])[]) {
   const src = strings.raw.reduce((prev, cur, idx) => {
     let sub = subs[idx - 1]

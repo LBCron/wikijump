@@ -1,5 +1,3 @@
-//! Wikidot compatibility preprocessing before FTML parsing and include expansion.
-
 use super::{
     AttachmentOwner, AttachmentProvenanceRegistry, BTreeMap, CompatTextFragments,
     INCLUDE_VARIABLE_REGEX, LiteralRegionIndex, PageInfo, PageRef, Range, RenderService,
@@ -7,9 +5,9 @@ use super::{
     WIKIDOT_INCLUDE_OPEN_REGEX, WIKIDOT_LITERAL_INCLUDE_SENTINEL,
     WIKIDOT_MULTILINE_LABELED_LINK_REGEX, WikidotImageBlockArgument,
     find_wikidot_image_block_directive_end, ftml, has_include_opening_candidate,
-    is_include_variable_name, owned_url, parse_wikidot_include_argument,
-    percent_encode_path_segment, preserve_argument_quotes, relative,
-    resolve_outermost_wikidot_iftags,
+    is_include_variable_name, mark_wikidot_generated_iftags_specs, owned_url,
+    parse_wikidot_include_argument, percent_encode_path_segment,
+    preserve_argument_quotes, relative, resolve_outermost_wikidot_iftags,
     resolve_outermost_wikidot_iftags_before_include_expansion,
     resolve_outermost_wikidot_iftags_before_include_expansion_for_page_preview,
     resolve_unbound_include_variable_iftags,
@@ -26,6 +24,7 @@ impl RenderService {
     ) {
         resolve_unbound_include_variable_iftags(wikitext);
         if wikitext.contains("[[#") {
+            mark_wikidot_generated_iftags_specs(wikitext);
             *wikitext = resolve_wikidot_parser_functions_outside_list_pages(wikitext);
         }
         Self::resolve_wikidot_iftags(wikitext, page_info, preserved);
@@ -126,13 +125,11 @@ impl RenderService {
         preserved: &mut CompatTextFragments,
         include_depth: usize,
     ) {
-        // Keep incomplete boundaries available for adjacent caller/include
-        // source while still pruning self-contained inactive gates early.
         if include_depth == 0 {
-            // Nested sources were already resolved against their include callsite immediately before recursion.
             resolve_unbound_include_variable_iftags(wikitext);
         }
         if include_depth == 0 && wikitext.contains("[[#") {
+            mark_wikidot_generated_iftags_specs(wikitext);
             *wikitext = Self::resolve_wikidot_parser_functions_before_include_collection(
                 wikitext,
             );
@@ -674,29 +671,32 @@ impl RenderService {
     }
 
     pub(super) fn is_inside_wikidot_code_block(source: &str, start: usize) -> bool {
-        let mut in_code = false;
-        for line in source[..start].lines() {
-            let marker = line.trim_start().to_ascii_lowercase();
-            if marker.starts_with("[[code") {
-                in_code = true;
-            } else if marker.starts_with("[[/code]]") {
-                in_code = false;
-            }
-        }
-        in_code
+        Self::is_inside_wikidot_line_block(source, start, "[[code", "[[/code]]")
     }
 
     pub(super) fn is_inside_wikidot_html_block(source: &str, start: usize) -> bool {
-        let mut in_html = false;
+        Self::is_inside_wikidot_line_block(source, start, "[[html", "[[/html]]")
+    }
+
+    fn is_inside_wikidot_line_block(
+        source: &str,
+        start: usize,
+        opener: &str,
+        closer: &str,
+    ) -> bool {
+        let mut inside = false;
         for line in source[..start].lines() {
             let marker = line.trim_start().to_ascii_lowercase();
-            if marker.starts_with("[[html") {
-                in_html = true;
-            } else if marker.starts_with("[[/html]]") {
-                in_html = false;
+            if let Some(rest) = marker.strip_prefix(opener) {
+                if !inside && rest.contains(closer) {
+                    continue;
+                }
+                inside = true;
+            } else if marker.starts_with(closer) {
+                inside = false;
             }
         }
-        in_html
+        inside
     }
 
     /// Whether `start` falls inside an inline raw `@@ ... @@` pair.

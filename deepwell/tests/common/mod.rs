@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Common utilities for running DEEPWELL integration tests.
-
 #[macro_use]
 mod assert;
 

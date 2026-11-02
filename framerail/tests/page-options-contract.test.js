@@ -13,9 +13,6 @@ const fields = (source, opening) => {
     .sort()
 }
 
-// isPageErrorData checks these keys by name, so a misspelled key (once
-// `renderer` for Deepwell's `rerender`) rejects every missing-page error
-// and the page falls back to the generic "Not Found".
 test("Framerail PageOptions names exactly Deepwell's page view option fields", () => {
   assert.deepEqual(
     fields(read("../src/lib/types.ts"), "export interface PageOptions {"),

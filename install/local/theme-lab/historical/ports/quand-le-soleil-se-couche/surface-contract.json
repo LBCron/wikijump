@@ -1,0 +1,23 @@
+{
+  "schema": "theme_lab_surface_contract.v1",
+  "strict": true,
+  "custom_selectors": [
+    {
+      "id": "theme.flickering-heading",
+      "selector": "h2 .flickering",
+      "viewports": [
+        "desktop",
+        "mobile"
+      ],
+      "reason": "The source hub uses .flickering on section headings, so the theme-specific selector must be exercised outside the site header."
+    }
+  ],
+  "reviewed_exceptions": [
+    {
+      "kind": "surface_text_color_changed_on_image_background",
+      "surface": "content.links",
+      "selector": "#page-content a[href]",
+      "rationale": "The frozen SCP-FR source explicitly changes normal and visited links to black over the theme's repeated monochrome background image. Desktop and mobile paired screenshots were reviewed for readability; retain this source identity instead of treating a deliberate palette change as a runtime regression."
+    }
+  ]
+}

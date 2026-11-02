@@ -1,9 +1,3 @@
-//! Wikidot scope pairing shared by runtime-module recognition.
-//!
-//! These helpers once guarded the long native-list prepass. Bullet lists now
-//! render through FTML (#2575); runtime modules still use the scope pairing to
-//! tell whether a module head sits inside an unproven body scope.
-
 mod source_scopes;
 
 pub(super) use source_scopes::{

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "slug": "theme:basalt",
+  "mode": "Wikidot page attachments; upload each named file to this theme page before publication",
+  "assets": [
+    {
+      "filename": "basalt-theme-logo.svg",
+      "sha256": "3baf62c62621629c69f22433651572da5fd917e276e5953ae4eebd75b7ca99b2",
+      "bytes": 5451,
+      "asset_file": "3baf62c62621629c69f22433651572da5fd917e276e5953ae4eebd75b7ca99b2.svg",
+      "source_urls": [
+        "https://scp-wiki.wdfiles.com/local--files/theme:basalt/basalt-theme-logo.svg"
+      ],
+      "acquired_from": "https://scp-wiki.wdfiles.com/local--files/theme:basalt/basalt-theme-logo.svg",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; ",
+      "decision": "localize-into-package",
+      "decision_evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "dependency_decisions": [
+    {
+      "resource_type": "candidate-page-attachment",
+      "filename": "basalt-theme-logo.svg",
+      "source_urls": [
+        "https://scp-wiki.wdfiles.com/local--files/theme:basalt/basalt-theme-logo.svg"
+      ],
+      "sha256": "3baf62c62621629c69f22433651572da5fd917e276e5953ae4eebd75b7ca99b2",
+      "decision": "localize-into-package",
+      "evidence": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ]
+}

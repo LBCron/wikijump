@@ -42,11 +42,8 @@ use std::collections::{BTreeMap, HashSet};
 #[derive(Debug)]
 pub struct PermissionService;
 
-#[allow(dead_code)] // TEMP
+#[allow(dead_code)]
 impl PermissionService {
-    /// `_admin` is a reserved site-management resource. It is authorized by the
-    /// same site-edit permission as the native admin panel, regardless of the
-    /// page category's ordinary view permissions.
     pub async fn check_user_can_view_page(
         ctx: &ServiceContext<'_>,
         user_id: Option<i64>,
@@ -80,8 +77,6 @@ impl PermissionService {
         .await
     }
 
-    /// Check access to the reserved `_admin` route before resolving any page
-    /// row or revision data.
     pub async fn check_user_can_access_admin(
         ctx: &ServiceContext<'_>,
         user_id: Option<i64>,
@@ -103,7 +98,6 @@ impl PermissionService {
         .await
     }
 
-    /// Updates the permissions for a role, replacing the existing set with the provided set.
     pub async fn update_permissions_for_role(
         ctx: &ServiceContext<'_>,
         UpdateRolePermissionsInput {
@@ -128,7 +122,6 @@ impl PermissionService {
             )
         };
 
-        // Resolve all category references concurrently before any DB writes.
         let resolved_permissions: HashSet<Permission<'static>> =
             try_join_all(new_permissions.into_iter().map(|input| async move {
                 let resource_category_id = match input.resource_category {
@@ -154,7 +147,6 @@ impl PermissionService {
             .into_iter()
             .collect();
 
-        // Validate that the new permission set is a subset of the parent's permissions (if a parent exists).
         if let Some(parent_id) = role.parent_role_id {
             let parent_perms = Self::permissions_as_set(ctx, parent_id)
                 .await
@@ -173,7 +165,6 @@ impl PermissionService {
             }
         }
 
-        // Validate that the new permission set is a superset of each child's permissions.
         let children = Role::find()
             .filter(
                 Condition::all()
@@ -222,7 +213,6 @@ impl PermissionService {
             }
         }
 
-        // If validation passes, replace the permission set.
         let deleted_permissions = RolePermission::delete_many()
             .filter(role_permission::Column::RoleId.eq(role.role_id))
             .exec_with_returning(txn)
@@ -279,9 +269,6 @@ impl PermissionService {
         Ok(())
     }
 
-    /// Fetches permissions for a role
-    ///
-    /// Optionally returns human-readable category names.
     pub async fn get_permissions_for_role(
         ctx: &ServiceContext<'_>,
         GetRolePermissionsInput {
@@ -353,12 +340,10 @@ impl PermissionService {
             )
         };
 
-        // Get permissions for the current role
         let role_permissions = Self::permissions_as_set(ctx, role.role_id)
             .await
             .or_raise(make_error)?;
 
-        // Get permissions for the parent role (if any)
         let parent_permissions = match role.parent_role_id {
             Some(parent_id) => Some(
                 Self::permissions_as_set(ctx, parent_id)
@@ -368,7 +353,6 @@ impl PermissionService {
             None => None,
         };
 
-        // Get combined permissions for child roles
         let children_roles = Role::find()
             .filter(
                 Condition::all()
@@ -388,13 +372,11 @@ impl PermissionService {
             children_permissions.extend(child_perms);
         }
 
-        // Considering valid hierarchy, parent permissions should encompass the permissions of all descendants
         let active_permissions = match parent_permissions.as_ref() {
             Some(parent_perms) => parent_perms.iter().cloned(),
             None => role_permissions.iter().cloned(),
         };
 
-        // Construct universe set from base permissions and optionally scoped permissions
         let universe: HashSet<Permission<'static>> = Permission::ALL
             .iter()
             .cloned()
@@ -403,21 +385,16 @@ impl PermissionService {
 
         let mut decorated = Vec::with_capacity(universe.len());
 
-        // Decorate each permission
         for mut perm in universe {
-            // The role has this permission
             let active = role_permissions.contains(&perm);
 
-            // The role doesn't have this permission, but parent role does, so it can be added
             let addable = !active
                 && parent_permissions
                     .as_ref()
                     .is_none_or(|parent| parent.contains(&perm));
 
-            // The role has this permission, and at least one child role contains it, so it can't be removed
             let removable = active && !children_permissions.contains(&perm);
 
-            // Remap resource category from ID to slug
             if human_readable_categories
                 && let Some(category_ref) = &perm.resource_category
             {
@@ -448,13 +425,6 @@ impl PermissionService {
         Ok(result)
     }
 
-    /// Checks whether the user of the current request can perform the
-    /// action on the target.
-    ///
-    /// Target-typed front API from upstream #3136, implemented over this
-    /// service's existing resolution path (`check_user_can`): the fenced
-    /// permission cache, timed-ban suppression, and site-scoped role
-    /// lookup all apply exactly as for a direct `check_user_can` call.
     pub async fn can_user(
         ctx: &ServiceContext<'_>,
         site_id: Option<i64>,
@@ -464,12 +434,6 @@ impl PermissionService {
         Self::can_user_as(ctx, ctx.request().user_id, site_id, action, target).await
     }
 
-    /// Checks an explicit user's permissions for the given action on the
-    /// target.
-    ///
-    /// This API should only be used to check permissions for an arbitrary
-    /// user, not for authorizing the current request's user. For that, use
-    /// `can_user()`.
     pub async fn can_user_as(
         ctx: &ServiceContext<'_>,
         user_id: Option<i64>,
@@ -477,7 +441,6 @@ impl PermissionService {
         action: Action,
         target: PermissionTarget,
     ) -> Result<bool> {
-        // We cannot determine roles without an associated site.
         let Some(site_id) = site_id else {
             return Ok(false);
         };
@@ -524,10 +487,6 @@ impl PermissionService {
         .await
     }
 
-    /// Batch check if a user has the specified permissions.
-    ///
-    /// Returns an array of booleans corresponding to each permission input.
-    /// Results are returned in the same order as the input array, best used with destructuring.
     pub async fn batch_check_user_can<'a, const N: usize>(
         ctx: &ServiceContext<'_>,
         perm_ctx: &CheckPermissionContext<'_>,
@@ -546,7 +505,6 @@ impl PermissionService {
                 .await
                 .or_raise(make_error)?;
 
-        // Short-circuit: no permissions.
         if user_permissions.is_empty() {
             return Ok([false; N]);
         }
@@ -569,7 +527,6 @@ impl PermissionService {
         Ok(results)
     }
 
-    /// Helper function to check if a permission is present in (the user's) permission set.
     pub(crate) async fn permission_in_set_helper(
         ctx: &ServiceContext<'_>,
         user_id: Option<i64>,
@@ -590,18 +547,12 @@ impl PermissionService {
             user_id, site_id, resource, resource_category, action,
         );
 
-        // Active bans are time-dependent and may lapse without a write, so
-        // cached view decisions must be bypassed while a ban is active.
-        // `page_reference` can add page-specific virtual roles (for example,
-        // PageAuthor). Those decisions cannot safely use the category-wide
-        // permission cache key.
         let cacheable = PermissionCache::is_cacheable(resource, action)
             && !page_scoped_roles
             && !Self::active_site_ban_suppresses_cache(ctx, site_id, user_id)
                 .await
                 .or_raise(make_error)?;
 
-        // Resolve category reference to ID for permission checking
         let resource_category_id = match &resource_category {
             Some(reference) => {
                 resolve_category_reference(ctx, site_id, resource, reference).await?
@@ -620,7 +571,6 @@ impl PermissionService {
         };
 
         if let Some(cache_fence) = &cache_fence {
-            // Check if this permission has been cached
             let has_permission = PermissionCache::check_user_permission(
                 ctx,
                 Some(site_id),
@@ -633,7 +583,6 @@ impl PermissionService {
             .await
             .or_raise(make_error)?;
 
-            // If we have a cached result, use it
             if let Some(has_permission) = has_permission {
                 info!(
                     "Cache hit for user ID {:?} on site ID {} for resource {} of category {:?} with action {}",
@@ -648,9 +597,6 @@ impl PermissionService {
             }
         }
 
-        // If permission is not cacheable, or is not cached, compute it fresh
-
-        // Does this category have permissions scoped to it?
         let has_scoped_permissions = match resource_category_id {
             Some(category_id) => {
                 Self::check_category_scoped(ctx, site_id, resource, category_id, action)
@@ -668,7 +614,6 @@ impl PermissionService {
             has_scoped_permissions,
         );
 
-        // Cache result if cacheable
         if let Some(cache_fence) = cache_fence {
             PermissionCache::set_user_permission_if_fence_current(
                 ctx,
@@ -689,10 +634,6 @@ impl PermissionService {
         Ok(has_permission)
     }
 
-    /// The in-memory half of a permission decision.
-    ///
-    /// The single-check and batched paths both call this, so sharing a decision
-    /// across a batch cannot drift from single-check semantics.
     fn evaluate_in_permission_set(
         user_permissions: &HashSet<Permission<'static>>,
         resource: Resource,
@@ -707,7 +648,6 @@ impl PermissionService {
                 action,
             })
         } else {
-            // If category does not have scoped permissions, fallback to _default
             user_permissions.contains(&Permission {
                 resource_type: resource,
                 resource_category: None,
@@ -749,8 +689,6 @@ impl PermissionService {
             return Ok(Vec::new());
         }
 
-        // The same derivation a page-scoped check performs, minus the page
-        // reference that provably contributes no virtual role for these pages.
         let user_permissions =
             Self::get_permissions_for_user(ctx, user_id, site_id, None)
                 .await
@@ -765,8 +703,6 @@ impl PermissionService {
             let category_id = *category_id;
             let has_scoped_permissions = match category_id {
                 Some(id) => {
-                    // Keyed by (site, category): the resource type and action are
-                    // fixed to (Page, View) for this entry point.
                     let key = (site_id, Some(id));
                     if let Some(cached) = category_scoped_cache.get(&key) {
                         *cached
@@ -812,8 +748,6 @@ impl PermissionService {
         }
     }
 
-    /// Fetches permissions for `role_id`.
-    /// This is a separate function that returns Vec to preserve ordering.
     async fn fetch_permissions(
         ctx: &ServiceContext<'_>,
         role_id: i64,
@@ -842,7 +776,6 @@ impl PermissionService {
             .collect())
     }
 
-    /// Fetches permissions for `role_id` as a set for easy comparison in hierarchy validation.
     pub async fn permissions_as_set(
         ctx: &ServiceContext<'_>,
         role_id: i64,
@@ -951,7 +884,6 @@ impl PermissionService {
             .cloned()
             .collect();
 
-        // Remove permissions from child role
         for perm in &to_remove {
             let resource_category_id =
                 perm.resource_category.as_ref().and_then(|r| match r {
@@ -976,7 +908,6 @@ impl PermissionService {
                 .or_raise(make_error)?;
         }
 
-        // Recursively cascade to grandchildren
         let grandchildren = Role::find()
             .filter(
                 Condition::all()

@@ -15,6 +15,7 @@ import {
   readUrlEncodedForm,
   requestWikidotTokenCookie
 } from "./ajax-module-connector/request.js"
+import { handleMailFormAction } from "./ajax-module-connector/mail-form.js"
 import { jsonResponse } from "./ajax-module-connector/response.js"
 
 import { classifyWikidotSiteChangesRequest } from "./wikidot-site-changes.js"
@@ -302,6 +303,16 @@ const EDIT_META_ACTION_FIELDS = new Set([
  *     guestName?: string
  *     guestEmailMd5?: string
  *   }) => Promise<{ forum_post_id: number }>
+ *   submitMailForm?: (input: {
+ *     siteId: number
+ *     formdef: string
+ *     values: Record<string, string>
+ *   }) => Promise<{
+ *     status: string
+ *     errors?: { field: string; message: string }[]
+ *     success_msg?: string | null
+ *     success_page?: string | null
+ *   }>
  *   renderEditMetaModule?: (input: {
  *     siteId: number
  *     pageId: number
@@ -371,6 +382,7 @@ export const handleAjaxModuleConnectorRequest = async (
     pageExists,
     createPageDiscussion,
     createForumPost,
+    submitMailForm,
     renderEditMetaModule,
     saveMetaTag,
     deleteMetaTag,
@@ -826,6 +838,16 @@ export const handleAjaxModuleConnectorRequest = async (
         CURRENT_TIMESTAMP: Math.floor(Date.now() / 1000)
       })
     }
+  }
+
+  const mailFormResponse = await handleMailFormAction({
+    fields,
+    moduleName,
+    siteId,
+    submitMailForm
+  })
+  if (mailFormResponse) {
+    return mailFormResponse
   }
 
   if (fields.get("action") === NEWPAGE_ACTION && fields.get("event") === NEWPAGE_EVENT) {

@@ -40,8 +40,6 @@ test("only page revisions with a backing snapshot are comparable", () => {
     }),
     true
   )
-  // File events are timeline entries, not page source revisions, even
-  // when they carry a mapped page snapshot for viewing.
   assert.equal(
     isComparableHistoryRevision({
       history_kind: "file",
@@ -81,7 +79,6 @@ test("compare selector offers only comparable page revisions, oldest first", () 
 })
 
 test("a single page revision buried in file events offers no comparison pair", () => {
-  // SCP-9506 shape from #2143: one page creation plus file rows 20-2.
   const entries = [
     { history_kind: "page", timeline_number: 0, page_revision_number: 0 },
     ...Array.from({ length: 19 }, (_, index) => ({

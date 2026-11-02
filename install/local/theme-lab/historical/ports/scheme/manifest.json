@@ -1,0 +1,141 @@
+{
+  "slug": "theme:scheme",
+  "en_source_sha256": "639e67baca7add0448d8170f065e1672b7393416f5753792ab81832429676471",
+  "en_updated_at": "2026-04-12T05:21:40+00:00",
+  "en_entity_uuid": "04a6463e-e5d5-4219-9dfa-417fe40e4ece",
+  "jp_previous_status": "confirmed-absent-by-targeted-xmlrpc",
+  "jp_previous_source_sha256": null,
+  "jp_previous_updated_at": null,
+  "jp_previous_entity_uuid": null,
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:scheme",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": null,
+  "source_identity": {
+    "slug": "theme:scheme",
+    "title": "Scheme Theme",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "639e67baca7add0448d8170f065e1672b7393416f5753792ab81832429676471",
+      "updated_at": "2026-04-12T05:21:40+00:00",
+      "entity_uuid": "04a6463e-e5d5-4219-9dfa-417fe40e4ece",
+      "tags": [
+        "co-authored",
+        "cogwork-orthodoxy",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 32,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:scheme"
+      }
+    },
+    "jp": {
+      "status": "confirmed-absent-by-targeted-xmlrpc",
+      "source_path": null,
+      "sha256": null,
+      "updated_at": null,
+      "entity_uuid": null,
+      "tags": [],
+      "absence_run": "theme-jp-absence-check-20260923"
+    },
+    "existing_jp_audit": "new-jp-candidate-verified",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:scheme",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:info:start",
+      ":scp-wiki:info:end",
+      ":scp-wiki:theme:scheme"
+    ],
+    "en_external_dependencies": [
+      "https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts-20-12@1.0/ELAND_Nice_M.woff",
+      "https://fonts.bunny.net/css2?family=Song+Myung&display=swap",
+      "https://pixabay.com/images/id-1711946/",
+      "https://pixabay.com/images/id-201499/",
+      "https://pixabay.com/images/id-282404/",
+      "https://pixabay.com/images/id-70893/",
+      "https://scp-wiki.wdfiles.com/local--code/theme:scheme/2",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/base.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/cogL.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/cogM.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/cogS.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/header_cogs.jpg",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/lever.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/line.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/rack.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/steam1.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/steam2.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/steam3.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ascheme/stick.png"
+    ],
+    "jp_includes": [],
+    "jp_external_dependencies": [],
+    "base_family": "independent"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "human-port-candidate.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "human-made shared translation workspace; no current official JP counterpart",
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "new-jp-candidate-verified",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/scheme/assets.json",
+  "asset_dependency_decision_count": 195,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "c38af875eb8a1b8a78d4cac779af3c56ebf2641a193410a7a81e019a6c7f46f0",
+    "jp_overrides_sha256": "26752ab20f4094223dea3e590020ef5c1dab10ae313f26c56bf880b2c4df2bc0",
+    "semantic_css_sha256": "05947939a8524939f8b0b1275b8454c5af2b34252e863729db40fecb5ab67b85",
+    "canonical_override_sha256": "d86134d25805ec7a491b399f36abe676fd6ec6933bf18a40aeec04dd55b9e1e7",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "a9c800f2b752119447d7f93d23ff8ba6410cca998065acd640ca87ab1681fc0d",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "a26d65afe2617622565d79368b7d7ace8367dac07742ac038e2d0187e825e55a",
+      "active_tags": [],
+      "candidate_source_sha256": "dab1d3ddc8805b0e4c3977dbe49876e04e975f43151aa3fb3e70165291599b58",
+      "candidate_active_tags": [
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 0,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 0,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "274f0149d9d1d695fd0555d28de09ceb7a0439a310bdd67e3b44c12ba23b2c55",
+      "asset_receipt_path": "assets.json",
+      "assets": 192,
+      "imports": 2,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

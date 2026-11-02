@@ -18,11 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Handling for the `.well-known` special discovery path.
-//!
-//! Many different standard paths are served here, and each
-//! should be implemented as a separate handler.
-
 use super::get_target_server;
 use axum::body::Body;
 use axum::http::header::{self, HeaderMap};

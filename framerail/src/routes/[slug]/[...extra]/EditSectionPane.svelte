@@ -51,12 +51,6 @@
         }
 
         permissionState = "denied"
-        // Server failures surface their own message. A clean can_edit=false
-        // denial renders the retained EN Wikidot window (issue #2336);
-        // other locales keep the localized generic denial. The denial
-        // closes the section editor like the pre-mount gates do, so no
-        // empty action area stays visible; the dialog itself is global
-        // state and survives the close.
         if (result.type === "failure" && result.data?.message) {
           errorPopupState.current = {
             state: true,

@@ -1,0 +1,1026 @@
+
+[[module CSS]]
+@import url('https://scp-wiki.wdfiles.com/local--code/theme%3Ainkblot/1');
+
+:root {
+  --inkblot-accent: {$accent};
+}
+[[/module]]
+
+[[iftags -theme]]
+[[include :scp-jp:component:interwiki-style
+| priority=1
+| theme=https://scp-wiki.wdfiles.com/local--code/theme%3Ainkblot/1
+| css=%3Aroot%7B--inkblot-accent%3A{$accent}%7D
+]]
+[[/iftags]]
+
+[[iftags +theme]]
+
+[[include :scp-jp:component:interwiki-style
+| priority=1
+| theme=https://scp-wiki.wdfiles.com/local--code/theme%3Ainkblot/1
+| css=%3Aroot%7B--inkblot-accent%3Acoral%7D
+]]
+
+[[module CSS]]
+:root {
+  --inkblot-accent: coral;
+  --header-title: "WALDON STUDIO";
+  --header-subtitle: "我ら未知を鑑定する者";
+  --debug-colour: blue;
+}
+:root:has(.picker li:nth-child(1).selected), .picker li:nth-child(1) em {
+  --inkblot-accent: coral;
+}
+:root:has(.picker li:nth-child(2).selected), .picker li:nth-child(2) em {
+  --inkblot-accent: rgb(203, 136, 154);
+}
+:root:has(.picker li:nth-child(3).selected), .picker li:nth-child(3) em {
+  --inkblot-accent: royalblue;
+}
+:root:has(.picker li:nth-child(4).selected), .picker li:nth-child(4) em {
+  --inkblot-accent: yellowgreen;
+}
+:root:has(.picker li:nth-child(5).selected), .picker li:nth-child(5) em {
+  --inkblot-accent: red;
+}
+:root:has(.picker li:nth-child(6).selected), .picker li:nth-child(6) em {
+  --inkblot-accent: magenta;
+}
+:root:has(.picker li:nth-child(7).selected), .picker li:nth-child(7) em {
+  --inkblot-accent: teal;
+}
+:root:has(.picker li:nth-child(8).selected), .picker li:nth-child(8) em {
+  --inkblot-accent: gold;
+}
+
+.picker .yui-navset * {
+  display: contents !important;
+}
+.picker .yui-navset em {
+  display: inline-block !important;
+  color: color-mix(in srgb, black 25%, var(--inkblot-accent, red)) !important;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.25rem;
+  border: none !important;
+}
+.picker .yui-navset .selected em {
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.terminal {
+  border-color: var(--inkblot-accent, grey);
+}
+[[/module]]
+
+[[div class="inkblot-header"]]
+
+[[div class="inkblot-title"]]
+[[div class="title-1"]]
+//The//
+[[/div]]
+[[div class="title-2"]]
+**Inkblot**
+[[/div]]
+[[div class="title-4"]]
+テーマ。
+[[/div]]
+[[/div]]
+
+[[div class="inkblot-info"]]
+レビューのためのテーマ。
+Croquembouche著。
+読了5分。
+⭐⭐⭐★★
+
+[[div class="inkblot-image"]]
+[[image pancakes.png]]
+[[/div]]
+[[/div]]
+[[/div]]
+
+[[>]]
+[[module Rate]]
+[[/>]]
+
+このページには、いくつかの役割があります。
+
+# Inkblotテーマのソース。
+# ウォルドン・スタジオを書くためのガイド。
+# 長文テキストの文脈で、このテーマがどう見えるかのデモ。
+
+Inkblotテーマは、アンブローズの下位GoI、だと思うのですが、ともかくウォルドン・スタジオが書いた[[[ambrose-restaurant-hub | アンブローズ]]]・レストランのレビューのために//設計//されています。ただし、何に使っても構いません。
+
+使い方は前置きの下にあります。
+
+[[collapsible show="+ クイックコピー&ペースト"]]
+
+[[div class="code terminal" style="font-size: 0.6rem;"]]
+@@[[include :scp-wiki:theme:inkblot accent=transparent]]@@
+
+@@[[module CSS]]@@
+:root {
+@@  --@@header-title: "WALDON STUDIO";
+@@  --@@header-subtitle: "我ら未知を鑑定する者";
+}
+@@[[/module]]@@
+
+@@[[div class="inkblot-header"]]@@
+
+@@[[div class="inkblot-title"]]@@
+@@[[div class="title-1"]]@@
+タイトル
+@@[[/div]]@@
+@@[[div class="title-2"]]@@
+タイトル
+@@[[/div]]@@
+@@[[div class="title-3"]]@@
+タイトル
+@@[[/div]]@@
+@@[[div class="title-4"]]@@
+タイトル
+@@[[/div]]@@
+@@[[/div]]@@
+
+@@[[div class="inkblot-info"]]@@
+どこかのナード趣味へのレビュー。
+どこかのナード著。
+読了XX分。
+⭐⭐⭐⭐★
+
+@@[[div class="inkblot-image"]]@@
+@@[[image pancakes.png]]@@
+@@[[/div]]@@
+@@[[/div]]@@
+@@[[/div]]@@
+
+[[/div]]
+
+[[/collapsible]]
+
+Sigma-9の[[[component:toggle-sidebar | Toggle Sidebar]]]コンポーネントと併用する場合:
+
+[[collapsible show="+ Toggle Sidebar専用の追加手順"]]
+
+このテーマはToggle Sidebarコンポーネントの//後//にincludeしてください。
+
+次の互換CSSをページに追加してください。
+
+[[div class="code"]]
+@@[[module CSS]]@@
+/* Toggle Sidebar compatibility */
+#side-bar { top: 0; }
+.inkblot-header { width: 100%; left: 0; }
+@@[[/module]]@@
+[[/div]]
+[[/collapsible]]
+
+-----
+
+いくつかの異なるアクセント色でこのテーマをプレビューできます。
+
+[[div class="picker"]]
+[[tabview]]
+[[tab Coral]]
+[[/tab]]
+[[tab Puce]]
+[[/tab]]
+[[tab RoyalBlue]]
+[[/tab]]
+[[tab YellowGreen]]
+[[/tab]]
+[[tab Red]]
+[[/tab]]
+[[tab Magenta]]
+[[/tab]]
+[[tab Teal]]
+[[/tab]]
+[[tab Gold]]
+[[/tab]]
+[[/tabview]]
+[[/div]]
+
+-----
+
++ 前置き
+
+私のヘッドカノンでは、宇宙内のウォルドン・スタジオは//`Michelin Guide Online, powered by the [[[the-dark-web-dke79-o2rg5-4jlw6 | Dark Web]]]'//[[footnote]]執筆時点でこれを用いているアンブローズ形式の記事: [[[Ambrose Thorn Valley]]]、[[[Ambrose Makiling]]]、[[[Ambrose Backdoor Soho]]]。[[/footnote]]を置き換えるものです。本物のミシュランガイドから知的財産権侵害で訴えられる、という考えがあまり好きではないからです。
+
+現在のアンブローズ形式は、自分で自分の足を引っ張っています。多くのアンブローズ記事は、無関係なメニュー項目の集合に、無関係なレビューの集合が続く構成です。これはショットガン方式[[footnote]]“ショットガンSCP”とは、中心となるアノマリーを持たず、小さなアノマリーの集まりで構成される記事を指します。作者は、そのうち少なくとも一つが投票したくなるほど読者の興味を引くことを期待しています。[[/footnote]]です。退屈で、追うべき物語の筋がなく、興味を引っかけるものもありません。読者に無関心でいることを促してしまいます。リストは注意を遠ざけます。うまくやってその制約を超えられるとしても、そもそもなぜ制約されなければならないのでしょうか？
+
+残念なことです。アンブローズ形式には大きな可能性があるからです。レビューは、織り合わせれば相互につながった物語を語れます。メニューは素晴らしい発想です。この種の創造性を促すGoIフォーマットは他にありません！ これこそ、本来のアンブローズ形式が目指していたものでした。[[footnote]]アンブローズ・ハブの“Guide”タブ、“Franchising Options”折り畳みを参照。[[/footnote]] しかし、この形式を魔法のようなものにしている細部すべてを考えるのは難しく、正しく見えるけれど実際にはそうではないものを作る方がずっと簡単です。
+
+ウォルドン・スタジオは、アンブローズ形式への別の取り組みです。ウォルドン・スタジオは一つのものを取り上げ、それを徹底的に掘り下げます。一つの対象と、そのあらゆる側面についての、複雑で深いレビューです。集中する筋は一つ。邪魔はありません。つまり、ウォルドン・スタジオが書いたアンブローズ形式では、レビューは一つだけです。良い物語を書く邪魔になる可動部は少なくなり、それでも同じ水準の視覚的創造性には開かれています。
+
+ウォルドン・スタジオにはハブページがありません。私が今でっち上げたばかりだからです。だから、これで代用できるでしょう。ウォルドン・スタジオは小さなレビュアーチームです。多くても十人くらいで、レビュー業界でどうにかやっていこうとしています（努力して失敗していますが、本人たちは決して認めません）。組織はゆるく、強い階層はありません。高品質なものを高品質にレビューすることへ集中しています。細かなディテールへの深い鑑賞眼を持ち、そのために大きなことを見落としがちです。たとえば、自分たちが足を踏み入れたレストランが実際には異常な死の罠であることに気づかない、という具合です。その意味で、ウォルドン・スタジオのレビューのテーマには、読者には明白なことを宇宙内のレビュアー本人だけがまったく理解していない、という対立があり得ます。
+
+とはいえ、これはただのテーマです。好きに使ってください。
+
+-----
+
++ 使用法
+
+このテーマを使う手順はいくつかあります。
+
+# テーマを追加する。
+# テーマを設定する。
+# 特殊ヘッダーを作る。
+
+++ テーマを追加する
+
+このテーマをページに追加するには、次のコードをページへコピーしてください。できれば、他のCSSと一緒にページ上部付近へ置くのが理想です。
+
+[[div class="code terminal inksplot"]]
+**##var(--c-keyword)|[[include##** ##var(--c-symbol)|:scp-wiki:theme:inkblot## ##var(--c-builtin)|accent##**##var(--c-keyword)|=##**##var(--c-string)|transparent##**##var(--c-keyword)|]]##**
+
+**##var(--c-keyword)|[[module##** ##var(--c-builtin)|CSS##**##var(--c-keyword)|]]##**
+##var(--c-symbol)|:root## {
+@@  @@##var(--c-builtin)|@@--@@header-title##: ##var(--c-string)|"WALDON STUDIO"##;
+@@  @@##var(--c-builtin)|@@--@@header-subtitle##: ##var(--c-string)|"我ら未知を鑑定する者"##;
+}
+**##var(--c-keyword)|[[/module]]##**
+[[/div]]
+
+（上のような形のdivは、{{inksplot}}クラスを追加すれば作れます。）
+
+++ テーマを設定する
+
+ページ見出しと副見出しを設定するには、二つのCSS変数を変更してください（元祖ウォルドン・スタジオ感を残したいなら、そのままでも構いません）。
+
+include内の{{accent}}パラメータは、ページ周辺の小さな泡などの色を決めます。また、その暗くしたバリエーションがリンクに使われます。省略した場合、または上のコードから変更しなかった場合、既定色は'transparent'です。つまり、それらの小さな泡などは見えません（リンクは標準のSigma-10赤になります）。
+
+お願いがあります。**他のInkblot記事と同じアクセント色は使わないでください。** このテーマページは'**##coral|coral##**'を使っているので、これは使用済みです。[https://htmlcolorcodes.com/color-names/ 新しい色を選んでください。] このテーマを使うページはそれほど多くならないはずなので、難しい選択にはならないでしょう。
+
+（このテーマを使っているページは、ページ下部へ行き、'+ Options'を開いて'Backlinks'をクリックすると確認できます。）
+
+黒い文字を重ねても読める色を選ぶようにしてください。暗い色を選ばざるを得ない場合は、評価ボタンの文字色を見えるように調整してください。また、Inkblotヘッダーをその色で動かす方法は自分で考えてください。非常に明るい色を選ぶ場合も、リンクに十分なコントラストが出るよう調整が必要になるかもしれません。
+
+++ Inkblotヘッダーを作る
+
+Inkblotテーマは既定のページタイトルを非表示にするので、自分で作る必要があります。好きな文字を入れられますが、お願いです。**実際のページタイトルと同じ文字を使ってください。** 本当に。
+
+ページ上部に通常のInkblotヘッダーが表示されています。ここではもう一つ、ラベルを付け、すべてのHTML要素にアウトラインを引いたものを示します。
+
+[[div class="inkblot-header debug-mode" style="padding: 3rem 1rem; margin: 2.5rem -1rem;"]]
+
+[[div class="debug-info over"]]
+.inkblot-header
+[[/div]]
+
+[[div class="inkblot-title"]]
+[[div class="debug-info over"]]
+.inkblot-title
+[[/div]]
+[[div class="title-1" style="outline: 5px solid blue;"]]
+好きな
+[[/div]]
+[[div class="title-2" style="outline: 5px solid blue;"]]
+**どんな**
+[[/div]]
+[[div class="title-3" style="outline: 5px solid blue;"]]
+文字
+[[/div]]
+[[div class="title-4" style="outline: 5px solid blue;"]]
+//でも//。
+[[/div]]
+[[/div]]
+
+[[div class="inkblot-info" style="position: relative;"]]
+[[div class="debug-info under"]]
+.inkblot-info
+[[/div]]
+
+レビューについての紹介文です。
+どこかの馬鹿著。
+読了5分。
+⭐★★★★
+
+[[div class="inkblot-image" style="position: relative;"]]
+[[div class="debug-info under" style="bottom: -2.5rem;"]]
+.inkblot-image
+[[/div]]
+
+[[image pancakes.png]]
+[[/div]]
+[[/div]]
+
+[[/div]]
+
+見て分かるとよいのですが、ヘッダーのタイトル部分は四つの小区画で構成されており、それぞれに一語か二語が入っています。タイトルを分割する、かなりすっきりして視覚的に面白い方法だと思います。
+
+情報セクションには、レビューについての情報をいくらか入れるべきです。私からの提案としては、これは何のレビューなのか。誰が書いたのか。読むのにどれくらいかかるのか。そして、レビュー対象はどれくらい良いものなのか。
+
+画像は何でも構いません。おそらく、レビューしている人物の画像にするのがかなり普通でしょう。もしかすると、このテーマはパンケーキによって作られたのかもしれません。レビュー対象の画像にするのは避けた方がよいと思います。それは記事本体のために取っておいてください。
+
+デスクトップでは、このヘッダーの三つのセクションはすべて一列に並びます。一方、モバイルでは、タイトルが単独で一行を取り、情報セクションと画像が次の行に置かれます。
+
+四つのタイトル小区画を含め、上のヘッダーを作る方法は以下で確認できます。なお、タイトルセクションの一つを省略しても構いません。その場合、そこには隙間が残ります。このページのタイトルで私がやったのがそれです。
+
+[[div class="code terminal"]]
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"inkblot-header"##**##var(--c-keyword)|]]##**
+
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"inkblot-title"##**##var(--c-keyword)|]]##**
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"title-1"##**##var(--c-keyword)|]]##**
+好きな
+**##var(--c-keyword)|@@[[/div]]@@##**
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"title-2"##**##var(--c-keyword)|]]##**
+@@**どんな**@@
+**##var(--c-keyword)|@@[[/div]]@@##**
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"title-3"##**##var(--c-keyword)|]]##**
+文字
+**##var(--c-keyword)|@@[[/div]]@@##**
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"title-4"##**##var(--c-keyword)|]]##**
+@@//でも//@@。
+**##var(--c-keyword)|@@[[/div]]@@##**
+**##var(--c-keyword)|@@[[/div]]@@##**
+
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"inkblot-info"##**##var(--c-keyword)|]]##**
+レビューについての紹介文です。
+どこかの馬鹿著。
+読了5分。
+⭐★★★★
+
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"inkblot-image"##**##var(--c-keyword)|]]##**
+**##var(--c-keyword)|[[image##** ##var(--c-symbol)|pancakes.png##**##var(--c-keyword)|]]##**
+**##var(--c-keyword)|@@[[/div]]@@##**
+**##var(--c-keyword)|@@[[/div]]@@##**
+**##var(--c-keyword)|@@[[/div]]@@##**
+[[/div]]
+
+このヘッダーとタイトルレイアウトを使うと、いくつか問題があることに注意してください。
+
+* タイトルの長さ、または四つへの分け方には注意が必要です。長すぎると、タイトルセクションの一つが次の行へ折り返され、読みづらくなる可能性があります。おおよそ均等な四つの区画へ簡単に分けられる、短いタイトルを推奨します。
+* タイトルが長すぎる場合、または情報セクションに文字が多すぎる場合も、はみ出したり重なったりする可能性があります。あまり入れすぎないようにしてください。
+
+奇妙なタイトルグリッドも、情報セクションも、画像も、使う必要はありません。好きなように追加・削除できます。{{.inkblot-header}}クラスを使う必要すらありません。これはデスクトップでヘッダーをページ左側の外へ半分ずらすだけのものです。
+
+タイトルグリッドなし、情報なし、画像なし、{{.inkblot-header}}なしの例を示します。
+
+[[div class="inkblot-title"]]
+//ただの// **普通の** タイトル。
+[[/div]]
+
+[[div class="code terminal"]]
+**##var(--c-keyword)|[[div##** ##var(--c-builtin)|class####var(--c-operator)|=####var(--c-string)|"inkblot-title"##**##var(--c-keyword)|]]##**
+@@//ただの// **普通の** タイトル。@@
+**##var(--c-keyword)|@@[[/div]]@@##**
+[[/div]]
+
+-----
+
+++ では、アンブローズのメニューはどう作るの？
+
+要点はこうです。このテーマはアンブローズのレビュー用に設計されているかもしれませんが、アンブローズのメニューは付属しません。
+
+なぜか？
+
+私は、アンブローズ形式を書く楽しさの半分は、自分でメニューを作ることにあると**強く**信じています。アンブローズ形式ごとに新しいメニューデザインを見るのが大好きです。だから責任はあなたにあります。私は、あなた自身のメニューデザインでこのテーマを使うところを見たいのです。ひどい出来でも構いません。作っていて楽しいものでありさえすればよいのです。
+
+もし私がこのテーマにメニューデザインを同梱したら、あなたがそれを使わないなんて嘘を私につかないでください。使うでしょう。//私//だって使います。そして、このテーマのデザイナーとして、私は自分のしたいことをしていいのです。
+
+どうしても//本当に//必要なら、別のフォーマットからメニューをコピーして、色を少し調整しても構いません。ただし、そうした場合、私は一つのdownvoteと軽いクリティークの全力をもってあなたを打ち倒すと知っておいてください。どうかやらないでください。
+
+あなた独自のやり方でスタイル付けしたアンブローズ・レストラン用メニューを追加すると、あなたの記事はアンブローズ・レストランのGoIフォーマットとして認められます。
+
+-----
+
++ ソースコード
+
+よし、私から言うことはこれで全部です。以下がソースコードです。
+
+[[collapsible show="+ ソースコードを表示"]]
+
+[[code type="css"]]
+/* Import fonts */
+@import url('https://fonts.bunny.net/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.bunny.net/css2?family=Prata&display=swap');
+@import url('https://fonts.bunny.net/css2?family=Montserrat:wght@300;600&display=swap');
+
+/* Set the font size back to normal */
+#page-content { font-size: 1rem; }
+body { font-family: 'Libre Baskerville', serif; }
+
+/* Hide the page title. I'll make my own damned title */
+#page-title { display: none; }
+
+
+/* - == === CUSTOM SYNTAX === == - */
+
+/* The inkblot header contains the title and the info box thingy */
+.inkblot-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  position: relative;
+  margin: 1rem 0 3rem;
+  width: 100%;
+  left: 0;
+  max-width: none !important; /* override #page-content div */
+}
+@media (min-width: 768px) {
+  /* On desktop, header expands over the top of the sidebar */
+  .inkblot-header {
+    width: calc(100% + 18 * 0.82rem);
+    left: calc(-18 * 0.82rem);
+  }
+}
+
+/* The inkblot title is a grid */
+.inkblot-title {
+  flex: 1 1 0;
+  font-size: min(4rem, 10vw);
+  font-family: 'Prata', serif;
+  display: inline-grid;
+  grid-template-areas:
+    "one two"
+    "three four";
+  grid-gap: 0.1em;
+  max-width: 100%;
+  position: relative;
+  margin: 1rem;
+}
+.inkblot-title::before {
+  content: "";
+  border-radius: 74% 26% 27% 77% / 74% 38% 73% 38%;
+  background-color: var(--inkblot-accent, transparent);
+  position: absolute;
+  height: 40%; width: 100%; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) skewY(-6deg);
+  max-width: min(50vw, 80%);
+}
+.inkblot-title > * { z-index: 1; white-space: nowrap; }
+.inkblot-title .title-1 { grid-area: one; place-self: start end; }
+.inkblot-title .title-2 { grid-area: two; place-self: start start; }
+.inkblot-title .title-3 { grid-area: three; place-self: start end; }
+.inkblot-title .title-4 { grid-area: four; place-self: start start; }
+.inkblot-title p { margin: 0; line-height: 1em; text-align: center; }
+/* Italics encroach to the right a bit, so push them back */
+.inkblot-title > em, .inkblot-title .title-1 em, .inkblot-title .title-3 em {
+  position: relative;
+  left: -0.1em;
+}
+
+@media (max-width: 767px) {
+  .inkblot-title {
+    flex-basis: 100%;
+  }
+}
+
+/* The info box is itself a flex container */
+.inkblot-info {
+  flex: 1 1 0;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.inkblot-info > p { 
+  min-width: 12.5rem;
+}
+/* On desktop, if the header overflows onto two rows, it will overlap the sidebar.
+ * The max-width of the info thingy is reduced so it won't be wider than #page-content.
+ * justify-content:flex-end on .inkblot-header pushes it to the right.
+ * !important to override wikidot's default max-width on everything
+ */
+@media (min-width: 768px) {
+  .inkblot-info {
+    max-width: calc(100% - 18 * 0.82rem) !important;
+  }
+}
+
+/* The image should only be styled fancy inside the info section.
+ * It could be easily modified to allow a fancy image outside of the info
+ * section, but I don't want to do that, because this arrangement is necessary
+ * for proper line-wrapping on mobile, and the misformatted image acts as a
+ * good indicator that something has gone wrong.
+ */
+.inkblot-info .inkblot-image { flex: 0 1 10rem; min-width: 10rem; }
+.inkblot-info .inkblot-image img {
+  border-radius: 65% 35% 43% 57% / 41% 35% 65% 59%;
+  box-shadow: 0.5rem 0 var(--inkblot-accent, transparent);
+  /* The height is 8rem, but I want it slightly bigger */
+  height: 10rem; width: 10rem;
+  margin: -1rem 0;
+}
+
+/* The inksplot class makes anything blobby */
+.inksplot {
+  border-width: 0.5rem;
+  border-style: solid;
+  border-color: var(--inkblot-accent); /* if no accent, will not override */
+  padding: 2rem 4rem;
+  margin: 1rem -3rem;
+  border-radius: 38% 95% 94% 42% / 62% 56% 84% 75%;
+}
+/* On mobile, the inkblot is rectangular and boring to save space */
+@media (max-width: 960px) and (min-width: 767px), (max-width: 650px) {
+  .inksplot {
+    padding: 1rem;
+    border-radius: 5rem / 3rem;
+    margin: 1rem -1rem;
+  }
+}
+
+
+/* - == === DISTRIBUTED BLOBS === == - */
+
+/* I want some blobs of colour down the page.
+ * Thankfully, Wikidot gives me some extra dives to play with:
+ * 6 in #container-wrap-wrap and 3 in #container.
+ * They are #extra(c?)-div-[1-6]. That's a lot of selectors. */
+
+#container-wrap-wrap, #container { position: relative; overflow: hidden; }
+
+/* Based on CSS by Murray Smith (CC BY-SA 3.0)
+ * https://stackoverflow.com/a/14451916/4958427 */
+
+[id^=extra][id*=-div-] {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  --content-width: min(1040px, 100vw);
+  --content-margin: calc(50vw - var(--content-width) / 2);
+  --blob-width: 30rem;
+  --blob-radius: calc(var(--blob-width) * 0.67);
+  background-color: var(--inkblot-accent, transparent);
+  top: var(--top-offset);
+  transform: rotate(var(--rotation))
+             translate(calc(var(--sin-rotation) * 0.866 * var(--blob-radius) / 2),
+                       calc(-1 * var(--cos-rotation) * 0.866 * var(--blob-radius) / 2))
+             skewX(-30deg)
+             scale(1, 0.866);
+}
+[id^=extra][id*=-div-]:before,
+[id^=extra][id*=-div-]:after {
+  content: '';
+  position: absolute;
+  background-color: inherit;
+}
+[id^=extra][id*=-div-],
+[id^=extra][id*=-div-]:before,
+[id^=extra][id*=-div-]:after {
+  width: var(--blob-width); height: var(--blob-width);
+  border-top-right-radius: 95%;
+}
+[id^=extra][id*=-div-]:before {
+  transform: rotate(-135deg) skewX(-45deg) scale(1.414, 0.707) translate(0,-50%);
+}
+[id^=extra][id*=-div-]:after {
+  transform: rotate(135deg) skewY(-45deg) scale(0.707, 1.414) translate(50%);
+}
+
+/* A lot of maths went into this.
+ * To centre a triangle onto its container, it needs the following translation:
+ * where A is the angle of rotation:
+ * x:
+ *   sin(N)
+ *   * 0.866 (scale offset)
+ *   * radius
+ *   / 2
+ * y:
+ *   -1
+ *   * cos(N)
+ *   * 0.866 (scale offset)
+ *   * radius
+ *   / 2
+ * Triangles have an order of symmetry around 120deg, so any angles above that are pointless.
+ */
+#extra-div-1,
+#extra-div-3,
+#extra-div-5,
+#extrac-div-1,
+#extrac-div-3 {
+  right: calc(var(--blob-radius) * -2 + var(--content-margin));
+}
+#extra-div-2,
+#extra-div-4,
+#extra-div-6,
+#extrac-div-2 {
+  left: calc(var(--blob-radius) * -2 + var(--content-margin));
+}
+#extra-div-1 {
+  --blob-width: 30rem;
+  --top-offset: 500px;
+  --rotation: 53.33deg; --sin-rotation: 0.802; --cos-rotation: 0.597;
+}
+#extra-div-2 {
+  --blob-width: 30rem;
+  --top-offset: 1300px;
+  --rotation: 40deg; --sin-rotation: 0.642; --cos-rotation: 0.766;
+}
+#extra-div-3 {
+  --blob-width: 20rem;
+  --top-offset: 2100px;
+  --rotation: 66.66deg; --sin-rotation: 0.918; --cos-rotation: 0.396;
+}
+#extra-div-4 {
+  --blob-width: 15rem;
+  --top-offset: 2900px;
+  --rotation: 13.33deg; --sin-rotation: 0.231; --cos-rotation: 0.973;
+}
+#extra-div-5 {
+  --blob-width: 40rem;
+  --top-offset: 3700px;
+  --rotation: 26.66deg; --sin-rotation: 0.448; --cos-rotation: 0.893;
+}
+#extra-div-6 {
+  --blob-width: 25rem;
+  --top-offset: 4500px;
+  --rotation: 106.66deg; --sin-rotation: 0.958; --cos-rotation: -0.286;
+}
+#extrac-div-1 {
+  --blob-width: 15rem;
+  --top-offset: 5300px;
+  --rotation: 93.33deg; --sin-rotation: 0.998; --cos-rotation: -0.058;
+}
+#extrac-div-2 {
+  --blob-width: 10rem;
+  --top-offset: 6100px;
+  --rotation: 120deg; --sin-rotation: 0.855; --cos-rotation: -0.500;
+}
+#extrac-div-3 {
+  --blob-width: 7rem;
+  --top-offset: 6900px;
+  --rotation: 80deg; --sin-rotation: 0.984; --cos-rotation: 0.173;
+}
+
+
+/* - == === HEADER === == - */
+
+/* Replace the header background */
+/* 324px is twice the height of the default header */
+div#container-wrap { background: url(https://scp-wiki.wdfiles.com/local--files/theme%3Ainkblot/review-header.svg) top left/100% 648px no-repeat; }
+
+#header { background: radial-gradient(circle at left 75px top 90px, var(--inkblot-accent, transparent) 42px, transparent 42.5px); }
+
+/* Replace the header text */
+/* Centre the text into the middle of the header */
+#header h1, #header h2 { margin-left: 0; float: none; text-align: center; }
+/* Move the subtitle down a smidge */
+#header h2 { margin-top: 0.3rem; }
+/* Hide the existing text */
+#header h1 span, #header h2 span { font-size: 0; }
+/* Style the new text */
+#header h1 a::before, #header h2::before {
+  color: #333;
+  font-family: 'Montserrat', sans-serif;
+  text-shadow: none;
+}
+/* Set the new text's content from variable */
+#header h1 a::before {
+  content: var(--header-title, "WALDON STUDIO");
+  font-weight: 300;
+}
+#header h2::before {
+  content: var(--header-subtitle, "connoisseurs of the unknown");
+  font-weight: 600;
+}
+
+/* Hide the search box and tuck the button next to the login */
+#search-top-box { top: 10px; transform: translateY(-7%); }
+#search-top-box-form > input[type=text] { display: none; }
+#search-top-box-form > input[type=submit] {
+  background: 
+    url('https://scp-wiki.wdfiles.com/local--files/theme%3Ainkblot/search-solid.svg') 50%/0.8rem no-repeat,
+    var(--inkblot-accent, transparent)
+    !important /* don't revert on mouseover */;
+  border: none;
+  border-radius: 50%;
+  font-size: 0;
+  height: 1.5rem; width: 1.5rem;
+}
+#login-status { right: calc(10px + 2rem); color: #333a; }
+#login-status a { color: #b01a; }
+
+
+/* - == === LINKS === == - */
+
+/* Make links be a darkened version of the accent colour. If not set, the accent colour is assumed to be red because that ends up looking similar to baseline Sigma links. */
+a, a:visited, #side-bar a, #interwiki a {
+  color: color-mix(in srgb, black 25%, var(--inkblot-accent, red));
+
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 0.25rem;
+}
+:is(#side-bar a, #interwiki a):not(:hover) {
+  text-decoration: none;
+}
+:is(a, a:visited, #side-bar a, #interwiki a):hover {
+  text-decoration-style: solid;
+}
+
+/* - == === TOPBAR === == - */
+
+#top-bar { display: flex; justify-content: center; right: 0; }
+#top-bar a { color: #333d; }
+
+
+/* - == === SIDEBAR === == - */
+
+/* Move the side bar down, out of the way of the inkblot header */
+@media (min-width: 768px) {
+  #side-bar { top: 12rem; }
+}
+
+/* Make the sidebar look pretty */
+/* Keep the side block colours - I like them */
+#side-bar .side-block,
+#interwiki .side-block {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: none;
+}
+
+#side-bar .heading,
+#interwiki .heading {
+  margin: 0.6rem 0 0.5rem;
+  padding: 0;
+  color: #000a;
+  height: 1rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border: none;
+}
+#side-bar .heading::before,
+#side-bar .heading::after,
+#interwiki .heading::before,
+#interwiki .heading::after {
+  content: "";
+  height: 1px;
+  box-sizing: border-box;
+  border-bottom: 1px dotted #333;
+  margin: 0.1rem 0.5rem 0;
+  flex: 1 1 0;
+}
+#side-bar .menu-item > img,
+#interwiki .menu-item > img {
+  visibility: hidden;
+}
+
+#top-bar .open-menu a {
+  border-radius: 1px;
+  border: none;
+  border-left: 0.25rem solid var(--inkblot-accent, #333);
+  border-right: 1px dotted #333;
+  text-decoration: none;
+}
+@media (max-width: 767px) {
+  #side-bar {
+    background-image: 
+      radial-gradient(
+        circle at left 10% top 90%,
+        var(--inkblot-accent, white) 25%,
+        transparent 25%
+      ),
+      linear-gradient(-75deg, #ccc 30%, white 30%);
+    border-right: 4px dotted #444 !important;
+    background-clip: padding-box;
+  }
+}
+
+
+/* - == === RATING MODULE === == - */
+
+.page-rate-widget-box { box-shadow: none; }
+.page-rate-widget-box {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  border-radius: 0;
+  border-width: 1px 0;
+  border-style: dotted;
+  border-color: #333;
+  padding: 0.1rem;
+  margin-right: 3rem;
+}
+div.page-rate-widget-box .rate-points,
+.page-rate-widget-box .cancel {
+  background-color: transparent;
+  border-radius: 0;
+  border: none;
+  color: #333;
+}
+.page-rate-widget-box .rateup,
+.page-rate-widget-box .ratedown {
+  background-color: var(--inkblot-accent, transparent);
+  border-radius: 50%;
+  border: none;
+  color: #333;
+  height: 1.5rem; width: 1.5rem;
+  position: relative;
+  margin-left: 0.25rem;
+}
+.page-rate-widget-box .cancel {
+  color: #333;
+  height: 1.5rem; width: 1.5rem;
+  position: relative;
+}
+.page-rate-widget-box .rateup a,
+.page-rate-widget-box .ratedown a,
+.page-rate-widget-box .cancel a {
+  position: absolute;
+  display: block;
+  top: 0; left: 0; height: 100%; width: 100%;
+  text-align: center; line-height: 1.5rem;
+  color: #333;
+  padding: 0;
+  margin: 0;
+  font-weight: bold;
+}
+.page-rate-widget-box .cancel a { color: transparent; }
+.page-rate-widget-box .cancel a::after {
+  content: "⤬";
+  position: absolute;
+  color: #333;
+  top: 0; left: 0; height: 100%; width: 100%;
+}
+.page-rate-widget-box .rateup a:hover { background-color: limegreen; }
+.page-rate-widget-box .ratedown a:hover { background-color: tomato; }
+.page-rate-widget-box .cancel a:hover {
+  color: transparent;
+  background-color: transparent;
+  border-radius: 0;
+}
+
+/* Info module compatibility */
+/* More specific because will probably be imported before the info module */
+#page-content .rate-box-with-credit-button {
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  border-width: 1px 0;
+  border-style: dotted;
+  border-color: #333;
+  display: flex;
+  align-items: center;
+}
+.rate-box-with-credit-button .page-rate-widget-box {
+  border: none;
+}
+.creditButton {
+  height: 1rem;
+  width: 1rem;
+  background-color: var(--inkblot-accent, transparent);
+  border-radius: 50%;
+}
+#page-content .creditButton p a {
+  color: #333;
+  border: none;
+  line-height: 1rem;
+  margin-left: 0;
+}
+
+
+/* - == === IMAGE BLOCKS === == - */
+
+.scp-image-block {
+  border: none;
+  border-top: 1px dotted #333;
+  box-shadow: none;
+}
+.scp-image-block .scp-image-caption {
+  background: none;
+  border-top: solid 0.25rem var(--inkblot-accent, transparent);
+  padding-top: 0.5rem;
+  font-weight: normal;
+}
+.scp-image-block img {
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+@media (min-width: 768px) {
+  .scp-image-block.block-left {
+    margin-left: -100px;
+  }
+}
+@media (min-width: 1250px) {
+  .scp-image-block.block-right {
+    margin-right: -100px;
+  }
+}
+@media (max-width: 600px) {
+  .scp-image-block.block-left, .scp-image-block.block-right {
+    float: none; clear: both; margin-left: auto; margin-right: auto;
+  }
+}
+
+/* Compatibility with Woedenaz' Image Features
+ * http://scp-wiki.wikidot.com/component:image-features-source
+ * Image Features other than hover-to-zoom may need more fixes
+ */
+.image-hover-enlarge img {
+  box-shadow: none !important;
+}
+
+
+/* - == === OTHER STUFF === == - */
+
+li, p {
+  line-height: 1.6em;
+  letter-spacing: 0.01em;
+}
+
+#page-content h1, #page-content h2, #page-content h3,
+#page-content h4, #page-content h5, #page-content h6 {
+  font-family: 'Libre Baskerville', serif;
+  color: #333;
+  margin: 1em 0 0.5em 0;
+  letter-spacing: 0;
+}
+#page-content h1 {
+  font-family: 'Prata', serif; font-size: 3rem; text-align: center;
+}
+#page-content h2 { font-size: 2rem; font-weight: bold; }
+
+hr {
+  margin: 3rem;
+  height: 1rem;
+  background: radial-gradient(circle at center, var(--inkblot-accent, transparent) 0.375rem, transparent calc(0.375rem + 0.5px));
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+hr::before, hr::after {
+  content: "";
+  height: 1px;
+  box-sizing: border-box;
+  border-bottom: 1px dotted #333;
+  width: calc(50% - 3rem);
+}
+
+.page-tags span {
+  border-top: 1px dotted #333;
+}
+
+.footnotes-footer {
+  margin-top: 2rem;
+}
+
+#page-content {
+  margin-bottom: 2rem;
+}
+
+#footer {
+  background: transparent;
+}
+
+#footer a {
+  color: black;
+}
+
+#breadcrumbs, .pseudocrumbs {
+  display: flex;
+  flex-direction: row-reverse;
+  font-size: 0;
+  margin-top: -1rem;
+}
+#breadcrumbs a, .pseudocrumbs a {
+  font-size: 0.82rem;
+  margin-left: 0.3rem;
+}
+#breadcrumbs a::before, .pseudocrumbs a::before {
+  content: "«";
+  margin-right: 0.3rem;
+}
+
+.licensebox {
+  font-size: 0.82rem;
+  font-family: verdana, arial, helvetica, sans-serif;
+  margin: 1rem 0 -1.5rem;
+}
+
+span, a {
+  word-break: normal;
+}
+
+blockquote, div.blockquote {
+  border: none;
+  border-left: thick solid var(--inkblot-accent, #eee);
+  background: none;
+}
+[[/code]]
+
+[[/collapsible]]
+
+[[/iftags]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Inkblot navigation correction: contain the third narrow mobile submenu. */
+@media (max-width: 359px) {
+  .mobile-top-bar > ul > li:nth-child(3) > ul { left: auto; right: 0; }
+}
+[[/module]]
+
+[[module CSS]]
+/* SCP-JP Wikidot Inkblot mobile endpoint correction: contain the last submenu at its parent right edge. */
+@media (min-width: 360px) and (max-width: 767px) {
+  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto; right: 0; }
+}
+[[/module]]

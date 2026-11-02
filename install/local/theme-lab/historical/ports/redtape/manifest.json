@@ -1,0 +1,274 @@
+{
+  "slug": "theme:redtape",
+  "en_source_sha256": "7362f7971e67776bff08f0f29e39d43f0d38c03a432e063f908a4dc07ae30ea1",
+  "en_updated_at": "2024-10-02T07:06:10+00:00",
+  "en_entity_uuid": "0ed6c68c-ac7d-457c-82d5-cc8035cd58bd",
+  "jp_previous_status": "present",
+  "jp_previous_source_sha256": "b0f436a038cfd2c4f1bb0e153995a5ba911c92682d5a058eba578724563632af",
+  "jp_previous_updated_at": "2025-02-24T00:14:16+00:00",
+  "jp_previous_entity_uuid": "23f93d77-1209-4200-b2e5-c9243f2f0034",
+  "technical_spec_version": "1.4",
+  "reference_url": "https://scp-wiki.wikidot.com/theme:redtape",
+  "candidate_source": "candidate.wikidot.txt",
+  "candidate_css": "candidate.css",
+  "source_file": "upstream-en.wikidot.txt",
+  "existing_jp_source": "existing-jp.wikidot.txt",
+  "source_identity": {
+    "slug": "theme:redtape",
+    "title": "REDTAPE THEME",
+    "en": {
+      "source_path": "upstream-en.wikidot.txt",
+      "sha256": "7362f7971e67776bff08f0f29e39d43f0d38c03a432e063f908a4dc07ae30ea1",
+      "updated_at": "2024-10-02T07:06:10+00:00",
+      "entity_uuid": "0ed6c68c-ac7d-457c-82d5-cc8035cd58bd",
+      "tags": [
+        "_cc",
+        "theme"
+      ],
+      "attached_files": [],
+      "revisions": 147,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "en",
+        "slug": "theme:redtape"
+      }
+    },
+    "jp": {
+      "status": "present",
+      "source_path": "existing-jp.wikidot.txt",
+      "sha256": "b0f436a038cfd2c4f1bb0e153995a5ba911c92682d5a058eba578724563632af",
+      "updated_at": "2025-02-24T00:14:16+00:00",
+      "entity_uuid": "23f93d77-1209-4200-b2e5-c9243f2f0034",
+      "tags": [
+        "en",
+        "テーマ"
+      ],
+      "absence_run": null,
+      "source_locator": {
+        "kind": "scp-corpus-page",
+        "branch": "jp",
+        "slug": "theme:redtape"
+      }
+    },
+    "existing_jp_audit": "existing-jp-current-and-valid",
+    "technical_spec_version": "1.4",
+    "final_verdict": "inconclusive"
+  },
+  "dependencies": {
+    "slug": "theme:redtape",
+    "en_includes": [
+      ":scp-wiki:component:interwiki-style",
+      ":scp-wiki:component:interwiki-style",
+      "component:image-block name=redtapethemethumbnail.png",
+      ":scp-wiki:component:theme-squares -=-",
+      "component:image-block name=redtapethemethumbnail.png",
+      ":scp-wiki:theme:black-highlighter-theme",
+      ":scp-wiki:theme:redtape@@",
+      ":scp-wiki:component:centered-header-bhl",
+      ":scp-wiki:component:toggle-sidebar-bhl",
+      ":scp-wiki:component:interwiki-style"
+    ],
+    "en_external_dependencies": [
+      "http://scptestwiki.wdfiles.com/local--files/jade/JadeHeader2k.jpg",
+      "https://cdn.discordapp.com/attachments/1013691157999530004/1017164979906023504/unknown.png",
+      "https://fonts.googleapis.com/css2?family=Russo+One&display=swap",
+      "https://fonts.googleapis.com/css2?family=Secular+One&display=swap",
+      "https://fonts.googleapis.com/css2?family=Telex&display=swap",
+      "https://heropatterns.com,",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://nu-scptheme.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Aredtape/1",
+      "https://scp-wiki.wdfiles.com/local--code/theme%3Aredtape/2",
+      "https://scp-wiki.wdfiles.com/local--files/rounderhouse-gold-proposal/AmapiRam.jpg",
+      "https://scp-wiki.wdfiles.com/local--files/tempest/newtempest.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Ai57/scp-logo-i57.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/Untitled2.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/goc-fade.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/logo_GOC.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/logo_RAISA.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/logo_SCP.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/logo_SITE7.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/midnightwhite.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/raisa_trans.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/redtapeexample.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/redtapes.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/scp_trans.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/topo.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/topolight.png",
+      "https://scp-wiki.wdfiles.com/local--files/theme%3Aredtape/topotrans.png",
+      "https://scp-wiki.wikidot.com/airgap",
+      "https://scp-wiki.wikidot.com/forum/t-15154222/airgap",
+      "https://scp-wiki.wikidot.com/fragment:redtape-dark",
+      "https://scp-wiki.wikidot.com/fragment:redtape-light",
+      "https://scp-wiki.wikidot.com/rounderhouse-gold-proposal",
+      "https://scp-wiki.wikidot.com/theme:redtape/offset/0",
+      "https://scp-wiki.wikidot.com/theme:redtape/offset/1",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Catacombe%2C_a_place_Denfert-Rochereau%2C_Paris.jpg/768px-Catacombe%2C_a_place_Denfert-Rochereau%2C_Paris.jpg"
+    ],
+    "jp_includes": [
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:interwiki-style",
+      ":scp-jp:component:image-block name=https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-101-3mcp/redtapethemethumbnail.png",
+      ":scp-jp:credit:start-preview",
+      ":scp-jp:credit:cc4",
+      ":scp-jp:credit:end-preview",
+      ":scp-jp:component:theme-squares -=-",
+      ":scp-jp:component:image-block name=https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-101-3mcp/redtapethemethumbnail.png",
+      ":scp-jp:credit:cc4",
+      ":scp-jp:theme:black-highlighter-theme",
+      ":scp-jp:theme:redtape@@",
+      ":scp-jp:component:centered-header-bhl",
+      ":scp-jp:component:toggle-sidebar-bhl",
+      ":scp-jp:component:interwiki-style"
+    ],
+    "jp_external_dependencies": [
+      "https://creativecommons.org/licenses/by-sa/4.0/deed.ja",
+      "https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@800;900&display=swap",
+      "https://fonts.googleapis.com/css2?family=Russo+One&display=swap",
+      "https://fonts.googleapis.com/css2?family=Secular+One&display=swap",
+      "https://fonts.googleapis.com/css2?family=Telex&display=swap",
+      "https://heropatterns.com,",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A2375337-562-real/raisa_trans.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A2532460-25-b7bd/scp_trans.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-100-9z5z/JadeHeader2k.jpg",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-101-3mcp/redtapethemethumbnail.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-102-e1r0/unknown.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-103-3k8h/Catacombe%2C_a_place_Denfert-Rochereau%2C_Paris.jpg",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-37-4d3q/goc-fade.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-86-isur/redtapeexample.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-87-3c7w/Untitled2.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-88-gkya/midnightwhite.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-89-waka/topotrans.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-90-5dfj/topolight.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-91-qt25/topo.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-92-7ljl/redtapes.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-93-rhwy/logo_SCP.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-94-su76/logo_GOC.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-95-1p53/logo_RAISA.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-96-zycj/logo_SITE7.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-97-42uw/scp-logo-i57.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-98-hfa3/newtempest.png",
+      "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-99-6kef/AmapiRam.jpg",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/black-highlighter.min.css",
+      "https://scp-jp.github.io/Black-Highlighter/css/min/normalize.min.css",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Aredtape/1",
+      "https://scp-jp.wdfiles.com/local--code/theme%3Aredtape/2",
+      "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "https://scp-jp.wikidot.com/airgap",
+      "https://scp-jp.wikidot.com/fragment:redtape-dark",
+      "https://scp-jp.wikidot.com/fragment:redtape-light",
+      "https://scp-jp.wikidot.com/rounderhouse-gold-proposal",
+      "https://scp-jp.wikidot.com/theme:redtape/offset/0",
+      "https://scp-jp.wikidot.com/theme:redtape/offset/1",
+      "https://scp-wiki.wikidot.com/forum/t-15154222/airgap",
+      "https://scp-wiki.wikidot.com/theme:redtape"
+    ],
+    "base_family": "black-highlighter"
+  },
+  "human_port_candidate": "human-port-candidate.wikidot.txt",
+  "human_port_candidate_path": "human-port-candidate.wikidot.txt",
+  "acceptance_selectors": "../shared-acceptance-selectors.txt",
+  "candidate_input": "existing-jp.wikidot.txt",
+  "candidate_css_source": "candidate-source.css",
+  "candidate_origin": "current official SCP-JP page source",
+  "candidate_source_hash": "020991218af379d9cb1996f18b17fab66665d2c7e64111bcf2da42b329ffc2b5",
+  "page_assets": [
+    {
+      "filename": "black-highlighter-logo.svg",
+      "sha256": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593",
+      "bytes": 6615,
+      "asset_file": "4cd40e7d6111296c9f4c6d066f63ef5b01301df18358889677cd182d76bfe593.svg",
+      "source_urls": [
+        "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg"
+      ],
+      "acquired_from": "https://scp-jp.wdfiles.com/local--files/theme%3Ablack-highlighter-theme/black-highlighter-logo.svg",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "newtempest.png",
+      "sha256": "1a1be495a9cf1908e6ee84146afdbcea551d917185cd757b79188dc3dd82ebea",
+      "bytes": 224475,
+      "asset_file": "1a1be495a9cf1908e6ee84146afdbcea551d917185cd757b79188dc3dd82ebea.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-98-hfa3/newtempest.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-98-hfa3/newtempest.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    },
+    {
+      "filename": "redtapeexample.png",
+      "sha256": "d8a7b428d6d94523681d22f4955e71e415f8a2347e0b2a58972a254367b4a6f5",
+      "bytes": 1410267,
+      "asset_file": "d8a7b428d6d94523681d22f4955e71e415f8a2347e0b2a58972a254367b4a6f5.png",
+      "source_urls": [
+        "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-86-isur/redtapeexample.png"
+      ],
+      "acquired_from": "https://scp-jp-storage.wdfiles.com/local--files/file%3A8260379-86-isur/redtapeexample.png",
+      "classification": "localize-into-candidate-package",
+      "reason": "The page-level image was broken in offline JP preview. Its bytes were already in the content-addressed acquisition cache; "
+    }
+  ],
+  "final_verdict": "inconclusive",
+  "existing_jp_audit": "existing-jp-current-and-valid",
+  "asset_dependency_decisions_path": "install/local/theme-lab/ports/redtape/assets.json",
+  "asset_dependency_decision_count": 66,
+  "maintenance_source": {
+    "base": "maintenance/base.wikidot.txt",
+    "jp_overrides": "maintenance/jp-overrides.css",
+    "manifest": "maintenance/manifest.json",
+    "base_sha256": "ece731ae73360d76e394eb747dda555a081de973e2c6444284385764cc320892",
+    "jp_overrides_sha256": "70e7b48277f1042c7884308df765a5c0826ebe852639d135ee0c35704e6d9052",
+    "semantic_css_sha256": "59651fdd62205997931362cedcda956cfbf5e7be4a30606e250842a868596f1c",
+    "canonical_override_sha256": "e5988d620dff0c2c24573d2186e02e62bbffb09f80dc2d187e97c6960356cb09",
+    "final_source": "maintenance/final.wikidot.txt",
+    "final_source_sha256": "67decf0d72dd630d736280e67740dfc77e8834c980a1423e9c616dae13bb7c64",
+    "exact_duplicate_rules_removed": 0,
+    "redundant_same_value_declarations_removed": 0,
+    "empty_rules_removed": 0
+  },
+  "interactive_acceptance": {
+    "resolved_theme_css": {
+      "source_path": "candidate-input.css",
+      "source_sha256": "e715aff3bea062e42ab06f0e59259c6319ec716c4defd43623191ead7b0d368b",
+      "active_tags": [],
+      "candidate_source_sha256": "585e429f8a4fd472aed4e190461a23fba689aba968ebc38195971509fffa304e",
+      "candidate_active_tags": [
+        "en",
+        "テーマ"
+      ],
+      "runtime_active_tags": [],
+      "showcase_css_modules_removed_exact": 2,
+      "showcase_css_modules_removed_truncated": 0,
+      "showcase_css_modules_unmatched": 0,
+      "inactive_source_css_modules_removed_exact": 1,
+      "inactive_source_css_modules_ambiguous": 0,
+      "css_source_path": "candidate-source.css",
+      "candidate_css_sha256": "291cd47505fcdae005459e6ad82f9485cc1a803d32a2d802c6c4721ad7a586d7",
+      "asset_receipt_path": "assets.json",
+      "assets": 53,
+      "imports": 10,
+      "localization_transforms": 0,
+      "localization_transform_manifest": null,
+      "missing": 0,
+      "external_requests_during_build": 0
+    },
+    "source_css_includes": {
+      "manifest": "source-css-includes.json",
+      "materialized_css_sha256": "875497dc164526da0940bc91a56d9b3cb6839e30cb02881e47245d662982a621",
+      "cascade": "before-main-source-css",
+      "public_writes": 0
+    }
+  },
+  "adaptation_authority": {
+    "ledger": "../adaptation-authority.json",
+    "publishable_without_authority": 0
+  },
+  "overall_acceptance": {
+    "status": "inconclusive",
+    "reason": "Historical candidate acceptance superseded"
+  }
+}

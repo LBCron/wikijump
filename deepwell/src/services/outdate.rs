@@ -37,8 +37,6 @@ use sea_orm::{
 pub struct OutdateService;
 
 impl OutdateService {
-    /// Defers a page rerender until the surrounding database transaction has
-    /// committed. This keeps queue side effects from outliving a rollback.
     pub async fn defer(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -89,7 +87,6 @@ impl OutdateService {
         Ok(())
     }
 
-    /// Performs outdating tasks for a page being created or deleted here.
     pub async fn process_page_displace(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -185,9 +182,6 @@ impl OutdateService {
         Ok(())
     }
 
-    /// Re-renders pages that include, embed, or link `slug` on this site while
-    /// it had no live page: missing connections to the slug and connections
-    /// to deleted pages that had it.
     async fn outdate_references_to_absent_slug(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -298,9 +292,6 @@ impl OutdateService {
             )
         };
 
-        // In terms of outdating, a move is equivalent to
-        // deleting at the old page location and
-        // creating at the new page location.
         let (result1, result2) = join!(
             Self::process_page_displace(ctx, site_id, page_id, new_slug, depth),
             Self::process_page_displace(ctx, site_id, page_id, old_slug, depth),
@@ -310,7 +301,6 @@ impl OutdateService {
         Ok(())
     }
 
-    /// Defers the given page for re-rendering after the transaction commits.
     pub async fn outdate(
         ctx: &ServiceContext<'_>,
         page_id: i64,
@@ -462,8 +452,6 @@ impl OutdateService {
             )
         };
 
-        // If a template page has been updated, recompile only its exact
-        // category. Named categories do not inherit the default template.
         if let Some(category_select) = exact_template_category(
             &config.blueprint_page_template,
             category_slug,
@@ -498,8 +486,6 @@ impl OutdateService {
         Ok(())
     }
 
-    /// Determines if the page being updated is used as an nav page anywhere.
-    /// If so, all pages using this as a nav page should have their nav pages rebuilt.
     pub async fn outdate_nav_pages(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -516,8 +502,6 @@ impl OutdateService {
             )
         };
 
-        // If this is the nav page for the site, then outdate everything
-        // Nothing else needs to be done.
         let site = SiteService::get(ctx, Reference::Id(site_id))
             .await
             .or_raise(make_error)?;
@@ -529,9 +513,6 @@ impl OutdateService {
             return Ok(());
         }
 
-        // If this is the nav page for a category, then outdate all
-        // the pages in that category. Note that multiple categories
-        // can use the same nav pages.
         let txn = ctx.transaction();
         let category_ids = PageCategory::find()
             .select_only()
@@ -555,7 +536,6 @@ impl OutdateService {
         Ok(())
     }
 
-    /// Outdates the nav pages of every page on the site.
     pub async fn outdate_nav_site(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -617,7 +597,6 @@ impl OutdateService {
         Ok(())
     }
 
-    /// Outdates the nav pages of all pages in the given category.
     pub async fn outdate_nav_category(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -666,8 +645,6 @@ impl OutdateService {
         Ok(())
     }
 
-    /// Defers navigation-only rerenders for active pages whose effective
-    /// navigation inherits a changed site-level setting.
     pub async fn outdate_changed_site_navigation(
         ctx: &ServiceContext<'_>,
         site_id: i64,

@@ -2,8 +2,12 @@ node_modules/
 pnpm-lock.yaml
 
 # SHA-pinned authority evidence restored from the content-addressed store
-# (scripts/content-addressed-authority-store.py, publication/current-head-authority-supplement.json).
-# These bytes live in the store, not in Git.
+# (scripts/content-addressed-authority-store.py, restore inventory derived by
+# scripts/derive-authority-inventory.mjs).
+# These bytes live in the store, not in Git. This list is historical: the
+# restore now adds every path it restores to the clone's info/exclude
+# (scripts/exclude-restored-authority-evidence.sh), so new evidence
+# directories need no line here.
 /ports/authority-evidence/al-slop-credit-callout-current-20261005/
 /ports/authority-evidence/al-slop-desktop-submenu-current-20261005/
 /ports/authority-evidence/al-slop-final-three-trusted-navigation-v3-20261002/

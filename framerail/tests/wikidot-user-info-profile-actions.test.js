@@ -72,7 +72,6 @@ test("UserInfo projects the live action row as three evidenced controls", async 
   })
   assert.deepEqual(data.contactControl, { label: "Add to contacts" })
   assert.deepEqual(data.abuseReportControl, { label: "flag user as abusive" })
-  // Stable target identity, never the mutable display name.
   assert.equal(data.user.userId, 169306)
 })
 
@@ -96,15 +95,12 @@ test("an anonymous profile renders the actionable action row", async () => {
   const data = await loadFoundProfile()
   const body = render(userInfoPage, { props: { data } }).body
 
-  // The private-message label is a real navigation, not inert text.
   assert.match(body, /<a[^>]*data-action="write-private-message"[^>]*>/u)
   assert.match(body, /href="\/-\/login"/u)
   assert.doesNotMatch(body, /data-redacted-control/u)
-  // The abuse-report entry point exists and is addressable by stable ID.
   assert.match(body, /<a[^>]*data-action="flag-user-as-abusive"[^>]*>/u)
   assert.match(body, /data-target-user-id="169306"/u)
   assert.match(body, /data-action="add-to-contacts"/u)
-  // Escaped identity, never raw authored markup.
   assert.match(body, /The &lt;Administrator> &amp; "owner"/u)
   assert.doesNotMatch(body, /<script>alert\(1\)/u)
   assert.doesNotMatch(body, /<Administrator>/u)
@@ -123,7 +119,6 @@ test("an authenticated viewer gets no dead profile action", async () => {
   ]) {
     assert.equal(body.includes(`data-action="${action}"`), false, `${action} rendered`)
   }
-  // The profile itself still renders, so the negative check is not vacuous.
   assert.match(body, /profile-title/u)
   assert.match(body, /The &lt;Administrator> &amp; "owner"/u)
 })
@@ -145,10 +140,6 @@ test("a missing target renders no action row and no destination", async () => {
 })
 
 test("contact and report controls keep the viewer on the profile", async () => {
-  // Live evidence (2026-10-08 commentary, #2117/#2118): activating Add to
-  // contacts or flag user as abusive while anonymous leaves the profile URL
-  // in place and opens the same-page permission guard. Only the
-  // private-message control navigates, to the sign-in surface (#2096).
   const data = await loadFoundProfile()
   const body = render(userInfoPage, { props: { data } }).body
 
@@ -164,8 +155,6 @@ test("contact and report controls keep the viewer on the profile", async () => {
 })
 
 test("no profile action URL encodes the numeric target identity", async () => {
-  // #2096: a Wikidot numeric user ID must never be encoded into a local URL.
-  // The stable target identity travels only on data-target-user-id.
   const data = await loadFoundProfile()
   const body = render(userInfoPage, { props: { data } }).body
 
@@ -179,9 +168,6 @@ test("no profile action URL encodes the numeric target identity", async () => {
 })
 
 test("both same-page controls wire activation to the guard", async () => {
-  // Svelte 5 SSR drops onclick handlers from the HTML, so pin the wiring in
-  // the template: each non-navigating control must invoke the frozen
-  // permission guard instead of submitting anything.
   const source = await readFile(
     new URL("../src/routes/user[x+3a]info/[target]/+page.svelte", import.meta.url),
     "utf8"
@@ -215,6 +201,5 @@ test("the profile action guard only opens the frozen dialog", () => {
     message: "Please note:",
     data: "Please create a Wikidot account and/or sign in first"
   })
-  // No request, relation, report, or message state is reachable from the guard.
   assert.equal(Object.keys(popupState.current).length, 4)
 })

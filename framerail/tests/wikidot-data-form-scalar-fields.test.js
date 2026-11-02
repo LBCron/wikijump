@@ -28,23 +28,6 @@ const field = (name, fieldType, configuredValue = null) => ({
   join: false
 })
 
-// Live evidence cases covered below:
-// hidden-configured-value-create
-// hidden-configured-value-edit-reload
-// hidden-create-has-no-user-control
-// hidden-injected-submissions-cannot-override-value
-// password-create-plaintext-source-masked-display
-// password-edit-plaintext-reload
-// password-control-is-not-plain-text
-// password-display-does-not-expose-marker
-// static-wiki-value-create-display
-// static-wiki-value-edit-reload
-// static-value-is-not-stored
-// static-injected-submissions-have-no-control
-// url-default-schema-applies-to-display
-// url-explicit-ftp-schema-survives-edit
-// url-default-schema-does-not-rewrite-storage
-// url-edit-does-not-restore-display-normalization
 
 test("hidden-configured-value-create ignores injected submissions", () => {
   const definition = {

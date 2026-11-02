@@ -10,6 +10,7 @@ import {validateFrozenPagePreview} from './frozen-page-preview-replay.mjs';
 import {evidenceRoots,resolveEvidenceFile} from './evidence-roots.mjs';
 import {resolveExistingContainedFile,resolveExistingPackageDirectory,resolveExistingPackageFile} from './package-path.mjs';
 import {adaptationInputNames} from './theme-package.mjs';
+import {AB_RECEIPT_SCHEMA,CERTIFIED_AUTHORITIES,nestedArtifactBindings} from './authority-evidence-closure.mjs';
 
 export function verifyGeneratedLineAuthority(receipt) {
   const captures = receipt.rows?.filter(row => row.state === 'header-line-layout') ?? [];
@@ -160,10 +161,10 @@ export function verifyEvidence(rows, root = ports, {sharedRoot} = {}) {
     const observedStates=new Set();
     for (const evidence of row.evidence) {
       const {file, root: evidenceRoot, bytes} = resolveEvidenceFile(roots,evidence.path,'authority evidence',evidence.sha256);
-      if (row.authority.includes('CERTIFIED')) {
+      if (CERTIFIED_AUTHORITIES.has(row.authority)) {
         const root = evidenceRoot;
         const receipt = JSON.parse(bytes.toString('utf8'));
-        if (receipt.schema !== 'theme_lab_wikidot_adaptation_ab.v1' || receipt.public_writes !== 0 || !receipt.url || !receipt.observed_at || !receipt.snapshot?.entry) throw new Error(`invalid Wikidot A/B authority receipt: ${evidence.path}`);
+        if (receipt.schema !== AB_RECEIPT_SCHEMA || receipt.public_writes !== 0 || !receipt.url || !receipt.observed_at || !receipt.snapshot?.entry) throw new Error(`invalid Wikidot A/B authority receipt: ${evidence.path}`);
         verifyFrozenHistoryAuthority(receipt,path.dirname(file),root);
         verifyFrozenPagePreviewAuthority(receipt,path.dirname(file),root);
         verifyGeneratedLineAuthority(receipt);
@@ -182,21 +183,14 @@ export function verifyEvidence(rows, root = ports, {sharedRoot} = {}) {
         for(const capture of after) if(capture.state==='sidebar-closed') {
           if(receipt.measurement_contract!=='existing-drawer-wholly-off-canvas.v1' || capture.measurement.rows.length!==1 || capture.measurement.rows[0].selector!=='#side-bar' || !closedDrawerBounds(capture.measurement.rows[0].rect,capture.measurement.viewport_width).pass) throw new Error(`invalid closed drawer authority: ${evidence.path}`);
         }
-        for(const capture of receipt.rows) for(const [fileKey,hashKey] of [['screenshot','screenshot_sha256'],['dom','dom_sha256']]) {
-          const artifact=resolveExistingContainedFile(root,capture[fileKey],`authority ${fileKey}`,path.dirname(file));
-          if(digest(fs.readFileSync(artifact))!==capture[hashKey]) throw new Error(`corrupt authority artifact: ${capture[fileKey]}`);
-        }
-        for(const source of receipt.archived_sources??[]) {
-          const sourcePath=resolveExistingContainedFile(root,source.path,'authority measurement source',path.dirname(file));
-          if(digest(fs.readFileSync(sourcePath))!==source.sha256) throw new Error(`corrupt authority measurement source: ${source.path}`);
-        }
-        for(const hash of receipt.snapshot.object_digests) {
-          const replay=resolveExistingContainedFile(root,path.join('authority-evidence/replay/objects',hash.slice(0,2),hash),'frozen Wikidot replay object');
-          if(digest(fs.readFileSync(replay))!==hash) throw new Error(`corrupt frozen Wikidot replay object: ${hash}`);
+        const receiptPath=path.relative(fs.realpathSync(root),file).split(path.sep).join('/');
+        for(const {relative_path,sha256} of nestedArtifactBindings(receipt,receiptPath)) {
+          const artifact=resolveExistingContainedFile(root,relative_path,'authority artifact');
+          if(digest(fs.readFileSync(artifact))!==sha256) throw new Error(`corrupt authority artifact: ${relative_path}`);
         }
       }
     }
-    if(row.authority.includes('CERTIFIED') && requiredStates.some(state=>!observedStates.has(state))) throw new Error(`incomplete authority state coverage: ${row.marker}`);
+    if(CERTIFIED_AUTHORITIES.has(row.authority) && requiredStates.some(state=>!observedStates.has(state))) throw new Error(`incomplete authority state coverage: ${row.marker}`);
   }
 }
 

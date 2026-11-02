@@ -1,6 +1,6 @@
 {
   "schema": "theme_lab_candidate_freeze_readiness_audit.v1",
-  "generated_at": "2026-11-02T06:06:10Z",
+  "generated_at": "2026-11-02T22:39:52Z",
   "decision": "identity-bound-evidence-pending",
   "scope": "Freeze readiness only; Sigma-9, Sigma-10, and final theme visual acceptance are not part of this record.",
   "counts": {
@@ -911,7 +911,7 @@
     {
       "id": "bhl-option-authority",
       "path": "ports/black-highlighter-theme/option-scenarios/authority.json",
-      "sha256": "3e5373295070faf54fe5f5e220a711a30e8f5a41c7ed2c6ae620f1c7cd2d0b07"
+      "sha256": "6c3ce70e297cacffb5abe1f70e5358f32eca404ddebea15529389f086385587e"
     },
     {
       "id": "source-dependency-audit",
@@ -926,7 +926,7 @@
   ],
   "freeze_record": {
     "state": "frozen-before-final-acceptance",
-    "candidate_set_sha256": "ce8aa335730fb6bab2d84f2cc54a709da53733c69ff9942e59c571c3aeafbe4f",
+    "candidate_set_sha256": "617229b255937640acde3a7ff0a437dfb39d42d5191dd6a775ba1f77b7567c04",
     "final_acceptance": {
       "sigma9": "pending",
       "sigma10": "pending",

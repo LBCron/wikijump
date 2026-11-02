@@ -198,6 +198,53 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
         }
     }
 
+    async fn find_imported_snapshot_page_id(
+        &self,
+        current_site_id: i64,
+        source_site_slug: &str,
+        source_fullname: &str,
+    ) -> Result<Option<i64>> {
+        let statement = Statement::from_sql_and_values(
+            DatabaseBackend::Postgres,
+            r#"
+                SELECT page.page_id
+                FROM wikidot_page_snapshot AS snapshot
+                JOIN page ON page.page_id = snapshot.page_id
+                WHERE page.site_id = $1
+                  AND snapshot.source_site = $2
+                  AND snapshot.source_fullname = $3
+                  AND page.deleted_at IS NULL
+            "#,
+            [
+                current_site_id.into(),
+                source_site_slug.to_owned().into(),
+                source_fullname.to_owned().into(),
+            ],
+        );
+        self.ctx
+            .transaction()
+            .query_one_raw(statement)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to resolve imported include {source_site_slug}:{source_fullname}"
+                    ),
+                    ErrorType::DatabaseQuery,
+                )
+            })?
+            .map(|row| row.try_get::<i64>("", "page_id"))
+            .transpose()
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to read imported include {source_site_slug}:{source_fullname}"
+                    ),
+                    ErrorType::DatabaseQuery,
+                )
+            })
+    }
+
     async fn fetch_imported_cross_site_source(
         &self,
         current_site_id: i64,
@@ -221,46 +268,27 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
             }));
         }
 
-        let statement = Statement::from_sql_and_values(
-            DatabaseBackend::Postgres,
-            r#"
-                SELECT page.page_id
-                FROM wikidot_page_snapshot AS snapshot
-                JOIN page ON page.page_id = snapshot.page_id
-                WHERE page.site_id = $1
-                  AND snapshot.source_site = $2
-                  AND snapshot.source_fullname = $3
-                  AND page.deleted_at IS NULL
-            "#,
-            [
-                current_site_id.into(),
-                source_site_slug.to_owned().into(),
-                source_page_slug.to_owned().into(),
-            ],
-        );
-        let page_id = self
-            .ctx
-            .transaction()
-            .query_one_raw(statement)
-            .await
-            .or_raise(|| {
-                Error::new(
-                    format!(
-                        "failed to resolve imported include {source_site_slug}:{source_page_slug}"
-                    ),
-                    ErrorType::DatabaseQuery,
-                )
-            })?
-            .map(|row| row.try_get::<i64>("", "page_id"))
-            .transpose()
-            .or_raise(|| {
-                Error::new(
-                    format!(
-                        "failed to read imported include {source_site_slug}:{source_page_slug}"
-                    ),
-                    ErrorType::DatabaseQuery,
-                )
-            })?;
+        let mut page_id = self
+            .find_imported_snapshot_page_id(
+                current_site_id,
+                source_site_slug,
+                source_page_slug,
+            )
+            .await?;
+        if page_id.is_none() {
+            for alternate in alternate_source_fullnames(source_page_slug) {
+                page_id = self
+                    .find_imported_snapshot_page_id(
+                        current_site_id,
+                        source_site_slug,
+                        &alternate,
+                    )
+                    .await?;
+                if page_id.is_some() {
+                    break;
+                }
+            }
+        }
 
         let Some(page_id) = page_id else {
             cache.imported_cross_site_sources.insert(cache_key, None);
@@ -466,5 +494,86 @@ impl IncludeSourceCache {
         self.sites_by_slug
             .insert(site_slug.to_owned(), site.clone());
         Ok(site)
+    }
+}
+
+fn alternate_source_fullnames(page_slug: &str) -> Vec<String> {
+    let Some(last_colon) = page_slug.rfind(':') else {
+        return Vec::new();
+    };
+    let (head, tail) = page_slug.split_at(last_colon);
+    let dash_count = head.bytes().filter(|byte| *byte == b'-').count();
+    if dash_count == 0 || dash_count > 7 {
+        return Vec::new();
+    }
+
+    let mut masks: Vec<u32> = (1..(1u32 << dash_count)).collect();
+    masks.sort_by_key(|mask| (mask.count_ones(), *mask));
+    masks
+        .into_iter()
+        .map(|mask| {
+            let mut alternate = String::with_capacity(page_slug.len());
+            let mut dash_ordinal = 0;
+            for ch in head.chars() {
+                if ch == '-' {
+                    let flip = mask & (1u32 << dash_ordinal) != 0;
+                    dash_ordinal += 1;
+                    alternate.push(if flip { ':' } else { '-' });
+                } else {
+                    alternate.push(ch);
+                }
+            }
+            alternate.push_str(tail);
+            alternate
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn multi_colon_include_page_ref_normalizes_away_from_the_stored_fullname() {
+        let page_ref =
+            PageRef::parse_include(":smlt:component:aers:classification-stuff")
+                .expect("include target parses");
+        assert_eq!(page_ref.site(), Some("smlt"));
+        assert_eq!(page_ref.page(), "component-aers:classification-stuff");
+        assert_eq!(
+            alternate_source_fullnames(page_ref.page()),
+            ["component:aers:classification-stuff"],
+        );
+
+        let page_ref =
+            PageRef::parse_include(":scp.avn.sh:component:aers:classification-stuff")
+                .expect("include target parses");
+        assert_eq!(page_ref.site(), Some("scp-avn-sh"));
+        assert_eq!(
+            alternate_source_fullnames(page_ref.page()),
+            ["component:aers:classification-stuff"],
+        );
+    }
+
+    #[test]
+    fn alternate_source_fullnames_only_rebuilds_pre_colon_segments() {
+        assert!(alternate_source_fullnames("metodologia").is_empty());
+        assert!(alternate_source_fullnames("component:license-box").is_empty());
+        assert_eq!(
+            alternate_source_fullnames("alpha-beta-gamma:delta"),
+            [
+                "alpha:beta-gamma:delta",
+                "alpha-beta:gamma:delta",
+                "alpha:beta:gamma:delta",
+            ],
+        );
+        assert_eq!(
+            alternate_source_fullnames("art-scp-5125:the-gourmand"),
+            [
+                "art:scp-5125:the-gourmand",
+                "art-scp:5125:the-gourmand",
+                "art:scp:5125:the-gourmand",
+            ],
+        );
     }
 }

@@ -325,13 +325,12 @@ impl MirrorScopeService {
         {
             return true;
         }
-        if let Some(expected_hex) = &expectation.s3_hash_hex {
-            if let Ok(expected) = hex::decode(expected_hex.trim())
-                && expected.len() == s3_hash.len()
-                && expected != s3_hash
-            {
-                return true;
-            }
+        if let Some(expected_hex) = &expectation.s3_hash_hex
+            && let Ok(expected) = hex::decode(expected_hex.trim())
+            && expected.len() == s3_hash.len()
+            && expected != s3_hash
+        {
+            return true;
         }
         false
     }

@@ -13,13 +13,8 @@ const AUTHENTICATED_HEADERS = {
 }
 
 const ACTIVE_FILE_NAME = "theme-lab-visual-fixture"
-// The page-workflow-probe fixture uses the Wikidot layout.
 const FILE_ACTION_ROW = ".buttons"
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -213,8 +208,6 @@ test("a late deleted-files response cannot replace the active list after reopeni
 
   await heldDeletedLists[0].continue()
   await page.waitForTimeout(500)
-  // Only the last user-selected mode wins: the stale deleted-files reply
-  // cannot flip the reopened pane back to Restore rows.
   await expect(page.locator(".file-list")).toContainText("restore-race-active-a.txt")
   await expect(page.locator(".file-list")).not.toContainText("restore-race-deleted-a.txt")
 })
@@ -281,7 +274,6 @@ test("an initial file-list 503 shows no result area instead of a false empty inv
   expect(pageErrors).toEqual([])
   expect(mutationRequests).toEqual([])
 
-  // Clicking Files again retries without an invented in-pane Retry button.
   await page.locator("#files-button").click()
   await expect(page.locator("#action-area")).not.toHaveClass(/hidden/u)
   await expect(page.locator(".file-list .file-row")).toHaveCount(1)
@@ -381,8 +373,6 @@ test("a failed file-list refresh withholds the result area without stale rows", 
     .getByRole("button", { name: "restore", exact: true })
     .click()
 
-  // A failed refresh withholds the result area entirely: no invented error or
-  // retry surface, and no stale rows from the superseded active list.
   await expect(page.locator(".file-list .file-row")).toHaveCount(0)
   await expect(page.locator(".file-list")).toHaveCount(0)
   await expect(page.getByRole("alert")).toHaveCount(0)
@@ -391,10 +381,6 @@ test("a failed file-list refresh withholds the result area without stale rows", 
   expect(mutationRequests).toEqual([])
 })
 
-// SvelteKit form-action responses carry devalued payloads. This is the same
-// minimal serializer the Backlinks/Watchers failure spec uses; it lets the
-// tests below fulfill an authoritative empty file list without touching file
-// data or the fixture server.
 const devalueFileList = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -474,8 +460,6 @@ test("failed file-list requests stay distinct from an empty inventory across fai
   const modes: FailureMode[] = ["network", "malformed", "action-failure"]
   for (const failure of modes) {
     mode = failure
-    // Clicking Files retries through the page action; there is no invented
-    // in-pane Retry button to click.
     await page.locator("#files-button").click()
     await expect(page.locator(".file-list .file-row")).toHaveCount(0)
     await expect(page.locator(".file-list .file-list-message")).toHaveCount(0)
@@ -493,7 +477,6 @@ test("failed file-list requests stay distinct from an empty inventory across fai
     expect(mutationRequests, `file-list ${failure} must stay read-only`).toEqual([])
   }
 
-  // A later successful load still presents the authoritative file data.
   await page.unroute(fileListUrl)
   await page.locator("#files-button").click()
   await expect(page.locator("#action-area")).not.toHaveClass(/hidden/u)
@@ -530,11 +513,6 @@ test("a successfully parsed empty file list shows the empty inventory wording", 
 
   await expect(page.locator("#action-area")).not.toHaveClass(/hidden/u)
   await expect(page.locator(".file-list .file-row")).toHaveCount(0)
-  // The hermetic fixture server echoes untranslated i18n keys, so the
-  // fixture renders the key while a real locale bundle resolves it to the
-  // source-compatible "No files for this page." (locales/fluent/wiki-page/en.ftl).
-  // Either way, this wording is reachable only after an authoritative empty
-  // success, never from a failed request.
   await expect(page.locator(".file-list .file-list-message")).toContainText(
     /No files for this page\.|wiki-page-file-no-files/u
   )

@@ -62,8 +62,6 @@ test("vote mutation actions forward the trusted route request context", async ()
     throw new Error(`Unexpected Deepwell method ${method}`)
   }
 
-  // A submitted site selector is ignored: the actor and site come from the
-  // wws-owned headers plus the stored trusted request context.
   const cast = await actions.voteCast(
     requestEvent("voteCast", { body: { pageId: 42, value: 1, siteId: 999 } })
   )
@@ -84,8 +82,6 @@ test("vote mutation actions forward the trusted route request context", async ()
     assert.deepEqual(mutation.context, TRUSTED_CONTEXT)
   }
 
-  // A request that claims a different site than the trusted context is
-  // rejected before any mutation reaches Deepwell.
   calls.length = 0
   const spoofed = await actions.voteCast(
     requestEvent("voteCast", {
@@ -115,7 +111,6 @@ test("page score actions use only trusted route context", async () => {
     }
   ])
 
-  // A caller cannot select the scored page through the request body.
   calls.length = 0
   const bodySelected = await actions.score(
     requestEvent("score", { body: { pageId: 1, siteId: 1, page: "attacker" } })
@@ -204,8 +199,6 @@ test("legacy wiki actions derive the actor, client address, and revision binding
     assert.deepEqual(mutation.context, TRUSTED_CONTEXT)
   }
 
-  // A request that claims a different site than the trusted context is
-  // rejected before any legacy mutation reaches Deepwell.
   calls.length = 0
   const spoofed = await actions.legacyRate(
     requestEvent("legacyRate", {

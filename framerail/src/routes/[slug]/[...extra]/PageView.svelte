@@ -197,14 +197,6 @@
     }
   }
 
-  /**
-   * The permission boundary shared by the option-bar write actions and the
-   * `#_editpage` / `#_edittags` Hash Magic dispatch. Each action calls its
-   * own server action (edit, move, or delete permission, matching the
-   * authority the matching mutation enforces) and surfaces the matching
-   * denial dialog before any writable form is mounted; it never grants,
-   * denies, or authorizes from client state.
-   */
   async function checkPagePermission(kind: "edit" | "move" | "delete"): Promise<boolean> {
     const routes = {
       edit: "?/editPermission",
@@ -241,9 +233,6 @@
     }
     const grantKey = grantKeys[kind]
     if (result.type === "success" && result.data?.res && !result.data.res[grantKey]) {
-      // Anonymous EN edit denial renders the retained Wikidot Permission
-      // error window (issue #2336). Other locales and actions keep the
-      // localized generic denial; server failures keep their message above.
       const deniedDialog =
         kind === "edit" ? editPermissionDeniedDialog(data.site.locale) : null
       errorPopupState.current = deniedDialog
@@ -263,10 +252,8 @@
   }
 
   async function navigateEdit() {
-    // Check edit permission first
     if (!(await checkEditPermission())) return
 
-    // Permission granted, navigate to edit page
     const options: string[] = Object.entries({
       norender: data.options.no_render,
       noredirect: data.options.no_redirect,
@@ -281,9 +268,6 @@
   }
 
   async function openEditTagsPane() {
-    // The Hash Magic tag command reuses the edit-permission boundary before
-    // mounting the tag editor, so an unauthorized actor receives the same
-    // denial dialog instead of an editable form.
     if (!(await checkEditPermission())) return
     activatePagePane(PagePane.Tags)
   }
@@ -326,24 +310,14 @@
         void preloadWikidotFiles()
       }
     }
-    // A newly opened Backlinks/Watchers pane starts a fresh read, clearing
-    // any failure inherited from its previous mount.
     if (pane === PagePane.Backlinks) wikidotBacklinksReady = false
     if (pane === PagePane.Watchers) wikidotWatchersReady = false
-    // Clicking a read action again starts a new module request, even when
-    // its previous failure hid the pane and left the same selection active.
     if (pane === PagePane.Backlinks || pane === PagePane.Watchers) {
       auxPaneRequestId += 1
     }
     pagePaneState = pane
   }
 
-  /**
-   * Opens a page pane after the checks its write surface requires (see
-   * `wikidotOpenPanePermissionKind`). The gate runs before the editable
-   * form (or protected revision data) is mounted. The server still
-   * rechecks every mutation at submission time.
-   */
   async function openPagePane(pane: PagePane) {
     const kind = wikidotOpenPanePermissionKind(pane)
     if (kind && !(await checkPagePermission(kind))) return
@@ -580,9 +554,6 @@
   let siteChangesActionParameters = $derived({ pageId: data.page.page_id })
 
   onMount(() => {
-    // Hash Magic still applies under debug/norender documents (an edit hash on
-    // a debug page is still an edit request); only the non-Wikidot layout and
-    // the already-open /edit route skip the initial dispatch.
     if (pageLayoutContext.current !== Layout.WIKIDOT || data.options?.edit) {
       return
     }

@@ -39,7 +39,6 @@
     }
   })
 
-  /** Never let a password value survive the surface, whatever the outcome. */
   function clearPassword() {
     const password = formElement?.elements.namedItem("password")
     if (password instanceof HTMLInputElement) password.value = ""

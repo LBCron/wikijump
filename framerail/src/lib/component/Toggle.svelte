@@ -15,22 +15,16 @@
     children,
     ...others
   }: {
-    /** Assigns a name to the input. */
     name?: string
 
-    /** Type of "toggle" to use. Only has a visual effect. */
     type?: "slider" | "checkbox"
 
-    /** State of the toggle. */
     toggled?: boolean
 
-    /** Size of the toggle. */
     size?: string
 
-    /** Makes the toggle fill its container. */
     wide?: boolean
 
-    /** Flips the position of the label and the toggle. */
     flipped?: boolean
 
     children?: Snippet

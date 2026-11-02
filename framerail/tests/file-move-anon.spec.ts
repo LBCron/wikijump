@@ -12,10 +12,6 @@ const AUTHENTICATED_HEADERS = {
   origin: `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 }
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -39,11 +35,6 @@ const devalue = (value: unknown): string => {
 const successBody = (value: unknown) =>
   JSON.stringify({ type: "success", status: 200, data: devalue(value) })
 
-/**
- * Open the Files pane with an edit permission answer and record any move
- * submissions. Returns the permission response promise so callers can wait
- * for the server answer before asserting on the form.
- */
 const openFilesPane = async (
   page: Page,
   headers: Record<string, string>,
@@ -99,9 +90,6 @@ test("anonymous viewers are not offered the File Move form", async ({ page }) =>
   const moveRequests: Route[] = []
   await openFilesPane(page, SITE_HEADERS, false, moveRequests)
 
-  // Wait for the server's answer on the permission check before asserting on
-  // the form. The check is expected to answer; on a superseded or unanswered
-  // check this resolves to null and the assertions below still run.
   const permissionAnswered = page
     .waitForResponse(
       (response) => new URL(response.url()).search === "?/editPermission",

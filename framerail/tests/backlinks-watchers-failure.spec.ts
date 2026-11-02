@@ -219,8 +219,6 @@ for (const pane of ["backlinks", "watchers"] as const) {
       }
     }
 
-    // A true successful empty result is not a failure: it renders the exact
-    // source empty-result DOM in a visible action area.
     mode = "empty"
     await openPane(page, pane)
     await expect(page.locator("#action-area")).toBeVisible()
@@ -274,7 +272,6 @@ for (const pane of ["backlinks", "watchers"] as const) {
               body: actionResult("success", populatedResult(pane))
             })
           } catch {
-            // Switching panes aborts this request; its late response is ignored.
           }
           return
         }

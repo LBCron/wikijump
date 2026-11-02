@@ -1,18 +1,5 @@
 import { parseDeploymentEnvironment } from "./deployment-environment.js"
 
-/**
- * The platform's own hosts, mirroring Deepwell's `[domain]` section: the
- * main domain (`<site>.<main>`), the files domain (`<site>.<files>`), and
- * the public HTTPS port.
- *
- * Each deployment environment has documented defaults. A deployment that
- * serves another name sets `WIKIJUMP_MAIN_DOMAIN`,
- * `WIKIJUMP_FILES_DOMAIN`, and `WIKIJUMP_HTTPS_PORT` to the values in its
- * Deepwell config: the local development stack is a `local` environment
- * served as `wikijump.dev.localhost` on port 18443, beside standing's
- * `wikijump.localhost` on 443, so the two never share a hostname or a
- * cookie.
- */
 
 const DEFAULT_PLATFORM_DOMAINS = {
   local: { main: "wikijump.localhost", files: "wjfiles.localhost" },
@@ -59,13 +46,6 @@ const configuredHttpsPort = (value) => {
  * }} [input]
  * @returns {{ main: string; files: string; httpsPort: number }}
  * @throws {Error} If an override is not a bare hostname or a TCP port.
- */
-/**
- * The read-only local SCP mirrors whose file hosts are allowlisted in a
- * local deployment's CSP. Included components retain their source mirror's
- * stylesheet/font authority (e.g. info:start imports scp-wiki's info:style
- * on the local authoring site). Keep this exact local allowlist; authored
- * imports cannot grant new origins.
  */
 export const LOCAL_MIRROR_FILE_ASSET_SITES = ["scp-wiki", "scp-jp"]
 

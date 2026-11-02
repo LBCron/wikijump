@@ -1,8 +1,6 @@
 export interface GuardOpts<T> {
-  /** When true, the `use` function will be applied. */
   when: boolean
 
-  /** The `use` function to guard. */
   use: [
     (node: HTMLElement, opts: T) => { update: (opts: T) => void; destroy: () => void },
     T

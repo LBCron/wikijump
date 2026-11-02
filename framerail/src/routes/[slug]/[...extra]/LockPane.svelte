@@ -70,14 +70,11 @@
     }
   }
 
-  /** Helper function to get lock status from data and subsequent lock */
   function getLockStatus(
     lock: PageLockModel,
     index: number
   ): keyof typeof data.internationalization {
     if (lock.deleted_at) {
-      // Heuristic check to determine if a lock was overridden:
-      // If next lock was created within a short time of last lock being deleted
       if (index > 0) {
         const newerLock = lockHistory[index - 1]
         const deletedAt = new Date(lock.deleted_at).getTime()

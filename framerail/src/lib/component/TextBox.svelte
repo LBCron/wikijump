@@ -12,25 +12,16 @@
     wide = false,
     ...others
   }: {
-    /** Assigns a name to the input. */
     name?: string
 
-    /** The label describing the input. */
     label?: string
 
-    /** The current value of the input. */
     value?: string
 
-    /**
-     * If true, the input must be filled or else it will display as
-     * invalid.
-     */
     required?: boolean
 
-    /** Maximum characters for the input. */
     max?: number
 
-    /** If true, the input will be as wide as possible. */
     wide?: boolean
 
     [key: string]: unknown

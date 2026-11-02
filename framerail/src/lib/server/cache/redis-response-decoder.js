@@ -1,11 +1,5 @@
 /** @typedef {string | number | null | unknown[]} RedisValue */
 
-/**
- * Incremental RESP2 decoder. Completed array children and line scan
- * positions survive chunk boundaries; a fragmented reply is never parsed
- * from its start. Storage grows geometrically and compacts only after at
- * least half is consumed.
- */
 export class RedisResponseDecoder {
   buffer = Buffer.alloc(0)
   used = 0
@@ -52,7 +46,6 @@ export class RedisResponseDecoder {
         this.bulkLength = null
       } else {
         if (this.offset >= this.used) return null
-        // Search only initialized bytes, including one byte of CRLF overlap.
         const end = this.buffer
           .subarray(0, this.used)
           .indexOf("\r\n", Math.max(this.offset + 1, this.scan))
@@ -98,7 +91,6 @@ export class RedisResponseDecoder {
         } else throw new Error("unsupported Redis response type")
       }
       this.scan = this.offset
-      // Each frame is pushed and completed exactly once, without recursion.
       for (;;) {
         const parent = this.arrays.at(-1)
         if (!parent) return { value }

@@ -56,9 +56,6 @@ test("unknown common--theme paths fall through to the app instead of proxying Wi
     `${APP_URL}/common--theme/base/images/feed/not-an-icon.png`,
     { headers: SITE_HEADERS }
   )
-  // The hermetic fixture has no article for this slug, so the app fails closed
-  // (500) through its article route. The point is that the path is neither
-  // served as an icon nor proxied: no 2xx image response.
   expect(response.ok()).toBe(false)
   expect(response.headers()["content-type"] ?? "").not.toMatch(/^image\//u)
 })

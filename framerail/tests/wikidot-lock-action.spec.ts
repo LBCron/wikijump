@@ -11,20 +11,11 @@ const AUTHENTICATED_HEADERS = {
   cookie: "wikijump_token=fixture-session-token",
   origin: `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 }
-// Retained Wikidot anonymous edit-denial contract (issue #2336): the EN
-// Permission error window with a Please note: heading, one policy
-// paragraph, and an inline #action:login sign-in anchor. Lock is a write
-// surface under the same edit-permission boundary as Append and Parent,
-// so an anonymous Lock click answers with this dialog (issue #2069).
 const DENIAL_TITLE = "Permission error"
 const DENIAL_HEADING = "Please note:"
 const DENIAL_POLICY =
   "Sorry, you can not edit this page. Only members of this site, owner (creator) of this page, site administrators and perhaps selected moderators are allowed to do it."
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -48,11 +39,6 @@ const devalue = (value: unknown): string => {
 const successBody = (value: unknown) =>
   JSON.stringify({ type: "success", status: 200, data: devalue(value) })
 
-/**
- * Open the imported page `+ Options` menu on the Wikidot-layout probe with
- * a stubbed edit-permission answer, and count the lock-history reads the
- * Lock click triggers.
- */
 const openLockOption = async (
   page: Page,
   canEdit: boolean,
@@ -116,8 +102,6 @@ test.describe("anonymous existing-page Lock option", () => {
     )
     await expect(page.locator("#odialog-container .button-close-message")).toBeVisible()
 
-    // No writable surface mounts, and the denied click fires no
-    // authenticated lock-history read.
     await expect(page.locator("#page-lock")).toHaveCount(0)
     await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
     expect(permissionRequests).toHaveLength(1)

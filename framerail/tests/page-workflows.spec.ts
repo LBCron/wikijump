@@ -784,7 +784,6 @@ test("WIKIDOT History keeps the seven-cell source table contract at phone widths
 
     if (width <= 320) {
       await currentCells.nth(6).evaluate((cell) => {
-        // Exercise the min-content case seen with long localized history text.
         cell.textContent = "LongHistoryValueWithoutBreaks_".repeat(12)
       })
       const dimensions = await page.evaluate(() => {

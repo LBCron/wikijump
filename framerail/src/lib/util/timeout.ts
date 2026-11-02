@@ -1,41 +1,18 @@
-/**
- * Replacement class for `setTimeout`, with tons of utility features.
- * Additionally provides some extra safety and avoids typing issues with
- * `NodeJS.Timeout`.
- */
 export class Timeout<T = void> {
   declare private timeout: ReturnType<typeof setTimeout> | undefined
 
-  /** Function that resolves the timeout's `promise` Promise. */
   declare private promiseResolve: (resolved: T) => void
 
-  /** The delay given before the callback should be fired. */
   declare delay: number
 
-  /** The time the timeout will end by. */
   declare ends: Date
 
-  /** The time the timeout was started. */
   declare started: Date
 
-  /**
-   * A promise that resolves when the timeout expires. If the timeout is
-   * reset after it has expired, this property will be updated, so make
-   * sure to access this property directly and do not store it.
-   */
   declare promise: Promise<T>
 
-  /**
-   * The final value returned by the callback function. Always undefined if
-   * the timeout is running.
-   */
   declare value?: T
 
-  /**
-   * The callback that will be fired when the timeout expires. This **will
-   * not** be the same function that was given when this timeout was
-   * constructed, so identity comparisons won't work.
-   */
   declare private cb?: () => void
 
   /**
@@ -51,35 +28,24 @@ export class Timeout<T = void> {
     if (!immediate) this.clear()
   }
 
-  /** True if the timeout is running. */
   get running() {
     return this.timeout !== undefined
   }
 
-  /** Function for fulfilling the thenable contract. */
   then(resolve?: (value: T) => T | PromiseLike<T>) {
     return this.promise.then(resolve)
   }
 
-  /**
-   * The amount of time remaining before the timeout expires, in
-   * milliseconds.
-   */
   remaining() {
     if (!this.ends || !this.started) return 0
     const remaining = this.ends.getTime() - new Date().getTime()
     return remaining > 0 ? remaining : 0
   }
 
-  // apparently, this is how you do typeguards for classes?
-  // it's a bit weird, it appears like it's a shorthand for
-  // `this is Timeout<T> & { value: T }
-  /** Returns true if the timeout has expired already. */
   expired(): this is { value: T } {
     return this.timeout === undefined
   }
 
-  /** Clears the timeout and prevents it from expiring. */
   clear() {
     if (!this.timeout) return
     clearTimeout(this.timeout)
@@ -134,7 +100,7 @@ export class Timeout<T = void> {
     if (this.expired()) this.started = new Date()
     this.ends = new Date(this.started.getTime() + this.delay)
     this.value = undefined
-    this.clear() // make sure we end the old timeout
+    this.clear()
 
     this.timeout = setTimeout(() => {
       if (this.cb) this.cb()
@@ -175,7 +141,6 @@ function clearTimeoutClass(timeout: Timeout | undefined | null) {
 
 export { clearTimeoutClass as clearTimeout }
 
-/** Symbol for identifying timed out promises. */
 export const TIMED_OUT_SYMBOL = Symbol("timedout")
 
 /**

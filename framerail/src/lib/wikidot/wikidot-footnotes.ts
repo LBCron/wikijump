@@ -1,12 +1,5 @@
 const LEGACY_SCROLL_HANDLER =
   /^\s*WIKIDOT\.page\.utils\.scrollToReference\s*\(\s*(['"])([^'"]+)\1\s*\)\s*;?\s*$/u
-// The reference families whose targets FTML's Wikidot-layout rendering
-// emits in the page body: footnotes (footnote-*, footnoteref-*),
-// bibliography entries (bibitem-*, from ((bibcite)) markers and the
-// [[bibliography]] table) and named equations (equation-*, referenced by
-// [[eref]]). Bibliography and equation references carry the same legacy
-// scroll handler and in-page targets as footnotes, so they share the
-// reveal, scroll and highlight treatment below (#3204, #3211).
 const REFERENCE_TARGET_ID = /^(?:footnote(?:ref)?|bibitem|equation)-[A-Za-z0-9_-]+$/u
 
 export function legacyReferenceTargetId(onclick: string | null) {

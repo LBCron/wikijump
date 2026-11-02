@@ -1,22 +1,6 @@
 /* eslint-disable no-script-url -- Wikidot footer and fixture markup use javascript:; no-op links that parity requires */
 import { expect, test, waitForSvelteDelegatedHandler } from "./hermetic-playwright"
 
-/**
- * Footer destinations must lead where their label says, on real served
- * pages, in both layouts, and must never resolve against the wiki being
- * viewed.
- *
- * Native layout: Docs, Terms, Privacy and Security are platform-global
- * items. Their destinations are instance-level absolute URLs, so a footer
- * click can never be captured by the current site's origin and never
- * collapses onto the current homepage.
- *
- * Wikidot-compatible layout: Help, Terms of Service, Privacy, Report a bug
- * and Flag as objectionable reproduce the current live Wikidot footer,
- * whose first three items point at `www.wikidot.com` and whose report
- * controls are inert anchors. A footer item that resolves to plain `/` is
- * the placeholder defect this spec guards.
- */
 
 const SITE_HEADERS = {
   "X-Wikijump-Site-Id": "6000005",
@@ -49,10 +33,6 @@ const DOCUMENTED_NATIVE_FOOTER_HREFS: Record<NativeFooterKey, string> = {
   security: "https://wikijump.localhost/legal:security"
 }
 
-/**
- * The destination this instance serves: configured override, else
- * documented.
- */
 const expectedNativeHref = (key: NativeFooterKey) =>
   process.env[NATIVE_FOOTER_ENVIRONMENT_VARIABLES[key]]?.trim() ||
   DOCUMENTED_NATIVE_FOOTER_HREFS[key]
@@ -99,10 +79,8 @@ const assertNativeFooterDestinations = async (
     expect(href, `${route} ${key} must not be a same-site path`).not.toMatch(/^\/[^/]/u)
     expect(href, `${route} ${key} must not inherit a wiki origin`).not.toBe(footer.origin)
     expect(new URL(String(href)).host, `${route} ${key} host`).not.toBe(footer.host)
-    // External platform destinations use normal safe link behaviour.
     expect(footer.rels[index], `${route} ${key} rel`).toBe("external")
     expect(footer.texts[index], `${route} ${key} keeps its label`).not.toBe("")
-    // The advertised action never leads back to the viewed wiki.
     const resolved = new URL(String(href), footer.origin)
     expect(
       resolved.origin === footer.origin && resolved.pathname === "/",
@@ -142,16 +120,12 @@ test("native footer destinations do not depend on the viewed wiki", async ({ pag
     seen.push((await collectNativeFooter(page)).hrefs.join(" | "))
   }
 
-  // Every served site, wiki or platform, exposes the same instance-level
-  // platform destinations.
   expect(new Set(seen).size).toBe(1)
 })
 
 test("native footer destinations follow instance configuration", async ({ page }) => {
   test.setTimeout(240_000)
 
-  // Run this spec with `PUBLIC_WIKIJUMP_FOOTER_*_URL` set to prove a
-  // self-hosted instance is not forced onto the public hostname.
   const configured = Object.fromEntries(
     NATIVE_FOOTER_KEYS.map((key) => [
       key,
@@ -165,7 +139,6 @@ test("native footer destinations follow instance configuration", async ({ page }
   const hrefs = (await collectNativeFooter(page)).hrefs
   for (const [index, key] of NATIVE_FOOTER_KEYS.entries()) {
     if (configured[key]) {
-      // A configured instance serves exactly what the operator configured.
       expect(hrefs[index], `${key} configured destination`).toBe(configured[key])
     } else {
       expect(hrefs[index], `${key} documented destination`).toBe(
@@ -175,7 +148,6 @@ test("native footer destinations follow instance configuration", async ({ page }
   }
 
   if (Object.values(configured).some(Boolean)) {
-    // Not one configured item falls back to the public platform hostname.
     for (const [index, key] of NATIVE_FOOTER_KEYS.entries()) {
       if (configured[key]) {
         expect(String(hrefs[index])).not.toBe(DOCUMENTED_NATIVE_FOOTER_HREFS[key])
@@ -226,8 +198,6 @@ test("imported Wikidot-layout footer reproduces the live Wikidot destinations", 
   )
   await expect(page.locator("#license-area a")).toHaveAttribute("rel", "license")
 
-  // Read-only module windows; preserved names are bound without compiling
-  // inline scripts. No report submission or navigation is made.
   const consoleErrors: string[] = []
   page.on("console", (message) => {
     if (message.type() === "error") consoleErrors.push(message.text())

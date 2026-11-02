@@ -12,12 +12,6 @@ const appURL = (projectName: string) =>
 
 const EDIT_META_MODULE = "edit/EditMetaModule"
 
-/**
- * The fixture Deepwell server does not implement the Edit Meta module, so
- * this per-test API fixture serves its legacy-shaped response from
- * isolated persisted rows. Action-bearing requests are recorded and update
- * only this disposable fixture state.
- */
 const interceptEditMetaModule = async (
   page: import("@playwright/test").Page,
   baseURL: string
@@ -31,8 +25,6 @@ const interceptEditMetaModule = async (
     metaContent: string | null
     allPages: string | null
   }[] = []
-  // This per-test fixture is the authoritative persisted state for the
-  // intercepted module, and survives pane remounts and page reloads.
   const persistedRows = [
     { name: "fixture-existing", content: "unchanged-value", all_pages: false }
   ]
@@ -121,7 +113,6 @@ const waitForWikidotHydration = (page: import("@playwright/test").Page) =>
     )
   })
 
-/** Opens Options -> Edit Meta and stops with the add button visible. */
 const openEditMetaPaneFromOptions = async (page: import("@playwright/test").Page) => {
   const editMetaButton = page.locator("#edit-meta-button")
   if (!(await editMetaButton.isVisible())) {
@@ -194,13 +185,6 @@ const controlBoxes = (page: import("@playwright/test").Page) =>
     }
   })
 
-/**
- * Asserts the issue contract: opening the form must not enlarge the
- * document's horizontal overflow beyond the pre-form baseline, and every
- * control must stay inside the action-area pane (not merely inside the
- * current page scroll extent, which may itself carry an unrelated article
- * overflow).
- */
 const expectFormBounded = async (
   page: import("@playwright/test").Page,
   before: Awaited<ReturnType<typeof measure>>,
@@ -261,15 +245,12 @@ test("Edit Meta new-tag form stays bounded at 320px and sends no mutation on can
   expect(mutations, "checking blank-state focus must not submit").toEqual([])
   expect(writeRequests, "checking blank-state focus must not write").toEqual([])
 
-  // Empty activation stays a local no-op until Wikidot's submission result is
-  // evidenced. Keep the affordance clickable without weakening server checks.
   await addAllPages.click()
   await addThisPage.click()
   await expect(page.locator("#edit-meta-newtag-form")).toBeVisible()
   expect(mutations, "blank Add actions must not mutate persisted metadata").toEqual([])
   expect(writeRequests, "blank Add actions must not issue a write request").toEqual([])
 
-  // Fields remain operable through the keyboard.
   await page.locator('input[name="metaName"]').focus()
   await expect(page.locator('input[name="metaName"]')).toBeFocused()
   await page.keyboard.type("description")
@@ -281,7 +262,6 @@ test("Edit Meta new-tag form stays bounded at 320px and sends no mutation on can
   await expect(addAllPages).toBeEnabled()
   await expect(addThisPage).toBeEnabled()
 
-  // Cancel discards both draft fields and sends no action-bearing request.
   await page.locator("#edit-meta-newtag-form button.btn-danger").click()
   await expect(page.locator("#edit-meta-newtag-form")).toHaveCount(0)
   await expect(page.locator("#action-area #edit-meta-addbutton")).toBeVisible()
@@ -353,8 +333,6 @@ test("Edit Meta cancel discards drafts across pane close, pane switch, and reloa
   await expectBlankDraft()
 
   await fillDraft("pane-switch-draft")
-  // View Source is the pane switch here. It replaces the Edit Meta pane without
-  // a request, while the Append form is permission-gated for this anonymous actor (#2177).
   await waitForSvelteDelegatedHandler(page, "#view-source-button")
   await page.locator("#view-source-button").click()
   await expect(page.locator("#action-area .page-source-header")).toBeVisible()
@@ -429,7 +407,6 @@ test("Add to This Page keeps the saveMetaTag wire contract without widening the 
 
   await page.locator('input[name="metaName"]').fill("description")
   await page.getByRole("link", { name: "Add to This Page" }).click()
-  // The intercepted save resolves, the pane reloads, and the form closes.
   await expect(page.locator("#edit-meta-newtag-form")).toHaveCount(0)
   await expect(page.locator("#action-area #edit-meta-addbutton")).toBeVisible()
   expect(mutations).toEqual(["saveMetaTag:false"])

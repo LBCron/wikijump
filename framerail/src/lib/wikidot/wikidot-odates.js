@@ -33,7 +33,6 @@
  * to confirm; the mismatch surface is one tooltip string.
  */
 
-/** English month and weekday names for the viewer-local text. */
 const MONTHS_SHORT = [
   "Jan",
   "Feb",
@@ -111,10 +110,6 @@ export function parseOdateSpan(element) {
   return { timestamp, format, agoHover }
 }
 
-/**
- * Relative "ago" text for a non-negative delta in seconds, following the
- * spec ladder (seconds/minutes/hours/days).
- */
 export function agoText(deltaSeconds) {
   const delta = Math.max(0, Math.floor(deltaSeconds))
   const unit = (value, singular, plural) =>

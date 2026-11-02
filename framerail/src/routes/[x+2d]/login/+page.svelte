@@ -32,8 +32,6 @@
 
           mfaSessionToken = undefined
           isLoggedIn = result.data.isLoggedIn
-          // Land where sign-in started (or the site root) with the session's
-          // account menu, instead of staying on the bare /-/login screen.
           if (isLoggedIn) {
             // eslint-disable-next-line svelte/no-navigation-without-resolve -- return target is a validated same-site path
             await goto(authReturnDestination(page.url), {

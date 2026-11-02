@@ -173,9 +173,6 @@ test("account route loads expose their public SvelteKit page data", async () => 
       params.messages?.settings && params.messages?.["user-profile-info.locales"]
   )
   assert.deepEqual(settingsTranslate?.strip_message_keys, [])
-  // Presentation batches must resolve missing keys to null instead of
-  // failing the whole request, so a stale locale catalog cannot turn
-  // these routes into HTTP 500 (Refs #2180, Refs #2322).
   for (const call of translateCalls) {
     assert.equal(call.allow_missing, true)
   }

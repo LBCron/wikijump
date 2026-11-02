@@ -2,11 +2,6 @@ import { loadPage } from "$lib/server/load/page/page"
 import { isReservedAdminAliasSlug } from "$lib/server/reserved-admin-alias.js"
 import { redirect } from "@sveltejs/kit"
 
-/**
- * Live Wikidot's printer-friendly child window is a standalone document,
- * so this route resolves the same page view data as the article route and
- * renders it without the site chrome.
- */
 export async function load({ params, request, cookies, locals }) {
   // This route is commonly requested with a second slash before the page
   // slug, for example `/printer--friendly//_admin`. Treat only leading

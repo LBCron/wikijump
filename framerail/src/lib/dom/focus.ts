@@ -44,7 +44,6 @@ export class FocusGroup {
     const foci = getFoci(this.target, true)
     if (!foci.length) return
 
-    // maps every element to its index
     const fociMap = new Map<HTMLElement, number>()
     foci.map((el, i) => fociMap.set(el, i))
 
@@ -55,8 +54,6 @@ export class FocusGroup {
 
     const arrowDir = key === "ArrowUp" || key === "ArrowLeft" ? -1 : 1
 
-    // modulo of next position (even -1) and array length causes the value to "wrap"
-    // JS handles negative modulo weirdly so we don't use the operator directly
     const len = foci.length
     if (didArrow && fociMap.has(focus)) {
       foci[mod(fociMap.get(focus)! + arrowDir, len)].focus()
@@ -68,7 +65,6 @@ export class FocusGroup {
       return
     }
 
-    // if we passed a key check we will be here
     evt.preventDefault()
   }
 
@@ -82,12 +78,7 @@ export class FocusGroup {
 }
 
 export interface FocusOpts {
-  /** Callback fired when the element (or any of its children) are focused. */
   focus?: () => void
-  /**
-   * Callback fired when the element and its children are no longer
-   * focused.
-   */
   blur?: () => void
 }
 
@@ -98,7 +89,6 @@ export interface FocusOpts {
  * will not fire any additional callbacks.
  */
 export class FocusObserver {
-  /** Internal focused state of the tree. */
   private focused = false
 
   /**
@@ -137,7 +127,6 @@ export class FocusObserver {
     this.opts = opts
   }
 
-  /** Destroys the observer. */
   destroy() {
     this.target.removeEventListener("focusin", this.focusin)
     this.target.removeEventListener("focusout", this.focusout)

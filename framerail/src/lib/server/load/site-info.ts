@@ -1,8 +1,3 @@
-// Helper to extract site information headers from wws
-//
-// These headers are set by wws - their values can be trusted.
-// If the headers are first set by the client, those values
-// get erased.
 
 const SITE_ID_HEADER = "X-Wikijump-Site-Id"
 const SITE_SLUG_HEADER = "X-Wikijump-Site-Slug"

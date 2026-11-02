@@ -17,8 +17,6 @@ export const GET: RequestHandler = async ({ request, cookies }) => {
       sessionToken: cookies.get("wikijump_token")
     }
   )
-  // A site the viewer cannot see has no public feed, so the route answers the
-  // same way as any other missing feed.
   if (!output) return new Response("Not found", { status: 404 })
 
   return new Response(buildWikidotSiteChangesFeedXml(request.url, output), {

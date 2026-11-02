@@ -87,8 +87,6 @@ after(async () => {
 })
 
 test("empty wikidot list keeps the frozen Files heading, message, and upload", () => {
-  // No internationalization override: the catalog English string
-  // ("No files for this page.") renders as the fallback.
   const body = render(fileListComponent, {
     props: listProps(new SvelteMap())
   }).body
@@ -149,7 +147,6 @@ test("info modal renders the frozen static fields", () => {
     }
   }).body
 
-  // Modal layering markers: shader plus dialog, pane untouched beneath.
   assert.match(body, /id="odialog-shader"/u)
   assert.match(body, /id="owindow-1"/u)
   assert.match(body, />File Information</u)

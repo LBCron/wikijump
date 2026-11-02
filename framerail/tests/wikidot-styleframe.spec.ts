@@ -49,7 +49,6 @@ test("Wikidot styleFrames restyle the interwiki frame and never the parent page"
     document.body.appendChild(marker)
   })
 
-  // A styleFrame that loads first is pulled when the interwiki frame starts.
   await appendFrame(
     "styleframe-early",
     styleFrameSource(1, ".heading p { color: rgb(1, 2, 3); }")
@@ -70,8 +69,6 @@ test("Wikidot styleFrames restyle the interwiki frame and never the parent page"
     "rgb(1, 2, 3)"
   )
 
-  // A later styleFrame pushes into the initialized interwiki frame; its higher
-  // priority sorts after the earlier declaration and wins the cascade.
   await appendFrame(
     "styleframe-late",
     styleFrameSource(2, ".heading p { color: rgb(4, 5, 6); }")

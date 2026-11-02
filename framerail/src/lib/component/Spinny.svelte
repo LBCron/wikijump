@@ -18,37 +18,20 @@
     description = "",
     ...others
   }: {
-    /**
-     * Sets the styling so that the spinner can be displayed inline along
-     * with text.
-     */
     inline?: boolean
 
-    /** CSS `top` offset. */
     top?: string
 
-    /** CSS `left` offset. */
     left?: string
 
-    /** Sets the width of non-inline spinners, otherwise sets font-size. */
     size?: string
 
-    /**
-     * Sets a delay until the spinner appears. Only works for non-inline
-     * spinners.
-     */
     wait?: number
 
-    /** Sets the icon for inline spinners. */
     status?: "active" | "success" | "warning" | "error"
 
-    /**
-     * Sets the component ARIA attributes so that screen readers will
-     * announce the status of the spinner.
-     */
     loud?: boolean
 
-    /** Sets the text, if any, to be displayed alongside the spinner. */
     description?: string
 
     [key: string]: unknown
@@ -232,11 +215,9 @@
   }
 
   @include reduced-motion {
-    // Don't show large spinners at all with reduced motion
     .spinny-block {
       display: none;
     }
-    // Solid, fixed circle with reduced motion
     .spinny-inline-background {
       opacity: 1;
     }
@@ -245,7 +226,6 @@
     }
   }
 
-  // animations
 
   // prettier-ignore
   @keyframes skeleton-fade-in {

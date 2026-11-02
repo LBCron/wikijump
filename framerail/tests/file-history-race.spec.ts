@@ -23,10 +23,6 @@ const FILE_B = {
   comments: "file B revision"
 }
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -101,7 +97,6 @@ test("a superseded file-history response cannot replace the selected file's revi
     async (route) => {
       const body = JSON.parse(route.request().postData() ?? "{}") as { fileId?: number }
       if (body.fileId === FILE_A.file_id) {
-        // Hold the earlier history request for file A until B has been selected.
         heldHistoryForA.push(route)
         return
       }
@@ -132,7 +127,6 @@ test("a superseded file-history response cannot replace the selected file's revi
   await openRowHistory(FILE_B)
   await expect(page.locator(".revision-row")).toContainText(FILE_B.comments)
 
-  // Release the earlier file-A response only after file B's revisions are shown.
   const staleHistoryResponse = page.waitForResponse(
     (response) =>
       new URL(response.url()).search === "?/fileHistory" &&
@@ -144,7 +138,6 @@ test("a superseded file-history response cannot replace the selected file's revi
     body: successBody({ res: [revisionRecord(FILE_A)] })
   })
   await staleHistoryResponse
-  // The stale body is applied shortly after its headers arrive.
   await page.waitForTimeout(500)
 
   await expect(page.locator(".revision-row")).toContainText(FILE_B.comments)
@@ -172,7 +165,6 @@ test("switching files clears the previous revisions while the new ones load", as
     async (route) => {
       const body = JSON.parse(route.request().postData() ?? "{}") as { fileId?: number }
       if (body.fileId === FILE_B.file_id) {
-        // Hold file B's history so the switch-over state is observable.
         heldHistoryForB.push(route)
         return
       }
@@ -201,8 +193,6 @@ test("switching files clears the previous revisions while the new ones load", as
 
   await openRowHistory(FILE_B)
   await expect.poll(() => heldHistoryForB.length).toBe(1)
-  // File A's rows must vanish the moment file B is selected, instead of
-  // staying on screen (with stale Revert targets) until B arrives.
   await expect(page.locator(".revision-row")).toHaveCount(0)
 
   const historyResponse = page.waitForResponse(

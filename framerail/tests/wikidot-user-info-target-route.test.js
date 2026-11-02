@@ -200,12 +200,8 @@ test("UserInfo view renders the evidenced action row for anonymous viewers only"
   )
 
   assert.doesNotMatch(source, /\{@html\}|innerHTML/u)
-  // The action row is gated on the merged layout session, so the control is
-  // never rendered as a dead anchor for an authenticated viewer.
   assert.match(source, /if !data\.user_session/u)
   assert.doesNotMatch(source, /page\.data\.user_session/u)
-  // Wikidot links the private-message action to its own message surface; the
-  // local control reaches the authentication boundary instead.
   assert.match(
     source,
     /href=\{resolve\(data\.privateMessageControl\.authenticationPath, \{\}\)\}/u
@@ -217,7 +213,6 @@ test("UserInfo view renders the evidenced action row for anonymous viewers only"
   assert.match(source, /showUserProfileActionAuthenticationGuard\(errorPopupState\)/u)
   assert.match(source, /\{data\.user\.name\}/u)
   assert.match(source, /<div class="error-block">\{data\.error\}<\/div>/u)
-  // The label is no longer an inert redacted span.
   assert.doesNotMatch(source, /data-redacted-control/u)
 })
 

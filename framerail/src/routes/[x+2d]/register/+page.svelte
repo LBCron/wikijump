@@ -29,8 +29,6 @@
           return
         }
 
-        // Field-level validation failures are shown inline; only server
-        // failures that carry a message open the error dialog.
         if (result.type === "failure" && result.data?.message) {
           errorPopupState.current = {
             state: true,
@@ -259,7 +257,6 @@
       justify-self: center;
     }
 
-    // Two fixed columns cannot fit a 375px phone viewport, so stack the fields.
     @media (max-width: 600px) {
       grid-template-columns: minmax(0, 1fr);
 

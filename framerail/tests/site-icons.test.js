@@ -33,7 +33,6 @@ const localSite = (icons = {}) => ({
 })
 
 test("favicon declaration keeps Wikidot's local route rather than the configured source", () => {
-  // Live scp-wiki declares /local--favicon/favicon.gif with type image/gif.
   assert.deepEqual(
     faviconDeclaration(
       importedSite({
@@ -90,7 +89,6 @@ test("query strings and fragments are not declared as icon sources", () => {
 })
 
 test("Windows 8 tile declaration keeps Wikidot's local route rather than the configured source", () => {
-  // Live sandbox-for-codex declares /local--wp8icon/wp8icon.png.
   assert.deepEqual(
     windowsTileDeclaration(
       importedSite({
@@ -130,10 +128,6 @@ test("a site without a usable Windows 8 tile declares nothing", () => {
 })
 
 test("an imported view carries every configured icon link without a flagged site row", () => {
-  // The seeded scp-wiki mirror keeps a native site row while serving
-  // imported views. The sealed 2026-10-07 head declares the favicon and
-  // iOS routes below, so the head must carry both once the import script
-  // stores those sources, instead of falling back to the empty data icon.
   const unflaggedMirror = {
     slug: "scp-wiki",
     from_wikidot: false,
@@ -151,8 +145,6 @@ test("an imported view carries every configured icon link without a flagged site
   assert.equal(hasIosIcons(iconSite), true)
   assert.equal(windowsTileDeclaration(iconSite), null)
 
-  // The same row in a native view keeps its own flag, so an unconfigured
-  // mirror stays on the default fallback instead of declaring foreign routes.
   const nativeSite = iconSiteForHead(unflaggedMirror, false)
   assert.equal(nativeSite?.from_wikidot, false)
   assert.equal(faviconDeclaration(nativeSite), null)

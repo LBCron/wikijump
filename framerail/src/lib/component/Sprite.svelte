@@ -8,14 +8,8 @@
     margin = "0 0",
     ...others
   }: {
-    /** Sprite to use. */
     i: string
-    /**
-     * General size of the sprite. `1em` should be close to a character in
-     * size.
-     */
     size?: string
-    /** String given to the CSS `margin` property. */
     margin?: string
     [key: string]: unknown
   } = $props()

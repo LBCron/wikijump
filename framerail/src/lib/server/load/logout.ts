@@ -24,17 +24,14 @@ export async function loadLogoutPage(request: Request, preloadData: PreloadDataA
   const translateKeys: TranslateKeys = {
     ...defaults.translateKeys,
 
-    // Page actions
     "cancel": {},
     "logout": {},
 
-    // misc
     "logout.toast": {}
   }
 
   const internationalization = await translate(locales, translateKeys)
 
-  // Return to page for rendering
   return { isLoggedIn, internationalization }
 }
 

@@ -1,11 +1,3 @@
-/**
- * User-interface locales supported by this Framerail deployment.
- *
- * Keep this capability list authoritative for registration and display
- * preferences. Deepwell may accept additional BCP-47 identifiers for
- * imported or future data, but those are not advertised to users until UI
- * support is added here.
- */
 export const USER_INTERFACE_LOCALES = [
   { value: "en", label: "English" },
   { value: "ja", label: "日本語" },

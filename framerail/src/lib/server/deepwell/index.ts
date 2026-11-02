@@ -61,7 +61,6 @@ export async function ping(): Promise<void> {
   await client.request("ping", {})
 }
 
-/* ----- INFO ----- */
 interface Info {
   package: PackageInfo
   compile_info: CompileInfo

@@ -76,8 +76,6 @@ export async function loadAdminPage(
       license: parentData.license_name,
       "license_url": parentData.license_url
     },
-    // The admin error boundary renders for the permission-denied and
-    // unexpected-failure views, so both messages are always available there.
     "admin-unauthorized": {},
     "error-api.GENERIC": {}
   }
@@ -91,8 +89,6 @@ export async function loadAdminPage(
       errorStatus = 401
       break
     default:
-      // Unexpected response type!
-      // There is an inconsistency between here / DEEPWELL
       errorStatus = 500
   }
 
@@ -100,12 +96,10 @@ export async function loadAdminPage(
     translateKeys = {
       ...translateKeys,
 
-      // Edit actions
       "edit": {},
       "save": {},
       "cancel": {},
 
-      // Site info attributes
       "site-info.name": {},
       "site-info.slug": {},
       "site-info.tagline": {},

@@ -3,7 +3,6 @@
 
   interface Props {
     body: string
-    /** Set for a thread body so its read-only Wikidot controls work. */
     threadId?: number | null
   }
 

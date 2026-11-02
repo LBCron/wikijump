@@ -51,7 +51,6 @@ export async function loadPage(
   cookies: Cookies,
   locals?: App.Locals
 ) {
-  // Set up parameters
   const { siteId, siteSlug } = loadSiteInfo(request.headers)
   const route = slug || extra ? { slug, extra } : null
   const sessionToken = cookies.get("wikijump_token")
@@ -109,9 +108,6 @@ export async function loadPage(
       locales
     })
   )
-  // The actions row shows the live combined score (imported baseline plus
-  // local votes), matching the pagerate module and the vote pane. A failed
-  // lookup keeps the imported baseline instead of breaking the page.
   let combinedRating: number | null = null
   if (response.type === "found" && response.data.page_rating.enabled) {
     try {
@@ -146,8 +142,6 @@ export async function loadPage(
         })
         restoreAvailable = deletedPages.length > 0
       } catch {
-        // A failed or unauthorized recoverability lookup must never expose
-        // deleted-page state. The restore action will recheck on activation.
       }
     }
     const errorViewData = {
@@ -164,12 +158,6 @@ export async function loadPage(
     error(pageErrorStatus(response.type, slug), errorData)
   }
 
-  // Per-file presence for the page theme's site attachments: the head
-  // rewrites a WDFiles URL to the local files host only when the referenced
-  // file exists locally. Missing pages, failed listings, and non-imported
-  // sites resolve to no presence, so every such URL keeps its source
-  // literal. The lookup is request-scoped and runs only when the theme
-  // names same-site candidates.
   let siteFilePresence: string[] = []
   if (response.type === "found") {
     try {
@@ -191,9 +179,6 @@ export async function loadPage(
     }
   }
 
-  // Imported social images are advertised on the serving origin, not
-  // the source Wikidot files host. Resolved here, at data assembly,
-  // so the component stays a pure projection of data.meta_tags.
   const metaTags =
     response.type === "found"
       ? resolveHeadImageUrls(
@@ -213,7 +198,6 @@ export async function loadPage(
   }
   runRedirect(response.data, slug, extra, request.url)
 
-  // Return to page for rendering
   const loadData = buildPageLoadData(parentData, viewData, await buildPageForms(request))
   if (locals) {
     locals.wikidotDocument = resolveShellLayoutValue(loadData) === WIKIDOT_LAYOUT

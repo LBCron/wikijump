@@ -1,8 +1,5 @@
 /* eslint-disable no-script-url -- Preserve the source-compatible foldable link value. */
 
-// Native WIKIDOT.page.fixers.fixFoldableMenus and _foldableMenuToggle:
-// the container owns listeners, while its nearest LI owns fold state. A
-// control-only container can therefore toggle a surrounding authored list.
 export function wikidotFoldableLists(node) {
   const controller = new AbortController()
   const containers = new WeakSet()
@@ -13,8 +10,6 @@ export function wikidotFoldableLists(node) {
     cancelFocus(owner)
     const close = owner.querySelector(".close-credits")
     if (!close) return
-    // A visibility transition can still be hidden in the opening event's
-    // frame. Focus after style resolution, or when its reveal finishes.
     let frame
     const cleanup = () => {
       cancelAnimationFrame(frame)
@@ -37,7 +32,6 @@ export function wikidotFoldableLists(node) {
       ) {
         return
       }
-      // Do not take focus away from someone who has already entered the dialog.
       if (!close.closest(".modalcontainer")?.contains(document.activeElement)) {
         close.focus()
       }
@@ -73,9 +67,6 @@ export function wikidotFoldableLists(node) {
   }
   const initialize = () => {
     for (const container of node.querySelectorAll("div.foldable-list-container")) {
-      // Some Wikidot components place their fold control beside the content
-      // list, with both owned by the surrounding LI (for example Info:start).
-      // The list still starts folded even though it is not inside the control.
       let owner = container.parentElement
       while (owner && owner.tagName !== "LI") owner = owner.parentElement
       const ownedList = owner?.querySelector("ul")
@@ -157,8 +148,6 @@ export function wikidotFoldableLists(node) {
             folded ? "folded" : "unfolded",
             folded ? "unfolded" : "folded"
           )
-          // Wikidot changes the owning LI's class even when it has no UL.
-          // CSS-driven foldable components use that class to reveal siblings.
           if (list) {
             list.style.display = folded ? (originalDisplays.get(list) ?? "") : "none"
           }

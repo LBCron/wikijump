@@ -53,7 +53,6 @@ test("anonymous #_editpage dispatch answers with the permission dialog once", as
 
   const dialog = page.locator("#odialog-container .owindow.error")
   await expectEditDeniedDialog(page)
-  // The dialog is a single instance, the hash is preserved, and no editor mounts.
   await expect(page.locator("#odialog-container")).toHaveCount(1)
   await expect(page).toHaveURL(/#_editpage$/u)
   await expect(page.locator("#page-tags")).toHaveCount(0)
@@ -75,7 +74,6 @@ test("anonymous #_edittags dispatch answers with the same permission dialog", as
   await waitForWikidotHydration(page)
 
   await expectEditDeniedDialog(page)
-  // The tag editor form is not mounted for an unauthorized actor.
   await expect(page.locator("#page-tags")).toHaveCount(0)
   await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
   await expect(page).toHaveURL(/#_edittags$/u)
@@ -104,8 +102,6 @@ test("history, files, unknown hashes and ordinary anchors keep their behavior", 
   await page.goto(`${APP_URL}${PAGE_PATH}#_history`)
   await expect(page.locator("#action-area .page-revision-header")).toBeVisible()
 
-  // A fresh document load re-runs the initial dispatch; a hash-only change
-  // would be a same-document navigation that must stay inert.
   await page.goto(`${APP_URL}${PAGE_PATH}#_files`)
   await page.reload()
   await expect(page.locator("#action-area .page-file-header")).toBeVisible()
@@ -116,7 +112,6 @@ test("history, files, unknown hashes and ordinary anchors keep their behavior", 
   await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
   await expectNoEditSurface(page)
 
-  // A same-document hash change never re-dispatches a Hash Magic command.
   await page.evaluate(() => {
     location.hash = "_editpage"
   })

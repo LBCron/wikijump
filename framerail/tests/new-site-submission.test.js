@@ -1,9 +1,3 @@
-// Refs #2052. The www/new-site special page renders Deepwell's
-// authenticated creation form (Title, Tagline, Web address, Language,
-// Template, Access policy, ToS acceptance) posting urlencoded `?/newSite`.
-// Framerail must validate that submission server-side and reach the
-// already-registered `site_create` service without trusting client-supplied
-// actor IDs, and only on the www/new-site special page.
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { test } from "node:test"
@@ -56,9 +50,6 @@ test("missing title or web address is rejected before any service call", () => {
 })
 
 test("non-default template or access policy is rejected fail-closed", () => {
-  // The service cannot represent template/privacy yet (bootstrap is slice 2),
-  // so anything beyond the evidenced defaults must fail loudly rather than
-  // silently create a differently-shaped site.
   assert.throws(
     () => parseNewSiteSubmission({ ...validFields(), template: "blog" }),
     /template/u
@@ -113,8 +104,6 @@ test("a created site redirects to its canonical origin", async () => {
     new URL("../src/lib/server/load/page/page-newsite-actions.ts", import.meta.url),
     "utf8"
   )
-  // The redirect escapes the action-error catcher so SvelteKit performs
-  // the POST-to-GET navigation instead of swallowing it as a failure.
   assert.match(
     source,
     /throw redirect\(303, target\)/u,
@@ -158,7 +147,6 @@ test("the success target is the canonical origin's default page", () => {
 
 test("the success target rejects non-origin values", () => {
   for (const origin of [
-    // Built by concatenation: the literal would trip no-script-url.
     ["java", "script:alert(1)"].join(""),
     "/my-wiki",
     "my-wiki.wikijump.localhost",
@@ -183,8 +171,6 @@ test("the site adapter reuses site_create and adds no actor fields", async () =>
     "utf8"
   )
   assert.match(source, /"site_create"/u, "no new RPC registration")
-  // Only the request payload is actor-sensitive; the response interface
-  // legitimately names Deepwell's own site_user_id output field.
   const params = /client\.request\(\s*"site_create",\s*\{([^}]*)\}/u.exec(source)
   assert.ok(params, "site_create request payload found")
   assert.doesNotMatch(params[1], /user_id|owner|privilege|admin/u)

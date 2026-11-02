@@ -1,7 +1,3 @@
-/**
- * Standard OZONE shell for trusted, renderer-owned, read-only module
- * bodies.
- */
 const dialogs = new WeakMap()
 
 /** @param {Document} document @param {string} html @param {boolean} error */

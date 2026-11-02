@@ -1,13 +1,11 @@
 import type { Nullable, SiteModel } from "$lib/types"
 import { siteOwnedLocalFilePath } from "./site-icon-source.ts"
 
-/** One text/social head entry: the `name`/`content` pair of a `<meta>` tag. */
 export interface HeadMetaTag {
   name: string
   content: string
 }
 
-/** A stored page meta-tag row, as projected by the page head. */
 export interface EffectiveHeadMetaTag extends HeadMetaTag {
   all_pages: boolean
 }
@@ -48,7 +46,6 @@ export function unsupersededHeadFallbacks(
   return fallbacks.filter((tag) => !superseded.has(tag.name))
 }
 
-/** Image-valued social entries whose source asset may have been imported. */
 const HEAD_IMAGE_TAG_NAMES: ReadonlySet<string> = new Set(["og:image", "twitter:image"])
 
 /**

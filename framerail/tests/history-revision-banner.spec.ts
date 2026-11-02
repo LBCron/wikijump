@@ -7,10 +7,6 @@ const SITE_HEADERS = {
 
 const REVISION_MARKER = "history-banner-revision-body-marker"
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {

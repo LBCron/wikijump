@@ -1,38 +1,22 @@
 import type { Nullable, SiteModel } from "$lib/types"
 import { siteIconRedirectLocation } from "./site-icon-source.ts"
 
-/** Wikidot serves a site's configured favicon from this fixed route. */
 export const FAVICON_ROUTE_PREFIX = "/local--favicon/"
 
-/** Fixed icon routes must be revalidated after site settings change. */
 export const SITE_ICON_CACHE_CONTROL = "no-store"
 
-/** Wikidot serves a site's configured iOS icons from this fixed route. */
 export const IOS_ICON_ROUTE_PREFIX = "/local--iosicon/"
 
-/** Wikidot serves a site's configured Windows 8 tile from this fixed route. */
 export const WINDOWS_TILE_ROUTE_PREFIX = "/local--wp8icon/"
 
-/** The single Windows 8 tile filename Wikidot declares in the page head. */
 export const WINDOWS_TILE_FILENAME = "wp8icon.png"
 
-/**
- * The iOS icon filenames Wikidot derives from one uploaded icon, paired
- * with the `sizes` attribute it declares for each. The first has no
- * `sizes`.
- */
 export const IOS_ICON_DECLARATIONS: { filename: string; sizes: Nullable<string> }[] = [
   { filename: "iosicon_57.png", sizes: null },
   { filename: "iosicon_72.png", sizes: "72x72" },
   { filename: "iosicon.png", sizes: "114x114" }
 ]
 
-/**
- * MIME types for the icon extensions this declaration path supports.
- *
- * An unmapped extension declares nothing rather than guessing a type,
- * since the declaration carries the type attribute Wikidot emits.
- */
 const FAVICON_MIME_TYPES: Record<string, string> = {
   gif: "image/gif",
   ico: "image/x-icon",
@@ -44,15 +28,6 @@ export interface FaviconDeclaration {
   type: string
 }
 
-/**
- * The site model the page head derives icon links from.
- *
- * An imported view carries the source site's configured icon links even
- * when the site row itself is not flagged as imported, so the favicon, iOS
- * touch icons, and Windows tile all share this one derivation. Native
- * views keep the row's own flag, leaving unconfigured mirrors on the
- * default fallback.
- */
 export function iconSiteForHead(
   site: Nullable<SiteModel>,
   isImportedView: boolean
@@ -69,14 +44,6 @@ function extensionOf(source: string): Nullable<string> {
   return withoutQuery.slice(lastDot + 1).toLowerCase()
 }
 
-/**
- * The favicon route and MIME type for a site, or null when it has no
- * usable configured icon.
- *
- * The href keeps Wikidot's local route shape rather than the configured
- * source, because that is what the live page declares regardless of
- * whether the icon was uploaded or linked.
- */
 export function faviconDeclaration(
   site: Nullable<SiteModel>
 ): Nullable<FaviconDeclaration> {
@@ -92,7 +59,6 @@ export function faviconDeclaration(
   return { href: `${FAVICON_ROUTE_PREFIX}favicon.gif`, type: "image/gif" }
 }
 
-/** Whether a site declares Wikidot's iOS touch icons. */
 export function hasIosIcons(site: Nullable<SiteModel>): boolean {
   return (
     site !== null && siteIconRedirectLocation(site, site.ios_icon_source, "ios") !== null
@@ -103,14 +69,6 @@ export interface WindowsTileDeclaration {
   href: string
 }
 
-/**
- * The Windows 8 tile declaration for a site, or null when it has no usable
- * configured tile.
- *
- * The href keeps Wikidot's local route shape rather than the configured
- * source, because that is what the live page declares regardless of
- * whether the tile was uploaded or linked.
- */
 export function windowsTileDeclaration(
   site: Nullable<SiteModel>
 ): Nullable<WindowsTileDeclaration> {

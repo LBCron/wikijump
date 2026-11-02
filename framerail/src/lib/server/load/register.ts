@@ -49,11 +49,9 @@ export async function loadRegisterPage(request: Request, preloadData: PreloadDat
   const translateKeys: TranslateKeys = {
     ...defaults.translateKeys,
 
-    // Page actions
     "cancel": {},
     "register": {},
 
-    // misc
     "username": {},
     "username.placeholder": {},
     "username.info": {},
@@ -67,38 +65,27 @@ export async function loadRegisterPage(request: Request, preloadData: PreloadDat
     "create-account": {},
     "login": {},
 
-    // Account-creation legal disclosure
     "register.legal-notice": {},
     "register.legal-terms": {},
     "register.legal-conjunction": {},
     "register.legal-privacy": {},
     "register.legal-suffix": {},
 
-    // errors
     "error-form.password-mismatch": {},
     "error-form.password-too-short": {},
     "error-form.email-invalid": {},
 
-    // The locale selector label reuses the same advertised-language wording
-    // as the account display settings, so registration and settings never
-    // disagree about the deployment's supported interface locales.
     "dashboard-account.language": {}
   }
 
   const internationalization = await translate(locales, translateKeys)
 
-  // superform
   const registerForm = await superValidate(valibot(registerSchema))
 
-  // Return to page for rendering
   return {
     isLoggedIn,
     internationalization,
     registerForm,
-    // The disclosure shown at the Create Account action boundary must name
-    // the same authoritative Terms and Privacy the instance actually
-    // publishes, so the destinations come from the instance source of truth
-    // rather than from the wiki being viewed.
     legalDestinations: legalDestinations(),
     userInterfaceLocales: USER_INTERFACE_LOCALES
   }
@@ -115,10 +102,6 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
     )
   }
 
-  // #2074 anti-bot honeypot: the off-screen blank checkbox must stay empty.
-  // Reject before userCreate so a tripped gate creates no user, session, or
-  // verification state. The failure is intentionally indistinguishable from
-  // ordinary invalid input: no classification detail is returned.
   if (isRegistrationHoneypotTripped(form.data.leaveBlank)) {
     return fail(
       400,
@@ -162,9 +145,6 @@ const registerSchema = pipe(
       check(accountPasswordMeetsMinimum, ACCOUNT_PASSWORD_TOO_SHORT)
     ),
     confirmPassword: pipe(string(), minLength(1)),
-    // #2074 honeypot carrier: an unchecked checkbox submits nothing, so the
-    // field stays optional and never fails validation on its own. The trip
-    // decision lives in register-honeypot.js and is enforced above.
     leaveBlank: optional(string()),
     locale: pipe(
       optional(array(string()), ["en"]),

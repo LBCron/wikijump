@@ -1,7 +1,4 @@
 export const WIKIDOT_REQUEST_INFO_MARKER = "/*__WIKIDOT_REQUEST_INFO__*/"
-// The marker may also appear in user-authored page titles or body text. Only
-// replace the app-template script slot, never a second occurrence from content
-// or a later streamed HTML chunk.
 const REQUEST_INFO_TEMPLATE_SCRIPT =
   /<script data-wikidot-request-info nonce="[^"]+">\s*\/\*__WIKIDOT_REQUEST_INFO__\*\/\s*<\/script>/u
 const WIKIDOT_DOCUMENT_LANGUAGE_MARKER = "<meta data-wikidot-document-language />"

@@ -41,7 +41,6 @@
 
   let selected = $derived($key === id)
 
-  // if the store has no tab selected, set the start tab to this tab
   if (!$key) selectThis()
 
   function selectThis() {

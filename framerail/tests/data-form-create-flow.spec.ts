@@ -35,8 +35,6 @@ test("data-form create flow renders controls and stores Wikidot source", async (
   })
   const anonymousMissingResponse = await page.goto("/data-form-create-flow:example")
   expect(anonymousMissingResponse?.status()).toBe(404)
-  // Refs #2090: a never-existing slug renders one coherent missing-page
-  // shell with no Restore control in either layout.
   await expect(page.locator("#page-content")).toHaveCount(1)
   await expect(page.locator("[id='404-message']")).toHaveCount(1)
   await expect(page.locator("#restore-button")).toHaveCount(0)

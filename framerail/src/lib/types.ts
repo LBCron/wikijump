@@ -8,7 +8,6 @@ export type TranslateKeys = {
 }
 export type TranslatedKeys = Partial<Locales>
 
-// deepwell src/models/site.rs
 export interface SiteModel {
   site_id: number
   created_at: string
@@ -40,7 +39,6 @@ export interface SiteModel {
   educational: boolean
 }
 
-// deepwell src/models/page_category.rs
 export interface PageCategoryModel {
   category_id: number
   created_at: string
@@ -96,7 +94,6 @@ export type PageRatingPermission = "registered" | "members"
 export type PageRatingVisibility = "visible" | "anonymous"
 export type PageRatingType = "plus" | "plus_minus" | "stars"
 
-// deepwell src/models/session.rs
 export interface SessionModel {
   session_token: string
   user_id: number
@@ -107,7 +104,6 @@ export interface SessionModel {
   restricted: boolean
 }
 
-// deepwell src/models/user.rs
 export interface UserModel {
   user_id: number
   user_type: UserType
@@ -139,7 +135,6 @@ export interface UserModel {
   user_page: Nullable<string>
 }
 
-// deepwell src/models/wikidot_user.rs plus services/user/structs.rs discriminator
 export interface WikidotUserModel {
   user_id: number
   user_type: "wikidot"
@@ -159,7 +154,6 @@ export interface WikidotUserModel {
   is_pro: boolean
 }
 
-// deepwell src/models/page.rs
 export interface PageModel {
   page_id: number
   created_at: string
@@ -174,7 +168,6 @@ export interface PageModel {
   layout: Nullable<Layout>
 }
 
-// deepwell src/models/page_revision.rs
 export interface PageRevisionModel {
   revision_id: number
   revision_type: PageRevisionType
@@ -200,8 +193,6 @@ export interface PageRevisionModel {
   tags: string[]
 }
 
-// deepwell file_revision_range (with the page timeline's public author
-// projection attached, issue #2199)
 export interface FileRevisionModel {
   revision_id: number
   revision_type: FileRevisionType
@@ -221,7 +212,6 @@ export interface FileRevisionModel {
   hidden: string[]
 }
 
-// deepwell src/models/page_vote.rs
 export interface PageVoteModel {
   page_vote_id: number
   created_at: string
@@ -235,7 +225,6 @@ export interface PageVoteModel {
   value: number
 }
 
-// deepwell src/services/view/options.rs
 export interface PageOptions {
   edit: boolean
   title: Nullable<string>
@@ -252,7 +241,6 @@ export interface PageOptions {
   template: Nullable<number>
 }
 
-// deepwell src/services/relation/page_attribution.rs
 export interface PageAttribution {
   relation_id: number
   page_id: number
@@ -276,18 +264,13 @@ export enum PageAttributionKind {
   Maintainer = "maintainer"
 }
 
-/* ftml src/parsing/error.rs */
-// we don't care about the enum types now
 export interface ParseError {
-  // should be `token: Token`, an enum type
   token: string
   rule: string
   span: [number, number]
-  // should be `kind: ParseErrorKind`, also an enum type
   kind: string
 }
 
-// ftml src/data/user_info.rs
 export interface UserInfo {
   "user-id": number
   "user-slug": string
@@ -381,7 +364,6 @@ export enum ToastType {
   Warning = "warning",
   Info = "info"
 }
-// JSON-RPC 2.0 error object as thrown by json-rpc-2.0 client
 export interface DeepwellError {
   message: string
   code: number

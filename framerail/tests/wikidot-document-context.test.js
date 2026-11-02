@@ -191,21 +191,6 @@ const deepwellHandler = async (request, response) => {
   }
 }
 
-/*
- * Compatibility provenance: live-observations.json observation
- * wikidot-document-shell-stored-locale-20260722 records the same run-owned
- * sandbox article before and after the stored locale mutation. The raw captures
- * /mnt/oracle-store/wjlab/sandbox-oracle-20260722/site-settings-scope-v1/mutations/locale/before.http.html
- * (SHA-256 6861d8b772e6585475ab13c078fd7d9aaf53af5a4ee2f4ec17afc233bcad572b)
- * and
- * /mnt/oracle-store/wjlab/sandbox-oracle-20260722/site-settings-scope-v1/mutations/locale/after.http.html
- * (SHA-256 0641a8b445541eb39ffec2304dc5d8acac6b331ab26befecee016b60ed31c292)
- * show en and raw ja-corrections, respectively, in
- * `<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="LOCALE" lang="LOCALE">`
- * plus exactly one `<meta http-equiv="content-language" content="LOCALE"/>`.
- * This evidence is limited to stored-locale propagation on Wikidot document
- * shells; it does not establish native Japanese sites or other language effects.
- */
 const assertWikidotLanguageDocument = (html, locale) => {
   assert.match(
     html,

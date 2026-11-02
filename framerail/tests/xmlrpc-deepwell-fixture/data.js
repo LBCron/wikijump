@@ -75,9 +75,6 @@ export const pages = {
     tags: [],
     rating: 0,
     wikitext: "[[module NewSite]]",
-    // Refs #2052. Field contract mirrors Deepwell's
-    // WWW_NEW_SITE_AUTHENTICATED_HTML (same fields, same ?/newSite post);
-    // this is a submission-contract fixture, not a DOM parity claim.
     compiled_body_html: [
       '<div id="new-site-box"><span>Get your new Wikidot site</span>',
       '<form id="new-site-form" method="post" action="?/newSite">',

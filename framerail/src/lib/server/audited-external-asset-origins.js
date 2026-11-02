@@ -1,31 +1,3 @@
-/**
- * Audited external asset origins for the Framerail CSP `style-src` and
- * `font-src` directives.
- *
- * Imported Wikidot pages routinely `@import` stylesheets and `@font-face`
- * font files that live on third-party origins, and Wikidot serves those
- * assets from the origin the author wrote. Reproducing that behavior means
- * the browser must be allowed to fetch them, so the origins an imported
- * page legitimately depends on have to be named in the policy in advance.
- *
- * This registry is the closed, single source of truth for those origins.
- * Two rules make it a real boundary rather than a growing hole:
- *
- * 1. Every entry names the retained repository-owned evidence that authorizes
- *    it. An entry is a repository decision, never something a rendered
- *    page can extend on its own: an arbitrary author-supplied `@import`
- *    URL has to fail closed (blocked by the policy) instead of silently
- *    becoming a global exception for every site.
- * 2. An entry may only grant `styles` and/or `fonts`. No audited asset origin
- *    is ever added to `script-src`, `connect-src`, `frame-src` or any
- *    other directive, so an allowlisted CSS/font origin cannot become an
- *    executable or data-exfiltration dependency of a rendered page.
- *
- * See `install/local/wikidot-verification/README.md` for the external
- * acquisition rules that govern refreshing the evidence for an entry, and
- * `framerail/tests/wikidot-csp-audited-origins.test.js` for the invariants
- * this registry is held to.
- */
 
 /**
  * @typedef {object} AuditedExternalAssetOrigin

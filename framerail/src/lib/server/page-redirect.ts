@@ -32,8 +32,6 @@ export function resolvePageRedirect(
   try {
     search = new URL(requestUrl).search
   } catch {
-    // The page route normally receives an absolute Request URL. If a caller
-    // supplies an invalid one, keep the canonical redirect path usable.
   }
 
   return {
@@ -98,8 +96,6 @@ function resolveWikidotModuleRedirect(
     return null
   }
 
-  // Fragments never reach the server. Hosts are compared without protocol or
-  // port so an HTTP downgrade cannot bounce through the canonical HTTPS route.
   if (
     target.hostname === current.hostname &&
     targetPath === currentPath &&
@@ -115,12 +111,6 @@ function resolveRandomHelperRedirect(
   slug: string,
   requestUrl: string
 ): ResolvedPageRedirect | null {
-  // Deepwell only ever emits a same-site page slug here. Refuse anything
-  // that is not a bare slug so a malformed value can never turn the helper
-  // into an open redirect. The helper's own suffix is never carried onto the
-  // randomly selected target; only the request query is preserved.
-  // A 302 (not 301) is required: the target changes on every visit, so a
-  // permanent redirect would pin browsers to one random pick.
   if (
     slug === "" ||
     // eslint-disable-next-line no-control-regex -- redirect targets must not smuggle controls
@@ -141,7 +131,6 @@ function resolveRandomHelperRedirect(
     return null
   }
 
-  // Never bounce back to the helper itself.
   if (currentPath === `/${slug}`) {
     return null
   }

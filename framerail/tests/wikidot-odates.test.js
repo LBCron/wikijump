@@ -8,8 +8,6 @@ import {
   rewriteOdateSpan
 } from "../src/lib/wikidot/wikidot-odates.js"
 
-// Unix 1455223901 is 2016-02-11 20:51:41 UTC (a Thursday), which is already
-// 2016-02-12 in JST — the oneiroi same-source pair from issue #2638.
 const TIMESTAMP = 1455223901
 const FORMAT = "%e %b %Y, %H:%M"
 const ENCODED_CLASS = `odate time_${TIMESTAMP} format_%25e%20%25b%20%25Y%2C%20%25H%3A%25M%7Cagohover`
@@ -69,7 +67,6 @@ test("format grammar covers names, padding, escapes and relative time", () => {
   assert.equal(formatOdateTimestamp(TIMESTAMP, "%a %b", TIMESTAMP, 0), "Thu Feb")
   assert.equal(formatOdateTimestamp(TIMESTAMP, "%R", TIMESTAMP, 0), "20:51")
   assert.equal(formatOdateTimestamp(TIMESTAMP, "100%%", TIMESTAMP, 0), "100%")
-  // Unix 1454705501 is 2016-02-05 20:51:41 UTC (a Friday).
   assert.equal(formatOdateTimestamp(1454705501, "%d", 1454705501, 0), "05")
   assert.equal(formatOdateTimestamp(1454705501, "%e", 1454705501, 0), "5")
   assert.equal(formatOdateTimestamp(1454705501, "%_d", 1454705501, 0), " 5")

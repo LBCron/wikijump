@@ -6,8 +6,6 @@ const SITE_HEADERS = {
 }
 const AUTHENTICATED_HEADERS = {
   ...SITE_HEADERS,
-  // Only the owner fixture token resolves to a non-null user_session in the
-  // article view fixture; the rename gate keys on that session presence.
   cookie: "wikijump_token=fixture-owner-session-token",
   origin: `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 }

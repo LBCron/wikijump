@@ -108,8 +108,6 @@ const newPageFormatIsSafe = (format) => {
       continue
     }
     if (character === "|") {
-      // Plain alternation is bounded. An alternative combined with even one
-      // quantified atom may reintroduce ambiguous backtracking paths.
       hasAlternation = true
       groups.at(-1).hasAlternation = true
       previousWasQuantifier = false
@@ -141,9 +139,6 @@ const newPageFormatIsSafe = (format) => {
     previousWasQuantifier = false
   }
 
-  // Let the parser's existing malformed-format fallback handle unclosed
-  // delimiters and groups; only recognized, executable patterns are subject
-  // to the safety decision above.
   return !hasAlternation || quantifierCount === 0
 }
 

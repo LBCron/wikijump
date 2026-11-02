@@ -68,10 +68,6 @@ test("external theme resources use browser-direct failure ownership", () => {
     })
   }
 
-  // The href resolves through the presence-checked helper with the theme URL
-  // as the fallback: a plain browser-loaded link either way, so loading and
-  // failure ownership stay with the browser (partial imports keep the source
-  // hotlink instead of a local 404).
   assert.match(
     layoutSource,
     /<link\s+data-wikidot-site-theme\s+href=\{externalThemeHref \?\? effectiveTheme\.url\}\s+rel="stylesheet"\s*\/>/u

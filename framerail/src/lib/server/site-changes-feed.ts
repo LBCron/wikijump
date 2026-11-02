@@ -1,15 +1,5 @@
 import { formatWikidotFeedDate } from "./list-pages-feed.ts"
 
-/**
- * The `/feed/site-changes.xml` RSS serializer.
- *
- * Current Wikidot serves a real RSS 2.0 document here that reports the
- * same recent page activity as the SiteChanges module: channel title and
- * site link, newest-first bounded change rows, per-item revision
- * identity/change type/author, and a page content preview. All internal
- * links use the local Wikijump origin rather than the source Wikidot
- * host.
- */
 
 export interface WikidotSiteChangesFeedItem {
   revision_id: number
@@ -55,8 +45,6 @@ export function formatWikidotSiteChangesFeedDate(value: Date): string {
 
 function itemXml(origin: string, item: WikidotSiteChangesFeedItem): string {
   const pageUrl = `${origin}/${item.slug}`
-  // The GUID reports the page identity together with its revision, so a
-  // subscriber can tell a new revision from an unchanged page.
   const guidOrigin = new URL(origin)
   guidOrigin.protocol = "http:"
   const guid = `${guidOrigin.origin}/${item.slug}#revision-${item.revision_id}`

@@ -1,4 +1,3 @@
-// Wrapper around fetch() to provide timeouts.
 
 export const DEFAULT_TIMEOUT = 1500
 

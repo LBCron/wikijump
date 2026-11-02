@@ -36,9 +36,6 @@
   const fileRevisionMap = new SvelteMap<number, FileRevisionModel>()
   let fileHistoryLoading = $state(false)
   let requestedHistoryRequestId = $state(-1)
-  // Only the most recently requested file history may update the pane. A
-  // slower response for an earlier file must not replace the revisions or
-  // Revert controls of the file the reader selected last.
   let fileHistoryRequestId = 0
 
   onDestroy(() => {
@@ -46,8 +43,6 @@
   })
 
   let canRollbackFile = $state(false)
-  // Accessible name for the revision-table scroll region, so a screen reader
-  // can tell which pane's revisions it is walking into.
   let fileHistoryRegionLabel = $derived(
     data.internationalization?.["wiki-page-file-history"] ?? "File history"
   )
@@ -55,9 +50,6 @@
   async function loadFileHistory(fileId: number, reopenHistory = false) {
     requestedHistoryRequestId = historyRequestId
     const requestId = ++fileHistoryRequestId
-    // Drop the previous file's rows the moment a new history load starts, so
-    // a slow response can never leave stale revisions on screen for the file
-    // the reader asked for last (issue #2192).
     fileRevisionMap.clear()
     fileHistoryLoading = true
     try {
@@ -88,8 +80,6 @@
         result.data.res.forEach((revision) => {
           fileRevisionMap.set(revision.revision_number, revision)
         })
-        // A late response must not yank the reader out of a newer file
-        // action. Only the post-rollback refetch reopens its history view.
         if (reopenHistory || activeFileAction === "history") {
           activeFileAction = "history"
         }
@@ -117,7 +107,6 @@
       if (activeFileAction !== "history" || historyRequestId !== requestId) return
       canRollbackFile = result.type === "success" && result.data?.res?.can_edit === true
     } catch {
-      // Permission lookup failures must not leave a rollback action available.
       if (activeFileAction === "history" && historyRequestId === requestId) {
         canRollbackFile = false
       }
@@ -125,10 +114,6 @@
   }
 
   async function rollbackFileRevision(revisionNumber: number, comments?: string) {
-    // A file rollback writes a new file revision. Ask before sending it;
-    // cancelling sends no request. This mirrors the page-history rollback
-    // confirmation (issue #2197) for the attachment-history boundary
-    // (issue #2195): a single click must never dispatch a mutation POST.
     const label = data.internationalization?.["wiki-page-revision-rollback"] ?? "Revert"
     // eslint-disable-next-line no-alert
     if (!globalThis.confirm(`${label} ${revisionNumber}?`)) return
@@ -317,13 +302,6 @@
 {/if}
 
 <style lang="scss">
-  /*
-    The revision table keeps its source `display: table` geometry, which does
-    not establish a scroll container, so it is wrapped in a block-level
-    `.revision-list-scroll` instead. Everything is expressed in CSS against
-    the available width, so the containment re-applies by itself after async
-    history loading, when switching files, and on viewport changes.
-  */
   .revision-list-scroll {
     box-sizing: border-box;
     width: 100%;

@@ -46,7 +46,6 @@ export interface WikidotPageBreadcrumbView {
   title: string
 }
 
-/* ----- Preload ----- */
 
 export async function preloadView(
   siteId: number,
@@ -86,7 +85,6 @@ export interface PreloadData {
 
 export type PreloadDataAsync = () => Promise<PreloadData>
 
-/* ----- Page View ----- */
 export interface PageRoute {
   slug: Optional<string>
   extra: Optional<string>
@@ -302,7 +300,6 @@ export async function articleViewCacheMetadata(
   })
 }
 
-/* ----- Admin View ----- */
 interface AdminViewSiteFound {
   type: "site_found"
   data: {

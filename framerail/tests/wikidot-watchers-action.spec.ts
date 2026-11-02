@@ -6,9 +6,6 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 
-// Retained live Wikidot contract (open43-q1032): an anonymous viewer reads
-// the populated Watchers output. The option-bar Watchers button must open
-// the pane with that roster instead of hiding, erroring, or denying.
 const openWatchersPane = async (page: Page) => {
   await page.goto("/page-workflow-probe", { waitUntil: "domcontentloaded" })
   await waitForSvelteDelegatedHandler(page, "#more-options-button")
@@ -33,7 +30,6 @@ test("anonymous Watchers opens the pane with the watcher roster", async ({ page 
 
   await openWatchersPane(page)
 
-  // The roster renders both fixture watchers as public identities.
   const roster = page.locator(".page-watchers-list")
   await expect(roster).toBeVisible()
   await expect(roster.getByRole("link", { name: "Watcher Fixture" })).toHaveAttribute(
@@ -45,8 +41,6 @@ test("anonymous Watchers opens the pane with the watcher roster", async ({ page 
     "/-/user/second-watcher"
   )
 
-  // One lazy read accepted by the route action, no denial dialog, and
-  // the action area stays open on the roster.
   expect(actionStatuses, "the route action must accept the lazy read").toEqual([200])
   expect(watchRequests, "opening the pane must start exactly one lazy read").toHaveLength(
     1

@@ -11,10 +11,6 @@ export const load: LayoutServerLoad<PreloadData> = async ({
   route,
   locals
 }) => {
-  // The native footer's Docs / Terms / Privacy / Security destinations are
-  // instance-level, not per-wiki. They are resolved once here so every route
-  // that renders the native layout, including the routes whose own load owns
-  // the preload, exposes the same platform destinations.
   const overrides = readNativeFooterDestinationOverrides(process.env)
   const nativeFooterDestinations = {
     ...platformFooterDestinations(),

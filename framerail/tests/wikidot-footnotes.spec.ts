@@ -74,7 +74,6 @@ test("Wikidot footnote references and returns scroll under strict CSP", async ({
   await expectCentered(page, "#footnoteref-1")
   await page.setViewportSize({ width: 1280, height: 720 })
 
-  // The delegated action remains installed while PageView replaces its rendered body.
   await page.locator("#page-content").evaluate((content) => {
     content.innerHTML = `
       <div style="height: 1000px"></div>

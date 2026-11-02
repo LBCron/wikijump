@@ -39,8 +39,6 @@ test("authenticated account toggle preserves its Wikidot URL without a CSP viola
   await expect(toggle).toHaveText("▼")
   await expect(menu).toBeHidden()
 
-  // The hermetic imported theme has an external-script CSP message at load;
-  // scope this assertion to the top-bar action.
   cspMessages.length = 0
   const beforeClick = page.url()
   await toggle.click()
@@ -125,9 +123,6 @@ test("Wikidot-compatible search chrome preserves its two inputs and focus behavi
   const form = page.locator("#search-top-box-form")
   const query = form.locator('input[type="text"]')
   const submit = form.locator('input[type="submit"]')
-  // Retained live DOM evidence: install/local/wikidot-verification/artifacts/
-  // listpages-campaign-live-fixtures.json, case lp-live-parent-selectors,
-  // raw_page_html_sha256 246ac8385251557163536aef081026d3751425c13e85d49e74ff56b527354290.
   await expect(searchBox).toHaveClass("form-search")
   await expect(form).toHaveCount(1)
   await expect(form).toHaveClass("input-append")
@@ -136,8 +131,6 @@ test("Wikidot-compatible search chrome preserves its two inputs and focus behavi
   await expect(submit).toHaveValue("Search")
   await expect(submit).toHaveClass("button btn")
 
-  // Sigma intentionally hides the text field, so exercise the listener without
-  // requiring an element that the imported theme makes non-focusable.
   await query.dispatchEvent("focus")
   expect(pageErrors).toEqual([])
   await expect(query).toHaveValue("")

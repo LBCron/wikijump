@@ -11,7 +11,6 @@ import type {
 } from "$lib/types"
 import type { RequestContext } from "../request-context"
 
-/* ----- User View ----- */
 export type UserViewUser = UserModel | WikidotUserModel
 
 export interface UserViewFound {
@@ -39,7 +38,6 @@ export async function userView(
   })
 }
 
-/* ----- User Edit ----- */
 interface UserEditParams {
   name?: Optional<string>
   email?: Optional<string>
@@ -139,7 +137,6 @@ export async function userEdit(
   )
 }
 
-/* ----- User Password Change ----- */
 export async function userPasswordChange(
   currentPassword: string,
   newPassword: string,
@@ -157,7 +154,6 @@ export async function userPasswordChange(
   )
 }
 
-/* ----- User Create ----- */
 interface UserCreate {
   user_id: number
   slug: string

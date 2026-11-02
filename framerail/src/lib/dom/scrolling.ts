@@ -10,12 +10,8 @@ export function scrollsVertically(element: HTMLElement) {
   // @ts-ignore - only works in Firefox
   if (element.scrollTopMax !== undefined) return element.scrollTopMax > 0
 
-  // weird edge case, not sure what this means
   if (element.clientHeight === 0) return false
 
-  // we can't just use `element.scrollHeight > element.clientHeight`, because
-  // that will return true if a child also scrolls, so we need to check
-  // the overflow properties instead
   if (element.scrollHeight > element.clientHeight) {
     const overflow = window.getComputedStyle(element).overflowY
     if (overflow === "scroll" || overflow === "auto") return true
@@ -34,12 +30,8 @@ export function scrollsHorizontally(element: HTMLElement) {
   // @ts-ignore - only works in Firefox
   if (element.scrollLeftMax !== undefined) return element.scrollLeftMax > 0
 
-  // weird edge case, not sure what this means
   if (element.clientWidth === 0) return false
 
-  // we can't just use `element.scrollWidth > element.clientWidth`, because
-  // that will return true if a child also scrolls, so we need to check
-  // the overflow properties instead
   if (element.scrollWidth > element.clientWidth) {
     const overflow = window.getComputedStyle(element).overflowX
     if (overflow === "scroll" || overflow === "auto") return true

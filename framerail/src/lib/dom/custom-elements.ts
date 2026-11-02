@@ -1,4 +1,3 @@
-/** Autonomous custom element class type. */
 export type CustomElement = typeof HTMLElement & { tag: string }
 
 /**

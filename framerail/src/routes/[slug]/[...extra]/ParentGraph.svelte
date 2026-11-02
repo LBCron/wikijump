@@ -9,7 +9,6 @@
 
   let { data }: PageProps = $props()
 
-  // we only need the contents of the maps and the variables to be reactive, not the maps themselves
   /* eslint-disable svelte/prefer-svelte-reactivity */
   let childrenMap = $state(new Map<number, number[]>())
   let parentMap = $state(new Map<number, number[]>())
@@ -19,41 +18,21 @@
   >()
   let rootParents = $state<number[]>([])
   let maxY = $state(0)
-  /**
-   * Row-column intervals
-   *
-   * Here an interval represents a straight branch on the same row, the
-   * interval numbers are column numbers (topological order index), and the
-   * stored value is the row the interval occupies.
-   */
   let rowIntervals = $state(new IntervalTree<number>())
-  /**
-   * Curved branches intervals
-   *
-   * Represents branches that connects across different rows.
-   */
   let curvedIntervals = $state(
     new IntervalTree<{
       x1: number
       y1: number
       x2: number
       y2: number
-      /**
-       * The row height at which to draw the horizontal section of the
-       * branch.
-       */
       yBranch: number
     }>()
   )
-  /** Radius for curved branches in the graph, relative to scale factor */
   let radius = $state(0.5)
-  /** Scale factor of the graph in pixels */
   let scaleFactor = $derived(30)
-  /** Offset from top left in pixels */
   let offset = $state(20)
   let graphContainerWidth = $state(0)
   let graphElem = $state<SVGGraphicsElement | null>(null)
-  /** Viewbox sizing */
   let viewbox = $derived({
     width: Math.max(
       (childrenMap.size + 1) * scaleFactor + 100,
@@ -61,7 +40,6 @@
     ),
     height: scaleOffset(maxY + 1)
   })
-  /** Increment to signal a graph update */
   let graphSignal = $state(0)
 
   function scaleOffset(input: number) {
@@ -76,7 +54,6 @@
     r: number,
     yBranch: number
   ) {
-    // always go downwards
     if (y1 > y2) {
       let temp = x1
       x1 = x2
@@ -85,10 +62,8 @@
       y1 = y2
       y2 = temp
     }
-    // determine direction, goes right if true
     let dir = x2 > x1
     if (y1 === y2 && y1 !== yBranch) {
-      // a bypass branch, we need to curve upwards
       return `M ${x1} ${y1}
               V ${yBranch - r}
               A ${r} ${r} ${dir ? 180 : 0} 0 ${dir ? 0 : 1} ${dir ? x1 + r : x1 - r} ${yBranch}
@@ -97,13 +72,10 @@
               V ${y2}`
     }
     let min = Math.min(Math.abs(x1 - x2), Math.abs(y1 - y2))
-    if (r > min) r = min // Reduce the radius
-    // set yBranch to y2 or some value between y1 and y2, allowing 90 deg arcs
+    if (r > min) r = min
     if (yBranch < y1 + r) yBranch = y1 + r
     else if (yBranch > y2) yBranch = y2
     else if (yBranch !== y2 && y2 - yBranch < r) yBranch = y2 - r
-    // if the horizontal line is on the same level as lower node,
-    // then no need to curve downwards
     if (yBranch === y2) {
       return `M ${x1} ${y1}
               V ${y2 - r}
@@ -175,8 +147,6 @@
 
   function buildParentGraph() {
     maxY = 0
-    // First do a topological sort using Kahn's Algorithm to determine order on the parent-child axis
-    // This assumes the parent graph is a directed acyclic graph
     let unedged = rootParents.toSorted((a, b) => a - b)
     let ordered = []
     let parentMapClone: Map<number, number[]> = new Map(
@@ -187,10 +157,7 @@
       ordered.push(node)
       let children = (childrenMap.get(node) ?? []).toSorted((a, b) => a - b)
       while (children.length) {
-        // remove the edge from node to child
         let child = children.shift()!
-        // let idx = children.findIndex((c) => c === child)
-        // if (idx !== -1) children.splice(idx, 1)
         let parents = parentMapClone.get(child) ?? []
         let idx = parents.findIndex((p) => p === node)
         if (idx !== -1) parents.splice(idx, 1)
@@ -199,11 +166,9 @@
       }
     }
     for (let i = 0; i < ordered.length; i++) {
-      pageDetails.get(ordered[i])!.x = i // parent-child axis, column
+      pageDetails.get(ordered[i])!.x = i
     }
 
-    // Now the graph is topologically sorted on parent-child axis
-    // Then we assign the coordinates on the perpendicular axis
 
     let activeRows: (number | null)[] = []
     let branchChildrenMap = new Map(
@@ -219,7 +184,6 @@
       ])
     )
 
-    // Now assign Y values for straight branches
     rowIntervals.clear()
 
     for (let i = ordered.length - 1; i >= 0; i--) {
@@ -228,7 +192,6 @@
       let idx = -1
       let forbiddenRows: number[] = []
       if (mergeChildren.length) {
-        // find the rightmost child
         let children = mergeChildren.map((child) => pageDetails.get(child))
         let maxX = 0
         for (let j = 0; j < children.length; j++) {
@@ -238,21 +201,18 @@
       }
 
       if (branchChildren.length) {
-        // replaces the first child as the active tip
         idx = activeRows.findIndex((v) => v === branchChildren[0])
         let child = pageDetails.get(activeRows[idx]!)!
         activeRows[idx] = ordered[i]
 
         rowIntervals.insert([i, child.x!], idx)
 
-        // set the rows of all its other children as inactive
         branchChildren = branchChildren.slice(1)
         for (let j = 0; j < branchChildren.length; j++) {
           let k = activeRows.findIndex((v) => v === branchChildren[j])
           if (k !== -1) activeRows[k] = null
         }
       } else {
-        // it has no children to displace, find the first available slot
         idx = activeRows.findIndex((v, i) => v === null && !forbiddenRows.includes(i))
         if (idx === -1) {
           idx = activeRows.length
@@ -260,32 +220,20 @@
         } else {
           activeRows[idx] = ordered[i]
         }
-        // rowIntervals.insert([i, i], idx)
       }
-      // TODO: Find how to determine when to reuse the available space behind a root parent
-      // if (!parentMap.get(ordered[i])?.length) {
-      //   // no more parents, we can set the tip as inactive
-      //   activeRows[idx] = null
-      // }
       pageDetails.get(ordered[i])!.y = idx
       if (maxY < activeRows.length) maxY = activeRows.length
     }
 
-    // Now we assign row height for curved branches
-    // These can have non-integer Y values if spaces do not allow for
-    // We will normalize them at the end
     curvedIntervals.clear()
 
-    // find all intervals first
     for (let i = 0; i < ordered.length; i++) {
       let node = pageDetails.get(ordered[i])!
       let children = childrenMap.get(ordered[i]) ?? []
       for (let j = 0; j < children.length; j++) {
         let child = pageDetails.get(children[j])!
         if (node.y === child.y) {
-          // this is a straight branch
           if (!rowIntervals.exist([node.x!, child.x!])) {
-            // this is a bypass branch that connects a child to a parent some layers above
             curvedIntervals.insert([node.x!, child.x!], {
               x1: node.x!,
               y1: node.y!,
@@ -306,10 +254,8 @@
       }
     }
 
-    // then assign Y values
     for (const { key: interval, value } of curvedIntervals.items) {
       if (value.yBranch) {
-        // we have already determined the position for this interval
         continue
       }
       let lowerY = Math.max(value.y1, value.y2)
@@ -338,7 +284,6 @@
         straightIntersect.every((v) => v[2] !== lowerY) &&
         curveIntersect.every((v) => v[2].yBranch !== lowerY)
       ) {
-        // there are no intersections, we can safely use lowerY
         value.yBranch = lowerY
         continue
       }
@@ -346,18 +291,13 @@
 
     for (const { key: interval, value } of curvedIntervals.items) {
       if (value.yBranch) {
-        // we have already determined the position for this interval
         continue
       }
       let lowerY = Math.max(value.y1, value.y2)
       let upperY = Math.min(value.y1, value.y2)
       if (value.y1 === value.y2) {
-        // bypass branch
         lowerY++
       }
-      // the space has been occupied
-      // we need to make use of space between rows (non-integer Y)
-      // check how many are in the same region
       let curveIntersect = curvedIntervals
         .search(interval, (v, k) => {
           return [k.low, k.high, v] as [number, number, typeof v]
@@ -366,13 +306,11 @@
           (v) =>
             v[0] !== interval[1] &&
             v[1] !== interval[0] &&
-            // v[0] !== Math.min(value.x1, value.x2) &&
-            // (v[2].yBranch % 1 || v[2].yBranch === 0) &&
             (v[2].yBranch === 0
               ? Math.min(v[2].y1, v[2].y2) < lowerY && Math.max(v[2].y1, v[2].y2) > upperY
               : v[2].yBranch < lowerY && v[2].yBranch > upperY)
         )
-      let divisor = curveIntersect.length + 1 // count self + 1
+      let divisor = curveIntersect.length + 1
       let occupiedRows = new Set(curveIntersect.map((v) => v[2].yBranch))
       occupiedRows.add(0)
       let yBranch = 0
@@ -382,8 +320,6 @@
         yBranch = upperY + ((lowerY - upperY) / divisor) * fractional
       }
       if (fractional >= divisor) {
-        // all spaces had been occupied??
-        // retry
         divisor++
         yBranch = 0
         fractional = 0
@@ -392,17 +328,13 @@
           yBranch = upperY + ((lowerY - upperY) / divisor) * fractional
         }
       }
-      // if (radius > 1/divisor) radius = 1/divisor
       value.yBranch = yBranch
     }
 
-    // Finally count the number of distinct Y values in the graph
-    // and normalize them to be equidistant
     let yValues = curvedIntervals.values.map((v) => v.yBranch)
     yValues.push(...Array(maxY).keys())
     yValues = [...new Set(yValues)].toSorted((a, b) => a - b)
 
-    // TODO: move branches up unused Y values
     let yMap = new Map(yValues.map((v, i) => [v, i]))
     for (const id of pageDetails.keys()) {
       let node = pageDetails.get(id)!
@@ -419,7 +351,6 @@
     }
     maxY = yValues.length
 
-    // Notify the graph to update and draw the branches
     graphSignal++
   }
 

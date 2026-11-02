@@ -150,8 +150,6 @@ test("editing found-page route SSR preserves the hidden page-tags state", () => 
   assertTagTree(body, foundPageData.page_revision.tags, true)
 })
 
-// Svelte SSR leaves hydration comments between siblings; drop them (and
-// whitespace) so sibling order can be compared without a backtracking regex.
 const withoutMarkupNoise = (html) =>
   html
     .split("<!--")

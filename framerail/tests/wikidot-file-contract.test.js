@@ -32,8 +32,6 @@ test("only fixture-observed types map to Wikidot labels", () => {
 })
 
 test("stored charset-suffixed MIME resolves to Wikidot labels", () => {
-  // Standing stores "image/png; charset=binary"; the frozen list shows
-  // "PNG image data". Refs #2067.
   assert.equal(wikidotFileTypeDescription("image/png; charset=binary"), "PNG image data")
   assert.equal(
     wikidotFileTypeDescription("image/jpeg; charset=binary"),
@@ -104,7 +102,6 @@ test("mirror inventory is read-only only when page and site are both imported", 
 })
 
 test("info modal upload date keeps the frozen comma and odate shape", () => {
-  // Frozen source modal: "Upload date: 21 Apr 2026, 06:01". Refs #2067.
   const uploaded = wikidotFileUploadDate("2026-04-21T06:01:00Z")
   assert.equal(uploaded.timestamp, Math.floor(Date.parse("2026-04-21T06:01:00Z") / 1000))
   assert.equal(uploaded.text, "21 Apr 2026, 06:01")
@@ -113,7 +110,6 @@ test("info modal upload date keeps the frozen comma and odate shape", () => {
     `odate time_${uploaded.timestamp} format_%25e%20%25b%20%25Y%2C%20%25H%3A%25M%7Cagohover`
   )
 
-  // Zero-padding and month abbreviations hold for other dates too.
   assert.equal(wikidotFileUploadDate("2026-10-11T03:04:05Z").text, "11 Oct 2026, 03:04")
 })
 
@@ -140,8 +136,6 @@ test("permission denials keep the recorded PERMISSION ERROR shape", () => {
     actionLink: signIn,
     data: null
   })
-  // Builders return fresh objects: handing one to the popup store and
-  // mutating it must not change the next denial.
   const first = wikidotUploadDeniedPopup()
   first.message = "mutated"
   assert.equal(

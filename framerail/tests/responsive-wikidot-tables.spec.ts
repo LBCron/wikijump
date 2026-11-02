@@ -66,9 +66,6 @@ test("narrow Wikidot transcript tables wrap without widening the document", asyn
     expect(geometry.text).toContain("Subject: Dr. Harold Blank")
     expect(geometry.text).toContain("https://example.test/")
     expect(geometry.text).toContain("unbrokenunbroken")
-    // The fixed 336px interior block reproduces the SCP-7000 dialogue tables
-    // (issue #2166): it must wrap inside the article column instead of
-    // forcing the table and document past the viewport.
     expect(geometry.fixedTable).toBeLessThanOrEqual(geometry.content)
     expect(geometry.fixedCellScroll).toBeLessThanOrEqual(geometry.fixedCell)
     expect(geometry.fixedText).toContain("Subject: Margherita Villar")

@@ -51,8 +51,6 @@ export const mergeWikidotHistoryTimeline = (
   const timeline = [...pages, ...files].sort((a, b) => {
     const timeDifference = Date.parse(b.created_at) - Date.parse(a.created_at)
     if (timeDifference !== 0) return timeDifference
-    // Equal timestamps are not present in the retained Wikidot observation.
-    // Keep the result deterministic while leaving that case uncertified.
     if (a.history_kind !== b.history_kind) {
       return a.history_kind === "page" ? -1 : 1
     }

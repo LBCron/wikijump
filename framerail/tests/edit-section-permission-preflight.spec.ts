@@ -42,7 +42,6 @@ test("anonymous Edit Sections viewers see denial without an editor or mutation",
   )
   await expect(page.locator("#edit-section-content form#editor")).toHaveCount(0)
   await expect(page.getByRole("status")).toHaveCount(0)
-  // The denial closes the section editor, leaving no visible action area.
   await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
   expect(actionRequests.filter((action) => action === "?/editPermission")).toHaveLength(1)
   expect(actionRequests.filter((action) => action === "?/edit")).toHaveLength(0)

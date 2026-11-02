@@ -18,8 +18,6 @@ const freePort = () =>
     })
   })
 
-// Catches adapter/Kit version skew that unit tests cannot see: `node server.js` must start
-// from a `pnpm build` output and answer HTTP. Any status code counts as an answer.
 test(
   "production build boots via server.js and answers HTTP",
   { skip: hasBuild ? false : "run `pnpm build` first", timeout: 30_000 },

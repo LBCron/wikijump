@@ -328,7 +328,6 @@ async fn serve_multi_range(
     )
 }
 
-
 pub async fn handle_local_file(
     state: State<ServerState>,
     method: Method,
@@ -441,7 +440,6 @@ pub async fn handle_file_download(
     )
     .await
 }
-
 
 fn response_content_type<'a>(filename: &str, mime: &'a str) -> &'a str {
     if filename

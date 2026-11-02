@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 use crate::deepwell::TextBlockType;
 use crate::error::FallbackError;
 use crate::language::parse_accept_language;
@@ -134,7 +133,6 @@ pub async fn build_basic_error_response(
     basic_error: BasicError<'_>,
 ) -> Response {
     let locales = parse_accept_language(headers);
-
 
     macro_rules! deepwell_fetch {
         ($method:ident => $status_code:ident $(,)?) => {

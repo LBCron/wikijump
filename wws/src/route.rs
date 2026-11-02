@@ -29,7 +29,6 @@ use tower_http::set_header::SetResponseHeaderLayer;
 use tower_http::trace::TraceLayer;
 
 pub fn build_router(state: ServerState) -> Router {
-
     Router::new()
         .route(
             "/local--files/{page_slug}/{filename}",
@@ -93,10 +92,7 @@ pub fn build_router(state: ServerState) -> Router {
             "/common--theme/base/css/html-block.css",
             get(handle_html_block_css),
         )
-        .route(
-            "/common--theme/{*path}",
-            get(handle_common_theme),
-        )
+        .route("/common--theme/{*path}", get(handle_common_theme))
         .route(
             "/common--javascript/html-block-iframe.js",
             get(handle_html_block_iframe_js),
@@ -105,10 +101,7 @@ pub fn build_router(state: ServerState) -> Router {
             "/common--javascript/resize-iframe.html",
             get(handle_resize_iframe_html),
         )
-        .route(
-            "/common--javascript/{*path}",
-            get(handle_common_javascript),
-        )
+        .route("/common--javascript/{*path}", get(handle_common_javascript))
         .route("/.well-known", any(handle_well_known))
         .route("/.well-known/{*path}", any(handle_well_known))
         .fallback(redirect_to_main)

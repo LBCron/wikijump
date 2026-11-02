@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 use axum::response::Response;
 use jsonrpsee::core::ClientError;
 use s3::error::S3Error;

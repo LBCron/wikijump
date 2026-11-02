@@ -96,7 +96,6 @@ pub async fn build_server_state(
 }
 
 impl ServerStateInner {
-
     pub async fn get_or_cache_site_domain(&self, site_id: i64) -> Result<String> {
         self.cache
             .get_or_fetch_site_domain(site_id, || self.deepwell.get_site_domain(site_id))

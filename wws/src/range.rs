@@ -135,7 +135,6 @@ pub fn parse_range_header(value: &str, file_size: u64) -> ParsedRange {
     }
 }
 
-
 // If `If-Range` is present and its ETag doesn't match, `Range` must be
 // ignored and the full representation returned (RFC 9110 §13.1.5)
 pub fn should_evaluate_range(headers: &axum::http::HeaderMap, etag: &str) -> bool {
@@ -168,7 +167,6 @@ mod tests {
     use super::*;
     use axum::http::HeaderMap;
     use axum::http::header::{IF_RANGE, RANGE};
-
 
     fn ranges(value: &str, size: u64) -> Vec<(u64, u64)> {
         match parse_range_header(value, size) {

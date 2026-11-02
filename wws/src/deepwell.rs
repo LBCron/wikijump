@@ -106,7 +106,6 @@ impl Deepwell {
         Ok(())
     }
 
-
     pub async fn get_site_domain(&self, site_id: i64) -> Result<String> {
         let params = rpc_params![site_id];
         let domain: String = self.request("site_domain", params).await?;
@@ -215,7 +214,6 @@ impl Deepwell {
 
         Ok(block_info)
     }
-
 
     pub async fn basic_error_missing_site_slug(
         &self,

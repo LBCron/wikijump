@@ -59,7 +59,9 @@ import {
   classifyForeignSnapshotHolders,
   foreignSnapshotHoldersSql,
   holdingSiteSql,
+  holdingForImport,
   isForeignSource,
+  isSameSnapshotProvenance,
   parseHoldingSite,
   storageSlug,
 } from '../src/corpus-import-storage.mjs';
@@ -937,6 +939,19 @@ FROM active_page p;
   return { page_id: pageId, page_category_id: categoryId, revision_id: revisionId, render_complete: renderComplete };
 }
 
+async function existingPageSnapshotProvenance(sqlExecutor, pageId) {
+  const sql = `
+SELECT source_site || '|' || source_branch
+FROM wikidot_page_snapshot
+WHERE page_id = ${sqlInt(pageId)}
+LIMIT 1;
+`;
+  const output = await sqlExecutor.runSql(sql, { capture: true });
+  if (!output) return null;
+  const [sourceSite, sourceBranch] = output.split('|');
+  return { source_site: sourceSite, source_branch: sourceBranch };
+}
+
 async function existingActivePage(args, sqlExecutor, slug) {
   const sql = `
 WITH target_page AS (
@@ -1410,6 +1425,11 @@ async function importRow(args, sqlExecutor, row, importRunId) {
     let replaceExistingRevision = false;
     if (existing !== null) {
       const existingSnapshotStatus = await pageSnapshotStatus(args, sqlExecutor, row, existing.page_id);
+      const existingProvenance = await existingPageSnapshotProvenance(sqlExecutor, existing.page_id);
+      if (!isSameSnapshotProvenance(existingProvenance, row)) {
+        if (!args.dryRun) await sqlExecutor.runSql(recordItemSql(row, existing.page_id, importRunId, 'failed', { collision: 'existing_page_other_provenance', existing_provenance: existingProvenance, row_provenance: { source_site: row.source_site, source_branch: row.source_branch } }));
+        return { slug: row.fullname, action: 'collision_existing_page_other_provenance', page_id: existing.page_id };
+      }
       const existingSourceStatus = await existingPageSourceStatus(args, sqlExecutor, row, existing.revision_id);
       const contentMatches = existingSourceStatus === 'matching';
       const needsReplacement = existingSnapshotStatus !== 'matching' || !contentMatches;
@@ -1532,6 +1552,11 @@ async function upsertParentLinks(args, sqlExecutor, selectedRows) {
 
 export function assertForeignStoragePlan(args, selectedRows) {
   for (const row of selectedRows) assertNotReservedFullname(row);
+  for (const row of selectedRows) {
+    if (row.source_branch === row.source_site && isForeignSource(args.holding, row.source_site)) {
+      throw new Error(`${row.source_site}:${row.fullname}: manifest source_branch equals its source_site; recording this run would add the site name itself to the holding site's import-run branches, reclassifying that site's snapshots as the holding site's own for both this tool and Deepwell. Name the corpus branch instead (e.g. 'ko' for scpko), or pass --source-branch ${row.source_branch} if this provenance is deliberately the holding site's own corpus.`);
+    }
+  }
   const foreignRows = selectedRows.filter((row) => isForeignSource(args.holding, row.source_site));
   if (foreignRows.length === 0) return;
   const [first] = foreignRows;
@@ -1554,10 +1579,9 @@ export function assertForeignStoragePlan(args, selectedRows) {
   }
 }
 
-async function loadHoldingSite(args, sqlExecutor, manifestRows) {
-  const holding = parseHoldingSite(await sqlExecutor.runSql(holdingSiteSql(args.siteId), { capture: true }));
-  const manifestBranches = manifestRows.length > 0 ? manifestRows.map((row) => row.source_branch) : [args.sourceBranch];
-  return { siteSlug: holding.siteSlug, runBranches: [...new Set([...holding.runBranches, ...manifestBranches])].sort() };
+async function loadHoldingSite(args, sqlExecutor) {
+  const persisted = parseHoldingSite(await sqlExecutor.runSql(holdingSiteSql(args.siteId), { capture: true }));
+  return holdingForImport(persisted, args.sourceBranch);
 }
 
 async function rerenderParentLinkPages(args, sqlExecutor, selectedRows) {
@@ -1608,7 +1632,7 @@ export async function main(argv) {
       return 0;
     }
 
-    args.holding = await timePhase(phaseTimingsMs, 'load_holding_site', () => loadHoldingSite(args, sqlExecutor, allRows));
+    args.holding = await timePhase(phaseTimingsMs, 'load_holding_site', () => loadHoldingSite(args, sqlExecutor));
     assertForeignStoragePlan(args, selectedRows);
     const ownRows = selectedRows.filter((row) => !isForeignSource(args.holding, row.source_site));
     timePhaseSync(phaseTimingsMs, 'precompute_db_text_hashes', () => precomputeDbTextHashes(args, selectedRows));

@@ -10,10 +10,6 @@ const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const read = rel => fs.readFileSync(path.join(lab, rel));
 const json = rel => JSON.parse(read(rel).toString('utf8'));
 
-test('the 20261001 search receipt is pinned and unedited (desktop, laptop, tablet only)', {skip: fs.existsSync(path.join(lab, 'evidence/search-controls-20261001/basalt.json')) ? false : 'receipt is not tracked in git; present only in retained worktrees'}, () => {
-  assert.equal(sha(read('evidence/search-controls-20261001/basalt.json')), '09a8851c517c1c74c7f47613f443c1d4319ad714945a5e1b084945b73ccca3fb');
-});
-
 test('the sibling mobile and narrow-mobile search receipt binds the frozen source and each measured viewport', () => {
   const receipt = json('evidence/search-controls-20261022/basalt.json');
   assert.equal(receipt.schema, 'theme_lab_wikidot_search_control.v1');

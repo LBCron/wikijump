@@ -60,11 +60,6 @@ export function iconMime(contentType) {
   return mime
 }
 
-/** The media type the bytes themselves declare, by magic number.
- * Wikidot serves some icons with a content type that disagrees with
- * the payload (the SCP Wiki favicon is PNG bytes served as
- * `image/gif`), and Deepwell validates the stored bytes against the
- * declared type, so the observed type must come from the bytes. */
 export function sniffIconMime(bytes) {
   const startsWith = (...magic) => magic.every((byte, index) => bytes[index] === byte)
   if (startsWith(0x89, 0x50, 0x4e, 0x47)) return "image/png"

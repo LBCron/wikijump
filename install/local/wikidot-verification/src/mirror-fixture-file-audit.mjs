@@ -1,21 +1,3 @@
-/**
- * Read-only audit of synthetic or fixture file rows on Wikidot mirror
- * pages. Refs #2095.
- *
- * Mirror pages must show the source inventory. Rows that are neither
- * imported source rows nor genuine mirror-import inventory are fixture
- * leakage (for example the seeder's `SCP.txt`, whose planted bytes are
- * page source) and are repair candidates — but only with positive
- * evidence that the name is absent from the source page inventory.
- * Seeder origin alone never classifies a row as leakage: the seeder
- * also plants genuine source attachments (#2095 follow-up). Rows
- * carrying the bulk mirror-import provenance comment are genuine
- * inventory and must never be tombstoned by this audit.
- *
- * The classifier is pure: callers supply row objects (for example parsed
- * from a `psql -At` TSV dump) and a seed index built from
- * `deepwell/seeder/files.json`. Nothing here touches a database.
- */
 
 export const MIRROR_IMPORT_COMMENT_PATTERN = /mirror attachment import/u;
 
@@ -23,12 +5,6 @@ function seedKey(siteSlug, pageSlug, name) {
   return `${siteSlug ?? ""}\u0000${pageSlug ?? ""}\u0000${name ?? ""}`;
 }
 
-/**
- * Index the seeder fixture by site, page, and file name.
- *
- * @param {object} seederFiles the parsed `deepwell/seeder/files.json`.
- * @returns {Map<string, {path: string|null, overwrite: string|null}>}
- */
 export function buildSeedIndex(seederFiles) {
   const index = new Map();
   for (const [siteSlug, pages] of Object.entries(seederFiles ?? {})) {
@@ -48,22 +24,6 @@ function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-/**
- * Index evidenced source-page attachment names (corpus attachment
- * metadata or the recorded Wikidot Files list). Entries are
- * `{site_slug, page_slug, name}` objects. Pages with at least one entry
- * count as covered; only covered pages can yield `FIXTURE` verdicts.
- *
- * Inconclusive input fails closed rather than being read as coverage or
- * as absence: an entry missing a non-empty site_slug, page_slug, or name
- * throws, and so does a supplied inventory that is not an array. Nothing
- * is indexed from a partly valid list. `null` or `undefined` means no
- * inventory was supplied and yields an empty index, so every seed match
- * stays UNCLASSIFIED_LOCAL.
- *
- * @param {Array<{site_slug: string, page_slug: string, name: string}>|null} [entries]
- * @returns {{hasPage: (siteSlug: string, pageSlug: string) => boolean, hasName: (siteSlug: string, pageSlug: string, name: string) => boolean}}
- */
 export function buildSourceInventoryIndex(entries) {
   if (entries == null) return emptySourceInventoryIndex();
   if (!Array.isArray(entries)) {
@@ -103,29 +63,6 @@ function pageKey(siteSlug, pageSlug) {
   return `${siteSlug ?? ""}\u0000${pageSlug ?? ""}`;
 }
 
-/**
- * Classify one file row found on a mirror page.
- *
- * `sourceInventoryIndex` (built by `buildSourceInventoryIndex`) carries
- * the evidenced source attachment names. Seeder origin alone never yields
- * `FIXTURE`: a seed match on a page without inventory coverage, or with
- * the name present in the inventory, stays out of the repair manifest.
- *
- * Verdicts:
- * - `OUT_OF_SCOPE`: the page is not imported; native seeding rules apply.
- * - `ALREADY_TOMBSTONED`: the row is already deleted; nothing to do.
- * - `IMPORTED`: a source row; owned by the import inventory, not repair.
- * - `FIXTURE`: a seeder-planted local row absent from the covered source
- *   page inventory; the repair candidate.
- * - `SEED_SOURCE_MATCH`: a seeder-planted row whose name matches the
- *   source page inventory; a genuine attachment, never repair.
- * - `MIRROR_IMPORT`: genuine bulk-import inventory; never tombstone. Checked
- *   before seed matching, so a seeded name carrying this provenance stays
- *   out of repair too.
- * - `UNCLASSIFIED_LOCAL`: local-origin needing human review, including any
- *   seed match whose inventory evidence is missing; never enters the
- *   repair manifest.
- */
 export function classifyMirrorFileRow(row, seedIndex, sourceInventoryIndex = null) {
   if (!row?.page_from_wikidot) {
     return {verdict: "OUT_OF_SCOPE", reason: "page is not imported"};
@@ -136,8 +73,6 @@ export function classifyMirrorFileRow(row, seedIndex, sourceInventoryIndex = nul
   if (row.file_from_wikidot) {
     return {verdict: "IMPORTED", reason: "imported source row"};
   }
-  // Checked before seed matching: genuine bulk-import provenance is never
-  // a repair candidate, even when the seeder also plants the same name.
   if (MIRROR_IMPORT_COMMENT_PATTERN.test(row.comments ?? "")) {
     return {
       verdict: "MIRROR_IMPORT",
@@ -148,10 +83,6 @@ export function classifyMirrorFileRow(row, seedIndex, sourceInventoryIndex = nul
     seedKey(row.site_slug, row.page_slug, row.name),
   );
   if (seed) {
-    // Seeder origin alone never proves leakage: the seeder plants real
-    // source attachments too (21-row misclassification, #2095). A seed
-    // match is a repair candidate only with positive evidence that the
-    // name is absent from the source page inventory.
     const inventory = sourceInventoryIndex ?? emptySourceInventoryIndex();
     if (!inventory.hasPage(row.site_slug, row.page_slug)) {
       return {
@@ -182,15 +113,6 @@ export function classifyMirrorFileRow(row, seedIndex, sourceInventoryIndex = nul
   };
 }
 
-/**
- * Build the DRY-RUN tombstone manifest from classified rows. Only
- * `FIXTURE` rows enter; every other verdict is excluded by construction.
- *
- * Repair path note: `ImportService::delete_file` refuses local-origin
- * rows by design, so fixture rows leave through the ordinary file-delete
- * path (`DeleteFile { site_id, page_id, file name, last_revision_id, ... }`)
- * run by an authorized actor. Each entry carries the exact parameters.
- */
 export function buildFixtureTombstoneManifest(classifiedRows) {
   const entries = [];
   for (const {row, classification} of classifiedRows ?? []) {

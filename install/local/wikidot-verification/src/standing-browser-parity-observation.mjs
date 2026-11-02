@@ -72,10 +72,6 @@ export async function captureDocumentObservation(
     contract?.first_paint_custom_properties ?? {},
   ).sort();
   const firstDivergenceTrace = contract?.first_divergence_trace ?? null;
-  // Synthetic callers may intentionally use a smaller contract.  The
-  // standing canary contract carries PAGE_CHROME_SKELETON explicitly; do not
-  // silently add it to every ad-hoc observation and turn an unrelated
-  // contract into a page-chrome assertion.
   const skeleton =
     contract?.capture_page_chrome_skeleton ??
     contract?.page_chrome_skeleton ??
@@ -492,10 +488,6 @@ export async function waitForBrowserParitySettledResources(page, timeoutMs) {
     });
   } catch (error) {
     if (error?.name !== "TimeoutError") throw error;
-    // Free Wikidot themes keep third-party frames and resources pending.  A
-    // browser-visible oracle still needs its bounded settled DOM and receipt;
-    // record the load boundary instead of silently returning an incomplete
-    // capture or waiting without a deadline.
     loadStatus = "bounded_domcontentloaded";
   }
   if (loadStatus === "bounded_domcontentloaded") {
@@ -667,24 +659,6 @@ export function isExpectedExternalAssetFailure(event) {
   } catch { return false; }
 }
 
-/**
- * @param {{
- *   context: import("@playwright/test").BrowserContext
- *   page?: import("@playwright/test").Page | null
- *   url: string
- *   label: string
- *   index: number
- *   outputDir: string
- *   contract: Record<string, any> | null
- *   viewport: { width: number; height: number }
- *   timeoutMs: number
- *   settleMs: number
- *   requestGateAttribution?: { classifyRequestFailure: (request: import("@playwright/test").Request) => Record<string, any> | null } | null
- *   onPhase?: ((phase: string) => void | Promise<void>) | null
- *   navigate?: ((input: { page: import("@playwright/test").Page; url: string; timeoutMs: number }) => Promise<{ status?: number } | null>) | null
- *   resetSuppliedPage?: boolean
- * }} input
- */
 export async function captureBrowserParityObservation({
   context,
   page: suppliedPage = null,
@@ -782,9 +756,6 @@ export async function captureBrowserParityObservation({
       ? await page.goto(url, { waitUntil: "domcontentloaded", timeout: timeoutMs })
       : await navigate({ page, url, timeoutMs });
     navigationStatus = typeof navigation?.status === "function" ? navigation.status() : navigation?.status ?? 0;
-    // This is a deterministic immediate DOMContentLoaded observation, not a
-    // compositor-filmstrip sample. Keep document and screenshot collection
-    // sequential so the receipt records one unambiguous observation order.
     firstDocument = await captureDocumentObservation(page, {
       contract,
       phase: "domcontentloaded_immediate_observation",
@@ -793,8 +764,6 @@ export async function captureBrowserParityObservation({
     await capturePng(page, firstPath);
     await onPhase?.("settled");
     if (settleMs > 0) await page.waitForTimeout(settleMs);
-    // Visit every viewport before waiting so lazy images can enter the
-    // browser-visible settled state without an expensive full-page capture.
     await prewarmBrowserParityLazyImages(page);
     const resourceCompletion = await waitForBrowserParitySettledResources(page, timeoutMs);
     const layoutStability = await waitForBrowserParityLayoutStable(page, {

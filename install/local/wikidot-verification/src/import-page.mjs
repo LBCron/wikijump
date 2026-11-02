@@ -1,6 +1,3 @@
-// Pure helpers for the single-page on-demand import runner
-// (scripts/import-page.mjs). Kept side-effect free so the ordering,
-// classification, and batching rules stay unit-testable without a runtime.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -47,10 +44,6 @@ export async function rpcCall(rpcUrl, method, params, fetchImpl = fetch, rpcToke
 
 export const CORPUS_PAGE_REQUIRED_FILES = ['source.wikidot.txt', 'meta.json', 'entity_id.txt'];
 
-// Corpus presence check for one page directory. Returns
-// { status: 'ok' } or { status: 'missing' } (no directory) or
-// { status: 'incomplete', missing_files: [...] } (directory without the
-// files the manifest builder requires).
 export function corpusPageStatus(corpusRoot, branch, fullname) {
   const pageDir = path.join(corpusRoot, branch, 'pages', fullname);
   if (!fs.existsSync(pageDir)) return { status: 'missing' };
@@ -61,17 +54,11 @@ export function corpusPageStatus(corpusRoot, branch, fullname) {
   return { status: 'ok' };
 }
 
-// Closure reports label dependencies as `${prefix}:${slug}` where the prefix
-// is an inventory fixture family ("EN") or a site ("scp-wiki"); the slug
-// itself may contain colons ("component:license-box").
 export function slugFromDependencyLabel(label) {
   const separator = label.indexOf(':');
   return separator === -1 ? label : label.slice(separator + 1);
 }
 
-// Flatten dependency-closure reports into an ordered, deduplicated import
-// plan: dependencies first (in each report's import_order), requested pages
-// last. Out-of-bundle dependencies are surfaced, never imported.
 export function planImportSet({ requestedSlugs, closureReports = [] }) {
   const requested = new Set(requestedSlugs);
   const dependencySlugs = [];
@@ -98,8 +85,6 @@ export function planImportSet({ requestedSlugs, closureReports = [] }) {
   };
 }
 
-// Deepwell login tokens expire after roughly five minutes, so apply runs are
-// batched with a fresh login per batch (same pattern as the P2 pilot).
 export function batchSlugs(slugs, batchSize) {
   if (!Number.isInteger(batchSize) || batchSize < 1) {
     throw new Error('batch size must be a positive integer');
@@ -145,8 +130,6 @@ export function buildApplyInvocation({
   };
 }
 
-// Merge the per-batch apply summaries (each the `summary` object printed by
-// apply-corpus-import-manifest.mjs) into one additive summary.
 export function mergeApplySummaries(summaries) {
   const merged = {};
   for (const summary of summaries) {
@@ -158,9 +141,6 @@ export function mergeApplySummaries(summaries) {
   return merged;
 }
 
-// Parse the stdout of one apply run: single-line JSON per-row action records,
-// followed by a pretty-printed {"summary": {...}} object (or a pretty-printed
-// {"dry_run": ...} object when --dry-run is used).
 export function parseApplyOutput(stdout, { requireTerminal = true } = {}) {
   const rows = [];
   let summary = null;
@@ -185,7 +165,6 @@ export function parseApplyOutput(stdout, { requireTerminal = true } = {}) {
         if (!recordTerminal(parsed)) throw new Error('apply output contains an unexpected multiline JSON object');
       } catch (error) {
         if (!(error instanceof SyntaxError)) throw error;
-        // Block is still incomplete; keep accumulating lines.
       }
       continue;
     }
@@ -198,7 +177,6 @@ export function parseApplyOutput(stdout, { requireTerminal = true } = {}) {
       }
     } catch (error) {
       if (!(error instanceof SyntaxError)) throw error;
-      // Start of a pretty-printed multi-line object.
       block = [line];
     }
   }

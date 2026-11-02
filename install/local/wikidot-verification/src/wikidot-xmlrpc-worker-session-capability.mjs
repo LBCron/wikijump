@@ -84,11 +84,6 @@ function assertWorkerChild(child) {
   }
 }
 
-/**
- * Snapshots the only authority the session receives over a worker. The
- * signalProcessGroup callback must address the worker's entire process group,
- * including descendants still alive after its leader has exited.
- */
 export function openWikidotXmlrpcWorkerExecutionCapability(value) {
   if (
     value === null ||

@@ -269,7 +269,6 @@ export async function installTimingObserver(page) {
           performance.mark(`wikijump:${name}`);
         } catch (error) {
           void error;
-          // Non-fatal diagnostic marker failure.
         }
       }
     }

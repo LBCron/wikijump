@@ -243,14 +243,6 @@ export async function installCandidateFilePortRoute(
     ) {
 
       if (sourcePath.startsWith("/local--files/")) {
-        // Wikidot-rendered page-owned file URLs first hit
-        // <site>.wikidot.com/local--files/... and then the corresponding
-        // wdfiles authority. The local candidate mirror collapses those public
-        // stages into one exempt wjfiles request. Record the two source-side
-        // admissions without waiting on the external throttle/Retry-After state
-        // before exposing a mirror hit to Chromium. If the mirror falls back to
-        // a public redirect, only synthesize the first stage; the actual
-        // redirected public request consumes the second admission normally.
         sourceRequestGate.recordSyntheticPublicAdmission(
           returnsGatedPublicRedirect ? 1 : 2,
         );
@@ -258,10 +250,6 @@ export async function installCandidateFilePortRoute(
         sourcePath.startsWith("/local--code/") &&
         !returnsGatedPublicRedirect
       ) {
-        // Authored/generated local-code URLs are direct wdfiles requests on
-        // Wikidot. A successful local mirror therefore records one synthetic
-        // public admission without delaying the local request. A fallback
-        // public redirect is already gated normally as an actual network request.
         sourceRequestGate.recordSyntheticPublicAdmission();
       }
     }
@@ -310,11 +298,6 @@ export async function installCandidateFilePortRoute(
         : {response},
     );
   };
-  // Framerail can emit either Wikidot's canonical no-port file authority or
-  // the candidate's already-localized sealed-port authority. Both represent
-  // the same source-owned file request and must pass through the timing shim;
-  // otherwise already-localized assets bypass the source request gate and can
-  // complete before Wikidot's DOMContentLoaded-immediate observation.
   await context.route(`${canonicalFilesOrigin}/**`, fileRouteHandler);
   if (files.origin !== canonicalFilesOrigin) {
     await context.route(`${files.origin}/**`, fileRouteHandler);

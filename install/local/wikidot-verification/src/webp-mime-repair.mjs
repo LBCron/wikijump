@@ -1,13 +1,3 @@
-/**
- * DRY-RUN repair list for WebP rows stored as `application/octet-stream`.
- * Refs #2067.
- *
- * Pure logic: parse a row dump, build a manifest carrying counts and the
- * sha256 of the canonical row list, and gate the apply step behind an
- * explicit approval token. Nothing here touches a database; the CLI
- * performs only the documented SELECT, and UPDATEs run solely through an
- * injected runner after approval.
- */
 
 import { createHash } from "node:crypto";
 
@@ -31,10 +21,6 @@ function fail(message) {
   throw new Error(message);
 }
 
-/**
- * Parse the TSV row dump. Throws loudly on any malformed line so a
- * truncated dump can never silently shrink the repair list.
- */
 export function parseRowList(text) {
   const rows = [];
   for (const line of String(text ?? "").split("\n")) {
@@ -62,7 +48,6 @@ export function parseRowList(text) {
   return rows;
 }
 
-/** Canonical bytes hashed for the manifest: sorted JSON, no whitespace variance. */
 export function canonicalRowList(rows) {
   return JSON.stringify(
     rows.map((row) => [
@@ -110,11 +95,6 @@ export function buildRepairManifest(rows, { generatedAt = new Date().toISOString
   };
 }
 
-/**
- * Guarded backfill statements, one per row. Each UPDATE re-asserts the
- * affected MIME so a row already repaired (or changed) is never touched.
- * Returned, never executed, until approval passes through `decideApply`.
- */
 export function applyStatements(manifest) {
   return (manifest?.entries ?? []).map(
     (entry) =>
@@ -122,13 +102,6 @@ export function applyStatements(manifest) {
   );
 }
 
-/**
- * The apply gate. Refuses unless the caller passes --apply AND an
- * approval token equal to this manifest's sha256 (plus the operator
- * environment confirmation checked by the CLI). Returns the statements
- * on approval; throws otherwise. `runner` executes statements and is
- * injected so tests never need a database.
- */
 export async function decideApply(manifest, { apply = false, approvalSha256 = null } = {}, runner = null) {
   if (!apply) {
     fail("refusing: DRY-RUN only (pass --apply with a matching --approval-sha256 to proceed)");

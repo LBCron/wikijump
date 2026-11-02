@@ -1,10 +1,6 @@
 export const LISTPAGES_ACCEPTANCE_DEPENDENCY_SURFACE_SCHEMA =
   "wikijump_listpages_compat.acceptance_dependency_surface.v1";
 
-// These are the Wikijump source surfaces whose behavior can change an
-// executable ListPages preview. Verification-only changes do not require a
-// second full replay when the sealed runtime and fixture identities remain
-// unchanged.
 export const LISTPAGES_ACCEPTANCE_RENDER_SOURCE_PATHS = Object.freeze([
   "deepwell/src/services/page_query/",
   "deepwell/src/services/render/",

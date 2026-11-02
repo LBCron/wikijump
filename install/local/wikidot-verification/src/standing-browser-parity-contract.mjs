@@ -97,9 +97,6 @@ function requestGateAbortKey(abort) {
 const REQUEST_GATE_ABORT_DECISIONS = new Set([
   "unsupported_protocol",
   "unsupported_public_origin_resource_type",
-  // A cache-only replay request for a Wikidot avatar image whose response
-  // the retained evidence does not hold (see UnretainedAvatarResponseError
-  // in browser-request-gate.mjs).
   "unretained_avatar_image",
 ]);
 
@@ -780,13 +777,6 @@ export function compareCaptures(
   const classifiedRequestGateAborts = (
     local.request_gate_aborts ?? []
   ).map((abort) => {
-    // An unretained_avatar_image abort certifies that the retained evidence
-    // holds no response for the avatar (see UnretainedAvatarResponseError in
-    // browser-request-gate.mjs). The avatar URL is volatile (a per-render
-    // timestamp under separator spellings that differ per HTML-escaping
-    // layer), so no exact abort key can ever match the reference side; the
-    // abort records an evidence gap, not a rendering difference, and the
-    // rendered page is still judged through the image and DOM channels.
     const classification =
       liveGateAbortKeys.has(requestGateAbortKey(abort)) ||
       (abort.decision === "unretained_avatar_image" &&

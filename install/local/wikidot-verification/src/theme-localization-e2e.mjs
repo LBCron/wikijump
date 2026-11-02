@@ -358,8 +358,6 @@ export function validateTargetOrigin(value, target, siteSlug = DEFAULT_SITE_SLUG
     throw new Error(`${target} origin is not a valid URL`);
   }
   const wikidotProtocol = "https:";
-  // Wikijump targets are standing (`<site>.wikijump.localhost` on 443) or the
-  // local development stack (`<site>.wikijump.dev.localhost` on 18443).
   const allowed = target === "wikidot"
     ? [{protocol: wikidotProtocol, hostname: `${validatedSite}.wikidot.com`, port: ""}]
     : [

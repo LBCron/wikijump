@@ -372,7 +372,6 @@ function assertStore(store) {
   }
 }
 
-// Canonicalizes a declared regular-file application-dependency capsule image. Every entry is an ordinary file; a future collector/materializer must reject source symlinks or copy a verified referent as a regular file before it produces this manifest. The declaration is not proof of a complete system runtime; the private capsule must enforce the wider execution boundary before spawning.
 export function buildWikidotXmlrpcInstalledEnvironmentManifest(options) {
   const input = validateExactDataRecord(
     options,

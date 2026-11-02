@@ -1,29 +1,8 @@
-// Guards the Wikidot layout against Wikijump's own `wj-` identifiers.
-//
-// Wikidot names its DOM `collapsible-block`, `footnotes-footer`, `toc0`. The
-// Wikijump fork renamed much of that to a `wj-` prefix. For imported content
-// none of those renamed identifiers may reach a browser: imported themes and
-// components select on Wikidot's names, so a leaked `wj-` class is both a DOM
-// difference and an unstyled element.
-//
-// Two mechanisms keep it out today. FTML branches on `Layout::Wikidot` and
-// emits the native name, and Deepwell's restore pass rewrites what survives.
-// Neither is total by construction, and the existing coverage is a hand-written
-// negative assertion per construct, which only guards constructs somebody
-// remembered. This renders a battery through the real runtime and fails on any
-// `wj-` identifier, so a new construct cannot quietly ship a leak.
 
 export const REPORT_SCHEMA = "wikijump_compat.wikijump_identifier_leak.report.v1";
 
-// `wj-thing` as a class or tag, and `data-wj-thing` as an attribute. Both are
-// Wikijump-internal names; Wikidot emits neither.
-// The lookbehind stops `swj-thing` or `custom-wj-x` from matching: only a name
-// that genuinely starts with the prefix is a Wikijump identifier.
 const IDENTIFIER_PATTERN = /(?<![\w-])(?:data-)?wj-[a-z0-9]+(?:-[a-z0-9]+)*/gu;
 
-// One entry per FTML construct that renders differently under `Layout::Wikidot`,
-// plus the Wikijump-only blocks that must stay literal instead of rendering.
-// Every case must be renderable without site state so the battery stays cheap.
 export const CONSTRUCT_BATTERY = Object.freeze([
   {id: "footnote", wikitext: "text[[footnote]]note[[/footnote]]\n[[footnoteblock]]"},
   {id: "footnote-missing-cite", wikitext: "[[bibcite nosuchreference]]"},
@@ -105,8 +84,6 @@ export function evaluateRenderedBattery(rendered) {
     leaked_case_count: leaked.length,
     render_error_count: errored.length,
     identifiers: [...new Set(leaked.flatMap((entry) => entry.identifiers))].sort(),
-    // A render error hides whatever that construct would have emitted, so it
-    // cannot count as a pass.
     status: leaked.length === 0 && errored.length === 0 ? "clean" : "leaked",
   };
 }

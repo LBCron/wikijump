@@ -276,7 +276,6 @@ async function responseObservation(response) {
       status = action.status;
     }
   } catch {
-    // Non-action responses (for example the CSRF boundary) use HTTP status.
   }
   return {
     status,

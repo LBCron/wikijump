@@ -161,9 +161,6 @@ async function command(executable, args) {
   const { stdout } = await execFileAsync(executable, args, {
     encoding: "utf8",
     timeout: 30_000,
-    // The synchronized fixture snapshot is intentionally complete.  Its
-    // canonical row serialization can exceed the default 16 MiB child-process
-    // buffer even though the authority record stores only the resulting hash.
     maxBuffer: 256 * 1024 * 1024,
   });
   return stdout.trim();

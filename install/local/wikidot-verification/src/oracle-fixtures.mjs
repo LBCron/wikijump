@@ -1,16 +1,6 @@
-// V4 oracle-fixture comparison for the local Wikidot rendering lab.
-//
-// Wikidot Oracle entries (wikidot-oracle/en-context-free-20260704) carry a
-// wikitext snippet plus its live-Wikidot rendered form: raw_extracted_html
-// and a dom_signature {tags, classes, attrs, id_count, comment_count}. V4
-// renders the same snippet through the local runtime and compares DOM
-// signatures. The oracle side is frozen live evidence — never regenerate it
-// from local output.
 
 export const ORACLE_FIXTURE_SCHEMA = 'wikijump_local_lab.oracle_fixture.v1';
 
-// Minimal HTML tokenizer sufficient for signature counting. Not a full
-// parser: oracle fragments are small, well-formed renderer output.
 export function domSignature(html) {
   const tags = {};
   const classes = {};
@@ -20,8 +10,6 @@ export function domSignature(html) {
 
   const commentPattern = /<!--[\s\S]*?-->/g;
   commentCount = (html.match(commentPattern) ?? []).length;
-  // Strip comments to a fixed point so removal cannot splice a new
-  // comment delimiter together out of the surrounding text.
   let stripped = html;
   for (;;) {
     const next = stripped.replace(commentPattern, '');
@@ -75,14 +63,6 @@ export function compareSignatures(expected, actual) {
   ];
 }
 
-// Declared fixture-harness normalization (logged per result):
-// - `boundary_br`: the oracle capture extracted the fragment from between
-//   sentinel lines on a live page, leaving leading/trailing `<br/>`s that are
-//   sentinel-separation artifacts, not part of the construct under test.
-// - `paragraph_unwrap`: rendering the snippet as a standalone page wraps it
-//   in a single top-level `<p>` that the in-context live fragment lacks.
-// Both trims apply to fragment boundaries only; interior structure is never
-// touched.
 export function trimBoundary(html) {
   let result = html.trim();
   const leading = /^(?:<br\s*\/?>\s*)+/i;
@@ -93,13 +73,6 @@ export function trimBoundary(html) {
   return result;
 }
 
-/**
- * Compare an oracle entry against locally rendered HTML for the same snippet.
- *
- * The stored dom_signature is first re-derived from the entry's
- * raw_extracted_html as a tokenizer integrity check; comparison then runs on
- * boundary-trimmed fragments of both sides.
- */
 export function compareOracleEntry(entry, localHtml) {
   const expected = entry.rendered?.dom_signature;
   const rawHtml = entry.rendered?.raw_extracted_html;

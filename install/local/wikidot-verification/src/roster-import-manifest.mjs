@@ -1,29 +1,3 @@
-/**
- * Roster import manifests (offline half of #2205 voters, #2172 watchers,
- * #2073 members).
- *
- * This module turns captured wikidot.py outputs into deterministic import
- * manifests with provenance. It performs no live fetches: its input is a
- * capture envelope whose user objects mirror the shapes documented in the
- * wikidot.py `llms.txt` reference (AbstractUser id/name/unix_name/
- * avatar_url, PageVote user+value, SiteMember user+joined_at, and the
- * site moderators/admins lists). Watcher rosters are lists of the same
- * user objects. Anything the documented shapes do not cover is passed
- * through verbatim and tagged, never synthesized or dropped silently.
- *
- * Determinism contract (verify mode re-checks all of it):
- * - rows are sorted by (page, user key) or user key with code-point order;
- * - the manifest hash is the sha256 of the canonical (stable-stringified)
- *   manifest body, so byte-identical inputs always yield byte-identical
- *   manifests;
- * - duplicate (page, user) vote rows with the same value collapse to one
- *   row; conflicting values fail closed instead of picking a winner;
- * - member roles are the union across the members/moderators/admins
- *   lists in canonical order with the earliest joined_at kept;
- * - datetimes are stored in canonical UTC spelling so identical instants
- *   hash identically regardless of source spelling;
- * - the verifier fails closed on malformed rows (problems, never throws).
- */
 
 import { codePointCompare, sha256Hex, stableStringify } from "./canonical-json.mjs";
 
@@ -69,8 +43,6 @@ function assertOptionalIsoDateTime(value, what) {
   if (typeof value !== "string" || Number.isNaN(Date.parse(value))) {
     fail(`expected an ISO-8601 datetime or null for ${what}`);
   }
-  // Canonical UTC spelling: identical instants written differently must
-  // yield identical rows, or identical rosters hash differently.
   return new Date(value).toISOString();
 }
 
@@ -81,7 +53,6 @@ function assertIsoDateTime(value, what) {
   return new Date(value).toISOString();
 }
 
-/** Canonical member-role order: the build emits roles in this order, and verify asserts it. */
 const CANONICAL_ROLE_ORDER = ["member", "moderator", "admin"];
 
 function assertCanonicalRoles(value, what) {
@@ -100,12 +71,6 @@ function assertCanonicalRoles(value, what) {
   return value;
 }
 
-/**
- * Canonical user reference. `kind` tags the documented wikidot.py user
- * taxonomy (regular/deleted/anonymous/guest/wikidot) and passes through
- * untouched: deleted and anonymous roster entries are real roster state,
- * not synthesizable identities.
- */
 export function normalizeCaptureUser(raw, what) {
   const user = assertRecord(raw, what);
   const id = assertOptionalInteger(user.id, `${what}.id`);
@@ -132,10 +97,6 @@ export function normalizeCaptureUser(raw, what) {
   return normalized;
 }
 
-/**
- * Preferred identity key: numeric id, then unix name, then display name,
- * then anonymous IP (the documented AnonymousUser key).
- */
 export function captureUserKey(user) {
   if (user.id !== undefined && user.id !== null) return `id:${user.id}`;
   if (user.unix_name !== undefined && user.unix_name !== null) return `unix:${user.unix_name}`;
@@ -253,13 +214,6 @@ function manifestBody({ kind, source, provenance, rows }) {
   return { schema: ROSTER_MANIFEST_SCHEMA, kind, source, provenance, rows, row_count: rows.length };
 }
 
-/**
- * Build a deterministic roster import manifest from a capture envelope.
- * The envelope carries provenance (`capture_id`, `captured_at`,
- * `collector`); the manifest binds the canonical capture bytes with
- * `capture_sha256` so a manifest can only verify against the exact
- * capture that produced it.
- */
 export function buildRosterManifest(capture) {
   const input = assertRecord(capture, "capture");
   const kind = input.kind;
@@ -284,11 +238,6 @@ export function buildRosterManifest(capture) {
   return { ...body, manifest_sha256: sha256Hex(stableStringify(body)) };
 }
 
-/**
- * Verify a manifest: schema and kind, canonical row order, row count, the
- * manifest hash, and — when the capture is supplied — byte-identical
- * reproducibility from that capture.
- */
 export function verifyRosterManifest(manifest, capture = null) {
   const problems = [];
   const check = (ok, message) => {
@@ -305,8 +254,6 @@ export function verifyRosterManifest(manifest, capture = null) {
   check(Array.isArray(manifest.rows), "rows is not an array");
   check(manifest.row_count === (Array.isArray(manifest.rows) ? manifest.rows.length : -1), "row_count mismatch");
   if (Array.isArray(manifest.rows)) {
-    // A validator must fail closed on hostile input, never throw: validate
-    // every row shape before the comparators touch them.
     for (const row of manifest.rows) {
       try {
         assertRecord(row, "row");

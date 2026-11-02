@@ -13,10 +13,6 @@ const SITE_HOST = "scpaiueouiuiuiui.wikijump.localhost";
 const FIXTURE_ID = "Q748_TOPBAR_SUBMISSION";
 const SAVED_PAGE_SLUG = "search:site";
 
-// Live authority for the top-bar form DOM is the frozen raw page capture in
-// the ListPages live fixture set (case lp-live-parent-selectors). The fixture
-// file is sealed whole; the structural form values below are asserted to
-// exist inside that live capture before the case set loads.
 const FORM_FIXTURE_PATH = "install/local/wikidot-verification/artifacts/listpages-campaign-live-fixtures.json";
 const FORM_FIXTURE_URL = new URL("../artifacts/listpages-campaign-live-fixtures.json", import.meta.url);
 const FORM_FIXTURE_BYTES = readFileSync(FORM_FIXTURE_URL);
@@ -33,8 +29,6 @@ const LIVE_FORM_CONTRACT = Object.freeze({
   submit_value: "Search",
 });
 
-// Live authority for the submission result boundary is the frozen Search
-// module unavailable output on the search:site route.
 const RESULT_EVIDENCE_PATH = "install/local/wikidot-verification/artifacts/search-feed-live-preview-20260809.json";
 const RESULT_EVIDENCE_URL = new URL("../artifacts/search-feed-live-preview-20260809.json", import.meta.url);
 const RESULT_EVIDENCE_BYTES = readFileSync(RESULT_EVIDENCE_URL);
@@ -50,10 +44,6 @@ const QUERIES = Object.freeze([
   Object.freeze({ query: "  a/b? c  ", encoded_path: "%20%20a%2Fb%3F%20c%20%20" }),
 ]);
 
-// The exact anonymous live submit-event capture (event count, redirect
-// chain, empty and Unicode query behavior) has not been produced yet, so the
-// browser cases verify the candidate against the sealed form DOM and the
-// sealed result boundary without claiming live submission evidence.
 const UNSELALED_LIVE_VALUES = Object.freeze([
   "anonymous live topbar submit-event capture (event count, redirect chain, empty and Unicode queries)",
 ]);

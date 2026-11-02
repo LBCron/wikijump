@@ -1,7 +1,3 @@
-// Final-frozen receipt: the machine-checkable claim that one exact source
-// identity passed the repository's validation barrier and produced one exact
-// set of sealed images. Every field is derived from an executed check or a
-// content hash; nothing in it is an attestation.
 
 import path from "node:path";
 
@@ -85,8 +81,6 @@ function references(value, name) {
   return Object.freeze(result);
 }
 
-/** A consolidated validation receipt: the final preflight barrier run on one
- * exact clean commit, with every selected check and its result. */
 export function validateConsolidatedValidation(value, source) {
   const receipt = requirePlainObject(value, "consolidated validation");
   exactKeys(receipt, CONSOLIDATED_KEYS, "consolidated validation");

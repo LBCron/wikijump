@@ -1,11 +1,3 @@
-// A sidecar index from "everything that can change a consolidated validation
-// verdict" to the sealed receipt of an earlier PASS on exactly those inputs.
-//
-// The receipt format is strict and consumed elsewhere, so the cache never adds
-// fields to it. A hit is only taken when the indexed receipt still exists,
-// still hashes to what was recorded, still says pass, still points at a log
-// whose bytes are unchanged, and is recent enough. Anything else is a miss and
-// the validation runs in full.
 import {createHash} from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -27,7 +19,6 @@ export function passCacheKey(inputs) {
   return sha256(JSON.stringify(sortValue(inputs)));
 }
 
-/** Hash of the environment variables that steer validation, never their values in the clear. */
 export function validationEnvironmentDigest(env = process.env) {
   const names = Object.keys(env).filter((name) => /^(?:WIKIJUMP_|WIKIDOT_|PREFLIGHT_|THEME_LAB_|CARGO_|RUST)/u.test(name)).sort();
   return {names, sha256: sha256(JSON.stringify(names.map((name) => [name, env[name]])))};
@@ -35,7 +26,6 @@ export function validationEnvironmentDigest(env = process.env) {
 
 const indexPath = (store, key) => path.join(store, "pass-cache", `${key}.json`);
 
-/** Returns {receipt, receiptPath, receiptSha256} for a verified earlier PASS, else {miss: reason}. */
 export async function readCachedPass({store, key, now = Date.now(), maxAgeMs = PASS_CACHE_MAX_AGE_MS}) {
   let entry;
   try {

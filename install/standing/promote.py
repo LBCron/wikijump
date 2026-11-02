@@ -637,10 +637,11 @@ def restore_saved_page_output(
 
     Rows compiled at or after `switch_started_at` (the database clock
     captured before parking) are not restored: a post-flip in-place
-    rerender already replaced their output (and may have deleted the text
-    blocks the snapshot names), so restoring would silently regress them
-    under a generator the old build accepts. Post-rollback convergence
-    renders those pages with the old build instead."""
+    rerender already replaced their output, and the compiled-at guard
+    pairs restored HTML with its own blocks — HTML reaches its hosted
+    text blocks by (page, index) — so restoring would silently regress
+    them under a generator the old build accepts. Post-rollback
+    convergence renders those pages with the old build instead."""
     columns = ", ".join(SAVED_PAGE_OUTPUT_COLUMNS)
     assignments = ", ".join(f"{column} = saved.{column}" for column in SAVED_PAGE_OUTPUT_COLUMNS[1:])
     generator = promoted_generator.replace("'", "''")

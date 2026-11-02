@@ -35,9 +35,6 @@ pub struct SetLegacyActionTags {
 pub struct LegacyActionService;
 
 impl LegacyActionService {
-    /// Resolve a set-tags action from the locked current revision and apply it
-    /// through the ordinary page-edit module. The caller supplies only a typed
-    /// registry ordinal; tag operations and current tags stay server-owned.
     pub async fn set_tags(
         ctx: &ServiceContext<'_>,
         input: SetLegacyActionTags,
@@ -160,11 +157,6 @@ impl LegacyActionService {
                 )
             })?;
 
-        // Route, actor permission, page lock, current revision, descriptor,
-        // and the server-owned tag operation have all been resolved before
-        // this counter is touched. The bucket is keyed only by action, site,
-        // and authenticated actor; client page/revision values cannot select
-        // a separate bucket or learn target state through the throttle.
         if !ActionThrottleService::consume(
             ctx,
             LEGACY_SET_TAGS_THROTTLE,

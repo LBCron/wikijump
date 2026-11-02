@@ -44,11 +44,6 @@ use std::net::IpAddr;
 pub struct CategoryService;
 
 impl CategoryService {
-    /// Internal method to create a category.
-    ///
-    /// In addition to only returning the bare ID,
-    /// it also does not check for conflicts before
-    /// attempting to insert.
     async fn create(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -505,7 +500,6 @@ impl CategoryService {
         Ok(category)
     }
 
-    /// Gets all page categories which have non-deleted pages in them.
     pub async fn get_all_active(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -516,17 +510,6 @@ impl CategoryService {
                 ErrorType::PageCategory,
             )
         };
-
-        // Raw SQL query
-        //
-        // SELECT * FROM page_category
-        // WHERE category_id IN (
-        //     SELECT page_category_id
-        //     FROM page
-        //     WHERE site_id = ?
-        //     GROUP BY page_category_id, deleted_at
-        //     HAVING coalesce(deleted_at) IS NULL
-        // );
 
         let txn = ctx.transaction();
         let categories = PageCategory::find()

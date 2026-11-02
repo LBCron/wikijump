@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Wikidot data-form table rendering and display escaping.
-
 use super::DataFormDefinition;
 use super::scalar::{valid_wikidot_bare_url_scalar, valid_wikidot_ftp_url};
 use std::collections::BTreeMap;

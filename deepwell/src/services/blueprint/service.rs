@@ -39,15 +39,10 @@ use ref_map::OptionRefMap;
 use std::borrow::Cow;
 use unic_langid::LanguageIdentifier;
 
-// TODO: check config fields for blueprint pages starts with the page prefix
-// TODO: deny write ability for normal users for pages that start with the page prefix
-// TODO: don't set or update nav pages for pages that start with the page prefix
-
 #[derive(Debug)]
 pub struct BlueprintPageService;
 
 impl BlueprintPageService {
-    /// Gets the specified blueprint page, or the fallback if it doesn't exist.
     pub async fn get(
         ctx: &ServiceContext<'_>,
         site: &SiteModel,
@@ -73,13 +68,6 @@ impl BlueprintPageService {
             )
         };
 
-        // Extract fields based on blueprint page type.
-        //
-        // "key" refers to the translation key to read to get the default fallback.
-        // If empty, then pull a constant string (not in the localization files).
-        //
-        // Produces a list of slugs to use as a page template, the first one that
-        // exists is the one that's used.
         let config = ctx.config();
         let (slugs, translate_key) = match blueprint_type {
             BlueprintPageType::Template => {
@@ -110,7 +98,6 @@ impl BlueprintPageService {
             BlueprintPageType::Unauthorized => (vec![], "admin-unauthorized"),
         };
 
-        // Look through each option to get the blueprint page wikitext.
         let (wikitext, from_site_page) = Self::get_wikitext(
             ctx,
             &slugs,
@@ -122,13 +109,6 @@ impl BlueprintPageService {
         .await
         .or_raise(make_error)?;
 
-        // Render here with relevant page context.
-        //
-        // The "page" here is what would've been there in this case,
-        // passed in by the caller.
-        //
-        // For this reason, we are not using render_page(), as there is
-        // no "real" page ID.
         let settings = WikitextSettings::from_mode(WikitextMode::Page, layout);
         let render_output =
             RenderService::render(ctx, wikitext.clone(), &page_info, &settings)
@@ -142,11 +122,6 @@ impl BlueprintPageService {
         })
     }
 
-    /// Applies the exact category template to raw page source before rendering.
-    ///
-    /// This does not modify the stored revision source. A missing exact template
-    /// is the identity operation, including when a named category has a default
-    /// `_template` page available.
     pub(crate) async fn apply_page_template(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -187,7 +162,6 @@ impl BlueprintPageService {
         Ok(compose_template(&template, &wikitext))
     }
 
-    /// Gets the stored source for the exact template that applies to a page.
     pub(crate) async fn get_page_template(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -218,15 +192,12 @@ impl BlueprintPageService {
         page_category: Option<&'a str>,
     ) -> Vec<Cow<'a, str>> {
         match split_category(base_slug) {
-            // Has category explicitly, only use this exact slug.
             (Some(_), slug) => vec![cow!(slug)],
 
-            // See if we can add a specific category.
             (None, slug) => {
                 let mut slugs = Vec::with_capacity(2);
                 slugs.push(cow!(slug));
 
-                // If not in _default, add category-specific template to check first.
                 if let Some(ref category) = page_category {
                     slugs.insert(0, Cow::Owned(format!("{category}:{slug}")));
                 }
@@ -259,7 +230,6 @@ impl BlueprintPageService {
             )
         };
 
-        // Try all the pages listed.
         for slug in slugs {
             if let Some(text) =
                 Self::get_page_wikitext_optional(ctx, site_id, slug.as_ref())
@@ -274,7 +244,6 @@ impl BlueprintPageService {
             return Err(make_error().into());
         }
 
-        // Use fallback string from localization
         let page = &page_info.page;
         let (category, full_slug) = match &page_info.category {
             Some(category) => (str!(category), format!("{category}:{page}")),
@@ -292,7 +261,6 @@ impl BlueprintPageService {
             .translate(locales, translate_key, &args)?
             .into_owned();
 
-        // Remove control chars because this string is intended to be wikitext
         strip_fluent_control_chars(&mut wikitext);
 
         Ok((wikitext, false))

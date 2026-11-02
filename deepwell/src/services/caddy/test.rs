@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Unit testing for our generated `Caddyfile`s.
-
 use super::structs::{CaddyfileOptions, CustomDomainData, SiteData, SiteDomainData};
 use crate::config::Config;
 use crate::services::CaddyService;
@@ -124,23 +122,14 @@ const CADDYFILE_FULL_PROD: &str = test_file_path!("full_prod");
 const CADDYFILE_LONG_DOMAIN: &str = test_file_path!("long");
 const CADDYFILE_DEV_LOCALHOST: &str = test_file_path!("dev_localhost");
 
-/// Overwrite test data, for instance when updating `CaddyService`.
-///
-/// **This flag will fail the build. Disable it before committing your changes.**
 const UPDATE_TEST_FILES: bool = false;
 
-/// Simple implementation to remove trailing newlines.
-///
-/// We strip off trailing newlines since it's not something
-/// we care about, and precisely managing them in generation
-/// is a waste of time.
 fn trim_string(s: &mut String) {
     while s.ends_with('\n') {
         s.pop();
     }
 }
 
-/// Returns the body of a named Caddy snippet, including any nested blocks.
 fn snippet_body<'a>(caddyfile: &'a str, name: &str) -> &'a str {
     let marker = format!("({name}) {{");
     let marker_start = caddyfile
@@ -342,7 +331,6 @@ fn generated_caddyfiles_do_not_use_unsupported_push_directive() {
     );
 }
 
-/// Reads a `Caddyfile`, which represents the expected output of generation with certain settings.
 fn read_test_file(path: &str) -> String {
     let mut file = File::open(path).expect("Unable to open test file");
     let mut caddyfile = String::new();
@@ -353,8 +341,6 @@ fn read_test_file(path: &str) -> String {
     caddyfile
 }
 
-/// Writes a `Caddyfile`, in the event that we are updating test files.
-/// For convenience when we have updated the `Caddyfile` template in `CaddyService`.
 fn write_test_file(path: &str, caddyfile: &str) {
     let mut file = File::create(path).expect("Unable to open test file");
     file.write_all(caddyfile.as_bytes())
@@ -416,7 +402,6 @@ fn generate_caddyfiles() {
     const WWS_HOST: &str = "wws:3466";
     const DNS_WILDCARD: &str = "digitalocean token123";
 
-    // Build different configurations for various test cases
     let config_basic = build_config("wikijump.test", "wjfiles.test");
     let config_local = build_config("wikijump.localhost", "wjfiles.localhost");
     let config_long = build_config(
@@ -582,8 +567,6 @@ UNIT TEST INFO:
     );
 
     if UPDATE_TEST_FILES {
-        // We cannot allow tests to silently pass because someone is just auto-updating
-        // whatever is generated to match.
         panic!(
             "UPDATE_TEST_FILES is set to true! Disable this flag before attempting to run CI"
         );

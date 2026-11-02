@@ -18,11 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! This service runs asynchronous jobs in the background using an in-memory queue.
-//!
-//! At present we do not use a separate service which stores jobs durably. This
-//! can mean that if this DEEPWELL node fails, the queued jobs will not be run.
-
 mod service;
 mod structs;
 mod worker;

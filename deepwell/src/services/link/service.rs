@@ -44,15 +44,9 @@ use sea_orm::{
 };
 use std::collections::HashMap;
 
-/// Forms an optional `Condition` from a list of connection types.
-///
-/// This is used to allow filtering connection queries by what
-/// type(s) of connections are desired.
 macro_rules! make_contype_condition {
     ($table_name:ident, $connection_types:expr $(,)?) => {
-        // Layer 1: Option<&[ConnectionType]> -> Option<Condition>
         $connection_types.map(|connection_types| {
-            // Layer 2: &[ConnectionType] -> [&ConnectionType]
             $table_name::Column::ConnectionType.is_in(connection_types.iter().copied())
         })
     };
@@ -114,7 +108,6 @@ impl LinkService {
         })
     }
 
-    // TODO
     #[allow(dead_code)]
     pub async fn get_connections_from(
         ctx: &ServiceContext<'_>,
@@ -221,7 +214,6 @@ impl LinkService {
             )
         };
 
-        // Ensure the page doesn't actually exist
         if let Some(page) =
             PageService::get_optional(ctx, site_id, Reference::from(page_slug))
                 .await
@@ -240,7 +232,6 @@ impl LinkService {
             ));
         }
 
-        // Retrieve connections for this slot
         let connections = PageConnectionMissing::find()
             .filter(
                 Condition::all()
@@ -297,7 +288,6 @@ impl LinkService {
             )
         };
 
-        // Perform join so we don't leak data from other sites.
         let links = PageLink::find()
             .join(JoinType::InnerJoin, page_link::Relation::Page.def())
             .filter(
@@ -310,8 +300,6 @@ impl LinkService {
             .or_raise(make_error)?
             .into_iter()
             .map(
-                // Filter out unneeded fields, notably 'url'
-                // which is the same for all fields.
                 |PageLinkModel {
                      created_at,
                      updated_at,
@@ -360,13 +348,11 @@ impl LinkService {
         .or_raise(make_error)?;
         let mut external_links = HashMap::new();
 
-        // Gather external URL link stats
         for url in &backlinks.external_links {
             let entry = external_links.entry(str!(url)).or_insert(0);
             *entry += 1;
         }
 
-        // Update records
         let (result1, result2, result3) = join!(
             update_connections(ctx, page_id, &mut connection_counts.present),
             update_connections_missing(ctx, page_id, &mut connection_counts.missing),
@@ -377,8 +363,6 @@ impl LinkService {
         Ok(())
     }
 }
-
-// Update link helpers
 
 async fn update_connections(
     ctx: &ServiceContext<'_>,
@@ -398,13 +382,11 @@ async fn update_connections(
         )
     };
 
-    // Get existing connections
     let mut connection_chunks = PageConnection::find()
         .filter(page_connection::Column::FromPageId.eq(from_page_id))
         .order_by_asc(page_connection::Column::CreatedAt)
         .paginate(txn, 100);
 
-    // Update and delete connections
     while let Some(connections) = connection_chunks
         .fetch_and_next()
         .await
@@ -415,10 +397,8 @@ async fn update_connections(
             let connection_type = connection.connection_type;
 
             match counts.remove(&(to_page_id, connection_type)) {
-                // Connection exists, count is the same. Do nothing.
                 Some(count) if connection.count == count => (),
 
-                // Connection exists, update count.
                 Some(count) => {
                     let mut model: page_connection::ActiveModel = connection.into();
                     model.count = Set(count);
@@ -426,7 +406,6 @@ async fn update_connections(
                     model.update(txn).await.or_raise(make_error)?;
                 }
 
-                // Connection existed, but has no further counts. Remove it.
                 None => {
                     let model: page_connection::ActiveModel = connection.into();
                     model.delete(txn).await.or_raise(make_error)?;
@@ -435,7 +414,6 @@ async fn update_connections(
         }
     }
 
-    // Insert new connections
     let updated_at = Some(now());
     let to_insert = counts
         .iter()
@@ -491,13 +469,11 @@ async fn update_connections_missing(
         )
     };
 
-    // Get existing connections
     let mut connection_chunks = PageConnectionMissing::find()
         .filter(page_connection_missing::Column::FromPageId.eq(from_page_id))
         .order_by_asc(page_connection_missing::Column::CreatedAt)
         .paginate(txn, 100);
 
-    // Update and delete connections
     while let Some(connections) = connection_chunks
         .fetch_and_next()
         .await
@@ -509,10 +485,8 @@ async fn update_connections_missing(
             let connection_type = connection.connection_type;
 
             match counts.remove(&(to_site_id, to_page_slug.clone(), connection_type)) {
-                // Connection exists, count is the same. Do nothing.
                 Some(count) if connection.count == count => (),
 
-                // Connection exists, update count.
                 Some(count) => {
                     let mut model: page_connection_missing::ActiveModel =
                         connection.into();
@@ -521,7 +495,6 @@ async fn update_connections_missing(
                     model.update(txn).await.or_raise(make_error)?;
                 }
 
-                // Connection existed, but has no further counts. Remove it.
                 None => {
                     let model: page_connection_missing::ActiveModel = connection.into();
                     model.delete(txn).await.or_raise(make_error)?;
@@ -530,7 +503,6 @@ async fn update_connections_missing(
         }
     }
 
-    // Insert new connections
     let updated_at = Some(now());
     let to_insert = counts
         .iter()
@@ -589,20 +561,16 @@ async fn update_external_links(
         )
     };
 
-    // Get existing links
     let mut link_chunks = PageLink::find()
         .filter(page_link::Column::PageId.eq(from_page_id))
         .order_by_asc(page_link::Column::CreatedAt)
         .paginate(txn, 100);
 
-    // Update and delete connections
     while let Some(links) = link_chunks.fetch_and_next().await.or_raise(make_error)? {
         for link in links {
             match counts.remove(&link.url) {
-                // Link exists, count is the same. Do nothing.
                 Some(count) if link.count == count => (),
 
-                // Link exists, update count.
                 Some(count) => {
                     let mut model: page_link::ActiveModel = link.into();
                     model.count = Set(count);
@@ -610,7 +578,6 @@ async fn update_external_links(
                     model.update(txn).await.or_raise(make_error)?;
                 }
 
-                // Link existed, but has no further counts. Remove it.
                 None => {
                     let model: page_link::ActiveModel = link.into();
                     model.delete(txn).await.or_raise(make_error)?;
@@ -619,7 +586,6 @@ async fn update_external_links(
         }
     }
 
-    // Insert new links
     let updated_at = Some(now());
     let to_insert = counts
         .iter()

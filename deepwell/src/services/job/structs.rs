@@ -37,7 +37,6 @@ pub enum Job {
 }
 
 impl Job {
-    /// Stable, payload-free name for operational logs and metrics.
     pub(crate) const fn kind(&self) -> &'static str {
         match self {
             Self::RerenderPage { .. } => "rerender_page",

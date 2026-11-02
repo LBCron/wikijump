@@ -23,7 +23,6 @@ use time::OffsetDateTime;
 
 use crate::types::{PageLockType, Reference};
 
-// TODO: Add ip_address to request context
 #[derive(Deserialize, Debug, Clone)]
 pub struct RemovePageLockInput {
     pub page: Reference<'static>,

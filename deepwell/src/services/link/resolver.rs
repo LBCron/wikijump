@@ -57,8 +57,6 @@ impl ReferenceLookup {
 #[derive(Debug, Clone, Default)]
 pub(crate) struct PageExistenceSnapshot {
     pages: HashMap<(String, String), bool>,
-    /// Latest-revision titles of the existing pages, for Wikidot's empty link
-    /// labels (`[[[target|]]]` shows the target's title).
     titles: HashMap<(String, String), String>,
 }
 
@@ -250,7 +248,6 @@ pub(super) async fn resolve_page_existence(
     ))
 }
 
-/// Non-empty latest-revision titles keyed by `(site_id, slug)`.
 async fn resolve_latest_titles(
     ctx: &ServiceContext<'_>,
     pages: &[page::Model],

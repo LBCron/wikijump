@@ -79,10 +79,6 @@ impl DraftRecipients {
             && self.blind_carbon_copy.is_empty()
     }
 
-    /// Determines if the recipient list is composed only of the given user ID.
-    ///
-    /// This accounts for duplicate entries, even across multiple types of recipients.
-    /// Returns `true` for empty recipient lists.
     pub fn only_has(&self, user_id: i64) -> bool {
         self.iter().filter(|id| *id != user_id).count() == 0
     }

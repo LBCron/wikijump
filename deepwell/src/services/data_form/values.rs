@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Wikidot stored data-form value parsing.
-
 use super::DataFormDefinition;
 use super::scalar::{
     parse_wikidot_stored_checkbox_scalar, parse_wikidot_stored_date_scalar,

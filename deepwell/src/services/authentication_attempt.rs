@@ -1,9 +1,3 @@
-/*
- * services/authentication_attempt.rs
- *
- * Persistent, shared throttles for authentication attempts.
- */
-
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::ServiceContext;
 use sea_orm::{ConnectionTrait, FromQueryResult, Statement, Value};
@@ -13,9 +7,6 @@ use sha2::{Digest, Sha256};
 pub struct AuthenticationAttemptService;
 
 impl AuthenticationAttemptService {
-    /// Reserve a slot in an atomic database-backed fixed-window bucket.
-    /// Reservations occur before expensive password/MFA verification, so
-    /// concurrent requests and multiple Deepwell workers share the same cap.
     pub async fn reserve(
         ctx: &ServiceContext<'_>,
         bucket_key: &str,
@@ -105,8 +96,6 @@ RETURNING attempts
         Ok(())
     }
 
-    /// Use a stable pseudonym rather than persisting source IP text in the key.
-    /// The bucket is still short-lived operational data, not anonymous telemetry.
     pub fn login_ip_bucket(ip_address: &str) -> String {
         format!(
             "login:ip:{}",

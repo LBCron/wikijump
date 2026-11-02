@@ -22,11 +22,6 @@ use std::borrow::Cow;
 
 const CONTENT_PLACEHOLDER: &str = "%%content%%";
 
-/// Returns the only page template that may apply to this page.
-///
-/// Wikidot applies `_template` to the default category and
-/// `{category}:_template` to a named category. Named categories do not fall
-/// back to the default template, and template pages do not apply themselves.
 pub(super) fn exact_template_slug<'a>(
     category: Option<&'a str>,
     page: &str,
@@ -42,10 +37,6 @@ pub(super) fn exact_template_slug<'a>(
     })
 }
 
-/// Places raw page source into the observed Wikidot template placeholder.
-///
-/// The oracle contract currently covers one placeholder. Replacing only its
-/// first occurrence keeps additional, unverified occurrences literal.
 pub(crate) fn compose_template(template: &str, content: &str) -> String {
     template.replacen(CONTENT_PLACEHOLDER, content, 1)
 }

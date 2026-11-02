@@ -47,8 +47,6 @@ use sea_orm::{ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter
 pub struct MessageService;
 
 impl MessageService {
-    // Message draft methods
-
     pub async fn create_draft(
         ctx: &ServiceContext<'_>,
         CreateMessageDraft {
@@ -79,10 +77,8 @@ impl MessageService {
             )
         };
 
-        // Check locale
         validate_locale(&locale).or_raise(make_error)?;
 
-        // Check foreign keys
         if let Some(record_id) = &reply_to {
             Self::check_message_access(ctx, record_id, user_id, "reply")
                 .await
@@ -95,7 +91,6 @@ impl MessageService {
                 .or_raise(make_error)?;
         }
 
-        // Insert draft into database
         let txn = ctx.transaction();
         let draft = Self::draft_process(
             ctx,
@@ -149,13 +144,10 @@ impl MessageService {
             )
         };
 
-        // Validate parameters
         validate_locale(&locale)?;
 
-        // Get current draft
         let current_draft = Self::get_draft(ctx, &draft_id).await.or_raise(make_error)?;
 
-        // Update the draft
         let txn = ctx.transaction();
         let draft = Self::draft_process(
             ctx,
@@ -182,7 +174,6 @@ impl MessageService {
         Ok(draft)
     }
 
-    /// Helper method to perform functionality common to creating and updating drafts.
     async fn draft_process(
         ctx: &ServiceContext<'_>,
         DraftProcess {
@@ -206,7 +197,6 @@ impl MessageService {
             )
         };
 
-        // Check constraints
         let recipients = DraftRecipients {
             regular: recipients,
             carbon_copy,
@@ -230,7 +220,6 @@ impl MessageService {
             }
         }
 
-        // Populate fields
         let recipients = serde_json::to_value(&recipients).or_raise(make_error)?;
 
         let config = ctx.config();
@@ -239,9 +228,7 @@ impl MessageService {
             .or_raise(make_error)?;
 
         let RenderOutput {
-            // TODO: use html_output
             html_output: _,
-            // TODO: use ftml errors
             errors: _,
             compiled_hash,
             compiled_at,
@@ -284,8 +271,6 @@ impl MessageService {
         Ok(())
     }
 
-    // Message methods
-
     pub async fn send(
         ctx: &ServiceContext<'_>,
         draft_id: &str,
@@ -299,7 +284,6 @@ impl MessageService {
             )
         };
 
-        // Gather resources
         let config = ctx.config();
         let draft = Self::get_draft(ctx, draft_id).await.or_raise(make_error)?;
         let wikitext = TextService::get(ctx, &draft.wikitext_hash)
@@ -308,10 +292,6 @@ impl MessageService {
 
         let mut recipients: DraftRecipients =
             serde_json::from_value(draft.recipients).or_raise(make_error)?;
-
-        // Message validation checks
-        //
-        // Checking things which are valid for drafts but invalid for sent messages
 
         if draft.subject.is_empty() {
             error!("Subject line cannot be empty");
@@ -399,7 +379,6 @@ impl MessageService {
 
         let mut recipients_to_add = Vec::new();
         for recipient_user_id in recipients.iter() {
-            // Ensure user is not blocked
             RelationService::check_user_block(
                 ctx,
                 draft.user_id,
@@ -409,17 +388,11 @@ impl MessageService {
             .await
             .or_raise(make_error)?;
 
-            // If recipient is a site user, then forward to corresponding site staff.
-            // It is only possible to send messages to Wikijump users.
             let user = UserService::get_real(ctx, Reference::Id(recipient_user_id))
                 .await
                 .or_raise(make_error)?;
 
             if user.user_type == UserType::Site {
-                // TODO what to do if user is banned from site? needs to be possible to block
-                //      permabanned bad actors, but also allow normal banned users to message
-                //      to appeal bans etc
-                // TODO get the listed site staff, add them to recipients
                 let _site_id =
                     RelationService::get_site_id_for_site_user(ctx, user.user_id)
                         .await
@@ -430,16 +403,8 @@ impl MessageService {
         }
         recipients.carbon_copy.append(&mut recipients_to_add);
 
-        // The message sending process:
-        // * Insert message_draft row to message_record
-        // * Delete message_draft row
-        // * Insert message_recipient rows
-        // * Insert inbox message rows for each recipient
-        // * Except, if this is a message to self
-        // * Insert outbox message row for sender
         let txn = ctx.transaction();
 
-        // Create message record
         let record_id = draft.external_id.clone();
         let sender_id = draft.user_id;
         let model = message_record::ActiveModel {
@@ -457,12 +422,10 @@ impl MessageService {
         };
         let record_model = model.insert(txn).await.or_raise(make_error)?;
 
-        // Delete message draft
         Self::delete_draft(ctx, record_id.clone())
             .await
             .or_raise(make_error)?;
 
-        // Add recipients
         let (result1, result2, result3) = join!(
             Self::add_recipients(
                 txn,
@@ -485,19 +448,13 @@ impl MessageService {
         );
         raise_multiple!(result1, result2, result3; make_error);
 
-        // Add message records
         let mut has_self = false;
         let mut added_user_ids = Vec::new();
         for user_id in recipients.iter() {
-            // Ensure user isn't added twice
-            //
-            // NOTE: Because recipient lists are generally short, well under 100,
-            //       there are no practical issues with using Vec over HashSet.
             if added_user_ids.contains(&user_id) {
                 continue;
             }
 
-            // Special handling for self-messages, skip here
             if sender_id == user_id {
                 has_self = true;
                 continue;
@@ -506,7 +463,7 @@ impl MessageService {
             let model = message::ActiveModel {
                 record_id: Set(record_id.clone()),
                 user_id: Set(user_id),
-                flag_inbox: Set(true), // uninvolved recipient just received message, inbox and nothing else
+                flag_inbox: Set(true),
                 flag_outbox: Set(false),
                 flag_self: Set(false),
                 ..Default::default()
@@ -515,26 +472,20 @@ impl MessageService {
             added_user_ids.push(user_id);
         }
 
-        // Add outbox message.
         let (flag_outbox, flag_self) = if has_self {
-            // For self-messages, we have two kinds of behavior.
-            // If it was sent *only* to oneself, then there is not outbox message.
-            // If it was sent to others in addition to oneself, then there *is* an outbox message.
             debug!("Self message, checking recipients list");
             (!recipients.only_has(sender_id), true)
         } else {
-            // For regular messages, then just mark the outbox.
             debug!("Regular message, marking outbox only");
             (true, false)
         };
 
-        // If self-message, then mark that.
         let model = message::ActiveModel {
             record_id: Set(record_id),
             user_id: Set(sender_id),
-            flag_inbox: Set(false), // messages from you are never in inbox
-            flag_outbox: Set(flag_outbox), // message you sent to others
-            flag_self: Set(flag_self), // message you sent to yourself
+            flag_inbox: Set(false),
+            flag_outbox: Set(flag_outbox),
+            flag_self: Set(flag_self),
             ..Default::default()
         };
         model.insert(txn).await.or_raise(make_error)?;
@@ -542,7 +493,7 @@ impl MessageService {
         Ok(record_model)
     }
 
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub async fn mark_read(
         ctx: &ServiceContext<'_>,
         record_id: &str,
@@ -577,8 +528,6 @@ impl MessageService {
 
         Ok(())
     }
-
-    // Getters
 
     pub async fn get_message_optional(
         ctx: &ServiceContext<'_>,
@@ -674,9 +623,6 @@ impl MessageService {
         )
     }
 
-    // Helper methods
-
-    /// Helper method to insert a group of `message_recipient` rows.
     async fn add_recipients(
         txn: &DatabaseTransaction,
         record_id: &str,
@@ -695,8 +641,6 @@ impl MessageService {
 
         let mut added_user_ids = Vec::new();
         for user_id in user_ids.iter().copied() {
-            // NOTE: Because recipient lists are generally short, well under 100,
-            //       there are no practical issues with using Vec over HashSet.
             if added_user_ids.contains(&user_id) {
                 debug!("Skipping message recipient (already added)");
                 continue;
@@ -716,23 +660,12 @@ impl MessageService {
         Ok(())
     }
 
-    /// Helper method to determine if a message can be "seen" by a user.
-    ///
-    /// This prevents you from replying to or forwarding a message you cannot
-    /// actually otherwise see if you only have its record ID.
-    ///
-    /// This method checks if a given message record was either sent by the user
-    /// in question, or if they are a recipient (in any category).
-    ///
-    /// It also checks that the message record actually exists.
     async fn check_message_access(
         ctx: &ServiceContext<'_>,
         record_id: &str,
         user_id: i64,
         purpose: &'static str,
     ) -> Result<()> {
-        // To protect privacy, if the user doesn't have access to a message with a
-        // given ID, we pretend it does not exist for the purposes of returning errors.
         let make_error = || {
             Error::new(
                 format!(
@@ -743,7 +676,6 @@ impl MessageService {
             )
         };
 
-        // Ensure the message record exists
         let record = match Self::get_record_optional(ctx, record_id)
             .await
             .or_raise(make_error)?
@@ -755,8 +687,6 @@ impl MessageService {
             }
         };
 
-        // Check that the user has access to the message.
-        // That is, the user is the sender or one of the recipients.
         if record.sender_id != user_id
             && !Self::any_recipient_exists(ctx, record_id, user_id)
                 .await
@@ -769,7 +699,6 @@ impl MessageService {
         Ok(())
     }
 
-    /// Helper method which checks if a user is a recipient of a message record.
     async fn any_recipient_exists(
         ctx: &ServiceContext<'_>,
         record_id: &str,
@@ -801,7 +730,6 @@ impl MessageService {
         Ok(model.is_some())
     }
 
-    /// Helper method to render message contents.
     async fn render(
         ctx: &ServiceContext<'_>,
         wikitext: String,
@@ -832,7 +760,6 @@ impl MessageService {
     }
 }
 
-/// Helper structure used by `draft_process()`.
 #[derive(Debug)]
 struct DraftProcess {
     is_update: bool,

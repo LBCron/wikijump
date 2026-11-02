@@ -30,7 +30,6 @@ use std::net::IpAddr;
 pub struct AuditService;
 
 impl AuditService {
-    /// Write a new event to the audit log.
     pub async fn log(
         ctx: &ServiceContext<'_>,
         ip_address: IpAddr,

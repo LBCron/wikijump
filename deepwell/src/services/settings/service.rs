@@ -266,10 +266,6 @@ impl SettingsService {
         })
     }
 
-    /// Get the effective license for a page category.
-    ///
-    /// A category override wins when present. Otherwise the `_default`
-    /// category is inherited, with the site license as the legacy fallback.
     pub async fn get_license(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -327,14 +323,6 @@ impl SettingsService {
         Ok(WikidotLicense::Standard(site.license))
     }
 
-    /// Get the layout associated with this page.
-    ///
-    /// If this page has a specific layout override,
-    /// then that is returned. Otherwise, the layout
-    /// associated with the site is used.
-    ///
-    /// If no page ID is specified, then searching
-    /// starts with site layout settings.
     pub async fn get_layout(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -402,17 +390,6 @@ impl SettingsService {
         ))
     }
 
-    /// Get the navigation pages for this page category.
-    ///
-    /// If this category has nav page overrides, then those
-    /// are returned. Otherwise, the respective navigation
-    /// pages for the site is used.
-    ///
-    /// If no category ID is specified, then searching
-    /// starts with site nav page settings.
-    ///
-    /// Note that empty strings have a special meaning,
-    /// specifying that this navigation element is not included.
     pub async fn get_nav_page_slugs(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -456,11 +433,6 @@ impl SettingsService {
         })
     }
 
-    /// Get the current page wikitexts for the current navigation pages.
-    ///
-    /// This is essentially a convenience method for `get_nav_page_slugs()`
-    /// to also fetch the page wikitext values as well. It is used in
-    /// `RenderService` to produce the compiled nav HTML columns for storage.
     pub async fn get_nav_page_wikitext(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -489,7 +461,6 @@ impl SettingsService {
             .await
             .or_raise(make_error)?;
 
-        // Helper function so we can do a clean try_join!
         async fn get_wikitext(
             ctx: &ServiceContext<'_>,
             site_id: i64,
@@ -548,11 +519,6 @@ impl SettingsService {
         })
     }
 
-    /// Get the compiled page HTML for the current navigation pages.
-    ///
-    /// This is use to get nav page contents *only for missing or invalid pages*.
-    /// Any pages which exist have their own cached `compiled_xxx_bar_html_hash`
-    /// columns which can be used instead.
     pub async fn get_nav_page_html(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -581,7 +547,6 @@ impl SettingsService {
             .await
             .or_raise(make_error)?;
 
-        // Helper function, like above
         async fn get_html(
             ctx: &ServiceContext<'_>,
             site_id: i64,
@@ -639,9 +604,6 @@ impl SettingsService {
         })
     }
 
-    /// Gets forum settings, combining site defaults and category overrides.
-    ///
-    /// Category settings (if specified) override site-level defaults.
     pub async fn get_forum_settings(
         ctx: &ServiceContext<'_>,
         site_id: i64,

@@ -55,18 +55,6 @@ impl Scorer for MeanScorer {
             count: i64,
         }
 
-        // Query for sum of all votes.
-        // Same as in sum.rs
-        //
-        // As raw SQL:
-        //
-        // SELECT SUM(value), COUNT(value)
-        // FROM page_vote
-        // WHERE page_id = $1
-        // AND deleted_at IS NULL
-        // AND disabled_at IS NULL
-        // GROUP BY value;
-
         let MeanRow { sum, count } = PageVote::find()
             .select_only()
             .column_as(page_vote::Column::Value.sum(), "sum")

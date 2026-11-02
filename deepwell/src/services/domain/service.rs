@@ -18,11 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Service for managing domains as used by Wikijump sites.
-//!
-//! This service has two components, management of canonical domains (e.g. `scp-wiki.wikijump.com`)
-//! and custom domains (e.g. `scpwiki.com`).
-
 use super::structs::CreateCustomDomain;
 use crate::config::Config;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
@@ -42,7 +37,6 @@ pub const DEFAULT_SITE_SLUG: &str = "www";
 pub struct DomainService;
 
 impl DomainService {
-    /// Creates a custom domain for a site.
     pub async fn create_custom(
         ctx: &ServiceContext<'_>,
         CreateCustomDomain {
@@ -59,8 +53,6 @@ impl DomainService {
                 ErrorType::CustomDomain,
             )
         };
-
-        // Correctness checks
 
         if Self::custom_domain_exists(ctx, &domain)
             .await
@@ -91,8 +83,6 @@ impl DomainService {
             ));
         }
 
-        // Seems good, insert data
-
         let txn = ctx.transaction();
         let model = site_domain::ActiveModel {
             domain: Set(domain),
@@ -104,9 +94,6 @@ impl DomainService {
         Ok(())
     }
 
-    /// Delete the given custom domain.
-    ///
-    /// Yields `ErrorType::CustomDomainNotFound` if it's missing.
     pub async fn remove_custom(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
         info!("Deleting custom domain '{domain}'");
 
@@ -147,7 +134,6 @@ impl DomainService {
             )
         };
 
-        // Join with the site table so we can get that data, rather than just the ID.
         let txn = ctx.transaction();
         let model = Site::find()
             .join(JoinType::Join, site::Relation::SiteDomain.def())
@@ -159,7 +145,6 @@ impl DomainService {
         Ok(model)
     }
 
-    /// Determines if the given custom domain is registered.
     #[inline]
     pub async fn custom_domain_exists(
         ctx: &ServiceContext<'_>,
@@ -172,21 +157,14 @@ impl DomainService {
 
     #[inline]
     pub fn get_canonical(config: &Config, site_slug: &str) -> String {
-        // 'main_domain' is already prefixed with .
         format!("{}{}", site_slug, config.main_domain)
     }
 
-    /// Gets the public URL authority of a site's files host.
-    ///
-    /// This is the files domain plus the configured public HTTPS port when it
-    /// is not 443, for building URLs rather than comparing hostnames.
     #[inline]
     pub fn get_files_authority(config: &Config, site_slug: &str) -> String {
-        // 'files_domain' is already prefixed with .
         config.public_authority(&format!("{}{}", site_slug, config.files_domain))
     }
 
-    /// Gets the preferred domain for the given site.
     pub fn preferred_domain<'a>(config: &'a Config, site: &'a SiteModel) -> Cow<'a, str> {
         debug!(
             "Getting preferred domain for site '{}' (ID {})",
@@ -200,11 +178,6 @@ impl DomainService {
         }
     }
 
-    /// Gets the externally reachable HTTPS origin for a site.
-    ///
-    /// Deployments behind a non-default public HTTPS port must include that
-    /// port in absolute cross-site links. The persisted preferred domain is a
-    /// hostname; the public listener port belongs to deployment configuration.
     pub fn preferred_https_origin(config: &Config, site: &SiteModel) -> String {
         Self::preferred_https_origin_for_domain(
             config,
@@ -212,34 +185,19 @@ impl DomainService {
         )
     }
 
-    /// Gets the public URL authority of a site's preferred domain.
-    ///
-    /// This is the preferred domain plus the configured public HTTPS port when
-    /// it is not 443.
     pub fn preferred_authority(config: &Config, site: &SiteModel) -> String {
         config.public_authority(&Self::preferred_domain(config, site))
     }
 
-    /// Gets the HTTPS origin for an already-resolved preferred domain.
-    ///
-    /// Runtime views that project a site row rather than loading its model can
-    /// still use the configured public listener port without duplicating URL
-    /// assembly rules.
     pub fn preferred_https_origin_for_domain(config: &Config, domain: &str) -> String {
         format!("https://{}", config.public_authority(domain))
     }
 
-    /// Return the preferred domain for the `www` site.
-    ///
-    /// This site is a special exception, instead of visiting `www.wikijump.com`
-    /// it should instead redirect to just `wikijump.com`. The use of the `www`
-    /// slug is an internal detail.
     #[inline]
     fn www_domain(config: &Config) -> Cow<'_, str> {
         Cow::Borrowed(&config.main_domain_no_dot)
     }
 
-    /// Gets all custom domains for a site.
     pub async fn list_custom(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -314,7 +272,6 @@ fn validate_domain(domain: &str) -> Result<()> {
     const PUNYCODE_PREFIX: &str = "xn--";
     const DOMAIN_MAX_BYTES: usize = 253;
 
-    // First, more user-friendly check for unicode characters
     let has_unicode = !domain.is_ascii();
     if !domain.starts_with(PUNYCODE_PREFIX) && has_unicode {
         error!(
@@ -331,13 +288,6 @@ fn validate_domain(domain: &str) -> Result<()> {
             }
         ));
     }
-
-    // Now do more specific domain validation checks
-    //
-    // * Domain cannot be an empty string
-    // * Isn't ASCII (but we aren't giving the punycode-specific error) (reusing this prior result)
-    // * Domains can only be at most 253 bytes long (excludes the trailing null byte / dot)
-    // * Domains may only be composed of the limited subset of characters allowed by DNS
 
     macro_rules! raise_error {
         ($($arg:tt)*) => {{
@@ -401,7 +351,6 @@ fn test_validate_domain() {
     test_err!("site1\n.com");
     test_err!("ascii$but^not_valid.net");
 
-    // Punycode tests
     test_err!("bücher.tld");
     test_err!("xn--bücher.tld");
     test_ok!("xn--bcher-kva.tld");

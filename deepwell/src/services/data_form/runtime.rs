@@ -10,8 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Runtime loading and permission-aware pagepath resolution for data forms.
-
 use super::{DataFormDefinition, DataFormPagepathNode};
 use crate::error::prelude::Result;
 use crate::models::page::Model as PageModel;
@@ -179,9 +177,6 @@ pub async fn load_wikidot_data_form_pagepaths(
             PageOrder::default(),
         )
         .await?;
-        // One batched, attribution-safe access decision for the whole category
-        // and one batched parent lookup replace a permission derivation and a
-        // parents query per page.
         let scanned = pages
             .iter()
             .map(|page| ViewablePageRef {

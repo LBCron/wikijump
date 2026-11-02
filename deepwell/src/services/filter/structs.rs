@@ -22,36 +22,12 @@ use crate::models::filter;
 use crate::types::Maybe;
 use sea_orm::{ColumnTrait, Condition};
 
-/// Denotes what class of filter is being selected.
-///
-/// In the database, a value of `NULL` in the `site_id` column
-/// indicates that this is a platform filter, meaning it applies
-/// for all sites. If it has a value then
-///
-/// Previously this value was stored using `Option<i64>` directly
-/// mirroring how it was stored in the database. However, this had
-/// some issues:
-///
-/// One is that it is semantically unclear, and similar to `Maybe`,
-/// we should make a cheap enum wrapper to provide semantics to what is
-/// essentially just an `Option<i64>`.
-///
-/// It also does not allow a consumer to select both all the global filters
-/// as well as the filters for a site. When checking a page edit, for
-/// instance, you want both this site's filters, as well as those which
-/// apply to all sites.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum FilterClass {
-    /// This filter applies to all sites on the platform.
     Platform,
 
-    /// This filter applies only to the site with the given ID.
     Site(i64),
 
-    /// This filter combines all platform and site filters.
-    ///
-    /// It is an optimization which allows the regular expressions
-    /// to be merged into one `RegexSet` for improved performance.
     PlatformAndSite(i64),
 }
 
@@ -65,11 +41,9 @@ impl FilterClass {
         }
     }
 
-    /// Converts this filter class into a condition which can be used for queries.
     pub fn to_condition(self) -> Condition {
         let mut condition = Condition::any();
 
-        // If we want platform filters
         if matches!(
             self,
             FilterClass::Platform | FilterClass::PlatformAndSite(_),
@@ -77,7 +51,6 @@ impl FilterClass {
             condition = condition.add(filter::Column::SiteId.is_null());
         }
 
-        // If we want site filters
         if let FilterClass::Site(site_id) | FilterClass::PlatformAndSite(site_id) = self {
             condition = condition.add(filter::Column::SiteId.eq(site_id));
         }
@@ -86,35 +59,16 @@ impl FilterClass {
     }
 }
 
-/// Denotes what kind of object this filter is checking.
-///
-/// These are stored in the `filter` tables as boolean toggles for each
-/// filter entry, but here we imagine them as a separate class or type
-/// of filter.
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
 pub enum FilterType {
-    /// Filters on user name and slug.
-    ///
-    /// * For a system filter, prevent registration of a user with this name or slug.
-    /// * For a site filter, prevent joining of a user with this name or slug.
     User,
 
-    /// Filters on user's email address.
-    ///
-    /// * For a system filter, prevent registration of a user with this email address.
-    /// * For a site filter, prevent joining of a user with this email address.
     Email,
 
-    /// Filters on pages.
-    /// Prevents a page edit from going through if it trips this filter.
     Page,
 
-    /// Filters on files.
-    /// Prevents a file upload or edit from going through if it trips this filter.
     File,
 
-    /// Filters on forum contents.
-    /// Prevents a forum post or edit from going through if it trips this filter.
     Forum,
 }
 

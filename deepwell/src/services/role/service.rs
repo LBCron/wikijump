@@ -46,7 +46,7 @@ use std::collections::HashMap;
 #[derive(Debug)]
 pub struct RoleService;
 
-#[allow(dead_code)] // Temp
+#[allow(dead_code)]
 impl RoleService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
@@ -69,14 +69,12 @@ impl RoleService {
             )
         };
 
-        // Validate parent role (if specified) exists
         if let Some(parent_id) = parent_role_id {
             Self::assert_exists(ctx, site_id, parent_id.into())
                 .await
                 .or_raise(make_error)?;
         }
 
-        // Insert role
         let now = now();
 
         let model = role::ActiveModel {
@@ -131,7 +129,6 @@ impl RoleService {
             )
         };
 
-        // Validate that the role belongs to the site
         Self::assert_exists(ctx, site_id, role_id.into())
             .await
             .or_raise(make_error)?;
@@ -142,7 +139,6 @@ impl RoleService {
             ..Default::default()
         };
 
-        // Update fields
         if let Maybe::Set(name_val) = &name {
             model.name = Set(name_val.clone());
         }
@@ -195,7 +191,6 @@ impl RoleService {
             )
         };
 
-        // Check for child roles
         let child_roles = Role::find()
             .filter(
                 Condition::all()
@@ -209,7 +204,6 @@ impl RoleService {
         if !child_roles.is_empty() {
             if reparent_children {
                 if let Some(parent_id) = role.parent_role_id {
-                    // Reparent child roles to the deleted role's parent
                     Role::update_many()
                         .col_expr(
                             role::Column::ParentRoleId,
@@ -224,8 +218,6 @@ impl RoleService {
                         .await
                         .or_raise(make_error)?;
                 } else {
-                    // Cannot reparent to null, bail with error
-                    // TODO: Figure out what to do with top-level role, if we are not having a "root" role.
                     bail!(Error::new(
                         format!(
                             "cannot delete top-level role ID {} because it has child roles and reparenting is not possible",
@@ -245,7 +237,6 @@ impl RoleService {
             }
         }
 
-        // Remove this role from all users who actively have it
         UserRole::update_many()
             .col_expr(user_role::Column::DeletedAt, Expr::value(Some(now())))
             .filter(
@@ -295,12 +286,9 @@ impl RoleService {
         let role = {
             let condition = match reference {
                 Reference::Id(id) => Condition::from(role::Column::RoleId.eq(id)),
-                Reference::Slug(slug) => {
-                    // Get role by role name
-                    Condition::all()
-                        .add(role::Column::Name.eq(slug))
-                        .add(role::Column::DeletedAt.is_null())
-                }
+                Reference::Slug(slug) => Condition::all()
+                    .add(role::Column::Name.eq(slug))
+                    .add(role::Column::DeletedAt.is_null()),
             };
 
             Role::find()
@@ -471,8 +459,6 @@ impl RoleService {
             .or_raise(make_error)?;
 
         let mut roles = match input.user_id {
-            // A site ban suppresses explicit site role grants. Virtual roles still
-            // describe the user's logged-in and banned state below.
             Some(_) if is_banned => Vec::new(),
             Some(id) => Role::find()
                 .join(JoinType::InnerJoin, role::Relation::UserRole.def())
@@ -537,9 +523,7 @@ impl RoleService {
             .await
             .or_raise(make_error)?;
 
-        // Perform validations
         if let Some(parent_id) = new_parent_id {
-            // Validate that parent role is not self
             if parent_id == role_id {
                 bail!(Error::new(
                     format!("role ID {} cannot be its own parent", role_id),
@@ -550,7 +534,6 @@ impl RoleService {
                 ));
             }
 
-            // Validate that the new parent role exists and is active.
             let parent_role = Self::get(ctx, site_id, parent_id.into())
                 .await
                 .or_raise(make_error)?;
@@ -569,9 +552,6 @@ impl RoleService {
                     .await
                     .or_raise(make_error)?;
 
-            // Hacky solution to avoid running the expensive cycle check.
-            // If the new parent has more permissions than the child, it cannot be a descendant of the child, so we can skip the cycle check.
-            // This assumes that the role tree is valid and constraints are respected.
             if !is_proper_subset {
                 Self::validate_reparent_no_cycle(ctx, site_id, role_id, parent_id)
                     .await
@@ -605,11 +585,6 @@ impl RoleService {
         Ok(())
     }
 
-    /// Validates that the permissions of the child role are a subset of the permissions of the parent role.
-    /// Throws an error if constraint is violated.
-    ///
-    /// Returns true if the child role has strictly fewer permissions than the parent role (a proper subset),
-    /// and false if the child role has the same permissions as the parent role.
     async fn validate_child_role_subset_of_parent(
         ctx: &ServiceContext<'_>,
         child_role_id: i64,
@@ -650,9 +625,6 @@ impl RoleService {
         Ok(child_permissions.len() < parent_permissions.len())
     }
 
-    /// Checks that (re)parenting `role_id` under `parent_id` would not introduce a cycle.
-    ///
-    /// Validate that the parent role is not already a descendant of the child role.
     async fn validate_reparent_no_cycle(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -681,8 +653,6 @@ impl RoleService {
             )
         };
 
-        // Load all active roles for the site to build the parent map in memory.
-        // TODO: Figure out a more efficient way to do this
         let roles: Vec<RoleModel> = Role::find()
             .filter(
                 Condition::all()
@@ -693,15 +663,11 @@ impl RoleService {
             .await
             .or_raise(make_error)?;
 
-        // Hashmap for quick lookup.
-        // role_id -> parent_role_id
         let parent_map: HashMap<i64, i64> = roles
             .iter()
             .filter_map(|r| r.parent_role_id.map(|pid| (r.role_id, pid)))
             .collect();
 
-        // Walk the ancestor chain of parent_id upward.
-        // If we reach role_id, the reparent would create a cycle.
         let mut current = parent_id;
         loop {
             match parent_map.get(&current) {
@@ -789,7 +755,7 @@ impl RoleService {
             .filter(
                 Condition::all()
                     .add(role::Column::SiteId.eq(input.site_id))
-                    .add(role::Column::IsVirtual.eq(true)), // Virtual roles are never deleted, so we don't need to check DeletedAt
+                    .add(role::Column::IsVirtual.eq(true)),
             )
             .all(txn)
             .await
@@ -800,7 +766,6 @@ impl RoleService {
             .map(|role| (role.name.clone(), role))
             .collect::<std::collections::HashMap<_, _>>();
 
-        // Compute user state flags
         let is_logged_in = input.user_id.is_some();
         let is_member = if is_logged_in {
             let membership = RelationService::get_optional_site_member(
@@ -818,10 +783,6 @@ impl RoleService {
             false
         };
         let is_page_author = if is_member && let Some(page_ref) = &input.page_reference {
-            // PageAuthor is a live-page virtual role. Restore authorization also
-            // checks a deleted page by ID; do not turn that expected missing-live
-            // identity into a PageAttributionRelation error. Category/member
-            // permissions still decide whether the deleted page may be restored.
             if PageService::get_optional(ctx, input.site_id, page_ref.clone())
                 .await
                 .or_raise(make_error)?
@@ -845,12 +806,10 @@ impl RoleService {
         } else {
             false
         };
-        // Collect virtual roles to apply based on flags
-        let mut applied_virtual_roles = Vec::with_capacity(4); // At most 4 virtual roles at a time
+        let mut applied_virtual_roles = Vec::with_capacity(4);
         if is_logged_in {
             applied_virtual_roles.push(SystemRole::Registered);
             if is_banned {
-                // If user is banned, skip any other site roles
                 applied_virtual_roles.push(SystemRole::Banned);
             } else {
                 if is_member {
@@ -873,7 +832,6 @@ impl RoleService {
             input.user_id, input.site_id, applied_virtual_roles
         );
 
-        // Build the final list of applicable roles
         let applicable_virtual_roles = applied_virtual_roles
             .into_iter()
             .filter_map(|role| virtual_role_name_map.get(role.into()).cloned())

@@ -18,11 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Service to handle the [Caddy webserver](https://caddyserver.com/docs/).
-//!
-//! This is primarily concerned with generating the `Caddyfile` that
-//! powers the server, which is where host → site mapping is performed.
-
 use super::structs::{CaddyfileOptions, CustomDomainData, SiteData, SiteDomainData};
 use crate::config::Config;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
@@ -39,42 +34,31 @@ use sea_orm::{EntityTrait, QuerySelect};
 use std::borrow::Cow;
 use std::collections::HashMap;
 
-// Askama template for generating the Caddyfile
-
 #[derive(Template, Debug)]
 #[template(path = "caddyfile.j2", escape = "none")]
 struct CaddyTemplate<'a> {
-    // Basic options
     debug: bool,
     local: bool,
     http_port: Option<u16>,
     https_port: Option<u16>,
 
-    // TLS
     wildcard_cert: Option<&'a str>,
     should_use_wildcard: bool,
 
-    // Reverse proxy destinations
     deploy_host: Option<&'a str>,
     framerail_host: &'a str,
     wws_host: &'a str,
 
-    // Instance configuration
     config: &'a Config,
     files_domain: &'a str,
     files_domain_no_dot: &'a str,
     main_domain: &'a str,
 
-    // Redirects name the public port (`https-port`) when it is not 443, so a
-    // deployment on another listener never redirects to a different one.
     public_port_suffix: String,
 
-    // Site and domain data
     sites: &'a [(i64, String, Option<String>)],
     domains: &'a HashMap<i64, SiteDomainData>,
 }
-
-// Actual service
 
 #[derive(Debug)]
 pub struct CaddyService;
@@ -192,8 +176,6 @@ impl CaddyService {
     }
 }
 
-// Helper functions for rendering
-
 fn public_port_suffix(https_port: u16) -> String {
     if https_port == 443 {
         String::new()
@@ -224,7 +206,6 @@ fn get_preferred_domain<'s>(
                 .iter()
                 .find(|custom| custom.domain == preferred_domain)
                 .map(|custom| (preferred_domain, custom.www_redirect))
-                // Consistency error: Preferred custom domain should be in the list of the site's custom domains
                 .expect("No matching custom domain for preferred domain")
         }
     }
@@ -266,14 +247,12 @@ fn test_site_slug_split_index() {
 
     macro_rules! check {
         ($domain:expr, $expected_index:expr) => {{
-            // Get and validate index
             let index = site_slug_split_index($domain);
             assert_eq!(
                 index, $expected_index,
                 "Caddy site slug extraction index does not match",
             );
 
-            // Test it on a real string
             let domain = format!("{}{}", TEST_SITE_SLUG, $domain);
             let parts = domain.split('.').rev().collect::<Vec<_>>();
             assert_eq!(parts[index], TEST_SITE_SLUG, "Wrong substring extracted");

@@ -60,19 +60,17 @@ impl VoteMap {
         self.inner.get(&vote).copied().unwrap_or(0)
     }
 
-    /// Gets the number of votes in this map.
     pub fn count(&self) -> u64 {
         self.iter().fold(0, |sum, (_, count)| sum + count)
     }
 
     #[inline]
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub fn is_empty(&self) -> bool {
         self.count() == 0
     }
 
-    /// Gets the sum of all the votes in this map.
-    #[allow(dead_code)] // TEMP
+    #[allow(dead_code)]
     pub fn sum(&self) -> i64 {
         self.iter().fold(0, |sum, (value, count)| {
             let value = i64::from(value);
@@ -84,7 +82,6 @@ impl VoteMap {
 
     #[inline]
     pub fn iter(&self) -> impl Iterator<Item = (VoteValue, u64)> + '_ {
-        // We can't quite use .copied() here because we need to copy the tuple too
         self.inner.iter().map(|(&value, &count)| (value, count))
     }
 }

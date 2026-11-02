@@ -23,13 +23,10 @@ use std::net::IpAddr;
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum AuthorizedObject {
-    /// Authorizes the creation of a site.
     Site,
 
-    /// Authorizes the creation of a new user (even if registrations are disabled).
     User,
 
-    /// Authorizes the creation of a bot user.
     BotUser,
 }
 

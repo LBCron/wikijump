@@ -70,11 +70,6 @@ pub struct LoginUserMfa {
     pub user_agent: String,
 }
 
-/// Password hash to compute against when a user does not exist.
-///
-/// Generate it with the same Argon2 parameters and encoding used for real
-/// account passwords. The dummy plaintext is fixed and is not an account secret;
-/// only its salted hash is retained for this process.
 pub static INVALID_PASSWORD_HASH: LazyLock<String> = LazyLock::new(|| {
     PasswordService::new_hash("wikijump-invalid-account-password-dummy")
         .expect("generating the dummy authentication hash should succeed")

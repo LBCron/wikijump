@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check PromotionActivation model anchors against the current source tree.
 
-Each anchor is a code fact the model relies on (Step 0). A missing anchor
+Each anchor is a code fact the rewritten model relies on. A missing anchor
 means the code drifted from the model: exit 2 and review the model before
 trusting it, mirroring install/local/formal/article-cache-fence/extract.py.
 Design-variant and stage vocabulary that cannot be derived mechanically is
@@ -18,23 +18,33 @@ ROOT = Path(__file__).resolve().parents[4]
 ANCHORS = [
     # (repo-relative path, needle, fact the model relies on)
     ("install/standing/promote.py", "def saved_page_staleness(",
-     "staleness = latest revision compiled_generator != target"),
-    ("install/standing/promote.py", 'stages.run("activation"',
-     "activation is a promote.py stage after render-ahead"),
-    ("install/standing/promote.py", "def restore_saved_page_output(",
-     "rollback restores only rows still at the promoted generator"),
-    ("install/standing/render_ahead.py", "def verify_with_catch_up(",
-     "render-ahead already catch-up renders, bounded rounds"),
+     "staleness = latest revision compiled_generator != target (count)"),
+    ("install/standing/promote.py", "def saved_page_stale_ids(",
+     "the stale delta is listed by page ID from the same predicate"),
+    ("install/standing/promote.py", "def converge_saved_pages(",
+     "activation converges stale pages in bounded rounds after the flip"),
+    ("install/standing/promote.py", "standing serves {stale} stale saved pages",
+     "non-convergence keeps the historical stale failure and rolls back"),
+    ("install/standing/promote.py", "page_revision.compiled_at < '",
+     "restore guard: rows compiled at/after the switch start are not restored"),
+    ("install/standing/promote.py", "SELECT clock_timestamp()",
+     "the switch start comes from the database clock before parking"),
+    ("install/standing/promote.py", "def recover_stale_saved_pages(",
+     "post-rollback convergence renders the old build's stale delta"),
+    ("install/standing/promote.py", "def render_delta_pages(",
+     "delta renders reuse render_pass with the running Deepwell's namespace"),
     ("install/standing/render_ahead.py", "CATCH_UP_ROUNDS = 3",
-     "catch-up bound the model's MaxRetries mirrors"),
+     "the round bound the model's catch-up retries mirror"),
+    ("install/standing/render_ahead.py", "def verify_with_catch_up(",
+     "link readers settle by digest rounds after a catch-up (the precedent)"),
     ("deepwell/src/services/render/ahead.rs", "ahead.wikitext_hash = revision.wikitext_hash",
      "ahead validity: same revision + source (VALID_AHEAD_ROW)"),
-    ("deepwell/src/services/render/ahead.rs", "txn.commit()",
-     "ahead promotion at startup is one committed transaction"),
     ("deepwell/src/start.rs", "RenderAheadService::promote(&app_state, None)",
-     "new Deepwell promotes ahead rows at container start"),
-    ("deepwell/src/api.rs", "fn rpc_transaction_isolation(",
-     "RPC isolation is per-method; default READ COMMITTED assumed"),
+     "new Deepwell promotes ahead rows at container start (one txn)"),
+    ("deepwell/src/services/view/service.rs", "compiled_generator_is_current(&page_revision.compiled_generator)",
+     "the view path refuses stale output without an editing session"),
+    ("deepwell/src/services/page_revision/service.rs", "compiled_at: Set(compiled_at)",
+     "in-place rerenders stamp compiled_at with the running build's clock"),
     ("deepwell/src/services/context.rs", "PostCommitAction::RerenderPage",
      "fan-out rerenders are deferred post-commit actions (ungateable)"),
     ("install/local/wikidot-verification/scripts/apply-corpus-import-manifest.mjs",
@@ -63,7 +73,7 @@ def main() -> int:
         print("The code no longer matches the model's anchors; review the model.",
               file=sys.stderr)
         return 2
-    print(f"model         Design in {{D0,D1,D2}}, MaxRetries 2, anchors {len(ANCHORS)} ok")
+    print(f"model         Design in {{CUR,FIX}}, anchors {len(ANCHORS)} ok")
     return 0
 
 

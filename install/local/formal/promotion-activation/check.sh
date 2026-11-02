@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
-# Checks promotion activation against concurrent writers.
-#   ./check.sh            incident (D0) must FAIL, gate (D1) must FAIL,
-#                         fixed (D2) must PASS. Exit 0 only then.
-#   ./check.sh mutations  both Step-3 mutations of the fixed design must FAIL.
+# Checks promotion activation against concurrent writers (real protocol).
+#   ./check.sh            fixed (FIX) must PASS; incident (CUR) and restore
+#                         (CUR) must FAIL with their own trace shapes; a
+#                         no-rollback witness on FIX must FAIL (rollback is
+#                         reachable in the fixed design, non-vacuity).
+#   ./check.sh mutations  three one-element mutations of FIX must FAIL:
+#                         catch-up moved before park, restore guard removed,
+#                         receipt passing without the re-count.
 # Exit 2: code drifted from the model's anchors, or toolchain missing.
 set -uo pipefail
 
@@ -24,18 +28,18 @@ mkdir -p "$WORK"
 cp "$HERE/PromotionActivation.tla" "$WORK/"
 python3 -I "$HERE/extract.py" || exit 2
 
-tlc_run() { # name cfgfile -> tlc exit code; log at $WORK/<name>.log
-  (cd "$WORK" && java -XX:+UseParallelGC -cp "$JAR" tlc2.TLC -deadlock -workers 1 \
-      -config "$2" -metadir "$WORK/states-$1" PromotionActivation.tla) > "$WORK/$1.log" 2>&1
+tlc_run() { # name cfgfile [module]
+  (cd "$WORK" && java -XX:+UseParallelGC -cp "$JAR" tlc2.TLC -deadlock -workers 8 \
+      -config "$2" -metadir "$WORK/states-$1" "${3:-PromotionActivation}.tla") > "$WORK/$1.log" 2>&1
   return $?
 }
 
-expect_fail() { # name cfgfile
+expect_fail() { # name cfgfile [module]
   local start=$SECONDS
-  tlc_run "$1" "$2"; local rc=$?
-  if [[ $rc -ne 0 ]] && grep -q 'is violated' "$WORK/$1.log"; then
+  tlc_run "$1" "$2" "${3:-}"; local rc=$?
+  if [[ $rc -ne 0 ]] && grep -q 'violated' "$WORK/$1.log"; then
     echo "EXPECTED-FAIL $1 ($((SECONDS-start))s, $(grep -oE '[0-9]+ distinct states found' "$WORK/$1.log" | head -1))"
-    grep -m1 'is violated' "$WORK/$1.log"
+    grep -m1 'violated' "$WORK/$1.log"
     return 0
   fi
   echo "UNEXPECTED $1: expected a TLC violation, got exit $rc" >&2
@@ -55,109 +59,119 @@ expect_pass() { # name cfgfile
   return 1
 }
 
+# Trace-shape assertions: parse the TLC counterexample states, never a
+# single grep value. Each must-fail config has its own shape.
+shape_check() { # logfile kind
+  python3 - "$1" "$2" <<'PY'
+import re, sys
+log, kind = open(sys.argv[1]).read(), sys.argv[2]
+states = []
+for chunk in re.split(r"^State \d+:.*$", log, flags=re.M)[1:]:
+    def scalar(name):
+        m = re.search(rf"/\\ {name} = (-?\d+|TRUE|FALSE|\"\w+\")", chunk)
+        return m.group(1) if m else None
+    def fmap(name):
+        m = re.search(rf"/\\ {name} = \[p1 \|-> ([^,\]]+), p2 \|-> ([^\]]+)\]", chunk)
+        if not m: return {}
+        return {"p1": m.group(1).strip().strip('"'), "p2": m.group(2).strip().strip('"')}
+    states.append({
+        "verifiedStale": int(scalar("verifiedStale")), "preFlipWrite": scalar("preFlipWrite") == "TRUE",
+        "flipped": scalar("flipped") == "TRUE", "outcome": (scalar("outcome") or "").strip('"'),
+        "rev": {k: int(v) for k, v in fmap("rev").items()},
+        "outVer": {k: int(v) for k, v in fmap("outVer").items()},
+        "outGen": fmap("outGen"), "outTime": fmap("outTime"),
+        "promoted": fmap("promoted"),
+    })
+assert states, "no states parsed"
+final = states[-1]
+if kind == "incident":
+    # clean verify, then a write before the flip, ending in clean rollback
+    iv = next(i for i, s in enumerate(states) if s["verifiedStale"] == 0)
+    iw = next(i for i, s in enumerate(states) if i > iv and not s["flipped"] and s["rev"].get("p1", 1) >= 2)
+    assert iw > iv and final["outcome"] == "rolledback" and final["preFlipWrite"], final
+    print(f"incident shape ok: verify@{iv} write@{iw} rolledback@{len(states)-1}")
+elif kind == "restore":
+    # a post-flip rerender (new gen, post switch) regressed by the restore:
+    # final state serves old-generator output older than the page's inputs
+    regressed = [p for p in ("p1", "p2") if final["outGen"].get(p) == "old"
+                 and final["outVer"].get(p, 0) < final["rev"].get(p, 0)]
+    assert final["outcome"] == "rolledback" and regressed, final
+    # the regressed page was promoted to the new generator at the flip,
+    # then the restore put its older snapshot output back under the old one
+    assert final["promoted"].get(regressed[0]) == "TRUE", final.get("promoted")
+    assert any(s["flipped"] and s["outGen"].get(regressed[0]) == "new" for s in states), \
+        "regressed page was never at the new generator in trace"
+    print(f"restore shape ok: {regressed[0]} promoted, then restored to older output")
+else:
+    raise SystemExit(f"unknown shape {kind}")
+PY
+}
+
+fixed_cfg() { # file design extra-invariants
+  cat > "$1" <<EOF
+CONSTANTS
+  Design = "$2"
+SPECIFICATION Spec
+INVARIANT TypeOK
+$3
+EOF
+}
+
 if [[ "${1:-}" == "mutations" ]]; then
   python3 - "$WORK" <<'PY' || exit 2
 import pathlib, sys
 work = pathlib.Path(sys.argv[1])
 src = (work / "PromotionActivation.tla").read_text()
-# M1: split atomic CheckFlip into CheckOnly + FlipOnly (writer lands between).
-m1 = src.replace('pc\' = IF Design = "D2" THEN "checkflip" ELSE "flip"',
-                 'pc\' = IF Design = "D2" THEN "checkonly" ELSE "flip"')
-m1 = m1.replace("""CheckFlip ==""",
-"""CheckOnly ==
-    /\\ pc = "checkonly" /\\ outcome = "running" /\\ Design = "D2"
-    /\\ pc' = "fliponly" /\\ fence' = "open"
-    /\\ UNCHANGED <<rev, ahead, active, verifiedStale, gate, queue,
-                   postFlipWrites, outcome, retries, crashed, flipClean,
-                   impLeft, snap, rendered, cur>>
-FlipOnly ==
-    /\\ pc = "fliponly" /\\ outcome = "running"
-    /\\ active' = "new" /\\ flipClean' = (StaleCount = 0)
-    /\\ outcome' = "activated" /\\ pc' = "done"
-    /\\ UNCHANGED <<rev, ahead, verifiedStale, gate, fence, queue,
-                   postFlipWrites, retries, crashed, impLeft, snap,
-                   rendered, cur>>
-CheckFlip ==""")
-m1 = m1.replace("CheckFlip \\/ CatchUp", "CheckFlip \\/ CheckOnly \\/ FlipOnly \\/ CatchUp")
-if m1 == src: raise SystemExit("mutation M1 anchor not found")
-(work / "M1.tla").write_text(m1.replace("MODULE PromotionActivation", "MODULE M1"))
-# M2: remove the short fence: import ignores fence, CheckFlip trusts the
-# pre-check snapshot (verifiedStale) instead of re-reading at flip time.
-m2 = src.replace('/\\ impLeft > 0 /\\ fence = "open"', '/\\ impLeft > 0')
-m2 = m2.replace("IF StaleCount = 0\n         THEN /\\ active' = \"new\" /\\ flipClean' = TRUE",
-                "IF verifiedStale = 0\n         THEN /\\ active' = \"new\" /\\ flipClean' = (StaleCount = 0)")
-assert m2.count("verifiedStale = 0\n") >= 1
-if m2 == src: raise SystemExit("mutation M2 anchor not found")
-(work / "M2.tla").write_text(m2.replace("MODULE PromotionActivation", "MODULE M2"))
-print("mutations generated")
+def one(name, old, new):
+    assert src.count(old) >= 1, f"{name} anchor missing"
+    out = src.replace(old, new)
+    assert out != src
+    (work / f"{name}.tla").write_text(out.replace("MODULE PromotionActivation", f"MODULE {name}"))
+    print(f"mutation {name}: {old!r} -> {new!r} ({src.count(old)} site(s), one element)")
+# MA: catch-up moved before park (its stage guard now fires at snapshot time)
+one("MA", 'pc = "catchup"', 'pc = "snap"')
+# MB: restore guard removed (the compiled-at guard, one logical element)
+one("MB", '(Design = "CUR" \\/ outTime[p] = "pre")', "TRUE")
+# MC: receipt passing without the re-count (restart goes straight to commit)
+one("MC", 'aheadVer\' = [p \\in Pages |-> 0] /\\ pc\' = "count"',
+          'aheadVer\' = [p \\in Pages |-> 0] /\\ pc\' = "commit"')
 PY
-  for m in M1 M2; do
-    cat > "$WORK/$m.cfg" <<EOF
-CONSTANTS
-  Design = "D2"
-  MaxRetries = 2
-SPECIFICATION Spec
-INVARIANT TypeOK
-INVARIANT NoStaleFlip
-EOF
-    # TLC needs the module file named after the module in its own dir.
-    mkdir -p "$WORK/$m-dir" && cp "$WORK/$m.tla" "$WORK/$m-dir/" && cp "$WORK/$m.cfg" "$WORK/$m-dir/"
+  for m in MA MB MC; do
+    mkdir -p "$WORK/$m-dir" && cp "$WORK/$m.tla" "$WORK/$m-dir/"
+    fixed_cfg "$WORK/$m-dir/$m.cfg" FIX 'INVARIANT NoPassWithStale
+INVARIANT RollbackNoRegression
+PROPERTY Termination'
     start=$SECONDS
-    (cd "$WORK/$m-dir" && java -XX:+UseParallelGC -cp "$JAR" tlc2.TLC -deadlock -workers 1 \
-        -config "$m.cfg" -metadir "$WORK/$m-dir/states" "$m.tla") > "$WORK/$m.log" 2>&1
+    (cd "$WORK/$m-dir" && java -XX:+UseParallelGC -cp "$JAR" tlc2.TLC -deadlock -workers 8 \
+        -config "$m.cfg" -metadir "$WORK/$m-dir/states" "$m.tla") > "$WORK/mutation-$m.log" 2>&1
     rc=$?
-    if [[ $rc -ne 0 ]] && grep -q 'is violated' "$WORK/$m.log"; then
-      echo "EXPECTED-FAIL mutation $m ($((SECONDS-start))s)"
-      grep -m1 'is violated' "$WORK/$m.log"
+    if [[ $rc -ne 0 ]] && grep -q 'violated' "$WORK/mutation-$m.log"; then
+      echo "EXPECTED-FAIL mutation-$m ($((SECONDS-start))s)"
+      grep -m1 'violated' "$WORK/mutation-$m.log"
     else
-      echo "MUTATION $m DID NOT FAIL (exit $rc) -- pilot result, see FINDINGS.md" >&2
-      cat "$WORK/$m.log" >&2
-      exit 1
+      echo "MUTATION $m DID NOT FAIL (exit $rc)" >&2; cat "$WORK/mutation-$m.log" >&2; exit 1
     fi
   done
   exit 0
 fi
 
-# Incident configuration: current behavior (Step 0 finds no gate in the code).
-cat > "$WORK/Incident.cfg" <<'EOF'
-CONSTANTS
-  Design = "D0"
-  MaxRetries = 2
-SPECIFICATION Spec
-INVARIANT TypeOK
-INVARIANT CleanVerifyNoAbort
-EOF
-# Gate configuration: cooperating-lane gate only (fan-out stays ungated).
-cat > "$WORK/Gate.cfg" <<'EOF'
-CONSTANTS
-  Design = "D1"
-  MaxRetries = 2
-SPECIFICATION Spec
-INVARIANT TypeOK
-INVARIANT CleanVerifyNoAbort
-EOF
-# Fixed configuration: catch-up + atomic check-and-flip under a short fence.
-cat > "$WORK/Fixed.cfg" <<'EOF'
-CONSTANTS
-  Design = "D2"
-  MaxRetries = 2
-SPECIFICATION Spec
-INVARIANT TypeOK
-INVARIANT NoStaleFlip
-INVARIANT RollbackRestores
-INVARIANT NoLostWrite
+# Fixed configuration: the real protocol must pass safety and liveness.
+fixed_cfg "$WORK/Fixed.cfg" FIX 'INVARIANT NoPassWithStale
+INVARIANT RollbackNoRegression
 PROPERTY Termination
-PROPERTY QuietSuccess
-PROPERTY FenceReopens
-EOF
+PROPERTY QuietSuccess'
+# Incident configuration: pre-fix activation must fail the incident shape.
+fixed_cfg "$WORK/Incident.cfg" CUR 'INVARIANT CleanVerifyNoRollback'
+# Restore configuration: pre-fix restore rule must regress a rerendered page.
+fixed_cfg "$WORK/Restore.cfg" CUR 'INVARIANT RestoreRegressionFree'
+# Non-vacuity witness: rollback must be reachable in the fixed design.
+fixed_cfg "$WORK/Witness.cfg" FIX 'INVARIANT NeverRolledback'
 
 status=0
-expect_fail incident Incident.cfg || status=1
-# The incident counterexample must show a clean verify (0 stale) first.
-if ! grep -q 'verifiedStale = 0' "$WORK/incident.log"; then
-  echo "incident trace lacks verifiedStale = 0; wrong counterexample shape" >&2
-  status=1
-fi
-expect_fail gate Gate.cfg || status=1
 expect_pass fixed Fixed.cfg || status=1
+expect_fail incident Incident.cfg || status=1
+shape_check "$WORK/incident.log" incident || status=1
+expect_fail restore Restore.cfg || status=1
+shape_check "$WORK/restore.log" restore || status=1
+expect_fail witness Witness.cfg || status=1
 exit $status

@@ -1,119 +1,135 @@
 # Promotion activation vs concurrent writers — findings
 
-Pilot of 2026-11-02 (BRIEF-TLA-PILOT). Model: `PromotionActivation.tla`
-(188 lines). Runner: `check.sh` (incident + gate + fixed configurations),
-`check.sh mutations` (Step-3 mutations). No production code changed.
+Rewritten 2026-11-02 (BRIEF-TLA-FIX Step 3) to the real protocol, per the
+tla-pilot ASSESSMENT.md ruling. This supersedes the pilot FINDINGS in this
+file; the pilot commits themselves are unchanged. Model:
+`PromotionActivation.tla` (217 lines). Runner: `check.sh` (fixed +
+incident + restore + rollback-witness configurations), `check.sh
+mutations` (three one-element mutations). Production code now implements
+the modeled FIX design in `install/standing/promote.py`.
 
-## Step 0 — answers from the code
+## What the code does (Step 0, rechecked)
 
 1. **What defines "stale"?** A live page whose latest revision's
-   `compiled_generator` differs from the target build's string
-   (`install/standing/promote.py:535` `saved_page_staleness`, target from
-   `install/standing/refresh.py:152` `expected_compiled_generator`).
-   Render-ahead's own predicate is stricter: stale *without a valid ahead
-   row*, where validity needs same revision, `wikitext_hash`,
-   `source_updated_at`, and `rendered_at >= cutoff`
-   (`deepwell/src/services/render/ahead.rs:63`). Db-mode corpus imports
-   insert revisions with generator `'corpus db import'`
-   (`install/local/wikidot-verification/scripts/apply-corpus-import-manifest.mjs:75`),
-   so every imported page is stale until rendered. Model:
-   `stale(p) == ahead[p] # rev[p]`.
+   `compiled_generator` differs from the target build's string. The count
+   (`saved_page_staleness`) and the new delta query
+   (`saved_page_stale_ids`) share one predicate
+   (`_stale_saved_pages_from_where`). Render-ahead validity is stricter
+   (same revision, wikitext hash, `source_updated_at`, rendered at/after
+   cutoff; `deepwell/src/services/render/ahead.rs`).
+2. **Check and flip are not one transaction.** Activation is a container
+   switch: snapshot, park, compose up (the new Deepwell promotes valid
+   ahead rows in one startup transaction), health, gateway, then stale
+   counting as separate queries. The pilot's atomic `CheckFlip`, the short
+   fence, the lane gate, and the `refused` rollback outcome are removed
+   from the model: none exists in the code, and the assessment showed the
+   model's green result was partly vacuous because of them (rollback was
+   unreachable in D2).
+3. **Parking is the fence.** Parking stops the old Deepwell, and with it
+   RPC writers and the deferred re-render fan-out. After the flip the new
+   build's own writes carry the target generator and cannot re-stale a
+   page; only direct-SQL imports (placeholder generator `corpus db
+   import`) can, and those are the import's own finalizer's job once
+   promotion is over.
+4. **Rollback never touches source.** `restore_saved_page_output` writes
+   only compiled-output columns, for snapshot revisions still at the
+   promoted generator. Two concrete defects followed (assessment ruling):
+   a post-flip in-place rerender (`rerender_inner` stamps `compiled_at`
+   with the running build's clock) was silently overwritten by the
+   snapshot restore; and revisions created after the flip stayed at the
+   promoted generator, refused by the old build's view path
+   (`compiled_generator_is_current` check) with nothing re-rendering them.
+   The fix guards the restore with the database clock captured before
+   parking (`compiled_at < switch start`) and renders the old build's
+   stale delta with the old image after recovery.
 
-2. **Check and flip: one transaction?** No. Activation is a container
-   switch, not a DB transaction: `switch_stage`
-   (`install/standing/promote.py:1291`) parks the old containers, writes
-   the environment, runs compose up, waits for health, reloads the
-   gateway, and only then counts stale pages
-   (`install/standing/promote.py:1322`) as a separate psql query; failure
-   restores parked containers and the saved-page snapshot
-   (`install/standing/promote.py:597`, restore touches only rows still at
-   the promoted generator). What *is* one transaction is the new
-   Deepwell's startup promotion of ahead rows
-   (`deepwell/src/start.rs:102` →
-   `deepwell/src/services/render/ahead.rs:285`, begin `:293`, commit
-   `:343`). RPC transactions default to READ COMMITTED; only
-   `parent_get_direct_metadata` is overridden to RepeatableRead
-   (`deepwell/src/api.rs:289`). So any writer can land between
-   render-ahead's final verify and the activation stale count. The model
-   therefore splits Render read/commit, Verify, Flip, and ActCheck.
+## Chosen design (FIX in the model)
 
-3. **Does the fan-out change staleness?** Not the generator predicate
-   directly: a rerender rewrites the revision's output and `updated_at`
-   with the *running* build's generator. But `updated_at` is part of
-   ahead validity (`ahead.rs:63`), so a fan-out rerender invalidates a
-   valid ahead row and re-stales the page. Fan-out is deferred
-   post-commit work: the write commits, then dependents are enqueued at
-   depth+1 (`deepwell/src/services/context.rs:391`,
-   `deepwell/src/services/job/worker.rs:238`); it also commits new
-   text-block objects and deletes the old ones after commit
-   (`install/standing/promote.py:464`). It is autonomous and not
-   gateable. Model: `FanOut` bumps `rev["p2"]`, never checks the gate.
+Bounded convergence instead of atomicity: count, then while stale render
+the stale page IDs with the new image, restart Deepwell (promotes the
+ahead rows), reload the gateway, and re-count — at most
+`render_ahead.CATCH_UP_ROUNDS` rounds within a total time bound
+(`ACTIVATION_CATCH_UP_TIMEOUT_SECONDS`). A zero first count is exactly the
+old behavior (no render, no restart). Non-convergence keeps the old
+failure (`standing serves {stale} stale saved pages`) and rolls back.
+When a catch-up render moves the link graph, known link readers (the
+render-ahead receipt's `link_reader_page_ids` plus readers the catch-up
+passes report) are marked stale, re-rendered, and settled by link-digest
+rounds exactly as `render_ahead.verify_with_catch_up` does (#2738);
+readers no pass in this promotion rendered are not enumerable without a
+persisted reader registry (Deepwell reports readers only per render), so
+the model does not claim them either.
 
-4. **Do import lanes write through Deepwell?** Both ways.
-   `--create-mode rpc` uses Deepwell `page_create`
-   (`apply-corpus-import-manifest.mjs:1475`); `--create-mode db` writes
-   `page_revision` by direct SQL with the placeholder generator (above).
-   The Incident-B lane was a corpus-import/backfill batch; either way the
-   model treats it as one cooperating writer (`ImportWrite`) that *could*
-   check a gate in the same step as its commit, and currently does not.
+**D1 is still rejected, for the corrected reason.** The pilot said D1
+fails `CleanVerifyNoAbort`; the assessment showed D2 violates that same
+property, so it never discriminated. The code reason stands on its own:
+Deepwell's fan-out runs until the old container is parked, so no lane
+gate can hold the pre-park window; the only point with no autonomous
+Deepwell writer is after park. **D2 (transaction/fence/gate/atomic
+check-and-flip) is rejected** by the ruling: rollback stays always
+available, no write fence is added, and the two derived-output defects
+above are fixed instead. The pilot's claim "rollback is refused while
+post-flip writes exist" was a model artifact and is corrected here:
+rollback is never refused; source survives by construction, and derived
+output is guarded and re-rendered as above.
 
-No maintenance-mode holder exists in `promote.py`, so none is modeled.
-Unsettled: nothing material; bounded-revision and single-crash bounds are
-carried as assumptions in the spec header.
+## Model scope notes
 
-## Chosen design
+- Per page the model tracks the input version its saved output reflects
+  (`outVer`), the generator that rendered it (`outGen`), and whether it
+  was compiled before or after the switch started (`outTime`), so restore
+  regression is statable. `rev[p2]` also moves when p1 is written (p2's
+  inputs include p1).
+- `RollbackNoRegression` is scoped to inputs as of rollback entry
+  (`rbMoved`): a write landing during or after recovery advances inputs
+  under any build and is owned by the same fan-out/finalizer paths as a
+  write after any rollback completes.
+- Recovery in the model renders the old build's stale delta (selected the
+  way `saved_page_stale_ids` selects it, by generator) and the old
+  Deepwell's restart also drains the bounded rerender queue: fan-out and
+  finalizer job rows persist in the database while parked, and the
+  worker resumes with the container. Dependent-input freshness for a
+  page whose own generator already matches is, as outside promotion, the
+  fan-out/finalizer's job, not the activation count's.
+- Properties dropped as true by construction in the pilot
+  (`RollbackRestores`, the old `NoLostWrite`, `FenceReopens`,
+  `GateReopens`): FIX keeps `NoPassWithStale` (the receipt cannot pass
+  while the last count saw stale pages; the view path refuses stale
+  output for writes after that count), `RollbackNoRegression`,
+  `Termination`, and `QuietSuccess`.
 
-**D2** — no long gate; catch-up render of the stale delta with bounded
-retries, then one atomic check-and-flip under a short fence for
-cooperating writers. D1 (long gate for cooperating lanes) is **rejected
-by the model**: with the gate held closed, `CleanVerifyNoAbort` still
-fails, because the ungateable fan-out re-stales `p2` between verify and
-the activation check (Gate configuration, 958 states). D0 (current code)
-fails the same property (Incident configuration, 676 states). D2 passes
-`NoStaleFlip`, `RollbackRestores`, `NoLostWrite`, `Termination`,
-`QuietSuccess`, and `FenceReopens` (Fixed configuration, 945 states).
+## Results (check.sh, TLC 1.7.4, ~5 s total)
 
-Note what D2 does *not* prove: run separately, D2 also violates
-`CleanVerifyNoAbort` — a verify that saw 0 stale can still end in a
-clean abort after repeated fan-out/import writes. D2's guarantee is
-"never flip stale, never hang", not "clean verify implies success".
+- **Fixed (FIX): PASS** — `NoPassWithStale`, `RollbackNoRegression`,
+  `Termination`, `QuietSuccess` (25,010 distinct states).
+- **Incident (CUR): EXPECTED-FAIL** — `CleanVerifyNoRollback` violated;
+  shape asserted from the parsed trace states, not a grep: a clean verify
+  (state 3), a write landing before the flip (state 5–6), and a final
+  clean `rolledback`. This is Incident B's real order (verify → import
+  commit → flip → count → rollback), reduced to one writing page.
+- **Restore (CUR): EXPECTED-FAIL** — `RestoreRegressionFree` violated;
+  shape: the regressed page (`p2`) was promoted at the flip, then the
+  unguarded restore put its older snapshot output back under the old
+  generator, where the old build serves it.
+- **Witness (FIX, `NeverRolledback`): EXPECTED-FAIL** — rollback is
+  reachable in the fixed design (a post-flip failure still rolls back),
+  so the safety properties above are not vacuous over an unreachable
+  rollback.
+- **Mutations, each exactly one element changed, each fails:**
+  MA catch-up moved before park (`pc = "catchup"` → `"snap"`) violates
+  `RollbackNoRegression`; MB restore guard removed
+  (`(Design = "CUR" \/ outTime[p] = "pre")` → `TRUE`) violates
+  `RollbackNoRegression`; MC receipt passing without the re-count
+  (restart goes straight to `commit`) violates `NoPassWithStale`.
 
-## Traces
+## CRITERION-4 STATEMENT (updated)
 
-- **Incident (D0, shortest counterexample):** render `p1`,`p2` → verify
-  sees `verifiedStale = 0` → flip (`active = new`) → import commits `p1`
-  (`impLeft 2→1`, fan-out queued) → activation check finds stale →
-  rollback decision → **`refused`**, because the write landed after the
-  flip. Incident B's retained record (verify 08:38:31 UTC, import batch
-  08:38:37 UTC, 16 stale, clean rollback) is the same race with the
-  write landing before the flip; the model shows the post-flip timing
-  is strictly worse. Reduced from 16 pages to 1, as briefed.
-- **Mutation M1 (split check-and-flip):** writer lands between
-  `CheckOnly` and `FlipOnly` → `NoStaleFlip` violated. Expected fail, 1 s.
-- **Mutation M2 (fence removed, flip trusts the pre-check snapshot):**
-  import ignores the fence and commits between verify and flip →
-  `NoStaleFlip` violated. Expected fail, 1 s.
-
-## NoLostWrite policy question (for the coordinator)
-
-The model encodes: *rollback is refused while any post-flip write
-exists* (matching `restore_saved_page_output`, which only restores rows
-still at the promoted generator). Question for the fix PR: is "refuse
-rollback and keep the new build serving" the intended operator policy
-for that window, or should activation instead prevent post-flip writes
-from committing until the stale count passes? The model exposes the
-choice; it does not settle it.
-
-## CRITERION-4 STATEMENT
-
-The model changed a decision. (1) It rejected candidate design D1: a
-cooperating-lane gate cannot hold the window, because the autonomous
-fan-out violates the progress property while the gate is closed (Gate
-configuration counterexample) — a D1 fix would have been built and
-would still abort promotions under fan-out load. (2) It exposed a new
-hazard not in Incident B's record: a writer landing after the flip but
-before the activation stale count makes rollback *refused*, not clean
-(Incident configuration shortest trace) — the rollback policy question
-above. (3) It qualified the consult's D2 prior: D2 is safe and live,
-but it does not make a clean verify predictive of success. Reproducing
-the incident alone would not have produced (1)–(3).
+The model changed decisions, on the assessment's narrower grounds:
+(1) D1 rejected for the corrected, code-confirmed reason (fan-out cannot
+be gated before park); (2) following the pilot's rollback-refusal
+artifact into the code exposed the two real derived-output defects
+(guarded restore, post-rollback convergence) that the fix now addresses;
+(3) a clean verify is not predictive — the fixed design therefore
+converges a bounded delta after the flip instead of trying to make the
+verify atomic. Reproducing Incident B alone would have produced none of
+these.

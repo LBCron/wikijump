@@ -960,7 +960,6 @@ export async function prepareCompatibilityCandidateInputs(args) {
     const temporalSuccessStatePath = path.join(args["output-private-dir"], "framerail-route-action-success-storage.json");
     const temporalFixture = {
       schema: "wikijump.framerail_route_action_fixture_identity.v1",
-      evidence_registry: temporalContract.evidence_registry,
       urls: temporalUrls,
       urls_sha256: temporalUrlsSha256,
       fixtures: {
@@ -973,7 +972,6 @@ export async function prepareCompatibilityCandidateInputs(args) {
     };
     const temporalFailureControl = {
       schema: "wikijump.framerail_route_action_failure_control_identity.v1",
-      evidence_registry: temporalContract.evidence_registry,
       urls_sha256: temporalUrlsSha256,
       result_oracles: { denial: denialOracles, failure: failureOracles },
     };

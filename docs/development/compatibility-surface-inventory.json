@@ -3092,6 +3092,11 @@
       "target": "wikijump.deepwell"
     },
     {
+      "source": "deepwell-jsonrpc:child_get_all",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
       "source": "deepwell-jsonrpc:config",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
@@ -3678,6 +3683,11 @@
     },
     {
       "source": "deepwell-jsonrpc:parent_set",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
+      "source": "deepwell-jsonrpc:parent_trace",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
     },
@@ -4527,6 +4537,11 @@
       "target": "wikijump.framerail"
     },
     {
+      "source": "framerail-server-action:/?/childrenGet",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
       "source": "framerail-server-action:/?/createPermission",
       "type": "implemented_by",
       "target": "wikijump.framerail"
@@ -4677,6 +4692,11 @@
       "target": "wikijump.framerail"
     },
     {
+      "source": "framerail-server-action:/?/parentTrace",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
       "source": "framerail-server-action:/?/restore",
       "type": "implemented_by",
       "target": "wikijump.framerail"
@@ -4723,6 +4743,11 @@
     },
     {
       "source": "framerail-server-action:/{slug}/{*extra}?/backlinks",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/{slug}/{*extra}?/childrenGet",
       "type": "implemented_by",
       "target": "wikijump.framerail"
     },
@@ -4873,6 +4898,11 @@
     },
     {
       "source": "framerail-server-action:/{slug}/{*extra}?/parentSet",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/{slug}/{*extra}?/parentTrace",
       "type": "implemented_by",
       "target": "wikijump.framerail"
     },
@@ -11736,7 +11766,7 @@
   },
   "provenance": {
     "wikijump": {
-      "source_input_set_sha256": "11bdd224db7b8325c8577ddbf6472b94f09e08181284e535c61bad9a257a830e"
+      "source_input_set_sha256": "9da8a924a0357e7bf2e54dafb06d5491299fa0b027527b27cec3ef2132d22789"
     },
     "ftml": {
       "commit": "bcfd17dbc2bf734d29370c1b398a3386d978b874",
@@ -11745,15 +11775,15 @@
     "registries": [
       {
         "path": "deepwell/Cargo.lock",
-        "sha256": "14b4111169ad7c26b0818a1d74c86b2287b7486ad90468a0280470cc33caf03b"
+        "sha256": "ca95f181495a3559734d21aaf59df4277c748b5a47fe2fca1bda1d3e306f5cd3"
       },
       {
         "path": "deepwell/Cargo.toml",
-        "sha256": "2bcb03fd0315653d4757a3b300034c86a4458daf89766187591b2cd2e0392ff4"
+        "sha256": "ee45395bab963cef18e552072aa24ba5616b25b930d7e43bc475bc62c4b7bd02"
       },
       {
         "path": "deepwell/src/api.rs",
-        "sha256": "2ad9f8534fbd723b5ff110c82477a7434c10c9ebff1188992b9287499748bd45"
+        "sha256": "96efa6f4637f971eb64a4501687bae14b51d1a0e7e2b670873b7f680299c5422"
       },
       {
         "path": "deepwell/src/endpoints/auth.rs",
@@ -11857,7 +11887,7 @@
       },
       {
         "path": "deepwell/src/endpoints/parent.rs",
-        "sha256": "a8b6e94c25e33b9c859d03ac25fc949c6a38b1c3b2d2acfcdf0737b303200092"
+        "sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974"
       },
       {
         "path": "deepwell/src/endpoints/routing.rs",
@@ -11909,15 +11939,11 @@
       },
       {
         "path": "docs/development/deepwell-jsonrpc-contract-manifest.json",
-        "sha256": "dbf3d3674f4250e9536b18adf4952ab1222704c17012a54770ff62f8aaec2e69"
+        "sha256": "e166ba009f45d44fa6bf557376481b571be209c35f75d8251ef54419032137ff"
       },
       {
         "path": "docs/development/framerail-amc-wire-contracts.json",
         "sha256": "38a346b4367e3a454f94ff00d879020a90aa6646d3188feef43e24e3b164da3f"
-      },
-      {
-        "path": "docs/development/framerail-route-action-evidence.json",
-        "sha256": "d3f5fb5398958bdb33ea882a42f524f22b4fe1c1039eac023ad20bb039700660"
       },
       {
         "path": "docs/development/open43-a-actions-membership-closure-audit.json",
@@ -11973,7 +11999,7 @@
       },
       {
         "path": "docs/development/wws-route-registration-denominator.json",
-        "sha256": "f46836d6c19592345e15649a254bebfeafeec95d0bd3d9d60ffb490ddff8ba82"
+        "sha256": "8531f88289ed9b16aeeaf22cc84fb1013aa4b5136f64558c632908997593aca5"
       },
       {
         "path": "docs/wikidot-specifications/catalog.json",
@@ -11997,7 +12023,7 @@
       },
       {
         "path": "framerail/src/lib/server/load/page/page-actions.ts",
-        "sha256": "397df976d2643f49b18921d6318fe6d9b46e03469ba3b9003751c05e2e5fd44d"
+        "sha256": "b91973ccac3c153407edb69a3dfaed09a01819ffdde37100c1dc4cbc04dcc744"
       },
       {
         "path": "framerail/src/lib/server/load/page/page-revision-actions.ts",
@@ -12400,14 +12426,14 @@
     ]
   },
   "counts": {
-    "total": 1013,
+    "total": 1019,
     "by_kind": {
       "catalog_feature": 210,
-      "deepwell_jsonrpc_method": 208,
+      "deepwell_jsonrpc_method": 210,
       "framerail_amc_action_shape": 2,
       "framerail_amc_module_shape": 27,
       "framerail_route": 41,
-      "framerail_server_action": 124,
+      "framerail_server_action": 128,
       "framerail_xmlrpc_method": 17,
       "missing_page_control": 2,
       "open43_audit_case": 285,
@@ -24275,6 +24301,51 @@
       ]
     },
     {
+      "surface_id": "deepwell-jsonrpc:child_get_all",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:child_get_all",
+        "deepwell/src/endpoints/parent.rs#child_get_all"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/parent.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
       "surface_id": "deepwell-jsonrpc:config",
       "kind": "deepwell_jsonrpc_method",
       "public_reference": [
@@ -29585,6 +29656,51 @@
       ]
     },
     {
+      "surface_id": "deepwell-jsonrpc:parent_trace",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:parent_trace",
+        "deepwell/src/endpoints/parent.rs#parent_trace"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "install/local/wikidot-verification/tests/deepwell-jsonrpc-contract-manifest.test.mjs#Deepwell JSON-RPC manifest exactly covers the current registered contract"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/parent.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
       "surface_id": "deepwell-jsonrpc:parent_update",
       "kind": "deepwell_jsonrpc_method",
       "public_reference": [
@@ -33212,9 +33328,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33253,9 +33367,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#serves the legacy admin route through the same rendered page and action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33293,9 +33405,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/corpus-route-ownership.test.js#platform information remains available under the reserved application prefix"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33333,9 +33443,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/corpus-route-ownership.test.js#platform information remains available under the reserved application prefix"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33374,9 +33482,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/corpus-route-ownership.test.js#platform information remains available under the reserved application prefix"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33415,9 +33521,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33456,9 +33560,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#delete start page needs a session, then requests the copy keys"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33497,9 +33599,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#delete link load pre-fills the token form without calling Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33538,9 +33638,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#forgot load requests the recovery copy keys"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33579,9 +33677,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#account route loads expose their public SvelteKit page data"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33620,9 +33716,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#account route loads expose their public SvelteKit page data"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33661,9 +33755,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#account route loads expose their public SvelteKit page data"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33702,9 +33794,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#reset page exchanges the link for a grant only on POST"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33743,9 +33833,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#account route loads expose their public SvelteKit page data"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33784,9 +33872,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#account route loads expose their public SvelteKit page data"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33825,9 +33911,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#legacy user slug route fails closed for imported profiles"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33866,9 +33950,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#verify resend page requests the verification copy keys"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33907,9 +33989,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#verify link load pre-fills the token form without calling Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33947,9 +34027,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-interwiki.test.js#builds SCP interwiki language links from Crom translations"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -33987,9 +34065,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-interwiki.test.js#serves Wikidot's static styleFrame document without echoing its query"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34027,9 +34103,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#reserved compatibility routes expose their public fail-closed responses"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34067,9 +34141,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#reserved compatibility routes expose their public fail-closed responses"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34108,9 +34180,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34148,9 +34218,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/ajax-module-connector.test.js#dispatches ListPages forms and returns the Wikidot JSON envelope"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34188,9 +34256,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#reserved compatibility routes expose their public fail-closed responses"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34228,9 +34294,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-feed-icon.test.ts#the icon route sets an explicit cache policy and image type without a proxy"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34268,10 +34332,7 @@
           2091
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-feed.test.ts#forum RSS uses local identifiers, public channel metadata, and safe CDATA",
-          "framerail/tests/forum-feed.test.ts#scoped category and thread RSS links resolve legacy Wikidot feed names"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34309,9 +34370,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/feed-pages-route.test.js#anonymous exact feed/pages renders the generic missing-page shell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34349,9 +34408,7 @@
           2087
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-changes-feed.test.ts#site changes RSS reports the frozen channel and newest-first bounded rows"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34390,9 +34447,7 @@
           1034
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-routes.test.js#unobserved forum suffixes terminate at the public 404 boundary"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34431,9 +34486,7 @@
           1034
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-routes.test.js#the observed category pager suffix reaches the exact AMC page"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34472,9 +34525,7 @@
           1034
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-routes.test.js#forum route loads use the exact sealed read-only module requests"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34513,9 +34564,7 @@
           1034
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-routes.test.js#forum route loads use the exact sealed read-only module requests"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34553,9 +34602,7 @@
           756
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-icon-source.test.js#local site icons redirect only to same-origin file routes"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34593,9 +34640,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-icons.test.js#iOS touch icons reproduce the three filenames and sizes Wikidot declares"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34633,9 +34678,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-icons.test.js#Windows 8 tile declaration keeps Wikidot's local route rather than the configured source"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34674,10 +34717,7 @@
           777
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/hooks-reroute.test.ts#printer-friendly doubled slash resolves to the single-slash route",
-          "framerail/tests/wikidot-print-view.test.js#printer-friendly URL preserves the live doubled slash"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34715,10 +34755,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/sitemap.test.ts#builds a shard urlset with escaped locations and lastmod dates",
-          "framerail/tests/sitemap.test.ts#parses shard numbers starting at 1 and rejects anything else"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34756,9 +34793,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/sitemap.test.ts#builds a sitemap index pointing at each shard page"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34797,9 +34832,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-user-info-target-route.test.js#GET /user:info/<target> has an encoded public route"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34837,9 +34870,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/xmlrpc-url-swap-public-boundary.test.js#the standard Python XML-RPC client resolves the documented API through the public route"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34878,9 +34909,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34919,9 +34948,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -34960,9 +34987,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#discussion updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35001,9 +35026,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#forum nesting updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35042,9 +35065,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/admin-license.test.js#returns explicit and inherited custom licenses as stable sanitizer input"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35083,9 +35104,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#renders membership policy without exposing a configured password and binds review actions"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35124,9 +35143,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#renders membership policy without exposing a configured password and binds review actions"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35165,9 +35182,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/admin-navigation.test.js#maps the inheritance control to nullable category overrides"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35206,9 +35221,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#rating updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35247,9 +35260,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35288,9 +35299,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#site icon updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35329,9 +35338,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35370,9 +35377,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#page template settings bind the category mutation to the trusted site actor"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35411,9 +35416,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35452,9 +35455,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35492,9 +35493,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35532,9 +35531,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35572,9 +35569,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#discussion updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35612,9 +35607,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#forum nesting updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35652,9 +35645,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/admin-license.test.js#returns explicit and inherited custom licenses as stable sanitizer input"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35692,9 +35683,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#renders membership policy without exposing a configured password and binds review actions"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35732,9 +35721,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#renders membership policy without exposing a configured password and binds review actions"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35772,9 +35759,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/admin-navigation.test.js#maps the inheritance control to nullable category overrides"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35812,9 +35797,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#rating updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35852,9 +35835,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35892,9 +35873,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/forum-nesting-site-binding.test.js#site icon updates stay bound to the routed site"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35932,9 +35911,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -35972,9 +35949,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#page template settings bind the category mutation to the trusted site actor"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36012,9 +35987,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36052,9 +36025,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/site-settings-public-boundary.test.js#routes settings writes through the trusted site and revision-bound action seam"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36092,9 +36063,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#delete issue binds the session actor and sends no identity"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36132,9 +36101,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#delete completion deletes on grant plus password and clears both"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36172,9 +36139,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#delete redemption exchanges the link for a grant only on POST"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36212,9 +36177,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#forgot issue trims the address and always reports success"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36252,9 +36215,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#login shares a session across native Wikijump wiki hosts but not custom domains"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36292,9 +36253,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#logout and user-edit route actions bind mutations to the server session"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36332,9 +36291,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#register binds account creation to the request address and redacts submitted passwords"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36372,9 +36329,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#reset page exchanges the link for a grant only on POST"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36412,9 +36367,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#reset completion sets the password, clears it, and reports revocation"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36452,9 +36405,7 @@
           1063
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/user-settings-action-boundary.test.js#user settings bind persistence to the server session actor"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36492,9 +36443,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/user-settings-password-change.spec.ts#account settings change the password with the current one"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36532,9 +36481,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/account-route-boundaries.test.js#logout and user-edit route actions bind mutations to the server session"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36572,9 +36519,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#verify issue uses the verify RPC, never the reset RPC"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36612,9 +36557,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/email-token.test.js#verify redemption POSTs the token; malformed tokens never reach Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36653,9 +36596,46 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-append-backlinks-public-boundary.test.js#Backlinks handler delegates the current route to the typed public Deepwell view"
-        ]
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/?/childrenGet",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:childrenGet",
+        "framerail/src/routes/+page.server.ts#action:childrenGet"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36694,9 +36674,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36735,9 +36713,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-delete-action-boundary.test.js#native Wikidot delete accepts an omitted comment"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36776,9 +36752,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-deleted-authorization.test.js#deleted-page actions use the authenticated route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36817,9 +36791,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-option-form-permission.spec.ts#Delete answers with the delete-permission dialog and opens no form"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36858,9 +36830,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-append-backlinks-public-boundary.test.js#Append submission preserves metadata and commits only the appended source at the revision-bound edit action"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36899,9 +36869,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36940,9 +36908,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file delete and move actions bind the actor and routed page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -36981,9 +36947,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37022,9 +36986,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file revision reads forward the routed request context to Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37063,9 +37025,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-list-public-boundary.test.js#Files SSR isolates filename cells from imported themes that style .name"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37104,9 +37064,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file delete and move actions bind the actor and routed page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37145,9 +37103,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37186,9 +37142,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37227,9 +37181,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-action-serialization.test.js#anonymous file upload failures remain serializable action results"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37268,9 +37220,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37309,9 +37259,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37350,9 +37298,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-legacy-action-request.test.js#Rate requests submit only the server registry binding"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37391,9 +37337,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-legacy-action-request.test.js#set-tags submits only the server registry index and revision binding"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37432,9 +37376,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37473,9 +37415,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37514,9 +37454,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37555,9 +37493,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#application and password actions preserve actor-bound page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37596,9 +37532,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#email invitation action derives the opaque hash from the trusted route, not the request body"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37637,9 +37571,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#root and slug page routes bind actor-verified membership Join"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37678,9 +37610,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#application and password actions preserve actor-bound page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37719,9 +37649,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-move-action-boundary.test.js#native page move resolves the routed page before moving it"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37760,9 +37688,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-option-form-permission.spec.ts#Move answers with the move-permission dialog and opens no form"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37801,11 +37727,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/new-site-submission.test.js#a created site redirects to its canonical origin",
-          "framerail/tests/new-site-submission.test.js#pageActions exposes newSite for the compat form post",
-          "framerail/tests/newsite-create-journey.spec.ts#an authenticated submission creates the site and redirects to its origin"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37844,9 +37766,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-parent-action-boundary.test.js#page form initialization gives ParentPane only its parents field"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37885,9 +37805,46 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-parent-action-boundary.test.js#root and slug parentSet actions accept the parent pane JSON payload"
-        ]
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/?/parentTrace",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:parentTrace",
+        "framerail/src/routes/+page.server.ts#action:parentTrace"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37926,9 +37883,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-deleted-authorization.test.js#deleted-page actions use the authenticated route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -37967,9 +37922,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38008,9 +37961,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38049,9 +38000,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38090,9 +38039,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#page score actions use only trusted route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38131,9 +38078,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#vote mutation actions forward the trusted route request context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38172,9 +38117,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#vote mutation actions forward the trusted route request context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38213,9 +38156,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#page score actions use only trusted route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38254,9 +38195,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-watchers-public-boundary.test.js#Watchers action derives the site from trusted context and remains anonymous"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38295,9 +38234,46 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-append-backlinks-public-boundary.test.js#Backlinks handler delegates the current route to the typed public Deepwell view"
-        ]
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/childrenGet",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:childrenGet",
+        "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:childrenGet"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38336,9 +38312,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38377,9 +38351,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-delete-action-boundary.test.js#native Wikidot delete accepts an omitted comment"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38418,9 +38390,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-deleted-authorization.test.js#deleted-page actions use the authenticated route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38459,9 +38429,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-option-form-permission.spec.ts#Delete answers with the delete-permission dialog and opens no form"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38500,9 +38468,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-append-backlinks-public-boundary.test.js#Append submission preserves metadata and commits only the appended source at the revision-bound edit action"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38541,9 +38507,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38582,9 +38546,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file delete and move actions bind the actor and routed page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38623,9 +38585,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38664,9 +38624,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file revision reads forward the routed request context to Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38705,9 +38663,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-list-public-boundary.test.js#Files SSR isolates filename cells from imported themes that style .name"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38746,9 +38702,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file delete and move actions bind the actor and routed page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38787,9 +38741,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38828,9 +38780,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-client-ip.test.js#file edit, restore, and rollback actions forward getClientAddress through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38869,9 +38819,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-file-action-serialization.test.js#anonymous file upload failures remain serializable action results"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38910,9 +38858,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38951,9 +38897,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -38992,9 +38936,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-legacy-action-request.test.js#Rate requests submit only the server registry binding"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39033,9 +38975,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/wikidot-legacy-action-request.test.js#set-tags submits only the server registry index and revision binding"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39074,9 +39014,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39115,9 +39053,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39156,9 +39092,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/release-route-action-boundaries.test.js#previously unattributed public route actions stay wired to their owning handlers"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39197,9 +39131,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#application and password actions preserve actor-bound page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39238,9 +39170,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#email invitation action derives the opaque hash from the trusted route, not the request body"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39279,9 +39209,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#root and slug page routes bind actor-verified membership Join"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39320,9 +39248,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-membership-action-boundary.test.js#application and password actions preserve actor-bound page context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39361,9 +39287,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-move-action-boundary.test.js#native page move resolves the routed page before moving it"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39402,9 +39326,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-option-form-permission.spec.ts#Move answers with the move-permission dialog and opens no form"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39443,11 +39365,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/new-site-submission.test.js#a created site redirects to its canonical origin",
-          "framerail/tests/new-site-submission.test.js#pageActions exposes newSite for the compat form post",
-          "framerail/tests/newsite-create-journey.spec.ts#an authenticated submission creates the site and redirects to its origin"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39486,9 +39404,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-parent-action-boundary.test.js#page form initialization gives ParentPane only its parents field"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39527,9 +39443,46 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-parent-action-boundary.test.js#root and slug parentSet actions accept the parent pane JSON payload"
-        ]
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/parentTrace",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:parentTrace",
+        "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:parentTrace"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39568,9 +39521,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-deleted-authorization.test.js#deleted-page actions use the authenticated route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39609,9 +39560,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39650,9 +39599,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39691,9 +39638,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-workflows.spec.ts#article routes carry load and mutation context through Deepwell"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39732,9 +39677,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#page score actions use only trusted route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39773,9 +39716,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#vote mutation actions forward the trusted route request context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39814,9 +39755,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#vote mutation actions forward the trusted route request context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39855,9 +39794,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-vote-request-context.test.js#page score actions use only trusted route context"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -39896,9 +39833,7 @@
           1372
         ],
         "cases": [],
-        "tests": [
-          "framerail/tests/page-watchers-public-boundary.test.js#Watchers action derives the site from trusted context and remains anonymous"
-        ]
+        "tests": []
       },
       "evidence": {
         "status": "missing",
@@ -40650,7 +40585,7 @@
         },
         {
           "path": "framerail/src/lib/server/load/page/page-actions.ts",
-          "sha256": "397df976d2643f49b18921d6318fe6d9b46e03469ba3b9003751c05e2e5fd44d"
+          "sha256": "b91973ccac3c153407edb69a3dfaed09a01819ffdde37100c1dc4cbc04dcc744"
         }
       ],
       "specification_owner": "wikijump.registry:missing-page-control",
@@ -40750,7 +40685,7 @@
         },
         {
           "path": "framerail/src/lib/server/load/page/page-actions.ts",
-          "sha256": "397df976d2643f49b18921d6318fe6d9b46e03469ba3b9003751c05e2e5fd44d"
+          "sha256": "b91973ccac3c153407edb69a3dfaed09a01819ffdde37100c1dc4cbc04dcc744"
         },
         {
           "path": "framerail/src/lib/server/load/page/page.ts",

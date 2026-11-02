@@ -383,3 +383,31 @@ test("explicit groups run without a change-set and unknown groups are refused", 
   assert.match(quiet.stdout, /nothing to check/)
   assert.deepEqual(idle.commands(), [])
 })
+
+test("listing without a change-set still prints the group plan (the nightly shape)", (t) => {
+  // A scheduled consolidated-validation run has base == head, so the
+  // diff is empty by construction; the workflow plan step reads the
+  // group universe from the --list output and applies its own (nightly)
+  // selection. The listing must therefore print the plan - every group,
+  // nothing selected - instead of the "nothing to check" early return.
+  const harness = createHarness(t)
+  const result = harness.runPreflight(["--base", remoteOid, "--final", "--list"], {
+    PREFLIGHT_REMOTE_SCOPE: "none"
+  })
+  assert.equal(result.status, 0, result.stderr)
+  assert.doesNotMatch(result.stdout, /nothing to check/)
+  const groupsLine = result.stdout.match(/^preflight: groups: (.*)$/mu)?.[1] ?? ""
+  for (const group of ["deepwell", "wws", "framerail", "locales", "workflow", "theme_lab", "verification"]) {
+    assert.ok(groupsLine.includes(`${group}=false`), `${group} missing or selected in: ${groupsLine}`)
+  }
+  assert.doesNotMatch(result.stdout, /would run:/)
+  assert.deepEqual(harness.commands(), [])
+
+  // The gate shape is unchanged: without --list the same empty
+  // change-set still ends at "nothing to check" and runs nothing.
+  const gated = createHarness(t)
+  const quiet = gated.runPreflight(["--base", remoteOid, "--final"], { PREFLIGHT_REMOTE_SCOPE: "none" })
+  assert.equal(quiet.status, 0, quiet.stderr)
+  assert.match(quiet.stdout, /nothing to check/)
+  assert.deepEqual(gated.commands(), [])
+})

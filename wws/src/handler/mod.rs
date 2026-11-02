@@ -55,8 +55,6 @@ pub enum TargetServer {
     Files,
 }
 
-/// Helper function to extract a string value from a header.
-/// This function asserts that the header does exist.
 fn get_header<'a>(
     headers: &'a HeaderMap,
     header: HeaderName,
@@ -70,7 +68,6 @@ fn get_header<'a>(
         .expect(not_utf8_header_message)
 }
 
-/// Helper function to get the site ID from headers.
 fn get_site_id(headers: &HeaderMap) -> i64 {
     get_header(
         headers,
@@ -82,7 +79,6 @@ fn get_site_id(headers: &HeaderMap) -> i64 {
     .expect("Site ID is not a valid integer")
 }
 
-/// Helper function to get the site slug from headers.
 fn get_site_slug(headers: &HeaderMap) -> &str {
     get_header(
         headers,
@@ -92,8 +88,6 @@ fn get_site_slug(headers: &HeaderMap) -> &str {
     )
 }
 
-/// Extract the end-user session cookie forwarded to permission-aware
-/// DEEPWELL requests.
 pub(crate) fn get_session_token(headers: &HeaderMap) -> Option<&str> {
     for value in headers.get_all(COOKIE) {
         let Ok(cookie_header) = value.to_str() else {
@@ -114,10 +108,6 @@ pub(crate) fn get_session_token(headers: &HeaderMap) -> Option<&str> {
     None
 }
 
-/// Helper function to get which target server Caddy has told us we are.
-///
-/// This is either `main` or `files`, and refers to whether routes like
-/// `robots.txt` are `foo.wikijump.com` or `foo.wjfiles.com`.
 fn get_target_server(headers: &HeaderMap) -> TargetServer {
     let value = headers
         .get(HEADER_TARGET_SERVER)

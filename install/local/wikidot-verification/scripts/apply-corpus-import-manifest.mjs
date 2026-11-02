@@ -432,12 +432,6 @@ ON CONFLICT (hash) DO NOTHING;
   await flush();
 }
 
-/** The category a DB-shell page is stored under: the category of its storage
- * slug, not of its source fullname. The two coincide for the holding site's
- * own rows; for foreign rows the page lives at _foreign:<source>:<fullname>,
- * and Deepwell resolves a page's category from its stored slug, so the
- * category row must be the storage category (_foreign:<source>:<category>).
- */
 export function dbShellCategorySlug(holding, row) {
   return categoryName(storageSlug(holding, row));
 }
@@ -1524,10 +1518,6 @@ async function importRow(args, sqlExecutor, row, importRunId) {
 }
 
 async function upsertParentLinks(args, sqlExecutor, selectedRows) {
-  // Attachment-only imports do not change page snapshots or page topology. The
-  // selected rows can include existing pages whose include graph is outside
-  // this run, so parent-link work must not rerender those pages after the file
-  // rows have already been committed.
   if (args.attachmentsOnlyExisting) {
     return {
       parent_link_requested: 0,

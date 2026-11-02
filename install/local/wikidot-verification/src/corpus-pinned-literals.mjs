@@ -1,27 +1,8 @@
-// Detects compatibility rules that are pinned to captured page content.
-//
-// A Wikidot emulator earns its name by implementing the behaviour Wikidot
-// exhibits, not by recognising the pages the corpus happens to contain. A
-// predicate that compares against a byte-exact fragment of an imported page
-// reproduces exactly one page: shift a word, add a line, and the emulator and
-// Wikidot disagree again.
-//
-// The test here is factual rather than stylistic. A literal is reported when it
-// occurs verbatim in the captured corpus and occurs in only a handful of pages.
-// Genuine module syntax appears across hundreds of captured sources and is left
-// alone; a fragment lifted from one page appears in one or two, and that rarity
-// is the defect.
-//
-// Known limit: this reads string literals only. A rule can overfit without any
-// corpus-derived literal, by demanding an exact conjunction of ordinary syntax
-// tokens (a tail of exactly three lines with nothing after it, say). Those must
-// still be caught by review. A clean report is not proof of a general rule.
 
 export const ALLOWLIST_SCHEMA =
   "wikijump_compat.corpus_pinned_literals.allowlist.v1";
 export const REPORT_SCHEMA = "wikijump_compat.corpus_pinned_literals.report.v1";
 
-// Operators whose right-hand literal decides whether source text matches.
 const MATCH_OPERATOR_TAILS = [
   {pattern: /(?:==|!=)\s*$/u, operator: "comparison"},
   {
@@ -35,9 +16,6 @@ const CONCAT_TAIL = /concat!\(\s*$/u;
 const LINE_MATCH_FALLBACK = /(?:==|!=|matches!\()/u;
 
 const CONTEXT_WINDOW = 160;
-// Walks Rust source once, recording every string literal with its byte range.
-// Comments, character literals and raw strings are consumed so that a `"` in a
-// comment cannot open a phantom literal.
 export function scanRustLiterals(source) {
   const literals = [];
   let index = 0;
@@ -65,8 +43,6 @@ export function scanRustLiterals(source) {
       continue;
     }
     if (character === "'") {
-      // A lifetime (`'a`) is not a character literal; a character literal
-      // always closes on a following quote within a few bytes.
       const closing = source.indexOf("'", index + 1);
       const span = closing === -1 ? Infinity : closing - index;
       if (span <= 4 && !/^'[A-Za-z_][A-Za-z0-9_]*$/u.test(source.slice(index, closing))) {
@@ -151,8 +127,6 @@ function lineNumberAt(source, offset) {
   return line;
 }
 
-// Ranges covered by `#[cfg(test)] mod ... { ... }`. Regression tests are
-// supposed to contain corpus source, so they are never findings.
 export function testModuleRanges(source) {
   const ranges = [];
   const marker = /#\[cfg\(test\)\]/gu;
@@ -195,7 +169,6 @@ function maskRanges(text, ranges) {
   return characters.join("");
 }
 
-// Decides whether a literal sits where source text is matched against it.
 export function matchingContextAt(source, start) {
   let cursor = start;
   for (let hop = 0; hop < 4; hop += 1) {
@@ -205,7 +178,6 @@ export function matchingContextAt(source, start) {
       if (pattern.test(trimmed)) return {matched: true, operator};
     }
     if (CONCAT_TAIL.test(trimmed)) {
-      // A `concat!(` group inherits the operator applied to the group.
       cursor = Math.max(0, cursor - CONTEXT_WINDOW) + trimmed.lastIndexOf("concat!(");
       continue;
     }
@@ -218,24 +190,10 @@ export function matchingContextAt(source, start) {
 }
 
 export const REFERENCE_SCHEMA = "wikijump_syntax_differential.wikidot_reference.v1";
-// Measured against the campaign corpus of 19,612 captured sources. Rules pinned
-// to page content occur in 1 to 8 captured pages; genuine module syntax occurs
-// in 321 (`[[collapsible show="`), 658 (`[!--`), 7,803 (`created_at`) and 19,421
-// (`[[/module]]`). The threshold sits in a fortyfold gap, so it is not delicate.
 export const DEFAULT_MAX_PINNED_CASES = 8;
 export const DEFAULT_MIN_LITERAL_LENGTH = 4;
-// Short markup vocabulary (`<br>`, `&quot;`, `[[html]]`, `~~~~`) is also rare in
-// a ListPages corpus without being lifted from any page, so rarity alone cannot
-// carry it. Length does: measured on the render tree, every rare literal of 16
-// characters or more was genuinely page content and every shorter one was
-// vocabulary. Shorter matches are still reported, as notices for review rather
-// than as findings.
 export const MIN_FINDING_LENGTH = 16;
 
-// Captured sources, keyed by the case that captured them. Every record must
-// carry a source: the whole signal here is how many pages contain a literal, so
-// silently dropping records would make everything look rarer than it is and
-// manufacture findings.
 export function buildCorpusIndex(records) {
   const cases = [];
   for (const [index, record] of records.entries()) {
@@ -253,8 +211,6 @@ export function buildCorpusIndex(records) {
   return cases;
 }
 
-// How many captured pages contain this exact text. Common module syntax is in
-// hundreds; a fragment lifted from one page is in one or two.
 export function locateInCorpus(value, corpus, {maxCases = DEFAULT_MAX_PINNED_CASES} = {}) {
   const caseIds = [];
   let total = 0;
@@ -267,8 +223,6 @@ export function locateInCorpus(value, corpus, {maxCases = DEFAULT_MAX_PINNED_CAS
   return {total, caseIds, pinned: total > 0};
 }
 
-// Adjacent literals separated only by whitespace and commas are one logical
-// string, which is how `concat!(...)` spells a long constant.
 function groupAdjacentLiterals(source, literals) {
   const groups = [];
   for (const literal of literals) {

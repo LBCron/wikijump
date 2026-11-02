@@ -19,10 +19,6 @@ import {
 
 const rpcToken = "0".repeat(64);
 
-// A FIFO opened without O_NONBLOCK would park the comparison forever, so the
-// FIFO cases bound the comparison call itself. Building the sealed pilot fixture
-// fsyncs dozens of files and runs outside the bound: under host memory or I/O
-// pressure it alone can take longer than the comparison's whole budget.
 const FIFO_COMPARISON_BOUND_MS = 10_000;
 
 async function settlesWithin(promise, milliseconds) {

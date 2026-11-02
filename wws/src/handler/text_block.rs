@@ -35,14 +35,6 @@ use sha1::{Digest, Sha1};
 
 const MAX_TEXT_BLOCK_OBJECT_BYTES: usize = 16 * 1024 * 1024;
 
-/// How many times a text block request may run the Deepwell lookup and the
-/// S3 fetch before giving up.
-///
-/// The lookup and the fetch are separate steps, and a re-render landing
-/// between them replaces the block: its row switches to a new S3 object and
-/// the old object is deleted once the replacement commits. A fetch that
-/// misses an object the lookup just returned is therefore retried against
-/// a fresh lookup instead of surfacing as an error.
 const MAX_TEXT_BLOCK_ATTEMPTS: u32 = 3;
 
 const HTML_BLOCK_DOCUMENT_PREFIX: &[u8] = br#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -63,7 +55,6 @@ pub async fn handle_html_block(
         "Returning HTML block data",
     );
 
-    // HTML blocks can't have named aliases
     handle_text_block(
         &state,
         &headers,
@@ -93,10 +84,6 @@ pub async fn handle_html_terminal(
         )
         .await;
     };
-    // The lookup and the S3 fetch are separate steps; if the block is
-    // replaced in between, the looked-up object is deleted and the fetch
-    // misses. Look the block up again and serve the replacement instead
-    // of returning an error.
     let mut attempt = 0;
     loop {
         attempt += 1;
@@ -173,7 +160,6 @@ pub async fn handle_code_block(
         "Returning code block data",
     );
 
-    // Determine if it's an alias or a regular numeric index
     let index = if value.chars().all(|c| c.is_ascii_digit()) {
         BlockId::Index(value)
     } else {
@@ -220,11 +206,6 @@ async fn handle_text_block(
         BlockId::Name(name) => (TextBlockId::Name(name.as_str()), name.as_str()),
     };
 
-    // The Deepwell lookup and the S3 fetch are separate steps. If a
-    // re-render replaces the block in between, the looked-up object is
-    // deleted and the fetch misses; look the block up again and serve the
-    // replacement instead of returning an error. A block the lookup does
-    // not return at all is genuinely missing and is never retried.
     let mut attempt = 0;
     loop {
         attempt += 1;
@@ -293,14 +274,8 @@ async fn handle_text_block(
     }
 }
 
-/// The outcome of one attempt to serve a looked-up text block.
 enum TextBlockServeOutcome {
-    /// The request has been answered, successfully or with a terminal
-    /// error; return the response as-is.
     Answered(Response),
-    /// The S3 object named by the Deepwell lookup does not exist, because
-    /// the block was replaced between the lookup and the fetch. The caller
-    /// should look the block up again and serve the replacement.
     ObjectMissing,
 }
 
@@ -325,8 +300,6 @@ async fn serve_text_block(
             }
             Ok((_, status_code)) => {
                 if status_code == StatusCode::NOT_FOUND.as_u16() {
-                    // The object the lookup just named is already gone:
-                    // the block was replaced between lookup and fetch.
                     info!(
                         page_id,
                         block_type = block_type.value(),
@@ -411,8 +384,6 @@ async fn serve_text_block(
         Ok(response) if response.status_code == status_code => response,
         Ok(response) => {
             if response.status_code == StatusCode::NOT_FOUND.as_u16() {
-                // Deleted between the HEAD above and this GET: the same
-                // replacement race as a missing HEAD.
                 info!(
                     page_id,
                     block_type = block_type.value(),
@@ -515,10 +486,6 @@ async fn serve_text_block(
         return TextBlockServeOutcome::Answered(StatusCode::NOT_MODIFIED.into_response());
     }
     let body = Body::from(text_block_response_body(block_type, raw_body));
-    // Every hosted text response carries `nosniff`: stylesheets, scripts,
-    // HTML documents and plain text all have evidenced inline consumers
-    // (theme `@import`, component `<script src>`, `[[iframe]]` gadgets), so
-    // they keep the stored Content-Type exactly and stay inline.
     let mut builder = Response::builder()
         .header(header::CONTENT_TYPE, &content_type)
         .header(header::ETAG, &etag)
@@ -537,11 +504,6 @@ async fn serve_text_block(
     })
 }
 
-/// Whether a hosted text block must download instead of rendering inline.
-///
-/// Only XML-essence payloads take this path. The rule mirrors the file
-/// lane's XML essence check without sharing it, so neither lane can change
-/// the other's behavior by editing a common helper.
 fn text_block_serves_as_attachment(content_type: &str) -> bool {
     let essence = content_type
         .split(';')
@@ -683,7 +645,6 @@ mod tests {
         etag: String,
     }
 
-    // Since this thing isn't returning a case-insensitive map...
     fn get_headers(headers: HashMap<String, String>) -> Headers {
         let mut content_type = None;
         let mut etag = None;
@@ -730,8 +691,6 @@ mod tests {
             pages.insert("new-page".to_owned(), PAGE_ID);
         }
 
-        /// Records one lookup for the given block index and returns how
-        /// many lookups that index has now seen.
         fn count_block_lookup(&self, index: u64) -> usize {
             let mut lookups = self.block_lookups.lock().unwrap();
             let count = lookups.entry(index).or_insert(0);
@@ -884,15 +843,10 @@ mod tests {
                     "index": 1,
                     "s3_filename": match request["params"]["block_type"].as_str().unwrap() {
                         "html" => HTML_BLOCK_S3_KEY,
-                        // Each code index stands in for one stored language:
-                        // plain text, XML, CSS, JavaScript.
                         "code" => match request["params"]["index"].as_u64() {
                             Some(2) => CODE_XML_S3_KEY,
                             Some(3) => CODE_CSS_S3_KEY,
                             Some(4) => CODE_JS_S3_KEY,
-                            // A block mid-replacement: the first lookup
-                            // names the old object, later lookups name
-                            // the replacement object.
                             Some(REPLACED_INDEX) => {
                                 if state.count_block_lookup(REPLACED_INDEX) == 1 {
                                     REPLACED_OLD_S3_KEY
@@ -900,7 +854,6 @@ mod tests {
                                     REPLACED_NEW_S3_KEY
                                 }
                             }
-                            // A block whose object never comes back.
                             Some(GONE_INDEX) => {
                                 state.count_block_lookup(GONE_INDEX);
                                 GONE_S3_KEY
@@ -927,7 +880,6 @@ mod tests {
     }
 
     async fn mock_text_block_s3(Path(path): Path<String>) -> Response {
-        // Objects deleted by a replacement (or never uploaded) are gone.
         if path.ends_with(REPLACED_OLD_S3_KEY) || path.ends_with(GONE_S3_KEY) {
             return Response::builder()
                 .status(StatusCode::NOT_FOUND)
@@ -1145,9 +1097,6 @@ mod tests {
     async fn code_block_serving_policy_follows_stored_mime() {
         let app = TextBlockTestApp::spawn().await;
 
-        // Index 1 is plain text, 2 is XML, 3 is CSS, 4 is JavaScript. Only
-        // the XML essence downloads; the evidenced inline lanes keep the
-        // stored Content-Type exactly, and every response carries nosniff.
         for (index, content_type, downloads) in [
             ("1", "text/plain", false),
             ("2", "application/xml", true),
@@ -1483,9 +1432,6 @@ mod tests {
     async fn code_block_replaced_between_lookup_and_fetch_is_served() {
         let app = TextBlockTestApp::spawn().await;
 
-        // The first lookup names the pre-replacement object, which the
-        // replacement has already deleted. The request must look the block
-        // up again and serve the replacement instead of failing.
         let response = app.get(&format!("/-/code/old-page/{REPLACED_INDEX}")).await;
         assert_eq!(response.status(), StatusCode::OK);
         assert_eq!(
@@ -1499,9 +1445,6 @@ mod tests {
     async fn code_block_with_a_permanently_missing_object_still_errors() {
         let app = TextBlockTestApp::spawn().await;
 
-        // The object never comes back, so the bounded retries run out and
-        // the request ends in the same fetch error as before, after a
-        // bounded number of lookups.
         let response = app.get(&format!("/-/code/old-page/{GONE_INDEX}")).await;
         assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
         assert_eq!(

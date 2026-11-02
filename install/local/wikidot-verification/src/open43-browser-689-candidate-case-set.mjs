@@ -22,7 +22,7 @@ export const OPEN43_B689_CASE_IDS = Object.freeze([
 export const OPEN43_B689_TABVIEW_FIXTURE = Object.freeze({
   fixture_id: "open43-standing-browser-tabview-canaries",
   source_path: "install/local/wikidot-verification/src/standing-browser-canaries.mjs",
-  source_sha256: "62a0481154a673eefa36e346cac87cd8c6ca0475079715c5a06eb13353a4af51",
+  source_sha256: "6c9ad3b406d2a6f0f089b38b8ac3f882b10f0e9c0e43462f54f19ded58203e83",
   canary_slugs: Object.freeze(["theme:basalt", "scp-8980"]),
 });
 
@@ -68,9 +68,6 @@ export const OPEN43_B689_TABVIEW_LIVE_ORACLE = Object.freeze({
         label_wrapper: "em",
         panel_ids_present: true,
       }),
-      // The retained first-paint reference seals root geometry and DOM only.
-      // Do not import SCP-8980 computed styles or the later 2026-08-09 settled
-      // panel dimensions into the theme:basalt initial phase.
       resource_state: Object.freeze({ document_ready_state: "interactive" }),
       settled: Object.freeze({
         tabview_rectangle: Object.freeze({ x: 123, y: 3954.65625, width: 1120, height: 188.69 }),
@@ -84,9 +81,6 @@ export const OPEN43_B689_TABVIEW_LIVE_ORACLE = Object.freeze({
         count: 1,
         id_present: true,
         class_name: "yui-navset yui-navset-top",
-        // The retained live capture includes the legacy automatic breadcrumb
-        // shell. Current standard Wikidot pages do not render that shell; the
-        // exact 25.9375px boundary is reconciled from the retained geometry.
         rectangle: Object.freeze({ x: 203, y: 168, width: 960, height: 58505.09 }),
         styles: SCP8980_LIVE_TABVIEW_STYLES,
         selected_title: "active",
@@ -96,8 +90,6 @@ export const OPEN43_B689_TABVIEW_LIVE_ORACLE = Object.freeze({
       nav_styles: LIVE_NAV_STYLES,
       content_styles: LIVE_CONTENT_STYLES,
       panel_styles: LIVE_CONTENT_STYLES,
-      // Initial external-image counts are timing/site-state diagnostics, not a
-      // stable B689 contract. Settled completion remains required below.
       resource_state: Object.freeze({ document_ready_state: "interactive" }),
       settled: Object.freeze({
         tabview_y: 168,
@@ -492,10 +484,6 @@ async function runNavigationLifecycle(page, awayUrl) {
   const lifecycleRoute = async (route) => b689NavigationRequestIsLocal(route.request().url(), pageOrigin)
     ? route.fallback()
     : route.abort("blockedbyclient");
-  // The navigation row verifies URL/history and tab reset semantics, not live external-resource
-  // parity. The settled rows above already prove the fully loaded live geometry. Avoid routing
-  // unrelated Wikidot CDN assets through the public-request throttle on every back/forward
-  // hop; keep the candidate document and its local application/file assets exact.
   await page.route("**/*", lifecycleRoute);
   try {
     const away = await page.goto(awayUrl, { waitUntil: "domcontentloaded", timeout: 30_000 });
@@ -593,9 +581,6 @@ function verifySettledPage(page) {
         throw new Error(`${page.slug} settled first panel id mismatched`);
       }
     }
-    // The theme:basalt retained settled evidence seals geometry/DOM, while the
-    // SCP-8980 evidence additionally seals computed styles. Keep those evidence
-    // scopes separate instead of projecting SCP-8980 styles onto both pages.
     if (oracle.tabview.styles !== undefined) compareStyles(tabview.styles, oracle.tabview.styles, `${page.slug} settled tabview #${index}`);
     if (oracle.nav_styles !== undefined) compareStyles(tabview.nav_styles, oracle.nav_styles, `${page.slug} settled nav`);
     if (oracle.content_styles !== undefined) compareStyles(tabview.content_styles, oracle.content_styles, `${page.slug} settled content`);

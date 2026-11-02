@@ -33,11 +33,6 @@ const LINE_BUDGETS = new Map([
   ["deepwell/src/services/render/service.rs", 4_000],
 ]);
 
-// Directory-scoped line budgets. Each row names its directory, per-file maximum,
-// and the exact file filter the former per-directory test applied. One test walks
-// this table so a new split directory is a one-row addition rather than another
-// copy of the same readdir/filter/offender assertion. The filter is part of the
-// row so consolidating cannot widen a budget or admit a previously excluded file.
 const DIRECTORY_LINE_BUDGETS = [
   {
     directory: "deepwell/src/services/render/runtime_modules",

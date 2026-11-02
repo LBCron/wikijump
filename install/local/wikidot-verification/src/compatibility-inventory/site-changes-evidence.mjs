@@ -170,9 +170,6 @@ export async function applySiteChangesEvidence(root, records, { readText }) {
     requireSha256(rawSha, `${caseId} raw hash`)
     requireSha256(responseSha, `${caseId} response hash`)
   }
-  // The Git-tracked artifact above is the durable authority input.  When the
-  // original wjlab evidence is present, cross-check it byte-for-byte; its
-  // absence must not make one Git tree generate a different inventory in CI.
   await verifySiteChangesExternalEvidence(artifact)
   return records.map((record) =>
     record.surface_id === SITE_CHANGES_SURFACE_ID

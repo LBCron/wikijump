@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# Run a self-contained browser suite in a private network namespace. Its web
-# server, fixture server, and browsers share loopback, but no packet can reach
-# the host network or an external server.
 set -euo pipefail
 
 if [[ $# -eq 0 ]]; then

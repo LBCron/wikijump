@@ -4,9 +4,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [[ "${WIKIJUMP_TEST_NETWORK_GUARD_ACTIVE:-}" != "1" ]]; then
-  # Resolve the already-installed pinned toolchain before entering the network
-  # guard. Calling the rustup proxy from inside the guard can trigger a channel
-  # update check even when the toolchain itself is already present.
   export WIKIJUMP_OFFLINE_CARGO="$(rustup which --toolchain 1.99.1 cargo)"
   export WIKIJUMP_OFFLINE_RUSTC="$(rustup which --toolchain 1.99.1 rustc)"
   export WIKIJUMP_OFFLINE_RUSTDOC="$(rustup which --toolchain 1.99.1 rustdoc)"

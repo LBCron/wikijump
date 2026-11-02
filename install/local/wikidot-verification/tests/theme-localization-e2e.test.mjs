@@ -93,8 +93,6 @@ test("target allowlist rejects mirror sites, paths, credentials, and wrong proto
   assert.throws(() => validateTargetOrigin("https://user:pass@scpaiueouiuiuiui.wikijump.localhost", "wikijump"), /hard allowlist/);
   assert.throws(() => validateTargetOrigin("http://scpaiueouiuiuiui.wikidot.com:9999", "wikidot"), /hard allowlist/);
   assert.throws(() => validateTargetOrigin("https://scpaiueouiuiuiui.wikijump.localhost:2747", "wikijump"), /hard allowlist/);
-  // Each local environment answers only on its own port: standing on 443,
-  // the development stack on 18443.
   assert.equal(validateTargetOrigin("https://scpaiueouiuiuiui.wikijump.localhost", "wikijump"), "https://scpaiueouiuiuiui.wikijump.localhost");
   assert.throws(() => validateTargetOrigin("https://scpaiueouiuiuiui.wikijump.localhost:18443", "wikijump"), /hard allowlist/);
   assert.throws(() => validateTargetOrigin("https://scpaiueouiuiuiui.wikijump.dev.localhost", "wikijump"), /hard allowlist/);

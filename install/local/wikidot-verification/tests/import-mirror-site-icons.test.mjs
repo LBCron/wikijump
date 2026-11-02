@@ -3,8 +3,6 @@ import test from "node:test"
 
 import { declaredSiteIcons, iconMime, sniffIconMime } from "../scripts/import-mirror-site-icons.mjs"
 
-// The head served by scp-wiki.wikidot.com on 2026-10-11 (retained SCP-9506
-// capture scp9506-live-20261012-chromium149).
 const SCP_WIKI_HEAD = `<html><head>
 <link rel="shortcut icon" href="/local--favicon/favicon.gif"/>
 <link rel="icon" type="image/gif" href="/local--favicon/favicon.gif"/>
@@ -42,8 +40,6 @@ test("the observed media type is kept, including a GIF route serving PNG bytes",
 })
 
 test("sniffIconMime reads the type from the bytes, not the declared header", () => {
-  // Regression: the SCP Wiki favicon is PNG bytes served as image/gif;
-  // Deepwell rejects a declared type the bytes do not match.
   const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
   assert.equal(sniffIconMime(png), "image/png")
   assert.equal(sniffIconMime(Buffer.from("GIF89a", "ascii")), "image/gif")

@@ -403,10 +403,6 @@ function validateAttachmentEntry(entry, index, rowPath) {
   }
 }
 
-// Convert a capture-state attachment manifest (files/_state.json, the
-// source-bundle spec format: {"files": {"<filename>": {download_url,
-// mime_type, sha256, size, ...}}}) into files.json-shaped entries so both
-// formats flow through the same validation below.
 function attachmentEntriesFromStateManifest(statePath) {
   const state = readJson(statePath);
   if (state === null || typeof state !== 'object' || Array.isArray(state)) {
@@ -756,9 +752,6 @@ export function buildCorpusImportManifest({ corpusRoot = null, sourceBundleRoot 
     .filter((entry) => wantedFullnames === null || wantedFullnames.has(entry.name))
     .map((entry) => entry.name)
     .sort(codePointCompare);
-  // Requested pages absent from the corpus must fail closed, not silently
-  // shrink the manifest. With closure expansion the wanted set is the
-  // closure union; explicit roots are still validated by the same rule.
   const expectedFullnames = wantedFullnames ?? requestedFullnames;
   if (expectedFullnames !== null && entries.length !== expectedFullnames.size) {
     const found = new Set(entries);
@@ -963,14 +956,6 @@ export function buildManifestSummary(rows, jsonl) {
   };
 }
 
-/**
- * Filesystem-backed branch access for `expandCrossSiteIncludeClosure`.
- *
- * `readProvenance` returns `{ path, captureId, runId, payloadSha256 }`,
- * reading the branch's `current.json` acquisition record when present and
- * reporting null revision fields when the branch carries none (several
- * translation branches store only source, meta, and entity files).
- */
 export function corpusBranchAccess(pagesRoot) {
   const pageFile = (slug, name) => path.join(pagesRoot, slug, name);
   return {
@@ -1004,28 +989,6 @@ export function corpusBranchAccess(pagesRoot) {
   };
 }
 
-/**
- * Build an import manifest for the cross-site dependencies of mirror pages.
- *
- * Runs `expandCrossSiteIncludeClosure` from `roots` (slugs on
- * `targetBranch`, whose Wikidot site is `targetSite`) across every branch
- * directory in `branches`, then emits one row per included page that lives
- * outside the target branch. Same-branch dependencies belong to the
- * same-site manifest and are counted, not emitted. Rows reuse
- * `rowFromRecord` plus `closure_depth`/`closure_via` and the corpus
- * provenance of their source file (`source_current_*`, null when the
- * branch carries no acquisition record); attachments are not materialized
- * for cross-site rows because foreign branches carry no by-uuid file
- * provenance.
- *
- * Fail-closed rules: requested roots absent from the target branch throw;
- * foreign records with missing or malformed meta/entity files, duplicate
- * entity ids, metadata mismatches, and a second record of one source page
- * become `gaps` entries (never silent renames or drops). A foreign page may
- * share its fullname with a target-branch page or with another site's page:
- * the applier stores foreign rows under `_foreign:<source_site>:<fullname>`.
- * Returns `{ rows, gaps, summary }`.
- */
 export function buildCrossSiteDependencyManifest({
   corpusRoot,
   targetBranch,
@@ -1209,15 +1172,6 @@ function readCrossSitePageRecord(pageDir) {
   return { error: null, meta, entityId, sourceFile, metaFile, entityIdPath };
 }
 
-/**
- * Summarize cross-site coverage for a set of affected mirror pages.
- *
- * `verdicts` maps each affected slug to `{ fixed, gaps, truncated }` as
- * computed per-root by the dry-run driver; `manifest` is the merged
- * `buildCrossSiteDependencyManifest` output those verdicts were aggregated
- * from. Pure function over committed shapes so the integrity report and the
- * tests share it.
- */
 export function summarizeCrossSiteCoverage({ affectedSlugs, verdicts, manifest }) {
   const fixed = [];
   const stillBroken = [];

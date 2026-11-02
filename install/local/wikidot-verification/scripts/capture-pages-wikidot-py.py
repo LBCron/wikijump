@@ -142,7 +142,7 @@ def fetch_captures(site_name: str, slugs: list[str], checkout: Path) -> list[dic
                 failures.append({"slug": slug, "error": "page does not exist"})
                 continue
             payload = page_to_raw(page)
-        except Exception as error:  # one bad page fails the run, see header
+        except Exception as error:
             failures.append({"slug": slug, "error": f"{type(error).__name__}: {error}"})
             continue
         captures.append({

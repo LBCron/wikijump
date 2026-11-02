@@ -18,49 +18,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Fallback errors, or what wws returns when there are no better errors to emit.
-//!
-//! When something goes very wrong, and we cannot contact
-//! DEEPWELL or read relevant data from the cache in order
-//! to give a useful response, an error from here is returned.
-//!
-//! This is to aid users in reporting the specific issue which
-//! occurred, while minimizing the dump of non-localizable text.
-//!
-//! As a suggestion, leave a comment with the code (e.g. `XF-1003`)
-//! whenever `FallbackError::into_response()` is used, enabling
-//! future debuggers to simply grep for the code and find where
-//! the error is occurring.
-//!
-//! This is distinct from the concept of the basic error, which is
-//! part of DEEPWELL and also used here, which refers to localized error
-//! messages built-in to Wikijump which are used when no better error
-//! message can be used.
-//!
-//! As opposed to fallback errors which are specific to WWS, and occur
-//! when no better error code can be returned due to unexpected issues.
-//! In this sense, fallback errors are "more primordial" than basic errors,
-//! since one cause is WWS failing to look up a basic error from DEEPWELL.
-
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum FallbackError {
-    /// No such basic error code.
     BasicErrorCode,
 
-    /// Attempting to access the basic error route directly.
-    /// Or with a missing `X-Wikijump-Basic-Error` internal header.
     BasicErrorDirect,
 
-    /// Unable to retrieve a basic error response from DEEPWELL.
     BasicErrorFetch,
 
-    /// Unable to determine the preferred domain to redirect to for a site.
     RedirectMain,
 
-    /// Unable to fetch a hosted text block from S3.
     TextBlockS3Fetch,
 
     /// Unable to generate the initial Caddyfile.

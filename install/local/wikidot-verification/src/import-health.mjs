@@ -1,14 +1,6 @@
-// V1 import-health reporting for the local Wikidot rendering lab.
-//
-// Consumes apply-corpus-import-manifest.mjs JSONL logs (one action line per
-// manifest row plus a trailing summary object) and produces a verdict:
-// every row must reach an imported/done state or carry a classified failure
-// code. Unclassified failures block (exit 2), mirroring the render-health
-// taxonomy discipline.
 
 export const IMPORT_HEALTH_SCHEMA = 'wikijump_local_lab.import_health.v1';
 
-// Ordered: first match wins.
 const FAILURE_CLASSIFIERS = [
   { code: 'auth-context-missing', pattern: /requires an authenticated request context|code":3106/ },
   { code: 'include-depth-exceeded', pattern: /include expansion exceeded maximum depth/ },
@@ -27,8 +19,6 @@ const DONE_ACTIONS = new Set([
   'skipped_existing_done',
 ]);
 
-// Collision policy: an existing identical page is done; a snapshot mismatch is
-// a classified failure requiring an explicit --replace-existing decision.
 const COLLISION_ACTIONS = {
   collision_existing_page: { done: true, code: 'collision-existing-page' },
   collision_existing_snapshot_mismatch: { done: false, code: 'collision-snapshot-mismatch' },

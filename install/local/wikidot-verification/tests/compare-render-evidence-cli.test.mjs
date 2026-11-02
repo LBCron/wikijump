@@ -19,8 +19,6 @@ function runCli(extraArgs, outputDir) {
 test('V3 CLI reproduces expected verdicts on the CI golden-pair subset', () => {
   const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'v3-ci-'));
   const result = runCli(['--run-id', 'ci-subset'], outputDir);
-  // The subset intentionally includes one known-regression pair, so exit is 1
-  // (not 2 — no structural failures).
   assert.equal(result.status, 1, result.stderr);
   const verdict = JSON.parse(fs.readFileSync(path.join(outputDir, 'verdict.json'), 'utf8'));
   const expected = JSON.parse(fs.readFileSync(ciCatalog, 'utf8'));

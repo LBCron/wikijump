@@ -458,8 +458,8 @@ test("CLI fails closed when another Axum router composition form is introduced",
   await fs.writeFile(
     routePath,
     routeSource.replace(
-      "        .fallback(redirect_to_main)\n        // Middleware",
-      "        .fallback(redirect_to_main)\n        .route_service(\"/unsupported\", unsupported_service)\n        // Middleware"
+      "        .fallback(redirect_to_main)\n",
+      "        .fallback(redirect_to_main)\n        .route_service(\"/unsupported\", unsupported_service)"
     )
   )
   runGit(root, "init", "--quiet")

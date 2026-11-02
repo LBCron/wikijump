@@ -55,13 +55,6 @@ export function usage() {
   return "Usage: verify-corpus-import-integrity.mjs --manifest <manifest.jsonl> [--site-id <id>] [--db-container <name> | --db-url <url>] [--slug <slug>...] [--require-rendered-body <slug>...] [--cross-site-coverage --attribution <attribution.json> [--check-include-errors]] [--mirror-scope <mirror-scope.json>]";
 }
 
-/**
- * Read a mirror_scope row snapshot (as written by the refresh tool's
- * mirror_scope_get, or `{declared_extras, consumed_slugs}` in either
- * snake_case or camelCase). Consumed slugs are tombstoned or renamed-away
- * source slugs: a manifest row that resolves to one is reconciled, not
- * missing.
- */
 export function readMirrorScope(text) {
   const row = JSON.parse(text);
   const declared = row.declared_extras ?? row.declaredExtras ?? [];
@@ -262,11 +255,6 @@ export function verifyIntegrityRows(
   return { status: failures.length ? "fail" : "pass", pages, failures };
 }
 
-/**
- * Build the materialization query for cross-site coverage mode: for each
- * manifest row, whether a snapshot with its foreign identity is already
- * imported on the target site.
- */
 export function buildCrossSiteCoverageQuery(args, rows) {
   const requested = rows
     .map(
@@ -287,13 +275,6 @@ GROUP BY requested.source_site, requested.source_fullname
 ORDER BY requested.source_site, requested.source_fullname;`;
 }
 
-/**
- * Verify cross-site coverage: pure function over manifest rows, the
- * per-affected-page attribution map (`{ slug: { rows: ["branch:fullname"],
- * gaps, truncated } }`), and the materialization query output. A page
- * counts as covered when it has no gaps or truncation and every attributed
- * row is already materialized on the target site.
- */
 export function verifyCrossSiteCoverage(rows, attribution, output) {
   const materialized = new Set();
   for (const line of output.split("\n").filter(Boolean)) {

@@ -31,11 +31,6 @@ pub async fn redirect_to_main(
     headers: HeaderMap,
     uri: Uri,
 ) -> Response {
-    // Wikidot's underscore spelling of the hosted-code route matches no
-    // registered route, so it lands in this fallback; answer it with the
-    // same redirect the plain spelling's handler gives (see
-    // local_code_underscore_redirect) instead of bouncing it to the main
-    // site, where it can only 404.
     if let Some(destination) = local_code_underscore_redirect(uri.path()) {
         return Redirect::permanent(&destination).into_response();
     }
@@ -158,12 +153,10 @@ mod tests {
 
     #[test]
     fn local_code_underscore_redirect_leaves_other_paths_to_the_main_redirect() {
-        // The plain spelling is a registered route and never lands here.
         assert_eq!(
             local_code_underscore_redirect("/local--code/scp-173/2"),
             None
         );
-        // Other local--* spellings have no authored use to map.
         assert_eq!(
             local_code_underscore_redirect("/local--files_/scp-173/a.png"),
             None
@@ -172,7 +165,6 @@ mod tests {
             local_code_underscore_redirect("/local--html_/scp-173/1"),
             None
         );
-        // Only the exact two-segment shape mirrors the registered route.
         assert_eq!(
             local_code_underscore_redirect("/local--code_/scp-173"),
             None

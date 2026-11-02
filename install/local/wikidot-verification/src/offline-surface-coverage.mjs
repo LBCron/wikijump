@@ -60,9 +60,6 @@ function sha256(value, label) {
   return value;
 }
 
-// An anchor is a coverage ownership claim. Commands name a runnable test entry
-// point, plain paths name a runnable test target, and `<path>#<name>` /
-// `<path>::<name>` additionally name the test (or evidence case) inside it.
 function shellTokens(command) {
   return command.trim().split(/\s+/u).filter(Boolean);
 }
@@ -163,9 +160,6 @@ export function anchorFilePath(anchor) {
   return parseCoverageAnchor(anchor)?.files[0] ?? null;
 }
 
-// Test anchors in the fixture use several repository conventions: a bare test
-// name, a `tests::` module path, a `fn name()` wrapper, and `test::case`
-// labels. Normalize all of them to the candidate test names they reference.
 function declaredTestNames(fragment) {
   if (typeof fragment !== "string") return [];
   const text = fragment
@@ -396,16 +390,6 @@ export async function loadOfflineSurfaceCoverage(filePath) {
   return validateOfflineSurfaceCoverage(JSON.parse(raw));
 }
 
-// Resolve every coverage row to at least one executable owner. Commands and
-// plain paths are owners when their files exist. A named anchor is an owner
-// only when its name is a declared runnable test (including Rust submodules);
-// non-test/evidence files additionally accept an exact source-anchor match.
-// Named anchors that resolve to none of these are reported, and a row is
-// rejected when no anchor owns it.
-//
-// Every row must also name at least one specific test: a named anchor or a
-// command that selects a single test. A bare test file with unrelated declared
-// tests must not be able to stand in for named execution.
 export async function verifyCoverageAnchorFiles(fixture, repositoryRoot) {
   const missing = [];
   const unresolvedNamedTests = [];

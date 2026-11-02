@@ -1,17 +1,4 @@
 #!/usr/bin/env node
-// V2 render-health sweep (agent-runnable): fetch locally rendered pages and
-// classify them per the render-health taxonomy spec. Produces verdict.json and
-// lab-health-dashboard.html in --output-dir; exit code follows the spec
-// (0 pass, 1 below threshold, 2 taxonomy-unknown/structural).
-//
-// Usage:
-//   render-health-sweep.mjs --manifest <manifest.jsonl> --host <site-host> \
-//     --output-dir <dir> [--run-id <id>] [--family EN] [--threshold 0.9] \
-//     [--concurrency 8] [--http-port 443] [--previous <verdict.json>] \
-//     [--import-summary <apply-log.json>] [--disposition <category>=<disposition>...]
-//
-// The manifest is the corpus-import manifest (JSONL with fullname + source
-// paths); source text is read to discount @@-escaped display markers.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -83,13 +70,10 @@ function fetchPage(args, slug, redirectsLeft = 5, pathOverride = null) {
         path: pathOverride ?? `/${encodeURI(slug)}`,
         headers: { Host: args.host },
         servername: args.host,
-        // TLS verification stays on by default; --insecure-local-tls opts in
-        // for the lab runtime's self-signed caddy CA on 127.0.0.1 only.
         rejectUnauthorized: !(args.insecureLocalTls && args.address === '127.0.0.1'),
         timeout: 30000,
       },
       (res) => {
-        // Follow same-host redirects (e.g. platform domain -> canonical domain).
         if ([301, 302, 307, 308].includes(res.statusCode) && res.headers.location) {
           res.resume();
           if (redirectsLeft <= 0) {

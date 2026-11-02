@@ -25,13 +25,11 @@ function installLifecycleProbe() {
     const prior = JSON.parse(sessionStorage.getItem(probeStorageKey) ?? "null");
     if (Array.isArray(prior?.busy_events)) probe.busy_events = prior.busy_events;
   } catch {
-    /* fresh document */
   }
   const persist = () => {
     try {
       sessionStorage.setItem(probeStorageKey, JSON.stringify({ busy_events: probe.busy_events }));
     } catch {
-      /* sessionStorage is unavailable; the observation stays page-local */
     }
   };
   Object.defineProperty(window, probeKey, {

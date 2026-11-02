@@ -155,7 +155,6 @@ function normalizeSourceKey({ sourceUrl, slug, status, sheetRole, sheetName, she
     }
   } catch (error) {
     void error;
-    // Fall through to provenance key when the URL has no stable normalized identity.
   }
 
   return `unmapped/${sheetRole}/${sheetName}/${sheetGid}/${sourceRow}`.toLowerCase();

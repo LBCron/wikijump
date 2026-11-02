@@ -1110,8 +1110,6 @@ test("distinct persistent misses can acquire concurrently without losing evidenc
   try {
     await Promise.race([
       waitForBoth,
-      // A serialized acquisition never starts the second fill, so this only
-      // bounds a deadlock; it must not race scheduling on a loaded host.
       new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error("distinct fills serialized through acquisition")), 15_000); }),
     ]);
     assert.equal(peakActive, 2);
@@ -1850,9 +1848,6 @@ test("cache-only replay serves a page's http subresource from the retained HTTPS
     await t.test(name, async () => {
       const gate = createBrowserRequestGate({intervalMs: 0});
       const responseCache = createBrowserResponseCache({evidenceReplay: true});
-      // The retained evidence holds the HTTPS representation of a resource the page HTML
-      // references as http://; the acquiring engine rewrote the subresource URL to HTTPS,
-      // which the retained snapshot records as currentSrc.
       const httpsUrl = "https://cdn.example.test/scp/photo.jpg";
       const httpUrl = "http://cdn.example.test/scp/photo.jpg";
       const targetUrl = "https://assets.example.test/scp/photo.jpg";
@@ -1882,8 +1877,6 @@ test("cache-only replay serves a page's http subresource from the retained HTTPS
       assert.equal(gate.snapshot().external_network_requests, 0);
       assert.equal(gate.snapshot().public_requests, 0);
       assert.equal(responseCache.snapshot().stores, storesBefore);
-      // The scheme fallback answers from retained evidence, so the replay records no miss for
-      // a scheme the evidence was never acquired under.
       assert.equal(responseCache.snapshot().misses, missesBefore);
       assert.equal(responseCache.snapshot().hits, hitsBefore + (targetStatus === null ? 1 : 2));
     });
@@ -2217,9 +2210,6 @@ test("cacheOnly replay serves a retained avatar response for every separator spe
   await firstCache.load();
   const firstContext = createContext();
   await installBrowserRequestGate(firstContext, { gate: firstGate, responseCache: firstCache });
-  // Record through the doubly-escaped spelling a local render requests after
-  // the compiled avatar URL passes one more HTML-escaping layer than
-  // Wikidot's own output.
   await firstContext.routes[0].handler(createRoute("https://www.wikidot.com/avatar.php?userid=424242&amp;amp;size=small&amp;amp;timestamp=1793525364", {
     resourceType: "image",
     fetchResponse: createFetchResponse({ status: 404, headers: { "cache-control": "public, max-age=600" }, body: "not found" }),
@@ -2275,7 +2265,6 @@ test("candidate cacheOnly avatar handling stays scoped to wikidot avatar images"
   const gate = createBrowserRequestGate({ intervalMs: 0 });
   const responseCache = createBrowserResponseCache({ persistentDir: cacheDir, persistentIdentity: "candidate-avatar-scope", evidenceReplay: true });
   await responseCache.load();
-  // A retained avatar for one user must never answer a request for another.
   assert.equal(responseCache.store("https://www.wikidot.com/avatar.php?userid=111111&amp;size=small", {
     status: 200, headers: { "content-type": "image/png" }, body: Buffer.from("other user"),
   }), true);
@@ -2288,14 +2277,11 @@ test("candidate cacheOnly avatar handling stays scoped to wikidot avatar images"
   assert.deepEqual(otherUser.actions, [{ type: "abort", reason: "blockedbyclient" }]);
   assert.equal(gate.snapshot().enforcement_failed, false);
 
-  // The same URL requested as a non-image resource is not an avatar image:
-  // its cache miss still fails the replay closed.
   const stylesheet = createRoute("https://www.wikidot.com/avatar.php?userid=333333&amp;size=small", { resourceType: "stylesheet" });
   await context.routes[0].handler(stylesheet);
   assert.equal(gate.snapshot().enforcement_failed, true);
   await assert.rejects(gate.flush(), /candidate response cache miss: https:\/\/www\.wikidot\.com\/avatar\.php\?userid=333333/);
 
-  // An avatar.php path on any other host is not the Wikidot avatar endpoint.
   const otherHostGate = createBrowserRequestGate({ intervalMs: 0 });
   const otherHostContext = createContext();
   await installBrowserRequestGate(otherHostContext, { gate: otherHostGate, responseCache, cacheOnly: true });

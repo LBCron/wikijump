@@ -1,10 +1,4 @@
 #!/usr/bin/env bash
-# Run a test command with loopback/Unix-socket networking only.
-#
-# Any attempted DNS lookup or socket operation for a non-loopback destination is
-# rejected before transmission and recorded. In normal mode, even a handled
-# blocked attempt fails the suite so accidental external dependencies cannot be
-# hidden by retries or fallback behavior.
 
 set -euo pipefail
 

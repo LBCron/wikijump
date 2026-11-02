@@ -8,8 +8,6 @@ const artifactUrl = new URL(
   import.meta.url,
 );
 
-// SHA-256 of the retained summary of the 2026-09-13 run-owned
-// sandbox-for-codex Windows 8 Tile mutation capture.
 const ARTIFACT_SHA256 =
   "20be4e14d8addc6340664e0ad765bb0eec85dcf047dbb0c7f1c203a34e3396d7";
 

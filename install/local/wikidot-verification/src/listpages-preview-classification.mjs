@@ -351,10 +351,6 @@ function hasExactListPagesOwnedExecution({
       candidate.balanced !== true
     ))
   ) return false;
-  // A default/explicit wrapper invocation gives us a generic ownership anchor.
-  // Compare every outermost generated shell so imported components and pages
-  // containing more than one shell remain covered without recognizing content
-  // by page or source text.
   const liveOwned = outermostListPagesOwnedSubtrees(liveNodes);
   const localOwned = outermostListPagesOwnedSubtrees(localNodes);
   return liveOwned.length > 0 &&
@@ -505,8 +501,6 @@ function plainSectionText(source) {
 }
 
 function plainBodyAnchor(source) {
-  // Row variables are intentionally allowed here and removed below. Reject
-  // only syntax that can change the body structure around the static anchor.
   if (/\[\[|\]\]|@@|@<|\{\{|\}\}/u.test(source)) return null;
   const text = source
     .replace(/%%[A-Za-z0-9_]+%%/gu, " ")
@@ -1025,10 +1019,6 @@ function urlSelectorBodyUsesOnlyDynamicFields(body) {
       /%%(?:created_at|created_by|fullname|title)(?:\|.*?)?%%/giu,
       "",
     )
-    // The URL-selector proof is deliberately limited to the captured body
-    // grammar: after removing its four row variables and Wikidot's structural
-    // tokens, no authored word may remain for the row-text projection to
-    // replace.  A label or any other static text therefore stays actionable.
     .replace(/\[\[[\s\S]*?\]\]/gu, "")
     .replace(/@@/gu, "")
     .replace(/[\s>*|()[\]{}"=:/%?&;,_+\-]/gu, "");

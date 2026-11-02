@@ -69,7 +69,6 @@ test("escaped regions do not contribute dependencies", () => {
   assert.equal(scan.includes[0].page, "component:real");
   assert.deepEqual(scan.localCode, []);
   assert.equal(stripEscapedRegions("a@@b@@c"), "ac");
-  // @@ spans are inline-only: a stray @@ must not swallow following lines.
   assert.ok(
     stripEscapedRegions("x@@y\n[[include a]]\nz").includes("[[include a]]"),
   );

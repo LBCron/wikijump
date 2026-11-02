@@ -1,5 +1,3 @@
-// Shared Wikidot include-dependency closure for corpus import tooling.
-//
 import { sha256Hex } from './canonical-json.mjs';
 
 // A mirrored page renders through every page it includes (themes,
@@ -20,11 +18,6 @@ const VARIABLE_PATTERN = /\{\$/u;
 export const DEFAULT_CLOSURE_MAX_DEPTH = 32;
 export const DEFAULT_CLOSURE_MAX_PAGES = 10000;
 
-/**
- * Normalize an include target to a local slug, or null when it names another
- * site, depends on an include variable, or is not a page name (for example
- * escaped documentation text).
- */
 export function includeTargetSlug(target, sourceSite) {
   let slug = target.trim();
   if (slug.includes('{$')) return null;
@@ -49,13 +42,6 @@ export function stripInactiveSourceSpans(sourceText) {
     .replace(/\[!--[\s\S]*?--\]/gu, '');
 }
 
-/**
- * Classify every include target in a source text.
- *
- * Returns `{ sameSite, external, dynamic }`: resolvable same-site slugs in
- * first-seen order, cross-site `site:page` identities, and the count of
- * variable-dependent targets that cannot be resolved statically.
- */
 export function parseIncludeTargets(sourceText, sourceSite) {
   const sameSite = [];
   const seenSameSite = new Set();
@@ -63,7 +49,6 @@ export function parseIncludeTargets(sourceText, sourceSite) {
   const seenExternal = new Set();
   let dynamic = 0;
   const activeSource = stripInactiveSourceSpans(sourceText);
-  // The pattern is global; reset position so repeated calls are deterministic.
   INCLUDE_PATTERN.lastIndex = 0;
   for (const match of activeSource.matchAll(INCLUDE_PATTERN)) {
     const raw = match[1].trim();
@@ -90,20 +75,6 @@ export function parseIncludeTargets(sourceText, sourceSite) {
   return { sameSite, external, dynamic };
 }
 
-/**
- * Breadth-first transitive include closure over same-site corpus sources.
- *
- * `readSource(slug)` returns the source text or null when the corpus has no
- * such page; `pageExists(slug)` reports corpus membership. Roots come first
- * at depth 0, each slug is visited once, and cycles terminate through the
- * seen set. Traversal stops expanding past `maxDepth` (deeper targets are
- * reported as `truncated`) and throws past `maxPages` total visited slugs.
- *
- * Returns `{ included, unresolved, external, dynamic, truncated }` where
- * `included` holds `{ slug, depth, via }` in visit order, `unresolved` holds
- * same-site targets absent from the corpus, and `external` holds cross-site
- * identities that this single-site expansion cannot materialize.
- */
 export function expandIncludeClosure({
   roots,
   readSource,
@@ -187,13 +158,6 @@ export function expandIncludeClosure({
   return { included, unresolved, external, dynamic, truncated };
 }
 
-/**
- * Corpus branch map for site-qualified includes: the Wikidot site slug
- * each corpus branch mirrors. Only pairs with recorded evidence are
- * listed (corpus branch table plus manifest-observed resolutions with
- * language-matched titles); branches whose site slug is not evidenced
- * in-repo stay unmapped and keep the `ambiguous-branches` gap. Refs #2093.
- */
 export const CORPUS_SITE_PREFERRED_BRANCHES = {
   'scp-wiki': 'en',
   'scp-jp': 'jp',
@@ -207,41 +171,6 @@ export const CORPUS_SITE_PREFERRED_BRANCHES = {
   '05command': '05command',
 };
 
-/**
- * Breadth-first transitive include closure across corpus branches.
- *
- * `roots` are `{ branch, site, slug }` identities on the mirror's own
- * branch (`site` is the Wikidot site slug that branch mirrors).
- * `branches` maps every searchable corpus branch to
- * `{ pageExists, readSource, readProvenance }`, where
- * `readProvenance(slug)` returns `{ path, captureId, runId, payloadSha256 }`
- * (revision fields null when the branch carries no acquisition record).
- * `preferredBranches` is a `{ site: branch }` map used only to break ties
- * between divergent multi-branch hits; it defaults to
- * `CORPUS_SITE_PREFERRED_BRANCHES` (a site-qualified include resolves on
- * the named site, per the Wikidot include specification), and callers may
- * override it (including back to `{}`) explicitly.
- *
- * The requesting site travels with each node, so a `:site:`-prefixed
- * self-reference classifies as same-site with no site-to-branch map.
- * A cross-site `site:page` identity resolves by probing every other
- * configured branch for `page`. One hit materializes it; several hits with
- * byte-identical sources materialize the first branch with the rest listed
- * in `also_in` (no wrong choice is possible); several hits with divergent
- * sources report an `ambiguous-branches` gap carrying per-branch content
- * hashes; zero hits report an `absent-from-corpus` gap. Same-site misses
- * report `absent-from-corpus` with their own branch. Cycles terminate
- * through the `(branch, slug)` seen set. Traversal stops expanding past
- * `maxDepth` (deeper identities are reported as `truncated`) and throws
- * past `maxPages` total visited identities.
- *
- * Returns `{ included, gaps, dynamic, truncated }` where `included` holds
- * `{ branch, site, slug, depth, via, also_in, resolution, provenance }` in
- * visit order (`via` is the first-seen `branch:slug` requester, null for
- * roots; `resolution` is `same-branch`, `unique-hit`, `identical-content`,
- * or `preferred-branch`) and `gaps` holds
- * `{ identity, branch, site, via, reason, detail }`.
- */
 export function expandCrossSiteIncludeClosure({
   roots,
   branches,
@@ -299,14 +228,6 @@ export function expandCrossSiteIncludeClosure({
     gaps.push(gap);
   };
 
-  // A same-named page on the requesting branch belongs to another site, so
-  // it can never resolve a foreign identity; only other branches qualify.
-  // One hit resolves directly. Several hits with byte-identical sources
-  // resolve to the first branch (no wrong choice is possible). Several hits
-  // with divergent sources resolve to the caller-preferred branch for the
-  // site when one is configured and holds the page, and otherwise stay
-  // ambiguous with per-branch content hashes as evidence. The chosen rule
-  // travels on the node as `resolution` so repairs stay auditable.
   const resolveForeign = (fromBranch, site, slug) => {
     const hits = [];
     for (const name of branchNames) {

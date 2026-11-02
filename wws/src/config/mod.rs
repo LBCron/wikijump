@@ -81,14 +81,12 @@ where
         })
     };
 
-    // Essentially .expect(), but allows printing the environment variable name in the message.
     macro_rules! required_env {
         ($name:expr) => {
             required_env($name)?
         };
     }
 
-    // Process arguments and overrides
     let Arguments {
         enable_trace,
         enable_deepwell_check,
@@ -106,7 +104,6 @@ where
             .map_err(|_| "Unable to parse socket address".to_string())?;
     }
 
-    // Process secrets
     let deepwell_url = required_env!("DEEPWELL_URL");
     let deepwell_rpc_token =
         RpcToken::parse(required_env!("DEEPWELL_RPC_TOKEN")).map_err(str::to_string)?;
@@ -116,7 +113,6 @@ where
     let s3_tblocks_bucket = required_env!("S3_TEXT_BLOCKS_BUCKET");
 
     let s3_region = match get_env("S3_AWS_REGION") {
-        // Standard AWS S3 region, parse out into enum.
         Ok(value) => match value.parse() {
             Ok(region) => region,
             Err(error) => {
@@ -126,7 +122,6 @@ where
             }
         },
 
-        // Custom region, with a specific S3 endpoint.
         Err(_) => {
             let region = required_env!("S3_REGION_NAME");
             let endpoint = required_env!("S3_CUSTOM_ENDPOINT");
@@ -143,14 +138,11 @@ where
     };
 
     let s3_credentials = {
-        // Try to read from environment
-        // Reads from S3_ACCESS_KEY_ID and S3_SECRET_ACCESS_KEY
         let env_creds = env_credentials();
 
         match env_creds {
             Ok(credentials) => credentials,
             Err(_) => {
-                // Try to read from profile
                 let profile_name = get_env("AWS_PROFILE_NAME").ok();
                 let profile_name = profile_name.ref_map(|s| s.as_str());
 
@@ -166,7 +158,6 @@ where
         }
     };
 
-    // Build and return
     let config = Config {
         enable_trace,
         enable_deepwell_check,

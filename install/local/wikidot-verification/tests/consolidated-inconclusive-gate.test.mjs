@@ -13,9 +13,6 @@ import {
 } from "../scripts/run-consolidated-validation.mjs";
 import { validateConsolidatedValidation } from "../src/final-frozen-receipt-contract.mjs";
 
-// W17 world: completion and the campaign evidence restore are hard run_test
-// checks with explicit run contracts. A missing campaign fails them; nothing
-// is tolerated INCONCLUSIVE anymore.
 const W17_MISSING_CAMPAIGN_OUTPUT = [
   "preflight: groups: deepwell=false wws=false framerail=false theme_lab=true verification=false",
   "=== source-bound generated contracts",
@@ -71,9 +68,6 @@ async function runFixture(t, label, lines, exitCode = 0, imageBuild = false) {
   assert.deepEqual(JSON.parse(await fs.readFile(output, "utf8")), receipt);
   assert.equal(receipt.wikijump_commit, git("rev-parse", "HEAD"));
   assert.equal(receipt.wikijump_tree, git("rev-parse", "HEAD^{tree}"));
-  // Verify the *actual sealed Node receipt* through the Python Standing
-  // admission reader. This exercises the cross-language seam, not just a
-  // separately constructed mock with the desired status already filled in.
   const standingDir = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
     "../../../standing",

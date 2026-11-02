@@ -22,8 +22,6 @@ const PACKAGE_ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const STARTED_AT = "2026-11-01T00:00:00.000+00:00";
 const RECEIVED_AT = "2026-11-01T01:02:03.000+00:00";
 
-// The wikidot.py fallback transport's pages.get_one shape: identity fields
-// present, parent_title / title_shown absent, html empty.
 const FALLBACK_PAYLOAD = {
   fullname: "component:login-module",
   title: "Login Module",
@@ -49,8 +47,6 @@ const FALLBACK_PAYLOAD = {
   html: "",
 };
 
-// The XML-RPC transport's shape: no identity ids, parent_title/title_shown
-// present, rendered html carried.
 const XMLRPC_PAYLOAD = {
   fullname: "credit:backmodule",
   title: "クレジットモジュール",
@@ -130,14 +126,11 @@ test("fallback capture exports a complete corpus page record with identity field
   assert.equal(fs.readFileSync(path.join(pageDir, "source.wikidot.txt"), "utf8"), FALLBACK_PAYLOAD.content);
   assert.equal(fs.readFileSync(path.join(pageDir, "html.xmlrpc.html"), "utf8"), "");
 
-  // api-response.json is the canonical byte form of the payload as fetched.
   const apiBytes = fs.readFileSync(path.join(pageDir, "api-response.json"));
   assert.ok(apiBytes.equals(canonicalCorpusJsonBytes(FALLBACK_PAYLOAD)));
   const current = JSON.parse(fs.readFileSync(path.join(pageDir, "current.json"), "utf8"));
   assert.equal(current.payload_sha256, `sha256:${sha256Hex(apiBytes)}`);
 
-  // meta.json: projection without content/html, identity fields preserved,
-  // fallback-missing fields null-filled, keys in canonical sorted order.
   const metaText = fs.readFileSync(path.join(pageDir, "meta.json"), "utf8");
   const meta = JSON.parse(metaText);
   assert.equal(meta.created_by_id, 4597083);
@@ -149,8 +142,6 @@ test("fallback capture exports a complete corpus page record with identity field
   assert.deepEqual(keyOrder, [...keyOrder].sort());
   assert.ok(metaText.endsWith("}\n"));
 
-  // Snapshot binds the two response references with the corpus capture_id
-  // formula, and both objects exist at their content-addressed paths.
   const entityId = fs.readFileSync(path.join(pageDir, "entity_id.txt"), "utf8").trim();
   assert.equal(summary.exported[0].entity_id, entityId);
   const snapshotPath = path.join(
@@ -170,7 +161,6 @@ test("fallback capture exports a complete corpus page record with identity field
     path.join(branchRoot, snapshot.get_one_response.object_path), "utf8",
   )), FALLBACK_PAYLOAD);
 
-  // Run ledger: two envelopes, manifest sealed as a targeted run.
   const envelopes = fs.readFileSync(
     path.join(branchRoot, "_runs", "test-run-1", "responses.ndjson"), "utf8",
   ).trim().split("\n").map((line) => JSON.parse(line));
@@ -185,7 +175,6 @@ test("fallback capture exports a complete corpus page record with identity field
   assert.equal(manifest.counts.pages_committed, 1);
   assert.equal(manifest.complete_gate.targeted_scope, true);
 
-  // First-seen observation in the corpus's spaced line format.
   const observations = fs.readFileSync(
     path.join(branchRoot, "by-uuid", entityId, "observations.ndjson"), "utf8",
   );
@@ -194,7 +183,6 @@ test("fallback capture exports a complete corpus page record with identity field
   assert.equal(observation.fullname, "component:login-module");
   assert.equal(observation.content_sha256, `sha256:${sha256Hex(FALLBACK_PAYLOAD.content)}`);
 
-  // Index entity carries exactly the identity.py Entity dataclass fields.
   const index = JSON.parse(fs.readFileSync(path.join(branchRoot, "index.json"), "utf8"));
   const entity = index.entities[entityId];
   assert.deepEqual(Object.keys(entity).sort(), [
@@ -243,7 +231,6 @@ test("xmlrpc capture records the transport's own get_meta payload as the meta re
   assert.deepEqual(metaObject, XMLRPC_META);
   const meta = JSON.parse(fs.readFileSync(path.join(pageDir, "meta.json"), "utf8"));
   assert.equal(meta.title_shown, "クレジットモジュール");
-  // The meta projection equals the get_meta payload for this transport.
   assert.deepEqual(meta, XMLRPC_META);
   assert.equal(fs.readFileSync(path.join(pageDir, "html.xmlrpc.html"), "utf8"), XMLRPC_PAYLOAD.html);
 });
@@ -354,7 +341,6 @@ test("export command re-emits a stored corpus and lists projection-only pages", 
     startedAt: STARTED_AT,
     finishedAt: STARTED_AT,
   });
-  // Rename to the en-branch fullname used above.
   const projectionDir = path.join(corpusRoot, "en", "pages", "projection-only");
   fs.mkdirSync(projectionDir, {recursive: true});
   fs.writeFileSync(path.join(projectionDir, "meta.json"), "{}\n");

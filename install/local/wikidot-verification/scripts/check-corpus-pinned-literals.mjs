@@ -55,7 +55,6 @@ export function parseArgs(argv) {
   };
   for (let index = 0; index < argv.length; index += 1) {
     const option = argv[index];
-    // pnpm forwards its own `--` separator; the sibling checkers skip it too.
     if (option === "--") continue;
     if (option === "--help" || option === "-h") return {help: true};
     if (option === "--json") {

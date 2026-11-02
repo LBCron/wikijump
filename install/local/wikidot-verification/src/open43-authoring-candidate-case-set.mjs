@@ -218,10 +218,6 @@ class Open43AuthoringRun {
         final_url: browserPage.url(),
         style: await browserStyle(browserPage),
       };
-      // The acceptance interval begins at the normal reload below.  Let the
-      // pre-edit navigation terminate its own third-party theme requests first
-      // so their cancellation cannot be misattributed to that reload. The DOM
-      // and computed red component style have already been observed above.
       await browserPage.evaluate(() => window.stop());
 
       const editedComponent = await this.#rpc("page_edit", {

@@ -28,7 +28,6 @@ ALLOWED_SITE_SLUGS = frozenset({DEFAULT_SITE_SLUG, "sandbox-for-codex"})
 ORACLE_RUN_OWNED_SLUG_PATTERN = re.compile(r"^codex-oracle:[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])-[A-Za-z0-9][A-Za-z0-9._:-]*$")
 CURRENT_RUN_OWNED_SLUG_PATTERN = re.compile(r"^codex-l10n:[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
 LEGACY_RUN_OWNED_SLUG_PATTERN = re.compile(r"^theme:codex-l10n-[a-z0-9][a-z0-9-]+-(?:yossistyle|ashes-to-ashes|basalt)$")
-# Legacy names remain read/delete-only for cleanup of pages created before the current slug contract. Remove this compatibility path only after the run ledger proves no legacy page remains and the sandbox operator signs off.
 REFERENCE_PREREQUISITE_SLUGS = {"component:image-block-base", "component:image-block"}
 PAGE_ID = re.compile(r"WIKIREQUEST\.info\.pageId\s*=\s*([0-9]+)\s*;")
 SITE_ID = re.compile(r"WIKIREQUEST\.info\.siteId\s*=\s*([0-9]+)\s*;")
@@ -119,9 +118,6 @@ def validate_page_snapshot(value: object, slug: str) -> PageSnapshot:
     if not isinstance(source_sha256, str) or re.fullmatch(r"[0-9a-f]{64}", source_sha256) is None:
         raise PublicError("invalid_request", "expected page snapshot is invalid")
     tags = value["tags"]
-    # A create can fail after the page save but before the separate tag save.
-    # Permit exact cleanup of that untagged page while retaining the namespace,
-    # title, source, and identity fences.
     if ORACLE_RUN_OWNED_SLUG_PATTERN.fullmatch(slug) and tags == []:
         checked_tags = []
     else:

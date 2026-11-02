@@ -1,12 +1,4 @@
 #!/usr/bin/env node
-// V1 import-health report (agent-runnable): parse an
-// apply-corpus-import-manifest.mjs log and emit a verdict JSON. Exit codes:
-// 0 all rows done-or-classified (and >= --threshold if given),
-// 1 import rate below threshold, 2 unclassified failure states.
-//
-// Usage:
-//   import-health-report.mjs --log <import.log> --output <verdict.json> \
-//     [--run-id <id>] [--family EN] [--threshold 0.95]
 
 import fs from 'node:fs';
 

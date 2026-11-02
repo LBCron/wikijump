@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Handling for the `robots.txt` file.
-
 use super::{TargetServer, get_site_id, get_target_server};
 use crate::state::ServerState;
 use axum::body::Body;
@@ -38,38 +36,21 @@ const ROBOTS_TXT_UNAVAILABLE: &str = "User-agent: *\nDisallow: /\n";
 const ROBOTS_TXT_PUBLIC_EXCLUSIONS: &str = "User-agent: *\nDisallow: /*/p/*/p/\nDisallow: /*/p/*_p/\nDisallow: /*_p/*/p/\nDisallow: /*_p/*_p/\n";
 const ROBOTS_TXT_VOLTRON_BLOCK: &str = "User-agent: voltron\nDisallow: /\n";
 
-/// The public-site robots body in Wikidot's shape: the exclusion list, a
-/// blank line, the Sitemap line for the site's preferred domain, and the
-/// voltron block.
 fn public_robots_txt(domain: &str) -> String {
     format!(
         "{ROBOTS_TXT_PUBLIC_EXCLUSIONS}\nSitemap: https://{domain}/sitemap.xml\n{ROBOTS_TXT_VOLTRON_BLOCK}"
     )
 }
-// Crawler policy for sites with no public sitemap inventory: anonymous
-// viewers cannot view the site, so forbid crawling and advertise no sitemap
-// index. Same bytes as the degraded-service body, but a deliberate 200
-// policy for a private/non-indexable site, not an error signal.
 const ROBOTS_TXT_PRIVATE: &str = "User-agent: *\nDisallow: /\n";
 
 pub async fn handle_robots_txt(
     State(state): State<ServerState>,
     headers: HeaderMap,
 ) -> Response {
-    // The main site publishes a sitemap index at `/sitemap.xml` (Wikidot
-    // route shape), so its crawler policy points at that index. The host
-    // Domain authority comes from the site settings, not an untrusted Host
-    // header. Resolve fresh rather than using a domain cache which may still
-    // point crawlers to an old origin after a site-preference change.
     if get_target_server(&headers) == TargetServer::Files {
         return robots_response(ROBOTS_TXT_ALLOW_ALL, StatusCode::OK);
     }
     let site_id = get_site_id(&headers);
-    // Share the sitemap routes' anonymous-visibility authority: when DEEPWELL
-    // reports no public inventory for this site, crawlers get a 200 policy
-    // that forbids indexing and names no sitemap, so private/non-indexable
-    // sites cannot leak page URLs through crawler discovery. RPC failures
-    // stay fail-closed (503 + Disallow) rather than inviting crawlers in.
     match state.deepwell.get_sitemap_presence(site_id).await {
         Ok(false) => return robots_response(ROBOTS_TXT_PRIVATE, StatusCode::OK),
         Ok(true) => {}

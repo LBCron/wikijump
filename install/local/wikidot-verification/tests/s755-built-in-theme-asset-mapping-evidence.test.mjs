@@ -8,21 +8,17 @@ const artifactUrl = new URL(
   import.meta.url,
 );
 
-// SHA-256 of the retained summary of the 2026-09-14 authenticated
-// sandbox-for-codex built-in theme asset mapping capture.
 const ARTIFACT_SHA256 =
   "9d846ead9aaee97ff618663576e82d86273f2beb1094811a8a8d6c359b9ed3d8";
 
 const ASSET_ORIGIN =
   "http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme";
 
-// Appearance panel order of the persisted built-in ids.
 const PANEL_ORDER = [
   1, 162746, 6651, 6258, 6650, 25, 26, 2, 3, 56, 121, 5, 9, 10, 6, 7, 8, 57,
   75, 54, 55, 58, 59, 2439, 2440, 2437, 2438, 122, 123,
 ];
 
-// Exact ordered common--theme directories served per built-in theme id.
 const EXPECTED_DIRS = {
   1: ["base"],
   162746: ["bootstrap-base"],

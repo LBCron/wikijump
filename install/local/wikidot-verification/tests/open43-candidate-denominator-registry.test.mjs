@@ -11,11 +11,6 @@ import { OPEN43_SETTINGS_BROWSER_CASE_IDS } from "../src/open43-settings-browser
 import { OPEN43_SETTINGS_LIFECYCLE_CASE_IDS } from "../src/open43-settings-lifecycle-candidate-contract.mjs";
 import { createOpen43SettingsLifecycleCandidateCaseSet } from "../src/open43-settings-lifecycle-candidate-case-set.mjs";
 
-// The registry module is the single owner of the Open43 candidate denominator.
-// This suite asserts the owner-key contract and that every registered denominator
-// is the exact array exported by its source-owned case set, so coverage cannot
-// drift into a second copied inventory. Global disjointness is asserted once
-// over every registered denominator rather than by re-listing case IDs.
 test("Open43 candidate denominators are exact, disjoint, and handoff-only", () => {
   assert.deepEqual(Object.keys(OPEN43_CANDIDATE_DENOMINATORS), [
     "settings",
@@ -34,7 +29,6 @@ test("Open43 candidate denominators are exact, disjoint, and handoff-only", () =
   assert.equal(OPEN43_CANDIDATE_DENOMINATORS.issue1041_lifecycle.caseIds, OPEN43_ISSUE1041_CASE_IDS);
   assert.equal(OPEN43_CANDIDATE_DENOMINATORS.settings_lifecycle.caseIds, OPEN43_SETTINGS_LIFECYCLE_CASE_IDS);
 
-  // #758 lifecycle ownership must stay exclusive to the lifecycle denominator.
   assert.equal(OPEN43_CANDIDATE_DENOMINATORS.settings_lifecycle.caseIds.includes("S758_CREATE_INITIAL"), true);
   assert.equal(OPEN43_CANDIDATE_DENOMINATORS.page_query.caseIds.includes("S758_CREATE_INITIAL"), false);
   assert.equal(OPEN43_SETTINGS_BROWSER_CASE_IDS.includes("S758_CREATE_INITIAL"), false);

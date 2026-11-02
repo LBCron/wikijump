@@ -72,9 +72,6 @@ export const WIKIDOT_XMLRPC_PILOT_WORKER_IDENTITY = Object.freeze({
   blob: "3eaa311c1b4b76d2711631452ae5ee0a09abffba",
   tree: "0ba1cb193c4aabf34556648a233a73ffa7aedffb",
 });
-// This duplicates the bootstrap's Node-only source list deliberately. The
-// coordinator cannot import the bootstrap before proving its own closure, so it
-// holds an exact copy and tests require both declarations to remain identical.
 export const WIKIDOT_XMLRPC_CANONICAL_COORDINATOR_SOURCE_PATHS = Object.freeze(
   [
     "install/local/wikidot-verification/scripts/run-wikidot-xmlrpc-acquisition.mjs",

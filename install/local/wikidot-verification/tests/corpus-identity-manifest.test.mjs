@@ -130,18 +130,14 @@ test("buildCorpusIdentityManifest joins, gaps, and never merges", () => {
     ["NobodyInObservations"],
   );
 
-  // One display name banked under two numeric IDs stays ambiguous.
   assert.equal(manifest.ambiguous.length, 1);
   assert.deepEqual(manifest.ambiguous[0].user_ids, [303, 404]);
 
-  // Observed but never referenced by any page.
   assert.deepEqual(
     manifest.unreferenced_observations.map((row) => row.user_id),
     [303, 404, 505],
   );
 
-  // Every observed ID without a profile snapshot is a gap, including
-  // matched ones: acquisition is out of scope for the dry run.
   assert.deepEqual(manifest.ids_without_profiles, [202, 303, 404, 505]);
 
   assert.deepEqual(manifest.summary, {

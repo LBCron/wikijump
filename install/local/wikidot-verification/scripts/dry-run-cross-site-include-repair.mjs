@@ -1,14 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * DRY-RUN cross-site include repair for Standing mirror pages. Refs #2093.
- *
- * Expands the transitive cross-site include closure per affected root
- * slug, records per-root verdicts, and writes an aggregate manifest plus
- * a coverage summary carrying fixed-root counts and the sha256 of the
- * canonical fixed-root list. Read-only against the corpus; never touches
- * Standing. The Standing apply is a separate, explicitly approved step.
- */
 
 import { createHash } from "node:crypto";
 import fs from "node:fs";

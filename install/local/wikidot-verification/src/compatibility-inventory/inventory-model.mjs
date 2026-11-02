@@ -367,10 +367,6 @@ export function applyAuditedIssueOwnership(surfaces, auditedOwnershipActive) {
       }
     }
   })
-  // Every surface of an audited kind is assigned (or rejected) by
-  // auditedIssueForSurface above, and the generated inventory is verified
-  // byte-for-byte, so pinned per-kind counts and ID hashes would only force a
-  // hand re-pin whenever a surface is added.
   const currentCatalogRows = assigned.filter((record) =>
     record.kind === "catalog_feature" && !DEFERRED_XMLRPC_CATALOG_FEATURES.has(record.surface_id)
   )

@@ -1,14 +1,5 @@
 #!/usr/bin/env node
 
-// Materialize a mirrored Wikidot site's browser icons into Wikijump.
-//
-// The source site's own document head says which icons it publishes
-// (favicon, iOS touch icons, Windows tile). Each declared icon is fetched
-// through the identity-bound public evidence response cache, so a retained
-// response is replayed and a miss is acquired once under the cache's
-// acquisition barrier. The bytes and their observed media type are stored
-// with Deepwell's `site_icon_set`; a kind the source no longer declares is
-// cleared, so a re-run refreshes and removes stale imported icons.
 
 import crypto from "node:crypto"
 import fs from "node:fs/promises"
@@ -37,9 +28,6 @@ function attribute(tag, name) {
   return match ? (match[2] ?? match[3] ?? match[4]) : null
 }
 
-/** The icon each kind's route serves, as declared in the source head.
- * iOS declares several sizes of one uploaded image; the unsized-name
- * `iosicon.png` (or the largest declared size) is the stored original. */
 export function declaredSiteIcons(html, origin) {
   const head = html.slice(0, Math.max(0, html.search(/<\/head\s*>/iu)) || html.length)
   const icons = { favicon: [], ios: [], windows: [] }
@@ -72,11 +60,6 @@ export function iconMime(contentType) {
   return mime
 }
 
-/** The media type the bytes themselves declare, by magic number.
- * Wikidot serves some icons with a content type that disagrees with
- * the payload (the SCP Wiki favicon is PNG bytes served as
- * `image/gif`), and Deepwell validates the stored bytes against the
- * declared type, so the observed type must come from the bytes. */
 export function sniffIconMime(bytes) {
   const startsWith = (...magic) => magic.every((byte, index) => bytes[index] === byte)
   if (startsWith(0x89, 0x50, 0x4e, 0x47)) return "image/png"
@@ -139,10 +122,6 @@ export async function importMirrorSiteIcons(args) {
     const context = await browser.newContext({ serviceWorkers: "block" })
     await installBrowserRequestGate(context, { gate, responseCache })
     const page = await context.newPage()
-    // Only the documents themselves are needed; the home page's own
-    // subresources are not requested. Subframe documents (the source
-    // sites embed an interwiki frame) are blocked too: they race the
-    // context close and carry nothing the icon declarations need.
     await page.route("**/*", (route) => {
       const request = route.request()
       return request.resourceType() === "document" && request.frame() === page.mainFrame()

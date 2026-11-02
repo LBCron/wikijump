@@ -45,8 +45,6 @@ async function temporaryStore(t) {
   return { root, store, temporaryRoot };
 }
 
-// A child that replies and exits can be reported as exited before its reply
-// is read; every IPC message is delivered before "close", so wait for that.
 function nextMessage(child) {
   return new Promise((resolve, reject) => {
     const onError = (error) => {

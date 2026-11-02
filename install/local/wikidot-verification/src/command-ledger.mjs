@@ -426,10 +426,6 @@ export async function runMeasuredCommand(options) {
   const forwardSigint = () => sendSignalToChild(child, "SIGINT");
   const forwardSigterm = () => sendSignalToChild(child, "SIGTERM");
   const ignoreLiveStreamError = (error) => {
-    // A closed downstream consumer is not a command failure. In particular,
-    // do not destroy the process-wide stdout/stderr streams here: this helper
-    // is also used from test runners and other long-lived callers, where doing
-    // so silently prevents later work and test results from being emitted.
     if (error?.code !== "EPIPE") {
       return;
     }

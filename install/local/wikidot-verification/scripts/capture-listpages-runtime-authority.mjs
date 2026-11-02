@@ -108,8 +108,6 @@ async function command(executable, args) {
   const { stdout } = await execFileAsync(executable, args, {
     encoding: "utf8",
     timeout: 30_000,
-    // Keep enough room for the complete synchronized-fixture snapshot before
-    // it is reduced to the authority digest.
     maxBuffer: 256 * 1024 * 1024,
   });
   return stdout.trim();

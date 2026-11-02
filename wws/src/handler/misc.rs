@@ -182,7 +182,6 @@ fn static_response(body: &'static str, content_type: &'static str) -> Response {
 }
 
 pub async fn handle_health_check(State(state): State<ServerState>) -> Response {
-    // DEEPWELL's ping ensures both Postgres and Redis are connected
     match state.deepwell.ping().await {
         Ok(()) => text_response("✅", StatusCode::OK),
         Err(error) => {

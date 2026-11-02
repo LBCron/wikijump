@@ -119,11 +119,6 @@ function expectedVersion(environment) {
   );
 }
 
-/**
- * Validates the credential-free v2 response before a caller may send any
- * initialize record. This self-report does not prove executable bytes; that
- * remains the responsibility of the later private capsule verifier.
- */
 export function validateWikidotXmlrpcWorkerAttestation(environment, value) {
   const expected = normalizedEnvironment(environment);
   const input = validateExactDataRecord(value, ATTESTATION_KEYS, "worker attestation");

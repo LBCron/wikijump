@@ -50,8 +50,6 @@ export function parseArgs(argv) {
   return args;
 }
 
-// The battery must never be pointed at a remote host: it would send wikitext
-// off the machine and its verdict would describe someone else's runtime.
 export function assertLoopbackRpcUrl(value) {
   let url;
   try {

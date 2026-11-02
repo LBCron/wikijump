@@ -276,7 +276,6 @@ function validateNestedAuditSources(root, auditPath, audit, sourceRevision, read
       if (!/^[0-9a-f]{64}$/u.test(value.sha256)) {
         throw new Error(`${auditPath} has an invalid nested source digest for ${value.path}`)
       }
-      // Absolute evidence and ftml@REV:path are not objects in this Git repository.
       if (!path.isAbsolute(value.path) && !/^ftml@[0-9a-f]{40}:/u.test(value.path)) {
         if (!isCanonicalRepositoryReference(value.path) || value.path.includes("#")) {
           throw new Error(`${auditPath} has an invalid nested source path: ${value.path}`)

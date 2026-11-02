@@ -45,32 +45,24 @@ test("seed index keys site, page, and name without collisions", () => {
   assert.equal(index.size, 2);
   assert.equal(index.get("scp-wiki\u0000scp-002\u0000SCP.txt")?.path, "scp-main.ftml");
   assert.equal(index.get("scp-wiki\u0000scp-002\u0000other.txt"), undefined);
-  // A space-joined key would collide "a b"/"c" with "a"/"b c".
   assert.equal(index.get("scp-wiki\u0000scp-002 SCP\u0000txt"), undefined);
 });
 
-// The scp-002 source inventory, exactly the #2095 follow-up case: the
-// corpus page source references 800px-SCP002-new.jpg (image-block) and
-// never SCP.txt.
 const SCP_002_INVENTORY = buildSourceInventoryIndex([
   {site_slug: "scp-wiki", page_slug: "scp-002", name: "800px-SCP002-new.jpg"},
 ]);
 
 test("requires inventory absence for a fixture verdict, using SCP-002", () => {
   const seed = buildSeedIndex(SEEDER);
-  // SCP.txt: seeded AND absent from the covered source inventory.
   const fixture = classifyMirrorFileRow(row(), seed, SCP_002_INVENTORY);
   assert.equal(fixture.verdict, "FIXTURE");
   assert.equal(fixture.seed_path, "scp-main.ftml");
-  // 800px-SCP002-new.jpg: seeded but present in the source inventory, so
-  // it is a genuine attachment and never a repair candidate.
   const genuine = classifyMirrorFileRow(
     row({file_id: 23, name: "800px-SCP002-new.jpg", size: 182048, last_revision_id: 28}),
     seed,
     SCP_002_INVENTORY,
   );
   assert.equal(genuine.verdict, "SEED_SOURCE_MATCH");
-  // Seeder origin alone, without any source inventory, fails closed.
   const undecided = classifyMirrorFileRow(row(), seed);
   assert.equal(undecided.verdict, "UNCLASSIFIED_LOCAL");
   assert.match(undecided.reason, /no source inventory covers/);
@@ -157,8 +149,6 @@ test("manifest contains only fixture rows with delete parameters", () => {
   assert.match(manifest.repair_path, /NOT import_wikidot_file_delete/);
 });
 
-// Focused cases for the #2095 rule: seeder origin alone is never synthetic.
-// Only positive absence from a supplied source inventory may yield FIXTURE.
 
 const GENUINE_SEEDED_NAME = "800px-SCP002-new.jpg";
 
@@ -192,7 +182,6 @@ test("no source inventory supplied fails closed for every seeder-origin file", (
     row(),
     row({file_id: 23, name: GENUINE_SEEDED_NAME, size: 182048, last_revision_id: 28}),
   ];
-  // Omitted, null, and an empty inventory all carry no absence evidence.
   const withoutEvidence = [undefined, null, buildSourceInventoryIndex(null), buildSourceInventoryIndex([])];
   for (const inventory of withoutEvidence) {
     const classified = seededRows.map((seededRow) => ({
@@ -209,7 +198,6 @@ test("no source inventory supplied fails closed for every seeder-origin file", (
 
 test("malformed or non-array inventory input is refused, never read as absence", () => {
   const valid = {site_slug: "scp-wiki", page_slug: "scp-002", name: GENUINE_SEEDED_NAME};
-  // An entry without a name would otherwise cover scp-002 and make SCP.txt look absent.
   assert.throws(
     () => buildSourceInventoryIndex([{site_slug: "scp-wiki", page_slug: "scp-002"}]),
     /source inventory entry 0 is malformed/,
@@ -226,7 +214,6 @@ test("malformed or non-array inventory input is refused, never read as absence",
     () => buildSourceInventoryIndex([{page_slug: "scp-002", name: GENUINE_SEEDED_NAME}]),
     /malformed/,
   );
-  // One malformed entry poisons the whole list; no partial index is used.
   assert.throws(
     () => buildSourceInventoryIndex([valid, {site_slug: "scp-wiki", page_slug: "scp-002"}]),
     /source inventory entry 1 is malformed/,
@@ -318,7 +305,6 @@ function writeCliInputs(dir, inventory = [{site_slug: "scp-wiki", page_slug: "sc
     classification: join(dir, "classification.json"),
     manifest: join(dir, "manifest.json"),
   };
-  // Column order matches ROW_COLUMNS in scripts/audit-mirror-fixture-files.mjs.
   const tab = "\t";
   writeFileSync(
     paths.rows,

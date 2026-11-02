@@ -284,10 +284,6 @@ function selectedRuntimeLabels(labels) {
       ([name]) => !name.startsWith(COMPOSE_LABEL_PREFIX),
     ),
   );
-  // Compose's implementation labels include hashes and replacement markers
-  // derived from this aggregate or from container lifecycle. Project and role
-  // ownership are validated separately before the underlying service config
-  // reaches this hash.
   delete selected[RUNTIME_LABELS.effectiveRuntimeServicesSha256];
   return safeRuntimeValue(selected);
 }

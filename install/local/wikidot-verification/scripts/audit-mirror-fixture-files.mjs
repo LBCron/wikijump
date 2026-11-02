@@ -1,14 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * DRY-RUN audit of fixture file rows on Wikidot mirror pages. Refs #2095.
- *
- * Reads a TSV dump of file rows on imported pages (SELECT-only; the exact
- * query is printed with --help) plus `deepwell/seeder/files.json`, and
- * writes a classification report and a tombstone manifest covering ONLY
- * seeder-matched rows that a source inventory (--source-inventory)
- * proves absent from the source page. Never mutates anything.
- */
 
 import {readFileSync, writeFileSync} from "node:fs";
 
@@ -98,10 +89,6 @@ Dump the rows first (SELECT-only):
   const seedIndex = buildSeedIndex(
     JSON.parse(readFileSync(args.seeder_files, "utf8")),
   );
-  // Source inventory (corpus attachment metadata or the recorded Wikidot
-  // Files list, as JSON [{site_slug, page_slug, name}, ...]) is what lets
-  // a seed match become FIXTURE. Without it the classifier fails closed:
-  // seed matches stay UNCLASSIFIED_LOCAL and the manifest stays empty.
   const sourceInventoryIndex = args.source_inventory
     ? buildSourceInventoryIndex(JSON.parse(readFileSync(args.source_inventory, "utf8")))
     : null;

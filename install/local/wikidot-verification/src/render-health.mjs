@@ -1,21 +1,7 @@
-// V2 render-health classification for the local Wikidot rendering lab.
-//
-// Implements the category taxonomy, severity levels, dispositions, verdict
-// JSON shape, and exit-code discipline from
-// local-wikidot-lab-redesign-20260705/specs/render-health-taxonomy.spec.md.
-//
-// V2 is an intrinsic (robustness) check: it asks whether a locally rendered
-// page looks structurally sane. It never makes fidelity claims — those belong
-// to the V3/V4/V5 comparators.
 
 export const RENDER_HEALTH_SCHEMA = 'wikijump_local_lab.render_health.v1';
 
-// Raw wikitext markers that should not appear as visible text in a healthy
-// render. Escaped display copies (@@[[include ...]]@@ in source) legitimately
-// render these literally; callers pass the page source so classification can
-// discount markers the author escaped on purpose.
 const LEAK_MARKERS = [
-  // Empty `[[include]]` text occurs as prose in real theme articles. Only an include with an argument can represent an unresolved directive.
   { pattern: /\[\[include\s+[^\]\s]/gi, category: 'unresolved-include' },
   { pattern: /\[\[module\s+\w+/gi, category: 'leaked-marker', marker: 'module' },
   { pattern: /\[\[\/module\]\]/gi, category: 'leaked-marker', marker: 'module-close' },
@@ -62,7 +48,6 @@ const RENDERED_LITERAL_PATTERNS = [
   /<span\b(?=[^>]*\bstyle\s*=\s*(?:"[^"]*\bwhite-space\s*:\s*pre-wrap\b[^"]*"|'[^']*\bwhite-space\s*:\s*pre-wrap\b[^']*'))[^>]*>[\s\S]*?<\/span\s*>/gi,
 ];
 
-// Strip regions that legitimately contain raw markup: scripts, styles, rendered code blocks, and FTML's identifiable literal spans.
 const NON_CONTENT_PATTERNS = [
   /<script\b[\s\S]*?<\/script\b[^>]*>/gi,
   /<style\b[\s\S]*?<\/style\b[^>]*>/gi,
@@ -72,8 +57,6 @@ const NON_CONTENT_PATTERNS = [
 ];
 
 export function stripNonContent(html) {
-  // Iterate to a fixed point so removal cannot splice new open/close pairs
-  // back together (single-pass replace can leave residual markers).
   let stripped = html;
   for (;;) {
     let next = stripped;
@@ -85,9 +68,6 @@ export function stripNonContent(html) {
   }
 }
 
-// Count occurrences of a marker in the source that the author escaped for
-// display (@@...@@ raw spans or code blocks). Those occurrences are expected
-// to appear literally in the rendered page and must not count as leaks.
 export function countEscapedOccurrences(source, pattern, {includeCodeBlocks = true} = {}) {
   if (!source) return 0;
   let count = 0;
@@ -109,8 +89,6 @@ function excerptAround(html, index, radius = 80) {
 }
 
 export function findRawSyntaxLeaks({ html = '', source = '', content: precomputedContent } = {}) {
-  // `content` may be supplied by a caller that already stripped the same HTML,
-  // avoiding a second fixed-point strip over the whole page.
   const content = precomputedContent ?? stripNonContent(html);
   const findings = [];
   const renderedLiteralsIdentified = RENDERED_LITERAL_PATTERNS.some((pattern) => new RegExp(pattern.source, pattern.flags).test(html));
@@ -135,19 +113,6 @@ export function findRawSyntaxLeaks({ html = '', source = '', content: precompute
   return findings;
 }
 
-/**
- * Classify one rendered page.
- *
- * @param {object} input
- * @param {string} input.fixtureId    stable id (e.g. "EN:scp-173")
- * @param {number} input.httpStatus   HTTP status of the page fetch (0 = network error)
- * @param {string} [input.html]       rendered HTML (required when httpStatus is 200)
- * @param {string} [input.source]     original wikitext, used to discount escaped markers
- * @param {string[]} [input.parserErrors]  parser/render errors reported for the page
- * @param {string[]} [input.consoleErrors] browser console errors (browser-capture mode)
- * @param {string[]} [input.failedRequests] failed subresource URLs (browser-capture mode)
- * @param {object} [input.dispositions]    category -> 'defect'|'known-unsupported'|'accepted'
- */
 export function classifyRenderedPage(input) {
   const findings = [];
 
@@ -186,7 +151,6 @@ export function classifyRenderedPage(input) {
       findings.push({ category: 'console-error', detail: String(err).slice(0, 300) });
     }
   } else {
-    // Redirects and other unexpected statuses have no taxonomy entry: block.
     findings.push({
       category: 'taxonomy-unknown',
       detail: `unhandled HTTP status ${input.httpStatus} (follow redirects or extend taxonomy)`,

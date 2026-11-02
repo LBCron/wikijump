@@ -357,9 +357,6 @@ fn rasterize_svg(source: &[u8]) -> Result<DynamicImage, ResizeError> {
         resvg::tiny_skia::Transform::default(),
         &mut pixmap.as_mut(),
     );
-    // The pixmap is premultiplied RGBA and JPEG has no alpha channel, so
-    // flatten onto white: a partially transparent pixel takes the color
-    // it would show over the white page background.
     let mut rgba = Vec::with_capacity(pixmap.pixels().len() * 4);
     for pixel in pixmap.pixels() {
         let color = pixel.demultiply();
@@ -1039,8 +1036,6 @@ mod tests {
             .unwrap();
         assert_eq!(mismatched_mime.status(), StatusCode::NOT_FOUND);
 
-        // The default spawn reply declares image/png; SVG bytes under a
-        // raster MIME type fail the format check as before.
         let app = TestApp::spawn(svg(800, 400)).await;
         let mismatched_bytes = app
             .request(reqwest::Method::GET, "thumbnail")

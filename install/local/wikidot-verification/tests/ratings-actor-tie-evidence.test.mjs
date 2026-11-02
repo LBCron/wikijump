@@ -8,8 +8,6 @@ const artifactUrl = new URL(
   import.meta.url,
 );
 
-// SHA-256 of the retained summary of the 2026-09-14 run-owned
-// sandbox-for-codex ratings and NextPage/PreviousPage capture.
 const ARTIFACT_SHA256 =
   "620e00d1873148be791c41b7f28c6a5ff5c4ea0f4796a872db6602bc9d61d6ff";
 

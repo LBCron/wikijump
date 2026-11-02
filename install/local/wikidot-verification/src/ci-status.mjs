@@ -211,9 +211,6 @@ function buildRequiredChecks(protection, checks) {
 }
 function overallStatus(requiredChecks, checks) {
   if (requiredChecks.contexts === null) {
-    // Unknown required-check set (protection unreadable): a required context
-    // with no posted check would be invisible, so "passing" can never be
-    // claimed here — report failing on visible failures, otherwise pending.
     return checks.some(isFailingCheck) ? "failing" : "pending";
   }
   if (requiredChecks.failing.length > 0) {

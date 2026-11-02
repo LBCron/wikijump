@@ -7,14 +7,8 @@ import {
   stableStringify,
 } from './corpus-import-manifest.mjs';
 
-// This is a verification-layer representation for the narrowed S754/S1046
-// pages-and-attachments scope. It deliberately writes a deterministic
-// source-bundle directory instead of ZIP bytes. A later UI/runtime seam can
-// package this directory as a ZIP once that boundary is specified; this seam
-// does not define settings export, restore, identity, or conflict semantics.
 export const SITE_CONTENT_BACKUP_SCHEMA = 'wikijump.site-content-backup.v1';
 export const SITE_CONTENT_BACKUP_MANIFEST_FILENAME = 'backup-manifest.json';
-// Verification safety ceilings only; these are not Wikidot product limits.
 export const DEFAULT_SITE_CONTENT_BACKUP_LIMITS = Object.freeze({
   maxPages: 10_000,
   maxAttachments: 100_000,

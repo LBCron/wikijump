@@ -65,8 +65,6 @@ function resolveFtmlStore(revision, tree) {
       ).split(/\s+/u);
       if (observed[0] === revision && observed[1] === tree) return store;
     } catch {
-      // A Cargo checkout may contain only a different shallow working revision.
-      // Keep searching the local object stores; never fetch from the network.
     }
   }
   throw new Error("local Cargo FTML object store does not contain the pinned revision and tree");

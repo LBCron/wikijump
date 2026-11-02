@@ -250,7 +250,7 @@ def main() -> int:
     except ConformanceError as error:
         print(f"XML-RPC URL-swap conformance failed: {error}", file=sys.stderr)
         return 1
-    except Exception as error:  # The type is useful; exception text can contain secrets.
+    except Exception as error:
         print(
             f"XML-RPC URL-swap conformance failed unexpectedly: {type(error).__name__}",
             file=sys.stderr,

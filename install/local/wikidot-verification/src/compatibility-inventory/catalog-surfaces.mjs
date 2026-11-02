@@ -91,9 +91,6 @@ export function repositoryDocumentationEvidence(entries) {
   return entries.flatMap((entry) => {
     if (typeof entry !== "string" || entry === "") return []
     if (path.posix.isAbsolute(entry)) {
-      // Historical campaign ledgers retained some host-local WJLab receipts.
-      // They remain provenance in the ledger itself, but current executable
-      // inventory evidence must be repository-owned and portable.
       return []
     }
     if (

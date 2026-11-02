@@ -331,7 +331,6 @@ def main() -> None:
                 preflight.append({"gate": 10, "status": "pass", "evidence": "the public sandbox is already anonymously readable; no setting or role change is required"})
                 preflight.append({"gate": 11, "status": "pass", "evidence": "eight pages, two-node cycles, and all source sizes validate within the frozen graph contract"})
 
-                # Build the acyclic controls first so gates 5 and 12 are established before either cycle exists.
                 creation_order = ["ownership-root", "control-b", "control-a", "isolated"]
                 for role in creation_order:
                     page = mutate(
@@ -368,7 +367,6 @@ def main() -> None:
                     created[role] = page
                     mutate(lambda page=page: page.set_parent(names["ownership-root"]), names["ownership-root"])
 
-                # Public metadata/source readback and ordinary GET prove the complete arranged graph.
                 for role in fixture["roles"]:
                     page = read_page(site, role, source=True)
                     if page is None:
@@ -463,7 +461,6 @@ def main() -> None:
                 remaining_gaps.append({"kind": "capture", "id": "observation_failed_before_complete_matrix"})
             finally:
                 cleanup_started = bool(created)
-                # Break all cycle edges before any parent or deletion mutation.
                 for role in ("cycle-a1", "cycle-b1", "cycle-a2", "cycle-b2"):
                     if role not in created:
                         continue

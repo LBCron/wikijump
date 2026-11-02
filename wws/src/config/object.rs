@@ -21,20 +21,13 @@
 use std::net::SocketAddr;
 use std::path::PathBuf;
 
-/// The runtime configuration structure for the web server.
 #[derive(Debug, Clone)]
 pub struct Config {
-    /// Whether to enable tracing and colored backtrace.
     pub enable_trace: bool,
 
-    /// Whether to crash the process if DEEPWELL isn't available at start.
-    /// This can cause issues locally, since wws may rebuild before
-    /// deepwell does, and then it finds deepwell isn't ready yet.
     pub enable_deepwell_check: bool,
 
-    /// The PID file (if any) to write to on boot.
     pub pid_file: Option<PathBuf>,
 
-    /// The address the server will be hosted on.
     pub address: SocketAddr,
 }

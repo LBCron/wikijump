@@ -14,10 +14,6 @@ import {
   withProvisionedDeepwellStack,
 } from "../src/deepwell-integration-stack.mjs";
 
-/** Run `shards` copies of this script, each on one nextest partition and its
- * own task-owned stack, and fail if any fails. Output lines carry the shard.
- * Partitions hash test names: `count:` restarts at shard 1 in every test
- * binary, so shard 1 received a test from each small binary and ran longest. */
 async function runShards(shards, argv) {
   const script = fileURLToPath(import.meta.url);
   const capture = await prepareShardSeedCapture(process.env);

@@ -81,8 +81,6 @@ pub fn content_disposition_attachment(filename: &str) -> HeaderValue {
 mod tests {
     use super::*;
 
-    // ------------ Content-Disposition tests ------------
-
     #[test]
     fn disposition_ascii() {
         let val = content_disposition_attachment("report.pdf");

@@ -6,15 +6,6 @@ import net from "node:net";
 import {join, relative} from "node:path";
 import {pipeline} from "node:stream/promises";
 
-/**
- * A seed capture is the state `deepwell --seed` leaves behind in a task-owned
- * stack: the PostgreSQL database, the two MinIO buckets, and the Valkey keys.
- * One stack seeds, the capture is written, and every shard restores it into its
- * own empty containers instead of running the seeder again. The capture is
- * addressed by a key over everything that determines the seeded state, and
- * every artifact is checksummed, so a stale or damaged capture is rejected
- * rather than trusted.
- */
 
 export const SEED_CAPTURE_FORMAT = 1;
 export const SEED_CAPTURE_MANIFEST = "manifest.json";
@@ -26,7 +17,6 @@ const CONTAINER_DUMP_PATH = "/tmp/seed-capture.dump";
 const CONTAINER_EXPORT_DIR = "/tmp/seed-export";
 const POSTGRES_CLIENT_ARGS = ["-h", "127.0.0.1", "-U", "wikijump", "-d", "wikijump"];
 
-/** Raised for any failure while restoring a capture into a fresh stack. */
 export class SeedCaptureRestoreError extends Error {
   constructor(message, options) {
     super(message, options);
@@ -59,21 +49,12 @@ async function treeEntries(root, directory, entries) {
   }
 }
 
-/** Digest of a directory tree: every path, entry kind, and file content. */
 export async function treeDigest(directory) {
   const entries = [];
   await treeEntries(directory, directory, entries);
   return createHash("sha256").update(entries.join("\n")).digest("hex");
 }
 
-/**
- * The capture key. Its inputs are everything the seeded state is a function of:
- * the migrations, the seed data, the locales and config the seeder reads, the
- * deepwell binary that embeds the seeder and the renderer, the container images
- * (server versions and storage formats), and the static settings the stack
- * hands the seeder. A changed input yields a different key, so an older capture
- * is never found for it.
- */
 export async function computeSeedCaptureKey({root, binaryPath, imageIds, staticEnv, seedArguments}) {
   const inputs = {
     format: SEED_CAPTURE_FORMAT,
@@ -90,11 +71,6 @@ export async function computeSeedCaptureKey({root, binaryPath, imageIds, staticE
   return {key, inputs};
 }
 
-/**
- * Read and verify a capture directory. Throws unless the manifest is present,
- * of this format, written for `expectedKey`, and every artifact has the
- * recorded size and checksum.
- */
 export async function verifySeedCapture(directory, expectedKey) {
   let manifest;
   try {
@@ -168,7 +144,6 @@ function encodeCommand(args) {
   return Buffer.concat(parts);
 }
 
-/** Parse one RESP2 reply at `offset`; null while the buffer is incomplete. */
 export function parseReply(buffer, offset = 0) {
   if (offset >= buffer.length) return null;
   const lineEnd = buffer.indexOf("\r\n", offset);
@@ -204,7 +179,6 @@ export function parseReply(buffer, offset = 0) {
   }
 }
 
-/** Run `commands` pipelined over one connection; replies keep command order. */
 export function respPipeline(port, commands, {host = "127.0.0.1"} = {}) {
   return new Promise((resolve, reject) => {
     const socket = net.connect({host, port});
@@ -252,7 +226,6 @@ async function scanAllKeys(port) {
   return keys.sort(Buffer.compare);
 }
 
-/** Every key with its absolute expiry and its DUMP payload. */
 export async function readValkeyKeys(port) {
   const keys = await scanAllKeys(port);
   const replies = await respPipeline(port, keys.flatMap((key) => [["PEXPIRETIME", key], ["DUMP", key]]));
@@ -315,11 +288,6 @@ async function artifactRecord(directory, name) {
   return {bytes: (await stat(path)).size, sha256: await sha256File(path)};
 }
 
-/**
- * Write a capture of the seeded stack into `directory` (which must exist and be
- * empty). The manifest is written last, so a directory without one is never
- * mistaken for a complete capture.
- */
 export async function captureSeededStack({run, containers, ports, buckets, directory, key, inputs}) {
   await run("docker", [
     "exec", "-e", "PGPASSWORD=wikijump", containers.database, "pg_dump", ...POSTGRES_CLIENT_ARGS,
@@ -354,12 +322,6 @@ function sameJson(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
-/**
- * Restore a verified capture into freshly started, empty containers and prove
- * the result matches what was captured: per-table row counts, the MinIO object
- * listing with sizes and etags, and the Valkey key count. Any failure throws a
- * SeedCaptureRestoreError; the caller discards the stack.
- */
 export async function restoreSeedCapture({run, containers, ports, buckets, directory, expectedKey, now = Date.now}) {
   let manifest;
   try {
@@ -404,7 +366,6 @@ export async function restoreSeedCapture({run, containers, ports, buckets, direc
   }
 }
 
-/** Run `attempt(capture)`; if restoring the capture fails before the body ran, run `attempt(null)`. */
 export async function withSeedCaptureFallback(attempt, capture, {log = (message) => console.error(message)} = {}) {
   if (!capture) return attempt(null);
   let entered = false;

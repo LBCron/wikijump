@@ -23,7 +23,6 @@ test('domSignature counts tags, classes, attrs, ids, comments', () => {
 });
 
 test('domSignature matches the oracle capture format on a real fragment', () => {
-  // Fragment shape from oracle entry bold-simple_link-span-ba9765f9ebf11fc4.
   const html =
     '<br/>\n<span class="placard"><span style="font-size:75%;"><strong>DISCLAIMER:</strong> text</span></span><br/>';
   const sig = domSignature(html);
@@ -60,8 +59,6 @@ test('compareOracleEntry pass and fail', () => {
       },
     },
   };
-  // Local render wraps the snippet in a paragraph and has no sentinel <br>s;
-  // both are declared harness normalizations.
   const pass = compareOracleEntry(entry, '<p><strong>hi</strong></p>');
   assert.equal(pass.status, 'pass');
   assert.deepEqual(pass.normalization, ['boundary_br', 'paragraph_unwrap']);

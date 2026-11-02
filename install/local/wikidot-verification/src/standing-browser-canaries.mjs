@@ -36,9 +36,6 @@ export const PAGE_CONTENT_FIRST_DIVERGENCE_TRACE = Object.freeze({
 
 const common = Object.freeze({
   geometry_selectors: COMMON_GEOMETRY_SELECTORS,
-  // Before load completion, image decoding may legitimately change page-body
-  // height. First paint instead blocks on stable header geometry plus the
-  // theme-property and rendered pseudo-element contracts below.
   first_paint_geometry_selectors: Object.freeze(["#header"]),
   presence_probes: Object.freeze([
     Object.freeze({
@@ -120,10 +117,6 @@ function canary({
   });
 }
 
-// SCP-9506 exercises the Basalt header and page-supplied navigation, while
-// the remaining rows cover every production theme family represented by the
-// standing stack. A selector count is deliberately insufficient for the
-// Basalt pseudo-elements: their visible painted area is checked separately.
 export const STANDING_BROWSER_CANARIES = Object.freeze([
   canary({
     slug: "scp-9506",

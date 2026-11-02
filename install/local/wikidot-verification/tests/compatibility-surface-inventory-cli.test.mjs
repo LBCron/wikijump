@@ -588,8 +588,6 @@ async function writeCatalogOwnerFixture(root, ownerManifest = {
 }
 
 let currentInventory
-// The CLI over the unmodified checkout is deterministic; the tests that only
-// read slices of its output share one run.
 function currentRepositoryInventory() {
   currentInventory ??= (async () => {
     const outputRoot = await fs.mkdtemp(path.join(repositoryRoot, ".compatibility-current-"))

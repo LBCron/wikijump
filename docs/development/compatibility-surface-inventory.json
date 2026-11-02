@@ -11766,7 +11766,7 @@
   },
   "provenance": {
     "wikijump": {
-      "source_input_set_sha256": "8260b448f7ad0ddb8497c34b12fcdda7b9b492661fe721e11e4f98a53a520a15"
+      "source_input_set_sha256": "87bfc4eb7dc9f60ed2851e9434c994d12338ee579cd94f061a052a28b92dd62d"
     },
     "ftml": {
       "commit": "bcfd17dbc2bf734d29370c1b398a3386d978b874",
@@ -11787,15 +11787,15 @@
       },
       {
         "path": "deepwell/src/endpoints/auth.rs",
-        "sha256": "2096a2bc7ffeffacdfc4af5f94604c0f810b0adddea673414a727845a2e04d32"
+        "sha256": "39c93f69ddec99f314a4a20dee387c77cf5019663dd75a1af40327e1e7285ee7"
       },
       {
         "path": "deepwell/src/endpoints/basic_error.rs",
-        "sha256": "8cd98f2d75a34c273e639a9826117c0ff5982d55a3e6ebdf2c895ac6cbe079e4"
+        "sha256": "6395a84ae483111ebfbb579910ec560a546e51af9951401279dc4d7931efc45e"
       },
       {
         "path": "deepwell/src/endpoints/blob.rs",
-        "sha256": "382491303ed4c38ff65643bdc866929e533804b4518cb012b7377a003662e2a2"
+        "sha256": "172c1189d51b910674367f3287cf5839edf706e85dae4255e61bd8d3f1c4fd5e"
       },
       {
         "path": "deepwell/src/endpoints/category.rs",
@@ -11803,23 +11803,23 @@
       },
       {
         "path": "deepwell/src/endpoints/diagnostics.rs",
-        "sha256": "5bf539cb403f697225caf6e10a26b0b5b3b754924b35bacdea05f1a4ac98709c"
+        "sha256": "b5c141be19637f78b20b0ce595a858ba226293abf0b25dd2c61a0fa87f89bdc3"
       },
       {
         "path": "deepwell/src/endpoints/domain.rs",
-        "sha256": "de30b748f3eeb7f50a506b2820f99ec8d034aa1ea2986bbadb38d6a9a1bd01b3"
+        "sha256": "10b4d2a7a5b21b9783d2f43e77a4b76d43212bc82a01feac80dd6d581e8b05ac"
       },
       {
         "path": "deepwell/src/endpoints/email.rs",
-        "sha256": "055c63c0233a174de808e5eb6cc1b92f337b405a62d7df4f16c24852133aefb6"
+        "sha256": "ee577745a194cc7d4719149c8ad4dd0b15318975fff6dc665fce9155b6e409e1"
       },
       {
         "path": "deepwell/src/endpoints/file_revision.rs",
-        "sha256": "c33aa99210e43f8efe49643923e04c4cb7f1e77cfeeb6858fbd5fb37a2aece95"
+        "sha256": "f770e8b8d1712ac770975ea1b30d7572cf8cdd4f0b8032b5ba73c2311c00ec11"
       },
       {
         "path": "deepwell/src/endpoints/file.rs",
-        "sha256": "9f8a1260ee24a71a99b974b8caf4804b48dd4e7e5e07ab8b33f81d46865c1d09"
+        "sha256": "cfa96dd1fabe0903e121a8443937a247904ba41b5c04e3ffa05f0c8d63bc416a"
       },
       {
         "path": "deepwell/src/endpoints/forum_post.rs",
@@ -11827,7 +11827,7 @@
       },
       {
         "path": "deepwell/src/endpoints/health.rs",
-        "sha256": "0c871bc2f97a9f303c9e5e65d69e01199015b8cd11675cfa104a32f6eb607194"
+        "sha256": "10637715f0fcc5ce8c226e830c4ade9997cebaf466cc3b170d34cdbf994b5db0"
       },
       {
         "path": "deepwell/src/endpoints/import.rs",
@@ -11835,7 +11835,7 @@
       },
       {
         "path": "deepwell/src/endpoints/info.rs",
-        "sha256": "0861c8ef5255bc2d4e9fbdcb2d668f682d2b46a820f87ecd57ce6e60bfba0ae0"
+        "sha256": "448e0db8dd472c90ef88ec003d3afe44d7bfa20a014f4f81915b756faeca08ac"
       },
       {
         "path": "deepwell/src/endpoints/link.rs",
@@ -11843,11 +11843,11 @@
       },
       {
         "path": "deepwell/src/endpoints/locale.rs",
-        "sha256": "a7727e0dbac698ad3ed149b66814305b70a012a4b33355e786b17588726ccfe1"
+        "sha256": "8d330a9e2e7dc79bb8605cc685130ffb7a960281d8c56865482962e9dcde9e2a"
       },
       {
         "path": "deepwell/src/endpoints/mail_form.rs",
-        "sha256": "adea704c4a063a7ca4fcb4bdf263cbed8900281fd136b7dd26924436e9b7a843"
+        "sha256": "2190fc7e5c55088f2b9cca11a7e5aac29d27df64423ffc63a6a5d912bb01cb2f"
       },
       {
         "path": "deepwell/src/endpoints/message.rs",
@@ -11875,19 +11875,19 @@
       },
       {
         "path": "deepwell/src/endpoints/page_revision.rs",
-        "sha256": "44ae7698d0816ad22737e63fed8425cde839f5faaf0c18e39b1b3d72deebd0f6"
+        "sha256": "660bee17bd1a60b883af0d7c1a55b800ca4f40f4c5cb0f52ef6207f310e6efad"
       },
       {
         "path": "deepwell/src/endpoints/page.rs",
-        "sha256": "f7f4aced7fe3f8af2edc3be9ac6122d0370cf06512457d58a2449061169c2f0d"
+        "sha256": "5b82f987ee9522d0c1231139eb281f846ebdfe905c314b254e54abe61e37be4e"
       },
       {
         "path": "deepwell/src/endpoints/page/permissions.rs",
-        "sha256": "763f7d87bb93d62bdcfc87202040672e3d42ad0096d0ede82e62592601ae14ce"
+        "sha256": "e7ad33e62146129494220f2ff6ddd1d1a3eae869c62acfc8c784f9a28de7816b"
       },
       {
         "path": "deepwell/src/endpoints/parent.rs",
-        "sha256": "effc610b60f819a083bdfa5a7d10211a7fc5b0df5a5ce58a7cf7db40d3f78974"
+        "sha256": "5243661cb2b3edbaba7e5c0d77235c805d5da9d279fc30acc26829409d498907"
       },
       {
         "path": "deepwell/src/endpoints/routing.rs",
@@ -11903,7 +11903,7 @@
       },
       {
         "path": "deepwell/src/endpoints/site.rs",
-        "sha256": "48dc8abb7049cfad6d7ccc30a2837f2fbf42b7ffd6bb927f6114eea97d5078e3"
+        "sha256": "2c4031db4efd12441860666fa8e0047badd1271be2a451229bbfc0bd68b8d5d1"
       },
       {
         "path": "deepwell/src/endpoints/text_block.rs",
@@ -11915,19 +11915,19 @@
       },
       {
         "path": "deepwell/src/endpoints/user_bot.rs",
-        "sha256": "07b0caebac592603ae777965cb29a3646c4f9b8eac89f6665fed6e5dfdab625d"
+        "sha256": "0154e668bf4521ea5092724805de81e5100e14a4c0455bef3632353fa95552c7"
       },
       {
         "path": "deepwell/src/endpoints/user.rs",
-        "sha256": "e7ac2f98c2de1b72454776219617557f0a225f4f6aebe72ceffde60b6174ade5"
+        "sha256": "7afe510d55961cae52fcb780fb89762305f9b4635bd5a9f8b6f11967ccc0d2e2"
       },
       {
         "path": "deepwell/src/endpoints/view.rs",
-        "sha256": "9eee39bd6947186da479b5a997e6527b11b64a79ae7dd573c0bcbd43fdcb20c7"
+        "sha256": "e7aca1a075f49bcf1659a11288fdbd4f25be9ee8d4730fd235d9ebfbff355e02"
       },
       {
         "path": "deepwell/src/endpoints/vote.rs",
-        "sha256": "3d78d46e17a94cc8812d887e7852c888bc63eb4695968c757fdda32e8782af49"
+        "sha256": "ccf47e95de9fc4cdac0f35b10d5af4567be239736342c141beedc04f155d5f29"
       },
       {
         "path": "docs/development/compatibility-catalog-source-attribution.json",
@@ -11939,7 +11939,7 @@
       },
       {
         "path": "docs/development/deepwell-jsonrpc-contract-manifest.json",
-        "sha256": "e166ba009f45d44fa6bf557376481b571be209c35f75d8251ef54419032137ff"
+        "sha256": "38f2e1585ca8abaa014e852a3b401b079a9bbc31754541effbe42214dc706da6"
       },
       {
         "path": "docs/development/framerail-amc-wire-contracts.json",
@@ -11999,7 +11999,7 @@
       },
       {
         "path": "docs/development/wws-route-registration-denominator.json",
-        "sha256": "c7f563ecad952d8157cd5bc8cccb104f1fab16751c3ee8fe4f622acc93e8fdd5"
+        "sha256": "cdee418467b4eb7e1507fad1beb74b0873b830c698abdb6a925fec633afdb158"
       },
       {
         "path": "docs/wikidot-specifications/catalog.json",
@@ -12027,15 +12027,15 @@
       },
       {
         "path": "framerail/src/lib/server/load/page/page-revision-actions.ts",
-        "sha256": "6dbbb85a91b21863e3dd45f8c0d3691bd37525a7c03ab96c5e590bb2dfac5517"
+        "sha256": "0c3e3d2561c73777890a0cc16567ce85334c1f9eef64439c422364f447fbd6da"
       },
       {
         "path": "framerail/src/lib/server/load/page/page.ts",
-        "sha256": "f69aa39070a732bfe5c3222bbc1874379d682e034324f35beec634fceae3c12c"
+        "sha256": "3e1da4b7d9002c46e426503914ba25d32e7e9520cd73c486becfe93ad72c573c"
       },
       {
         "path": "framerail/src/lib/server/wikidot-site-changes.js",
-        "sha256": "2faf6bebd3d9481b4fe1ba865adc3f23b2ecfea08fac988eac08d975bdb4ee4d"
+        "sha256": "190f8bed8c3ae5b51ee50b5985238bfed647962ee8f030502c9b2f7e528425ab"
       },
       {
         "path": "framerail/src/lib/server/xmlrpc/methods.ts",
@@ -12063,11 +12063,11 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/[slug]/[...extra]/+page.server.ts",
-        "sha256": "fb17333af088a633b8d3bba806860809d4c6bd00ed01bb51424108adddb63576"
+        "sha256": "cffadee6ab175ee6b0dcb6145749822b9bca6c8e201505254dc97ba4d0760ccd"
       },
       {
         "path": "framerail/src/routes/[x+2d]/+page.server.ts",
-        "sha256": "4bccfd7d48ca30a787f5a267b5568da7d31ce85eddd579895f66fc8712342243"
+        "sha256": "33b68f92d1e48aa9c10e2ed51c11e67d1eb89bde6cbd952c12486175e074fe30"
       },
       {
         "path": "framerail/src/routes/[x+2d]/about/+page.server.ts",
@@ -12075,7 +12075,7 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/about/+page.svelte",
-        "sha256": "cea601987892135ccb2c7d4ed9cb3561a3c8aa7ad7ed0e6a933e293e560a42b6"
+        "sha256": "f4f16cc563f74dd97eb91e483b22077d15cb8501e3d06706406beb4d1cb262a1"
       },
       {
         "path": "framerail/src/routes/[x+2d]/admin/+page.server.ts",
@@ -12115,7 +12115,7 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/login/+page.svelte",
-        "sha256": "c6d74064d25a4197cba3e580c2e57aaf5b412a1dcc5219a79d761e7c9edf6dc2"
+        "sha256": "923791bd495310b6f20695210575c22c765ad0773931c5fd193a159846c7ace0"
       },
       {
         "path": "framerail/src/routes/[x+2d]/logout/+page.server.ts",
@@ -12131,7 +12131,7 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/register/+page.svelte",
-        "sha256": "af6290c1fd269cae1cacd4114bce04588eeb0f5ac563ab18d72bcf166f86325a"
+        "sha256": "3552eeb4a5a32c3d11df2dfe745bf0379ed00ec5079c480eebf54f8e66f73538"
       },
       {
         "path": "framerail/src/routes/[x+2d]/reset/[token]/+page.server.ts",
@@ -12163,7 +12163,7 @@
       },
       {
         "path": "framerail/src/routes/[x+2d]/user/+page.svelte",
-        "sha256": "8a331c248b726fca68f0eff0e465dcb332346ff22adca680b8c2ff582dcaf7ff"
+        "sha256": "b6c7c339dea01a4332aa90d0591d0556b72b5f9896f81c5e146ec18ca2306748"
       },
       {
         "path": "framerail/src/routes/[x+2d]/verify-email/[token]/+page.server.ts",
@@ -12207,7 +12207,7 @@
       },
       {
         "path": "framerail/src/routes/ajax-module-connector.php/+server.ts",
-        "sha256": "fb7d79186c13ddd69c15b1d101352196c987481ef8a94e2f40683b6e74d78dcb"
+        "sha256": "1236b2fbb694402cdafb4add24fae6d545a15658bbab42b9a6b1894de0964dca"
       },
       {
         "path": "framerail/src/routes/common--images/jquery-raty/[asset]/+server.ts",
@@ -12215,7 +12215,7 @@
       },
       {
         "path": "framerail/src/routes/common--theme/base/images/feed/feed-icon-14x14.png/+server.ts",
-        "sha256": "957ffd131ebaa76cfadc8e673fd37dd14666b421d9591d2f641e6f4bbcd4aa22"
+        "sha256": "33d8902d0af0d0a92e47ad9dc3324a6b643bf1cbdb9212f2797ae8e2dc1bfe6d"
       },
       {
         "path": "framerail/src/routes/feed/forum/[feed]/+server.ts",
@@ -12227,7 +12227,7 @@
       },
       {
         "path": "framerail/src/routes/feed/site-changes.xml/+server.ts",
-        "sha256": "0f506ec9e48a53987e65d557de2f3594388497c4f2205107228162ad471a1f0e"
+        "sha256": "bda1238f78accf195699de37390ea44c81400ed5c3c6b4a278f961517bdb9b67"
       },
       {
         "path": "framerail/src/routes/forum/[fallback]/[...extra]/+page.server.ts",
@@ -12275,19 +12275,19 @@
       },
       {
         "path": "framerail/src/routes/printer--friendly/[...path]/+page.server.ts",
-        "sha256": "97c6bdefdace4c341e8309f91a8d9ea24eaf20f760f61699bf429f76adccd546"
+        "sha256": "43b63d8ddee2b1532edabdc758919a345919e77b6f16b95a607144486d7551cd"
       },
       {
         "path": "framerail/src/routes/printer--friendly/[...path]/+page.svelte",
-        "sha256": "48ea625cdf3e2eeb0dece65b257e1c2d806dde855391125bcd82cf677fa66478"
+        "sha256": "d78185c2f322644bb5b8fc40ac2404eb2f1ae9c749c1c5c0b7abb3a696aa2279"
       },
       {
         "path": "framerail/src/routes/sitemap_page_[n].xml/+server.ts",
-        "sha256": "ea04b21938572828fafedaabaeb66d557a2e5fa1e5dfb465417e74bc7f836ba1"
+        "sha256": "d70becd19768530a6f277b14e01f82208c8359bc3cba91ebb201fe4c6a230f99"
       },
       {
         "path": "framerail/src/routes/sitemap.xml/+server.ts",
-        "sha256": "738527aa0b2612a3b7ecab0f3d7123bb656e1539edadc5f8018f2ad507229ecf"
+        "sha256": "df014b37562a7a8d852376c107ff39f4d4130b5fd99cb45288955d804af2b211"
       },
       {
         "path": "framerail/src/routes/user[x+3a]info/[target]/+page.server.ts",
@@ -12299,7 +12299,7 @@
       },
       {
         "path": "framerail/src/routes/WikiPageError.svelte",
-        "sha256": "fe20a4367423b53a28b3e91fce30edbd5a8f0db441715c49266974e41cc54bb1"
+        "sha256": "1e3bd4d97d593b57acb07e41ac7cf41b822955e43308c195dd71477919cb921e"
       },
       {
         "path": "framerail/src/routes/xml-rpc-api.php/+server.ts",
@@ -12331,7 +12331,7 @@
       },
       {
         "path": "install/local/wikidot-verification/scripts/build-wws-route-registration-denominator.mjs",
-        "sha256": "1ed1f1af82d70881cc9b771743878fec1ed3890be4f943b34ec172f632637706"
+        "sha256": "e28657ec2a3a32803c0c1ed32359fc5ef4745309eb5ec778a5ebfb045e3d29e2"
       },
       {
         "path": "scripts/data/wikidot-implementation-ledger.json",
@@ -12339,7 +12339,7 @@
       },
       {
         "path": "wws/src/route.rs",
-        "sha256": "6f30661310113ced70de2441f2a7e7496e043d97017ca47cdf921e968d8033cf"
+        "sha256": "b3d53985800bf48114c13323cb0953d85590652a6eee58a2b79b064d822e2e39"
       }
     ]
   },
@@ -40577,7 +40577,7 @@
       "source_identities": [
         {
           "path": "framerail/src/routes/WikiPageError.svelte",
-          "sha256": "fe20a4367423b53a28b3e91fce30edbd5a8f0db441715c49266974e41cc54bb1"
+          "sha256": "1e3bd4d97d593b57acb07e41ac7cf41b822955e43308c195dd71477919cb921e"
         },
         {
           "path": "framerail/src/routes/+error.svelte",
@@ -40677,7 +40677,7 @@
       "source_identities": [
         {
           "path": "framerail/src/routes/WikiPageError.svelte",
-          "sha256": "fe20a4367423b53a28b3e91fce30edbd5a8f0db441715c49266974e41cc54bb1"
+          "sha256": "1e3bd4d97d593b57acb07e41ac7cf41b822955e43308c195dd71477919cb921e"
         },
         {
           "path": "framerail/src/routes/+error.svelte",
@@ -40689,11 +40689,11 @@
         },
         {
           "path": "framerail/src/lib/server/load/page/page.ts",
-          "sha256": "f69aa39070a732bfe5c3222bbc1874379d682e034324f35beec634fceae3c12c"
+          "sha256": "3e1da4b7d9002c46e426503914ba25d32e7e9520cd73c486becfe93ad72c573c"
         },
         {
           "path": "framerail/src/lib/server/load/page/page-revision-actions.ts",
-          "sha256": "6dbbb85a91b21863e3dd45f8c0d3691bd37525a7c03ab96c5e590bb2dfac5517"
+          "sha256": "0c3e3d2561c73777890a0cc16567ce85334c1f9eef64439c422364f447fbd6da"
         }
       ],
       "specification_owner": "wikijump.registry:missing-page-control",

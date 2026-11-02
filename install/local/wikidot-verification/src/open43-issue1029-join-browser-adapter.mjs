@@ -23,13 +23,11 @@ function installJoinProbe() {
     if (Array.isArray(prior?.busy_events)) probe.busy_events = prior.busy_events;
     if (Number.isSafeInteger(prior?.authored_join_calls)) probe.authored_join_calls = prior.authored_join_calls;
   } catch {
-    /* fresh document */
   }
   const persist = () => {
     try {
       sessionStorage.setItem(PROBE_STORAGE_KEY, JSON.stringify(probe));
     } catch {
-      /* sessionStorage is unavailable; the observation stays page-local */
     }
   };
   Object.defineProperty(window, PROBE_KEY, { configurable: false, value: probe });

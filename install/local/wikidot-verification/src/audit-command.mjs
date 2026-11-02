@@ -17,8 +17,6 @@ async function awaitProcessGroup(pid) {
   throw new Error("test process group did not terminate; cleanup cannot proceed");
 }
 
-// Wait for close, rather than exit: a mutation runner must finish restoring its
-// source and drain its output before its caller removes backing services.
 export async function runAuditCommand(name, args, {
   cwd = process.cwd(), env = process.env, capture = false, signal,
   logPath, allowFailure = false, timeoutMs, processGroup = false,
@@ -55,8 +53,6 @@ export async function runAuditCommand(name, args, {
         }
       };
       signal?.addEventListener("abort", stop, {once: true});
-      // A timeout is a termination request, never SIGKILL. Restoration remains
-      // the child's responsibility and close is awaited before returning.
       const timer = timeoutMs === undefined ? null : setTimeout(() => {
         timedOut = true;
         stop();
@@ -84,7 +80,6 @@ export async function runAuditCommand(name, args, {
         }
         resolve(result);
       });
-      // Abort may have arrived while spawn was starting.
       if (signal?.aborted) stop();
     });
   } finally {

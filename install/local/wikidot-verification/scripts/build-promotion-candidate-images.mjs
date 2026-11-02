@@ -16,8 +16,6 @@ const BUILD_MANIFEST_EXCLUSIONS = new Set(["evidence-manifest.sha256", "seal.jso
 const IMAGE_ID = /^sha256:[0-9a-f]{64}$/u;
 const GIT_OBJECT = /^[0-9a-f]{40}$/u;
 
-// Tier 1 promotions replace only these; the others belong to the standing
-// topology and are reused from it (`--reuse-runtime-home`).
 export const APPLICATION_IMAGE_ROLES = Object.freeze(["deepwell", "framerail", "wws"]);
 
 export const PROMOTION_IMAGE_ROLES = Object.freeze([
@@ -34,8 +32,6 @@ const BUILD_DEFINITIONS = Object.freeze({
   cache: {dockerfile: "Dockerfile", context: "install/local/valkey"},
   caddy: {dockerfile: "install/prod/caddy/Dockerfile", context: "."},
   database: {dockerfile: "install/local/postgres/Dockerfile", context: "."},
-  // The standing profile skips whole-program LTO and builds incrementally
-  // (deepwell/Cargo.toml); production builds keep the release profile.
   deepwell: {dockerfile: "install/prod/deepwell/Dockerfile", context: ".", buildArgs: ["CARGO_PROFILE=standing"]},
   files: {dockerfile: "Dockerfile", context: "install/local/silo"},
   framerail: {
@@ -149,8 +145,6 @@ async function dockerBuildImage({role, dockerfile, context, build_args: buildArg
       "--label", `com.rokurolize.wikijump.ftml_sha=${sourceIdentity.ftml_sha}`,
       "--label", "com.rokurolize.wikijump.profile=production-build",
       ...buildArgs.flatMap((value) => ["--build-arg", value]),
-      // The platform information page (WJ-1279) shows the source commit;
-      // Docker contexts exclude .git, so the commit is passed explicitly.
       ...(role === "deepwell" || role === "framerail"
         ? ["--build-arg", `WIKIJUMP_GIT_COMMIT=${sourceIdentity.wikijump_commit}`]
         : []),
@@ -186,7 +180,6 @@ async function inspectReusedImage(role, imageId) {
   return {image_id: imageId, os: "linux", architecture: "amd64"};
 }
 
-/** Image IDs of the standing runtime's non-application services. */
 export async function standingInfrastructureImages(runtimeHome) {
   const environment = Object.fromEntries(
     (await fs.readFile(path.join(runtimeHome, ".env"), "utf8"))
@@ -203,12 +196,6 @@ export async function standingInfrastructureImages(runtimeHome) {
   );
 }
 
-/**
- * Build the application images exactly as a promotion does, without sealing
- * evidence. The final validation barrier runs this so the BuildKit cache
- * already holds the images when the merged head is promoted: a merge whose
- * runtime inputs equal the validated tree then rebuilds from cache.
- */
 export async function buildApplicationImages(sourceRoot, {buildImage = dockerBuildImage} = {}) {
   const sourceIdentity = await promotionSourceIdentity(sourceRoot);
   const plan = promotionImageBuildPlan(sourceRoot).filter(({role}) => APPLICATION_IMAGE_ROLES.includes(role));
@@ -254,7 +241,6 @@ export async function buildPromotionCandidateImages({
         fail(`only standing infrastructure images may be reused, not ${role}`);
       }
     }
-    // The builds are independent; BuildKit runs them side by side.
     const results = await Promise.all(plan.map(async (entry) => {
       const reused = reuse[entry.role];
       const [image, dockerfileSha256] = await Promise.all([

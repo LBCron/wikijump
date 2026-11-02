@@ -810,14 +810,14 @@ export function createSession({
       };
     },
     async close() {
-      for (const replay of session.replays.values()) {
-        await replay.close().catch(() => {});
-      }
-      session.replays.clear();
       for (const page of Object.values(pages)) {
         if (page) await closePage(page);
       }
       await browser.close().catch(() => {});
+      for (const replay of session.replays.values()) {
+        await replay.close().catch(() => {});
+      }
+      session.replays.clear();
     },
   };
   return session;

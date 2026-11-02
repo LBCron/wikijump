@@ -40,6 +40,11 @@ export async function startReferenceReplay({cache, rootUrl, host = "127.0.0.1"})
       response.end("missing object");
     }
   });
+  const sockets = new Set();
+  server.on("connection", (socket) => {
+    sockets.add(socket);
+    socket.on("close", () => sockets.delete(socket));
+  });
   await new Promise((resolve, reject) => {
     server.once("error", reject);
     server.listen(0, host, resolve);
@@ -50,7 +55,10 @@ export async function startReferenceReplay({cache, rootUrl, host = "127.0.0.1"})
     origin,
     entryUrl: `${origin}${snapshot.entry}`,
     async close() {
-      await new Promise((resolve) => server.close(resolve));
+      const closed = new Promise((resolve) => server.close(resolve));
+      server.closeIdleConnections?.();
+      for (const socket of sockets) socket.destroy();
+      await closed;
     },
   };
 }

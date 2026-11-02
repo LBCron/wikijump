@@ -30,6 +30,7 @@ import {
 import {applyRuntimeSurfaceParityGate, RUNTIME_SURFACE_PARITY} from './runtime-surface-parity.mjs';
 import {measureTargetBaselineViewportOverflow} from './target-baseline-viewport-probe.mjs';
 import {TARGET_ACCEPTANCE_CONTRACT} from './target-acceptance-contract.mjs';
+import {TARGET_ACCEPTANCE_INSTRUMENT_SUCCESSORS} from './target-acceptance-instruments.mjs';
 import {candidateIdentity} from '../ports/scripts/candidate-identity.mjs';
 import {validateCombinedAcceptance} from './campaign-completion.mjs';
 import {CLOSURE_ANCHORS, DEFAULT_HISTORICAL_ROOT} from './campaign-record-integrity.mjs';
@@ -145,7 +146,9 @@ const nulList = output => (output ?? '').split('\0').filter(Boolean);
 function instrumentDriftFailures(anchors, instrumentContract, liveBrowserVersions, repoRoot) {
   const failures = [];
   const digest = computeInstrumentProperDigest({contract: instrumentContract, recordedTargetPageRuntimeSha256: anchors.recordedTargetPageRuntimeSha256});
-  if (digest !== anchors.targetAcceptanceContractSha256) failures.push('instrument-proper digest differs from the closure anchor (instrument drift)');
+  // The live instrument must be the closure instrument or a successor
+  // admitted in src/target-acceptance-instruments.mjs; anything else is drift.
+  if (digest !== anchors.targetAcceptanceContractSha256 && !TARGET_ACCEPTANCE_INSTRUMENT_SUCCESSORS.some(entry => entry.sha256 === digest)) failures.push('instrument-proper digest differs from the closure anchor (instrument drift)');
   let versions = liveBrowserVersions;
   // An unreadable Playwright registry leaves the file-based digest as the pinned check.
   if (!versions) { try { versions = playwrightBrowserVersions(path.join(repoRoot, 'framerail')); } catch { versions = {}; } }

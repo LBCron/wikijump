@@ -45,7 +45,6 @@ test("resolves the verified edit-page and edit-tags commands case-insensitively"
     )
   }
 
-  // The edit commands match the same word-command continuation as history.
   assert.equal(
     resolveWikidotHashMagicPagePane("https://example.test/page#_editpage/extra"),
     "edit-page"

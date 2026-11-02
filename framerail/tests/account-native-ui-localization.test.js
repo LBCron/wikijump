@@ -6,10 +6,6 @@ import { after, before, test } from "node:test"
 
 import { createTestViteServer } from "./vite-test-server.js"
 
-// Refs #2059. The native account/profile/error routes must never expose
-// literal `UNTRANSLATED:` developer markers: headings, form labels, inline
-// validation, and error titles all come from the Fluent catalogs, and this
-// file fails if a served account template reintroduces the sentinel.
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 const siteHeaders = {
@@ -17,8 +13,6 @@ const siteHeaders = {
   "X-Wikijump-Site-Slug": "test"
 }
 
-// Every Svelte template that serves the T28 account lifecycle: registration,
-// login, settings, own/public profiles, and the user/admin error boundaries.
 const accountTemplates = [
   "src/routes/[x+2d]/register/+page.svelte",
   "src/routes/[x+2d]/login/+page.svelte",
@@ -102,8 +96,6 @@ test("registration requests its inline validation and locale-label messages", as
 
   const messages = translateCalls.at(0)?.messages ?? {}
   assert.ok(Object.hasOwn(messages, "error-form.email-invalid"))
-  // The selector label reuses the advertised-language wording shared with
-  // the account display settings, never a hard-coded English-only string.
   assert.ok(Object.hasOwn(messages, "dashboard-account.language"))
 })
 
@@ -112,8 +104,6 @@ test("user error bodies carry localized generic-failure copy", async () => {
   client.request = async (method, params) => {
     if (method === "translate") {
       translateCalls.push(params)
-      // Echo every requested key so the error body carries the same
-      // message set the real catalog would resolve through fallback.
       return Object.fromEntries(
         Object.keys(params.messages ?? {}).map((key) => [key, key])
       )
@@ -145,8 +135,6 @@ test("user error bodies carry localized generic-failure copy", async () => {
     "unexpected views stay localized"
   )
   assert.ok(Object.hasOwn(messages, "user-not-exist"))
-  // The boundary template reads these keys, so the served error page can
-  // never fall back to a developer sentinel.
   for (const key of ["error", "error-api.GENERIC", "user-not-exist"]) {
     assert.equal(thrown.body.internationalization?.[key], key, key)
   }

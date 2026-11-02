@@ -9,11 +9,6 @@ import { createTestViteServer } from "./vite-test-server.js"
 const root = fileURLToPath(new URL("..", import.meta.url))
 const fluentRoot = fileURLToPath(new URL("../../locales/fluent", import.meta.url))
 
-/**
- * Collect the message selectors (`key` or `key.attribute`) defined by one
- * Fluent file. Attribute names cannot contain dots in Fluent, so the
- * parent message and attribute are joined by a single dot.
- */
 const fluentSelectors = (source) => {
   const selectors = new Set()
   let message = null
@@ -32,7 +27,6 @@ const fluentSelectors = (source) => {
   return selectors
 }
 
-/** Every selector a locale resolves, across all components' files for it. */
 const localeSelectors = (locale) => {
   const selectors = new Set()
   for (const component of readdirSync(fluentRoot, { withFileTypes: true })) {
@@ -46,10 +40,6 @@ const localeSelectors = (locale) => {
   return selectors
 }
 
-/**
- * Capture the translate keys the profile route requests from Deepwell, by
- * running the real load function with a stubbed Deepwell client.
- */
 const profileRouteTranslateKeys = async (vite, client) => {
   const { loadUser } = await vite.ssrLoadModule("/src/lib/server/load/user.ts")
   const originalRequest = client.request
@@ -120,7 +110,6 @@ test("avatar-removal labels requested by the profile route resolve in every UI l
 
     for (const key of AVATAR_REMOVAL_KEYS) {
       if (!requested.includes(key)) problems.push(`route does not request '${key}'`)
-      // Fluent attribute names cannot contain dots, so such a key never resolves.
       if (key.split(".").length > 2) {
         problems.push(`'${key}' is not a valid Fluent selector`)
       }

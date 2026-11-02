@@ -41,14 +41,6 @@ const WIKIDOT_INTERWIKI_STYLE_SOURCES = auditedExternalAssetOrigins("styles").jo
 const WIKIDOT_INTERWIKI_FONT_SOURCES = auditedExternalAssetOrigins("fonts").join(" ")
 const WIKIDOT_INTERWIKI_FRAME_PATHNAME = "/-/wikidot-interwiki/interwikiFrame.html"
 
-// The interwiki frame's style runtime themes the frame with the page's own
-// theme, inserted as a stylesheet link into the frame. A mirror page's
-// theme can live on the other local mirror's files host, so on a local
-// deployment the frame policy carries the same mirror file origins the
-// main page policy adds in sveltekit-options.js; a policy naming only the
-// current site's files host leaves the interwiki box unthemed (#3376).
-// The origins baked here are the canonical ones; materializeSiteCsp adds
-// the request-port forms beside them, as it does for the main page policy.
 const wikidotInterwikiFramePolicyFor = (deploymentEnvironment) => {
   let mirrorSuffix = ""
   if (deploymentEnvironment === "local") {
@@ -142,16 +134,6 @@ export const materializeSiteCsp = (
   const domains = platformDomains({ deploymentEnvironment })
   const { files } = domains
   const portSuffix = port ? `:${port}` : ""
-  // A local deployment served on a non-default port references each of
-  // its file hosts in two forms. URLs framerail generates for a file
-  // carry the request port, while literal references inside stored
-  // stylesheets (compiled once, e.g. the url(...) images of a theme)
-  // carry the canonical origin at the configured HTTPS port, because a
-  // served stylesheet's contents cannot be rewritten per request.
-  // Materialize both forms for every file host so neither is refused.
-  // When the forms coincide there is only the one origin, exactly as
-  // before; with no request port known, portSuffix is empty and the
-  // single form is the portless one, also as before.
   const fileOriginForms = (host) => {
     const canonical = platformHttpsOrigin(host, domains)
     const served = `https://${host}${portSuffix}`
@@ -160,15 +142,6 @@ export const materializeSiteCsp = (
   const replacements = new Map([
     [CURRENT_SITE_FILE_ORIGIN, fileOriginForms(`${slug}.${files}`)]
   ])
-  // The local mirror file origins baked into the policy by
-  // sveltekit-options.js carry the configured HTTPS port (default 443),
-  // not the port this local deployment is actually served on, so on a
-  // non-443 local deployment the request-port form must be added beside
-  // the baked canonical form, exactly like the current-site origin
-  // above. With no request port known there is nothing to add, and on
-  // the default port the two forms coincide. A single replacement pass
-  // rewrites every token once, so a mirror site that is also the
-  // current site is not rewritten twice.
   if (deploymentEnvironment === "local" && port) {
     for (const mirrorSite of LOCAL_MIRROR_FILE_ASSET_SITES) {
       const baked = platformHttpsOrigin(`${mirrorSite}.${files}`, domains)

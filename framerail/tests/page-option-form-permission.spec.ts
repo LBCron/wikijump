@@ -31,10 +31,6 @@ const expectEditDeniedDialog = async (page: Page) => {
   await expect(page.locator("#odialog-container .button-close-message")).toBeVisible()
 }
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -58,12 +54,6 @@ const devalue = (value: unknown): string => {
 const successBody = (value: unknown) =>
   JSON.stringify({ type: "success", status: 200, data: devalue(value) })
 
-/**
- * Open the page `+ Options` menu on the probe page with stubbed permission
- * answers, and record every permission check. The move and delete routes
- * are stubbed alongside edit so Move/Delete clicks can be attributed to
- * their own server gate (issue #2177).
- */
 const openOptionsMenu = async (
   page: Page,
   canEdit: boolean,
@@ -110,9 +100,6 @@ const openOptionsMenu = async (
     }
   )
 
-  // The Parent pane reads its current parents on mount. The shared Deepwell
-  // fixture only answers slug lookups, so this spec answers the numeric-id
-  // lookup itself; the parent list is not part of the permission gate.
   await page.route(
     (url) => url.search === "?/parentGet",
     async (route) => {
@@ -214,9 +201,6 @@ test.describe("authorized existing-page Append and Parent options", () => {
   })
 })
 
-// The visible Edit Meta option writes page metadata under the same Wikidot
-// edit-permission boundary as Append and Parent. An anonymous click answers
-// with the edit-permission dialog (issue #2336) and mounts no meta-tag form.
 test.describe("anonymous existing-page Edit Meta option", () => {
   test("Edit Meta answers with the edit-permission dialog and opens no form", async ({
     page
@@ -238,8 +222,6 @@ test.describe("authorized existing-page Edit Meta option", () => {
   }) => {
     const permissionRequests: Route[] = []
     await openOptionsMenu(page, true, permissionRequests, AUTHENTICATED_HEADERS)
-    // The authorized pane reads its current rows through the EditMeta module.
-    // Answer only that read so no other connector traffic is affected.
     await page.route("**/ajax-module-connector.php", async (route) => {
       if ((route.request().postData() ?? "").includes("EditMetaModule")) {
         await route.fulfill({
@@ -260,10 +242,6 @@ test.describe("authorized existing-page Edit Meta option", () => {
   })
 })
 
-// Move and Delete must obey their own Wikidot permission boundary (issue
-// #2177): an anonymous click answers with the move/delete denial dialog
-// and mounts no writable form, and each click is attributed to exactly one
-// permission request on its own route.
 test.describe("anonymous existing-page Move and Delete options", () => {
   test("Move answers with the move-permission dialog and opens no form", async ({
     page
@@ -362,9 +340,6 @@ test.describe("authorized existing-page Move and Delete options", () => {
   })
 })
 
-// The visible Tags option must obey the same Wikidot edit-permission boundary
-// as the #_edittags route. The real anonymous SCP-9506 Tags click shows a
-// permission modal without mounting any writable tag form (issue #2329).
 test.describe("Wikidot Tags option permission parity", () => {
   test("anonymous Tags opens the edit denial dialog, not an editable form", async ({
     page

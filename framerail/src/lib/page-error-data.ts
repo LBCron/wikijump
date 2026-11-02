@@ -17,7 +17,6 @@ export type PageErrorData = {
    * returned missing" alone.
    */
   restore_available?: boolean
-  /** The body is the site's own missing-page template (`_404`). */
   missing_template?: boolean
   site: {
     site_id: number

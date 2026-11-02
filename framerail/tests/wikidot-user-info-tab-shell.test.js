@@ -10,11 +10,6 @@ import { loadWikidotUserInfo } from "../src/lib/server/wikidot-user-info.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
-/**
- * Retained live evidence for the public tab shell. The bounded body of
- * each observation is the inner content of Wikidot's `#page-content`, so
- * the tab column and the profile column are its direct children.
- */
 const retainedArtifact = new URL(
   "../../install/local/wikidot-verification/artifacts/userinfo-target-routes-live-20260810.json",
   import.meta.url
@@ -76,10 +71,6 @@ const loadFoundProfile = () =>
     userView: async () => ({ type: "user_found", data: { user: publicUser } })
   })
 
-/**
- * Whitespace between tags and Svelte hydration comments are not
- * significant.
- */
 const normalize = (html) =>
   html
     .replace(/<!--[\s\S]*?-->/gu, "")
@@ -145,7 +136,6 @@ test("the tabs are six in-place links in the retained order with Profile selecte
     links.map(([, id, , label]) => [id, label]),
     EXPECTED_TABS
   )
-  // Each tab is an in-place anchor with no URL, so the profile URL never changes.
   assert.equal(links.length, EXPECTED_TABS.length)
   assert.equal(
     links.every(([, , href]) => /^javascript:;$/u.test(href)),

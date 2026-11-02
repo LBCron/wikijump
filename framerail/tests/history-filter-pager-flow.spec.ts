@@ -32,8 +32,6 @@ const devalue = (value: unknown): string => {
 const successBody = (value: unknown) =>
   JSON.stringify({ type: "success", status: 200, data: devalue(value) })
 
-// 21 source revisions (timelines 24..4) plus 4 file events (timelines 3..0):
-// two pages at the default 20-per-page size.
 const pageEntry = (timeline: number) => ({
   revision_id: 1000 + timeline,
   history_row_id: `filter-row-${timeline}`,
@@ -82,7 +80,6 @@ const openHistory = async (page: import("@playwright/test").Page, posts: string[
       posts.push(
         JSON.stringify({ types: body.types, page: body.page, perPage: body.perPage })
       )
-      // Mirror the ?/history action contract: filter, then paginate metadata.
       const filtered = filterHistoryByTypes(ALL, body.types ?? [])
       const paged = paginateHistoryEntries(filtered, body.page ?? 1, body.perPage ?? 20)
       await route.fulfill({
@@ -128,7 +125,6 @@ test("history filter controls and pager match the Wikidot surface", async ({ pag
   const pager = page.locator("#revision-list .pager")
   await expect(pager.locator(".pager-no")).toHaveText("page 1 of 2")
   await expect(pager.locator(".current")).toHaveText("1")
-  // First page shows global numbers 25 down to 6.
   await expect(page.locator("tr[id^='revision-row-']").first()).toContainText("25.")
 })
 
@@ -144,7 +140,6 @@ test("source filter narrows rows and update restarts at page one", async ({ page
   const update = JSON.parse(posts[posts.length - 1]) as { types: string[]; page: number }
   expect(update.types).toEqual(["source"])
   expect(update.page).toBe(1)
-  // 21 source rows at 20 per page still pages.
   await expect(page.locator("#revision-list .pager-no")).toHaveText("page 1 of 2")
 })
 
@@ -167,16 +162,12 @@ test("pager navigation keeps global numbering and resets comparison", async ({
 
   await page.locator('#revision-list .pager .target a:has-text("2")').click()
   await expect(page.locator("#revision-list .pager-no")).toHaveText("page 2 of 2")
-  // Global continuity: the second page starts at number 5.
   await expect(page.locator("tr[id^='revision-row-']").first()).toContainText("5.")
 
   const nav = JSON.parse(posts[posts.length - 1]) as { types: string[]; page: number }
   expect(nav.types).toEqual(["all"])
   expect(nav.page).toBe(2)
 
-  // The second page holds a single comparable revision, so no pair survives
-  // the navigation and comparison stays disabled instead of pointing at
-  // hidden rows.
   const compare = page.locator("section.revision-diff-panel").getByRole("button", {
     name: /compare/i
   })

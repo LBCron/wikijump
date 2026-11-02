@@ -1,8 +1,6 @@
 import { readFileSync } from "node:fs"
 import { test, expect } from "@playwright/test"
 
-// Exercise the product's actual mobile rules with both dialog shells. These
-// rules contain plain CSS even though their enclosing file uses SCSS.
 const source = readFileSync(
   new URL("../src/lib/popup/error.svelte", import.meta.url),
   "utf8"

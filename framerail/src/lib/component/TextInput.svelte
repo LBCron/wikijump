@@ -27,40 +27,26 @@
     wide = false,
     ...others
   }: {
-    /** Assigns a name to the input. */
     name?: string
 
-    /** The label describing the input. */
     label?: string
 
-    /** The current value of the input. */
     value?: string
 
-    /**
-     * If true, the input must be filled or else it will display as
-     * invalid.
-     */
     required?: boolean
 
-    /** If true, a button will be displayed to clear the input. */
     clearable?: boolean
 
-    /** Extra info provided below the input. */
     info?: string
 
-    /** Placeholder icon. */
     icon?: string
 
-    /** The input element. */
     input?: HTMLInputElement | null
 
-    /** If true, borders will be removed. */
     noborder?: boolean
 
-    /** If true, validation indicators won't be shown. */
     novalidate?: boolean
 
-    /** If true, the input will be as wide as possible. */
     wide?: boolean
 
     [key: string]: unknown

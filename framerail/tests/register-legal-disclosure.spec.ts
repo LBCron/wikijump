@@ -13,8 +13,6 @@ test("the registration form discloses the account-creation legal contract", asyn
   await page.goto(`${APP_URL}/-/register`)
   await expect(page.locator("#register")).toBeVisible()
 
-  // The disclosure is part of the signup form, adjacent to the Create Account
-  // action, not a footer link the reader has to go looking for.
   const notice = page.locator("#register-legal-notice")
   await expect(notice).toBeVisible()
   await expect(notice).toHaveText(
@@ -28,8 +26,6 @@ test("the registration form discloses the account-creation legal contract", asyn
     page.getByRole("link", { name: "Privacy Policy", exact: true })
   ).toHaveAttribute("href", "https://wikijump.localhost/legal:privacy-policy")
 
-  // The destinations must be the authoritative platform policies, never the
-  // wiki being viewed.
   for (const link of await notice.getByRole("link").all()) {
     const href = await link.getAttribute("href")
     expect(href).toMatch(/^https:\/\//u)
@@ -37,16 +33,11 @@ test("the registration form discloses the account-creation legal contract", asyn
     expect(href).not.toBe(APP_URL)
   }
 
-  // Create Account names the disclosure, so the contract is discoverable
-  // from the action boundary itself.
   await expect(page.locator("#register button[type=submit]")).toHaveAttribute(
     "aria-describedby",
     "register-legal-notice"
   )
 
-  // The disclosure is an implicit-acceptance notice, not a consent control:
-  // the registration form still submits no extra consent field, and the
-  // anti-bot honeypot concept is not turned into a fake terms checkbox.
   await expect(page.locator("#register input[type=checkbox]")).toHaveCount(0)
   await expect(page.locator("#register .register-legal input")).toHaveCount(0)
   await expect(

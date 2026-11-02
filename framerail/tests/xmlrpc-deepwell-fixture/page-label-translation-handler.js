@@ -40,8 +40,6 @@ export const handlePageLabelTranslationRpc = ({ rpcRequest }) => {
   )
     ? "ja"
     : "en"
-  // Profile and page forms request these labels alongside the shared action
-  // labels. Preserve the normal translator's answers for the rest of the batch.
   const shared = handleSiteRpc({ rpcRequest })?.result ?? {}
   return {
     result: Object.fromEntries(

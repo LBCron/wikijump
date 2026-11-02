@@ -60,8 +60,6 @@ test("font size chosen before printing keeps article formatting without controls
   await page.setExtraHTTPHeaders(headers)
   await page.goto(printerFriendlyPath, { waitUntil: "domcontentloaded" })
   const twelvePoint = page.getByRole("link", { name: "12pt", exact: true })
-  // The font-size handler is attached by hydration, so repeat the idempotent
-  // click until the generated handler has taken effect.
   await expect(async () => {
     await twelvePoint.click()
     await expect(page.locator("#print-content")).toHaveAttribute(

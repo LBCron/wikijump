@@ -18,10 +18,6 @@ const REV_Y = {
   marker: "history-race-revision-y-marker"
 }
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -95,7 +91,6 @@ test("a superseded revision view cannot replace the selected revision", async ({
         revisionNumber?: number
       }
       if (body.revisionNumber === REV_X.revision) {
-        // Hold the earlier revision request for X until Y has been selected.
         heldRevisionForX.push(route)
         return
       }
@@ -123,7 +118,6 @@ test("a superseded revision view cannot replace the selected revision", async ({
   await viewLink(REV_Y).click()
   await expect(page.locator("#page-content")).toContainText(REV_Y.marker)
 
-  // Release the earlier revision-X response only after Y is shown.
   const staleRevisionResponse = page.waitForResponse(
     (response) =>
       new URL(response.url()).search === "?/revision" &&
@@ -135,7 +129,6 @@ test("a superseded revision view cannot replace the selected revision", async ({
     body: successBody({ res: revisionBody(REV_X) })
   })
   await staleRevisionResponse
-  // The stale body is applied shortly after its headers arrive.
   await page.waitForTimeout(500)
 
   await expect(page.locator("#page-content")).toContainText(REV_Y.marker)

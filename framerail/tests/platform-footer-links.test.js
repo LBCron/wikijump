@@ -39,8 +39,6 @@ test("binds every native footer item to an explicit absolute destination", () =>
 
   for (const link of DEFAULT_NATIVE_FOOTER_LINKS) {
     const url = new URL(link.href)
-    // Legal and docs links never resolve against the wiki being viewed, and
-    // never collapse onto one shared homepage.
     assert.equal(url.protocol, "https:")
     assert.notEqual(url.href, "https://wikijump.com/", `${link.key} is the homepage`)
     assert.notEqual(
@@ -83,7 +81,6 @@ test("lets a deployment point every item at its own instance resources", () => {
     { key: "security", href: "https://legacy.example.org/.well-known/security.txt" }
   ])
 
-  // One configured item does not disturb the others.
   const partial = resolveNativeFooterLinks({ docs: "https://legacy.example.org/manual" })
   assert.equal(partial[2].href, "https://legacy.example.org/manual")
   assert.equal(partial[0].href, DEFAULT_NATIVE_FOOTER_LINKS[0].href)
@@ -128,8 +125,6 @@ test("fails closed on destinations that could resolve against a viewed wiki", ()
     )
   }
 
-  // A rejected configured value falls back to the documented default rather
-  // than emitting a link the viewed wiki could influence.
   assert.deepEqual(
     resolveNativeFooterLinks({ privacy: "/privacy", docs: "javascript:;" }),
     DEFAULT_NATIVE_FOOTER_LINKS.map((link) => ({ ...link }))

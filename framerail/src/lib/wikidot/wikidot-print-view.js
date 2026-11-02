@@ -50,7 +50,6 @@ const fontFamiliesHtml = WIKIDOT_PRINT_FONT_FAMILIES.map(
     `<a href="javascript:;" role="button" aria-pressed="${index === 0}" onclick="WIKIDOT.printview.listeners.changeFontFamily(event, '${value}')">${label}</a>`
 ).join(" | ")
 
-/** Wikidot's verified printer-friendly option rows. */
 export const buildWikidotPrintOptionsHtml = () =>
   [
     '<div id="print-options">',

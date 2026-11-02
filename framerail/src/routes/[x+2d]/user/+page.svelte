@@ -16,15 +16,10 @@
   let isEdit = $state<boolean>(false)
   let avatarInput = $state<HTMLInputElement | null>(null)
 
-  // avatar will always be undefined if not uploaded a new avatar
   type checkFormType = Omit<InferOutput<typeof userEditSchema>, "avatar" | "removeAvatar">
 
-  // The last accepted account state. It is the baseline for partial patches and
-  // the value shown in the profile view, so it changes only after the server
-  // confirms a save. Rejected drafts never become part of it.
   let lastSubmitted = $state<checkFormType>(untrack(() => acceptedSnapshot(data.user)))
 
-  // Cancel and reopening the editor always start from the accepted state.
   const discardDraft = () => {
     $form = { ...lastSubmitted, avatar: undefined, removeAvatar: false }
   }
@@ -41,8 +36,6 @@
         })
       },
       onError: () => {
-        // Transport and malformed-response errors have no accepted profile
-        // state. Keep the draft available and use the existing error dialog.
         errorPopupState.current = {
           state: true,
           message:
@@ -56,8 +49,6 @@
           isEdit = false
           await invalidateAll()
           cancel()
-          // Adopt what the server persisted, including normalized values, rather
-          // than the client payload.
           lastSubmitted = acceptedSnapshot(data.user)
           discardDraft()
         }
@@ -73,8 +64,6 @@
   )
   const avatar = fileProxy(form, "avatar")
 
-  // Removing the stored image is a draft choice that takes effect on Save.
-  // It clears any picked file so the request never carries both instructions.
   const requestAvatarRemoval = () => {
     $form.avatar = undefined
     $form.removeAvatar = true
@@ -84,7 +73,6 @@
     $form.removeAvatar = false
   }
 
-  // Only update the form once when page is loaded
   $form = untrack(() => ({
     ...lastSubmitted,
     avatar: undefined,

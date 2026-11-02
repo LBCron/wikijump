@@ -14,7 +14,6 @@ import {
 const SITE = { slug: "scp-wiki", from_wikidot: true }
 const FILES = "scp-wiki.wjfiles.localhost"
 
-// A presence answer for a fully imported mirror: every referenced file exists.
 const PRESENT = () => true
 const ABSENT = () => false
 
@@ -52,8 +51,6 @@ describe("theme local file URL rewriting", () => {
       ),
       "https://scp-wiki.wjfiles.localhost/local--files/a/b.css"
     )
-    // A path that does not name exactly one page file is unresolvable, so it
-    // stays literal even with a positive presence answer.
     assert.equal(
       localizeSiteFileUrl(
         "//scp-wiki.wdfiles.com/local--files/a.css",
@@ -140,9 +137,7 @@ describe("theme local file URL rewriting", () => {
 
   it("fails closed without a positive presence answer", () => {
     const url = "https://scp-wiki.wdfiles.com/local--files/docs/font-bauhaus.css"
-    // Absent: the file was never imported, so the working hotlink stays.
     assert.equal(localizeSiteFileUrl(url, SITE, FILES, ABSENT), null)
-    // Unknown: no presence signal was resolved for this render.
     assert.equal(localizeSiteFileUrl(url, SITE, FILES), null)
     assert.equal(localizeSiteFileUrl(url, SITE, FILES, null), null)
     assert.equal(

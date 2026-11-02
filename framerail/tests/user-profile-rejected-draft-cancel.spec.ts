@@ -102,8 +102,6 @@ test("Cancel discards a rejected profile draft and a corrected field is submitte
       (await page.context().cookies()).some((cookie) => cookie.name === "wikijump_token")
     )
     .toBe(true)
-  // Successful login now navigates away from the form. Let that navigation
-  // finish before opening the profile, or it can interrupt our next goto.
   await page.waitForURL((url) => url.pathname === "/page-workflow-probe")
 
   await page.goto("/-/user")

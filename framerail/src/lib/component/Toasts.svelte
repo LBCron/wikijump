@@ -17,13 +17,6 @@
     info: "wj-info"
   }
 
-  // what these animations do:
-  // each toast container has a transition for margin-top and height
-  // these start at 0, which means that they don't affect the positions
-  // of the other toasts
-  // intro: set height and margin-top to their "correct" values
-  // outro: set height and margin-top to 0
-  // this causes the toasts to gracefully reposition as the list changes
 
   function intro(evt: Event) {
     const node = evt.currentTarget as HTMLElement
@@ -34,7 +27,6 @@
   }
 
   function outro(evt: Event) {
-    // last toast can have a weird animation, so we skip it to avoid that
     if (listToasts.length !== 0) {
       const node = evt.currentTarget as HTMLElement
       node.style.height = "0"

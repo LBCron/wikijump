@@ -22,8 +22,6 @@ test("every audited external asset origin is a documented https origin", () => {
       /^https:\/\/(?:\*\.)?[a-z0-9.-]+$/u.test(entry.origin),
       `origin is not an exact https host-source: ${entry.origin}`
     )
-    // A scheme-wide source such as `https:` would let an arbitrary
-    // author-supplied `@import` URL load anywhere in the world.
     assert.notEqual(entry.origin, "https:", "scheme-wide sources are not auditable")
     assert.ok(
       entry.styles || entry.fonts,
@@ -61,10 +59,6 @@ test("the published style and font allowlists are exactly the audited origins", 
 })
 
 test("no audited asset origin is allowlisted outside style-src and font-src", () => {
-  // An allowlisted CSS or font origin must never become an executable,
-  // connection or frame dependency of a rendered page, so the CSP grants it
-  // exactly the directives the retained evidence requires. An image origin
-  // is a separate audit, so `img-src` is not part of this invariant.
   for (const entry of AUDITED_EXTERNAL_ASSET_ORIGINS) {
     for (const directive of [
       "script-src",

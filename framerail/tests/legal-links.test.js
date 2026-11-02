@@ -59,8 +59,6 @@ test("a self-hosted instance configures its own legal destinations", () => {
 })
 
 test("legal destinations never resolve against the viewed wiki", () => {
-  // A blank or path-only configuration is not a legal destination: it would
-  // silently point at whatever wiki the reader is currently viewing.
   assert.deepEqual(legalDestinations({ env: {} }), {
     termsOfService: "https://wikijump.localhost/legal:terms-of-service",
     privacyPolicy: "https://wikijump.localhost/legal:privacy-policy"
@@ -73,9 +71,6 @@ test("legal destinations never resolve against the viewed wiki", () => {
     ["termsOfService", "WIKIJUMP_TERMS_OF_SERVICE_URL"],
     ["privacyPolicy", "WIKIJUMP_PRIVACY_POLICY_URL"]
   ]
-  // A `javascript:` destination would be the dangerous case, but the literal
-  // is assembled here so the repository lint rule that forbids script URLs
-  // still applies to production code.
   const scriptUrl = ["javascript", "alert(1)"].join(":")
   for (const [key, variable] of destinationVariables) {
     for (const value of [
@@ -104,7 +99,6 @@ test("footer destinations name the platform wiki's own pages for the deployment"
       security: "https://wikijump.localhost/legal:security"
     }
   )
-  // The registration disclosure and the footer share one Terms/Privacy source.
   const configured = platformFooterDestinations({
     deploymentEnvironment: "prod",
     env: { WIKIJUMP_TERMS_OF_SERVICE_URL: "https://policies.example.org/terms" }

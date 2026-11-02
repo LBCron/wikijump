@@ -295,8 +295,6 @@ test("Discuss keeps the create-thread action without a thread or a Wikidot page 
 })
 
 test("the actions rating prefers the live combined score over the imported baseline", () => {
-  // SCP-9506 with the 461-vote baseline and one local upvote shows 462,
-  // matching the pagerate module and the vote pane.
   assert.equal(selectWikidotPageRating({ combinedRating: 462, importedRating: 461 }), 462)
 })
 
@@ -325,12 +323,10 @@ test("the actions rating rejects non-numeric scores instead of displaying them",
   ]) {
     assert.equal(selectWikidotPageRating(input), 461, JSON.stringify(input))
   }
-  // With no numeric evidence at all, no rating displays.
   assert.equal(
     selectWikidotPageRating({ combinedRating: "462", importedRating: "461" }),
     null
   )
-  // A valid combined score wins even when the baseline is not a number.
   assert.equal(
     selectWikidotPageRating({ combinedRating: 462, importedRating: "461" }),
     462

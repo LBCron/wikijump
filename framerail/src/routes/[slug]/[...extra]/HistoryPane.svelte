@@ -49,9 +49,6 @@
   let showRevisionSource = $state<boolean>(false)
   let fromRevisionNumber = $state<Optional<number>>(undefined)
   let toRevisionNumber = $state<Optional<number>>(undefined)
-  // Wikidot History list state. The filter checkboxes mirror the live
-  // `rev-type-*` controls; Update list always restarts at page 1 while pager
-  // navigation keeps the current filter (frozen PageHistoryModule behavior).
   let filterAll = $state(true)
   let filterSource = $state(false)
   let filterTitle = $state(false)
@@ -75,8 +72,6 @@
     return types
   }
 
-  // Visible page slice. Entries keep their global timeline numbers so row
-  // numbering stays continuous across pages.
   let visibleHistoryEntries = $derived(
     paginateHistoryEntries(
       [...revisionMap.values()].sort((a, b) => b.timeline_number - a.timeline_number),
@@ -309,9 +304,6 @@
       : "There are not two page revisions available to compare"
   }
 
-  // Timeline numbers the Compare selector may offer. File/attachment
-  // events stay visible in the timeline above but are never comparison
-  // endpoints: they are not page-source revisions. Refs #2143.
   let comparableTimelineNumbers = $derived(
     comparableHistoryTimelineNumbers([...revisionMap.values()])
   )
@@ -372,8 +364,6 @@
     const entry = revisionMap.get(timelineNumber)
     if (entry?.history_kind !== "page") return
     if (!canEditPage) return
-    // A rollback writes a new page revision. Ask before sending it; cancelling
-    // sends no request.
     const label = data.internationalization?.["wiki-page-revision-rollback"] ?? "Revert"
     // eslint-disable-next-line no-alert
     if (!globalThis.confirm(`${label} ${entry.revision_number}?`)) return
@@ -408,9 +398,6 @@
     }
   }
 
-  // Revert is offered only to viewers who may edit the page. The server still
-  // revalidates every rollback; this keeps a submitting control away from
-  // viewers who can never complete it.
   let canEditPage = $state(false)
 
   async function fetchEditPermission() {
@@ -978,10 +965,6 @@
     }
   }
 
-  // Theme selectors commonly target `pre` descendants with `white-space: pre`.
-  // Keep the UI's individual revision lines bounded and readable even when
-  // that upstream declaration would otherwise make the pre horizontally wider
-  // than a phone viewport.
   :global(#action-area pre.revision-diff > .revision-diff-line) {
     white-space: pre-wrap !important;
     overflow-wrap: anywhere !important;
@@ -989,9 +972,6 @@
     box-sizing: border-box;
   }
 
-  /* Theme CSS can set the page-wide light text color with enough reach to
-     wash out these pale semantic diff rows. Keep added/removed source legible
-     while retaining the conventional green/red distinction in every theme. */
   :global(#action-area .revision-diff .revision-diff-line.added) {
     color: #173421 !important;
     background-color: rgb(220 255 220) !important;

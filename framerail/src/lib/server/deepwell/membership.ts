@@ -36,7 +36,6 @@ export async function wikidotMembersListModule(
   )
 }
 
-/** Call the actor-bound Deepwell self-membership transition. */
 export async function membershipJoin(
   pageId: number,
   lastRevisionId: number,

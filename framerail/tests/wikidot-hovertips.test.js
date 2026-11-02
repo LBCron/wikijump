@@ -7,8 +7,6 @@ import {
   wikidotHovertipTexts
 } from "../src/lib/wikidot/wikidot-hovertips.js"
 
-// Raw server HTML of scp-wiki scp-173 (2026-10-11): the sixteen controls in
-// Wikidot's order, edit-button alone in the first container.
 const WIKIDOT_CONTROL_ORDER = [
   "edit-button",
   "edit-sections-button",
@@ -67,31 +65,24 @@ test("uses the live English and Japanese tip texts", () => {
 test("positions tips with Wikidot's centered rule", () => {
   const viewport = { width: 1366, height: 900 }
   const tip = { width: 260, height: 32 }
-  // Centered under the pointer, 20px below it.
   assert.deepEqual(
     positionWikidotHovertip({ pageY: 500, clientX: 400, clientY: 300 }, tip, viewport),
     { left: 270, top: 520 }
   )
-  // Clamped 20px from the left edge (the live SCP-9506 Edit hover lands at
-  // left 62px only because the pointer was further right).
   assert.deepEqual(
     positionWikidotHovertip({ pageY: 500, clientX: 30, clientY: 300 }, tip, viewport),
     { left: 20, top: 520 }
   )
-  // Clamped 20px from the right edge.
   assert.deepEqual(
     positionWikidotHovertip({ pageY: 500, clientX: 1360, clientY: 300 }, tip, viewport),
     { left: 1086, top: 520 }
   )
-  // Flipped above the pointer near the viewport bottom.
   assert.deepEqual(
     positionWikidotHovertip({ pageY: 2000, clientX: 400, clientY: 880 }, tip, viewport),
     { left: 270, top: 2000 - (32 + 30) + 20 }
   )
 })
 
-// Retained EN and JP standard shells preserve their server-template whitespace
-// inside the hidden tip. Hidden innerText reads raw textContent in browsers.
 test("default tip contents preserve the retained server HTML in both locales", async () => {
   const { readFile } = await import("node:fs/promises")
   const fixture = JSON.parse(

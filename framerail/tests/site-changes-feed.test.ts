@@ -54,7 +54,6 @@ test("site changes RSS reports the frozen channel and newest-first bounded rows"
   assert.match(xml, /<link>https:\/\/scp-wiki\.wikijump\.localhost<\/link>/)
   assert.match(xml, /<lastBuildDate>Wed, 07 Oct 2026 16:54:02 \+0000<\/lastBuildDate>/)
   assert.equal((xml.match(/<item>/gu) ?? []).length, 2)
-  // newest first, with the revision identity in the GUID
   assert.match(
     xml,
     /<guid>http:\/\/scp-wiki\.wikijump\.localhost\/forum:page-discussion#revision-3000000123<\/guid>/
@@ -77,7 +76,6 @@ test("site changes RSS reports the frozen channel and newest-first bounded rows"
   assert.match(xml, /By: Author &amp; User/)
   assert.match(xml, /Page content preview: &lt;p&gt;One \]\]&gt; two&lt;\/p&gt;/)
   assert.match(xml, /<pubDate>Wed, 07 Oct 2026 16:53:08 \+0000<\/pubDate>/)
-  // the preview body is carried as CDATA and stays well formed
   assert.match(
     xml,
     /<!\[CDATA\[\n\t\t\t\t<p>One \]\]\]\]><!\[CDATA\[> two<\/p>\n\t\t\t\t\]\]>/
@@ -112,7 +110,6 @@ test("an empty site still produces the frozen channel shape", () => {
     xml,
     /<title>Recent page changes from site "Empty" \(a Wikidot site\)<\/title>/
   )
-  // the shared Wikidot RSS date format is reused by the site changes feed
   assert.equal(
     formatWikidotFeedDate(new Date("2026-10-07T16:53:08Z")),
     "Wed, 07 Oct 2026 16:53:08 +0000"

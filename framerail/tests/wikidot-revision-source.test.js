@@ -103,10 +103,6 @@ test("current page source links only a standalone same-site component include", 
 })
 
 test("current page source links cross-site and parameterized include targets", () => {
-  // Forms observed in the shared corpus sources for scp-3352 (11 includes)
-  // and scp-5382 (21 includes); live Wikidot linkifies each target in its
-  // read-only source view, including the absolute-URL form
-  // [[include <a href="https://scp-wiki.wikidot.com/info:start">:scp-wiki:info:start</a>]].
   const source = [
     "[[include :scp-wiki:info:start]]",
     "[[include :scpsandbox2:hippo]]",

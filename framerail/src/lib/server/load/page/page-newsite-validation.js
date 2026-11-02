@@ -26,11 +26,6 @@ export const NEW_SITE_PAGE_SLUG = "new-site"
 export const NEW_SITE_DEFAULT_TEMPLATE = "default"
 export const NEW_SITE_DEFAULT_PRIVACY = "open"
 
-// Local license default, pending live evidence for Wikidot's exact new-site
-// license default. Mirrors the default template site (`template-en`), whose
-// license a Standard-wiki creation inherits; the site manager can change it
-// afterwards (evidenced: "Licenses can be easily chosen from the site
-// management panel", content-licensing spec).
 export const NEW_SITE_DEFAULT_LICENSE = "cc0"
 
 /**
@@ -80,7 +75,6 @@ const fieldText = (fields, key) => {
 export const parseNewSiteSubmission = (fields) => {
   const source = fields ?? {}
 
-  // Consent first: without Terms acceptance nothing else is evaluated.
   const tos = fieldText(source, "tos").toLowerCase()
   if (tos !== "1" && tos !== "on") {
     throw new NewSiteSubmissionError(
@@ -112,8 +106,6 @@ export const parseNewSiteSubmission = (fields) => {
     )
   }
 
-  // Every other submitted key (actor IDs, privilege flags, unknown extras)
-  // is dropped here: only these four dimensions cross into site_create.
   return {
     slug,
     name,

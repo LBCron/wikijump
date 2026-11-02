@@ -1,17 +1,12 @@
 import { timeout } from "$lib/util/timeout"
 import { writable } from "svelte/store"
 
-/** Represents a currently active toast. */
 interface Toast {
-  /** The type of toast. */
   type: "success" | "danger" | "warning" | "info"
-  /** The message being displayed. */
   message: string
-  /** A function, that when called, will remove the toast. */
   remove: () => void
 }
 
-/** A stored immutable `Set` containing the currently visible toasts. */
 export const toasts = writable<Set<Toast>>(new Set())
 
 /**

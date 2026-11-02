@@ -134,9 +134,6 @@ test("Info/Credit controls keep the panel hidden until opened and support keyboa
 test("CSS-driven Info controls toggle their owning LI without a nested UL or credit-view ID", async ({
   page
 }) => {
-  // The saved SCP-3352/5382/7000 structure has sibling DIVs inside rateBox,
-  // unlike the nested UL fixture above. Wikidot toggles the LI class first;
-  // info:style then reveals the modal and fader through that class.
   const infoBox =
     '<li class="rateBox folded"><div class="rate-box-with-credit-button">' +
     '<div class="creditButton foldable-list-container"><p><a href="javascript:;">Info</a></p></div></div>' +
@@ -182,7 +179,6 @@ test("CSS-driven Info controls toggle their owning LI without a nested UL or cre
   await expect(second.locator(".modalcontainer")).toBeVisible()
   await expect(dialog).toBeHidden()
 
-  // A reveal callback must not steal focus after closing or unmounting.
   await expect(second.locator(".close-credits")).toBeFocused()
   await page.keyboard.press("Escape")
   await opener.evaluate((element) => {

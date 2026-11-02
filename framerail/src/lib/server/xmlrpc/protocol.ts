@@ -127,18 +127,11 @@ function parseXmlRpcValue(
     return decodeXmlText(valueContent)
   }
 
-  // A value is exactly one element, so its root tag name alone selects the
-  // parser. Reading it once keeps the per-value cost proportional to that
-  // value's own bytes, instead of re-scanning the whole subtree once per
-  // candidate type and re-doing that at every enclosing level.
   const tagName = rootTagName(text)
   if (tagName === null || !XML_RPC_VALUE_TYPE_NAMES.has(tagName)) {
     throw new XmlRpcFault(-32602, "Unsupported XML-RPC value type")
   }
 
-  // Only the named element is extracted, and only when it spans the whole
-  // value. A name that does not span the whole value remains unsupported,
-  // which is exactly what the previous ordered probe chain produced.
   const element = extractFirstDirectElement(text, tagName)
   if (element === null) {
     throw new XmlRpcFault(-32602, "Unsupported XML-RPC value type")
@@ -248,15 +241,9 @@ function parseXmlRpcValue(
   throw new XmlRpcFault(-32602, "Unsupported XML-RPC value type")
 }
 
-// Every tag name this parser looks for is a literal at a call site or drawn from
-// the fixed XML-RPC value-type set below, so these compiled-pattern caches are
-// bounded by construction and cannot be grown by request input.
 const OPEN_TAG_PATTERN_CACHE = new Map<string, RegExp>()
 const TAG_PATTERN_CACHE = new Map<string, RegExp>()
 
-// The opening tag name at the start of a value. A value must consist of exactly
-// one element, so its root tag name alone decides how it is parsed; no further
-// candidate names need to be probed for.
 const ROOT_TAG_NAME_PATTERN = /^<([A-Za-z][\w.:-]*)/
 
 const XML_RPC_VALUE_TYPE_NAMES: ReadonlySet<string> = new Set([
@@ -277,9 +264,6 @@ function openTagPattern(tagName: string): RegExp {
   if (!pattern) {
     const escaped = escapeRegExp(tagName)
     pattern = new RegExp(
-      // An XML opening tag cannot contain another literal '<'. Stopping at
-      // it prevents repeated attempts from scanning the same unterminated
-      // attribute tail to the end of a large untrusted value.
       `<${escaped}(?:${XML_WHITESPACE}[^<>]*)?>|<${escaped}${XML_WHITESPACE}*/>`,
       "g"
     )
@@ -301,7 +285,6 @@ function closingTagPattern(tagName: string): RegExp {
   return pattern
 }
 
-/** Tag name of the element opening `text`, or null when there is none. */
 function rootTagName(text: string): string | null {
   const match = ROOT_TAG_NAME_PATTERN.exec(text)
   return match ? match[1] : null
@@ -554,9 +537,6 @@ function decodeXmlText(value: string): string {
 }
 
 function trimXmlWhitespace(value: string): string {
-  // A global regex with a greedy end-of-input whitespace alternative retries
-  // long interior runs from every offset. Scan each edge exactly once so a
-  // large authenticated XML-RPC payload cannot monopolize the event loop.
   let start = 0
   let end = value.length
   const isWhitespace = (code: number) =>

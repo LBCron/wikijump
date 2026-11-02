@@ -2,15 +2,6 @@ import { fileURLToPath } from "node:url"
 
 import { createTestViteServer } from "./vite-test-server.js"
 
-/**
- * Shared harness for behavioral page-action boundary tests.
- *
- * Tests that need to prove a trusted-route property must invoke the real
- * server action and observe the Deepwell transport call, rather than
- * matching the action's source text. This helper owns the Vite SSR
- * bootstrap, the Deepwell client stub boundary, and the RequestEvent shape
- * those actions read.
- */
 export const PAGE_ACTION_ROOT = fileURLToPath(new URL("..", import.meta.url))
 
 export const startPageActionHarness = async () => {
@@ -35,11 +26,6 @@ export const startPageActionHarness = async () => {
   }
 }
 
-/**
- * Builds the RequestEvent a SvelteKit page action receives after wws has
- * set its trusted internal headers and middleware has stored the request
- * context.
- */
 export const pageActionEvent = ({
   action,
   body,

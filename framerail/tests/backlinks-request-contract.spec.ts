@@ -56,8 +56,6 @@ test("Backlinks lazy read posts an empty body to the route action and renders th
 
   await openBacklinksPane(page)
 
-  // The real SvelteKit action must accept the pane's request, and the pane must
-  // render the backlink the fixture Deepwell resolved for the route slug.
   const backlink = page
     .locator("#page-backlinks-list")
     .getByRole("link", { name: "SCP Foundation" })
@@ -70,8 +68,6 @@ test("Backlinks lazy read posts an empty body to the route action and renders th
   const requestUrl = new URL(request.url)
   expect(request.method).toBe("POST")
   expect(requestUrl.pathname).toBe("/scp-173")
-  // The request must not smuggle the page identifier or any other field into
-  // the query or body: the action resolves both site and slug server-side.
   expect(requestUrl.search).toBe("?/backlinks")
   expect(request.postData ?? "").toBe("")
   // fetch() with a string body sends this form-compatible content type, which
@@ -101,8 +97,6 @@ test("Backlinks cancels the previous read and ignores its late response after th
     async (route) => {
       const request = route.request()
       requestedPaths.push(new URL(request.url()).pathname)
-      // Complete both real reads, but hold the first response until after the
-      // route has changed so a late delivery can be observed.
       const response = await route.fetch()
       if (!heldRequest) {
         heldRequest = request
@@ -131,8 +125,6 @@ test("Backlinks cancels the previous read and ignores its late response after th
     .poll(() => page.locator("#action-area").evaluate((area) => area.children.length))
     .toBe(0)
 
-  // Navigate to another page without closing the pane: the pane stays mounted
-  // and starts the read for the new page while the first read is in flight.
   await page.locator("#navigate-history-target").click()
   await expect(page).toHaveURL(/\/scp-173$/u)
   const backlink = page
@@ -141,8 +133,6 @@ test("Backlinks cancels the previous read and ignores its late response after th
   await expect(backlink).toBeVisible()
   expect(requestedPaths).toEqual(["/page-workflow-probe", "/scp-173"])
 
-  // Deliver the first page's response after the new page's read has rendered:
-  // it must never replace the result that belongs to the current page.
   releaseHeld?.()
   await page.waitForTimeout(250)
   await expect(backlink).toBeVisible()

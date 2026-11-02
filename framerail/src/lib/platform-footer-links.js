@@ -1,33 +1,6 @@
-/**
- * Native Wikijump footer destinations.
- *
- * `Docs`, `Terms`, `Privacy` and `Security` are platform-global actions,
- * not wiki content. They never resolve against the wiki a reader is
- * viewing: the current site's origin is never consulted, so no wiki can
- * capture a footer click, and each item leads somewhere of its own instead
- * of back to the current homepage. That is the same distinction Wikidot
- * draws between the site it serves and its own platform footer (see
- * `$lib/wikidot/wikidot-footer`), where Help, Terms of Service and Privacy
- * point at `www.wikidot.com` and never at the current site root.
- *
- * Destinations are instance-level configuration. A deployment points each
- * item at its own docs, legal and security resources with the
- * `PUBLIC_WIKIJUMP_FOOTER_*_URL` environment variables, so no instance is
- * forced to send its readers to another operator's hostname.
- *
- * Every destination is an absolute `https:` URL. A configured value that
- * is missing, non-https, relative, or carries credentials is a
- * configuration defect and fails closed to the documented default, because
- * a relative or scheme-relative destination would silently resolve against
- * the viewed wiki's origin.
- */
 
 const PLATFORM_FOOTER_ORIGIN = "https://wikijump.com"
 
-/**
- * Ordered native footer items. The keys name the internationalization keys
- * that supply each label, and the order is the Wikijump footer order.
- */
 export const NATIVE_FOOTER_DESTINATION_KEYS = Object.freeze([
   "terms-conditions",
   "privacy",
@@ -35,10 +8,6 @@ export const NATIVE_FOOTER_DESTINATION_KEYS = Object.freeze([
   "security"
 ])
 
-/**
- * Environment variables a deployment sets to override one native footer
- * destination.
- */
 export const NATIVE_FOOTER_DESTINATION_ENVIRONMENT_VARIABLES = Object.freeze({
   "terms-conditions": "PUBLIC_WIKIJUMP_FOOTER_TERMS_CONDITIONS_URL",
   privacy: "PUBLIC_WIKIJUMP_FOOTER_PRIVACY_URL",
@@ -46,7 +15,6 @@ export const NATIVE_FOOTER_DESTINATION_ENVIRONMENT_VARIABLES = Object.freeze({
   security: "PUBLIC_WIKIJUMP_FOOTER_SECURITY_URL"
 })
 
-/** Documented destinations for the public Wikijump instance. */
 export const DEFAULT_NATIVE_FOOTER_LINKS = Object.freeze([
   Object.freeze({
     key: "terms-conditions",

@@ -19,7 +19,6 @@ export const handleFileReadRpc = ({ rpcRequest, request, port }) => {
   let result
 
   if (rpcRequest.method === "blob_get" && rpcRequest.params === "112233") {
-    // Deterministic avatar bytes for the synthetic profile fixture only.
     result = {
       data: Array.from(
         Buffer.from(

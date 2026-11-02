@@ -76,8 +76,6 @@ export async function loadUser(
       license: parentData.license_name,
       "license_url": parentData.license_url
     },
-    // The user error boundary renders for every failure view, including
-    // unexpected ones, so the generic fallback is always available there.
     "error-api.GENERIC": {}
   }
 
@@ -91,12 +89,9 @@ export async function loadUser(
       errorStatus = 404
       break
     default:
-      // Unexpected response type!
-      // There is an inconsistency between here / DEEPWELL
       errorStatus = 500
   }
 
-  // If the username is not the same as the slug, redirect to the slug
   if (
     errorStatus === null &&
     username &&
@@ -131,7 +126,6 @@ export async function loadUser(
     const user = response.data.user
     viewData.user = sanitizeUserData(user, isViewingAnotherUser)
 
-    // Get user avatar image
     if (user.avatar_s3_hash !== null) {
       const avatar = await getFileByHash(new Uint8Array(user.avatar_s3_hash))
       const dataurl = `data:${avatar.type};base64,${Buffer.from(
@@ -143,7 +137,6 @@ export async function loadUser(
     translateKeys = {
       ...translateKeys,
 
-      // Edit actions
       "edit": {},
       "save": {},
       "cancel": {},
@@ -151,7 +144,6 @@ export async function loadUser(
       "user-profile-info.remove-avatar-pending": {},
       "user-profile-info.keep-avatar": {},
 
-      // User profile attributes
       "user-profile-info": {},
       "avatar": {},
       "user-profile-info.name": {},
@@ -232,8 +224,6 @@ export function sanitizeUserData(
     "user_page"
   ]
   if (isViewingAnotherUser) {
-    // the whitelist for viewing other user profiles should be a subset of that for
-    // viewing their own.
     return Object.fromEntries(
       baseSafeKeys.filter((key) => key in user).map((key) => [key, user[key]])
     )
@@ -295,8 +285,6 @@ export async function userEditAction({
       locales
     } = form.data
 
-    // Removal is an explicit flag, never inferred from a missing or empty file.
-    // A real new image plus a removal request is contradictory, so reject it.
     const hasNewImage = avatar instanceof File && avatar.size > 0
     if (removeAvatar === true && hasNewImage) {
       return fail(400, {

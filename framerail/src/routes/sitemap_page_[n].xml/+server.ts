@@ -23,10 +23,7 @@ export const GET: RequestHandler = async ({ request, params }) => {
   }
 
   const { siteId } = loadSiteInfo(request.headers)
-  // Child shards must use the same anonymous visibility boundary as the index.
   const output = await wikidotSitemap(siteId, shard, { siteId })
-  // A site the viewer cannot see has no public sitemap, so the route answers
-  // the same way as any other missing page.
   if (!output) return new Response("Not found", { status: 404 })
 
   if (output.entries.length === 0) return new Response("Not found", { status: 404 })

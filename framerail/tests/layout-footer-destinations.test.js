@@ -14,7 +14,6 @@ test("no layout footer sends Docs, Terms, Privacy or Security back to the wiki r
     )
     assert.doesNotMatch(layout, rootLink, key)
   }
-  // Both footers take their destinations from the instance-level links.
   assert.match(layout, /nativeFooterLinks as link/)
   assert.match(layout, /href=\{nativeFooterHref\(key\)\}/)
 })

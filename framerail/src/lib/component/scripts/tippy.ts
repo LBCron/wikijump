@@ -14,14 +14,11 @@ export const DEFAULT_TIPPY_OPTS: Partial<Props> = {
 
 export function parseTipOpts(elem: Element, opts: Partial<Props> | string) {
   if (opts) {
-    // use:tippy="foo"
     if (typeof opts === "string") {
       opts = { content: opts }
-      // use:tippy={{ opt: "bar" }} aria-label="foo"
     } else if (!opts.content) {
       opts.content = elem.getAttribute("aria-label") ?? ""
     }
-    // use:tippy
   } else {
     opts = { content: elem.getAttribute("aria-label") ?? "" }
   }

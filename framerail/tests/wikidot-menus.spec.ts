@@ -11,7 +11,6 @@ test("the menu action wraps bare top-bar item text like Wikidot's fixMenuList", 
   await page.setExtraHTTPHeaders(SITE_HEADERS)
   await page.goto("/wikidot-tabview", { waitUntil: "load" })
 
-  // Wikidot's server HTML for nav:top (wikidot-native-list-preview-20261019).
   const html = await page.evaluate(async () => {
     const bar = document.createElement("div")
     bar.innerHTML = [
@@ -34,7 +33,6 @@ test("the menu action wraps bare top-bar item text like Wikidot's fixMenuList", 
     return { html: bar.innerHTML, hovered, after: about.classList.contains("sfhover") }
   })
 
-  // The hover check leaves an empty class attribute behind, as removeClass does.
   expect(html.html).toMatch(/<li(?: class="")?><a href="javascript:;">About\n<\/a><ul>/)
   expect(html.html).toContain('<li><a href="/faq">FAQ</a></li>')
   expect(html.html).toContain('<li><a href="/contact-staff">Contact Us</a></li>')

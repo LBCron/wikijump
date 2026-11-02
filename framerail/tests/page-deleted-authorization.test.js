@@ -70,7 +70,6 @@ test("deleted-page actions use the authenticated route context", async () => {
     }
   ])
 
-  // An unauthenticated request never reaches the deleted-page read.
   calls.length = 0
   const unauthenticated = await actions.deletedGet(
     requestEvent({
@@ -81,8 +80,6 @@ test("deleted-page actions use the authenticated route context", async () => {
   assert.equal(unauthenticated.status, 401)
   assert.deepEqual(calls, [])
 
-  // A request that claims a different site than the trusted context is
-  // rejected before any deleted-page read reaches Deepwell.
   const spoofed = await actions.deletedGet(requestEvent({ siteId: SITE_ID + 1 }))
   assert.equal(spoofed.status, 403)
   assert.deepEqual(calls, [])

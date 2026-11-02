@@ -14,8 +14,6 @@ const ORIGIN = "http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--the
 const THEME_URL = (dir) => `${ORIGIN}/${dir}/css/style.css`
 const builtIn = (id) => ({ type: "built_in", id })
 
-// Authenticated 2026-09-14 sandbox-for-codex capture of the persisted built-in
-// appearance ids. Site custom theme ids (8248876+) are intentionally absent.
 const EXPECTED_DIRS = {
   1: ["base"],
   162746: ["bootstrap-base"],

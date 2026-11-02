@@ -11,10 +11,6 @@ const siteHeaders = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 
-// Both state-changing +server.ts endpoints are called through their exported
-// POST handler. The ajax form has no wikidot_token7, so an allowed request gets
-// the connector's own wrong_token7 response without touching Deepwell; an
-// allowed XML-RPC request without credentials gets its 401 fault.
 const endpoints = {
   ajax: {
     path: "/ajax-module-connector.php",
@@ -85,7 +81,6 @@ for (const name of Object.keys(endpoints)) {
   })
 
   test(`${name}: cross-origin Origin is refused with SvelteKit's message`, async () => {
-    // Includes a same-site sibling origin and the opaque "null" origin.
     for (const origin of [
       "https://evil.example",
       "https://scp-jp.wikijump.test",

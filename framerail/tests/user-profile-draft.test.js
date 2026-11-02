@@ -39,15 +39,12 @@ test("partial patch sends only fields that differ from the accepted state", () =
 test("a rejected draft never becomes the baseline for the next partial patch", () => {
   const accepted = acceptedSnapshot(persistedUser)
 
-  // The server rejects this attempt, so the accepted baseline must not move.
   const rejected = { ...accepted, email: "not-a-valid-email" }
   assert.deepEqual(partialPatch(rejected, accepted, undefined), {
     avatar: undefined,
     email: "not-a-valid-email"
   })
 
-  // Correcting the email back to the accepted value and changing a
-  // different field must send only the field that actually changed.
   const corrected = { ...accepted, name: "Renamed" }
   assert.deepEqual(partialPatch(corrected, accepted, undefined), {
     avatar: undefined,

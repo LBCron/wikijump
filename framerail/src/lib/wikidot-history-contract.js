@@ -1,10 +1,6 @@
 const EN_HEADERS = ["rev.", "", "flags", "actions", "by", "date", "comments"]
 const JA_HEADERS = ["rev.", "", "フラグ", "アクション", "by", "日付", "コメント"]
 
-// Frozen anonymous history/PageSourceModule responses from SCP-EN and SCP-JP
-// use a div with escaped literal source and <br /> line boundaries. A textarea
-// acquires an intrinsic width and content-box padding under Wikidot Base CSS.
-// Keep this primitive shared by the AMC response and the Wikidot browser pane.
 /** @param {string} source */
 export const wikidotRevisionSourceHtml = (source) =>
   `<div class="page-source">${source
@@ -42,9 +38,6 @@ const parseSourceIncludeTarget = (target) => {
     ) {
       return null
     }
-    // Match the absolute source URL live Wikidot renders for cross-site
-    // include targets. A local page is never invented: navigation stays on
-    // the authoritative source host even when the target was not imported.
     const href = `https://${site.toLowerCase()}.wikidot.com/${page
       .split(":")
       .map((segment) => encodeURIComponent(segment))
@@ -66,17 +59,11 @@ const sourceLineContent = (line) => line.replace(/\r?\n$/u, "")
 const parameterBlockEnd = (lines, start) => {
   for (let index = start + 1; index < lines.length; index += 1) {
     const line = sourceLineContent(lines[index])
-    // A new block-level directive ends the parameter scan. Inline `[[`
-    // markup inside a parameter value (for example footnoted image-block
-    // captions) does not; only a line starting a directive aborts.
     if (/^[\t ]*(\[\[|\[!--|@@)/u.test(line)) return -1
     if (/^[\t ]*\|[A-Za-z_][A-Za-z0-9_-]*[\t ]*=[^\n]*\]\][\t ]*$/u.test(line)) {
       return index
     }
     if (/^[\t ]*\|[A-Za-z_][A-Za-z0-9_-]*[\t ]*=[^\n]*$/u.test(line)) continue
-    // Trailing-pipe parameter style used by multi-line image-block includes
-    // (for example `name=Eye.jpg|`), evidenced by the 21-link SCP-5382
-    // source view covering every include directive on the page.
     if (/^[\t ]*[A-Za-z_][A-Za-z0-9_-]*[\t ]*=[^\n]*\|[\t ]*$/u.test(line)) {
       continue
     }
@@ -109,8 +96,6 @@ export const wikidotPageSourceHtml = (source) => {
       const openInclude = !inComment && !inCode && SOURCE_INCLUDE_OPEN.exec(content)
       const parsed = openInclude ? parseSourceIncludeTarget(openInclude[2]) : null
       const rest = openInclude ? content.slice(openInclude[0].length) : ""
-      // The directive must terminate on this line or continue as a valid
-      // parameter block. Unterminated directives stay literal.
       const closed =
         parsed !== null && (rest.includes("]]") || parameterBlockEnd(lines, index) >= 0)
 
@@ -121,8 +106,6 @@ export const wikidotPageSourceHtml = (source) => {
         rendered = `${escapePageSourceHtml(before)}<a href="${escapePageSourceHtml(parsed.href)}">${escapePageSourceHtml(target)}</a>${escapePageSourceHtml(rest)}`
       }
 
-      // Source examples and comments stay literal. Do not decorate a matching
-      // line until the enclosing region has ended.
       const commentOpen = content.indexOf("[!--")
       const commentClose = content.indexOf("--]")
       if (inComment) {
@@ -186,11 +169,6 @@ export const wikidotHistoryHeaders = (locale) =>
 
 export const wikidotHistoryActionTitles = (locale) => ACTION_TITLES[localeKey(locale)]
 
-/**
- * Return only revision markers evidenced by the live Wikidot History
- * module. Unknown change fields stay literal/blank instead of being
- * guessed as a generic metadata marker.
- */
 export const wikidotRevisionFlags = (revision, locale) => {
   const titles = FLAG_TITLES[localeKey(locale)]
   if (revision.history_kind === "file") return [{ code: "F", title: titles.files }]
@@ -214,15 +192,6 @@ export const HISTORY_FILTER_TYPES = ["source", "title", "move", "tags", "meta", 
 
 export const HISTORY_PER_PAGE_OPTIONS = [20, 50, 100, 200]
 
-/**
- * Whether a history timeline entry passes the active filter set. An empty
- * set (nothing checked) and a set containing "all" both mean unfiltered:
- * live Wikidot answers either selection with the full list. The `meta`
- * mapping is by elimination — source, title, page-name, tags, and files
- * each own another key, so page-metadata (parent linkage) changes are the
- * only remaining page revision kind; no meta-flagged row was observable on
- * the frozen fixture page to confirm against.
- */
 export const historyEntryMatchesTypes = (entry, activeTypes) => {
   const active = new Set(activeTypes ?? [])
   if (active.size === 0 || active.has("all")) return true
@@ -238,15 +207,9 @@ export const historyEntryMatchesTypes = (entry, activeTypes) => {
   )
 }
 
-/** Filter a timeline to the active Wikidot History filter set. */
 export const filterHistoryByTypes = (entries, activeTypes) =>
   (entries ?? []).filter((entry) => historyEntryMatchesTypes(entry, activeTypes))
 
-/**
- * Slice a filtered timeline into a 1-based page. Pages are clamped into
- * range; the returned entries keep their global timeline numbers so row
- * numbering stays continuous across pages.
- */
 export const paginateHistoryEntries = (entries, page, perPage) => {
   const list = entries ?? []
   const size = Math.max(perPage ?? HISTORY_PER_PAGE_OPTIONS[0], 1)

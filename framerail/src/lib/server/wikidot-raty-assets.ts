@@ -1,4 +1,3 @@
-// Captured from Wikidot's public /common--images/jquery-raty/ resources on 2026-07-23. These are Wikidot chrome assets, not imported page uploads.
 const RATY_ASSETS = new Map([
   [
     "star-off.png",

@@ -13,10 +13,6 @@ const AVATAR_OWNER_HEADERS = {
 }
 const REMOVE_LABEL = "Remove profile image"
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -37,11 +33,6 @@ const devalue = (value: unknown): string => {
   return JSON.stringify(flat)
 }
 
-/**
- * Decode the superforms JSON payload of a multipart action request into
- * its submitted fields. Superforms stores values in a flat array and
- * references them by index; `-1` marks an undefined field.
- */
 const submittedFields = (body: string): Record<string, unknown> => {
   const match = /name="__superform_json"\r\n\r\n([\s\S]*?)\r\n--/u.exec(body)
   if (!match) throw new Error("action request carried no superform payload")
@@ -58,12 +49,6 @@ const submittedFields = (body: string): Record<string, unknown> => {
 const successBody = (value: unknown) =>
   JSON.stringify({ type: "success", status: 200, data: devalue(value) })
 
-/**
- * Open the own-account profile editor. The profile is the fixture owner's,
- * who has a stored avatar; the action endpoint is intercepted so nothing
- * reaches Deepwell, and every submitted action is recorded for
- * assertions.
- */
 const openOwnEditor = async (page: import("@playwright/test").Page, actions: Route[]) => {
   await page.setExtraHTTPHeaders(AVATAR_OWNER_HEADERS)
   await page.route(
@@ -112,8 +97,6 @@ test("Remove is a separate control from the file upload and from Save", async ({
   await expect(remove).toHaveCount(1)
   expect(await remove.evaluate((element) => element.tagName)).toBe("BUTTON")
 
-  // The removal button is not the form's submit control, so activating it
-  // only changes the draft; Save remains the single submitting control.
   await expect(page.locator("#editor button[type=submit]")).toHaveText(/./u)
   await expect(page.locator("#editor button[type=submit]")).toHaveCount(1)
   expect(actions).toHaveLength(0)
@@ -134,8 +117,6 @@ test("cancelling a pending removal sends nothing and restores the stored avatar"
   await expect(page.locator("#editor")).toHaveCount(0)
   expect(actions).toHaveLength(0)
 
-  // Reopening starts from the accepted state: the image is still stored and
-  // no removal is pending.
   await waitForSvelteDelegatedHandler(page, ".button-edit")
   await page.locator(".button-edit").click()
   await expect(page.locator("#editor")).toBeVisible()
@@ -153,10 +134,7 @@ test("a plain Save with no avatar change never carries a removal", async ({ page
   await page.locator("#editor button[type=submit]").click()
   await expect.poll(() => actions.length).toBe(1)
   const body = actions[0].request().postData() ?? ""
-  // Only the fields that changed are submitted; no removal flag is present.
   expect(submittedFields(body).removeAvatar).toBeUndefined()
-  // The empty file input still submits an empty, unnamed file part. That part
-  // must never be read as a removal.
   expect(body).toMatch(/name="avatar"; filename=""/u)
 })
 

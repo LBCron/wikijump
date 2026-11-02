@@ -21,7 +21,6 @@ const resetWriteRequests = async (request: APIRequestContext) => {
   await request.get(`${FIXTURE_URL}/last-page-write-requests`)
 }
 
-/** Reads (and clears) the shared fixture write ledger. */
 const recordedWriteRequests = async (request: APIRequestContext) => {
   const response = await request.get(`${FIXTURE_URL}/last-page-write-requests`)
   const groups = (await response.json()) as Record<string, unknown[]>
@@ -34,13 +33,11 @@ test("an anonymous profile exposes the evidenced action row", async ({ page }) =
   await page.setExtraHTTPHeaders(SITE_HEADERS)
   await page.goto(PROFILE_PATH)
 
-  // The private-message label is actionable rather than inert text.
   const privateMessage = page.locator(privateMessageAction)
   await expect(privateMessage).toBeVisible()
   await expect(privateMessage).toHaveText("Write private message")
   await expect(privateMessage).toHaveAttribute("href", "/-/login")
 
-  // Both guarded actions exist and address the profile by stable user ID.
   const flag = page.locator(flagAction)
   await expect(flag).toBeVisible()
   await expect(flag).toHaveText("flag user as abusive")
@@ -49,7 +46,6 @@ test("an anonymous profile exposes the evidenced action row", async ({ page }) =
   await expect(contact).toBeVisible()
   await expect(contact).toHaveAttribute("data-target-user-id", TARGET_USER_ID)
 
-  // The profile itself still renders, so the checks above are not vacuous.
   await expect(page.locator("h1.profile-title")).toHaveText("Profile Action Probe")
 })
 
@@ -69,7 +65,6 @@ test("activating flag user as abusive anonymously stays on the profile and write
   await waitForSvelteDelegatedHandler(page, flagAction)
   await page.locator(flagAction).click()
 
-  // The frozen live guard: same page, no navigation, no report.
   await expect(page.locator("#odialog-container .owindow.error")).toBeVisible()
   await expect(page.locator("#owindow-1 .title")).toHaveText("Permission error")
   await expect(page.locator("#modal-title")).toHaveText("Please note:")
@@ -79,7 +74,6 @@ test("activating flag user as abusive anonymously stays on the profile and write
   await expect(page).toHaveURL(new RegExp(`${PROFILE_PATH}$`))
   expect(actionRequests).toEqual([])
 
-  // Closing the guard leaves no report, contact, or message behind.
   await page.keyboard.press("Escape")
   await expect(page.locator("#odialog-container")).toHaveCount(0)
   expect(await recordedWriteRequests(request)).toEqual([])
@@ -121,7 +115,6 @@ test("activating the private-message action reaches the sign-in boundary", async
   await page.goto(PROFILE_PATH)
   await page.locator(privateMessageAction).click()
 
-  // Live Wikidot asks an anonymous visitor to sign in before composing.
   await expect(page).toHaveURL(/\/-\/login$/u)
   await expect(page.locator("#login-name-or-email")).toBeVisible()
   expect(posts).toEqual([])

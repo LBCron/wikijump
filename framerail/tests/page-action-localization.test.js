@@ -186,10 +186,6 @@ const foundKeysContext = {
   now: 0
 }
 
-// Keys owned by other surfaces are excluded: the platform footer (tasks
-// T33-T35), the spinny status component catalog, and account-form strings
-// (cluster S09). Everything else requested for a found page is page
-// action/pane chrome owned here and must exist in English and Japanese.
 const EXCLUDED_PAGE_KEYS = new Set([
   "footer-powered-by",
   "footer-license-unless",
@@ -276,13 +272,10 @@ const preloadResponse = (siteLocale, userLocales) => ({
 })
 
 test("the site language defines the page interface ahead of browser preferences", () => {
-  // Anonymous English-browser visitor on a Japanese site: Japanese first,
-  // English fallback retained (issues #2170, #2178).
   assert.deepEqual(
     finalizePreloadData(preloadResponse("ja", null), ["en-US", "en"]).locales,
     ["ja", "en", "en-US"]
   )
-  // Anonymous Japanese-browser visitor on an English site: English first.
   assert.deepEqual(finalizePreloadData(preloadResponse("en", null), ["ja"]).locales, [
     "en",
     "ja"
@@ -290,9 +283,6 @@ test("the site language defines the page interface ahead of browser preferences"
 })
 
 test("Japanese catalog defines the revision banner chrome requested for found pages", async () => {
-  // The historical-revision banner (#2151) renders through the same
-  // internationalization dictionary as the panes; without requested keys
-  // and Japanese entries it falls back to English on Japanese sites (#2178).
   const keys = buildPageTranslateKeys(foundResponse, foundKeysContext)
   const bannerKeys = [
     "wiki-page-revision-banner.title",
@@ -312,9 +302,6 @@ test("Japanese catalog defines the revision banner chrome requested for found pa
 })
 
 test("Japanese catalog defines the unimported watchers notice requested for found pages", async () => {
-  // Imported pages carry no subscription graph; an empty roster would
-  // falsely assert zero subscriptions, so the pane shows an unavailable
-  // notice instead (issue #2172).
   const keys = buildPageTranslateKeys(foundResponse, foundKeysContext)
   assert.ok(Object.hasOwn(keys, "wiki-page-watchers-unimported"))
 
@@ -369,8 +356,6 @@ test("visible page action text remains the anchor accessible name", async () => 
   }
 
   for (const [id, labelExpression] of Object.entries(actionKeys)) {
-    // Native ids are literal, or the native branch of an id that imported
-    // Wikidot pages replace with Wikidot's own (`page-block-button`).
     const literal = pageView.indexOf(`id="${id}"`)
     const start = literal >= 0 ? literal : pageView.indexOf(`: "${id}"}`)
     assert.ok(start >= 0, id)

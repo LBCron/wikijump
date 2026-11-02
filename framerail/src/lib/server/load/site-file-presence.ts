@@ -9,10 +9,6 @@ import {
 
 import type { RequestContext } from "../request-context"
 
-/**
- * A theme asset's referenced page file: the page slug and file name parsed
- * from its `/local--files/<page>/<name>` path.
- */
 export interface SiteFileReference {
   page: string
   name: string
@@ -53,12 +49,6 @@ export function collectThemeSiteFileReferences(
   return references
 }
 
-/**
- * Request-scoped memo of per-page local file names. One loader creates one
- * cache per page view so repeated references to the same page cost a
- * single file listing; nothing is shared across requests, so an import
- * that lands mid-request cannot serve stale presence to a later view.
- */
 export interface SiteFilePresenceCache {
   pages: Map<string, Promise<ReadonlySet<string>>>
 }
@@ -70,11 +60,6 @@ export const createSiteFilePresenceCache = (): SiteFilePresenceCache => ({
 const cacheKey = (siteId: number, page: string): string =>
   `${siteId}${SITE_FILE_PRESENCE_SEPARATOR}${page}`
 
-/**
- * List one page's live local file names, or the empty set when the page is
- * missing, unreadable, or its listing fails. Unknown means absent
- * downstream: the head keeps the source URL literal.
- */
 async function lookupLocalFileNames(
   siteId: number,
   page: string,
@@ -101,12 +86,6 @@ async function lookupLocalFileNames(
   return pending
 }
 
-/**
- * Resolve which referenced page files exist locally, as presence-set keys
- * (`page + separator + name`). References whose page is missing or whose
- * listing fails are omitted: the rewrite treats absent and unknown alike
- * as literal. One file listing runs per distinct page at most.
- */
 export async function resolveSiteFilePresence(
   references: readonly SiteFileReference[],
   options: {

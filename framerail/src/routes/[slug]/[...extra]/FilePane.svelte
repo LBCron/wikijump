@@ -47,9 +47,6 @@
   )
   let fileListLoading = $state(untrack(() => initialFileList === null))
   let fileListError = $state<string | null>(null)
-  // A successful parse of an authoritative list response. The source-compatible
-  // empty-list wording is only reachable once this is true, so a failed or
-  // still-in-flight request can never be read as "this page has no files".
   let fileListLoaded = $state(untrack(() => initialFileList !== null))
   let requestedDeletedFiles = $state(false)
   let fileEditId = $state<number>(0)
@@ -61,9 +58,6 @@
     historyRequestId += 1
   }
 
-  // Only the most recently requested file list may update the pane. Responses
-  // to superseded requests (a different active/deleted mode, a remount, or a
-  // navigation) are dropped so they cannot replace the visible file set.
   let fileListRequestId = 0
 
   async function getFileList(deleted = false) {
@@ -252,10 +246,6 @@
     }
   )
 
-  // The File Move form is offered only to viewers who may edit the page, as
-  // the Files pane's other mutations require. Deepwell still checks both the
-  // current and destination page on every move; this keeps an interactive form
-  // away from viewers who can never complete it. Any failure fails closed.
   const SVELTEKIT_ACTION_HEADERS = {
     accept: "application/json",
     "content-type": "text/plain;charset=UTF-8",
@@ -317,8 +307,6 @@
   })
 
   $effect(() => {
-    // Wikidot layout receives the successful initial list from PageView.
-    // Non-Wikidot panes retain their own initial fetch.
     if (initialFileList === null) {
       void getFileList(false)
     }

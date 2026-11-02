@@ -1,11 +1,3 @@
-/**
- * Helpers for the in-place Sign in surface on imported Wikidot-layout
- * pages.
- *
- * The surface posts the native `/-/login` form action; credential
- * validation, MFA, and session creation stay server-authoritative in that
- * action.
- */
 
 export const WIKIDOT_LOGIN_DIALOG_LABELS = Object.freeze({
   title: "Sign in",

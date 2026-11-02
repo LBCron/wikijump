@@ -33,11 +33,9 @@ export async function loadLoginPage(request: Request, preloadData: PreloadDataAs
   const translateKeys: TranslateKeys = {
     ...defaults.translateKeys,
 
-    // Page actions
     "cancel": {},
     "login": {},
 
-    // misc
     "specifier": {},
     "password": {},
     "login.toast": {},
@@ -50,10 +48,8 @@ export async function loadLoginPage(request: Request, preloadData: PreloadDataAs
   const internationalization = await translate(locales, translateKeys)
   internationalization["mfa-code"] = await translateMfaCodeLabel(locales, translate)
 
-  // superform
   const loginForm = await superValidate(valibot(loginSchema))
 
-  // Return to page for rendering
   return { isLoggedIn, internationalization, loginForm }
 }
 

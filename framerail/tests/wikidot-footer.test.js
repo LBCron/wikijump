@@ -28,11 +28,6 @@ test("uses Wikidot footer labels in source order", () => {
 })
 
 test("binds every Wikidot footer item to its live Wikidot destination", () => {
-  // Frozen evidence: live Wikidot footer, anonymous page on sandbox-for-codex,
-  // retained capture 2026-09-15; live DOM for SCP-Wiki and SCP-JP scp-173,
-  // captured 2026-09-29. Help, Terms of Service and Privacy are absolute
-  // www.wikidot.com URLs; the report controls are inert anchors whose
-  // listeners request the in-page report modules.
   const expected = [
     ["Help", "https://www.wikidot.com/doc"],
     ["Terms of Service", "https://www.wikidot.com/legal:terms-of-service"],
@@ -66,9 +61,6 @@ test("keeps Wikidot footer destinations distinct and off the current site", () =
     )
   }
 
-  // No advertised action is collapsed onto one generic homepage: the three
-  // navigating items hold three distinct Wikidot destinations, and the two
-  // inert report controls are inert anchors on Wikidot too.
   const navigating = WIKIDOT_FOOTER_LINKS.filter((link) => link.href !== "javascript:;")
   assert.equal(navigating.length, 3)
   assert.equal(
@@ -176,9 +168,6 @@ test("carries Wikidot's footer control ids for their hovertips", () => {
   )
 })
 
-// Retained live DOM of the standard Wikidot shells (`scp-173`, 2026-09-29).
-// The served `#footer` and `#license-area` come straight from Wikidot's
-// server template; only the footer's nitroAds consent script is left out.
 const retainedShell = (directory) =>
   readFileSync(
     new URL(

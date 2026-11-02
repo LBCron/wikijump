@@ -49,9 +49,6 @@ test("stored rows supersede only the same-named fallbacks", () => {
 })
 
 test("fallbacks plus effective rows carry each entry exactly once", () => {
-  // The sealed live shape pairs site fallbacks with stored social rows;
-  // the stored description replaces its fallback while the site-name
-  // fallback fills the gap no row covers.
   const fallbacks = unsupersededHeadFallbacks(siteHeadFallbacks(site()), [
     row("description", "Stored site description"),
     row("og:type", "article"),
@@ -106,8 +103,6 @@ test("foreign or non-imported images stay literal", () => {
 })
 
 test("hostile content stays inert data for the renderer to escape", () => {
-  // Rows are rendered as `<meta content={...}>` attributes, never raw HTML;
-  // the projection must not alter or interpret markup-significant text.
   const hostile = [row("description", `"><script>alert(1)</script> 'q' &amp;`)]
   assert.deepEqual(
     resolveHeadImageUrls(hostile, { from_wikidot: true, slug: "example" }, "https://x"),

@@ -2514,8 +2514,6 @@ test("rejects catastrophic NewPage format patterns without running them", async 
 })
 
 test("rejects sequential quantified NewPage atoms before executing the regex", async () => {
-  // A separate quantified atom at each position can backtrack combinatorially
-  // even though the original group-local nested-quantifier check accepts it.
   for (const format of [
     `/^${"a*".repeat(12)}b$/`,
     "/^(?:a|aa)*b$/",

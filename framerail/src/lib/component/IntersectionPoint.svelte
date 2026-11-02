@@ -10,13 +10,10 @@
     onExit = () => undefined,
     opts = {}
   }: {
-    /** Function to call when the observer enters the viewport. */
     onEnter?: AnyFunction
 
-    /** Function to call when the observer leaves the viewport. */
     onExit?: AnyFunction
 
-    /** Options for the {@link IntersectionObserver}. */
     opts?: IntersectionObserverInit
   } = $props()
 

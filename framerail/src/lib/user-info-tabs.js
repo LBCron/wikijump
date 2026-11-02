@@ -1,14 +1,3 @@
-/**
- * The public user:info tab strip.
- *
- * Retained live captures pin the tab markup
- * (userinfo-target-routes-live-20260810.json) and the in-place switching
- * (userinfo-tab-switching-live-20261022.json). A tab click changes only
- * the class attribute of the tab items inside #page-content: the clicked
- * item gets `active`, and the item that loses the selection keeps an empty
- * class attribute. The URL does not change, no request is made, and no
- * pane markup appears.
- */
 
 /**
  * @typedef {{ id: string; label: string }} UserInfoTab

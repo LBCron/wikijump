@@ -18,8 +18,6 @@ import { installWikidotInterwikiStyleRuntime } from "./wikidot-interwiki-style-r
 import { localizeWikidotThemeUrl } from "./wikidot-styleframe-contract.js"
 
 const DEFAULT_ICON_URL = "//scp-wiki.wdfiles.com/local--files/nav:side/default.png"
-// Local copy of the Wikidot base stylesheet the interwiki runtime loads at
-// priority -1 (common--theme/base/css/style.css).
 const WIKIDOT_BASE_STYLESHEET = "/wikidot/styles/wikidot-base-165bc434fd1d.css"
 
 /**
@@ -367,8 +365,6 @@ export const buildWikidotInterwikiFrameHtml = ({
     })
     .join(" ")
   const display = links.length > 0 ? "" : ' style="display: none"'
-  // Theme styling comes only from the page's styleFrame declarations, as on
-  // Wikidot; the frame itself carries just the base stylesheet.
   const baseStylesheet = preventWikidotBaseStyle
     ? ""
     : `<link rel="stylesheet" href="${WIKIDOT_BASE_STYLESHEET}" class="custom-style" data-priority="-1">`

@@ -1,4 +1,3 @@
-// smart idle callback polyfill
 import "$lib/vendor/request-idle-callback-polyfill.js"
 
 export * from "./html"
@@ -6,7 +5,6 @@ export * from "./pref"
 export * from "./timeout"
 
 // https://gist.github.com/hyamamoto/fd435505d29ebfa3d9716fd2be8d42f0#gistcomment-2694461
-/** Very quickly generates a (non-secure) hash from the given string. */
 export function hash(s: string) {
   let h = 0
   for (let i = 0; i < s.length; i++) {
@@ -16,27 +14,11 @@ export function hash(s: string) {
 }
 
 export interface SearchOpts {
-  /** Starting minimum index for the search. */
   min?: number
-  /** Starting maximum index for the search. */
   max?: number
-  /**
-   * If true, the search will return the closest index to the desired value
-   * on failure.
-   */
   precise?: boolean
 }
 
-/**
- * Performs a binary search through an array.
- *
- * The comparator function should return -1 if undershooting the desired
- * value, +1 if overshooting, and 0 if the value was found.
- *
- * The comparator can also short-circuit the search by returning true or
- * false. Returning true is like returning a 0 (target found), but
- * returning false induces a null return.
- */
 export function search<T, TR>(
   haystack: T[],
   target: TR,
@@ -62,7 +44,6 @@ export function search<T, TR>(
   return null
 }
 
-/** Checks if an array or object is empty. Will return true for non-objects. */
 export function isEmpty(obj: unknown) {
   if (!obj) return true
   if (Array.isArray(obj)) return obj.length === 0
@@ -72,18 +53,12 @@ export function isEmpty(obj: unknown) {
   return true
 }
 
-/**
- * Returns if an object `T` has a key `K`, and only returns true if the
- * value of that key isn't undefined.
- */
 export function has<K extends string, T>(key: K, obj: T): obj is T & Record<K, unknown> {
   if (typeof obj !== "object" || obj === null) return false
   return key in obj && (obj as Record<string, unknown>)[key] !== undefined
 }
 
-/** Removes all properties assigned to `undefined` in an object. */
 export function removeUndefined<T>(obj: T) {
-  // this wacky approach is faster as it avoids an iterator
   const keys = Object.keys(obj as object) as (keyof T)[]
   for (let i = 0; i < keys.length; i++) {
     if (obj[keys[i]] === undefined) delete obj[keys[i]]
@@ -91,21 +66,12 @@ export function removeUndefined<T>(obj: T) {
   return obj as { [K in keyof T]: Exclude<T[K], undefined> }
 }
 
-/** Takes a string and escapes any `RegExp` sensitive characters. */
 export function escapeRegExp(str: string) {
   // @ts-ignore
   // eslint-disable-next-line no-useless-escape
   return str.replace(/[.*+?^${}()|\[\]\\]/g, "\\$&")
 }
 
-/**
- * Checks if a string has any of the provided sigils.
- *
- * @example
- *   ;```ts
- *   hasSigil("!string", "!") // true
- *   ```
- */
 export function hasSigil<T extends string = string>(
   str: unknown,
   sigils: string | string[]
@@ -116,7 +82,6 @@ export function hasSigil<T extends string = string>(
   return false
 }
 
-/** Removes sigils from a string recursively. */
 export function unSigil<T extends string>(str: T, sigils: string | string[]): T {
   if (typeof sigils === "string") {
     return (str.startsWith(sigils) ? str.slice(sigils.length) : str) as T
@@ -130,13 +95,11 @@ export function unSigil<T extends string>(str: T, sigils: string | string[]): T 
   return str as T
 }
 
-/** Creates a simple pseudo-random ID, with an optional prefix attached. */
 export function createID(prefix = "") {
   const suffix = hash(Math.random() * 100 + prefix)
   return `${prefix}-${suffix}`
 }
 
-/** Converts a string into an array of codepoints. */
 export function toPoints(str: string) {
   const codes: number[] = []
   for (let i = 0; i < str.length; i++) {
@@ -145,10 +108,6 @@ export function toPoints(str: string) {
   return codes
 }
 
-/**
- * Checks an array of codepoints against a codepoint array or a string,
- * starting from a given position.
- */
 export function pointsMatch(points: number[], str: string | number[], pos: number) {
   if (typeof str === "string") {
     for (let i = 0; i < points.length; i++) {
@@ -162,13 +121,6 @@ export function pointsMatch(points: number[], str: string | number[], pos: numbe
   return true
 }
 
-/**
- * Performance measuring utility.
- *
- * To use, execute the function and store the returned value. The returned
- * value is a function that will end the performance timer and log the
- * measured time to the console.
- */
 export function perfy(meta?: string, threshold?: number): (msg?: string) => number {
   const start = performance.now()
   return (msg?: string) => {
@@ -184,10 +136,6 @@ export function perfy(meta?: string, threshold?: number): (msg?: string) => numb
   }
 }
 
-/**
- * Returns a promise that resolves after the specified number of
- * miliseconds.
- */
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -203,9 +151,7 @@ export function sleep(ms: number): Promise<void> {
 export function animationFrame(): Promise<void>
 export function animationFrame<T>(fn: () => T): Promise<T>
 export function animationFrame(fn?: () => unknown): Promise<unknown> {
-  // simple delay
   if (!fn) return new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
-  // callback based
   return new Promise((resolve) =>
     requestAnimationFrame(() => {
       const result = fn()
@@ -220,12 +166,6 @@ export function animationFrame(fn?: () => unknown): Promise<unknown> {
 
 // Credit: https://gist.github.com/beaucharman/e46b8e4d03ef30480d7f4db5a78498ca
 // Personally, I think this is one of the more elegant JS throttle functions.
-/**
- * Returns a 'throttled' variant of the given function. This function will
- * only be able to execute every `limitMS` ms. Use to rate-limit functions
- * for performance. You can have the first call be immediate by setting the
- * third parameter to `true`.
- */
 export function throttle<T extends AnyFunction>(
   fn: T,
   limitMS: number,
@@ -250,7 +190,6 @@ export function throttle<T extends AnyFunction>(
 }
 
 // Credit: https://gist.github.com/vincentorback/9649034
-/** Returns a 'debounced' variant of the given function. */
 export function debounce<T extends AnyFunction>(fn: T, wait = 1) {
   let timeout: ReturnType<typeof setTimeout> | undefined
   return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
@@ -259,11 +198,6 @@ export function debounce<T extends AnyFunction>(fn: T, wait = 1) {
   }
 }
 
-/**
- * Waits until the specified function returns `true`. It will call the
- * specified async function to determine the polling interval. If none is
- * given, it will poll every 100ms.
- */
 export async function waitFor(
   conditionFn: () => Promisable<boolean>,
   asyncTimerFn: () => Promise<void> = () => sleep(100)
@@ -275,11 +209,6 @@ export async function waitFor(
   return true
 }
 
-/**
- * Returns a new 'locked' async function, constructed using the specified
- * function. A locked asynchronous function will only allow a singular
- * instance of itself to be running at one time.
- */
 export function createLock<T extends AnyFunction>(fn: T) {
   type Return = PromiseValue<ReturnType<T>>
   const call = async (args: Parameters<T>) => {
@@ -297,16 +226,6 @@ export function createLock<T extends AnyFunction>(fn: T) {
   }
 }
 
-/**
- * Returns a new 'locked' async function, constructed using the specified
- * function. A locked asynchronous function will only allow a singular
- * instance of itself to be running at one time.
- *
- * Additional calls will return null, but they will signal to the original,
- * still running call to "restart" with the new given value. This means
- * that the original call will only ever return the most freshly sourced
- * result.
- */
 export function createMutatingLock<T extends AnyFunction>(fn: T) {
   type Return = PromiseValue<ReturnType<T>>
   const call = async (args: Parameters<T>) => {
@@ -320,8 +239,6 @@ export function createMutatingLock<T extends AnyFunction>(fn: T) {
     if (running) return null
     running = true
     let result = await call(args)
-    // loop to catch if other calls mutate the arguments
-    // if they don't this gets skipped
     while (useArgs !== null && useArgs !== args) {
       args = useArgs
       result = await call(args)
@@ -332,18 +249,6 @@ export function createMutatingLock<T extends AnyFunction>(fn: T) {
   }
 }
 
-/**
- * Returns a function that will be "queued" to execute only on animation
- * frames. Calling multiple times will run only once on the next
- * requestAnimationFrame.
- *
- * @example
- *   ;```ts
- *   const func = createAnimQueued(function target(args) => { 'foo' })
- *   func()
- *   func() // doesn't run as the previous call is already queued
- *   ```
- */
 export function createAnimQueued<T extends AnyFunction>(fn: T) {
   let queued: boolean
   let useArgs: Parameters<T> | null = null
@@ -359,7 +264,6 @@ export function createAnimQueued<T extends AnyFunction>(fn: T) {
   }
 }
 
-/** Safely calls `requestIdleCallback` in an awaitable `Promise`. */
 export function idleCallback<T>(fn: () => T, timeout?: number): Promise<T> {
   return new Promise<T>((resolve) => {
     requestIdleCallback(
@@ -373,13 +277,6 @@ export function idleCallback<T>(fn: () => T, timeout?: number): Promise<T> {
   })
 }
 
-/**
- * See `createAnimQueued` for a description of how this function works. The
- * only difference is that this function uses `requestIdleCallback`
- * instead.
- *
- * @see {@link createAnimQueued}
- */
 export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
   let queued: boolean
   let useArgs: Parameters<T> | null = null
@@ -494,7 +391,6 @@ export function isLowercased(str: string, locale?: string | string[]) {
   return lowercase(str, locale) === str
 }
 
-/** Helper for turning a relative `?url` import into an absolute path. */
 export async function url(imp: Promise<{ default: string }>) {
   return new URL((await imp).default, import.meta.url).toString()
 }
@@ -509,13 +405,7 @@ export function dedupe<T>(arr: T[], ...insert: T[]) {
   return [...new Set([...arr, ...insert])]
 }
 
-/**
- * Simple helper for creating lazy singletons. Use the `.get()` method to
- * get the current instance. If `.get()` is being called for the first
- * time, the instance will be constructed using a factory function.
- */
 export class LazySingleton<T> {
-  /** The singleton instance. */
   private instance?: T
 
   /**
@@ -524,12 +414,10 @@ export class LazySingleton<T> {
    */
   constructor(private factory: () => T) {}
 
-  /** Gets the current instance. */
   get() {
     return !this.instance ? (this.instance = this.factory()) : this.instance
   }
 
-  /** Is `true` if the instance has ever been contructed. */
   get loaded() {
     return Boolean(this.instance)
   }
@@ -547,33 +435,25 @@ export class LazySingleton<T> {
  * @param str - The string to get the byte length of.
  */
 export function byteLength(str: string) {
-  // assuming the String is UCS-2(aka UTF-16) encoded
   let len = 0
 
   for (let i = 0; i < str.length; i++) {
     const high = str.charCodeAt(i)
 
-    // [0x0000, 0x007F]
     if (high < 0x0080) len += 1
-    // [0x0080, 0x07FF]
     else if (high < 0x0800) len += 2
-    // [0x0800, 0xD7FF]
     else if (high < 0xd800) len += 3
-    // [0xD800, 0xDBFF]
     else if (high < 0xdc00) {
       const low = str.charCodeAt(++i)
       if (i < str.length && low >= 0xdc00 && low <= 0xdfff) {
-        // followed by [0xDC00, 0xDFFF]
         len += 4
       } else {
         throw new Error("malformed UTF-16 string")
       }
     }
-    // [0xDC00, 0xDFFF]
     else if (high < 0xe000) {
       throw new Error("malformed UTF-16 string")
     }
-    // [0xE000, 0xFFFF]
     else len += 3
   }
 

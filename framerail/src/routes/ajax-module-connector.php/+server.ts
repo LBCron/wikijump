@@ -489,7 +489,6 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
               return { status: "ok", body: renderWikidotWhoRatedUnavailable() }
             }
           } catch {
-            // Fall through to the pinned empty roster below.
           }
         }
         return { status: "ok", body: renderWikidotWhoRated(votes) }

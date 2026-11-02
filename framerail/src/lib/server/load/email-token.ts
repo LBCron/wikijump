@@ -46,13 +46,6 @@ import type { PreloadDataAsync } from "$lib/server/deepwell/views"
 import type { TranslateKeys } from "$lib/types"
 import type { RequestEvent } from "@sveltejs/kit"
 
-// A token that fails the shared shape contract can never redeem, so it is
-// rejected with the same failure the backend would return, without an RPC.
-// The body is built lazily: clearing password fields must never run on the
-// success path.
-//
-// LOCAL DEFAULT pending Wikidot evidence: mirrors the backend
-// InvalidEmailToken message so the fast reject is indistinguishable.
 function failForMalformedToken(token: unknown, buildBody: () => Record<string, unknown>) {
   if (!isEmailTokenWellFormed(token)) {
     return fail(400, {
@@ -88,7 +81,6 @@ const newPasswordSchema = pipe(
     partialCheck(
       [["password"], ["confirmPassword"]],
       ({ password, confirmPassword }) => password === confirmPassword,
-      // LOCAL DEFAULT pending Wikidot evidence.
       "Passwords do not match"
     ),
     ["confirmPassword"]
@@ -111,7 +103,6 @@ async function loadEmailTokenCopy(
   return { internationalization }
 }
 
-// --- Forgot password (recovery issue) ---
 
 export async function loadForgotPage(request: Request, preloadData: PreloadDataAsync) {
   const copy = await loadEmailTokenCopy(request, preloadData, {
@@ -145,7 +136,6 @@ export async function forgotAction({ request, getClientAddress }: RequestEvent) 
   }
 }
 
-// --- Verify email (resend form + link redemption) ---
 
 export async function loadVerifyPage(request: Request, preloadData: PreloadDataAsync) {
   const copy = await loadEmailTokenCopy(request, preloadData, {
@@ -219,7 +209,6 @@ export async function verifyRedeemAction({ request, getClientAddress }: RequestE
   }
 }
 
-// --- Reset password (link redemption + new password) ---
 
 export async function loadResetTokenPage(
   request: Request,
@@ -239,9 +228,6 @@ export async function loadResetTokenPage(
   return { ...copy, tokenForm, resetForm, grant: null as string | null }
 }
 
-// Phase one exchanges the recovery link for a one-time password-set
-// grant, again on POST only so mere delivery never spends the link. The
-// grant, not the link, authorizes the new password.
 export async function resetRedeemAction({ request, getClientAddress }: RequestEvent) {
   const ipAddress: string = resolveClientIp(request, getClientAddress())
   const form = await superValidate(request, valibot(tokenSchema))
@@ -273,7 +259,6 @@ const deleteConfirmSchema = pipe(
     partialCheck(
       [["password"], ["confirmPassword"]],
       ({ password, confirmPassword }) => password === confirmPassword,
-      // LOCAL DEFAULT pending Wikidot evidence.
       "Passwords do not match"
     ),
     ["confirmPassword"]
@@ -294,8 +279,6 @@ const clearDeletePasswords = <T extends { data: Record<string, string> }>(form: 
 // owned by the site-settings lane; these routes are the link target and the
 // confirmation screens, reachable once the entry links here.
 
-// The start page is an authenticated account-management surface: unsigned-in
-// visitors go to login, exactly like the account settings page.
 export async function loadDeleteAccountPage(
   request: Request,
   preloadData: PreloadDataAsync
@@ -356,8 +339,6 @@ export async function loadDeleteTokenPage(
   return { ...copy, tokenForm, deleteForm, grant: null as string | null, done: false }
 }
 
-// Phase one exchanges the deletion link for a one-time deletion grant,
-// again on POST only so mere delivery never spends the link.
 export async function deleteRedeemAction({
   request,
   cookies,
@@ -391,8 +372,6 @@ export async function deleteRedeemAction({
   }
 }
 
-// Phase two deletes on grant + password authority and signs every session
-// out. Passwords are cleared before any payload leaves this action.
 export async function deleteCompleteAction({
   request,
   cookies,
@@ -448,8 +427,6 @@ export async function deleteCompleteAction({
   }
 }
 
-// Phase two sets the new password on grant authority alone and revokes
-// every session of the account.
 export async function resetCompleteAction({ request, getClientAddress }: RequestEvent) {
   const ipAddress: string = resolveClientIp(request, getClientAddress())
   const form = await superValidate(request, valibot(newPasswordSchema))

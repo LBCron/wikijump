@@ -124,11 +124,6 @@ export const installWikidotInterwikiStyleRuntime = (
     })
   }
 
-  // The side block stays hidden until every theme pulled at initialization has
-  // loaded (or failed), so the first paint never shows a heading half-styled by
-  // a theme that has not arrived yet. Wikidot's frame shows its own styles on
-  // first paint; this only closes the window where a stylesheet is still
-  // loading. A stalled theme is released by the timeout.
   const hideUntilThemesSettle = () => {
     const pendingStyle = frameDocument.createElement("style")
     pendingStyle.textContent = ".side-block{display:none}"

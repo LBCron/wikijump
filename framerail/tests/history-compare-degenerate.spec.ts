@@ -5,10 +5,6 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -96,7 +92,6 @@ test("compare stays disabled when only one revision can be compared", async ({
       diffPosts.push(request.postData() ?? "")
     }
   })
-  // Mirrors scp-9506: a single comparable page revision among file events.
   await openHistory(page, [pageEntry(2, 7), fileEntry(5), fileEntry(9)])
 
   const compare = page

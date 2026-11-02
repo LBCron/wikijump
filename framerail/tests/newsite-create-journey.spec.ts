@@ -1,17 +1,3 @@
-// Refs #2052. Hermetic browser journey for www/new-site creation:
-// the compat form renders on the www special page, an authenticated
-// submission reaches site_create with the evidenced dimensions and
-// yields the canonical-origin redirect target, while anonymous and
-// ToS-less submissions change nothing.
-//
-// Scope of proof: this suite pins the redirect TARGET contract (the
-// serialized 303 location from the action), not the browser navigation
-// UX — the rig serves HTTP while the deployment CSP carries
-// upgrade-insecure-requests, so a native navigation POST is upgraded
-// and blocked by form-action 'self' (dev-only; production is HTTPS
-// throughout). Observing the real navigation, like the real
-// site_create + bootstrap path, still needs the disposable-stack run
-// the issue requires; both stay explicit pre-merge gates.
 import { expect, test } from "./hermetic-playwright"
 
 const SITE_HEADERS = {
@@ -113,9 +99,6 @@ test("an authenticated submission creates the site and redirects to its origin",
   await page.locator('#new-site-form input[name="unixname"]').fill(NEW_SITE_SLUG)
   await page.locator('#new-site-form input[name="tos"]').check()
 
-  // Submits the live form state above (null = read the DOM, not the
-  // validFields() helper) so a field-name drift between template and
-  // action breaks this test.
   const result = await submitNewSiteForm(page, null)
   expect(result.type).toBe("redirect")
   expect(result.status).toBe(303)

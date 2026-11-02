@@ -2,7 +2,6 @@
   @component Iconify powered inline icon.
 -->
 <script lang="ts">
-  // load iconify along with this component
   import { iconLoaded, getIcon, loadIcons, type IconifyIcon } from "iconify-icon"
   let {
     i,
@@ -10,14 +9,8 @@
     margin = "0 0",
     ...others
   }: {
-    /** Icon to display. Uses Iconify's format. */
     i: string
-    /**
-     * General size of the icon. `1em` should be close to a character in
-     * size.
-     */
     size?: string
-    /** String given to the CSS `margin` property. */
     margin?: string
     [key: string]: unknown
   } = $props()

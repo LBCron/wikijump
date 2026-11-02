@@ -13,16 +13,10 @@
     children,
     ...others
   }: {
-    /**
-     * If true, the menu will open when the summary element is hovered
-     * over.
-     */
     hoverable?: boolean
 
-    /** Sets whether the menu is open or not. */
     open?: boolean
 
-    /** Popover placement location for the menu. */
     placement?: Placement
 
     button?: Snippet
@@ -34,12 +28,7 @@
   let summary = $state<HTMLElement>()
   let menu: HTMLElement
 
-  // misc. functions
 
-  /**
-   * Checks if a pointer event is outside of the details menu. If so, the
-   * menu will be closed if it isn't already.
-   */
   function checkClose(evt: PointerEvent) {
     if (!open) return
     if (!evt.target) return
@@ -48,7 +37,6 @@
     closeMenu()
   }
 
-  // helper functions
 
   function toggleMenu() {
     open = !open

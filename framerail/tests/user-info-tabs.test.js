@@ -9,11 +9,6 @@ import {
   userInfoTabClass
 } from "../src/lib/user-info-tabs.js"
 
-/**
- * Retained live evidence: userinfo-tab-switching-live-20261022.json. Each
- * single-click state records the li class attribute of every tab after the
- * click (null means no attribute).
- */
 const evidenceFile = new URL(
   "../../install/local/wikidot-verification/artifacts/userinfo-tab-switching-live-20261022.json",
   import.meta.url

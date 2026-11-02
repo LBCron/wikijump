@@ -1,4 +1,3 @@
-// Hook that runs on every request, including form actions.
 
 import {
   buildAnonymousArticleResponseCacheFences,
@@ -159,7 +158,6 @@ export const handle: Handle = async ({ event, resolve }) => {
     return response
   }
 
-  // Gather common request metadata into a shared context.
   const { siteId, siteSlug } = loadSiteInfo(request.headers)
   const page_slug = params.slug
   const sessionToken = cookies.get("wikijump_token")

@@ -56,9 +56,6 @@ export function deleteSessionCookie(cookies: Cookies, requestUrl: string) {
     })
   }
 
-  // Also remove a pre-platform-cookie host-only session. This keeps logout
-  // and stale-session recovery correct while existing local browsers migrate
-  // to the shared native Wikijump cookie.
   cookies.delete(SESSION_COOKIE, {
     path: "/",
     httpOnly: true,

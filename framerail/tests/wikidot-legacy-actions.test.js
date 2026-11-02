@@ -435,8 +435,6 @@ test("initialized Rate stars preserve the live hidden score value", () => {
 })
 
 test("legacy printuser onclick is rebound without evaluating authored script", () => {
-  // Reading `onclick` would compile the inline attribute under the page CSP
-  // and report a violation, so the binder may only ever assign it.
   let handlerReads = 0
   const printuser = (href, userId) => {
     const attributes = new Map([

@@ -12,10 +12,6 @@ const AUTHENTICATED_HEADERS = {
   origin: `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 }
 
-/**
- * Encode a value in SvelteKit's flat devalue shape, as `deserialize`
- * expects.
- */
 const devalue = (value: unknown): string => {
   const flat: unknown[] = []
   const add = (item: unknown): number => {
@@ -66,7 +62,6 @@ const pageEntry = (timeline: number, comments: string) => ({
 
 const HISTORY = [pageEntry(2, "latest revision"), pageEntry(1, "older revision")]
 
-/** Open the history pane with crafted entries and a chosen edit permission. */
 const openHistory = async (
   page: import("@playwright/test").Page,
   canEdit: boolean,

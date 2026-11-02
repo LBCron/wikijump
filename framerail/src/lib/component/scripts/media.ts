@@ -62,11 +62,6 @@ class BreakpointMapping {
   }
 }
 
-/**
- * Singleton class for reading pre-made media queries reactively.
- *
- * @see {@link Media}
- */
 class MediaQueryHandler {
   store = writable<MediaQueryStore>({
     reducedMotion: false,
@@ -90,16 +85,11 @@ class MediaQueryHandler {
     this.refresh()
   }
 
-  /** True if `(prefers-reduced-motion: reduce)` is matched. */
   get reducedMotion() {
     if (!HAS_MATCH_MEDIA) return false
     return this._reducedMotion.matches
   }
 
-  /**
-   * Whether the query `(prefers-color-scheme: ?)` matches "light" or
-   * "dark". Defaults to "light" if this can't be determined.
-   */
   get colorScheme(): "light" | "dark" {
     if (!HAS_MATCH_MEDIA) return "light"
     return this._colorSchemeLight.matches
@@ -109,22 +99,16 @@ class MediaQueryHandler {
         : "light"
   }
 
-  /** True if `(any-hover: hover), (hover: hover)` is matched. */
   get canHover() {
     if (!HAS_MATCH_MEDIA) return true
     return this._canHover.matches
   }
 
-  /** The currently active breakpoint. */
   get breakpoint() {
     if (!HAS_MATCH_MEDIA) return "normal"
     return this.breakpoints.active()
   }
 
-  /**
-   * The current device orientation. Defaults to "landscape" if for some
-   * reason it can't be determined.
-   */
   get orientation(): "landscape" | "portrait" {
     if (!HAS_MATCH_MEDIA) return "landscape"
     return this._orientationLandscape.matches
@@ -151,7 +135,6 @@ class MediaQueryHandler {
     })
   }
 
-  /** Tests if a query passes or not. */
   test(query: string) {
     if (!HAS_MATCH_MEDIA) return false
     const mediaQuery = matchMedia(query)
@@ -168,7 +151,6 @@ class MediaQueryHandler {
    * @see {@link matchBreakpoint}
    */
   matchBreakpoint(query: BreakpointString) {
-    // figure out what operator to use
 
     let operator: Operator = "=="
 
@@ -180,7 +162,6 @@ class MediaQueryHandler {
       throw new Error(`Bad operator (${match[0]}) given in breakpoint string!`)
     }
 
-    // strip off operator to get breakpoint name
     const breakpoint = query.replace(/^[=<>]+/, "")
 
     if (!this.breakpoints.has(breakpoint)) {
@@ -203,27 +184,12 @@ class MediaQueryHandler {
   }
 }
 
-/**
- * Handler and helper singleton for reading media queries directly or
- * reactively. Queries can be read reactively because this object fulfills
- * the observable protocol.
- *
- * @example
- *   ;```svelte
- *   <!--
- *     Sets the class of the element between "dark" and "light", even when the user
- *     changes their preferred color scheme settings.
- *   -->
- *   <div class={$Media.colorScheme} />
- *   ```
- */
 export const Media = new MediaQueryHandler()
 
 const matchBreakpointStore = writable<MediaQueryHandler["matchBreakpoint"]>((query) =>
   Media.matchBreakpoint(query)
 )
 
-// update with new function reference whenever the breakpoint changes
 let lastBreakpoint: BreakpointName
 Media.subscribe((store) => {
   const current = store.breakpoint

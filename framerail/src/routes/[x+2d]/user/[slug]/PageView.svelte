@@ -9,8 +9,6 @@
     userData
   }: { data: PageData; userData: InferOutput<typeof userEditSchema> } = $props()
 
-  // The stored avatar follows the server-confirmed user record, so a removal
-  // that reloads the page data stops rendering it without a full navigation.
   let storedAvatar = $derived(
     data.user?.avatar_s3_hash
       ? `https://${data.site_file_domain}/-/avatar/${data.user.user_id}`
@@ -22,7 +20,6 @@
 
   $effect(() => {
     let url: string | undefined
-    // If the user has edited their avatar, preview the new avatar
     if (userData?.avatar) {
       url = URL.createObjectURL(userData.avatar)
       previewAvatar = url

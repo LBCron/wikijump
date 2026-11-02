@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 export interface HoverOpts {
-  /** If true, the element will be "hovered" when focused, too. */
   alsoOnFocus?: boolean
-  /** Callback fired when the element is hovered over. */
   on?: () => void
-  /** Callback fired when the element is no longer being hovered over. */
   off?: () => void
-  /** Callback fired whenever the pointer moves. */
   move?: () => void
 }
 
@@ -15,12 +11,9 @@ const HoverMediaQuery =
     ? matchMedia("(any-hover: hover), (hover: hover)")
     : ({ matches: true } as MediaQueryList)
 
-/** Observer for hover (and optionally focus) events. */
 export class HoverObserver {
-  /** Target hovered state. */
   private hovered = false
 
-  /** Target focused state. */
   private focused = false
 
   /**
@@ -89,7 +82,6 @@ export class HoverObserver {
     this.opts = opts
   }
 
-  /** Destroys the observer. */
   destroy() {
     this.target.removeEventListener("pointerover", this.pointerover)
     this.target.removeEventListener("pointerout", this.pointerout)

@@ -94,7 +94,6 @@
   $tablet-max-width: 767px;
 
   :root {
-    /* Fallback colors */
     --text: #111;
     --background: #fff;
     --border: #0006;
@@ -118,17 +117,10 @@
     display: none;
   }
 
-  // Wikidot hides legacy equations until its MathJax loader completes. The
-  // local imported shell does not run that remote loader, so keep the exact
-  // server-rendered equation body visible instead of losing it to the base
-  // stylesheet's display rule.
   #page-content .math-equation {
     display: block;
   }
 
-  // Wikidot's base stylesheet expects legacy JavaScript to open this menu.
-  // Imported themes such as Basalt already implement the hover/focus state in
-  // CSS; this fallback keeps the same account menu usable on ordinary themes.
   #login-status:hover > #account-options,
   #login-status:focus-within > #account-options {
     display: block;
@@ -146,7 +138,6 @@
 
   @media (prefers-color-scheme: light) {
     :root {
-      /* Fallback colors */
       --text: #111;
       --background: #fff;
       --border: #0006;
@@ -157,7 +148,6 @@
 
   @media (prefers-color-scheme: dark) {
     :root {
-      /* Fallback colors */
       --text: #b6c2cf;
       --background: #222;
       --border: #b6c2cf;
@@ -171,14 +161,5 @@
       height: initial;
     }
 
-    // Wikidot's Sigma-9 base stylesheet owns this shell's mobile navigation
-    // positioning, and the shell must not override it. Real Wikidot anchors
-    // `.mobile-top-bar` to the bottom left of the header box with
-    // `position: absolute; left: 1em; bottom: 0`, because `#header` is itself
-    // `position: relative`, and pins `.open-menu a` to a fixed bottom-left
-    // viewport button. Only navigation bars rendered inside page content are
-    // `position: static`, via a `#page-content` scoped rule. This DOM is
-    // imported navbar HTML rather than Svelte markup, so any shell rule here
-    // wins over the theme's own cascade and must leave the bar alone.
   }
 </style>

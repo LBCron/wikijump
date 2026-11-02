@@ -14,12 +14,6 @@ const WIKIDOT_ROUTE_PREFIX: Partial<Record<SiteIconSourceKind, string>> = {
   windows: "/local--wp8icon/"
 }
 
-/**
- * Whether an icon source is a same-origin local file route.
- *
- * Only these sources can be served without depending on Wikidot at request
- * time; anything else needs materialized bytes to avoid hotlinking.
- */
 export function isSiteLocalFileSource(source: string): boolean {
   return safeLocalFileSource(source)
 }
@@ -54,14 +48,6 @@ function sourceHasUnsafeText(source: string): boolean {
   return ENCODED_LINE_BREAK.test(source)
 }
 
-/**
- * Return a redirect location only when an icon source belongs to the site.
- *
- * Local sites may refer to a same-origin file route. Imported sites may
- * also refer to the matching Wikidot icon route or the matching wdfiles
- * file host. Arbitrary external URLs remain unsupported until the
- * configured image is downloaded into local file storage.
- */
 export function siteIconRedirectLocation(
   site: SiteIconSourceSite,
   source: string | null,
@@ -112,19 +98,6 @@ export function siteIconRedirectLocation(
   return null
 }
 
-/**
- * The local files path for a site-owned WDFiles attachment, or null.
- *
- * This is the same ownership reading the head derivation uses
- * (`siteIconRedirectLocation`): an imported site's own
- * `<slug>.wdfiles.com` `/local--files/` file is part of the mirror's
- * dependency set (the shape rule from the #2094 plan), so the
- * compatibility route resolves it to the local files path instead of
- * answering 404. The local files route serves bytes from local storage
- * when the blob exists and keeps its own redirect to the source otherwise,
- * so this mapping never hotlinks and never probes per URL. `www` hosts
- * never match: only the site's own file host counts.
- */
 export function siteOwnedLocalFilePath(
   site: SiteIconSourceSite,
   source: string | null

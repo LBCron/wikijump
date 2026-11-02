@@ -124,16 +124,12 @@ function isAuthorizedBasicAuth(credentials: BasicAuthCredentials): boolean {
     return false
   }
 
-  // Evaluate both comparisons so a username mismatch does not skip the
-  // password comparison and reveal whether the shared secret matched.
   const usernameMatches = timingSafeStringEquals(credentials.username, username)
   const passwordMatches = timingSafeStringEquals(credentials.password, password)
   return usernameMatches && passwordMatches
 }
 
 function timingSafeStringEquals(actual: string, expected: string): boolean {
-  // Hashing produces equal-length operands for timingSafeEqual, avoiding the
-  // early length branch while preserving exact string equality in practice.
   const actualDigest = createHash("sha256").update(actual, "utf8").digest()
   const expectedDigest = createHash("sha256").update(expected, "utf8").digest()
   return timingSafeEqual(actualDigest, expectedDigest)

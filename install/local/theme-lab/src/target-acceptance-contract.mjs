@@ -19,6 +19,7 @@ import {
 } from './verdict.mjs';
 import {applyRuntimeSurfaceParityGate,RUNTIME_SURFACE_PARITY} from './runtime-surface-parity.mjs';
 import {measureTargetBaselineViewportOverflow} from './target-baseline-viewport-probe.mjs';
+import {classifyViewportOverflowIssue,classifyViewportOverflowIssues,stateCapturesFromSurfaceCaptures} from './viewport-overflow-classification.mjs';
 import {localModuleClosureSha256} from './local-module-closure.mjs';
 import {runtimeSurfaceContractSha} from './browser-runtime-contract.mjs';
 
@@ -36,6 +37,10 @@ export const TARGET_ACCEPTANCE_CONTRACT = Object.freeze({
     attribution: 'candidate-minus-same-preview-target-baseline',
     candidate_layer_probe: 'blank-in-place-and-restore-in-finally',
     tolerance_px: DOCUMENT_OVERFLOW_TOLERANCE_PX,
+    // Issue #3381: findings carry a hard/parked/unknown state classification
+    // with parked/reveal/reference evidence. Severity is unchanged and the
+    // recorded per-package/per-rule exemptions remain the disposition.
+    state_classification: 'hard-parked-unknown-v1',
   },
   target_fixture_binding: ['baseline', 'sidebar', 'header', 'navigation'],
   program_module_closure_sha256: localModuleClosureSha256(new URL('./session-server.mjs',import.meta.url),{root:themeLabRoot}),
@@ -69,5 +74,8 @@ export const TARGET_ACCEPTANCE_CONTRACT_SHA256 = crypto.createHash('sha256')
     overallAcceptance,
     applyRuntimeSurfaceParityGate,
     buildVerdict,
+    classifyViewportOverflowIssue,
+    classifyViewportOverflowIssues,
+    stateCapturesFromSurfaceCaptures,
   ].map(fn=>fn.toString()).join('\0'))
   .digest('hex');

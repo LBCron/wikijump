@@ -62,6 +62,7 @@ import {
 import {TORTURE_VIEWPORTS, runTortureCorpus} from "./torture-corpus.mjs";
 import {ACCEPTANCE_VIEWPORTS} from "./acceptance-viewports.mjs";
 import {buildVerdict, expandVerdict} from "./verdict.mjs";
+import {stateCapturesFromSurfaceCaptures} from "./viewport-overflow-classification.mjs";
 import {annotateRuntimeSurfaceUsage, applyRuntimeSurfaceParityGate} from "./runtime-surface-parity.mjs";
 import {captureVisualPair} from "./visual-diff.mjs";
 import {bindVisualAcceptance} from "./visual-acceptance.mjs";
@@ -709,6 +710,11 @@ export function createSession({
         torture: tortureResult,
         viewports: viewportOverflow,
         baselineViewports: baselineViewportOverflow,
+        // Captured interactive (surface-contract) states are the reveal-state
+        // evidence for the state-aware viewport_overflow classification. No
+        // frozen-reference viewport diagnostics are captured in this run, so
+        // reference geometry stays unasserted (null) rather than invented.
+        overflowStateCaptures: stateCapturesFromSurfaceCaptures(surfaceContractDiagnostics?.captures ?? []),
         fontDiagnostics,
         interactionDiagnostics,
         imageDiagnostics,

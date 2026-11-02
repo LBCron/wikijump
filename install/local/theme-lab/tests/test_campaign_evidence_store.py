@@ -150,6 +150,33 @@ class CampaignEvidenceStoreTests(unittest.TestCase):
             self.restore(apply=True, link=True)
         self.assertEqual(receipt.read_bytes(), b'{"forged":true}\n')
 
+    def test_living_ledger_is_accepted_as_checkout_version_and_never_overwritten(self):
+        ledger_rel = 'ports/current-acceptance/faithful-design-exemptions.json'
+        self.assertIn(ledger_rel, campaign.LIVING_FILES)
+        frozen = b'{"entries":"frozen"}\n'
+        target = self.theme_lab / ledger_rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(frozen)
+        self.build()
+
+        applied = self.restore(apply=True, link=True)
+        self.assertEqual(applied['living_files'],
+                         [{'path': ledger_rel, 'treatment': 'frozen-copy-restored'}])
+        restored_ledger = self.restored / LAB / ledger_rel
+        self.assertEqual(restored_ledger.read_bytes(), frozen)
+
+        # A later instrument rebind rewrites the ledger in the checkout; the
+        # next restore must accept those bytes and leave them untouched,
+        # while every frozen file is still byte-verified (see the receipt
+        # forgery test above).
+        rebound = b'{"entries":"rebound to a newer instrument"}\n'
+        restored_ledger.unlink()
+        restored_ledger.write_bytes(rebound)
+        again = self.restore(apply=True, link=True)
+        self.assertEqual(again['living_files'],
+                         [{'path': ledger_rel, 'treatment': 'checkout-version-accepted'}])
+        self.assertEqual(restored_ledger.read_bytes(), rebound)
+
     def test_symlink_ancestor_in_destination_is_refused(self):
         self.build()
         elsewhere = self.root / 'elsewhere'

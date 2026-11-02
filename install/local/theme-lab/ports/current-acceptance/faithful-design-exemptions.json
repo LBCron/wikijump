@@ -110,7 +110,7 @@
       "id": "G2-47-cosmonaut-hovertip",
       "instrument": "full_check_target",
       "package": "cosmonaut",
-      "target_acceptance_contract_sha256": "df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a"
+      "target_acceptance_contract_sha256": "dc7fd55cf685154e60c2c8d482e594170be26563cd8ada16e468b3d08a9c74bb"
     },
     {
       "basis": "OD-T3-a (owner decision 2026-10-29): Q1-4 provenance only, per TAIL-C1-EVIDENCE.md (C1 CLEAN: 108/108 history-chain width rules in this candidate are byte-identical to the frozen shared BHL replay assets; no candidate-authored rule affects the history table). The frozen EN reference does NOT overflow for this finding (before_px 0); the 442px table.form width is inherited from the JP lineage. This entry does not claim parity with the reference. Scoped to this package, surface page.history, state history-list, viewport mobile and this exact ordered overflow_sources chain only; a target waived through this entry may rise to warn, never pass.",
@@ -174,7 +174,7 @@
       "id": "OD-T3-a-ouroborous-surface-history",
       "instrument": "full_check_target",
       "package": "ouroborous-theme",
-      "target_acceptance_contract_sha256": "df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a"
+      "target_acceptance_contract_sha256": "dc7fd55cf685154e60c2c8d482e594170be26563cd8ada16e468b3d08a9c74bb"
     },
     {
       "basis": "OD-T3-a (owner decision 2026-10-29): Q1-4 provenance only, per TAIL-C1-EVIDENCE.md (C1 CLEAN: 108/108 history-chain width rules in this candidate are byte-identical to the frozen shared BHL replay assets; no candidate-authored rule affects the history table). The frozen EN reference does NOT overflow for this finding (before_px 0); the 460px table.form width is inherited from the JP lineage. This entry does not claim parity with the reference. Scoped to this package, surface page.history, state history-list, viewport mobile and this exact ordered overflow_sources chain only; a target waived through this entry may rise to warn, never pass.",
@@ -238,7 +238,7 @@
       "id": "OD-T3-a-scp-offices-surface-history",
       "instrument": "full_check_target",
       "package": "scp-offices-theme",
-      "target_acceptance_contract_sha256": "df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a"
+      "target_acceptance_contract_sha256": "dc7fd55cf685154e60c2c8d482e594170be26563cd8ada16e468b3d08a9c74bb"
     },
     {
       "id": "OD-T1-space-02afa837c959-S9",

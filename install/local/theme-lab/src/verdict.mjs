@@ -5,6 +5,7 @@
 // asks for raw detail explicitly.
 
 import {applyRuntimeSurfaceParityGate, RUNTIME_SURFACE_PARITY} from "./runtime-surface-parity.mjs";
+import {classifyViewportOverflowIssues} from "./viewport-overflow-classification.mjs";
 
 export const DEFAULT_LIMITS = Object.freeze({
   topIssues: 12,
@@ -82,7 +83,7 @@ export function issuesFromTorture(torture) {
   }));
 }
 
-export function issuesFromViewports(viewports, baselineViewports = null) {
+export function issuesFromViewports(viewports, baselineViewports = null, classificationContext = null) {
   const issues = [];
   for (const [id, viewport] of Object.entries(viewports ?? {})) {
     const documentOverflow = viewport?.document_overflow_px ?? 0;
@@ -102,7 +103,10 @@ export function issuesFromViewports(viewports, baselineViewports = null) {
         overflow_sources: viewport?.overflow_sources ?? []});
     }
   }
-  return issues;
+  // State-aware classification (issue #3381) only annotates findings: every
+  // issue keeps its severity, kind, keys and measurements, so the recorded
+  // per-package/per-rule exemptions remain the disposition channel.
+  return classifyViewportOverflowIssues(issues, classificationContext ?? {});
 }
 
 export function issuesFromPreview(preview) {
@@ -289,6 +293,8 @@ export function buildVerdict({
   torture = null,
   viewports = null,
   baselineViewports = null,
+  overflowStateCaptures = null,
+  referenceViewports = null,
   fontDiagnostics = null,
   interactionDiagnostics = null,
   imageDiagnostics = null,
@@ -304,7 +310,7 @@ export function buildVerdict({
   const rawIssues = [
     ...issuesFromSelectorDiagnosis(reference?.diagnosis),
     ...issuesFromTorture(torture),
-    ...issuesFromViewports(viewports, baselineViewports),
+    ...issuesFromViewports(viewports, baselineViewports, {stateCaptures: overflowStateCaptures ?? [], referenceViewports}),
     ...issuesFromPreview(preview),
     ...issuesFromInteractions(interactionDiagnostics),
     ...(imageDiagnostics?.broken ?? []).map((image) => ({

@@ -63,11 +63,13 @@ test('admitted target-acceptance instruments are pinned to their recorded values
   assert.deepEqual(TARGET_ACCEPTANCE_INSTRUMENT_SUCCESSORS.map(entry => entry.sha256), [
     '1811b3b4bdb78d1d6a52584cd0f7c2bbaee39480498a9a017eb40498a4835131',
     '34e17dbac84038b1e9960a42ad7931b255baf3bd2e5ca219f6a2f62d79c8e2d4',
+    'dc7fd55cf685154e60c2c8d482e594170be26563cd8ada16e468b3d08a9c74bb',
   ]);
   assert.deepEqual([...ADMITTED_TARGET_ACCEPTANCE_CONTRACT_SHA256S], [
     'df8e0b532decad8636fc7d5488c44d6c08e0bdc525a02eae8330c19554487a0a',
     '1811b3b4bdb78d1d6a52584cd0f7c2bbaee39480498a9a017eb40498a4835131',
     '34e17dbac84038b1e9960a42ad7931b255baf3bd2e5ca219f6a2f62d79c8e2d4',
+    'dc7fd55cf685154e60c2c8d482e594170be26563cd8ada16e468b3d08a9c74bb',
   ]);
 });
 

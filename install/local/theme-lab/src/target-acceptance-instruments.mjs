@@ -49,6 +49,12 @@ export const TARGET_ACCEPTANCE_INSTRUMENT_SUCCESSORS = Object.freeze([
     change: 'browser resolution only: loadChromium() prefers @playwright/test over bare playwright, and resolveBrowser skips any candidate not present under <browserRoot>/node_modules/<name> (issue #3409 stray-ancestor Playwright fix)',
     basis: 'browser-resolution equivalence: in a correctly installed framerail root (its own node_modules contains @playwright/test 1.64.1) loadChromium() resolves the exact same package and browser build before and after — demonstrated on this workstation: @playwright/test 1.64.1, chromium-1248, browser 156.0.8078.4 (the closure browser version) in a stray-free ancestor chain both before and after; with the stray ~/node_modules playwright@1.61.0 ancestor present, before resolved chromium-1228/149.0.7827.55 (the #3409 defect) and after resolves the same 1248/156.0.8078.4. The only behavior that changes is the ancestor fall-through, which was the defect; no measurement function, recorded value, or verdict computation changes, only the instrument identity stamped into future verdicts',
   }),
+  Object.freeze({
+    sha256: 'dc7fd55cf685154e60c2c8d482e594170be26563cd8ada16e468b3d08a9c74bb',
+    admitted: '2026-11-03',
+    change: 'state-aware viewport_overflow gate (issue #3381): the target acceptance contract gains viewport_overflow.state_classification hard-parked-unknown-v1 and the classification functions join its hashed function set, buildVerdict annotates every viewport_overflow finding as hard, parked or unknown from the captured interactive states, session-server passes those captures into the verdict, and the three full_check_target exemption entries rebind to this instrument',
+    basis: 'annotation-only equivalence: classification annotates findings without changing severity, item keys, measurements or overflow_sources, drops nothing and auto-passes nothing, and parked dispositions still settle through the per-package/per-rule exemption ledger; the classifier tests and the buildVerdict integration test assert unchanged severity and counts on the canonical fixture shapes, so recorded measurements stay comparable and only the instrument identity stamped into future verdicts moves',
+  }),
 ]);
 
 export const ADMITTED_TARGET_ACCEPTANCE_CONTRACT_SHA256S = Object.freeze([

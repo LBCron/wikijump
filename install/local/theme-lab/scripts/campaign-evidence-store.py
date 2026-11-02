@@ -26,6 +26,12 @@ and verified in the store. Anything else keeps failing closed on the
 byte comparison, and the frozen record stays verifiable from the store.
 When the #3381 LIVING_FILES exception (PR #3399) lands at the next
 campaign freeze, it sits beside this mechanism, not in place of it.
+Exception: paths in LIVING_FILES are living disposition records whose contents
+legitimately move after the campaign closes (the exemption ledger's contract
+bindings track the current acceptance instrument). Restore accepts the
+checkout's current version of a living file and never overwrites it; the
+frozen copy stays in the store and the published inventory. A checkout that
+has no living file yet receives the frozen copy as its starting point.
 """
 import argparse
 import importlib.util
@@ -63,6 +69,12 @@ SUCCESSOR_BOUND_PREFIXES = ('ports/black-highlighter-theme/option-scenarios/runs
 _SUCCESSOR_RUNS_PREFIX = SUCCESSOR_BOUND_PREFIXES[0]
 _SUCCESSOR_CAPTURES_PREFIX = SUCCESSOR_BOUND_PREFIXES[1]
 _SUCCESSOR_SCREENSHOT_SEPARATOR = '/install/local/theme-lab/'
+# Post-closure living files (owner decision, 2026-10-30, issue #3381). See the
+# module docstring: restore accepts the checkout's current version of these
+# paths instead of verifying them against the frozen inventory.
+LIVING_FILES = frozenset({
+    'ports/current-acceptance/faithful-design-exemptions.json',
+})
 # Directory trees (theme-lab relative) that the campaign depends on. Each one
 # is enumerated only if it exists; a missing tree simply contributes nothing,
 # and the completion check decides whether that is acceptable.
@@ -452,13 +464,15 @@ def restore(checkout_root, store_root, inventory_path, expected_sha, *, apply=Fa
         raise ValueError('restore destination is not a checkout with a Theme Lab directory')
     theme_lab = checkout / THEME_LAB_REL
     entries, _objects = campaign_inventory_files(theme_lab, Path(inventory_path), expected_sha)
+    living = {rel: entries[rel] for rel in LIVING_FILES if rel in entries}
     bound = successor_bound_plan(theme_lab, store_root, entries)
     bound_paths = {row['path'] for row in bound}
 
     def reader(destination, inventory, sha):
         filtered, objects = campaign_inventory_files(destination, inventory, sha)
-        if bound_paths:
-            filtered = {rel: value for rel, value in filtered.items() if rel not in bound_paths}
+        drop = bound_paths | set(living)
+        if drop:
+            filtered = {rel: value for rel, value in filtered.items() if rel not in drop}
             objects = {}
             for digest, size in filtered.values():
                 if digest in objects and objects[digest] != size:
@@ -468,6 +482,22 @@ def restore(checkout_root, store_root, inventory_path, expected_sha, *, apply=Fa
 
     result = store.transfer(store_root, theme_lab, inventory_path, expected_sha, mode='restore',
                             apply=apply, link=link, reader=reader)
+    result['living_files'] = []
+    for rel, (digest, size) in sorted(living.items()):
+        target = authority.safe_file(theme_lab, rel, existing=False)
+        if target.exists():
+            result['living_files'].append({'path': rel, 'treatment': 'checkout-version-accepted'})
+            continue
+        if not apply:
+            result['living_files'].append({'path': rel, 'treatment': 'absent (verification only)'})
+            continue
+
+        def living_reader(destination, path, sha, _rel=rel, _entry=(digest, size)):
+            return {_rel: _entry}, {_entry[0]: _entry[1]}
+
+        store.transfer(store_root, theme_lab, inventory_path, expected_sha, mode='restore',
+                       apply=True, link=link, reader=living_reader)
+        result['living_files'].append({'path': rel, 'treatment': 'frozen-copy-restored'})
     result['successor_bound'] = bound
     result['successor_bound_count'] = len(bound)
     result['bindings_verified'] = verify_bindings(theme_lab, inventory_path, required=apply)

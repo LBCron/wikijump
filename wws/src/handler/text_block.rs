@@ -35,6 +35,16 @@ use sha1::{Digest, Sha1};
 
 const MAX_TEXT_BLOCK_OBJECT_BYTES: usize = 16 * 1024 * 1024;
 
+/// How many times a text block request may run the Deepwell lookup and the
+/// S3 fetch before giving up.
+///
+/// The lookup and the fetch are separate steps, and a re-render landing
+/// between them replaces the block: its row switches to a new S3 object and
+/// the old object is deleted once the replacement commits. A fetch that
+/// misses an object the lookup just returned is therefore retried against
+/// a fresh lookup instead of surfacing as an error.
+const MAX_TEXT_BLOCK_ATTEMPTS: u32 = 3;
+
 const HTML_BLOCK_DOCUMENT_PREFIX: &[u8] = br#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html id="html-block-html" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-type" content="text/html; charset=utf-8"/><link rel="stylesheet" href="/common--theme/base/css/html-block.css"/></head><body>
 "#;
@@ -637,12 +647,18 @@ mod tests {
     const CODE_XML_S3_KEY: &str = "text-blocks/immutable-code-xml";
     const CODE_CSS_S3_KEY: &str = "text-blocks/immutable-code-css";
     const CODE_JS_S3_KEY: &str = "text-blocks/immutable-code-js";
+    const REPLACED_OLD_S3_KEY: &str = "text-blocks/replaced-old-object";
+    const REPLACED_NEW_S3_KEY: &str = "text-blocks/replaced-new-object";
+    const GONE_S3_KEY: &str = "text-blocks/gone-object";
+    const REPLACED_INDEX: u64 = 9;
+    const GONE_INDEX: u64 = 10;
     const MISMATCH_SHA1: &str = "1234567890abcdef1234567890abcdef12345678";
     const MISSING_SHA1: &str = "abcdef0123456789abcdef0123456789abcdef01";
 
     #[derive(Debug)]
     struct MutableTextBlockMock {
         pages: Mutex<HashMap<String, i64>>,
+        block_lookups: Mutex<HashMap<u64, usize>>,
     }
 
     impl MutableTextBlockMock {
@@ -650,6 +666,24 @@ mod tests {
             let mut pages = self.pages.lock().unwrap();
             pages.remove("old-page");
             pages.insert("new-page".to_owned(), PAGE_ID);
+        }
+
+        /// Records one lookup for the given block index and returns how
+        /// many lookups that index has now seen.
+        fn count_block_lookup(&self, index: u64) -> usize {
+            let mut lookups = self.block_lookups.lock().unwrap();
+            let count = lookups.entry(index).or_insert(0);
+            *count += 1;
+            *count
+        }
+
+        fn block_lookup_count(&self, index: u64) -> usize {
+            self.block_lookups
+                .lock()
+                .unwrap()
+                .get(&index)
+                .copied()
+                .unwrap_or(0)
         }
     }
 
@@ -665,6 +699,7 @@ mod tests {
         async fn spawn() -> Self {
             let mock = Arc::new(MutableTextBlockMock {
                 pages: Mutex::new(HashMap::from([("old-page".to_owned(), PAGE_ID)])),
+                block_lookups: Mutex::new(HashMap::new()),
             });
             let services = Router::new()
                 .route("/", post(mock_rpc))
@@ -793,6 +828,21 @@ mod tests {
                             Some(2) => CODE_XML_S3_KEY,
                             Some(3) => CODE_CSS_S3_KEY,
                             Some(4) => CODE_JS_S3_KEY,
+                            // A block mid-replacement: the first lookup
+                            // names the old object, later lookups name
+                            // the replacement object.
+                            Some(REPLACED_INDEX) => {
+                                if state.count_block_lookup(REPLACED_INDEX) == 1 {
+                                    REPLACED_OLD_S3_KEY
+                                } else {
+                                    REPLACED_NEW_S3_KEY
+                                }
+                            }
+                            // A block whose object never comes back.
+                            Some(GONE_INDEX) => {
+                                state.count_block_lookup(GONE_INDEX);
+                                GONE_S3_KEY
+                            }
                             _ => CODE_BLOCK_S3_KEY,
                         },
                         block_type => panic!("unexpected text block type: {block_type}"),
@@ -815,6 +865,13 @@ mod tests {
     }
 
     async fn mock_text_block_s3(Path(path): Path<String>) -> Response {
+        // Objects deleted by a replacement (or never uploaded) are gone.
+        if path.ends_with(REPLACED_OLD_S3_KEY) || path.ends_with(GONE_S3_KEY) {
+            return Response::builder()
+                .status(StatusCode::NOT_FOUND)
+                .body(Body::empty())
+                .unwrap();
+        }
         let (content_type, body): (&'static str, &'static [u8]) =
             if path.ends_with(HTML_BLOCK_S3_KEY) {
                 ("text/html", HTML_BLOCK_BYTES)
@@ -824,6 +881,8 @@ mod tests {
                 ("text/css", b"moved content")
             } else if path.ends_with(CODE_JS_S3_KEY) {
                 ("text/javascript", b"moved content")
+            } else if path.ends_with(REPLACED_NEW_S3_KEY) {
+                ("text/plain", b"replacement content")
             } else {
                 ("text/plain", b"moved content")
             };
@@ -1356,5 +1415,38 @@ mod tests {
 
         assert!(is_deepwell_permission_denied(&denied));
         assert!(!is_deepwell_permission_denied(&other));
+    }
+
+    #[tokio::test]
+    async fn code_block_replaced_between_lookup_and_fetch_is_served() {
+        let app = TextBlockTestApp::spawn().await;
+
+        // The first lookup names the pre-replacement object, which the
+        // replacement has already deleted. The request must look the block
+        // up again and serve the replacement instead of failing.
+        let response = app
+            .get(&format!("/-/code/old-page/{REPLACED_INDEX}"))
+            .await;
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.bytes().await.unwrap(),
+            &b"replacement content\n"[..]
+        );
+        assert_eq!(app.mock.block_lookup_count(REPLACED_INDEX), 2);
+    }
+
+    #[tokio::test]
+    async fn code_block_with_a_permanently_missing_object_still_errors() {
+        let app = TextBlockTestApp::spawn().await;
+
+        // The object never comes back, so the bounded retries run out and
+        // the request ends in the same fetch error as before, after a
+        // bounded number of lookups.
+        let response = app.get(&format!("/-/code/old-page/{GONE_INDEX}")).await;
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(
+            app.mock.block_lookup_count(GONE_INDEX),
+            MAX_TEXT_BLOCK_ATTEMPTS as usize
+        );
     }
 }

@@ -77,7 +77,15 @@ if ! {
 fi
 mapfile -d '' -t CHANGED_PATHS < "${CHANGED_PATHS_FILE}"
 
-if [[ ${#CHANGED_PATHS[@]} -eq 0 && -z "${ONLY_GROUPS}" ]]; then
+# --list is a query, not a gate: the consolidated-validation workflow's
+# plan step reads the group universe from the "preflight: groups:" line
+# below and then applies its own selection (the nightly set on schedule
+# runs), so listing must print that line even when the change-set is
+# empty - a scheduled run's base is its own head and the diff is empty
+# by construction. Without --list an empty change-set still ends here,
+# and the consolidated runner still refuses to seal a pass over a
+# preflight that ran no checks.
+if [[ ${#CHANGED_PATHS[@]} -eq 0 && -z "${ONLY_GROUPS}" && "${LIST}" != true ]]; then
   echo "preflight: no changes against ${BASE}; nothing to check"
   exit 0
 fi

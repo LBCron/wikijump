@@ -26,7 +26,6 @@ const reference = (caseId, source) => ({
   syntax_case: {case_id: caseId, source},
 });
 
-// One page carries the pinned note; every page carries ordinary module syntax.
 const PINNED_NOTE = "NOTE: module end is at bottom of page";
 const corpus = buildCorpusIndex([
   reference("en:scp-7992", `[[module ListPages limit="1" ${PINNED_NOTE}]]\n[[/module]]`),
@@ -222,8 +221,6 @@ test("duplicate allowlist entries are rejected", () => {
 });
 
 test("a corpus record that is not a live reference is rejected", () => {
-  // Dropping records silently would shrink the corpus, make every literal look
-  // rarer, and manufacture findings. Refuse the input instead.
   assert.throws(() => buildCorpusIndex([{syntax_case: {case_id: "a", source: "x"}}]), /not a/u);
   assert.throws(
     () => buildCorpusIndex([{schema: REFERENCE_SCHEMA, syntax_case: {}}]),
@@ -243,8 +240,6 @@ test("the checked-in allowlist is valid", () => {
 });
 
 test("a short rare literal is a notice, not a finding", () => {
-  // Short markup vocabulary is rare in a ListPages corpus without being page
-  // content, so it must never fail a strict run on its own.
   const short = "%%x%%";
   assert.ok(short.length < MIN_FINDING_LENGTH);
   const shortCorpus = buildCorpusIndex([
@@ -276,7 +271,6 @@ test("the CLI parses its options and requires a corpus", () => {
     paths: ["some/path"],
   });
   assert.equal(parseArgs(["--corpus", "a.jsonl", "--strict"]).strict, true);
-  // pnpm run forwards its own separator ahead of the real arguments.
   assert.deepEqual(parseArgs(["--", "--corpus", "a.jsonl"]).corpus, ["a.jsonl"]);
   assert.equal(parseArgs(["--corpus", "a.jsonl", "--corpus", "b.jsonl"]).corpus.length, 2);
   assert.equal(parseArgs(["--corpus", "a.jsonl", "--max-cases", "20"]).maxCases, 20);

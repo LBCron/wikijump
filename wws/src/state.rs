@@ -96,8 +96,6 @@ pub async fn build_server_state(
 }
 
 impl ServerStateInner {
-    // Contains implementations for the common pattern of "check the cache,
-    // if not present, get it from DEEPWELL and populate it".
 
     pub async fn get_or_cache_site_domain(&self, site_id: i64) -> Result<String> {
         self.cache
@@ -112,7 +110,6 @@ impl ServerStateInner {
         match self.get_or_cache_site_domain(site_id).await {
             Ok(domain) => Ok(domain),
             Err(error) => {
-                // XF-1003
                 error!(
                     site_id = site_id,
                     "Could not fetch preferred site domain: {error}",
@@ -166,9 +163,6 @@ impl ServerStateInner {
         filename: &str,
         session_token: Option<&str>,
     ) -> Result<Option<FileData>> {
-        // File metadata is permission-sensitive.  Re-ask DEEPWELL on every
-        // request so a cached response cannot bypass a changed Page:View
-        // policy or reuse one actor's authorization for another actor.
         self.deepwell
             .get_file(site_id, page_id, filename, session_token)
             .await
@@ -438,8 +432,6 @@ mod tests {
         let (deepwell_url, requests, server) = spawn_file_rpc().await;
         let mut secrets = test_secrets(true);
         secrets.deepwell_url = deepwell_url;
-        // No Redis server is available on this port. A file request must not
-        // consult the old unqualified metadata cache before checking ACLs.
         secrets.redis_url = str!("redis://127.0.0.1:1/");
         let state = build_server_state(false, secrets).await.unwrap();
 

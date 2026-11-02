@@ -93,7 +93,6 @@ test("a standing promotion builds only the application images, side by side, and
     buildImage: async (entry) => {
       started.push(entry.role);
       if (started.length === APPLICATION_IMAGE_ROLES.length) release();
-      // Every build must have started before any finishes.
       await allStarted;
       return {image_id: `sha256:${String(started.indexOf(entry.role) + 1).repeat(64)}`, os: "linux", architecture: "amd64"};
     },

@@ -27,10 +27,6 @@ import { escapeMarkdownTableCell } from "./lib/markdown.mjs";
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(scriptDirectory, "..");
 
-// Per-run memoization of evidence bytes. The same evidence file is referenced
-// by many observations, contracts, and aliases; reading and re-hashing it once
-// per reference is avoidable I/O. Scoped to this process only, and every
-// reference still re-verifies its own expected SHA-256 against the bytes.
 const evidenceFileBytes = new Map();
 function readEvidenceFile(path) {
   let bytes = evidenceFileBytes.get(path);
@@ -186,21 +182,6 @@ for (const supplement of specSupplements.supplements) {
   );
 }
 
-// Evidence availability pre-scan.
-//
-// The generator cites evidence files that live OUTSIDE this repository
-// (the oracle store, e.g. /mnt/oracle-store). Those files are evidence,
-// not source: when the store is not present in this environment, the
-// affected specifications cannot be validated at all, which is an
-// INCONCLUSIVE result (exit status 2, the preflight convention), not a
-// validation failure. Files that are present but whose hashes drifted
-// still fail in the main validation flow below, exactly as before, and
-// missing files INSIDE the repository remain hard failures there too.
-//
-// The scan enumerates every external citation the main flow consults:
-// live-observation raw captures, the external indices bound by live
-// evidence rows (SHA256SUMS, index files, and their raw entries), and
-// detailed-contract evidence aliases with external paths.
 function isExternalEvidencePath(path) {
   return (
     typeof path === "string" &&
@@ -246,8 +227,6 @@ function scanLiveObservationEvidence() {
     for (const evidence of observation.evidence ?? []) {
       const evidencePath = resolve(repositoryRoot, evidence.path);
       if (isExternalEvidencePath(evidencePath)) {
-        // The evidence file itself lives in the external store; cite it
-        // (and, when present, the external files its rows bind).
         cited.push(evidencePath);
         if (!existsSync(evidencePath)) {
           continue;
@@ -1526,8 +1505,6 @@ function validateDetailedContracts() {
     "Detailed feature contract feature count does not match the source-gap snapshot",
   );
 
-// Detailed-contract evidence aliases can also cite external files; the
-// same availability rule applies (see scanLiveObservationEvidence).
 {
   const cited = [];
   for (const evidence of Object.values(detailedEvidenceAliases)) {

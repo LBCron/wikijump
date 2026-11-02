@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Like `try!()` or `?`, except it returns a `Response` for the error case.
-/// This is for functions which return `Response` rather than `Result<T, E>`.
 macro_rules! try_response {
     ($future:expr $(,)?) => {
         match $future.await {

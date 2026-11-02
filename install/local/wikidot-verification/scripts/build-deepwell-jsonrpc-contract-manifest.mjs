@@ -219,9 +219,6 @@ async function endpointSources(root) {
   return byHandler
 }
 
-// An endpoint file may define handlers in a private child module and
-// re-export them (`pub use child::{a, b};`). Only names the top-level file
-// re-exports are handlers; other child functions stay helpers.
 function reexportedFunctions(relativePath, topLevel, moduleFunctions) {
   const moduleDirectory = relativePath.replace(/\.rs$/u, "")
   const entries = []

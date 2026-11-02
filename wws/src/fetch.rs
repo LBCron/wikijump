@@ -59,13 +59,6 @@ pub async fn fetch_file_info(
     page_slug: &mut String,
     filename: &str,
 ) -> ResponseResult<FileData> {
-    // Stored page slugs keep every colon (e.g.
-    // `art:scp-8200:the-phantom-sea`: category `art`, the rest is the
-    // name, per site-structure/page-categories.md L0044-L0046), while
-    // `normalize` merges all but the last colon into dashes for page-URL
-    // tolerance. Resolving by the exact slug first keeps multi-colon
-    // attachments on local bytes; the normalized form is only a fallback
-    // for URLs that need case, underscore, or unicode tolerance.
     match resolve_file_info(state, headers, site_id, page_slug, filename).await {
         Ok(info) => Ok(info),
         Err(response) if response.status() == StatusCode::NOT_FOUND => {
@@ -122,13 +115,6 @@ pub async fn fetch_full_body(
             Ok(Body::from_stream(bytes))
         }
         Err(error) => {
-            // NOTE: If the error here is 404 we still return 500.
-            //
-            //       If we have a file record for a file, then the
-            //       corresponding blob *should* exist.
-            //
-            //       If it doesn't, the data invariant is not being met,
-            //       which is an unexpected error.
             error!(
                 site_id = site_id,
                 page_slug = page_slug,
@@ -153,8 +139,6 @@ pub async fn fetch_full_body(
     }
 }
 
-// Fetch a single byte range as a stream by cloning the bucket and
-// injecting an HTTP Range header, so we never buffer the range in memory
 pub async fn fetch_range_stream(
     state: &ServerState,
     file_info: &FileData,
@@ -180,7 +164,6 @@ pub async fn fetch_range_stream(
     Ok(Body::from_stream(bytes))
 }
 
-// Fetch a single byte range into memory (used for multipart assembly)
 pub async fn fetch_range_bytes(
     state: &ServerState,
     file_info: &FileData,

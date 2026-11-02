@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Structures for error handling within Rust.
 
 use axum::response::Response;
 use jsonrpsee::core::ClientError;
@@ -40,7 +39,6 @@ pub(crate) fn is_deepwell_permission_denied(error: &Error) -> bool {
     )
 }
 
-/// Wrapper error for possible upstream errors.
 #[derive(ThisError, Debug)]
 pub enum Error {
     #[error("DEEPWELL API error: {0}")]

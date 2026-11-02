@@ -199,8 +199,6 @@ test("an aborted streamed response does not crash the proxy", async () => {
 
 test("an upstream that never responds is bounded and denied", async () => {
   const upstream = await listen(() => {
-    // Deliberately leave the request open. The proxy must not leave a browser
-    // navigation waiting forever on this external resource.
   });
   const proxy = await startCaptureEgressProxy({
     allowedLocalOrigins: [`http://fixture.test:${upstream.port}`],

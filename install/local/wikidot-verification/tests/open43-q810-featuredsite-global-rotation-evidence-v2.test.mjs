@@ -17,7 +17,6 @@ const requirementsPath = "install/local/wikidot-verification/requirements.txt";
 const historicalRequirementsPath = "install/local/wikidot-verification/requirements-2434bf77744488cb2095327c9e0e4450add78df3.txt";
 const historicalScriptSha256 = "e1bf38153d5110750853f423fcb095554b5c99739a8761eea0006a1056bae6a4";
 const requirementsLockPath = "install/local/wikidot-verification/requirements.lock";
-// The frozen capture ran with the pre-bump lock; the current lock is checked by the lock-bump tests.
 const historicalRequirementsLockSha256 = "8f2ec862f6f0358b5f0aea8ca6edd40c1ef043c2f0391701217fd907c2ae82e1";
 const producerOffsets = [0, 4, 8, 12, 32, 36, 56, 60];
 const negativeOffsets = [64, 68];

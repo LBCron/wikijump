@@ -1,10 +1,3 @@
-/**
- * Avatar drill plan tests.
- *
- * The drill mutates standing and has NOT been run; these tests cover only
- * the offline plan builder and the CLI surface. No network, database, or
- * cache contact happens here.
- */
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -164,8 +157,6 @@ test("dry-run summary names every step without resolving bindings", () => {
   for (const step of [...plan.steps, ...plan.cleanup]) {
     assert.match(text, new RegExp(step.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
-  // The dry run is truthful: it prints the actual request payloads, so a
-  // reviewer approves the exact SQL, URLs, and cache commands.
   assert.match(text, /avatar_s3_hash IS NOT NULL/);
   assert.match(text, /\{\{create-probe-user\.user_id\}\}/);
   assert.match(text, /"kind":"db"/);
@@ -176,10 +167,6 @@ test("the probe email passes the deepwell email validator and reaches no inbox",
   const plan = buildAvatarDrillPlan(BASE_CONFIG);
   const create = plan.steps.find((step) => step.id === "create-probe-user");
   const email = create.request.params.email;
-  // Local part is the drill-unique probe username (never a registered mailbox);
-  // the domain is MX-backed and never disposable/spam, so user_create's
-  // EmailService::validate_when_available + check_email_validation accept it,
-  // unlike a reserved .invalid domain (4105 InvalidEmail live).
   assert.equal(email, `${BASE_CONFIG.probeUsername}@gmail.com`);
   assert.ok(!email.endsWith(".invalid"), "reserved domain fails MailCheck");
   const text = summarizeDrillPlan(plan);
@@ -189,13 +176,10 @@ test("the probe email passes the deepwell email validator and reaches no inbox",
 test("RPC auth splits the service token from the session token", () => {
   const env = { DEEPWELL_RPC_TOKEN: "service-token", AVATAR_DRILL_SESSION_TOKEN: "session-token" };
   const headers = rpcHeaders(env);
-  // RpcAuthLayer only honors Authorization Bearer for the SERVICE token ...
   assert.equal(headers.authorization, "Bearer service-token");
-  // ... while RequestContextLayer reads the session only from here.
   assert.equal(headers["X-Deepwell-Session-Token"], "session-token");
   assert.ok(!headers.authorization.includes("session-token"), "session must never ride Bearer");
   assert.ok(!Object.values(headers).join(" ").includes("undefined"));
-  // Fail closed when either credential is missing instead of 401ing mid-drill.
   assert.throws(() => rpcHeaders({ AVATAR_DRILL_SESSION_TOKEN: "s" }), /DEEPWELL_RPC_TOKEN/);
   assert.throws(() => rpcHeaders({ DEEPWELL_RPC_TOKEN: "t" }), /AVATAR_DRILL_SESSION_TOKEN/);
 });

@@ -94,8 +94,6 @@ const AUDITED_OWNERSHIP_REPORTS = Object.freeze([
     sha256: "ef87c37c9bd2ebf661d003c361f386c5d979b30aeebb18a6b44c307124f0636c"
   }
 ])
-// Audited ownership attaches to the catalog's feature identity set. Other
-// catalog metadata, such as live observation bindings, does not alter owners.
 const AUDITED_CATALOG_SURFACE_IDS_SHA256 = "230b734b715f15dc5b82e94f224bb8ae4a2717696d6bf23e9e57a103b83e1e28"
 async function loadSupportedWikidotPySource(root) {
   const value = await readJson(root, "docs/development/wikidot-py-supported-source.json")

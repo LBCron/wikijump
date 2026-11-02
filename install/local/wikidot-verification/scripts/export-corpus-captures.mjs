@@ -1,31 +1,4 @@
 #!/usr/bin/env node
-// Corpus capture export command (operator-only local tool).
-//
-// Writes raw Wikidot page captures into a corpus branch in the
-// scp-wiki-translation complete-capture record format (see
-// src/corpus-capture-export.mjs for the format contract and
-// docs/corpus-capture-export.md for the flow). This is the export half of
-// the reversed corpus flow: Wikijump import runs fetch pages at full
-// fidelity and hand the captures to the translation repo as corpus files,
-// instead of the translation repo's sync re-fetching the same pages and
-// storing a cut-down projection.
-//
-// Input modes (exactly one):
-//   --captures <file>     JSON array or JSONL of capture records
-//                         {transport, received_at, payload, meta_payload?}
-//                         as produced by scripts/capture-pages-wikidot-py.py.
-//   --from-corpus <root>  Re-emit stored raw captures from an existing
-//                         corpus branch (--fullname/--slug-file/--all-pages).
-//                         Pages whose stored form is a digested projection
-//                         are listed as not exportable, never re-labeled.
-//   --raw-dir <dir>       Raw payload JSON files (one pages.get_one payload
-//                         per file, as dumped by the runs 459-466 fetch
-//                         route); received_at falls back to file mtime.
-//
-// Output: the export run under <export-root>/<branch>/ plus a JSON summary
-// on stdout {run_id, branch_root, exported, not_exportable, response_count}.
-// Exit codes: 0 = at least one page exported; 3 = nothing exportable;
-// 2 = structural error.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -200,9 +173,6 @@ export async function main(argv = process.argv.slice(2)) {
   }
 
   if (captures.length === 0) {
-    // Every requested page was already classified during input reading
-    // (the not-exportable-from-store case): report the listing instead of
-    // treating an empty capture set as a structural error.
     console.log(JSON.stringify({
       run_id: args.runId,
       branch_root: path.join(args.exportRoot, args.branch),

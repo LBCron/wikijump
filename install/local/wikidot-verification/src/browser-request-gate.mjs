@@ -54,8 +54,6 @@ function canonicalAvatarResponseCacheKey(value) {
 
 function responseCacheKey(value) {
   if (!WIKIDOT_AVATAR_PHP_URL.test(value)) return value;
-  // The request-identity suffix is not part of the URL: canonicalize only the
-  // URL head and keep the suffix byte-identical.
   const marker = "#__wikijump_evidence_request=";
   const markerIndex = value.indexOf(marker);
   const head = markerIndex === -1 ? value : value.slice(0, markerIndex);
@@ -731,8 +729,6 @@ export function createBrowserResponseCache({maxEntries = DEFAULT_RESPONSE_CACHE_
       if (!loaded) throw new Error("persistent browser response cache must be loaded before lookup");
       return matchingRetainedEntry(responseCacheKey(key), null);
     },
-    // Read-only provenance query for the cache-only replay guard. It must not disturb the
-    // hit/miss accounting that measures how much evidence a replay actually reused.
     hasRetainedEntry(key) {
       if (!loaded) throw new Error("persistent browser response cache must be loaded before lookup");
       return matchingRetainedEntry(responseCacheKey(key), null, {count: false}) !== null;
@@ -1131,7 +1127,6 @@ async function abortRoute(route) {
     await route.abort("blockedbyclient");
     return true;
   } catch {
-    // A route can already be disposed after navigation teardown. Never continue it after a failed gate path.
     return false;
   }
 }
@@ -1419,23 +1414,12 @@ function evidenceReplaySchemeVariant(value) {
   return parsed.href;
 }
 
-/**
- * Whether retained evidence exists for a URL, counting the HTTPS variant of an insecure
- * request as the same resource (see `evidenceReplaySchemeVariant`).
- */
 function hasRetainedReplayEvidence(responseCache, value) {
   if (responseCache.hasRetainedEntry(value)) return true;
   const schemeVariant = evidenceReplaySchemeVariant(value);
   return schemeVariant !== null && responseCache.hasRetainedEntry(schemeVariant);
 }
 
-/**
- * Serve a cache-only replay request from retained evidence.
- *
- * The request's own URL is looked up first so an explicitly retained `http://` entry still
- * wins. Only when that misses does the HTTPS variant of the same origin and path answer the
- * request, because that is the representation the retained evidence holds for the resource.
- */
 function lookupRetainedReplayEntry(request, responseCache, requestHeaders) {
   const requestUrl = request.url();
   const schemeVariant = evidenceReplaySchemeVariant(requestUrl);
@@ -1443,9 +1427,6 @@ function lookupRetainedReplayEntry(request, responseCache, requestHeaders) {
   const hasOwnEntry = canProbe
     ? responseCache.hasRetainedEntry(requestUrl)
     : responseCache.lookup(responseCacheRequestKey(request, null, requestHeaders), {requestHeaders}) !== null;
-  // Probing first keeps the fallback from recording a phantom cache miss for a scheme the
-  // evidence was never acquired under. A genuinely unretained request still misses and still
-  // fails closed under its own URL.
   if (!hasOwnEntry && schemeVariant !== null) {
     return responseCache.lookup(responseCacheRequestKey(request, schemeVariant, requestHeaders), {requestHeaders});
   }
@@ -1506,23 +1487,6 @@ async function servePublicRoute(route, {gate, responseCache, cacheOnly = false, 
   await fulfillRetainedEntry(route, { gate, responseCache, request, entry });
 }
 
-/**
- * @param {import("@playwright/test").BrowserContext} context
- * @param {{
- *   gate: object
- *   exemptOrigins?: string[]
- *   responseCache?: object | null
- *   publicOriginPredicate?: ((value: string, resourceType: string, method: string) => boolean) | null
- *   cacheOnly?: boolean
- * }} [options]
- *
- * With `cacheOnly`, a public response that the browser received from anywhere other than
- * this installation is a replay-integrity failure: the response listener fails the gate
- * closed whenever the response URL has retained evidence this installation never served.
- * Route interception cannot observe every request a browser issues (Firefox upgrades an
- * insecure subresource through an internal redirect it never routes), so silently
- * continuing would let live network bytes replace retained evidence.
- */
 export async function installBrowserRequestGate(context, {gate, exemptOrigins = [], responseCache = null, publicOriginPredicate = null, cacheOnly = false} = {}) {
   if (!gate || typeof gate.acquire !== "function" || typeof gate.deferForRetryAfter !== "function" || typeof gate.failClosed !== "function" || typeof gate.recordLocalExempt !== "function" || typeof gate.recordUnsupportedRequestBlocked !== "function" || typeof gate.recordWebSocketBlocked !== "function") throw new Error("browser request gate is malformed");
   if (!context || typeof context.route !== "function" || typeof context.routeWebSocket !== "function" || typeof context.on !== "function") throw new Error("browser context cannot enforce request-level capture controls");
@@ -1538,7 +1502,6 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
           gate.recordLocalExempt();
         }
       } catch {
-        // Malformed/non-HTTP requests remain the route handler's fail-closed concern.
       }
     });
   }

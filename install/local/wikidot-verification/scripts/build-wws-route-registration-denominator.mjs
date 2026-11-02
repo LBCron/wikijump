@@ -558,12 +558,6 @@ async function resolveHandlerDefinitions(root, symbols) {
 }
 
 function gitSourceIdentity(root, relativePath, capturedBytes) {
-  // The denominator is content-addressed per captured input, so generation must
-  // work before the source commit exists. Requiring working-tree bytes to equal
-  // HEAD made the pre-commit generated-contract gate impossible to satisfy for
-  // any legitimate change to a captured source path. `git hash-object` gives
-  // the exact blob identity the eventual commit will use without weakening the
-  // tracked source identity.
   const blob = gitWithInput(root, capturedBytes, "hash-object", "--stdin")
   return { path: relativePath, git_blob: blob, sha256: sha256(capturedBytes) }
 }

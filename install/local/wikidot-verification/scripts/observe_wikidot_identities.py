@@ -3,7 +3,7 @@
 
 A mirrored page that says `[[user Name]]` renders on Wikidot with the user's link and avatar. The
 mirror can only do the same when it knows that user's Wikidot id, name and slug. Without them the
-page prints `Name does not match any existing user name` (issues #2073, #2081).
+page prints `Name does not match any existing user name` (issues
 
 Three steps, each restartable:
 
@@ -35,10 +35,8 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA = "wikijump_local_lab.wikidot_identity_batch.v1"
-# Wikijump's own users start at 20,000,000 (docs/compatibility-ids.md); Wikidot ids sit below it.
 FIRST_WIKIJUMP_USER_ID = 20_000_000
 USER_MENTION = re.compile(r"\[\[\*?user\s+([^\]\n]+?)\]\]", re.IGNORECASE)
-# One `[[user X]]` per line renders as one `<span>` per line, separated by `<br />`.
 PRINTUSER = re.compile(
     r'<span class="printuser[^"]*">\s*<a href="[^"]*/user:info/(?P<slug>[^"]+)"\s+'
     r'onclick="WIKIDOT\.page\.listeners\.userInfo\((?P<id>\d+)\);[^"]*">(?P<name>[^<]+)</a>\s*</span>'
@@ -93,14 +91,10 @@ def parse_batch(names: list[str], body: str) -> list[dict[str, Any]]:
                 "name": html.unescape(resolved["name"]),
             })
         elif DELETED.fullmatch(line):
-            # Wikidot shows `(account deleted)` with the id. The mirror's observed identities
-            # exclude deleted users, so there is nothing to record; the id is kept in the report.
             results.append({"requested": name, "status": "deleted", "user_id": int(DELETED.fullmatch(line)["id"])})
         elif UNRESOLVED.fullmatch(line):
             results.append({"requested": name, "status": "unresolved"})
         elif line and "<" not in line:
-            # Wikidot prints a few reserved names (for example `Anonymous`) as plain text, with no
-            # user id behind them; there is no identity to record.
             results.append({"requested": name, "status": "special"})
         else:
             raise ValueError(f"unrecognized result for {name!r}: {line[:160]!r}")
@@ -140,8 +134,8 @@ def acquire(names: list[str], out_dir: Path, batch_size: int, site_name: str) ->
         print(f"all {len(batches)} batches sealed")
         return 0
 
-    import wikidot  # noqa: PLC0415 - only needed when acquiring
-    from wikidot.connector.ajax import AjaxModuleConnectorConfig  # noqa: PLC0415
+    import wikidot
+    from wikidot.connector.ajax import AjaxModuleConnectorConfig
 
     with wikidot.Client(amc_config=AjaxModuleConnectorConfig(attempt_limit=1)) as client:
         site = client.site.get(site_name)
@@ -164,7 +158,6 @@ def acquire(names: list[str], out_dir: Path, batch_size: int, site_name: str) ->
                                "wikidot_py_version": wikidot.__version__},
             })
             barrier.unlink()
-            # The response is sealed first; a result this tool cannot read is reported, not lost.
             parse_batch(batch, body)
             print(f"batch {index}/{len(batches)} sealed ({len(batch)} names)", flush=True)
     return 0

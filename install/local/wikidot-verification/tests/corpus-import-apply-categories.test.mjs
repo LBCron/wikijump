@@ -6,8 +6,6 @@ import {
   dbShellCategorySlug,
 } from "../scripts/apply-corpus-import-manifest.mjs";
 
-// Same holding-site fixture as corpus-import-storage.test.mjs: scp-wiki holds
-// its own rows plus the branches it imported; scpko rows are foreign there.
 const SCP_WIKI = { siteSlug: "scp-wiki", runBranches: ["05command", "en", "ko"] };
 
 function row(overrides = {}) {

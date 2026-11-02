@@ -182,9 +182,6 @@ function browserContract(fixture) {
         : []),
     ],
     first_paint_custom_properties: {},
-    // Keep collecting the chain for every capture, but only compare it for
-    // full-page theme fixtures. The expected chain is replaced by the live
-    // observation below, so Wikidot remains the authority.
     capture_page_chrome_skeleton: PAGE_CHROME_SKELETON,
     page_chrome_skeleton: pageChrome ? PAGE_CHROME_SKELETON : null,
   };

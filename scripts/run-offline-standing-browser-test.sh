@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
-# Run a browser regression in a fresh user+network namespace. The namespace
-# has only loopback. A Unix-domain socket bridges one exact loopback HTTPS
-# port to the same host loopback port, so no external IP route is available
-# to Chromium at all. The default is standing's 443; disposable candidate
-# runtimes can select their own loopback port.
 set -euo pipefail
 
 if [[ $# -eq 0 ]]; then
@@ -34,9 +29,6 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# Host side: the only TCP destination reachable through the bridge is the
-# selected host loopback listener. No public destination can be selected by
-# the sandboxed process.
 socat "UNIX-LISTEN:${SOCK},fork,mode=600" TCP:127.0.0.1:"${HOST_PORT}" &
 HOST_BRIDGE_PID=$!
 for _ in $(seq 1 100); do
@@ -62,10 +54,6 @@ printf -v COMMAND_Q '%q ' "$@"
 printf -v SOCK_Q '%q' "${SOCK}"
 printf -v PORT_Q '%q' "${HOST_PORT}"
 
-# -r maps the invoking unprivileged user to uid 0 only inside the new user
-# namespace. That grants CAP_NET_BIND_SERVICE for this isolated network
-# namespace, allowing the bridge to preserve the browser-visible HTTPS port
-# without changing origins or CSP semantics.
 unshare -Urn sh -ceu "
   ip link set lo up
   export WIKIJUMP_OFFLINE_BROWSER_NETNS_ACTIVE=1

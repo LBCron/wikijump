@@ -41,8 +41,6 @@ retry() {
   done
 }
 
-# Locate the repository clone (its path inside a cloud session VM is
-# not fixed; find the Wikijump tree instead of assuming one).
 find_repo() {
   local candidate
   for candidate in "${WIKIJUMP_CLAUDE_REPO:-}" "$PWD" "$HOME"/* /workspace/* /root/*; do

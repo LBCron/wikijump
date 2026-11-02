@@ -20,11 +20,6 @@
 
 use axum::http::Uri;
 
-/// Extracts the path and query from a URI.
-///
-/// Since `Uri::path_and_query()` returns an `Option`,
-/// we need a match statement to get the path if there
-/// is no query string portion.
 pub fn get_path(uri: &Uri) -> &str {
     match uri.path_and_query() {
         Some(path_and_query) => path_and_query.as_str(),

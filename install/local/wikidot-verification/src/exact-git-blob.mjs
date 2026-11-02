@@ -47,7 +47,6 @@ export class ExactGitBlobError extends Error {
     super(`exact Git blob ${code}`);
     this.name = "ExactGitBlobError";
     this.code = code;
-    // Error stacks would disclose the verifier's local source path across the trust boundary.
     this.stack = `${this.name}: ${this.message}`;
   }
 }
@@ -550,9 +549,6 @@ async function assertSha1Repository(gitExecutable, gitDirectory) {
   if (format !== "sha1") fail("unsupported_git_object_format");
 }
 
-/**
- * Construct a reader from operator-owned host configuration. Do not derive this from serialized worker authority or a request.
- */
 export function createExactGitBlobReader(configuration) {
   const trusted = normalizeReaderConfiguration(configuration);
   return async function readExactGitBlob(
@@ -611,7 +607,6 @@ export function createExactGitBlobReader(configuration) {
       blobOid: claimed.blobOid,
       byteLength: immutableBytes.byteLength,
       readBytes() {
-        // Buffers are mutable, so each capability use receives a detached copy.
         return Buffer.from(immutableBytes);
       },
       sha256,
@@ -619,11 +614,6 @@ export function createExactGitBlobReader(configuration) {
   };
 }
 
-/**
- * Resolve a fixed, caller-owned set of regular source files from one exact
- * commit/tree pair. The returned bytes are detached from both the Git object
- * database and caller-owned mutable input records.
- */
 export function createExactGitTreeReader(configuration) {
   const trusted = normalizeReaderConfiguration(configuration);
   return async function readExactGitTreeFiles(

@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Reject requests with more than this many ranges to limit DoS surface
 const MAX_RANGES: usize = 10;
 
 #[derive(Debug, Clone, Copy)]
@@ -41,13 +40,10 @@ impl ByteRange {
 
 #[derive(Debug)]
 pub enum ParsedRange {
-    // No range requested or header was malformed
     None,
 
-    // One or more satisfiable byte ranges
     Satisfiable(Vec<ByteRange>),
 
-    // Valid header but every range is unsatisfiable
     NotSatisfiable,
 }
 
@@ -74,7 +70,6 @@ pub fn parse_range_header(value: &str, file_size: u64) -> ParsedRange {
         any_part = true;
 
         if let Some(suffix_str) = part.strip_prefix('-') {
-            // "-n" -> last n bytes
             let n: u64 = match suffix_str.trim().parse() {
                 Ok(n) if n > 0 => n,
                 _ => return ParsedRange::None,
@@ -92,9 +87,8 @@ pub fn parse_range_header(value: &str, file_size: u64) -> ParsedRange {
             let end_str = end_str.trim();
 
             if end_str.is_empty() {
-                // "n-" -> byte n to EOF
                 if start >= file_size {
-                    continue; // unsatisfiable, skip
+                    continue;
                 }
                 ranges.push(ByteRange {
                     start,
@@ -109,7 +103,7 @@ pub fn parse_range_header(value: &str, file_size: u64) -> ParsedRange {
                     return ParsedRange::None;
                 }
                 if start >= file_size {
-                    continue; // unsatisfiable, skip
+                    continue;
                 }
                 ranges.push(ByteRange {
                     start,
@@ -141,7 +135,6 @@ pub fn parse_range_header(value: &str, file_size: u64) -> ParsedRange {
     }
 }
 
-// ------------ Range evaluation helpers ------------
 
 // If `If-Range` is present and its ETag doesn't match, `Range` must be
 // ignored and the full representation returned (RFC 9110 §13.1.5)
@@ -176,7 +169,6 @@ mod tests {
     use axum::http::HeaderMap;
     use axum::http::header::{IF_RANGE, RANGE};
 
-    // ------------ Range parser tests ------------
 
     fn ranges(value: &str, size: u64) -> Vec<(u64, u64)> {
         match parse_range_header(value, size) {
@@ -215,7 +207,6 @@ mod tests {
 
     #[test]
     fn multiple() {
-        // With and without whitespace after the comma.
         assert_eq!(
             ranges("bytes=0-99, 200-299", 12345),
             vec![(0, 99), (200, 299)],
@@ -225,25 +216,21 @@ mod tests {
             vec![(0, 99), (200, 299)],
         );
 
-        // Mixed with an open-ended range.
         assert_eq!(
             ranges("bytes=0-99,500-", 12345),
             vec![(0, 99), (500, 12344)],
         );
 
-        // Mixed with a suffix range.
         assert_eq!(
             ranges("bytes=0-99,-100", 12345),
             vec![(0, 99), (12245, 12344)],
         );
 
-        // Closed, open-ended, and suffix together.
         assert_eq!(
             ranges("bytes=0-99, 500-, -100", 12345),
             vec![(0, 99), (500, 12344), (12245, 12344)],
         );
 
-        // More than two ranges.
         assert_eq!(
             ranges("bytes=0-9,20-29,40-49", 12345),
             vec![(0, 9), (20, 29), (40, 49)],
@@ -282,7 +269,6 @@ mod tests {
 
     #[test]
     fn skip_unsatisfiable_keep_good() {
-        // First range is past EOF, second is valid.
         assert_eq!(ranges("bytes=99999-100000, 0-99", 12345), vec![(0, 99)]);
     }
 

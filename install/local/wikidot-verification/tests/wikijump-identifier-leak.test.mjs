@@ -64,8 +64,6 @@ test("a clean battery passes and a leaking one does not", () => {
 });
 
 test("a construct that fails to render is a failure, not a pass", () => {
-  // A render error hides whatever the construct would have emitted, so treating
-  // it as clean would let a leak through behind a broken case.
   const report = evaluateRenderedBattery([
     {id: "a", body: "<p>fine</p>"},
     {id: "b", error: "local preview returned no body"},
@@ -117,7 +115,6 @@ test("the shipped battery has unique ids and non-empty wikitext", () => {
     assert.match(construct.id, /^[a-z0-9-]+$/u, construct.id);
     assert.ok(construct.wikitext.trim().length > 0, construct.id);
   }
-  // The constructs this guard exists for must stay in the battery.
   for (const required of ["code-language", "collapsible", "tabview", "footnote", "list-pages-row-heading"]) {
     assert.ok(ids.includes(required), required);
   }

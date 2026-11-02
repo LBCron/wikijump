@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture the bounded, non-browser Wikidot upload naming matrix for #1062.
+"""Capture the bounded, non-browser Wikidot upload naming matrix for
 
 This command is deliberately mutation-gated. It is prepared for the parent
 run, but must not be invoked without --allow-run-owned-upload-mutation.

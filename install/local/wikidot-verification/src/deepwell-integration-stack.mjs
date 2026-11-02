@@ -22,9 +22,7 @@ export const DEFAULT_DEEPWELL_TEST_IMAGES = Object.freeze({
   files: "wikijump-local-development-files",
 });
 
-/** Names one verified seed-capture directory; its stacks restore it instead of running the seeder. */
 export const SEED_CAPTURE_ENV = "WIKIJUMP_DEEPWELL_SEED_CAPTURE";
-/** Optional persistent directory of captures, one subdirectory per key. */
 export const SEED_CAPTURE_ROOT_ENV = "WIKIJUMP_DEEPWELL_SEED_CAPTURE_ROOT";
 
 const SEED_ARGUMENTS = Object.freeze([
@@ -47,7 +45,6 @@ export function deepwellTestThreads(env = process.env) {
   return String(value);
 }
 
-/** How many nextest partitions run side by side, each on its own stack. */
 export function deepwellTestShards(env = process.env) {
   const raw = env.WIKIJUMP_DEEPWELL_TEST_SHARDS?.trim() || "1";
   const value = Number(raw);
@@ -168,10 +165,6 @@ export async function resolveDeepwellSeedBinary({cargo = "cargo", env = process.
   return join(metadata.target_directory, "debug", process.platform === "win32" ? "deepwell.exe" : "deepwell");
 }
 
-/** Run `body` on a provisioned stack. Provisioning (containers, migrations,
- * the seeder) is setup, not a test: on a saturated barrier the seeder's
- * renders can outlast Deepwell's 500 ms Valkey reply timeout. A failed
- * provisioning gets one fresh stack; a failure inside `body` is never retried. */
 export async function withProvisionedDeepwellStack(body, options = {}, {
   stack = withDeepwellIntegrationStack,
   log = (message) => console.error(message),
@@ -190,13 +183,6 @@ export async function withProvisionedDeepwellStack(body, options = {}, {
   }
 }
 
-/**
- * Run `callback` on a task-owned stack. When `seedCapture` (default: the
- * WIKIJUMP_DEEPWELL_SEED_CAPTURE environment variable) names a capture
- * directory, the stack restores that capture in place of migrations and the
- * seeder; if the restore fails, the stack is discarded and a fresh one is
- * seeded the slow way. Without a capture this is the plain seeding path.
- */
 export async function withDeepwellIntegrationStack(callback, options = {}) {
   const baseEnv = options.env ?? process.env;
   const requested = options.seedCapture === undefined ? baseEnv[SEED_CAPTURE_ENV]?.trim() : options.seedCapture;
@@ -336,13 +322,6 @@ function staticSeedEnvironment() {
   return rest;
 }
 
-/**
- * Make sure a complete, verified seed capture exists for the current inputs
- * under `captureRoot` and return its directory. A capture for the same key is
- * reused after full verification; otherwise one stack runs the migrations and
- * the seeder and its state is written to a staging directory that is renamed
- * into place only when complete.
- */
 export async function ensureDeepwellSeedCapture({
   env: baseEnv = process.env,
   cargo = baseEnv.WIKIJUMP_OFFLINE_CARGO?.trim() || "cargo",
@@ -403,19 +382,11 @@ export async function ensureDeepwellSeedCapture({
   }
 }
 
-/** A fresh private capture root for one run, removed by `dispose`. */
 export async function temporarySeedCaptureRoot() {
   const directory = await mkdtemp(join(tmpdir(), "wikijump-deepwell-seed-"));
   return {directory, dispose: () => rm(directory, {recursive: true, force: true})};
 }
 
-/**
- * The capture directory the shards of one run restore, or null when they must
- * each seed their own stack. A capture named in the environment is used as is
- * ("off" disables captures). Otherwise one is built under the persistent root
- * named by WIKIJUMP_DEEPWELL_SEED_CAPTURE_ROOT, or under a private directory
- * that `dispose` removes. Any failure is logged and degrades to per-shard seeding.
- */
 export async function prepareShardSeedCapture(env = process.env, {
   ensure = ensureDeepwellSeedCapture,
   log = (message) => console.error(message),

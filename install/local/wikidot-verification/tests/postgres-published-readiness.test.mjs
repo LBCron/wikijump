@@ -11,10 +11,6 @@ import {
 const SSL_REQUEST = Buffer.from([0x00, 0x00, 0x00, 0x08, 0x04, 0xd2, 0x16, 0x2f]);
 const AUTH_REQUEST = Buffer.from([0x52, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00]);
 const isSslRequest = (chunk) => chunk.length === 8 && chunk[4] === 0x04;
-// Every real-socket server below answers at once or closes, so the probe's idle
-// timer is only a hang backstop here; timeout handling is covered by the scripted
-// host-path test. A short timer turns any event-loop stall on a loaded host into a
-// spurious timeout and an extra connection attempt.
 const PROBE_TIMEOUT_MS = 10_000;
 
 function errorResponse(message) {
@@ -37,9 +33,6 @@ function startupProtocol(message) {
 
 async function listen(handler) {
   const server = net.createServer((socket) => {
-    // A probe that abandons an attempt resets the connection. PostgreSQL tolerates
-    // that; an unhandled server-side ECONNRESET would instead abort the running test
-    // and leave its retry loop dialling into the next test.
     socket.on("error", () => {});
     handler(socket);
   });
@@ -56,8 +49,6 @@ async function close(server) {
   await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
 }
 
-// Stands in for a net.Socket in scripted readiness attempts. Each write is
-// answered on a later tick by `respond`, which may emit "data" or "timeout".
 class ScriptedSocket extends EventEmitter {
   constructor(respond) {
     super();
@@ -218,11 +209,6 @@ test("published PostgreSQL readiness retries an invalid first protocol response"
 });
 
 test("published PostgreSQL readiness retries a host-path timeout", async (t) => {
-  // Attempt 1 accepts the connection but never answers the SSLRequest, so the
-  // idle timer fires; attempt 2 is query-ready. The timeout is delivered as the
-  // scripted "timeout" event rather than by waiting on wall-clock time, so the
-  // attempt count does not depend on how loaded the host is. createConnection
-  // is stubbed, so the port is validated but never dialled.
   const attempts = [
     (socket) => socket.emit("timeout"),
     (socket, request) => socket.emit("data", isSslRequest(request) ? Buffer.from("N") : AUTH_REQUEST),

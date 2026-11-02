@@ -189,9 +189,6 @@ function categoryFromDocuments(threadRoot, visibleRoot, allRoot, categoryId) {
   };
 }
 
-/** Build a source snapshot from retained observations and immutable corpus posts.
- * No acquisition, actor login, rendering, or database mutation happens here.
- */
 export function buildCorpusDiscussionManifest({
   sourceSite,
   slug,
@@ -321,8 +318,6 @@ export function buildCorpusDiscussionManifest({
     creator = { type: "system" };
   else
     creator = { type: "user", user_id: actor(observation.thread.created_by) };
-  // Author metadata is current; a source post's compiled body can retain a
-  // pre-rename identity. Keep that revision-scoped observation separate.
   for (const post of observation.posts) {
     actor(post.created_by);
     if (post.edited_at) actor(post.edited_by);

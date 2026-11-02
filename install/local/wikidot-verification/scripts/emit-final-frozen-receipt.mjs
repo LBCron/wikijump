@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 
-// Emit a final-frozen receipt from executed evidence only: the clean source
-// identity, a passing consolidated validation of exactly that source, and the
-// sealed image producer output for exactly that source.
 
 import {execFile} from "node:child_process";
 import path from "node:path";

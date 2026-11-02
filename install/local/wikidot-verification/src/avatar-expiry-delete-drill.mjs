@@ -1,31 +1,7 @@
-/**
- * Avatar expiry and delete drill planner (offline half of #2556).
- *
- * The standing acceptance that remains open needs a disposable probe
- * account with an avatar: set it, watch the WWS `user_avatar:<id>` cache
- * entry expire, remove it, and confirm `/-/avatar/<id>` stops serving it.
- * That drill mutates standing and needs the user's approval first, so this
- * module only BUILDS the drill plan as data. Nothing here touches the
- * network, the database, or the cache; the companion script executes a
- * built plan, and `--dry-run` prints it without mutating anything.
- *
- * Plan semantics, enforced by the tests:
- * - every mutation is flanked by read-only assertions (DB SELECT, HTTP
- *   GET, cache GET/TTL) that pin the state before and after;
- * - runtime values (the probe user id, blob ids, presigned URLs) travel
- *   as bindings, never as guesses: `{ $ref: "<step-id>.<field>" }`;
- * - secrets travel as `{ $secret: "<env-name>" }` placeholders resolved
- *   at execution time, so plans and logs never contain them;
- * - cleanup (avatar removal, probe deletion, post-cleanup assertions) is
- *   a separate list the executor always runs, even when a step fails;
- * - the probe username is constrained to the `avatar-drill-` prefix so
- *   the drill cannot address a real account.
- */
 
 export const DRILL_PROBE_PREFIX = "avatar-drill-";
 export const AVATAR_CACHE_TTL_SECONDS = 60;
 
-/** Deterministic 1x1 PNG body uploaded as the probe avatar (generated, not evidence). */
 export const PROBE_AVATAR_PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
   "base64",
@@ -82,13 +58,6 @@ export function validateDrillConfig(config) {
 
 const ref = (step, field) => ({ $ref: `${step}.${field}` });
 
-/**
- * Render a `$ref` binding as a `{{step.field}}` template token. Requests
- * stay plain JSON-serializable strings, so a dry run shows exactly what
- * will be substituted and no `[object Object]` can leak into SQL, URLs,
- * or cache commands. The executor resolves tokens from runtime bindings
- * just before running each step.
- */
 export function refToken(value) {
   if (typeof value === "string") return value;
   if (value !== null && typeof value === "object" && typeof value.$ref === "string") {
@@ -97,11 +66,6 @@ export function refToken(value) {
   throw new Error(`avatar drill: cannot template a non-string, non-$ref value`);
 }
 
-/**
- * Deep-resolve a plan value: `{$secret}` from the environment,
- * `{$ref}` objects and `{{step.field}}` string tokens from bindings.
- * Throws on anything unresolvable instead of sending a half-built request.
- */
 export function resolveRefs(value, bindings, env = {}) {
   if (value !== null && typeof value === "object" && typeof value.$secret === "string") {
     const secret = env[value.$secret];
@@ -147,11 +111,6 @@ function dbHasAvatar(container, userId) {
   };
 }
 
-/**
- * Build the ordered drill plan plus the always-run cleanup list.
- * Step ids are stable; `expect` describes the read-only assertions that
- * must hold before the run may proceed past the step.
- */
 export function buildAvatarDrillPlan(rawConfig) {
   const config = validateDrillConfig(rawConfig);
   const { probeUsername, gatewayBase, deepwellUrl, dbContainer, cacheContainer, operatorIp, waitSeconds } = config;
@@ -180,17 +139,6 @@ export function buildAvatarDrillPlan(rawConfig) {
         params: {
           user_type: "regular",
           name: probeUsername,
-          // Must PASS the deepwell email validator: user_create runs
-          // EmailService::validate_when_available
-          // (deepwell/src/services/email/service.rs), which rejects a
-          // MailCheck 400 as InvalidEmail (4105), marks MX-less domains
-          // Invalid in classify(), and only lets Normal/Alias/Role verdicts
-          // past check_email_validation (deepwell/src/services/user/service.rs).
-          // gmail.com is MX-backed and never disposable/spam, so it verifies
-          // Normal; the local part is drill-unique (validateDrillConfig forces
-          // the avatar-drill- prefix), no such mailbox exists, the drill never
-          // sends mail, and cleanup deletes the probe — so this address
-          // cannot reach a real inbox.
           email: `${probeUsername}@gmail.com`,
           locales: ["en"],
           password: { $secret: "AVATAR_DRILL_PROBE_PASSWORD" },
@@ -406,7 +354,6 @@ export function buildAvatarDrillPlan(rawConfig) {
   return { probeUsername, steps, cleanup };
 }
 
-/** Human-readable rendering for --dry-run (no secrets, no bindings resolved). */
 export function summarizeDrillPlan(plan) {
   const lines = [
     "avatar expiry and delete drill plan (NOT RUN — dry run; no mutations performed)",

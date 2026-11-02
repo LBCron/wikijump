@@ -18,10 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! A server to handle incoming web requests.
-//!
-//! Depending on the hostname, requests are routed to either framerail
-//! or given to logic to serve wjfiles data.
 
 #[macro_use]
 extern crate str_macro;
@@ -70,22 +66,16 @@ use tokio::net::TcpListener;
 async fn main() -> Result<()> {
     let (config, secrets) = load_config();
 
-    // Set up tracing
     if config.enable_trace {
         setup_tracing();
     }
 
-    // Write PID file
     if let Some(ref path) = config.pid_file {
         debug!(pid = process::id(), "Writing PID file");
         let mut file = File::create(path)?;
         writeln!(&mut file, "{}", process::id())?;
     }
 
-    // Connect to services, build server state and then run
-    // Client/bucket construction is local work and can overlap dependency boot.
-    // The listener serves only a non-cacheable startup response until a real
-    // Deepwell RPC succeeds; no normal route runs against partial state.
     let state = build_server_state(false, secrets).await?;
     let ready = Arc::new(AtomicBool::new(!config.enable_deepwell_check));
     let gate = Arc::clone(&ready);
@@ -108,7 +98,6 @@ async fn main() -> Result<()> {
     ));
     let app = router.into_make_service();
 
-    // Begin listening
     info!(
         address = str!(config.address),
         "Listening to connections...",

@@ -18,11 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! Error definitions for wws.
-//!
-//! This contains both crate errors (the common `Result` type), and
-//! fallback errors (the error to return when no better HTTP response
-//! is available).
 
 mod basic;
 mod fallback;

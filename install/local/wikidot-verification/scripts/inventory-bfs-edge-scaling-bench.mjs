@@ -1,13 +1,3 @@
-// Edge-dominated scaling bench for the campaign documentation inventory BFS.
-//
-// The first bench grows the corpus evenly, where per-file I/O dominates and the
-// queue work is a small term. This one holds the node count (V) nearly fixed and
-// grows the edge count (E) by raising fan-in, which is the regime the previous
-// implementation was quadratic in: every discovered edge pushed onto a queue that
-// was fully re-sorted, and a target reached by N edges was pushed N times, so
-// pending queue length grew with E rather than with V.
-//
-// Usage: node install/local/wikidot-verification/scripts/inventory-bfs-edge-scaling-bench.mjs
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
@@ -50,12 +40,6 @@ const medianMs = async (fn, samples = 5) => {
 
 const rows = [];
 
-// Node count grows far slower than the edge count: pageCount rises 4x while
-// fan-in rises 16x, so E/V keeps climbing. Every fan-out edge must have a
-// forward target, so pageCount has to stay well above fanIn.
-//
-// SCALE=small uses the same three-point series for old and new measurements;
-// the larger points can be run separately when their additional cost is useful.
 const SCALE = process.env.SCALE ?? "full";
 
 const SERIES = {

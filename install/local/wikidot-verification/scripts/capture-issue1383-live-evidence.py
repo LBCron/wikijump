@@ -301,7 +301,7 @@ def saved_self_selection_source(cases: list[dict[str, Any]]) -> str:
     The live scp-jp authority uses ``range=\".\"`` and selects the current
     page.  A separate target selected by fullname preserves the generated
     ``[[html]]`` text literally on save and therefore does not exercise the
-    live saved-page reparse boundary owned by #1383.
+    live saved-page reparse boundary owned by
     """
     parts = ["+ Section One", "SECTION_ONE_BODY", "+ Evidence"]
     for case in cases:

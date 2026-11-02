@@ -59,7 +59,6 @@ export function createSqlExecutor({ dbUrl, dbContainer }) {
               await activeClient.query('ROLLBACK');
             } catch (rollbackError) {
               void rollbackError;
-              // Keep the original query error as the actionable failure.
             }
           }
           throw new Error(sqlErrorMessage('pg', '', error.stack || error.message, sql));

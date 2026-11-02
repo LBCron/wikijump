@@ -22,10 +22,6 @@ test("the frozen SimpleToDo mutation authority artifact is bounded and non-closi
   assert.equal(artifact.status, "blocked")
   assert.equal(artifact.closure, "not_closed")
   assert.equal(artifact.fixture_sha256, sha256(fixtureBytes))
-  // This is a frozen 2026-08-10 observation. The capture script was hardened
-  // afterward to pin the sandbox origin, so bind the artifact to the exact
-  // historical script digest instead of silently rebinding old evidence to
-  // current verifier bytes.
   assert.equal(artifact.script_sha256, captureScriptSha256)
   assert.equal(artifact.mutation_attempt_count, 0)
   assert.equal(artifact.run_task_count_created, 0)

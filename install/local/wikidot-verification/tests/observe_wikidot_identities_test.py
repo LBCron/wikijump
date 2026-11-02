@@ -10,7 +10,6 @@ MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
 
-# Anonymous scp-wiki edit/PagePreviewModule response of 2026-10-19 for seven `[[user …]]` lines.
 NAMES = ["JakdragonX", "IronDruid", "Lt Flops", "definitely not a real user zzqq", "Jerden"]
 BODY = """
 

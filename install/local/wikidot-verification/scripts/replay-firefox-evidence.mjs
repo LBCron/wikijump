@@ -1,16 +1,4 @@
 #!/usr/bin/env node
-// Maintained cache-only Firefox replay of retained Wikidot evidence.
-//
-// Firefox upgrades an insecure subresource through an internal redirect that
-// Playwright route interception never observes, so a replay must launch
-// Firefox with `firefoxEvidenceReplayLaunchOptions` (see
-// `../src/browser-session.mjs`). This script is the repository entrypoint for
-// that replay: it serves every request from a retained response cache,
-// fails closed on any cache miss, and records a verdict about the replay
-// itself. A `pass` verdict means the replay stayed sealed (no external
-// network, no miss, no store); it is not a visual-parity claim.
-//
-// Evidence replay only: this script never fetches live Wikidot evidence.
 import {createHash} from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";

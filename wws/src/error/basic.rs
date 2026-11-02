@@ -18,7 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! See the `BasicErrorService` in DEEPWELL for information.
 
 use crate::deepwell::TextBlockType;
 use crate::error::FallbackError;
@@ -110,13 +109,10 @@ impl BasicErrorOutput {
 
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum TextBlockErrorReason {
-    /// This hosted text block does not exist.
     Missing,
 
-    /// The URL to this hosted text block is invalid.
     Invalid,
 
-    /// The server was unable to retrieve this hosted text block.
     Fetch,
 }
 
@@ -133,16 +129,12 @@ impl TextBlockErrorReason {
 }
 
 pub async fn build_basic_error_response(
-    // NOTE: We need to accept the inner struct specifically here, since there are
-    //       some places in state.rs itself where we need to call this function.
     state: &ServerStateInner,
     headers: &HeaderMap,
     basic_error: BasicError<'_>,
 ) -> Response {
-    // Get a list of preferred locales from the Accept-Language header.
     let locales = parse_accept_language(headers);
 
-    // Build the appropriate error case
 
     macro_rules! deepwell_fetch {
         ($method:ident => $status_code:ident $(,)?) => {
@@ -161,7 +153,6 @@ pub async fn build_basic_error_response(
                     BasicErrorOutput { title, body, status: $status_code }
                 }
                 Err(error) => {
-                    // XF-1001
                     error!(
                         "Unable to get basic error for {}: {}",
                         stringify!($method),

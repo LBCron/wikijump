@@ -182,9 +182,6 @@ Anonymous source responses use a persistent evidence-replay cache under XDG_CACH
 `);
 }
 
-// The CLI used to log only AggregateError.message, hiding both independent
-// reasons when capture and cleanup fail. Keep them separately attributable.
-// Avoid exposing URL query strings or access tokens in diagnostics.
 export function browserCaptureFailureDiagnostic(error) {
   const redact = (value) => String(value)
     .replace(/(https?:\/\/[^\s?#]+)(?:[?#][^\s]*)?/giu, "$1?[redacted]")
@@ -218,7 +215,6 @@ async function collectVisibleText(page) {
     return await frame.evaluate(() => document.body?.innerText ?? "");
   } catch (error) {
     void error;
-    // Detached or inaccessible main frames should not abort page-level capture.
     return "";
   }
 }

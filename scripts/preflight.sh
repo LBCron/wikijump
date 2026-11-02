@@ -61,7 +61,6 @@ fi
 
 MERGE_BASE="$(git merge-base HEAD "${BASE}")"
 
-# Uncommitted work counts: this runs before you push, not after you commit.
 CHANGED_PATHS_FILE="$(mktemp)" || {
   echo "preflight: failed to create changed path receipt" >&2
   exit 2
@@ -77,14 +76,6 @@ if ! {
 fi
 mapfile -d '' -t CHANGED_PATHS < "${CHANGED_PATHS_FILE}"
 
-# --list is a query, not a gate: the consolidated-validation workflow's
-# plan step reads the group universe from the "preflight: groups:" line
-# below and then applies its own selection (the nightly set on schedule
-# runs), so listing must print that line even when the change-set is
-# empty - a scheduled run's base is its own head and the diff is empty
-# by construction. Without --list an empty change-set still ends here,
-# and the consolidated runner still refuses to seal a pass over a
-# preflight that ran no checks.
 if [[ ${#CHANGED_PATHS[@]} -eq 0 && -z "${ONLY_GROUPS}" && "${LIST}" != true ]]; then
   echo "preflight: no changes against ${BASE}; nothing to check"
   exit 0
@@ -95,8 +86,6 @@ if ! SELECTED="$(printf '%s\0' "${CHANGED_PATHS[@]}" | node .github/scripts/clas
   exit 2
 fi
 if [[ -n "${ONLY_GROUPS}" ]]; then
-  # An explicit list is authoritative: the named groups run even when the
-  # change-set would not select them, and nothing else runs.
   for requested in ${ONLY_GROUPS//,/ }; do
     if ! grep -q "^${requested}=" <<<"${SELECTED}"; then
       echo "preflight: unknown group in --groups: ${requested}" >&2
@@ -125,19 +114,8 @@ if ! [[ "${JOBS}" =~ ^[0-9]+$ ]]; then
   exit 2
 fi
 
-# Per-group Cargo target directories live under one root shared by every
-# worktree on this machine, so a fresh worktree reuses the Rust build state
-# earlier validations paid for instead of recompiling the graph per
-# checkout. Cargo's fingerprinting keeps mixed source states correct in a
-# shared directory (worst case it rebuilds); validations are serialized by
-# policy, so cross-worktree lock contention is no worse than the intra-run
-# case the per-group split exists for. Set PREFLIGHT_TARGET_ROOT to a path
-# inside the repository to restore the old per-worktree layout.
 PREFLIGHT_TARGET_ROOT="${PREFLIGHT_TARGET_ROOT:-${XDG_STATE_HOME:-${HOME}/.local/state}/wikijump/preflight-target}"
 
-# The Rust groups shell out to cargo, and the Deepwell test stack spawns
-# sqlx; both live in ~/.cargo/bin, which a non-login shell may not have on
-# PATH. Name the environmental failure here instead of inside a group.
 if [[ "${LIST}" != true ]]; then
   if { group_selected deepwell || group_selected wws; } && ! command -v cargo >/dev/null 2>&1; then
     echo "preflight: cargo not found on PATH; the Rust check groups need it — run from a login shell or add \$HOME/.cargo/bin to PATH" >&2
@@ -168,7 +146,6 @@ run() {
   fi
 }
 
-# True when a check of that exact name has already failed in this run.
 failed_check() {
   local failed
   for failed in "${FAILED[@]}"; do [[ "${failed}" == "$1" ]] && return 0; done
@@ -180,9 +157,6 @@ run_test() {
   run "${name}" "${TEST_NETWORK_GUARD}" "$@"
 }
 
-# Exit status 2 means the check has no evidence to judge (for example, no
-# current Theme Lab acceptance campaign exists yet). Report it as INCONCLUSIVE
-# without failing code validation; any other non-zero status still fails.
 run_test_inconclusive_ok() {
   local name="$1"; shift
   if "${LIST}"; then
@@ -206,11 +180,6 @@ run_test_inconclusive_ok() {
   esac
 }
 
-# Jobs mode only: run check functions at once, each in its own log, then
-# replay the logs in the order the functions were given and merge their
-# FAILED / INCONCLUSIVE lists. The group-level parallel runner uses the same
-# pattern one level up. Checks in one call must be independent: no shared
-# build directories, ports, or generated files.
 run_checks_concurrent() {
   local dir fn pid
   dir="$(mktemp -d)" || return 1
@@ -256,26 +225,10 @@ group_contracts() {
   fi
 }
 
-# The Theme Lab group's checks form two chains. The test chain never
-# reads restored evidence: consolidated validation cleans the restored
-# trees before every run, so the suite already executes (and passes)
-# with the evidence absent. The evidence chain keeps every check in its
-# current relative order, after the restores whose output it reads —
-# the two restores stay in this one chain because running them
-# concurrently inflates both (each walks trees the other populates;
-# measured in the 2026-10-31 performance work). In jobs mode the two
-# chains run side by side (run_checks_concurrent, as in the
-# verification group); in list/serial mode they run in today's order.
 check_theme_lab_tests() {
   run "Theme Lab tests" scripts/run-browser-test-no-external-network.sh npm --prefix install/local/theme-lab test
 }
 
-# The archival Theme Lab checks (the frozen campaign record and the historical
-# Sigma-10 audit) read only the Theme Lab tree and the evidence store; their
-# verdict cannot change unless a tracked path under install/local/theme-lab/ (or
-# this script) does. They run when such a path changed against the base, and
-# always when PREFLIGHT_THEME_LAB_ARCHIVE=always (promotion, scheduled runs).
-# A skipped run says so in the log; it does not appear as a check.
 theme_lab_archive_selected() {
   if "${LIST}" || [[ "${PREFLIGHT_THEME_LAB_ARCHIVE:-}" == "always" ]]; then return 0; fi
   local changed

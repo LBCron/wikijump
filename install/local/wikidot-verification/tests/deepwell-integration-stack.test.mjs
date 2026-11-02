@@ -63,7 +63,6 @@ test("validation command can explicitly accept a reviewed nonzero outcome", asyn
 });
 
 test("a failed stack provisioning gets one fresh stack, a failed test none", async () => {
-  // Fake stack: provisions according to the script, then runs the body.
   const fakeStack = (outcomes) => {
     const calls = {provisions: 0};
     calls.stack = async (body) => {

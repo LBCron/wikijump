@@ -46,9 +46,6 @@ async function serveDirectory(t, {root, prefix}) {
       const relativePath = decodeURIComponent(requestUrl.pathname.slice(prefix.length));
       const candidate = path.resolve(resolvedRoot, relativePath.replace(/^\/+/, ""));
       const relative = path.relative(resolvedRoot, candidate);
-      // A resolved candidate escapes the static root when path.relative() returns
-      // exactly "..", starts with "../" on this platform, or is still absolute.
-      // Treat those cases as directory traversal attempts before reading bytes.
       if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
         response.writeHead(403).end("forbidden");
         return;

@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// Measure local Wikijump article response latency and response-body stability.
 
 import process from "node:process";
 

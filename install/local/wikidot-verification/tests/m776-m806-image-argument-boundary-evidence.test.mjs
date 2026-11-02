@@ -8,9 +8,6 @@ const referenceUrl = new URL(
   import.meta.url,
 );
 
-// SHA-256 of the retained 2026-09-13 merged acquisition (30 external/head/width
-// cases plus 12 local-size cases), copied verbatim from the two sealed
-// wjlab evidence batches.
 const ARTIFACT_SHA256 =
   "3014b4f94fc5b2787f3fd0d97854b58baa6bf66db0fe2ef11d967baa7ceaa961";
 

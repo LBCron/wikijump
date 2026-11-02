@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-// Offline, read-only diagnostic. This is NOT a browser-parity admission gate.
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import path from "node:path";
@@ -190,7 +189,6 @@ if (
   import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href
 ) {
   main(process.argv.slice(2)).catch((error) => {
-    // Do not print raw file content, request URLs or other captured secrets.
     console.error(
       `offline browser capture inspection failed: ${error.message}`,
     );

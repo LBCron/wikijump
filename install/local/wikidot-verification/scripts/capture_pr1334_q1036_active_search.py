@@ -175,9 +175,6 @@ def classify(module, result, known_error):
         return "challenge_or_rate_limit", None
     if result["status"] != 200:
         return "result_contract_not_machine_identifiable", None
-    # The lane deliberately refuses to infer rows from arbitrary page links. A newly
-    # successful backend needs an explicit result-container parser before it can be
-    # promoted, so an unrecognized response remains blocked.
     return "result_contract_not_machine_identifiable", None
 
 

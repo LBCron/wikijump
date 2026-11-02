@@ -406,8 +406,6 @@ test("expandCrossSiteIncludeClosure prefers the caller-configured branch for div
 });
 
 test("expandCrossSiteIncludeClosure resolves divergent hits to the target site's own branch by default", () => {
-  // Fails before own-site-wins: with no caller map the divergent hits
-  // used to report an ambiguous-branches gap. Refs #2093.
   const branches = crossSiteReader({
     en: { "scp-1": "[[include :scp-int:comp]]" },
     int: { comp: "leaf int" },
@@ -424,9 +422,6 @@ test("expandCrossSiteIncludeClosure resolves divergent hits to the target site's
 });
 
 test("expandCrossSiteIncludeClosure keeps an ambiguous-branches gap for sites with no corpus branch", () => {
-  // Guard test: scp-sandbox-3 has no corpus branch, so divergent hits
-  // stay a gap both before and after own-site-wins. It would fail if a
-  // future mapping over-reached. Refs #2093.
   const branches = crossSiteReader({
     en: { "scp-1": "[[include :scp-sandbox-3:comp]]" },
     fr: { comp: "leaf fr" },

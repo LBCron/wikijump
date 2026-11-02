@@ -228,7 +228,7 @@ def main() -> None:
                 "status": restore.get("status"),
                 "message": restore.get("message"),
             }
-        except Exception as error:  # noqa: BLE001 - capture cleanup failure in evidence
+        except Exception as error:
             record["settings_restoration_receipt"] = {"status": "error", "message": type(error).__name__}
         record["finished_at_utc"] = now()
         args.output.parent.mkdir(parents=True, exist_ok=True)

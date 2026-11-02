@@ -6,12 +6,6 @@ function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 
-/**
- * Reads a file, optionally memoizing its bytes for the duration of one run.
- * Callers must scope `cache` to a single validation pass: a cache that outlives
- * a rewrite would hide the hash drift these checks exist to detect. Every
- * reference still re-verifies its expected hash against the returned bytes.
- */
 function readFileCached(cache, path) {
   if (cache) {
     const cached = cache.get(path);
@@ -35,8 +29,6 @@ export function resolveWikidotLiveEvidenceFormat(evidence) {
   throw new Error(`Unsupported Wikidot live evidence format: ${format}`);
 }
 
-/** Named controls in retained anonymous ThemePreviewer receipts. These formats
- * bind raw responses / original HTML, rather than promoting summary fields. */
 export function verifiedNativeThemeCaseIds(row, directory, fileCache) {
   const preview = row.schema === "theme_lab_native_theme_previewer_preview_boundary.v1";
   const saved = row.schema === "theme_lab_native_saved_theme_reset.v1";

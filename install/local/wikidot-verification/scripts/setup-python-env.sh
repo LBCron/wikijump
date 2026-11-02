@@ -49,15 +49,12 @@ fi
 
 python3 -m venv --clear "$VENV"
 
-# Replace the stale ensurepip pip/certifi bundle before any TLS package install.
-# The updated uv uses current Mozilla roots, and both bootstrap artifacts are hash-locked.
 "$UV_BIN" pip install \
   --python "$VENV/bin/python" \
   --default-index "$PYPI_INDEX_URL" \
   --require-hashes \
   --requirements "$ROOT/requirements-bootstrap.lock"
 
-# Application dependencies are independently hash-pinned, with the fixed certifi version.
 "$VENV/bin/python" -m pip install \
   --require-hashes \
   --index-url "$PYPI_INDEX_URL" \

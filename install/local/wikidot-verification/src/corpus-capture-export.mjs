@@ -71,10 +71,6 @@ function isPlainObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-// Mirror of canonicalize_xmlrpc for JSON-native values: rebuilds objects,
-// and strips capability query parameters from URL strings stored under
-// "download_url"/"url" keys. Returns {value, redactions} where redactions
-// are {path, reason} entries in the corpus store's shape.
 export function canonicalizeCaptureValue(value, keyPath = "payload", redactions = []) {
   if (Array.isArray(value)) {
     return value.map((item, index) =>
@@ -169,8 +165,6 @@ function atomicWriteBytes(filePath, bytes) {
   fs.renameSync(temporary, filePath);
 }
 
-// Immutable content-addressed writes (objects, snapshots): an existing file
-// with different bytes is a hard error, exactly as in the corpus store.
 function writeImmutableBytes(filePath, bytes, label) {
   if (fs.existsSync(filePath)) {
     if (!fs.readFileSync(filePath).equals(bytes)) {
@@ -210,9 +204,6 @@ function assertSafeBranch(branch) {
   }
 }
 
-// The raw-capture guard: only a payload that still carries the fetched page
-// source and rendered HTML may be exported as a capture. Anything else is a
-// digested projection and is reported, never exported.
 export function rawCapturePayloadProblem(payload) {
   if (!isPlainObject(payload)) return "payload is not a JSON object";
   try {
@@ -236,12 +227,6 @@ export function rawCapturePayloadProblem(payload) {
   return null;
 }
 
-// meta.json is the corpus's own projection of the get_one payload: every
-// field except content/html. Two fields the XML-RPC transport always
-// returns but the wikidot.py fallback does not (parent_title, title_shown)
-// are filled with null when absent, matching the nullable shape the corpus
-// records and the Wikijump importer both accept; the raw payload in
-// api-response.json keeps the fetched fields exactly.
 export function deriveMetaProjection(canonicalPayload) {
   const meta = {};
   for (const [key, value] of Object.entries(canonicalPayload)) {
@@ -282,10 +267,6 @@ function readEntityIdFile(branchRoot, fullname) {
   return text.length > 0 ? text : null;
 }
 
-// Identity reuse: a page that already has a corpus identity keeps it, so an
-// exported record joins the existing entity instead of forking a second
-// one. Lookup order: the export branch itself, the identity source branch,
-// then either index's entities by (site, current_fullname).
 function resolveEntityId({branchRoot, identityBranchRoot, site, fullname}) {
   for (const root of [branchRoot, identityBranchRoot]) {
     if (root === null || root === undefined) continue;
@@ -354,8 +335,6 @@ function readJsonIfExists(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
-// Change classification against the projection already stored in the export
-// branch, using the corpus engine's observation kinds for page captures.
 function classifyChange(branchRoot, fullname, meta, contentSha256) {
   const pageDir = path.join(branchRoot, "pages", fullname);
   const previousMeta = readJsonIfExists(path.join(pageDir, "meta.json"));
@@ -415,9 +394,6 @@ class ExportRun {
     atomicWriteBytes(this.manifestPath, canonicalCorpusJsonBytes(this.manifest(extra)));
   }
 
-  // One ledger entry + one content-addressed object, as in
-  // CompleteCaptureStore.capture_response. Returns the reference recorded
-  // in snapshots: {method, object_path, payload_sha256, redactions}.
   recordResponse({method, request, payload, receivedAt}) {
     const redactions = [];
     const canonicalPayload = canonicalizeCaptureValue(payload, "payload", redactions);
@@ -447,18 +423,6 @@ class ExportRun {
   }
 }
 
-// Export one validated capture set as a single corpus run.
-//
-// captures: [{fullname?, transport, received_at?, payload, meta_payload?}]
-//   payload       the raw pages.get_one response, exactly as fetched.
-//   meta_payload  the raw pages.get_meta row when the transport returned
-//                 one; when absent, the meta response recorded in the run
-//                 is the projection of the same fetch (the fallback
-//                 transport's own pages_get_meta is derived from the same
-//                 page fetch in exactly this way), and meta.json is that
-//                 projection either way.
-// Captures whose payload fails the raw-capture guard are returned in
-// notExportable and write nothing.
 export function exportCorpusCaptures({
   exportRoot,
   branch,
@@ -636,11 +600,6 @@ export function exportCorpusCaptures({
   };
 }
 
-// Read one page's stored raw capture back out of an existing corpus branch:
-// the api-response.json payload, plus the pages.get_meta payload recovered
-// through the page's snapshot when one is recorded. Pages whose stored form
-// is a digested projection (no api-response.json, or one without the raw
-// content/html fields) are reported as not exportable.
 export function readStoredCorpusCapture(corpusRoot, branch, fullname) {
   assertSafeBranch(branch);
   assertSafePageFullname(fullname);

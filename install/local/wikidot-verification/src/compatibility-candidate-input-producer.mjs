@@ -34,9 +34,6 @@ const SITE_SLUG = "scpaiueouiuiuiui";
 const STANDARD_SITE_SLUG = "scp-wiki";
 const FOREIGN_SITE_ID = 6_000_006;
 const ACTOR_IDS = Object.freeze({ editor: 20_000_007, eligible: 20_000_008, registered: 20_000_009, pending: 20_000_010, banned: 20_000_011, other: 20_000_012 });
-// Retained live MiniRecentPosts authority uses this exact Wikidot identity.
-// Keeping a real imported identity here also keeps the candidate's public
-// avatar URL resolvable during the Q1034 category browser lifecycle.
 export const Q778_WIKIDOT_AUTHOR = Object.freeze({ user_id: 1_735_419, name: "Lt Flops", slug: "lt-flops" });
 const MEDIA_BROWSER_EVIDENCE = Object.freeze({
   M756_BROWSER_CACHE_TRANSITIONS: "E_ICON_OBSERVATIONS",
@@ -553,8 +550,6 @@ export async function prepareCompatibilityCandidateInputs(args) {
     const generalPath = path.join(args["output-private-dir"], "general-r11.json");
     const general = JSON.parse(await fs.readFile(generalPath, "utf8"));
 
-    // Candidate-owned users are created through the public Deepwell mutation seam. Only the platform-staff
-    // bootstrap session is inserted directly because no unauthenticated seam can mint that authority.
     const staffToken = `wj:${randomBytes(48).toString("base64url")}`;
     sql(database, `insert into session(session_token,user_id,created_at,expires_at,ip_address,user_agent,restricted,mfa_failed_attempts) values ($x$${staffToken}$x$,-1,now(),now()+interval '24 hours','127.0.0.1','compatibility input producer',false,0);`);
     let rpcId = 0;
@@ -564,9 +559,6 @@ export async function prepareCompatibilityCandidateInputs(args) {
       if (!response.ok || payload.error) throw new Error(`${method}: ${payload.error?.message ?? response.status}`);
       return payload.result ?? null;
     };
-    // B689 renders exact imported sources whose live DOM contains four retained
-    // Wikidot identities. Seed them before creating the pages so FTML resolves
-    // [[*user ...]] exactly as Wikidot did.
     for (const user of [...await b689BasaltUserFixtures(), ...await b689Scp8980UserFixtures()]) {
       const existing = await rpc("user_get", { user: user.user_id });
       if (existing === null) {
@@ -664,13 +656,6 @@ export async function prepareCompatibilityCandidateInputs(args) {
       markerPages.push(await page(fixture.slug, fixture.title, fixture.wikitext, { siteId: FOREIGN_SITE_ID }));
     }
 
-    // B689/B690 are retained live-mirror canaries for scp-wiki. The promotion
-    // candidate deliberately seals both the canonical scp-wiki projection and a
-    // separate editable compatibility projection; do not copy the live canaries
-    // into the editable site merely because most mutation cases run there.
-    // theme:basalt is part of the maintained scp-wiki seed already. Verify that
-    // exact source, then install only the missing SCP-8980 graph on that site and
-    // re-render after parenting so parent="." resolves against the final graph.
     const b689Fixtures = await b689Scp8980CandidateFixtures();
     const standardSite = await rpc("site_get", { site: STANDARD_SITE_SLUG });
     if (!Number.isSafeInteger(standardSite?.site_id)) {
@@ -703,7 +688,6 @@ export async function prepareCompatibilityCandidateInputs(args) {
     for (const dependency of B690_SCP2117_DEPENDENCIES) {
       const wikitext = await fs.readFile(dependency.path, "utf8");
       if (sha256(wikitext) !== dependency.sha256) throw new Error(`B690 navigation dependency drifted: ${dependency.slug}`);
-      // The referenced foreign CSS-only include is outside the candidate site graph; preserve the local component while removing only its unresolved include placeholder.
       const candidateWikitext = wikitext.replace("[[include :topia:pride-animated-source]]", "");
       await page(dependency.slug, dependency.title, candidateWikitext, { siteId: standardSiteId, imported: true, tags: dependency.tags });
     }
@@ -793,8 +777,6 @@ export async function prepareCompatibilityCandidateInputs(args) {
     const q1036 = await page("q1036-saved-boundary", "Q1036 saved boundary", Q1036_SAVED_SOURCE);
     Object.assign(general, { saved_page_id: q1036.page_id, saved_revision_id: q1036.revision_id, saved_page_slug: q1036.slug });
 
-    // This fixture is an insert-only import. A same-ID row is an authoritative
-    // identity collision, not permission to guess a rename/delete refresh.
     const q1026UserIds = Object.values(Q1026_USER_FIXTURES).map(({ user_id }) => user_id).join(",");
     const q1026Existing = sql(database, `select user_id from wikidot_user where user_id in (${q1026UserIds}) order by user_id;`);
     if (q1026Existing !== "") throw new Error("Q1026 insert-only user seed found an existing same-ID identity");
@@ -829,7 +811,6 @@ export async function prepareCompatibilityCandidateInputs(args) {
     sql(database, `update page_revision set hidden=array['title','slug'] where revision_id=${backHidden.revision_id};`);
     await rpc("page_delete", { site_id: SITE_ID, page: backDeleted.page_id, last_revision_id: backDeleted.revision_id, revision_comments: "backlinks deleted fixture", user_id: -1, ip_address: "127.0.0.1" }, { siteId: SITE_ID });
 
-    // Forum rows use high candidate-owned IDs because there is no public creation seam for groups/categories/threads.
     sql(database, `insert into forum_group(forum_group_id,site_id,created_by,name,description,visible,sort_index,from_wikidot) values (9000100,${SITE_ID},-1,'Q1034 group','candidate fixture',true,0,false); insert into forum_category(forum_category_id,forum_group_id,site_id,created_by,name,description,sort_index,from_wikidot,max_nest_level,per_page_discussion) values (9000101,9000100,${SITE_ID},-1,'Q1034 primary','candidate fixture',0,false,10,true),(9000102,9000100,${SITE_ID},-1,'Q1034 pagination','candidate fixture',1,false,10,false); insert into role_permission(role_id,site_id,resource_type,resource_category_id,action) select role_id,${SITE_ID},'forum-category',category_id,'create' from role cross join (values(9000101),(9000102)) c(category_id) where site_id=${SITE_ID} and name in ('root','admin') on conflict do nothing; insert into forum_thread(forum_thread_id,forum_category_id,forum_group_id,site_id,page_id,created_by,created_at,title,description,sticky,from_wikidot) values (9100101,9000101,9000100,${SITE_ID},null,${ACTOR_IDS.editor},now()-interval '1 minute','visible-thread','Q1034 visible thread',false,false),(9100122,9000101,9000100,${SITE_ID},${q1034Pages.comments_forward.page_id},${ACTOR_IDS.editor},now(),'comments-forward-thread','Q1034 comments forward',false,false),(9100123,9000101,9000100,${SITE_ID},${q1034Pages.comments_reverse.page_id},${ACTOR_IDS.editor},now(),'comments-reverse-thread','Q1034 comments reverse',false,false),(9100124,9000101,9000100,${SITE_ID},${forumMini.page_id},${ACTOR_IDS.editor},now(),'q778-mini-posts','Q778 mini post fixture',false,false); insert into forum_thread(forum_thread_id,forum_category_id,forum_group_id,site_id,page_id,created_by,created_at,title,description,sticky,from_wikidot) select 9200000+g,9000102,9000100,${SITE_ID},null,${ACTOR_IDS.editor},now()-(g||' seconds')::interval,'pagination-'||lpad(g::text,3,'0'),'Q1034 pagination',false,false from generate_series(1,221) g; update page set discussion_thread_id=9100122 where page_id=${q1034Pages.comments_forward.page_id}; update page set discussion_thread_id=9100123 where page_id=${q1034Pages.comments_reverse.page_id}; select setval('forum_group_forum_group_id_seq',greatest((select max(forum_group_id) from forum_group),9000100),true); select setval('forum_category_forum_category_id_seq',greatest((select max(forum_category_id) from forum_category),9000102),true); select setval('forum_thread_forum_thread_id_seq',greatest((select max(forum_thread_id) from forum_thread),9200221),true);`);
     clearCandidateRedisCache(cache);
     const post = async (thread, title, wikitext) => await rpc("forum_post_create", { site_id: SITE_ID, forum_thread_id: thread, parent_post_id: null, title, wikitext, guest_name: null, guest_email_md5: null }, { token: tokens.editor.token, siteId: SITE_ID });
@@ -898,9 +879,6 @@ export async function prepareCompatibilityCandidateInputs(args) {
     await fs.writeFile(mediaPath, `${JSON.stringify(mediaInput, null, 2)}\n`, { mode: 0o600, flag: "wx" });
     privateFiles.push("media-browser.json");
 
-    // The runtime media denominator fixes its mutation actor to the platform
-    // bootstrap administrator (-1). Keep that exact actor in a dedicated input
-    // instead of widening the generic editor identity used by other cases.
     const mediaFilesInput = structuredClone(general);
     mediaFilesInput.actors.editor = structuredClone(general.actors.administrator);
     const mediaFilesPath = path.join(args["output-private-dir"], "media-files.json");

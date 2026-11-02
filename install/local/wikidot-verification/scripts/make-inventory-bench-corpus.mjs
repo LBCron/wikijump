@@ -1,11 +1,3 @@
-// Synthetic documentation corpus for the campaign inventory BFS bench.
-//
-// The shape is chosen to exercise the traversal rather than to be realistic:
-// a deep include chain drives recursion depth, a few hub pages accumulate many
-// incoming edges, duplicated references force reason-set deduplication, and
-// absent includes populate the missing-reference list.
-//
-// Usable as a module (makeCorpus) or a CLI (node make-inventory-bench-corpus.mjs <docsRoot> <pageCount> <fanIn>).
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -42,16 +34,10 @@ export async function makeCorpus({ docsRoot, pageCount, fanIn }) {
     "[[include doc-include:snippet-0]]\n"
   );
 
-  // A wide include DAG over module documentation. Each page links forward to
-  // the next `fanIn` module pages, which sort *after* the current one, so a
-  // discovered target stays pending and the queue length tracks the edge count
-  // rather than the node count. That is the shape the previous implementation
-  // re-sorted on every discovered edge.
   for (let i = 0; i < pageCount; i += 1) {
     const body = [
       `++ Module ${i}`,
       `[[include doc-include:snippet-${i % pageCount}]]`,
-      // Verbatim repeats, so a target's reason set has real duplicates.
       "[[include doc-include:snippet-0]]",
       "[[include doc-include:snippet-0]]",
       `[[include doc-include:absent-${i}]]`,

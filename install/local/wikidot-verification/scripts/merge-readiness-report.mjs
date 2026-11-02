@@ -1,15 +1,4 @@
 #!/usr/bin/env node
-// Merge-readiness report (agent-runnable): combine validator verdict files
-// and the branch deviation log into a single merge-ready verdict.
-//
-// Usage:
-//   merge-readiness-report.mjs --output <report.json> [--branch <name>] \
-//     [--deviation-log <deviations.jsonl>] \
-//     [--validator <name>=<verdict.json> ...] [--run-id <id>]
-//
-// A validator verdict file counts as passing when it either records
-// exit_code 0 or (for V3) zero regressions / (for V1-V2) meets its own gate.
-// Exit codes: 0 merge-ready, 1 blockers present, 2 structural failure.
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -75,7 +64,6 @@ export function parseArgs(argv) {
   return args;
 }
 
-// Derive an effective exit code from a verdict file's own aggregate.
 export function verdictExitCode(verdict) {
   if (['wikijump.compatibility_final_zero_receipt.v1', 'wikijump_syntax_differential.identity_bound_verdict.v1', 'wikijump_syntax_differential.runtime_stack_cleanup.v1', STANDING_CANDIDATE_PARITY_ADMISSION_SCHEMA].includes(verdict?.schema)) {
     return verdict.status === 'pass' ? 0 : verdict.status === 'fail' ? 1 : 2;

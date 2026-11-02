@@ -21,7 +21,6 @@ async function hasSymlinkedParent(artifactRoot, relativePath) {
     try {
       if ((await lstat(parent)).isSymbolicLink()) return true;
     } catch (error) {
-      // Preserve the existing file-missing/not-regular diagnostics below.
       if (error.code === "ENOENT" || error.code === "ENOTDIR") return false;
       throw error;
     }

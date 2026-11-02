@@ -67,7 +67,6 @@ test('escaped count only discounts matching occurrences', () => {
     html: '<body>[[image foo.png]] [[image bar.png]]</body>',
     source,
   });
-  // one escaped + one genuinely leaked
   assert.deepEqual(page.categories, ['leaked-marker']);
   assert.equal(page.findings[0].count, 1);
 });

@@ -1381,7 +1381,7 @@ impl PageRevisionService {
             tags: &revision.tags,
         };
 
-        Self::render_and_update_links(
+        let output = Self::render_and_update_links(
             ctx,
             id,
             wikitext,
@@ -1389,7 +1389,30 @@ impl PageRevisionService {
             allow_corpus_dense_includes,
             trace,
         )
-        .await
+        .await?;
+
+        // Rendering persisted this revision's hosted text blocks inside
+        // the caller's transaction. If a newer revision was saved while
+        // we were rendering, those block writes are stale: committing
+        // them would leave the page serving the new revision's compiled
+        // output with the old revision's blocks (finding F2, issue
+        // #3461). Fail instead, so the caller's transaction rolls the
+        // stale writes back and the newer revision's own render owns
+        // the blocks. A save that commits after this check but before
+        // the caller commits is outside what an ordering check can see;
+        // that residual is the commit gap, not the whole render.
+        let latest = Self::get_latest(ctx, id.site_id, id.page_id).await?;
+        if latest.revision_id != revision.revision_id {
+            bail!(Error::new(
+                format!(
+                    "revision {} of page ID {} was superseded by revision {} during render; discarding the stale render",
+                    revision.revision_id, id.page_id, latest.revision_id,
+                ),
+                ErrorType::PageRevision,
+            ));
+        }
+
+        Ok(output)
     }
 
     async fn rerender_inner(

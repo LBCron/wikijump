@@ -840,11 +840,11 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)?;
 
-        // Finally, clear out any hosted text blocks
+        // Finally, clear out any hosted text blocks.
         //
-        // We do this last because this involves
-        // removing from S3, which is not reversible
-        // in a database transaction rollback.
+        // The rows are deleted within this transaction, and the
+        // S3 objects are removed by a post-commit action once it
+        // commits, so a rollback leaves both intact.
         TextBlockService::delete_blocks(ctx, page_id)
             .await
             .or_raise(make_error)?;

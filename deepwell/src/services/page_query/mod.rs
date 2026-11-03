@@ -27,7 +27,8 @@ mod structs;
 pub use self::compat_select::{SelectPageTags, SelectPages};
 pub use self::count_pages::{
     CountPagesExactCountEligibilityDiagnostics, CountPagesExactCountEligibilityInput,
-    count_pages_exact_count_eligibility_diagnostics,
+    CountPagesExactCountEvaluation, CountPagesExactTotal,
+    count_pages_exact_count_eligibility_diagnostics, evaluate_count_pages_exact_count,
 };
 pub use self::list_pages_diagnostics::{
     ListPagesRenderDiagnosticsInput, list_pages_render_diagnostics,

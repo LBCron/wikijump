@@ -29,6 +29,7 @@ use exn::ErrorExt;
 use futures::{StreamExt, stream};
 use sea_orm::{ConnectionTrait, DatabaseBackend, Statement, TransactionTrait, Value};
 use std::env;
+use std::fmt;
 use std::time::Instant;
 use time::OffsetDateTime;
 use time::format_description::well_known::Rfc3339;
@@ -40,13 +41,37 @@ const MAX_REPORTED_FAILURES: usize = 50;
 const MAX_REPORTED_SLOW_RENDERS: usize = 50;
 const SLOW_RENDER_MS: u64 = 1_000;
 
-const VALID_AHEAD_ROW: &str = "
-    ahead.revision_id = revision.revision_id
-    AND ahead.compiled_generator = $1
-    AND ahead.wikitext_hash = revision.wikitext_hash
-    AND ahead.source_updated_at IS NOT DISTINCT FROM revision.updated_at
-    AND ahead.rendered_at >= $2
-";
+#[derive(Debug)]
+struct ValidAheadRowPredicate {
+    compiled_generator: String,
+    rendered_at_or_after: OffsetDateTime,
+}
+
+impl ValidAheadRowPredicate {
+    fn new(compiled_generator: String, rendered_at_or_after: OffsetDateTime) -> Self {
+        Self {
+            compiled_generator,
+            rendered_at_or_after,
+        }
+    }
+
+    fn bind(&self, values: &mut Vec<Value>) {
+        values.push(Value::from(self.compiled_generator.clone()));
+        values.push(Value::from(self.rendered_at_or_after));
+    }
+}
+
+impl fmt::Display for ValidAheadRowPredicate {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str(
+            "ahead.revision_id = revision.revision_id \
+             AND ahead.compiled_generator = $1 \
+             AND ahead.wikitext_hash = revision.wikitext_hash \
+             AND ahead.source_updated_at IS NOT DISTINCT FROM revision.updated_at \
+             AND ahead.rendered_at >= $2",
+        )
+    }
+}
 
 #[derive(Debug)]
 pub struct RenderAheadService;
@@ -253,6 +278,11 @@ impl RenderAheadService {
             || Error::new("failed to promote render-ahead output", ErrorType::Render);
         let generator = COMPILED_GENERATOR.clone();
         let page_filter = page_ids.map(|ids| ids.to_vec());
+        let valid_ahead_row =
+            ValidAheadRowPredicate::new(generator.clone(), OffsetDateTime::UNIX_EPOCH);
+        let mut values = Vec::new();
+        valid_ahead_row.bind(&mut values);
+        values.push(Value::from(page_filter));
         let txn = state.database.begin().await.or_raise(make_error)?;
         let row = txn
             .query_one_raw(Statement::from_sql_and_values(
@@ -270,7 +300,7 @@ impl RenderAheadService {
                             compiled_generator = ahead.compiled_generator
                         FROM page_revision_render_ahead AS ahead
                         JOIN page ON page.latest_revision_id = ahead.revision_id
-                        WHERE {VALID_AHEAD_ROW}
+                        WHERE {valid_ahead_row}
                         AND page.deleted_at IS NULL
                         AND revision.compiled_generator <> $1
                         AND ($3::BIGINT[] IS NULL OR ahead.page_id = ANY($3))
@@ -291,11 +321,7 @@ impl RenderAheadService {
                         ) AS site_ids
                     "#,
                 ),
-                [
-                    Value::from(generator.clone()),
-                    Value::from(OffsetDateTime::UNIX_EPOCH),
-                    Value::from(page_filter),
-                ],
+                values,
             ))
             .await
             .or_raise(make_error)?
@@ -330,6 +356,15 @@ impl RenderAheadService {
                 ErrorType::Render,
             )
         };
+        let valid_ahead_row =
+            ValidAheadRowPredicate::new(COMPILED_GENERATOR.clone(), not_before(settings));
+        let mut values = Vec::new();
+        valid_ahead_row.bind(&mut values);
+        values.extend([
+            Value::from(after_page_id),
+            Value::from(settings.page_ids.clone()),
+            Value::from(settings.batch_size),
+        ]);
         let rows = state
             .database
             .query_all_raw(Statement::from_sql_and_values(
@@ -346,19 +381,13 @@ impl RenderAheadService {
                     AND ($4::BIGINT[] IS NULL OR page.page_id = ANY($4))
                     AND NOT EXISTS (
                         SELECT 1 FROM page_revision_render_ahead AS ahead
-                        WHERE {VALID_AHEAD_ROW}
+                        WHERE {valid_ahead_row}
                     )
                     ORDER BY page.page_id
                     LIMIT $5
                     "#,
                 ),
-                [
-                    Value::from(COMPILED_GENERATOR.clone()),
-                    Value::from(not_before(settings)),
-                    Value::from(after_page_id),
-                    Value::from(settings.page_ids.clone()),
-                    Value::from(settings.batch_size),
-                ],
+                values,
             ))
             .await
             .or_raise(make_error)?;
@@ -382,6 +411,11 @@ impl RenderAheadService {
     ) -> Result<i64> {
         let make_error =
             || Error::new("failed to count render-ahead stragglers", ErrorType::Render);
+        let valid_ahead_row =
+            ValidAheadRowPredicate::new(COMPILED_GENERATOR.clone(), not_before(settings));
+        let mut values = Vec::new();
+        valid_ahead_row.bind(&mut values);
+        values.push(Value::from(settings.page_ids.clone()));
         let row = state
             .database
             .query_one_raw(Statement::from_sql_and_values(
@@ -397,15 +431,11 @@ impl RenderAheadService {
                     AND ($3::BIGINT[] IS NULL OR page.page_id = ANY($3))
                     AND NOT EXISTS (
                         SELECT 1 FROM page_revision_render_ahead AS ahead
-                        WHERE {VALID_AHEAD_ROW}
+                        WHERE {valid_ahead_row}
                     )
                     "#,
                 ),
-                [
-                    Value::from(COMPILED_GENERATOR.clone()),
-                    Value::from(not_before(settings)),
-                    Value::from(settings.page_ids.clone()),
-                ],
+                values,
             ))
             .await
             .or_raise(make_error)?

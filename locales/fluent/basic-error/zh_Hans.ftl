@@ -6,6 +6,10 @@ basic-error-site-slug = <h1>该网址不存在 { -service-name } 站点</h1>
     </p>
 
     <p>
+      想要创建此站点吗？你可以使用地址 <code>{ $slug }.{ $main_domain }</code> <a href="https://www.{ $main_domain }/new-site">创建一个新站点</a>。
+    </p>
+
+    <p>
       返回 <a href="https://{ $main_domain }/">{ -service-name }</a>。
     </p>
 

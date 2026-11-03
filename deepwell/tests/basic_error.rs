@@ -42,6 +42,14 @@ async fn basic_error_endpoints_generate_localized_html() {
     );
     assert!(!site_slug.title.is_empty());
     assert!(site_slug.body.contains("wikijump.com"));
+    assert!(site_slug.body.contains("missing-site.wikijump.com"));
+    assert!(
+        site_slug
+            .body
+            .contains("https://www.wikijump.com/new-site"),
+        "missing-site page must offer the site creation flow: {}",
+        site_slug.body,
+    );
 
     let custom = run_endpoint!(
         runner,

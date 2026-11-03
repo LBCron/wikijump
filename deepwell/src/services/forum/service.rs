@@ -18,22 +18,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code)]
-
 use super::structs::{
     CreateForumCategory, CreateForumGroup, DeleteForumCategory, DeleteForumGroup,
-    ForumGroupStructure, GetForumCategories, GetForumCategory, GetForumGroup,
-    GetForumGroups, GetForumStructure, UpdateForumCategory, UpdateForumCategoryBody,
-    UpdateForumGroup, UpdateForumGroupBody,
+    ForumGroupStructure, GetForumCategory, GetForumGroup, GetForumGroups,
+    GetForumStructure,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::forum_category::{
     self, Entity as ForumCategory, Model as ForumCategoryModel,
 };
 use crate::models::forum_group::{self, Entity as ForumGroup, Model as ForumGroupModel};
-use crate::models::{forum_post, forum_post_revision, forum_thread};
 use crate::services::ServiceContext;
-use crate::types::Maybe;
 use crate::utils::now;
 use paste::paste;
 use sea_orm::{
@@ -89,63 +84,6 @@ impl ForumService {
         };
 
         let group = model.insert(txn).await.or_raise(make_error)?;
-        Ok(group)
-    }
-
-    pub async fn update_group(
-        ctx: &ServiceContext<'_>,
-        UpdateForumGroup {
-            forum_group_id,
-            user_id,
-            body:
-                UpdateForumGroupBody {
-                    name,
-                    description,
-                    visible,
-                    sort_index,
-                },
-        }: UpdateForumGroup,
-    ) -> Result<ForumGroupModel> {
-        let txn = ctx.transaction();
-        let make_error = || {
-            Error::new(
-                format!(
-                    "failed to update forum group ID {} by user ID {}",
-                    forum_group_id, user_id,
-                ),
-                ErrorType::ForumGroup,
-            )
-        };
-
-        let group = Self::get_group_direct(ctx, forum_group_id, false)
-            .await
-            .or_raise(make_error)?;
-
-        let mut model = forum_group::ActiveModel {
-            forum_group_id: Set(group.forum_group_id),
-            updated_by: Set(Some(user_id)),
-            updated_at: Set(Some(now())),
-            ..Default::default()
-        };
-
-        if let Maybe::Set(name) = name {
-            model.name = Set(name);
-        }
-
-        if let Maybe::Set(description) = description {
-            model.description = Set(description);
-        }
-
-        if let Maybe::Set(visible) = visible {
-            model.visible = Set(visible);
-        }
-
-        if let Maybe::Set(sort_index) = sort_index {
-            Self::check_sort_index(sort_index, "group sort index")?;
-            model.sort_index = Set(sort_index);
-        }
-
-        let group = model.update(txn).await.or_raise(make_error)?;
         Ok(group)
     }
 
@@ -214,17 +152,6 @@ impl ForumService {
             })?;
 
         Ok(group)
-    }
-
-    pub async fn get_group(
-        ctx: &ServiceContext<'_>,
-        key: GetForumGroup,
-    ) -> Result<ForumGroupModel> {
-        find_or_error!(
-            Self::get_group_optional(ctx, key),
-            "forum group",
-            ForumGroup
-        )
     }
 
     pub async fn get_group_direct_optional(
@@ -358,157 +285,6 @@ impl ForumService {
         Ok(category)
     }
 
-    pub async fn update_category(
-        ctx: &ServiceContext<'_>,
-        UpdateForumCategory {
-            forum_category_id,
-            user_id,
-            body:
-                UpdateForumCategoryBody {
-                    forum_group_id,
-                    name,
-                    description,
-                    sort_index,
-                    max_nest_level,
-                    per_page_discussion,
-                    layout,
-                },
-        }: UpdateForumCategory,
-    ) -> Result<ForumCategoryModel> {
-        let txn = ctx.transaction();
-        let make_error = || {
-            Error::new(
-                format!(
-                    "failed to update forum category ID {} by user ID {}",
-                    forum_category_id, user_id,
-                ),
-                ErrorType::ForumCategory,
-            )
-        };
-
-        let category = Self::get_category_direct(ctx, forum_category_id, false)
-            .await
-            .or_raise(make_error)?;
-
-        let mut new_group_id = category.forum_group_id;
-        let mut new_site_id = category.site_id;
-
-        if let Maybe::Set(forum_group_id) = forum_group_id {
-            let group = Self::get_group_direct(ctx, forum_group_id, false)
-                .await
-                .or_raise(make_error)?;
-
-            if group.site_id != category.site_id {
-                bail!(Error::new(
-                    format!(
-                        "cannot move forum category ID {} to group ID {} in a different site",
-                        forum_category_id, forum_group_id,
-                    ),
-                    ErrorType::BadRequest,
-                ));
-            }
-
-            new_group_id = group.forum_group_id;
-            new_site_id = group.site_id;
-        }
-
-        if let Maybe::Set(sort_index) = sort_index {
-            Self::check_sort_index(sort_index, "category sort index")?;
-        }
-
-        if let Maybe::Set(Some(max_nest_level)) = max_nest_level {
-            Self::check_max_nest_level(max_nest_level)?;
-        }
-
-        let moved_group =
-            category.forum_group_id != new_group_id || category.site_id != new_site_id;
-
-        let mut model = forum_category::ActiveModel {
-            forum_category_id: Set(category.forum_category_id),
-            forum_group_id: Set(new_group_id),
-            site_id: Set(new_site_id),
-            updated_by: Set(Some(user_id)),
-            updated_at: Set(Some(now())),
-            ..Default::default()
-        };
-
-        if let Maybe::Set(name) = name {
-            model.name = Set(name);
-        }
-
-        if let Maybe::Set(description) = description {
-            model.description = Set(description);
-        }
-
-        if let Maybe::Set(sort_index) = sort_index {
-            model.sort_index = Set(sort_index);
-        }
-
-        if let Maybe::Set(max_nest_level) = max_nest_level {
-            model.max_nest_level = Set(max_nest_level);
-        }
-
-        if let Maybe::Set(per_page_discussion) = per_page_discussion {
-            model.per_page_discussion = Set(per_page_discussion);
-        }
-
-        if let Maybe::Set(layout) = layout {
-            model.layout = Set(layout);
-        }
-
-        let category = model.update(txn).await.or_raise(make_error)?;
-
-        if moved_group {
-            let thread_model = forum_thread::ActiveModel {
-                forum_group_id: Set(new_group_id),
-                site_id: Set(new_site_id),
-                ..Default::default()
-            };
-
-            forum_thread::Entity::update_many()
-                .set(thread_model)
-                .filter(
-                    forum_thread::Column::ForumCategoryId.eq(category.forum_category_id),
-                )
-                .exec(txn)
-                .await
-                .or_raise(make_error)?;
-
-            let post_model = forum_post::ActiveModel {
-                forum_group_id: Set(new_group_id),
-                site_id: Set(new_site_id),
-                ..Default::default()
-            };
-
-            forum_post::Entity::update_many()
-                .set(post_model)
-                .filter(
-                    forum_post::Column::ForumCategoryId.eq(category.forum_category_id),
-                )
-                .exec(txn)
-                .await
-                .or_raise(make_error)?;
-
-            let revision_model = forum_post_revision::ActiveModel {
-                forum_group_id: Set(new_group_id),
-                site_id: Set(new_site_id),
-                ..Default::default()
-            };
-
-            forum_post_revision::Entity::update_many()
-                .set(revision_model)
-                .filter(
-                    forum_post_revision::Column::ForumCategoryId
-                        .eq(category.forum_category_id),
-                )
-                .exec(txn)
-                .await
-                .or_raise(make_error)?;
-        }
-
-        Ok(category)
-    }
-
     pub async fn delete_category(
         ctx: &ServiceContext<'_>,
         DeleteForumCategory {
@@ -627,41 +403,6 @@ impl ForumService {
             "forum category",
             ForumCategory,
         )
-    }
-
-    pub async fn list_categories(
-        ctx: &ServiceContext<'_>,
-        GetForumCategories {
-            site_id,
-            forum_group_id,
-            include_deleted,
-        }: GetForumCategories,
-    ) -> Result<Vec<ForumCategoryModel>> {
-        let txn = ctx.transaction();
-        let categories = ForumCategory::find()
-            .filter(
-                Condition::all()
-                    .add(forum_category::Column::SiteId.eq(site_id))
-                    .add_option(
-                        forum_group_id
-                            .map(|id| forum_category::Column::ForumGroupId.eq(id)),
-                    )
-                    .add_option(Self::deleted_condition(
-                        include_deleted,
-                        forum_category::Column::DeletedAt,
-                    )),
-            )
-            .order_by_asc(forum_category::Column::SortIndex)
-            .all(txn)
-            .await
-            .or_raise(|| {
-                Error::new(
-                    format!("failed to list forum categories in site ID {}", site_id),
-                    ErrorType::ForumCategory,
-                )
-            })?;
-
-        Ok(categories)
     }
 
     pub async fn get_structure(

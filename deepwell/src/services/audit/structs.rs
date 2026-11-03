@@ -183,7 +183,6 @@ pub enum AuditEvent<'a> {
         description: Option<&'a str>,
         updating_user_id: i64,
     },
-    #[allow(dead_code)]
     RoleDelete {
         role_id: i64,
         deleting_user_id: i64,

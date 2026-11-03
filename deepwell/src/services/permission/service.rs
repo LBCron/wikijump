@@ -42,7 +42,6 @@ use std::collections::{BTreeMap, HashSet};
 #[derive(Debug)]
 pub struct PermissionService;
 
-#[allow(dead_code)]
 impl PermissionService {
     pub async fn check_user_can_view_page(
         ctx: &ServiceContext<'_>,

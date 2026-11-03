@@ -50,14 +50,6 @@ pub fn trim_start_matches_in_place(string: &mut String, pattern: &str) {
         string.drain(..pattern.len());
     }
 }
-
-#[allow(dead_code)]
-pub fn trim_end_matches_in_place(string: &mut String, pattern: &str) {
-    if string.ends_with(pattern) {
-        string.drain(string.len() - pattern.len()..);
-    }
-}
-
 #[inline]
 pub fn trim_spaces_in_place(string: &mut String) {
     regex_replace_in_place(string, regex!(r"(^\s+)|(\s+$)"), "");
@@ -139,23 +131,6 @@ fn test_trim_start_matches_in_place() {
     test!(">>> foo" => "foo", ">>> ");
     test!("[foo]" => "[foo]", ">>> ");
     test!("悪い🥭!" => "🥭!", "悪い");
-}
-
-#[test]
-fn test_trim_end_matches_in_place() {
-    macro_rules! test {
-        ($input:expr => $output:expr, $pattern:expr $(,)?) => {{
-            let mut string = str!($input);
-            trim_end_matches_in_place(&mut string, $pattern);
-            assert_eq!(string, $output, "Trimmed contents did not match expected");
-        }};
-    }
-
-    test!("" => "", "_");
-    test!("_foo_" => "_foo", "_");
-    test!(">>> foo" => ">>> foo", ">>> ");
-    test!("foo <<<" => "foo", " <<<");
-    test!("🥭 腐った" => "🥭 ", "腐った");
 }
 
 #[test]

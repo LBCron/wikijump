@@ -332,6 +332,59 @@ impl PageEditLockService {
         Ok(())
     }
 
+    pub(crate) async fn conflicting_live_rows(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        mode: PageEditLockMode,
+        section_index: Option<i32>,
+    ) -> Result<Vec<PageEditLockModel>> {
+        let rows = Self::rows_for_page(ctx, page_id).await?;
+        let now = now();
+
+        Ok(rows
+            .into_iter()
+            .filter(|row| {
+                is_live(row, now)
+                    && modes_conflict(mode, section_index, row.mode, row.section_index)
+            })
+            .collect())
+    }
+
+    pub(crate) async fn kill_conflicting_live(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        mode: PageEditLockMode,
+        section_index: Option<i32>,
+    ) -> Result<()> {
+        let rows = Self::conflicting_live_rows(ctx, page_id, mode, section_index).await?;
+
+        for row in rows {
+            Self::delete_by_id(ctx, row.page_edit_lock_id).await?;
+        }
+
+        Ok(())
+    }
+
+    pub(crate) async fn delete_all_for_page(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+
+        PageEditLock::delete_many()
+            .filter(page_edit_lock::Column::PageId.eq(page_id))
+            .exec(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!("failed to delete page edit locks for page ID {page_id}"),
+                    ErrorType::Page,
+                )
+            })?;
+
+        Ok(())
+    }
+
     async fn lock_page(
         ctx: &ServiceContext<'_>,
         page_id: i64,

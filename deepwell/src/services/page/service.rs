@@ -1075,6 +1075,39 @@ WHERE page.site_id = $1
         check_last_revision(None, latest_revision_id, last_revision_id)
             .or_raise(make_error)?;
 
+        let locked_page = Self::get_direct_optional_for_update(ctx, page_id, false)
+            .await
+            .or_raise(make_error)?;
+
+        if locked_page.is_none() {
+            bail!(Error::new(
+                format!(
+                    "page ID {} was deleted before the move could proceed",
+                    page_id,
+                ),
+                ErrorType::Page,
+            ));
+        }
+
+        let lease_conflicts = PageEditLockService::conflicting_live_rows(
+            ctx,
+            page_id,
+            PageEditLockMode::Page,
+            None,
+        )
+        .await
+        .or_raise(make_error)?;
+
+        if !lease_conflicts.is_empty() {
+            bail!(Error::new(
+                format!(
+                    "page '{}' (ID {}) has a live edit lock and cannot be moved",
+                    old_slug, page_id,
+                ),
+                ErrorType::PageEditLockConflict,
+            ));
+        }
+
         if old_slug == new_slug {
             bail!(Error::new(
                 format!(
@@ -1234,6 +1267,17 @@ WHERE page.site_id = $1
             .or_raise(make_error)
             .or_raise(make_error)?;
 
+        let locked_page = Self::get_direct_optional_for_update(ctx, page_id, false)
+            .await
+            .or_raise(make_error)?;
+
+        if locked_page.is_none() {
+            bail!(Error::new(
+                format!("page ID {} was already deleted", page_id),
+                ErrorType::Page,
+            ));
+        }
+
         let output = PageRevisionService::create_tombstone(
             ctx,
             CreateTombstonePageRevision {
@@ -1256,6 +1300,10 @@ WHERE page.site_id = $1
         };
         let page = model.update(txn).await.or_raise(make_error)?;
         assert_latest_revision(&page);
+
+        PageEditLockService::delete_all_for_page(ctx, page_id)
+            .await
+            .or_raise(make_error)?;
 
         AuditService::log(
             ctx,
@@ -1326,6 +1374,17 @@ WHERE page.site_id = $1
             ));
         }
 
+        let locked_page = Self::get_direct_optional_for_update(ctx, page_id, true)
+            .await
+            .or_raise(make_error)?;
+
+        if locked_page.is_none() {
+            bail!(Error::new(
+                format!("page ID {} no longer exists", page_id),
+                ErrorType::Page,
+            ));
+        }
+
         Self::check_conflicts(ctx, site_id, &slug, "restore")
             .await
             .or_raise(make_error)?;
@@ -1353,6 +1412,15 @@ WHERE page.site_id = $1
                 new_slug: slug.clone(),
             },
             last_revision,
+        )
+        .await
+        .or_raise(make_error)?;
+
+        PageEditLockService::kill_conflicting_live(
+            ctx,
+            page_id,
+            PageEditLockMode::Page,
+            None,
         )
         .await
         .or_raise(make_error)?;
@@ -1440,6 +1508,20 @@ WHERE page.site_id = $1
             )
         };
 
+        let locked_page = Self::get_direct_optional_for_update(ctx, page_id, false)
+            .await
+            .or_raise(make_error)?;
+
+        if locked_page.is_none() {
+            bail!(Error::new(
+                format!(
+                    "page ID {} was deleted before the rollback could proceed",
+                    page_id,
+                ),
+                ErrorType::Page,
+            ));
+        }
+
         let (target_revision, last_revision) = join!(
             PageRevisionService::get(
                 ctx,
@@ -1513,6 +1595,17 @@ WHERE page.site_id = $1
                     raise_if_revision_insert_conflict(error, last_revision_id)
                 })
                 .or_raise(make_error)?;
+
+        if persisted_revision.is_some() {
+            PageEditLockService::kill_conflicting_live(
+                ctx,
+                page_id,
+                PageEditLockMode::Page,
+                None,
+            )
+            .await
+            .or_raise(make_error)?;
+        }
 
         let latest_revision_id = match persisted_revision {
             Some(ref revision) => ActiveValue::Set(Some(revision.output.revision_id)),

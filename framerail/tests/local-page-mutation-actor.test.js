@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -8,9 +7,13 @@ import { createTestViteServer } from "./vite-test-server.js"
 const root = fileURLToPath(new URL("..", import.meta.url))
 const LOCAL_SITE = "scpaiueouiuiuiui"
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let requirePageMutationUserId
+/** @type {any} */
 let deepwellRequestHeaders
 
 before(async () => {
@@ -31,6 +34,7 @@ after(async () => {
 })
 
 test("the local page mutation actor is wired into the trusted Deepwell request", () => {
+  /** @type {any} */
   const requestContext = { siteId: 17, page: "draft" }
   const context = {
     requestContext,
@@ -55,6 +59,7 @@ test("mirrors and cross-site submissions never mark a local Deepwell actor", () 
     ["scp-jp", 17, 17],
     [LOCAL_SITE, 17, 18]
   ]) {
+    /** @type {any} */
     const requestContext = { siteId: requestSiteId }
     const context = {
       requestContext,
@@ -74,6 +79,7 @@ test("mirrors and cross-site submissions never mark a local Deepwell actor", () 
 })
 
 test("authenticated mutations keep their session actor and do not set the local marker", () => {
+  /** @type {any} */
   const requestContext = { siteId: 17, sessionToken: "session-token" }
   const context = {
     requestContext,

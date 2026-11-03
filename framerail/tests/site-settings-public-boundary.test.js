@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { once } from "node:events"
 import { readFile } from "node:fs/promises"
@@ -14,26 +13,46 @@ const siteId = 17
 const settingsRevision = 4
 const sessionToken = "site-settings-session"
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let readable
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let adminData
+/** @type {any} */
 let siteSettingsComponent
+/** @type {any} */
 let layoutSettingsComponent
+/** @type {any} */
 let analyticsSettingsComponent
+/** @type {any} */
 let membershipSettingsComponent
+/** @type {any} */
 let rootLayoutComponent
+/** @type {any} */
 let canonicalAdminPage
+/** @type {any} */
 let legacyAdminPage
+/** @type {any} */
 let canonicalAdminError
+/** @type {any} */
 let legacyAdminError
+/** @type {any} */
 let canonicalAdminServer
+/** @type {any} */
 let legacyAdminServer
+/** @type {any} */
 let wikidotCollapsibles
 
+/** @param {any} data @param {any} options */
 const requestContext = (
   data,
   { error = null, routeId = "/[x+2d]/admin", url = "https://wikijump.test/--/admin" } = {}
@@ -62,10 +81,12 @@ const requestContext = (
   ])
 }
 
+/** @param {any} component @param {any} props @param {any} context */
 const renderComponent = (component, props, context = requestContext(adminData)) => {
   return render(component, { props, context })
 }
 
+/** @param {any} action @param {any} fields @param {any} trustedSiteId */
 const actionEvent = (action, fields, trustedSiteId = siteId) => {
   const data = new FormData()
   for (const [name, value] of Object.entries(fields)) data.set(name, String(value))
@@ -79,6 +100,7 @@ const actionEvent = (action, fields, trustedSiteId = siteId) => {
       }
     }),
     cookies: {
+      /** @param {any} name */
       get(name) {
         assert.equal(name, "wikijump_token")
         return sessionToken
@@ -99,7 +121,7 @@ before(async () => {
   originalClientRequest = client.request
 
   const { loadAdminPage } = await vite.ssrLoadModule("/src/lib/server/load/admin.ts")
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     if (method === "admin_view") {
       return { type: "site_found", data: { categories: [], page_templates: [] } }
     }
@@ -243,9 +265,15 @@ describe("Wikidot site settings public boundaries", () => {
       constructor() {
         this.listeners = new Map()
         this.attributes = new Map()
+        /** @type {any} */
+        this.link = null
+        /** @type {any} */
+        this.querySelector = null
         const classes = new Set()
         this.classList = {
+          /** @param {any} name */
           contains: (name) => classes.has(name),
+          /** @param {any} name @param {any} force */
           toggle: (name, force) => {
             const enabled = force ?? !classes.has(name)
             if (enabled) classes.add(name)
@@ -255,26 +283,32 @@ describe("Wikidot site settings public boundaries", () => {
         }
       }
 
+      /** @param {any} type @param {any} listener */
       addEventListener(type, listener) {
         this.listeners.set(type, listener)
       }
 
+      /** @param {any} type */
       removeEventListener(type) {
         this.listeners.delete(type)
       }
 
+      /** @param {any} element */
       contains(element) {
         return element === this.link
       }
 
+      /** @param {any} selector */
       closest(selector) {
         return selector === 'a.accordion-toggle[data-toggle="collapse"]' ? this : null
       }
 
+      /** @param {any} name */
       getAttribute(name) {
         return this.attributes.get(name) ?? null
       }
 
+      /** @param {any} name @param {any} value */
       setAttribute(name, value) {
         this.attributes.set(name, String(value))
       }
@@ -284,7 +318,8 @@ describe("Wikidot site settings public boundaries", () => {
     const link = new FakeElement()
     const panel = new FakeElement()
     root.link = link
-    root.querySelector = (selector) => (selector === "#collapseOne" ? panel : null)
+    root.querySelector = /** @param {any} selector */ (selector) =>
+      selector === "#collapseOne" ? panel : null
     link.attributes.set("href", "#collapseOne")
     link.attributes.set("aria-controls", "collapseOne")
     link.attributes.set("aria-expanded", "false")
@@ -292,8 +327,8 @@ describe("Wikidot site settings public boundaries", () => {
 
     const previousElement = globalThis.Element
     const previousHTMLElement = globalThis.HTMLElement
-    globalThis.Element = FakeElement
-    globalThis.HTMLElement = FakeElement
+    globalThis.Element = /** @type {any} */ (FakeElement)
+    globalThis.HTMLElement = /** @type {any} */ (FakeElement)
     try {
       const behavior = wikidotCollapsibles(root)
       assert.equal(panel.classList.contains("collapse"), true)
@@ -329,14 +364,16 @@ describe("Wikidot site settings public boundaries", () => {
       assert.equal(link.getAttribute("aria-expanded"), "true")
       behavior.destroy()
     } finally {
-      if (previousElement === undefined) delete globalThis.Element
+      if (previousElement === undefined) delete (/** @type {any} */ (globalThis).Element)
       else globalThis.Element = previousElement
-      if (previousHTMLElement === undefined) delete globalThis.HTMLElement
+      if (previousHTMLElement === undefined)
+        delete (/** @type {any} */ (globalThis).HTMLElement)
       else globalThis.HTMLElement = previousHTMLElement
     }
   })
 
   it("server-renders analytics, theme, and toolbar settings from the request view", () => {
+    /** @type {any} */
     const enabledData = {
       site: {
         name: "Rendered settings fixture",
@@ -539,7 +576,7 @@ describe("Wikidot site settings public boundaries", () => {
   })
 
   it("serves analytics through nonce-protected full-document SSR without a remote loader", async () => {
-    client.request = async (method) => {
+    client.request = /** @param {any} method */ async (method) => {
       if (method === "preload_view") {
         return {
           site: {
@@ -630,9 +667,14 @@ describe("Wikidot site settings public boundaries", () => {
         /name="wikidot-site-analytics-profile" content="UA-1-2" data-wikidot-site-analytics-valid="true"/u
       )
     } finally {
-      await new Promise((resolve, reject) => {
-        server.close((error) => (error ? reject(error) : resolve()))
-      })
+      await new Promise(
+        /**
+         * @param {(value?: any) => void} resolve @param {(reason?: any) =>
+         *   void} reject
+         */ (resolve, reject) => {
+          server.close((error) => (error ? reject(error) : resolve()))
+        }
+      )
       client.request = originalClientRequest
     }
   })
@@ -644,9 +686,12 @@ describe("Wikidot site settings public boundaries", () => {
     assert.ok(scriptStart >= 0)
     assert.ok(scriptEnd > scriptStart)
 
+    /** @type {any[]} */
     const selectors = []
+    /** @type {any} */
     const context = {
       document: {
+        /** @param {any} selector */
         querySelector(selector) {
           selectors.push(selector)
           return selector === 'meta[name="wikidot-site-analytics-profile"]'
@@ -772,15 +817,22 @@ describe("Wikidot site settings public boundaries", () => {
       }
     ]
 
+    /** @type {any[]} */
     const calls = []
     let sessionExpired = false
+    /** @type {any} */
     let mutationFailure = null
-    client.request = async (method, params, context) => {
-      calls.push({ method, params, context })
-      if (method === "session_get") return sessionExpired ? null : { user_id: 41 }
-      if (mutationFailure) throw mutationFailure
-      return { settings_revision: settingsRevision + 1 }
-    }
+    client.request =
+      /** @param {any} method @param {any} params @param {any} context */ async (
+        method,
+        params,
+        context
+      ) => {
+        calls.push({ method, params, context })
+        if (method === "session_get") return sessionExpired ? null : { user_id: 41 }
+        if (mutationFailure) throw mutationFailure
+        return { settings_revision: settingsRevision + 1 }
+      }
     try {
       for (const { action, fields, method, expected } of cases) {
         assert.equal(typeof canonicalAdminServer.actions[action], "function")
@@ -901,13 +953,19 @@ describe("Wikidot site settings public boundaries", () => {
     assert.equal(Object.hasOwn(data.site_settings.membership, "password"), false)
     assert.equal(Object.hasOwn(data.site_settings.membership, "password_hash"), false)
 
+    /** @type {any[]} */
     const calls = []
-    client.request = async (method, params, context) => {
-      calls.push({ method, params, context })
-      if (method === "session_get") return { user_id: 41 }
-      if (method === "membership_application_review") return "accepted"
-      throw new Error(`Unexpected Deepwell method ${method}`)
-    }
+    client.request =
+      /** @param {any} method @param {any} params @param {any} context */ async (
+        method,
+        params,
+        context
+      ) => {
+        calls.push({ method, params, context })
+        if (method === "session_get") return { user_id: 41 }
+        if (method === "membership_application_review") return "accepted"
+        throw new Error(`Unexpected Deepwell method ${method}`)
+      }
     try {
       const result = await canonicalAdminServer.actions.membershipReview(
         actionEvent("membershipReview", {
@@ -938,13 +996,19 @@ describe("Wikidot site settings public boundaries", () => {
   })
 
   it("page template settings bind the category mutation to the trusted site actor", async () => {
+    /** @type {any[]} */
     const calls = []
-    client.request = async (method, params, context) => {
-      calls.push({ method, params, context })
-      if (method === "session_get") return { user_id: 41 }
-      if (method === "category_update") return { category_id: 23, template_page_id: 91 }
-      throw new Error(`Unexpected Deepwell method ${method}`)
-    }
+    client.request =
+      /** @param {any} method @param {any} params @param {any} context */ async (
+        method,
+        params,
+        context
+      ) => {
+        calls.push({ method, params, context })
+        if (method === "session_get") return { user_id: 41 }
+        if (method === "category_update") return { category_id: 23, template_page_id: 91 }
+        throw new Error(`Unexpected Deepwell method ${method}`)
+      }
 
     const result = await canonicalAdminServer.actions.template(
       actionEvent("template", {
@@ -991,6 +1055,7 @@ describe("Wikidot site settings public boundaries", () => {
       form: null,
       params: {}
     }).body
+    /** @param {any} body */
     const formActions = (body) =>
       [...body.matchAll(/<form[^>]+action="([^"]+)"/gu)].map((match) => match[1])
     assert.deepEqual(formActions(legacyBody), formActions(canonicalBody))

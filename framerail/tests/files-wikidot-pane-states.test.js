@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Wikidot attachment pane states left open by #2067's acceptance items:
 // the successful zero-attachment list, the no-pagination large list, and
 // the File Information modal's static fields. The modal's upload-date
@@ -12,17 +11,28 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 import { wikidotFileSize } from "../src/lib/wikidot-file-contract.js"
 
+/** @param {any} value */
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let SvelteMap
+/** @type {any} */
 let fileListComponent
+/** @type {any} */
 let fileInfoModalComponent
 
+/**
+ * @param {any} fileId @param {any} name @param {any} mime @param {any}
+ *   size
+ */
 const fileEntry = (fileId, name, mime, size) => [
   fileId,
   {
@@ -46,6 +56,7 @@ const fileEntry = (fileId, name, mime, size) => [
   }
 ]
 
+/** @param {any} fileMap @param {any} internationalization */
 const listProps = (fileMap, internationalization = {}) => ({
   data: {
     internationalization,

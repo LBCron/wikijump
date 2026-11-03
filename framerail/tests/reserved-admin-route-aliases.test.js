@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -6,12 +5,19 @@ import { after, before, test } from "node:test"
 import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any[]} */
 let requests
+/** @type {any} */
 let pageRoute
+/** @type {any} */
 let printerRoute
 
 before(async () => {
@@ -20,7 +26,7 @@ before(async () => {
   vite = await createTestViteServer()
   ;({ client } = await vite.ssrLoadModule("/src/lib/server/deepwell/index.ts"))
   originalClientRequest = client.request
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     requests.push(method)
     throw new Error(`Unexpected Deepwell request: ${method}`)
   }
@@ -45,12 +51,16 @@ const request = new Request("https://site.example.test/_admin", {
 const cookies = { get: () => undefined }
 const locals = {}
 
+/** @param {any} load @param {any} params */
 async function assertRedirect(load, params) {
-  await assert.rejects(load({ params, request, cookies, locals }), (thrown) => {
-    assert.equal(thrown.status, 303)
-    assert.equal(thrown.location, "/_admin")
-    return true
-  })
+  await assert.rejects(
+    load({ params, request, cookies, locals }),
+    /** @param {any} thrown */ (thrown) => {
+      assert.equal(thrown.status, 303)
+      assert.equal(thrown.location, "/_admin")
+      return true
+    }
+  )
 }
 
 test("reserved admin no-render aliases redirect before article lookup", async () => {

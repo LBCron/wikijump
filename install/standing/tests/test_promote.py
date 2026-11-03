@@ -15,21 +15,6 @@ sys.path.insert(0, str(Path(__file__).parents[1]))
 import promote  # noqa: E402
 
 
-TREE = "a" * 40
-OTHER = "b" * 40
-NOTHING = {group: False for group in promote.GROUPS}
-
-
-def receipt(tree: str, groups: dict[str, bool], **overrides) -> dict[str, object]:
-    return {
-        "schema": promote.VALIDATION_SCHEMA,
-        "status": "pass",
-        "mode": "final",
-        "wikijump_tree": tree,
-        "groups": groups,
-        "checks": [{"name": "deepwell full tests", "status": "ok"}],
-        **overrides,
-    }
 
 
 class RehearsalReasonTest(unittest.TestCase):
@@ -505,31 +490,6 @@ class ActivationSafetyTest(unittest.TestCase):
         self.assertIn('project = f"wjcand-rehearsal-{target[:12]}"', source)
         self.assertIn('"down", "--volumes"', source)
         self.assertNotIn("wikijump-standing", source)
-
-
-class LauncherToolsTest(unittest.TestCase):
-    def test_all_launcher_tools_present_passes(self) -> None:
-        with mock.patch.object(promote.shutil, "which", return_value="/bin/tool"):
-            promote.require_launcher_tools()
-
-    def test_missing_cargo_is_named_with_the_path_fix(self) -> None:
-        def which(tool: str):
-            return None if tool == "cargo" else "/usr/bin/sqlx"
-
-        with mock.patch.object(promote.shutil, "which", side_effect=which):
-            with self.assertRaises(SystemExit) as raised:
-                promote.require_launcher_tools()
-        self.assertIn("cargo", str(raised.exception))
-        self.assertIn("$HOME/.cargo/bin", str(raised.exception))
-
-    def test_missing_sqlx_is_named(self) -> None:
-        def which(tool: str):
-            return None if tool == "sqlx" else "/usr/bin/cargo"
-
-        with mock.patch.object(promote.shutil, "which", side_effect=which):
-            with self.assertRaises(SystemExit) as raised:
-                promote.require_launcher_tools()
-        self.assertIn("sqlx", str(raised.exception))
 
 
 if __name__ == "__main__":

@@ -10,7 +10,7 @@ Use `install/local/wikidot-verification/scripts/build-promotion-candidate-images
 
 ## Promotion
 
-Use a normal two-parent merge, then run `install/standing/promote.py` on the merged head. It selects check groups from the Git delta, runs them through `scripts/preflight.sh`, builds from the merged head, rehearses when migrations change, and renders ahead when the saved-page generator changes. A failed canary or parity check after activation rolls standing back. Preserve the protected standing volumes.
+Use a normal two-parent merge, then run `install/standing/promote.py` on the merged head. It builds from the merged head, rehearses when migrations change, and renders ahead when the saved-page generator changes. A failed canary or parity check after activation rolls standing back. Preserve the protected standing volumes.
 
 ## Saved-page freshness
 

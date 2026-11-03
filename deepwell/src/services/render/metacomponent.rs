@@ -16,13 +16,50 @@ const REVEAL_START: &str = "[[iftags +component]]-][[/iftags]]";
 const REVEAL_END: &str = "[[iftags +component]][!-[[/iftags]]- --]";
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) enum MetacomponentSourceContext {
+pub(super) enum RootMetacomponentContext {
+    Component,
+    NonComponent,
+}
+
+impl RootMetacomponentContext {
+    pub(super) fn from_root_tags(tags: &[std::borrow::Cow<'_, str>]) -> Self {
+        if tags.iter().any(|tag| tag.eq_ignore_ascii_case("component")) {
+            Self::Component
+        } else {
+            Self::NonComponent
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum MetacomponentSourceContext {
     RootComponent,
     RootNonComponent,
     Included,
 }
 
-pub(super) fn select_metacomponent_documentation(
+pub(super) fn select_root_metacomponent_documentation(
+    source: &mut String,
+    context: RootMetacomponentContext,
+) {
+    select_metacomponent_documentation(
+        source,
+        match context {
+            RootMetacomponentContext::Component => {
+                MetacomponentSourceContext::RootComponent
+            }
+            RootMetacomponentContext::NonComponent => {
+                MetacomponentSourceContext::RootNonComponent
+            }
+        },
+    );
+}
+
+pub(super) fn select_included_metacomponent_documentation(source: &mut String) {
+    select_metacomponent_documentation(source, MetacomponentSourceContext::Included);
+}
+
+fn select_metacomponent_documentation(
     source: &mut String,
     context: MetacomponentSourceContext,
 ) {
@@ -101,9 +138,24 @@ fn reveal_documentation(region: &str) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::{
-        BEGIN_MARKER, END_MARKER, MetacomponentSourceContext,
-        select_metacomponent_documentation,
+        BEGIN_MARKER, END_MARKER, RootMetacomponentContext,
+        select_included_metacomponent_documentation,
+        select_root_metacomponent_documentation,
     };
+
+    fn select_root_component(source: &mut String) {
+        select_root_metacomponent_documentation(
+            source,
+            RootMetacomponentContext::Component,
+        );
+    }
+
+    fn select_root_non_component(source: &mut String) {
+        select_root_metacomponent_documentation(
+            source,
+            RootMetacomponentContext::NonComponent,
+        );
+    }
 
     const REGION: &str = concat!(
         "[!-- Begin metacomponent context detection --]\n",
@@ -120,10 +172,7 @@ mod tests {
     #[test]
     fn reveals_every_complete_root_component_region() {
         let mut source = format!("before\n{REGION}middle\n{REGION}after\n");
-        select_metacomponent_documentation(
-            &mut source,
-            MetacomponentSourceContext::RootComponent,
-        );
+        select_root_component(&mut source);
         assert_eq!(
             source,
             concat!(
@@ -138,12 +187,12 @@ mod tests {
 
     #[test]
     fn removes_complete_regions_from_non_component_roots_and_includes() {
-        for context in [
-            MetacomponentSourceContext::RootNonComponent,
-            MetacomponentSourceContext::Included,
+        for select in [
+            select_root_non_component,
+            select_included_metacomponent_documentation,
         ] {
             let mut source = format!("before\n{REGION}after\n");
-            select_metacomponent_documentation(&mut source, context);
+            select(&mut source);
             assert_eq!(source, "before\nafter\n");
         }
     }
@@ -164,12 +213,12 @@ mod tests {
             expected.push_str(&retained);
         }
 
-        for context in [
-            MetacomponentSourceContext::RootNonComponent,
-            MetacomponentSourceContext::Included,
+        for select in [
+            select_root_non_component,
+            select_included_metacomponent_documentation,
         ] {
             let mut source = original.clone();
-            select_metacomponent_documentation(&mut source, context);
+            select(&mut source);
             assert_eq!(source, expected);
         }
     }
@@ -181,10 +230,7 @@ mod tests {
             "missing reveal end",
         );
         let mut source = format!("{malformed}{REGION}");
-        select_metacomponent_documentation(
-            &mut source,
-            MetacomponentSourceContext::RootComponent,
-        );
+        select_root_component(&mut source);
         assert_eq!(
             source,
             format!(
@@ -198,10 +244,7 @@ mod tests {
         let mut source = format!(
             "[!-- Begin metacomponent context detection --]\nunterminated\n{REGION}"
         );
-        select_metacomponent_documentation(
-            &mut source,
-            MetacomponentSourceContext::RootComponent,
-        );
+        select_root_component(&mut source);
         assert!(source.starts_with(
             "[!-- Begin metacomponent context detection --]\nunterminated\n"
         ));
@@ -217,10 +260,7 @@ mod tests {
             "documentation\n[[iftags +component]]-][[/iftags]]\n",
         );
         let original = source.clone();
-        select_metacomponent_documentation(
-            &mut source,
-            MetacomponentSourceContext::RootComponent,
-        );
+        select_root_component(&mut source);
         assert_eq!(source, original);
     }
 
@@ -230,10 +270,7 @@ mod tests {
             "[[code]]\n{REGION}[[/code]]\n@@[!-- Begin metacomponent context detection --]@@\n"
         );
         let original = source.clone();
-        select_metacomponent_documentation(
-            &mut source,
-            MetacomponentSourceContext::RootNonComponent,
-        );
+        select_root_non_component(&mut source);
         assert_eq!(source, original);
     }
 }

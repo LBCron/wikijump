@@ -43,28 +43,60 @@ impl MembershipActionKind {
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+enum MembershipActionAvailability {
+    #[default]
+    Disabled,
+    Available(usize),
+}
+
+impl MembershipActionAvailability {
+    fn from_source(source: &str, count: usize, authored_marker: &str) -> Self {
+        if source.contains(authored_marker) {
+            Self::Disabled
+        } else {
+            Self::Available(count)
+        }
+    }
+
+    fn count(self) -> Option<usize> {
+        match self {
+            Self::Disabled => None,
+            Self::Available(count) => Some(count),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct MembershipActionRegistry {
-    join_count: usize,
-    application_count: usize,
-    password_count: usize,
-    invitation_count: usize,
-    authored_join_listener: bool,
-    authored_application_control: bool,
-    authored_password_control: bool,
-    authored_invitation_control: bool,
+    join: MembershipActionAvailability,
+    application: MembershipActionAvailability,
+    password: MembershipActionAvailability,
+    invitation: MembershipActionAvailability,
 }
 
 impl MembershipActionRegistry {
     pub fn from_wikidot_source(source: &str) -> Self {
         Self {
-            join_count: join_module_action_count(source),
-            application_count: membership_apply_action_count(source),
-            password_count: membership_by_password_action_count(source),
-            invitation_count: membership_email_invitation_action_count(source),
-            authored_join_listener: source.contains("WIKIDOT.page.listeners.join"),
-            authored_application_control: source.contains(APPLICATION_CONTROL),
-            authored_password_control: source.contains(PASSWORD_CONTROL),
-            authored_invitation_control: source.contains(INVITATION_CONTROL),
+            join: MembershipActionAvailability::from_source(
+                source,
+                join_module_action_count(source),
+                "WIKIDOT.page.listeners.join",
+            ),
+            application: MembershipActionAvailability::from_source(
+                source,
+                membership_apply_action_count(source),
+                APPLICATION_CONTROL,
+            ),
+            password: MembershipActionAvailability::from_source(
+                source,
+                membership_by_password_action_count(source),
+                PASSWORD_CONTROL,
+            ),
+            invitation: MembershipActionAvailability::from_source(
+                source,
+                membership_email_invitation_action_count(source),
+                INVITATION_CONTROL,
+            ),
         }
     }
 
@@ -81,26 +113,17 @@ impl MembershipActionRegistry {
         self.fingerprint(kind, index).as_deref() == Some(fingerprint)
     }
 
-    fn source_count(&self, kind: MembershipActionKind) -> usize {
+    fn availability(&self, kind: MembershipActionKind) -> MembershipActionAvailability {
         match kind {
-            MembershipActionKind::Join => self.join_count,
-            MembershipActionKind::Application => self.application_count,
-            MembershipActionKind::Password => self.password_count,
-            MembershipActionKind::Invitation => self.invitation_count,
-        }
-    }
-
-    fn authored_collision(&self, kind: MembershipActionKind) -> bool {
-        match kind {
-            MembershipActionKind::Join => self.authored_join_listener,
-            MembershipActionKind::Application => self.authored_application_control,
-            MembershipActionKind::Password => self.authored_password_control,
-            MembershipActionKind::Invitation => self.authored_invitation_control,
+            MembershipActionKind::Join => self.join,
+            MembershipActionKind::Application => self.application,
+            MembershipActionKind::Password => self.password,
+            MembershipActionKind::Invitation => self.invitation,
         }
     }
 
     fn fingerprint(&self, kind: MembershipActionKind, index: usize) -> Option<String> {
-        if self.authored_collision(kind) || index >= self.source_count(kind) {
+        if index >= self.availability(kind).count()? {
             return None;
         }
         let mut input = b"wikijump-membership-action\0".to_vec();
@@ -123,11 +146,11 @@ impl MembershipActionRegistry {
             (MembershipActionKind::Password, PASSWORD_CONTROL),
             (MembershipActionKind::Invitation, INVITATION_CONTROL),
         ] {
+            let Some(source_count) = self.availability(kind).count() else {
+                continue;
+            };
             let rendered_count = body.matches(marker).count();
-            if self.authored_collision(kind)
-                || rendered_count == 0
-                || rendered_count != self.source_count(kind)
-            {
+            if rendered_count == 0 || rendered_count != source_count {
                 continue;
             }
             for index in 0..rendered_count {
@@ -277,12 +300,9 @@ mod tests {
         ] {
             let registry = MembershipActionRegistry::from_wikidot_source(source);
             assert_eq!(
-                registry.join_count, 1,
+                registry.join,
+                MembershipActionAvailability::Available(1),
                 "matrix variant should bind one Join action: {source:?}",
-            );
-            assert!(
-                !registry.authored_join_listener,
-                "matrix variant must not look authored: {source:?}",
             );
         }
     }

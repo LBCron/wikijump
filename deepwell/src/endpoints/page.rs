@@ -52,13 +52,13 @@ use crate::services::page_query::PageQueryService;
 use crate::services::page_revision::RerenderType;
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::render::{
-    LegacyActionRegistry, LegacyBrowserAction, SiteChangesLoad, WikidotForumFeedKind,
-    WikidotForumFeedOutput, WikidotForumFeedScope, WikidotForumModuleRequest,
-    WikidotForumModuleResponse, WikidotListPagesFeedInput, WikidotListPagesFeedOutput,
-    WikidotMembersListModuleResponse, WikidotSiteChangesFeedOutput,
-    WikidotSiteChangesFilter, WikidotSiteChangesModuleRequest,
-    WikidotSiteChangesModuleResponse, WikidotSitemapOutput,
-    wikidot_site_changes_empty_response,
+    AnonymousViewer, LegacyActionRegistry, LegacyBrowserAction, SiteChangesLoad,
+    WikidotForumFeedKind, WikidotForumFeedOutput, WikidotForumFeedScope,
+    WikidotForumModuleRequest, WikidotForumModuleResponse, WikidotListPagesFeedInput,
+    WikidotListPagesFeedOutput, WikidotMembersListModuleResponse,
+    WikidotSiteChangesFeedOutput, WikidotSiteChangesFilter,
+    WikidotSiteChangesModuleRequest, WikidotSiteChangesModuleResponse,
+    WikidotSitemapOutput, wikidot_site_changes_empty_response,
 };
 use crate::services::settings::PageRatingVisibility;
 use crate::services::{MutationAuthorization, SettingsService, SiteService, TextService};
@@ -682,7 +682,7 @@ pub async fn wikidot_sitemap(
         )
         .into());
     }
-    RenderService::wikidot_sitemap(ctx, input.site_id, input.shard).await
+    RenderService::wikidot_sitemap(ctx, input.site_id, input.shard, AnonymousViewer).await
 }
 
 pub async fn wikidot_members_list_module(

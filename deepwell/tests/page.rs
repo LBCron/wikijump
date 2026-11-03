@@ -10203,8 +10203,8 @@ async fn saved_rate_sidecar_binds_exact_revision_and_mutates_idempotently() {
         } => registry,
         other => panic!("expected anonymous Rate sidecar, got {other:?}"),
     };
-    assert_eq!(anonymous_registry.current_value, None);
-    assert_eq!(anonymous_registry.actions.len(), 3);
+    assert_eq!(anonymous_registry.current_value(), None);
+    assert_eq!(anonymous_registry.actions().len(), 3);
 
     let authenticated = run_endpoint!(
         runner,
@@ -10223,11 +10223,11 @@ async fn saved_rate_sidecar_binds_exact_revision_and_mutates_idempotently() {
         } => registry,
         other => panic!("expected authenticated Rate sidecar, got {other:?}"),
     };
-    assert_eq!(registry.site_id, site_id);
-    assert_eq!(registry.page_id, page.page_id);
-    assert_eq!(registry.revision_id, revision_id);
-    assert_eq!(registry.current_value, None);
-    let actions = serde_json::to_value(&registry.actions).unwrap();
+    assert_eq!(registry.site_id(), site_id);
+    assert_eq!(registry.page_id(), page.page_id);
+    assert_eq!(registry.revision_id(), revision_id);
+    assert_eq!(registry.current_value(), None);
+    let actions = serde_json::to_value(registry.actions()).unwrap();
     assert_eq!(actions[0]["type"], "rate");
     assert_eq!(actions[1]["type"], "rate");
     assert_eq!(actions[2]["type"], "rate-cancel");
@@ -10242,8 +10242,8 @@ async fn saved_rate_sidecar_binds_exact_revision_and_mutates_idempotently() {
     );
     let activate = |action: &serde_json::Value| {
         json!({
-            "page_id": registry.page_id,
-            "last_revision_id": registry.revision_id,
+            "page_id": registry.page_id(),
+            "last_revision_id": registry.revision_id(),
             "action_index": action["index"],
             "action_fingerprint": action["fingerprint"],
             "value": 5,
@@ -10269,8 +10269,8 @@ async fn saved_rate_sidecar_binds_exact_revision_and_mutates_idempotently() {
         runner,
         wikidot_legacy_rate,
         json!({
-            "page_id": registry.page_id,
-            "last_revision_id": registry.revision_id,
+            "page_id": registry.page_id(),
+            "last_revision_id": registry.revision_id(),
             "action_index": 0,
             "action_fingerprint": "00000000000000000000000000000000",
         }),
@@ -10280,8 +10280,8 @@ async fn saved_rate_sidecar_binds_exact_revision_and_mutates_idempotently() {
         runner,
         wikidot_legacy_rate,
         json!({
-            "page_id": registry.page_id,
-            "last_revision_id": registry.revision_id - 1,
+            "page_id": registry.page_id(),
+            "last_revision_id": registry.revision_id() - 1,
             "action_index": actions[0]["index"],
             "action_fingerprint": actions[0]["fingerprint"],
         }),

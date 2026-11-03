@@ -4,8 +4,6 @@ use super::super::literal_regions::{
     LiteralRegionIndex, TextTokenCursor, WikidotTagScan, scan_wikidot_tag,
 };
 
-pub(super) const MAX_SOURCE_SCOPE_DEPTH: usize = 1_024;
-
 pub(in crate::services::render) fn collect_unproven_scope_ranges(
     source: &str,
     literals: &LiteralRegionIndex,
@@ -13,7 +11,7 @@ pub(in crate::services::render) fn collect_unproven_scope_ranges(
     let bytes = source.as_bytes();
     let mut literal_cursor = literals.monotone_cursor();
     let mut text_tokens = TextTokenCursor::new(source);
-    let mut open_scopes = Vec::new();
+    let mut open_scopes = BoundedOpenSourceScopes::new();
     let mut ranges = Vec::new();
     let mut cursor = 0usize;
 
@@ -39,9 +37,6 @@ pub(in crate::services::render) fn collect_unproven_scope_ranges(
             WikidotTagScan::Complete(end) => {
                 match source_scope_tag(bytes, cursor, end) {
                     Some(SourceScopeTag::Open(head)) => {
-                        if open_scopes.len() >= MAX_SOURCE_SCOPE_DEPTH {
-                            return std::iter::once(0..source.len()).collect();
-                        }
                         let identity = source_scope_rule(&head.name)
                             .map(|mut rule| {
                                 if !rule.accepts_open(&head) {
@@ -50,20 +45,18 @@ pub(in crate::services::render) fn collect_unproven_scope_ranges(
                                 SourceScopeIdentity::Known(rule)
                             })
                             .unwrap_or(SourceScopeIdentity::Unknown(head.name));
-                        open_scopes.push(OpenSourceScope {
+                        if !open_scopes.try_push(OpenSourceScope {
                             identity,
                             start: cursor,
-                        });
+                        }) {
+                            return std::iter::once(0..source.len()).collect();
+                        }
                     }
                     Some(SourceScopeTag::Close(name)) => {
-                        if let Some(index) = open_scopes
-                            .iter()
-                            .rposition(|open| open.accepts_close(&name))
+                        if let Some(open) = open_scopes.take_matching_close(&name)
+                            && !open.is_proven_safe()
                         {
-                            let open = open_scopes.remove(index);
-                            if !open.is_proven_safe() {
-                                ranges.push(open.start..end);
-                            }
+                            ranges.push(open.start..end);
                         }
                     }
                     None => {}
@@ -96,7 +89,7 @@ pub(in crate::services::render) fn matching_source_scope_close(
     }
     let mut literal_cursor = literals.monotone_cursor();
     let mut text_tokens = TextTokenCursor::new(source);
-    let mut open_scopes = Vec::new();
+    let mut open_scopes = BoundedOpenSourceScopes::new();
     let mut cursor = scope_start;
 
     while cursor < bytes.len() {
@@ -121,26 +114,21 @@ pub(in crate::services::render) fn matching_source_scope_close(
             WikidotTagScan::Complete(end) => {
                 match source_scope_tag(bytes, cursor, end) {
                     Some(SourceScopeTag::Open(head)) => {
-                        if open_scopes.len() >= MAX_SOURCE_SCOPE_DEPTH {
-                            return None;
-                        }
                         let identity = source_scope_rule(&head.name)
                             .map(SourceScopeIdentity::Known)
                             .unwrap_or(SourceScopeIdentity::Unknown(head.name));
-                        open_scopes.push(OpenSourceScope {
+                        if !open_scopes.try_push(OpenSourceScope {
                             identity,
                             start: cursor,
-                        });
+                        }) {
+                            return None;
+                        }
                     }
                     Some(SourceScopeTag::Close(name)) => {
-                        if let Some(index) = open_scopes
-                            .iter()
-                            .rposition(|open| open.accepts_close(&name))
+                        if let Some(open) = open_scopes.take_matching_close(&name)
+                            && open.start == scope_start
                         {
-                            let open = open_scopes.remove(index);
-                            if open.start == scope_start {
-                                return Some(cursor..end);
-                            }
+                            return Some(cursor..end);
                         }
                     }
                     None => {}
@@ -216,6 +204,43 @@ impl OpenSourceScope {
 
     fn is_known_body_owner(&self) -> bool {
         matches!(&self.identity, SourceScopeIdentity::Known(_))
+    }
+}
+
+struct BoundedOpenSourceScopes {
+    scopes: Vec<OpenSourceScope>,
+}
+
+impl BoundedOpenSourceScopes {
+    const MAX_DEPTH: usize = 1_024;
+
+    fn new() -> Self {
+        Self { scopes: Vec::new() }
+    }
+
+    fn try_push(&mut self, scope: OpenSourceScope) -> bool {
+        if self.scopes.len() >= Self::MAX_DEPTH {
+            return false;
+        }
+        self.scopes.push(scope);
+        true
+    }
+
+    fn take_matching_close(&mut self, name: &str) -> Option<OpenSourceScope> {
+        let index = self
+            .scopes
+            .iter()
+            .rposition(|open| open.accepts_close(name))?;
+        Some(self.scopes.remove(index))
+    }
+}
+
+impl IntoIterator for BoundedOpenSourceScopes {
+    type Item = OpenSourceScope;
+    type IntoIter = std::vec::IntoIter<OpenSourceScope>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.scopes.into_iter()
     }
 }
 

@@ -767,9 +767,9 @@ async fn run_anonymous_rate_control_exposure(queue_namespace: &str) {
         } => registry,
         other => panic!("anonymous view should expose the Rate sidecar, got {other:?}"),
     };
-    assert_eq!(registry.page_id, page_id);
-    assert_eq!(registry.current_value, None);
-    let actions = serde_json::to_value(&registry.actions).unwrap();
+    assert_eq!(registry.page_id(), page_id);
+    assert_eq!(registry.current_value(), None);
+    let actions = serde_json::to_value(registry.actions()).unwrap();
     assert_eq!(actions.as_array().map(Vec::len), Some(3));
 
     let rejected = run_endpoint_err!(
@@ -777,7 +777,7 @@ async fn run_anonymous_rate_control_exposure(queue_namespace: &str) {
         wikidot_legacy_rate,
         json!({
             "page_id": page_id,
-            "last_revision_id": registry.revision_id,
+            "last_revision_id": registry.revision_id(),
             "action_index": actions[0]["index"],
             "action_fingerprint": actions[0]["fingerprint"],
         }),

@@ -81,8 +81,14 @@ function fakeSession(calls, state) {
         state.pages.set(page.slug, page);
         return { ...page };
       }
+      if (method === "page_edit_lock_acquire") {
+        const page = [...state.pages.values()].find((value) => value.page_id === params.page);
+        return { grant: { lock_id: 4242, ["lock_secret"]: "fake-lease-secret", base_revision_id: page?.revision_id ?? null, expires_at: "2999-01-01T00:00:00Z" }, conflicts: [] };
+      }
+      if (method === "page_edit_lock_release") return true;
       if (method === "page_edit") {
         const page = [...state.pages.values()].find((value) => value.page_id === params.page);
+        assert.ok(params.lease, "page_edit must present an edit lease");
         Object.assign(page, { revision_id: nextRevisionId++, revision_number: page.revision_number + 1 });
         return { ...page };
       }

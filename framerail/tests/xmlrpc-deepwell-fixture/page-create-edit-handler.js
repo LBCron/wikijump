@@ -1,5 +1,6 @@
 import { handlePageCreateRpc } from "./page-create-handler.js"
 import { handlePageEditRpc } from "./page-edit-handler.js"
+import { handlePageEditLockRpc } from "./page-edit-lock-handler.js"
 
 /**
  * @param {{
@@ -8,5 +9,9 @@ import { handlePageEditRpc } from "./page-edit-handler.js"
  * }} input
  */
 export const handlePageCreateEditRpc = (input) => {
-  return handlePageCreateRpc(input) ?? handlePageEditRpc(input)
+  return (
+    handlePageCreateRpc(input) ??
+    handlePageEditLockRpc(input) ??
+    handlePageEditRpc(input)
+  )
 }

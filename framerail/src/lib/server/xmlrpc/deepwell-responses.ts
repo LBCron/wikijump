@@ -181,6 +181,65 @@ export function expectDeepwellPageMoveOutput(value: unknown): DeepwellPageMoveOu
   return { new_slug: value.new_slug }
 }
 
+export interface DeepwellPageEditLockGrant {
+  lock_id: number
+  ["lock_secret"]: string
+  base_revision_id: number | null
+  expires_at: string
+}
+
+export interface DeepwellPageEditLockConflict {
+  user_id: number
+  mode: string
+  section_index: number | null
+  seconds_remaining: number
+}
+
+export interface DeepwellPageEditLockAcquireOutput {
+  grant: DeepwellPageEditLockGrant | null
+  conflicts: DeepwellPageEditLockConflict[]
+}
+
+const isDeepwellPageEditLockGrant = (
+  value: unknown
+): value is DeepwellPageEditLockGrant =>
+  isXmlRpcStruct(value) &&
+  isInteger(value.lock_id) &&
+  typeof value["lock_secret"] === "string" &&
+  value["lock_secret"].length > 0 &&
+  (value.base_revision_id === null || isInteger(value.base_revision_id)) &&
+  typeof value.expires_at === "string"
+
+const isDeepwellPageEditLockConflict = (
+  value: unknown
+): value is DeepwellPageEditLockConflict =>
+  isXmlRpcStruct(value) &&
+  isInteger(value.user_id) &&
+  typeof value.mode === "string" &&
+  (value.section_index === null || isInteger(value.section_index)) &&
+  typeof value.seconds_remaining === "number" &&
+  Number.isFinite(value.seconds_remaining)
+
+export function expectDeepwellPageEditLockAcquireOutput(
+  value: unknown
+): DeepwellPageEditLockAcquireOutput {
+  if (
+    !isXmlRpcStruct(value) ||
+    (value.grant !== null && !isDeepwellPageEditLockGrant(value.grant)) ||
+    !Array.isArray(value.conflicts) ||
+    !value.conflicts.every(isDeepwellPageEditLockConflict)
+  ) {
+    throw new XmlRpcFault(
+      -32603,
+      "Malformed Deepwell response: page_edit_lock_acquire"
+    )
+  }
+  return {
+    grant: value.grant as DeepwellPageEditLockGrant | null,
+    conflicts: value.conflicts as unknown as DeepwellPageEditLockConflict[]
+  }
+}
+
 export function isDeepwellBlobUpload(
   value: unknown
 ): value is { pending_blob_id: string; presign_url: string } {

@@ -6,6 +6,7 @@ import {runCliIfMain} from '../src/cli-entry.mjs';
 
 import { aggregateOracleVerdict, compareOracleEntry } from '../src/oracle-fixtures.mjs';
 import { deepwellRpcAuthorization } from '../src/deepwell-rpc-auth.mjs';
+import { leasedPageEdit } from '../src/page-edit-lease.mjs';
 
 const DEFAULT_API_URL = 'http://127.0.0.1:2747/jsonrpc';
 
@@ -47,9 +48,10 @@ export function parseArgs(argv) {
 }
 
 let rpcId = 0;
-async function rpc(args, method, params, sessionToken = null) {
+async function rpc(args, method, params, sessionToken = null, siteId = null) {
   const headers = { Authorization: deepwellRpcAuthorization(), 'Content-Type': 'application/json' };
   if (sessionToken) headers['X-Deepwell-Session-Token'] = sessionToken;
+  if (siteId !== null) headers['X-Deepwell-Site-Id'] = String(siteId);
   const response = await fetch(args.apiUrl, {
     method: 'POST',
     headers,
@@ -95,11 +97,9 @@ async function renderEntry(args, sessionToken, entry) {
       sessionToken,
     );
   } else if (page.wikitext !== wikitext) {
-    await rpc(
-      args,
-      'page_edit',
+    await leasedPageEdit(
+      (method, leaseParams) => rpc(args, method, leaseParams, sessionToken, args.siteId),
       { ...common, page: page.page_id, last_revision_id: page.revision_id, revision_comments: 'v4 oracle fixture update', tags: ['oracle-fixture'] },
-      sessionToken,
     );
   }
   const rendered = await rpc(

@@ -5,6 +5,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import {findRawSyntaxLeaks} from "../src/render-health.mjs";
 import {deepwellRpcAuthorization} from "../src/deepwell-rpc-auth.mjs";
+import {leasedPageEdit} from "../src/page-edit-lease.mjs";
 
 const ADMIN_USER_ID = -1;
 const IP_ADDRESS = "127.0.0.1";
@@ -214,21 +215,24 @@ async function createOrUpdatePreviewPage(client, siteId, sessionToken, preview, 
     parserErrors = created.parser_errors ?? [];
     action = "created";
   } else if (existing.wikitext !== source || existing.title !== preview.title || !sameTags(existing.tags, preview.tags)) {
-    const edited = await client.call("page_edit", {
-      site_id: siteId,
-      page: existing.page_id,
-      last_revision_id: existing.revision_id,
-      revision_comments: "v5 preview-source update",
-      user_id: ADMIN_USER_ID,
-      ip_address: IP_ADDRESS,
-      wikitext: source,
-      title: preview.title,
-      tags: preview.tags,
-    }, {
-      sessionToken,
-      siteId,
-      page: preview.slug,
-    });
+    const edited = await leasedPageEdit(
+      (method, params) => client.call(method, params, {
+        sessionToken,
+        siteId,
+        page: preview.slug,
+      }),
+      {
+        site_id: siteId,
+        page: existing.page_id,
+        last_revision_id: existing.revision_id,
+        revision_comments: "v5 preview-source update",
+        user_id: ADMIN_USER_ID,
+        ip_address: IP_ADDRESS,
+        wikitext: source,
+        title: preview.title,
+        tags: preview.tags,
+      },
+    );
     parserErrors = edited?.parser_errors ?? [];
     action = "edited";
   }

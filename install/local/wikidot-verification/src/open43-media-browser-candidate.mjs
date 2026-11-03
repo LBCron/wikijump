@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 
 import { CandidateHttpSession } from "./candidate-case-http.mjs";
+import { leasedPageEdit } from "./page-edit-lease.mjs";
 import { STANDING_BROWSER_EXECUTION_MODULES } from "./standing-browser-execution-identity.mjs";
 import { requireNonEmptyString, requirePlainObject, requireSha256, sha256Value } from "./standing-browser-parity-util.mjs";
 
@@ -386,7 +387,7 @@ class Open43MediaBrowserRun {
 
   async #editPage(page, source) {
     const current = await this.#rpc("page_get", { site_id: this.#siteId, page: page.slug, details: { wikitext: true, compiled: false } });
-    const edited = await this.#rpc("page_edit", {
+    const edited = await leasedPageEdit((method, params) => this.#rpc(method, params), {
       site_id: this.#siteId,
       page: page.page_id,
       last_revision_id: current.revision_id,
@@ -959,7 +960,7 @@ export function createOpen43MediaBrowserCandidateCaseSet({
       const session = sessionFactory({ candidateIdentity, privateInput, signal });
       const execution = new Open43MediaBrowserRun({ candidateIdentity, session, browser: candidateBrowserContexts, resources, runId, casePlans, siteIconRestorer });
       return Object.freeze({
-        sourceFiles: Object.freeze([...new Set([...STANDING_BROWSER_EXECUTION_MODULES, "docs/development/open43-m-closure-audit.json", "framerail/src/lib/wikidot/wikidot-gallery-lightbox.js", "framerail/src/routes/[slug]/[...extra]/FileUploadPanel.svelte", "wws/src/handler/resized_image.rs", "install/local/wikidot-verification/src/open43-media-browser-candidate.mjs"])]),
+        sourceFiles: Object.freeze([...new Set([...STANDING_BROWSER_EXECUTION_MODULES, "docs/development/open43-m-closure-audit.json", "framerail/src/lib/wikidot/wikidot-gallery-lightbox.js", "framerail/src/routes/[slug]/[...extra]/FileUploadPanel.svelte", "wws/src/handler/resized_image.rs", "install/local/wikidot-verification/src/open43-media-browser-candidate.mjs", "install/local/wikidot-verification/src/page-edit-lease.mjs"])]),
         runtimeBindings: session.requiredServiceBindings,
         privateInputIdentity: { ...session.privateInputIdentity, media_browser_evidence_sha256: sha256Value(casePlans) },
         browserCredentialPolicy: { mode: "private-actor-storage-states", storage_state_count: 1, private_input_identity_sha256: sha256Value({ ...session.privateInputIdentity, media_browser_evidence_sha256: sha256Value(casePlans) }) },

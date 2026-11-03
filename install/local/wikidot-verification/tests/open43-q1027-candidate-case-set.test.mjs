@@ -92,8 +92,14 @@ function fakeCandidateSession() {
         assert.deepEqual(params.route, { slug: params.route.slug, extra: "" });
         return { type: "found", data: { compiled_body_html: viewBody(params.route.slug) } };
       }
+      if (method === "page_edit_lock_acquire") {
+        const page = bySlug(params.page);
+        return { grant: { lock_id: 4242, ["lock_secret"]: "fake-lease-secret", base_revision_id: page?.revision_id ?? null, expires_at: "2999-01-01T00:00:00Z" }, conflicts: [] };
+      }
+      if (method === "page_edit_lock_release") return true;
       if (method === "page_edit") {
         const page = bySlug(params.page);
+        if (params.wikitext !== undefined) assert.ok(params.lease, "page_edit with wikitext must present an edit lease");
         if (params.title !== undefined) page.title = params.title;
         if (params.wikitext !== undefined) page.wikitext = params.wikitext;
         page.revision_id = ++state.nextRevisionId;

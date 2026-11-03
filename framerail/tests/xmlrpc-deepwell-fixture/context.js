@@ -101,6 +101,8 @@ export const fixtureState = {
     login: [],
     pageCreate: [],
     pageEdit: [],
+    pageEditLockAcquire: [],
+    pageEditLockRelease: [],
     pageRollback: [],
     pageMove: [],
     parentGetAll: [],
@@ -135,8 +137,11 @@ export const fixtureState = {
     nextPageId: 4000000,
     nextRevisionId: 9100000,
     nextFileId: 5000000,
-    nextPendingBlobId: 1
+    nextPendingBlobId: 1,
+    nextEditLockId: 7000000
   },
+  /** @type {Record<string, { lock_id: number, secret: string, user_id: number, mode: string, section_index: number | null }>} */
+  editLocks: {},
   ratingScores: {
     3000341: 3,
     3000342: 0

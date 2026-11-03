@@ -7,6 +7,7 @@ import {createSqlExecutor} from '../src/corpus-import-sql.mjs';
 import {sqlQuote} from '../src/corpus-import-sql-values.mjs';
 import {deepwellRpcAuthorization} from '../src/deepwell-rpc-auth.mjs';
 import {validateRpcUrl} from '../src/import-page.mjs';
+import {leasedPageEdit} from '../src/page-edit-lease.mjs';
 
 const IMPORT_COMMENT_PREFIX = 'local scp-wiki mirror';
 const BATCH_SESSION_EDITS = 100;
@@ -192,9 +193,10 @@ function mirrorScopeSql(siteId) {
     FROM mirror_scope WHERE site_id = ${siteId};`;
 }
 
-async function rpc(rpcUrl, method, params, sessionToken) {
+async function rpc(rpcUrl, method, params, sessionToken, siteId = null) {
   const headers = {Authorization: deepwellRpcAuthorization(), 'Content-Type': 'application/json'};
   if (sessionToken) headers['X-Deepwell-Session-Token'] = sessionToken;
+  if (siteId !== null) headers['X-Deepwell-Site-Id'] = String(siteId);
   const response = await fetch(rpcUrl, {method: 'POST', redirect: 'error', headers, body: JSON.stringify({jsonrpc: '2.0', id: 1, method, params})});
   if (!response.ok) throw new Error(`${method}: RPC HTTP ${response.status}`);
   const body = await response.json();
@@ -234,7 +236,8 @@ async function applyPageEdit(rpcUrl, siteId, item, token) {
     revision_comments: `${IMPORT_COMMENT_PREFIX} refresh from corpus ${item.run}`,
   };
   for (const key of ['wikitext', 'title', 'tags']) if (item[key] !== undefined) params[key] = item[key];
-  return rpc(rpcUrl, 'page_edit', params, token);
+  if (item.wikitext === undefined) return rpc(rpcUrl, 'page_edit', params, token);
+  return leasedPageEdit((method, leaseParams) => rpc(rpcUrl, method, leaseParams, token, siteId), params);
 }
 
 async function applyPageDelete(rpcUrl, siteId, item, token) {

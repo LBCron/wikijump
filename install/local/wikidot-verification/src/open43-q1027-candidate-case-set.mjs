@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { CandidateHttpSession } from "./candidate-case-http.mjs";
+import { leasedPageEdit } from "./page-edit-lease.mjs";
 import { candidatePageOrigin } from "./standing-browser-parity-receipt.mjs";
 import { STANDING_BROWSER_EXECUTION_MODULES } from "./standing-browser-execution-identity.mjs";
 import { sha256Value } from "./standing-browser-parity-util.mjs";
@@ -81,6 +82,7 @@ const SOURCE_FILES = Object.freeze([...new Set([
   "install/local/wikidot-verification/src/candidate-case-runner.mjs",
   "install/local/wikidot-verification/src/deepwell-rpc-auth.mjs",
   "install/local/wikidot-verification/src/open43-q1027-candidate-case-set.mjs",
+  "install/local/wikidot-verification/src/page-edit-lease.mjs",
   "install/local/wikidot-verification/src/wikijump-identifier-leak.mjs",
   "install/local/wikidot-verification/package.json",
   "install/local/wikidot-verification/pnpm-lock.yaml",
@@ -245,15 +247,18 @@ class Open43Q1027Run {
     this.#assertView(editorInitial, [{ slug: linkerA.slug, title: linkerA.title }], "initial editor");
     if (JSON.stringify(editorInitial.rows) !== JSON.stringify(initial.rows)) throw new Error("Q1027 editor and anonymous rows diverged");
 
-    const linkEdit = await this.#rpc("page_edit", {
-      site_id: this.#siteId,
-      page: linkerB.slug,
-      last_revision_id: linkerB.revision_id,
-      revision_comments: "Open43 Q1027 Backlinks link edit",
-      user_id: this.#session.editorUserId,
-      wikitext: `[[[${target.slug}]]]`,
-      ip_address: "127.0.0.1",
-    }, { page: linkerB.slug });
+    const linkEdit = await leasedPageEdit(
+      (method, params) => this.#rpc(method, params, { page: linkerB.slug }),
+      {
+        site_id: this.#siteId,
+        page: linkerB.slug,
+        last_revision_id: linkerB.revision_id,
+        revision_comments: "Open43 Q1027 Backlinks link edit",
+        user_id: this.#session.editorUserId,
+        wikitext: `[[[${target.slug}]]]`,
+        ip_address: "127.0.0.1",
+      },
+    );
     if (!Number.isSafeInteger(linkEdit?.revision_id)) throw new Error("Q1027 link edit did not return a public revision");
     linkerB.wikitext = `[[[${target.slug}]]]`;
     linkerB.revision_id = linkEdit.revision_id;

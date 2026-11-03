@@ -11826,7 +11826,7 @@
   },
   "provenance": {
     "wikijump": {
-      "source_input_set_sha256": "d8c9d7b2c8d8271d567a25798842e2762ad0811d52c4c13aafc00bc7f525654f"
+      "source_input_set_sha256": "5069d803823291e81f25d23909efddbecc15e55cfec7671513e46ca96998d3e9"
     },
     "ftml": {
       "commit": "bcfd17dbc2bf734d29370c1b398a3386d978b874",
@@ -11927,7 +11927,7 @@
       },
       {
         "path": "deepwell/src/endpoints/page_edit_lock.rs",
-        "sha256": "147f6be892f836cf0d75233fce51657200beeeccfbc8745920f2a8a25134cee7"
+        "sha256": "353fad88a52cb468fb3ad8ac8109bb0a246b7e28720c5b49a19a019049b8e471"
       },
       {
         "path": "deepwell/src/endpoints/page_lock.rs",
@@ -12003,7 +12003,7 @@
       },
       {
         "path": "docs/development/deepwell-jsonrpc-contract-manifest.json",
-        "sha256": "43bd260dbcdb19d0986e3c9ad1ddf45c50fd9ee863f6b8f9ec9f05ff8dedca62"
+        "sha256": "0e563c76c0963c31a357cb3391b97bd417db003ffb5d4bca6be8bbb1717b9a42"
       },
       {
         "path": "docs/development/framerail-amc-wire-contracts.json",

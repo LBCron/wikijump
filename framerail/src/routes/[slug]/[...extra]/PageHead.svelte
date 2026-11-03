@@ -11,7 +11,7 @@
 </script>
 
 <svelte:head>
-  {#each metaTags as metaTag (`${metaTag.all_pages}:${metaTag.name}`)}
+  {#each metaTags as metaTag, index (index)}
     <meta name={metaTag.name} content={metaTag.content} />
   {/each}
   {#each fontPreloadHrefs as fontHref (fontHref)}

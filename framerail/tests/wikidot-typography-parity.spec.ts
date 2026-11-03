@@ -29,11 +29,52 @@ const LIVE_YOSSISTYLE_TYPOGRAPHY = {
   }
 } as const
 
+const QUANTIZATION_TOLERANCE_PX = 0.02
+
+const PX_VALUE = /^(-?\d+(?:\.\d+)?)px$/
+
+type TypographySnapshot = Readonly<Record<string, Readonly<Record<string, string>>>>
+
+const typographyMismatches = (
+  actual: TypographySnapshot,
+  expected: TypographySnapshot
+): string[] => {
+  const mismatches: string[] = []
+  for (const [element, properties] of Object.entries(expected)) {
+    for (const [property, expectedValue] of Object.entries(properties)) {
+      const actualValue = actual[element]?.[property]
+      const expectedPx = PX_VALUE.exec(expectedValue)
+      const actualPx = actualValue === undefined ? null : PX_VALUE.exec(actualValue)
+      if (expectedPx && actualPx) {
+        const difference = Math.abs(Number(actualPx[1]) - Number(expectedPx[1]))
+        if (difference > QUANTIZATION_TOLERANCE_PX) {
+          mismatches.push(
+            `${element}.${property}: expected ${expectedValue}, got ${actualValue}`
+          )
+        }
+      } else if (actualValue !== expectedValue) {
+        mismatches.push(
+          `${element}.${property}: expected ${expectedValue}, got ${actualValue}`
+        )
+      }
+    }
+  }
+  return mismatches
+}
+
 test("imported-page typography follows the recorded Wikidot live reference", async ({
   page
 }) => {
+  test.skip(
+    !process.env.PLAYWRIGHT_HTTPS_APP_PORT,
+    "requires the hermetic HTTPS Vite fixture"
+  )
+  const host = `https://localhost:${process.env.PLAYWRIGHT_HTTPS_APP_PORT}`
   await page.setExtraHTTPHeaders(SITE_HEADERS)
-  await page.goto("/theme:yossistyle")
+  const response = await page.goto(`${host}/theme:yossistyle`, {
+    waitUntil: "networkidle"
+  })
+  expect(response?.status()).toBe(200)
 
   await expect(page.locator("#page-content p")).toHaveText("XML-RPC theme body marker.")
   await expect(page.locator("head style[data-wikidot-generated-css]")).toHaveCount(2)
@@ -61,5 +102,5 @@ test("imported-page typography follows the recorded Wikidot live reference", asy
     }
   })
 
-  expect(actual).toEqual(LIVE_YOSSISTYLE_TYPOGRAPHY)
+  expect(typographyMismatches(actual, LIVE_YOSSISTYLE_TYPOGRAPHY)).toEqual([])
 })

@@ -3,7 +3,6 @@
 
 import crypto from "node:crypto"
 import fs from "node:fs/promises"
-import path from "node:path"
 
 import { loadPlaywright } from "../src/browser-session.mjs"
 import {
@@ -74,12 +73,12 @@ function parseArgs(argv) {
   for (let index = 0; index < argv.length; index += 2) {
     const flag = argv[index]
     const value = argv[index + 1]
-    if (!["--site", "--source-origin", "--rpc-url", "--session-file", "--cache-dir", "--cache-identity", "--browser-root", "--receipt"].includes(flag) || !value) {
+    if (!["--site", "--source-origin", "--rpc-url", "--session-file", "--cache-dir", "--cache-identity", "--browser-root"].includes(flag) || !value) {
       throw new Error(`unknown or incomplete option: ${flag}`)
     }
     args[flag.slice(2).replace(/-([a-z])/gu, (_, c) => c.toUpperCase())] = value
   }
-  for (const name of ["site", "sourceOrigin", "rpcUrl", "sessionFile", "receipt"]) {
+  for (const name of ["site", "sourceOrigin", "rpcUrl", "sessionFile"]) {
     if (!args[name]) throw new Error(`--${name.replace(/[A-Z]/gu, (c) => `-${c.toLowerCase()}`)} is required`)
   }
   if ((args.cacheDir === undefined) !== (args.cacheIdentity === undefined)) {
@@ -175,21 +174,11 @@ export async function importMirrorSiteIcons(args) {
       ? { kind, source: icon.url, mime: icon.mime, bytes: icon.bytes.length, sha256, ...(unchanged ? { unchanged: true } : {}) }
       : { kind, source: null, cleared: true, ...(unchanged ? { unchanged: true } : {}) })
   }
-  const receipt = {
-    schema: "wikijump.mirror_site_icons_receipt.v1",
-    completed_at: new Date().toISOString(),
-    site: args.site,
-    source_origin: args.sourceOrigin,
-    cache: args.cacheDir ? { dir: path.resolve(args.cacheDir), identity: args.cacheIdentity } : "default public evidence cache",
-    icons: results
-  }
-  await fs.writeFile(args.receipt, `${JSON.stringify(receipt, null, 2)}\n`, { flag: "wx" })
-  return receipt
+  return results
 }
 
 export async function main(argv) {
-  const receipt = await importMirrorSiteIcons(parseArgs(argv))
-  console.log(JSON.stringify(receipt.icons))
+  console.log(JSON.stringify(await importMirrorSiteIcons(parseArgs(argv))))
   return 0
 }
 

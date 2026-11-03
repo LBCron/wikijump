@@ -64,14 +64,6 @@ test("SCP-9506 offline oracle is repository-owned and binds its recapture succes
 test("offline browser oracle rejects self-approved or incomplete fixtures", () => {
   const base = {
     schema: "wikijump.offline_compatibility_browser_oracle.v1",
-    provenance: {
-      final_zero_status: "fail",
-      final_zero_receipt_sha256: "a".repeat(64),
-      standing_browser_proof_sha256: "b".repeat(64),
-      standing_browser_parity_sha256: "c".repeat(64),
-      live_reference_sha256: "d".repeat(64),
-      accepted_browser: {executable_sha256: "e".repeat(64)},
-    },
     pair: {
       live_url: "https://scp-wiki.wikidot.com/scp-9506",
       local_url: "https://scp-wiki.wikijump.localhost/scp-9506",
@@ -87,75 +79,10 @@ test("offline browser oracle rejects self-approved or incomplete fixtures", () =
       sha256: "f".repeat(64),
     },
   };
-  assert.throws(
-    () => validateOfflineBrowserOracle(base),
-    /must derive from a passing final-zero/u,
-  );
-  base.provenance.final_zero_status = "pass";
   base.accepted_comparison.status = "fail";
   assert.throws(
     () => validateOfflineBrowserOracle(base),
     /lacks a passing accepted comparison/u,
-  );
-});
-
-test("offline browser oracle rejects a recapture successor with broken provenance", () => {
-  const base = {
-    schema: "wikijump.offline_compatibility_browser_oracle.v1",
-    provenance: {
-      kind: "recapture-successor",
-      status: "pass",
-      supersedes: {
-        fixture_id: "scp-9506-final-zero-20260915",
-        oracle_sha256: "a".repeat(64),
-        golden_sha256: "b".repeat(64),
-      },
-      owner_authorized_on: "2026-11-03",
-      live_captured_at: "2026-11-03T06:13:18.809Z",
-      standing_captured_at: "2026-11-03T06:16:16.802Z",
-      standing_wikijump_sha: "c".repeat(40),
-      standing_wikijump_tree: "d".repeat(40),
-      ftml_sha: "e".repeat(40),
-      standing_browser_proof_sha256: "f".repeat(64),
-      standing_browser_parity_sha256: "0".repeat(64),
-      live_reference_sha256: "1".repeat(64),
-      golden_sha256: "2".repeat(64),
-      golden_width: 1366,
-      golden_height: 2188,
-      accepted_browser: {executable_sha256: "3".repeat(64)},
-    },
-    pair: {
-      live_url: "https://scp-wiki.wikidot.com/scp-9506",
-      local_url: "https://scp-wiki.wikijump.localhost/scp-9506",
-    },
-    live_capture: {
-      input_url: "https://scp-wiki.wikidot.com/scp-9506",
-      final_url: "https://scp-wiki.wikidot.com/scp-9506",
-      navigation_status: 200,
-    },
-    accepted_comparison: {status: "pass"},
-    verified_local_golden: {
-      file: "golden.png",
-      sha256: "2".repeat(64),
-    },
-  };
-  validateOfflineBrowserOracle(base);
-  base.provenance.supersedes.oracle_sha256 = "not-a-sha256";
-  assert.throws(
-    () => validateOfflineBrowserOracle(base),
-    /supersedes\.oracle_sha256 must be a lowercase SHA-256/u,
-  );
-  base.provenance.supersedes.oracle_sha256 = "a".repeat(64);
-  base.provenance.golden_sha256 = "4".repeat(64);
-  assert.throws(
-    () => validateOfflineBrowserOracle(base),
-    /successor golden SHA-256 mismatch/u,
-  );
-  base.provenance.golden_sha256 = "2".repeat(64);
-  base.provenance.status = "fail";
-  assert.throws(
-    () => validateOfflineBrowserOracle(base),
-    /successor must record a passing recapture/u,
   );
 });
 

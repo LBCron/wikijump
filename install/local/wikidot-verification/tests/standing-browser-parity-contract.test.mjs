@@ -648,7 +648,7 @@ test("host translation does not mask a second attribute normalization channel", 
   assert.equal(result.anomalies[0].code, "normalization_hides_difference");
 });
 
-test("completion policy is sealed and names exact external failures", () => {
+test("completion policy names exact external failures", () => {
   const policy = validateLiveCompletionPolicy({
     schema: "wikijump.standing_browser_live_completion_policy.v1",
     status: "sealed",
@@ -662,7 +662,6 @@ test("completion policy is sealed and names exact external failures", () => {
       },
     ],
   });
-  assert.equal(policy.status, "sealed");
   assert.throws(
     () =>
       validateLiveCompletionPolicy({

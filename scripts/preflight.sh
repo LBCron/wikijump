@@ -61,7 +61,7 @@ fi
 MERGE_BASE="$(git merge-base HEAD "${BASE}")"
 
 CHANGED_PATHS_FILE="$(mktemp)" || {
-  echo "preflight: failed to create changed path receipt" >&2
+  echo "preflight: failed to create changed path file" >&2
   exit 2
 }
 trap 'rm -f -- "${CHANGED_PATHS_FILE}"' EXIT

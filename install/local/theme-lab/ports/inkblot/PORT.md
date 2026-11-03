@@ -1,7 +1,4 @@
-<!-- adaptation-authority-current -->
-Current publication inputs have passed the adaptation-authority gate. Historical campaign/local-runtime screenshots describe the superseded candidate; they are not acceptance for this CSS. See ../ADAPTATION-AUTHORITY-AUDIT.md and maintenance/historical-receipt.json where present.
 Current source SHA-256: 679a88f60fb72ac72743a09380e121bfbb03207800e41b1ad74e59b1f66bc9ac; CSS SHA-256: fd7e2ae9c01c3d31160b1e7017e441b3abcd8d5eab309c631ef2ebf139fc3406. Full port acceptance remains a separate combined result.
-<!-- adaptation-authority-end -->
 
 # SCP-EN → SCP-JP port: `theme:inkblot`
 
@@ -15,7 +12,6 @@ State: **verified local candidate; not published**. Current upstream source is f
 
 ## Technical decisions
 
-The evidence-backed rules in `../TECHNICAL-LOCALIZATION-SPEC.md` apply; the final local DOM, rating, interaction, asset, viewport, and offline checks are bound below and in `receipt.json`.
 
 ## Historical evidence (superseded; no current acceptance authority)
 
@@ -26,7 +22,6 @@ The evidence-backed rules in `../TECHNICAL-LOCALIZATION-SPEC.md` apply; the fina
 - Candidate page images: `2` rendered, `0` broken; `2` of `1` declared page attachments replayed from verified local bytes.
 - Geometry: desktop, laptop, tablet, and mobile all report zero document overflow.
 - Japanese font specimen: requested `"Libre Baskerville", serif`; actual platform font(s): IPAPGothic (29 Japanese glyphs).
-- Paired screenshots: `artifacts/reference-<viewport>.png` and `artifacts/candidate-<viewport>.png` for all four viewports. See `receipt.json#visual_review` and `../paired-contact-<viewport>.jpg` for the reviewed theme-identity/layout comparisons. Full-page RMSE remains explicitly diagnostic because the two pages are different localized showcases; per-viewport values and rationale remain in `warnings`.
 - Documented non-defect Theme Lab warnings (selector counts and/or localized-showcase visual diagnostics):
 - `.collapsible-block`: 5 EN showcase occurrences vs 2 JP occurrences; EN reference and JP candidate are different localized theme-showcase documents; the JP runtime fixture adds canonical article modules. A repeated selector count difference alone is not a missing theme rule.
 - `.page-rate-widget-box`: 1 EN showcase occurrences vs 2 JP occurrences; EN reference and JP candidate are different localized theme-showcase documents; the JP runtime fixture adds canonical article modules. A repeated selector count difference alone is not a missing theme rule.
@@ -36,13 +31,11 @@ The evidence-backed rules in `../TECHNICAL-LOCALIZATION-SPEC.md` apply; the fina
 - visual-rmse-localized-showcase-difference at tablet: RMSE 0.254249; This full-page RMSE compares different localized theme-showcase text/images and EN versus JP-native header/sidebar/account/rating runtime surfaces, so it is retained as a non-gating diagnostic and not mislabeled as a visual pass. The paired viewport screenshots were reviewed for theme identity, logo/palette, major composition, and responsive structure.
 - visual-rmse-localized-showcase-difference at mobile: RMSE 0.273489; This full-page RMSE compares different localized theme-showcase text/images and EN versus JP-native header/sidebar/account/rating runtime surfaces, so it is retained as a non-gating diagnostic and not mislabeled as a visual pass. The paired viewport screenshots were reviewed for theme identity, logo/palette, major composition, and responsive structure.
 - Runtime fixture rendered Rate, tabs, collapsible, table, blockquote, image block, footnote, code, and the Japanese glyph sample. Tabs, collapsible, pointer/focus, and any fixed/sticky scroll behavior report `pass`.
-- Candidate CSS assets are SHA-256 checked files in the committed `install/local/theme-lab/ports/shared-replay-assets/` pool; `assets.json` records each original/final URL, hash, and explicit `localize-into-package` decision. Captured `@import` chains are recorded as flattened into the candidate CSS bundle. Page attachment decisions are in `page-assets.json`; optional reference capture failures and their causes are listed in `receipt.json`.
 - `1` unconfirmed SCP-EN site-local author identity links were localized to visible credit text; upstream EN and the original human-port source retain their link markup. The local SCP-JP account namespace is not assumed to contain foreign identities.
 - Local preview fixture expanded current JP `theme-squares` markup and `0` component CSS modules where used; `preview-fixture.json` binds its source hashes.
 - When present, named Wikidot page attachments and their hashes are in `page-assets.json` and `page-assets/`; publish the named files with the candidate source.
 
 ## Current authoritative correction
 
-- Frozen read-only SCP-JP A/B at [authority-evidence/inkblot-narrow-navigation/receipt.json](authority-evidence/inkblot-narrow-navigation/receipt.json) showed the third mobile navigation submenu overflowing by 2.83px at 320px with the correction removed. The current CSS with the narrow right-edge anchor passes every submenu, item, and link at 320px and 390px.
 - The correction is limited to that submenu below 360px; its source rule is retained in `authority-overrides.css`.
 - Fresh full offline local acceptance is recorded in [artifacts/current-acceptance/current-local-check.json](artifacts/current-acceptance/current-local-check.json): port verdict `pass` with zero unresolved findings; target acceptance `fail` because local torture cannot render the TOC module and the mobile-navigation surface has a local-only measured overflow. Link-color observations are also local-only. These findings cannot authorize candidate CSS. The static rating fixture comes from the retained current SCP-JP rating DOM and is used only for local selector coverage.

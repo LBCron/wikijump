@@ -101,7 +101,7 @@ render identity in structured tracing. The rendered result uses the existing
 fail-closed behavior for that operation. It must not expose hidden row counts,
 permission state, or internal budget values to the viewer.
 
-The render receipt records the configured budget, feature set, and the final
+The render log records the configured budget, feature set, and the final
 spent amount. It also records the first exhaustion reason when a render is
 bounded. These fields are diagnostic evidence; they are not a new compatibility
 classification and must not alter the frozen ListPages replay contract.
@@ -131,7 +131,7 @@ framework or a second rendering service.
 - Each operation in the table charges before work begins and reports a
   structured exhaustion reason.
 - Existing ListPages module, source, row, output, and include limits continue
-  to apply. The frozen ListPages replay scope and acceptance receipts are not
+  to apply. The frozen ListPages replay scope and acceptance records are not
   changed.
 - The 22 findings above each have a regression that either demonstrates the
   bounded behavior or records why the operation remains unsupported.

@@ -11,5 +11,5 @@ if(index<0||!process.argv[index+1])throw new Error('usage: theme-scenario-plan.m
 const config=JSON.parse(fs.readFileSync(path.resolve(process.argv[index+1]),'utf8'));
 const optionalJson=name=>{const i=process.argv.indexOf(name);return i>=0&&process.argv[i+1]?JSON.parse(fs.readFileSync(path.resolve(process.argv[i+1]),'utf8')):null};
 const renderedShell=optionalJson('--rendered-shell');
-const siteStateReceipt=optionalJson('--site-state-receipt');
-process.stdout.write(JSON.stringify(themeTestExecutionPlan(root,config,{renderedShell,siteStateReceipt}),null,2)+'\n');
+const siteState=optionalJson('--site-state');
+process.stdout.write(JSON.stringify(themeTestExecutionPlan(root,config,{renderedShell,siteState}),null,2)+'\n');

@@ -1,7 +1,4 @@
-<!-- adaptation-authority-current -->
-Current publication inputs have passed the adaptation-authority gate. Historical campaign/local-runtime screenshots describe the superseded candidate; they are not acceptance for this CSS. See ../ADAPTATION-AUTHORITY-AUDIT.md and maintenance/historical-receipt.json where present.
 Current source SHA-256: 6cb9b6f38b760ac446014f2f4c4671c05df909a7f102624e5b374d4dbab15b40; CSS SHA-256: f249a01833c6df378ccbd9d8a954fd2745311d10093cd9c55ead1d70eeaaeaeb. Full port acceptance remains a separate combined result.
-<!-- adaptation-authority-end -->
 
 # Dear Dictator: SCP-KO → SCP-JP
 

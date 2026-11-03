@@ -2,7 +2,6 @@
 
 ## Final result
 
-The retained local simulation is historical evidence, with a complete reviewed 36-candidate × 9-cell matrix. The Theme Lab adaptation-authority cleanup supersedes the 35 campaign candidates. Old screenshots remain bound to their archived CSS/source identities and do not accept the cleaned candidates.
 
 The `--historical-only` verification uses `historical-run-contract.json`, which preserves the exact 2026-09-27 capture contract (SHA-256 `7d2313c1d42f010bd3a893e1364ba56931b56044ba1f782ed0ee887fde6deba9`, Git revision `e3fd603356`). The maintained `run-contract.json` gained `expected_runtime_source_sha256` during the 2026-10-07 source integration and now has a different hash. Historical audit records bind the earlier bytes; the historical verifier checks those bytes without changing the current runtime identity or rewriting audit rows. A clean checkout still needs the separately stored raw evidence to complete this verification; missing captures remain failures.
 
@@ -40,8 +39,6 @@ Interaction review inspected action traces, target state, visibility/focus/hover
 ### SIGMA10-MOB-001 — preview notice overflow is unverified on real Wikidot
 
 - **Authority:** local preview simulation only; `port_conclusion_eligible = false`, `blocker = false`, `actionable = false`.
-- **Real saved-page evidence:** [saved-page receipt](../ports/authority-evidence/sigma-saved-final/receipt.json) records `.creditRate::before { display: none }` and viewport-sized documents at 320px and 390px. [Credit return capture](../ports/authority-evidence/sigma-credit-final/receipt.json) records the real `.creditRateOtherwiseBottom .return-credits` control fitting both widths. `.credit-back` is absent from this target DOM.
-- **Source chain:** [read-only source and preview receipt](../ports/authority-evidence/sigma-preview/receipt.json) freezes `sigma-10:main`, `sigma-10:credit:start`, `sigma-10:credit:style`, and `sigma-10:info:style`. The last source intentionally hides the notice on saved pages.
 - **Preview limit:** anonymous PagePreviewModule produced 9,424 bytes of real preview HTML. It did not establish the editor/browser stylesheet cascade or measure an actual preview notice. No edit UI, lock, save, or public mutation was used.
 - **Next evidence:** Technical Staff/manual preview confirmation. If actual preview overflow is confirmed, evaluate a preview-scoped wrapping correction. No source change is currently required for migration.
 

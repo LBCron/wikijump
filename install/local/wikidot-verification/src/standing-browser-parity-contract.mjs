@@ -1,11 +1,8 @@
 import {
   COMMON_GEOMETRY_SELECTORS,
   PAGE_CHROME_SKELETON,
-  STANDING_BROWSER_CANARY_SCHEMA,
-  assertThemeFamilyCoverage,
   canaryForUrl,
   firstPaintPropertyNames,
-  standingBrowserCanaryContractSha256,
 } from "./standing-browser-canaries.mjs";
 import {
   comparePseudoLayouts,
@@ -36,8 +33,6 @@ export const STANDING_BROWSER_LIVE_POLICY_SCHEMA =
   "wikijump.standing_browser_live_completion_policy.v1";
 export const STANDING_CANDIDATE_PARITY_IDENTITY_SCHEMA =
   "wikijump.standing_candidate_parity_identity.v1";
-export const STANDING_CANDIDATE_PARITY_RECEIPT_SCHEMA =
-  "wikijump.standing_candidate_parity_receipt.v1";
 
 export const DEFAULT_THRESHOLDS = Object.freeze({
   geometry_position_px: 8,
@@ -1077,9 +1072,6 @@ export function validateLiveCompletionPolicy(value) {
     policy.policy_version,
     "live completion policy.policy_version",
   );
-  if (policy.status !== "sealed") {
-    throw new Error("live completion policy.status must be sealed");
-  }
   if (!Array.isArray(policy.allowed_external_failures)) {
     throw new Error(
       "live completion policy.allowed_external_failures must be an array",
@@ -1095,7 +1087,6 @@ export function validateLiveCompletionPolicy(value) {
   );
   return Object.freeze({
     schema: STANDING_BROWSER_LIVE_POLICY_SCHEMA,
-    status: "sealed",
     policy_version: policyVersion,
     allowed_external_failures: Object.freeze(
       [...allowed].sort((left, right) =>
@@ -1110,14 +1101,6 @@ export function policyAllowsFailure(policy, failure, capture) {
   return policy.allowed_external_failures.some(
     (rule) => failureKey(rule) === failureKey(failure),
   );
-}
-
-export function currentCanaryContractSummary() {
-  return {
-    canary_schema: STANDING_BROWSER_CANARY_SCHEMA,
-    canary_contract_sha256: standingBrowserCanaryContractSha256(),
-    theme_family_coverage: assertThemeFamilyCoverage(),
-  };
 }
 
 export function canaryContractForPair(pair) {

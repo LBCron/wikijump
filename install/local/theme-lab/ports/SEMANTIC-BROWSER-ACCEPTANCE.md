@@ -66,7 +66,7 @@ stale provenance and unanswered questions block completion.
 | --- | --- |
 | Current inputs and observations | Candidate/source/baseline/fixture/asset/action/runtime hashes; completion independently opens bound artifacts and checks the current inventory. |
 | Capture safety | Explicit action responses, errors, assets and network counts on every row. Exact screenshot binding is required for V and risk-promoted C rows; M and unpromoted C success rows use their structured machine evidence. Pending image review is not an action failure. Other unknown items remain blocking. |
-| Maintained action execution | The known action contract and clean execution. This establishes execution only. Search types/focuses a visible query; a concealed query instead requires a real visible-button native navigation request, the exact encoded current value and a current source-side action receipt. An unexercised or unbound alternative remains a source-authority gap. |
+| Maintained action execution | The known action contract and clean execution. This establishes execution only. Search types/focuses a visible query; a concealed query instead requires a real visible-button native navigation request, the exact encoded current value and a current source-side action record. An unexercised or unbound alternative remains a source-authority gap. |
 | Document containment | Measured document and client widths with the existing one-pixel rounding tolerance. When the candidate exceeds the viewport, measure the same already-reached DOM/action state with only the SCP-JP target-baseline layers painted. Equal inherited overflow passes this theme-attribution fact; candidate overflow beyond that baseline fails. A required baseline measurement that is absent or stale remains missing evidence, not a visual-review question. |
 | Title intersections | Geometry plus effective ancestor visibility and overflow clipping. Hidden intersections and menus crossing only empty title-container space are machine facts. Visible title text ranges must actually intersect the other element before a composition question is created. Missing visibility/text geometry requires another measurement. |
 | Source visual identity | One question per theme and candidate/source/base/baseline identity, binding every declared responsive normal-page observation. Review imagery, typography, palette and information hierarchy against the frozen upstream source and source rendering, explaining documented localization differences. |
@@ -81,9 +81,9 @@ measurements determine which intersections are actually visible.
 
 A semantic question review records the exact question, evidence digest,
 concrete conclusion, reviewer/time, source URL and bound source/rendering
-artifacts, original reference HTML and the reference rendering receipt.
+artifacts, original reference HTML and the reference rendering record.
 Completion matches the snapshot to maintained upstream source authority and
-the source image to the receipt's exact frozen, offline reference replay.
+the source image to the record's exact frozen, offline reference replay.
 Naming an arbitrary source URL beside a candidate screenshot is insufficient.
 Every declared evidence item belongs to the review; an
 unexplained representative screenshot is insufficient. These decisions remain
@@ -149,7 +149,7 @@ identity judgment.
 
 The retained source-only search probes in `../evidence/search-controls-20261001/`
 exercise the native Wikidot submit listener against offline cached source HTML,
-CSS and JavaScript. Each theme receipt binds its source, viewport, query
+CSS and JavaScript. Each theme record binds its source, viewport, query
 visibility, actual navigation, measurement programs and retained artifacts.
 They settle only that action alternative; recorded missing reference resources
 remain unresolved for any broader source appearance or asset obligation.
@@ -177,18 +177,7 @@ shared authority, fixtures, baseline, viewport, network policy or unknown
 future dependencies fail closed. Neither history mechanism assigns a visual
 review or changes the observation denominator.
 
-Transient navigation title intersections can be settled from structured evidence
-when the same exact candidate/source/base/assets/fixture/browser/session/site/locale
-has a clean normal reading state and both observations pass action, safety and
-containment facts. The source replay retained under
-`authority-evidence/source-navigation-overlays-20261001` demonstrates the native
-SCP-JP operation at multiple responsive widths, including clean reading states,
-actual menu actions, screenshots, DOM, browser identity and measurement programs.
-Only canonical fixture text inside a retained positioned submenu ancestry or the
-rendered drawer/side-block geometry qualifies. Unknown labels, account/search
-controls, missing ancestry, escaping menus and persistent normal-state overlap
-remain visual questions. Completion independently verifies all source artifacts;
-current action, fixture, runtime and run-contract gates still apply.
+Transient navigation title intersections go to visual review.
 
 This extends the reviewed isolated proposal `471a7929b1` with canonical text and
 structural provenance checks plus retained source evidence. It does not assign

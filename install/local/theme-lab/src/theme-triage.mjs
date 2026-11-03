@@ -2,7 +2,7 @@
 // does this candidate CSS touch, and which of its selectors are not
 // classified by any known surface?" in seconds, without a browser, a
 // daemon, or any artifact writes. Triage never mints or skips an
-// acceptance receipt; it only informs the next action.
+// acceptance result; it only informs the next action.
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';

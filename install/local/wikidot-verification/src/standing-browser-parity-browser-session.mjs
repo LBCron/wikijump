@@ -21,11 +21,6 @@ import {
 import { startCaptureEgressProxy } from "./capture-egress-proxy.mjs";
 import {
   requireExactHttpsOrigins,
-  readJsonObject,
-  requireNonEmptyString,
-  requirePlainObject,
-  requireSha256,
-  sealJsonNoReplace,
   sha256File,
 } from "./standing-browser-parity-util.mjs";
 
@@ -35,7 +30,6 @@ export const DEFAULT_PARITY_BROWSER_ROOT = path.resolve(
   "../../../..",
   "framerail",
 );
-const THROTTLE_CONFIG_SCHEMA = "wikijump.standing_browser_throttle_config.v1";
 const MAX_CANDIDATE_FILE_REDIRECTS = 10;
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 const PARITY_BROWSER_LAUNCH_ARGS = ["--disable-http-cache"];
@@ -325,85 +319,6 @@ export function candidateLocalOriginSets(candidate) {
   return { localOrigins, fileRouteOriginSets };
 }
 
-export function parityBrowserThrottleConfig({
-  args,
-  runId,
-  lock,
-  policy,
-  localOrigins,
-  candidate,
-  credentialPolicy = "none",
-  publicOrigins = [],
-}) {
-  const executionMode = parityBrowserExecutionMode(args.mode);
-  const caseSetPublicOrigins = requireExactHttpsOrigins(
-    publicOrigins,
-    "browser public origins",
-  );
-  let credentials = "none";
-  if (credentialPolicy !== "none") {
-    const value = requirePlainObject(
-      credentialPolicy,
-      "browser credential policy",
-    );
-    if (
-      value.mode !== "private-actor-storage-states" ||
-      !Number.isSafeInteger(value.storage_state_count) ||
-      value.storage_state_count < 1 ||
-      JSON.stringify(Object.keys(value).sort()) !==
-        JSON.stringify([
-          "mode",
-          "private_input_identity_sha256",
-          "storage_state_count",
-        ])
-    ) {
-      throw new Error(
-        "browser credential policy must bind a private actor storage-state count",
-      );
-    }
-    credentials = {
-      mode: value.mode,
-      storage_state_count: value.storage_state_count,
-      private_input_identity_sha256: requireSha256(
-        value.private_input_identity_sha256,
-        "browser credential policy private input identity SHA-256",
-      ),
-    };
-  }
-  return {
-    schema: THROTTLE_CONFIG_SCHEMA,
-    status: "sealed_before_browser_request",
-    run_id: runId,
-    mode: args.mode,
-    execution_mode: executionMode,
-    interval_ms: parityBrowserRequestIntervalMs(args.mode),
-    browser_capture_lock: { path: lock.path, owner: lock.owner },
-    live_completion_policy: {
-      sha256: policy.sha256,
-      policy_version: policy.value.policy_version,
-    },
-    local_context_exempt_origins: localOrigins,
-    candidate_endpoint: candidate ?? null,
-    ...(caseSetPublicOrigins.length === 0
-      ? {
-          public_request_policy:
-            "Wikidot-family requests and non-Wikidot stylesheets, fonts, and images are admitted by the shared persistent gate; scripts and fetches from other public origins are aborted before admission",
-          public_origin_policy:
-            "HTTP(S) Wikidot page/resource hosts (wikidot.com and its subdomains, wdfiles.com resources, /v-- static assets on a CloudFront host, and exact HTTPS GET interwiki.scpwiki.com styleFrame/interwikiFrame documents plus interwiki/resizeIframe scripts) are gated; non-Wikidot stylesheet, font, and image dependencies are gated by resource type; other public hosts are aborted before admission",
-        }
-      : {
-          case_set_public_origins: caseSetPublicOrigins,
-          public_request_policy:
-            "Wikidot-family requests, exact case-set GET origins, and non-Wikidot stylesheets, fonts, and images are admitted by the shared persistent gate; scripts and fetches from other public origins are aborted before admission",
-          public_origin_policy:
-            "HTTP(S) Wikidot page/resource hosts (wikidot.com and its subdomains, wdfiles.com resources, /v-- static assets on a CloudFront host, and exact HTTPS GET interwiki.scpwiki.com styleFrame/interwikiFrame documents plus interwiki/resizeIframe scripts) and exact case-set HTTPS GET origins are gated; non-Wikidot stylesheet, font, and image dependencies are gated by resource type; other public hosts are aborted before admission",
-        }),
-    service_workers: "block",
-    web_sockets: "blocked_without_network_connection",
-    credentials,
-  };
-}
-
 export function isParityBrowserPublicOrigin(
   value,
   resourceType,
@@ -425,7 +340,6 @@ export async function createParityBrowserControls({
   candidate,
   credentialPolicy = "none",
   publicOrigins = [],
-  resume = false,
   responseCacheOptions = null,
 }) {
   const runId = randomUUID();
@@ -451,27 +365,6 @@ export async function createParityBrowserControls({
       publicOrigins,
       "browser public origins",
     );
-    const configPath = path.join(outputDir, "throttle-config-receipt.json");
-    let configRunId = runId;
-    let configLock = lock;
-    if (resume) {
-      const existing = await readJsonObject(configPath, "existing throttle config");
-      configRunId = requireNonEmptyString(existing.run_id, "existing throttle config run_id");
-      configLock = requirePlainObject(existing.browser_capture_lock, "existing throttle config browser_capture_lock");
-    }
-    const configSeal = await sealJsonNoReplace(
-      configPath,
-      parityBrowserThrottleConfig({
-        args,
-        runId: configRunId,
-        lock: configLock,
-        policy,
-        localOrigins,
-        candidate: candidate?.candidate.endpoint ?? null,
-        credentialPolicy,
-        publicOrigins: caseSetPublicOrigins,
-      }),
-    );
     proxy = await startCaptureEgressProxy({
       allowedLocalOrigins: localOrigins,
       requestTimeoutMs: args.timeoutMs,
@@ -489,8 +382,6 @@ export async function createParityBrowserControls({
       proxy,
       lock,
       runId,
-      configPath,
-      configSha256: configSeal.sha256,
       responseCache,
       localOrigins,
       fileRouteOriginSets,
@@ -512,7 +403,6 @@ export async function createParityBrowserControls({
           : {
           ...gate.snapshot(),
           execution_mode: executionMode,
-          config_sha256: configSeal.sha256,
           response_cache: responseCache?.snapshot() ?? null,
             };
         if (!failure) {

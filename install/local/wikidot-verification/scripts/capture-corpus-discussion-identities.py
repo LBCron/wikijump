@@ -152,14 +152,14 @@ async def cached_read(self, url, **kwargs):
         r"[1-9]\d{0,3}", safe.get("pageNo", "")
     ):
         raise RuntimeError("Read parameters are outside the declared thread")
-    receipt = CACHE / (key + ".json")
+    record = CACHE / (key + ".json")
     body = CACHE / (key + ".body")
     barrier = CACHE / (key + ".barrier")
     async with fill_lock:
         with (CACHE / ".acquisition.lock").open("a") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
-            if receipt.exists():
-                m = json.loads(receipt.read_text())
+            if record.exists():
+                m = json.loads(record.read_text())
                 if m["headers"].get("vary", "").strip() == "*" or m["status"] == 304:
                     raise RuntimeError(
                         "Historical-only response cannot be replayed or reacquired"
@@ -229,7 +229,7 @@ async def cached_read(self, url, **kwargs):
             durable(body, payload)
             captured_at = datetime.now(timezone.utc).isoformat()
             durable(
-                receipt,
+                record,
                 json.dumps(
                     {
                         "request": safe,

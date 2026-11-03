@@ -6,7 +6,7 @@
 #                         reachable in the fixed design, non-vacuity).
 #   ./check.sh mutations  three one-element mutations of FIX must FAIL:
 #                         catch-up moved before park, restore guard removed,
-#                         receipt passing without the re-count.
+#                         summary passing without the re-count.
 # Exit 2: code drifted from the model's anchors, or toolchain missing.
 set -uo pipefail
 
@@ -134,7 +134,7 @@ def one(name, old, new):
 one("MA", 'Design = "FIX" /\\ retries < 3', 'FALSE')
 # MB: restore guard removed (the compiled-at guard, one logical element)
 one("MB", '(Design = "CUR" \\/ outTime[p] = "pre")', "TRUE")
-# MC: receipt passing without the re-count (restart goes straight to commit)
+# MC: summary passing without the re-count (restart goes straight to commit)
 one("MC", 'aheadVer\' = [p \\in Pages |-> 0] /\\ pc\' = "count"',
           'aheadVer\' = [p \\in Pages |-> 0] /\\ pc\' = "commit"')
 PY

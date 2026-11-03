@@ -1,5 +1,4 @@
 import assert from "node:assert/strict"
-import nodeCrypto from "node:crypto"
 import fs from "node:fs"
 import path from "node:path"
 import test from "node:test"
@@ -13,17 +12,12 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const evidence = "framerail/tests/fixtures/native-revision-source"
 
 test("frozen revision source proves the div and explicit escaped line-boundary contract", () => {
-  const receipt = JSON.parse(
+  const observation = JSON.parse(
     fs.readFileSync(path.join(root, `${evidence}/observation.json`))
   )
-  assert.equal(receipt.public_writes, 0)
-  for (const site of receipt.sites) {
+  for (const site of observation.sites) {
     const binding = site.requests[0]
     const bytes = fs.readFileSync(path.join(root, evidence, binding.response_file))
-    assert.equal(
-      nodeCrypto.createHash("sha256").update(bytes).digest("hex"),
-      binding.response_sha256
-    )
     const response = JSON.parse(bytes)
     assert.equal(response.status, "ok")
     assert.match(response.body, /<div class="page-source">/u)

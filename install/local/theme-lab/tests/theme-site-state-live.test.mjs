@@ -18,10 +18,10 @@ test('live site-state verifier binds existing/missing pages and exact canonical 
     ['run-owned:theme-lab-canonical-corpus-v1',{page_id:3,revision_id:4,wikitext:corpus,tags:['theme','theme-lab-canonical-corpus']}],
   ]);
   const rpcClient={call:async(method,params)=>method==='site_get'?{site_id:17}:pages.get(params.page)??null};
-  const receipt=await verifyThemeScenarioSiteState({root,materialized,rpcClient,siteSlug:'scpaiueouiuiuiui'});
-  assert.equal(receipt.site_id,17);
-  assert.equal(receipt.observed.missing_pages['run-owned:theme-lab-corpus-missing'].exists,false);
-  assert.equal(receipt.observed.corpus_page.tags[0],'theme');
+  const record=await verifyThemeScenarioSiteState({root,materialized,rpcClient,siteSlug:'scpaiueouiuiuiui'});
+  assert.equal(record.site_id,17);
+  assert.equal(record.observed.missing_pages['run-owned:theme-lab-corpus-missing'].exists,false);
+  assert.equal(record.observed.corpus_page.tags[0],'theme');
   await assert.rejects(()=>verifyThemeScenarioSiteState({root,materialized,rpcClient,siteSlug:'different-site'}),/does not match scenario branch profile/u);
 });
 

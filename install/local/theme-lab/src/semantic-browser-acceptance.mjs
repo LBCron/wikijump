@@ -13,14 +13,6 @@ export const TITLE_COMPOSITION_CONTRACT_SHA256 = crypto.createHash('sha256').upd
 export const TITLE_TEXT_CONTRACT_SHA256 = crypto.createHash('sha256').update(measureTitleTextIntersections.toString()).digest('hex');
 const pendingImage = 'screenshot captured but awaiting image review';
 const knownStates = new Set(states.states.map(row => `${row.surface}.${row.state}`));
-const transientNavigationStates = new Set([
-  'nav.desktop-top.submenu-hover',
-  'nav.desktop-top.keyboard-focus',
-  'nav.sidebar.open',
-  'nav.sidebar.open-submenu',
-  'nav.mobile-top.submenu-expanded',
-  'nav.tablet-top.active-navigation-expanded'
-]);
 const failureResponse = response => !response || response.type === 'failure' || response.status >= 400 || response.error_message;
 export const observationKey = row => JSON.stringify([row.theme, row.browser_engine, row.viewport, row.surface, row.state]);
 
@@ -143,14 +135,6 @@ export function titleCompositionFact(row) {
   return text.intersections.length ? 'visual' : 'pass';
 }
 
-const readingContext = row => Object.fromEntries([
-  'theme', 'candidate_sha256', 'candidate_source_sha256', 'base_css_sha256',
-  'candidate_structure_sha256', 'baseline_theme_css_sha256', 'baseline_theme_mode',
-  'asset_dependency_sha256', 'fixture_contract_sha256',
-  'runtime_source_sha256', 'backend_runtime_identity_sha256', 'browser_engine', 'browser_version', 'viewport', 'viewport_size', 'session_state',
-  'target_site', 'locale'
-].map(key => [key, row[key] ?? null]));
-
 const titleReadingContext = row => Object.fromEntries([
   'theme', 'candidate_sha256', 'candidate_source_sha256', 'base_css_sha256',
   'candidate_structure_sha256', 'baseline_theme_css_sha256', 'baseline_theme_mode',
@@ -172,14 +156,6 @@ function sameMeasuredTitleComposition(row, normal) {
     JSON.stringify(composition(row)) === JSON.stringify(composition(normal));
 }
 
-const sameRect = (left,right) => left && right && ['x','y','width','height'].every(key =>
-  Number.isFinite(left[key]) && Number.isFinite(right[key]) && Math.abs(left[key]-right[key]) <= 1);
-
-function samePersistentTitleIntersection(left,right) {
-  return sameRect(left?.rect,right?.rect) && ['tag','id','class','text','color','background','position','z','effectively_visible']
-    .every(key => (left?.[key] ?? null) === (right?.[key] ?? null));
-}
-
 const identityQuestion = 'Does the JP rendering preserve the frozen source theme’s intentional imagery, typography, palette and information hierarchy across the evidenced responsive layouts, including page-title readability against persistent shell controls in normal reading states, allowing only documented localization differences?';
 
 const identityQuestionId = row => hash({kind: 'source_visual_identity', theme: row.theme,
@@ -189,8 +165,6 @@ const identityQuestionId = row => hash({kind: 'source_visual_identity', theme: r
 export function planBrowserAcceptance(audit) {
   const questions = new Map();
   const observations = [];
-  const normalRows = new Map((audit.records ?? []).filter(row => row.surface === 'page.normal' && row.state === 'settled')
-    .map(row => [JSON.stringify(readingContext(row)), row]));
   const titleNormalRows = new Map((audit.records ?? []).filter(row => row.surface === 'page.normal' && row.state === 'settled')
     .map(row => [JSON.stringify(titleReadingContext(row)), row]));
   for (const row of audit.records ?? []) {
@@ -295,7 +269,7 @@ export function validateSemanticBrowserAcceptance(audit) {
         !/^https:\/\/[a-z0-9-]+\.wikidot\.com\//u.test(review?.source_url ?? '') ||
         typeof review?.source_snapshot?.path !== 'string' || !validHash(review?.source_snapshot?.sha256) ||
         !semanticSourceRenderings(question, review).every(rendering =>
-          ['source_html', 'source_rendering', 'source_rendering_receipt'].every(key =>
+          ['source_html', 'source_rendering', 'source_rendering_record'].every(key =>
             typeof rendering?.[key]?.path === 'string' && validHash(rendering[key].sha256)))) {
       failures.push(`${question.theme}: unanswered or stale visual question ${question.id}`);
     }
@@ -318,7 +292,7 @@ export function semanticReviewArtifactBindings(audit) {
     const review = audit.semantic_reviews?.[question.id];
     return [{binding: review?.source_snapshot, label: `${question.theme}/${question.kind}/source_snapshot`},
       ...semanticSourceRenderings(question, review).flatMap(rendering =>
-        ['source_html', 'source_rendering', 'source_rendering_receipt'].map(key =>
+        ['source_html', 'source_rendering', 'source_rendering_record'].map(key =>
           ({binding: rendering[key], label: `${question.theme}/${question.kind}/${rendering.viewport}/${key}`})))];
   });
 }

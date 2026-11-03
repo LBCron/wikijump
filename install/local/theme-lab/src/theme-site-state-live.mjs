@@ -24,6 +24,5 @@ export async function verifyThemeScenarioSiteState({root,materialized,rpcClient,
     if(JSON.stringify(page.tags??[])!==JSON.stringify(required.tags??[]))throw new Error('canonical corpus saved page tags are stale');
     observed.corpus_page={slug:required.slug,page_id:page.page_id,revision_id:page.revision_id,source_sha256:actualSha,tags:page.tags};
   }
-  const receipt={schema:'theme_lab_live_site_state.v1',scenario_sha256:materialized.scenario_sha256,site_id:site.site_id,site_slug:siteSlug,declared_site_state_sha256:materialized.scenario.branch_profile.site_state_sha256,observed};
-  return {...receipt,receipt_sha256:sha(Buffer.from(JSON.stringify(receipt)))};
+  return {schema:'theme_lab_live_site_state.v1',scenario_sha256:materialized.scenario_sha256,site_id:site.site_id,site_slug:siteSlug,declared_site_state_sha256:materialized.scenario.branch_profile.site_state_sha256,observed};
 }

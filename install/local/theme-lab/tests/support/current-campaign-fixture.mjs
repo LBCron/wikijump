@@ -43,7 +43,7 @@ export const mockCaptureContracts=()=>{
  contracts.expected_backend_runtime_identity=mockBackendRuntimeIdentity;
  return contracts;
 };
-export function mockCampaign({migrationSchema='theme_lab_current_browser_run_contract.v1'}={}){
+function buildCampaign(migrationSchema){
  const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'theme-lab-current-campaign-'));
  const root=path.join(workspace,'install/local/theme-lab');fs.mkdirSync(root,{recursive:true});
  for(const surface of new Set(browserContract.states.map(row=>row.surface)))for(const viewport of ['desktop','mobile'])for(const file of runtimeFilesForObservation(surface,viewport)){const target=path.join(workspace,file);fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,'mock runtime input');}
@@ -163,4 +163,48 @@ export function mockCampaign({migrationSchema='theme_lab_current_browser_run_con
  const migrationResult={schema:'theme_lab_current_sigma10_acceptance.v1',run_contract_sha256:migrationContract.sha256,overall_acceptance:{status:'pass'},browser_audit_sha256:migrationBinding.sha256,canonical_scenario_evidence:{testtheme:{generation:'sigma10',scenario_sha256:sigma10Materialized.scenario_sha256,matrix_receipt_sha256:sigma10Matrix.matrix_receipt_sha256,measurement_contract_sha256:sigma10Materialized.bindings.measurement_contract.sha256}}};
  const document={schema:'theme_lab_current_campaign_acceptance.v1',packages:[{package:'testtheme',inputs:{css,source,preview},receipt,browser_audit:browserBinding,visual_review:visualReviewBinding}],migration:{receipt:write(migrationResultPath,migrationResult),browser_audit:migrationBinding}};
  const save=()=>write('current-campaign-acceptance.json',document);save();return{root,workspace,document,write,save,audit,migrationResult,full,migrationAudit,sigma10Matrix,migrationContract};
+}
+const campaignTemplates=new Map();
+let campaignTemplateCleanup=false;
+function campaignTemplate(migrationSchema){
+ let template=campaignTemplates.get(migrationSchema);
+ if(!template){
+  template=buildCampaign(migrationSchema);
+  campaignTemplates.set(migrationSchema,template);
+  if(!campaignTemplateCleanup){
+   campaignTemplateCleanup=true;
+   process.on('exit',()=>{for(const entry of campaignTemplates.values())fs.rmSync(entry.workspace,{recursive:true,force:true});});
+  }
+ }
+ return template;
+}
+function campaignGraph(bundle){
+ return {document:bundle.document,audit:bundle.audit,migrationResult:bundle.migrationResult,full:bundle.full,migrationAudit:bundle.migrationAudit,sigma10Matrix:bundle.sigma10Matrix,migrationContract:bundle.migrationContract};
+}
+function campaignTreeDigest(workspace){
+ const rows=[];
+ const walk=(dir)=>{for(const entry of fs.readdirSync(dir,{withFileTypes:true}).sort((a,b)=>a.name<b.name?-1:1)){const file=path.join(dir,entry.name);if(entry.isDirectory())walk(file);else rows.push([path.relative(workspace,file),digest(fs.readFileSync(file))]);}};
+ walk(workspace);
+ return JSON.stringify(rows);
+}
+function cloneCampaign(template){
+ const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'theme-lab-current-campaign-'));
+ const root=path.join(workspace,'install/local/theme-lab');
+ fs.cpSync(template.workspace,workspace,{recursive:true});
+ const graph=structuredClone(campaignGraph(template));
+ const write=(name,content)=>{const bytes=typeof content==='string'?content:JSON.stringify(content);const file=path.join(root,name);fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,bytes);return {path:name,sha256:digest(bytes)};};
+ const save=()=>write('current-campaign-acceptance.json',graph.document);
+ return {root,workspace,document:graph.document,write,save,audit:graph.audit,migrationResult:graph.migrationResult,full:graph.full,migrationAudit:graph.migrationAudit,sigma10Matrix:graph.sigma10Matrix,migrationContract:graph.migrationContract};
+}
+const shadowCampaignFixture=process.env.THEME_LAB_FIXTURE_SHADOW==='1';
+export function mockCampaign({migrationSchema='theme_lab_current_browser_run_contract.v1'}={}){
+ const clone=cloneCampaign(campaignTemplate(migrationSchema));
+ if(shadowCampaignFixture){
+  const fresh=buildCampaign(migrationSchema);
+  try{
+   if(campaignTreeDigest(fresh.workspace)!==campaignTreeDigest(clone.workspace))throw new Error('mockCampaign clone tree differs from a fresh build');
+   if(JSON.stringify(campaignGraph(fresh))!==JSON.stringify(campaignGraph(clone)))throw new Error('mockCampaign clone graph differs from a fresh build');
+  }finally{fs.rmSync(fresh.workspace,{recursive:true,force:true});}
+ }
+ return clone;
 }

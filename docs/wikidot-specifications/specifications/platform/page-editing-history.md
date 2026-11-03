@@ -67,7 +67,7 @@ Evidence basis:
 
 ### P8 - temporal behavior, failure atomicity, limits, and resource bounds
 
-- The historical documentation claims non-conflicting concurrent section/append locks; current implementation must not claim that behavior until exact live lock-conflict semantics are observed. Revision-bound saves MUST fail rather than overwrite a conflicting newer revision.
+- Live lock-conflict semantics are observed (2026-11-02 sandbox probes; model and composition table: `install/local/formal/edit-lock/`). Locks conflict by mode: a whole-page lock conflicts with every mode; a section lock conflicts with the same section and with whole-page; append conflicts with whole-page and with itself, and coexists with section locks including the last section; disjoint sections coexist. A save is decided in a fixed order: a source-changing revision in the saver's regions since its acquisition base fails as `page_changed` (nonrecoverable); else a live conflicting lock the presented credentials do not match fails as `other_locks`; else the save commits. Metadata revisions (tags, parent) create revisions but never move a saver's base, and the client-presented revision id is not consulted. A dead or expired token alone never rejects: with nothing conflicting and the source unmoved, the save re-creates its lock. Every successful save, no-op included, releases the lock. Rename is blocked by a live lock; delete bypasses it; a forced revert commits over it and invalidates it. Revision-bound saves therefore do NOT fail merely because a newer revision exists; they fail only under this composition.
 
 
 ## Suggested public TDD seams
@@ -79,7 +79,7 @@ These seams are recommendations. The implementation agent must present and confi
 
 ## Feature-specific implementation notes
 
-- No feature-specific implementation note beyond the corpus contract.
+- Edit-lock/save semantics are specified by the live-probe record and the TLA+ model in `install/local/formal/edit-lock/` (composition table in its FINDINGS.md). Deepwell has no edit lease yet (only the administrative `page_lock`), and the current `last_revision_id` check does not implement this composition; the implementation order is RULING-2 section 6 steps 3-8 in the Phase 4 record.
 
 ## Source inventory
 

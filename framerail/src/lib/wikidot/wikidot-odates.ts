@@ -79,14 +79,11 @@ const AGO_HOVER_SUFFIX = "|agohover"
 /**
  * Parse an odate span's class list. Returns null when the span carries no
  * usable timestamp or its format cannot be decoded.
- *
- * @param {{ className: string }} element - Span or span-like with
- *   className.
  */
-export function parseOdateSpan(element) {
+export function parseOdateSpan(element: { className: string }) {
   const tokens = String(element?.className ?? "").split(/\s+/)
-  let timestamp = null
-  let format = null
+  let timestamp: number | null = null
+  let format: string | null = null
   for (const token of tokens) {
     const timeMatch = TIME_TOKEN.exec(token)
     if (timeMatch) {
@@ -101,7 +98,7 @@ export function parseOdateSpan(element) {
       }
     }
   }
-  if (!Number.isFinite(timestamp) || format === null) return null
+  if (timestamp === null || !Number.isFinite(timestamp) || format === null) return null
   let agoHover = false
   if (format.endsWith(AGO_HOVER_SUFFIX)) {
     agoHover = true
@@ -110,9 +107,9 @@ export function parseOdateSpan(element) {
   return { timestamp, format, agoHover }
 }
 
-export function agoText(deltaSeconds) {
+export function agoText(deltaSeconds: number) {
   const delta = Math.max(0, Math.floor(deltaSeconds))
-  const unit = (value, singular, plural) =>
+  const unit = (value: number, singular: string, plural: string) =>
     `${value} ${value === 1 ? singular : plural} ago`
   if (delta < 60) return unit(delta, "second", "seconds")
   const minutes = Math.floor(delta / 60)
@@ -122,27 +119,17 @@ export function agoText(deltaSeconds) {
   return unit(Math.floor(hours / 24), "day", "days")
 }
 
-const pad2 = (value) => String(value).padStart(2, "0")
+const pad2 = (value: number) => String(value).padStart(2, "0")
 
-/**
- * Render viewer-local text for a timestamp under a format string.
- *
- * @param {number} timestampSeconds - Unix timestamp from `time_`.
- * @param {string} format - Decoded `format_` class value (no `|agohover`).
- * @param {number} nowSeconds - Current unix time (for `%O`).
- * @param {number} utcOffsetMinutes - Viewer offset east of UTC in minutes
- *   (callers pass the per-date local offset, exactly as a browser would).
- * @returns {string | null} Rendered text, or null when the format uses an
- *   unsupported directive (caller keeps the server text).
- */
+/** Render viewer-local text for a timestamp under a format string. */
 export function formatOdateTimestamp(
-  timestampSeconds,
-  format,
-  nowSeconds,
-  utcOffsetMinutes
-) {
+  timestampSeconds: number,
+  format: string,
+  nowSeconds: number,
+  utcOffsetMinutes: number
+): string | null {
   const shifted = new Date((timestampSeconds + utcOffsetMinutes * 60) * 1000)
-  const parts = {
+  const parts: Record<string, string> = {
     d: pad2(shifted.getUTCDate()),
     e: String(shifted.getUTCDate()),
     m: pad2(shifted.getUTCMonth() + 1),
@@ -155,7 +142,7 @@ export function formatOdateTimestamp(
     a: DAYS_SHORT[shifted.getUTCDay()],
     A: DAYS_FULL[shifted.getUTCDay()]
   }
-  const applyPad = (modifier, value, width = 2) => {
+  const applyPad = (modifier: string, value: string, width = 2) => {
     const digits = value.replace(/^0+(?=\d)/u, "")
     if (modifier === "-") return digits
     if (modifier === "_") return digits.padStart(width, " ")
@@ -198,11 +185,11 @@ export function formatOdateTimestamp(
 /**
  * Rewrite one span's text into viewer-local time. Returns false when the
  * span is left untouched (unparseable, or unsupported format).
- *
- * @param {HTMLElement} element - `span.odate` element.
- * @param {number} [nowSeconds] - Current unix time (defaults to now).
  */
-export function rewriteOdateSpan(element, nowSeconds = Math.floor(Date.now() / 1000)) {
+export function rewriteOdateSpan(
+  element: HTMLElement,
+  nowSeconds: number = Math.floor(Date.now() / 1000)
+) {
   const parsed = parseOdateSpan(element)
   if (!parsed) return false
   const offsetMinutes = -new Date(parsed.timestamp * 1000).getTimezoneOffset()
@@ -222,8 +209,8 @@ export function rewriteOdateSpan(element, nowSeconds = Math.floor(Date.now() / 1
 
 const ODATES_SELECTOR = 'span.odate[class*="time_"]'
 
-function sweepOdates(root, nowSeconds) {
-  for (const element of root.querySelectorAll(ODATES_SELECTOR)) {
+function sweepOdates(root: Document | HTMLElement, nowSeconds: number) {
+  for (const element of root.querySelectorAll<HTMLElement>(ODATES_SELECTOR)) {
     rewriteOdateSpan(element, nowSeconds)
   }
 }
@@ -232,22 +219,19 @@ function sweepOdates(root, nowSeconds) {
  * Install the browser ODate phase on Wikidot-layout pages. Sweeps once,
  * then re-sweeps added nodes; hovering text refreshes on mouseenter so a
  * long-open page does not show a stale relative time.
- *
- * @param {Document | HTMLElement} root - Root to sweep and observe.
- * @returns {() => void} Uninstall function (rewritten text is kept).
  */
-export function installWikidotOdates(root) {
+export function installWikidotOdates(root: Document | HTMLElement): () => void {
   sweepOdates(root, Math.floor(Date.now() / 1000))
   const observer = new MutationObserver((changes) => {
     const nowSeconds = Math.floor(Date.now() / 1000)
     for (const change of changes) {
       for (const node of change.addedNodes) {
         if (node.nodeType !== Node.ELEMENT_NODE) continue
-        const element = /** @type {HTMLElement} */ (node)
+        const element = node as HTMLElement
         if (element.matches?.(ODATES_SELECTOR)) {
           rewriteOdateSpan(element, nowSeconds)
         }
-        for (const descendant of element.querySelectorAll?.(ODATES_SELECTOR) ?? []) {
+        for (const descendant of element.querySelectorAll<HTMLElement>(ODATES_SELECTOR)) {
           rewriteOdateSpan(descendant, nowSeconds)
         }
       }
@@ -257,8 +241,8 @@ export function installWikidotOdates(root) {
     childList: true,
     subtree: true
   })
-  const refreshHover = (event) => {
-    const target = /** @type {HTMLElement | null} */ (event.target)?.closest?.(
+  const refreshHover = (event: Event) => {
+    const target = (event.target as HTMLElement | null)?.closest<HTMLElement>(
       ODATES_SELECTOR
     )
     if (!target) return
@@ -267,7 +251,7 @@ export function installWikidotOdates(root) {
       target.title = agoText(Math.floor(Date.now() / 1000) - parsed.timestamp)
     }
   }
-  const listenerRoot = root === document ? document : /** @type {HTMLElement} */ (root)
+  const listenerRoot = root === document ? document : (root as HTMLElement)
   listenerRoot.addEventListener("mouseenter", refreshHover, true)
   return () => {
     observer.disconnect()

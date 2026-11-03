@@ -1,6 +1,6 @@
 /* eslint-disable no-script-url -- Wikidot footer and fixture markup use javascript:; no-op links that parity requires */
-import { showWikidotReadonlyDialog } from "./wikidot-readonly-dialog.js"
-import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
+import { showWikidotReadonlyDialog } from "./wikidot-readonly-dialog.ts"
+import { isJapaneseWikidotLocale } from "./wikidot-locale.ts"
 
 export const WIKIDOT_FOOTER_LINKS = Object.freeze([
   { label: "Help", href: "https://www.wikidot.com/doc", id: "wikidot-help-button" },

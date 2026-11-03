@@ -13,7 +13,7 @@ import {
   wikidotPageActionVisibility,
   wikidotPageDiscussHref,
   wikidotPageDiscussionPath
-} from "../src/lib/wikidot/wikidot-page-actions.js"
+} from "../src/lib/wikidot/wikidot-page-actions.ts"
 
 test("Print opens the live printer-friendly child window without printing the opener", () => {
   const calls = []

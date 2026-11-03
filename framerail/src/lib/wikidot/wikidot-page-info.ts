@@ -1,4 +1,4 @@
-import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
+import { isJapaneseWikidotLocale } from "./wikidot-locale.ts"
 
 const WIKIDOT_SOURCE_TIME_ZONE = "Asia/Tokyo"
 const WIKIDOT_MONTHS = Object.freeze([
@@ -26,16 +26,11 @@ const wikidotDatePartsFormatter = new Intl.DateTimeFormat("en-US", {
   hour12: false
 })
 
-/**
- * @param {Intl.DateTimeFormatPart[]} parts
- * @param {string} type
- */
-const datePart = (parts, type) => {
+const datePart = (parts: Intl.DateTimeFormatPart[], type: string) => {
   return parts.find((part) => part.type === type)?.value ?? ""
 }
 
-/** @param {number} timestampMs */
-export const formatWikidotSourceDate = (timestampMs) => {
+export const formatWikidotSourceDate = (timestampMs: number) => {
   const parts = wikidotDatePartsFormatter.formatToParts(new Date(timestampMs))
   const day = Number(datePart(parts, "day"))
   const month = Number(datePart(parts, "month"))
@@ -46,11 +41,10 @@ export const formatWikidotSourceDate = (timestampMs) => {
   return `${day} ${WIKIDOT_MONTHS[month - 1]} ${year}, ${hour}:${minute}`
 }
 
-/**
- * @param {number} elapsedMs
- * @param {string | null | undefined} locale
- */
-export const formatWikidotRelativeAge = (elapsedMs, locale = "en") => {
+export const formatWikidotRelativeAge = (
+  elapsedMs: number,
+  locale: string | null | undefined = "en"
+) => {
   const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000))
   const suffix = isJapaneseWikidotLocale(locale) ? " 前" : " ago"
 
@@ -70,19 +64,16 @@ export const formatWikidotRelativeAge = (elapsedMs, locale = "en") => {
   return `${days} day${days === 1 ? "" : "s"}${suffix}`
 }
 
-/**
- * @param {{
- *   revision: number
- *   updatedAt: string
- *   now?: number
- *   locale?: string | null
- * }} input
- */
 export const buildWikidotPageInfoText = ({
   revision,
   updatedAt,
   now = Date.now(),
   locale = "en"
+}: {
+  revision: number
+  updatedAt: string
+  now?: number
+  locale?: string | null
 }) => {
   const updatedAtMs = Date.parse(updatedAt)
 

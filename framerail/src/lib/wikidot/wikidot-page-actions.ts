@@ -1,57 +1,51 @@
-import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
+import { isJapaneseWikidotLocale } from "./wikidot-locale.ts"
 
 const WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS = new Set(["sandbox-for-codex"])
 
-/**
- * @typedef {object} WikidotPageActionLabels
- * @property {string} rate
- * @property {string} ratePrefix
- * @property {string | null} ratingText
- * @property {string} discuss
- * @property {string | null} [discussHref]
- * @property {boolean} showRate
- * @property {boolean} showDiscuss
- * @property {string} edit
- * @property {string} tags
- * @property {string} history
- * @property {string} files
- * @property {string} print
- * @property {string} siteTools
- * @property {string} options
- * @property {string} append
- * @property {string} backlinks
- * @property {string} viewSource
- * @property {string} parent
- * @property {string} rename
- * @property {string} editSections
- * @property {string} editMeta
- * @property {string} watchers
- * @property {string} lock
- * @property {string} delete
- */
+export type WikidotPageActionLabels = {
+  rate: string
+  ratePrefix: string
+  ratingText: string | null
+  discuss: string
+  discussHref?: string | null
+  showRate: boolean
+  showDiscuss: boolean
+  edit: string
+  tags: string
+  history: string
+  files: string
+  print: string
+  siteTools: string
+  options: string
+  append: string
+  backlinks: string
+  viewSource: string
+  parent: string
+  rename: string
+  editSections: string
+  editMeta: string
+  watchers: string
+  lock: string
+  delete: string
+}
 
-/**
- * @param {readonly string[] | null | undefined} tags
- * @returns {boolean}
- */
-export const isWikidotFragmentPage = (tags) => tags?.includes("fragment") ?? false
+export const isWikidotFragmentPage = (
+  tags: readonly string[] | null | undefined
+): boolean => tags?.includes("fragment") ?? false
 
 /**
  * Open the live Wikidot printer-friendly child window for the current page
  * path. The path already begins with `/`, so the route keeps Wikidot's
  * exact doubled slash (`/printer--friendly//<page>`).
- *
- * @param {string} pagePath
- * @param {{ open: (url: string, target: string) => unknown }} [browser]
  */
-export const openWikidotPrinterFriendly = (pagePath, browser = window) =>
-  browser.open(`/printer--friendly/${pagePath}`, "_blank")
+export const openWikidotPrinterFriendly = (
+  pagePath: string,
+  browser: { open: (url: string, target: string) => unknown } = window
+) => browser.open(`/printer--friendly/${pagePath}`, "_blank")
 
-/**
- * @param {string | null | undefined} sourceSite
- * @returns {boolean}
- */
-export const sourceShowsStandardWikidotPageActions = (sourceSite) => {
+export const sourceShowsStandardWikidotPageActions = (
+  sourceSite: string | null | undefined
+): boolean => {
   return !WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS.has(sourceSite ?? "")
 }
 
@@ -64,11 +58,10 @@ export const sourceShowsStandardWikidotPageActions = (sourceSite) => {
  * site (`openEditTagsPane`) and EditMeta inside its pane, so neither is
  * part of this mapping. Unknown panes return null and mount ungated,
  * exactly as before.
- *
- * @param {string} pane
- * @returns {"edit" | "move" | "delete" | null}
  */
-export const wikidotOpenPanePermissionKind = (pane) => {
+export const wikidotOpenPanePermissionKind = (
+  pane: string
+): "edit" | "move" | "delete" | null => {
   switch (pane) {
     case "append":
     case "parent":
@@ -83,23 +76,18 @@ export const wikidotOpenPanePermissionKind = (pane) => {
   }
 }
 
-/**
- * @typedef {{
- *   status?: string
- *   message?: string
- *   thread_id?: number
- *   thread_unix_title?: string
- * }} WikidotPageDiscussionResponse
- */
+export type WikidotPageDiscussionResponse = {
+  status?: string
+  message?: string
+  thread_id?: number
+  thread_unix_title?: string
+}
 
-/**
- * Request the page discussion using Wikidot's ForumAction envelope.
- *
- * @param {typeof fetch} fetchImplementation
- * @param {number} pageId
- * @returns {Promise<WikidotPageDiscussionResponse>}
- */
-export const requestWikidotPageDiscussion = async (fetchImplementation, pageId) => {
+/** Request the page discussion using Wikidot's ForumAction envelope. */
+export const requestWikidotPageDiscussion = async (
+  fetchImplementation: typeof fetch,
+  pageId: number
+): Promise<WikidotPageDiscussionResponse> => {
   if (!Number.isSafeInteger(pageId) || pageId <= 0) {
     throw new TypeError("A positive page ID is required to open its discussion.")
   }
@@ -119,18 +107,19 @@ export const requestWikidotPageDiscussion = async (fetchImplementation, pageId) 
   return response.json()
 }
 
-/** @param {WikidotPageDiscussionResponse} response */
-export const wikidotPageDiscussionPath = (response) => {
+export const wikidotPageDiscussionPath = (response: WikidotPageDiscussionResponse) => {
+  const threadId = response?.thread_id
   if (
     response?.status !== "ok" ||
-    !Number.isSafeInteger(response?.thread_id) ||
-    response.thread_id <= 0 ||
+    typeof threadId !== "number" ||
+    !Number.isSafeInteger(threadId) ||
+    threadId <= 0 ||
     typeof response.thread_unix_title !== "string" ||
     response.thread_unix_title.length === 0
   ) {
     return null
   }
-  return `/forum/t-${response.thread_id}/${response.thread_unix_title}`
+  return `/forum/t-${threadId}/${response.thread_unix_title}`
 }
 
 /**
@@ -140,14 +129,14 @@ export const wikidotPageDiscussionPath = (response) => {
  * thread title. Without a thread, or for a page name outside Wikidot's
  * unix-name alphabet, there is no link and the create-thread action
  * applies.
- *
- * @param {{
- *   discussionThreadId?: number | null
- *   pageSlug?: string | null
- * }} input
- * @returns {string | null}
  */
-export const wikidotPageDiscussHref = ({ discussionThreadId, pageSlug }) => {
+export const wikidotPageDiscussHref = ({
+  discussionThreadId,
+  pageSlug
+}: {
+  discussionThreadId?: number | null
+  pageSlug?: string | null
+}): string | null => {
   if (
     typeof discussionThreadId !== "number" ||
     !Number.isSafeInteger(discussionThreadId) ||
@@ -160,22 +149,18 @@ export const wikidotPageDiscussHref = ({ discussionThreadId, pageSlug }) => {
   return `/forum/t-${discussionThreadId}/${pageSlug}`
 }
 
-/**
- * @param {{
- *   sourceSite?: string | null
- *   ratingEnabled: boolean
- *   discussionEnabled: boolean
- *   discussionThreadId?: number | null
- *   sourceCommentCount?: number | null
- * }} input
- * @returns {{ showRate: boolean; showDiscuss: boolean }}
- */
 export const wikidotPageActionVisibility = ({
   sourceSite,
   ratingEnabled,
   discussionEnabled,
   sourceCommentCount
-}) => {
+}: {
+  sourceSite?: string | null
+  ratingEnabled: boolean
+  discussionEnabled: boolean
+  discussionThreadId?: number | null
+  sourceCommentCount?: number | null
+}): { showRate: boolean; showDiscuss: boolean } => {
   const sourceShowsActions = sourceShowsStandardWikidotPageActions(sourceSite)
   return {
     showRate: sourceShowsActions && ratingEnabled,
@@ -185,16 +170,6 @@ export const wikidotPageActionVisibility = ({
 }
 
 /**
- * @param {{
- *   rating?: number | null
- *   comments?: number | null
- *   locale?: string | null
- *   showRate?: boolean
- *   showDiscuss?: boolean
- * }} snapshot
- * @returns {WikidotPageActionLabels}
- */
-/**
  * Picks the rating shown on the page actions row.
  *
  * Every rating surface shows the same number: the live combined score
@@ -202,17 +177,14 @@ export const wikidotPageActionVisibility = ({
  * imported baseline snapshot, otherwise nothing. A combined score of zero
  * is a real score and wins over the baseline; non-numeric values never
  * do.
- *
- * @param {{
- *   combinedRating?: number | null
- *   importedRating?: number | null
- * }} input
- * @returns {number | null}
  */
 export const selectWikidotPageRating = ({
   combinedRating = null,
   importedRating = null
-} = {}) => {
+}: {
+  combinedRating?: number | null
+  importedRating?: number | null
+} = {}): number | null => {
   if (typeof combinedRating === "number" && Number.isFinite(combinedRating)) {
     return combinedRating
   }
@@ -228,7 +200,13 @@ export const buildWikidotPageActionLabels = ({
   locale = "en",
   showRate = true,
   showDiscuss = true
-}) => {
+}: {
+  rating?: number | null
+  comments?: number | null
+  locale?: string | null
+  showRate?: boolean
+  showDiscuss?: boolean
+}): WikidotPageActionLabels => {
   const ratingText = rating === null || rating === undefined ? null : formatSigned(rating)
   const labels = isJapaneseWikidotLocale(locale)
     ? {
@@ -305,10 +283,6 @@ export const buildWikidotPageActionLabels = ({
   }
 }
 
-/**
- * @param {number} value
- * @returns {string}
- */
-export const formatSigned = (value) => {
+export const formatSigned = (value: number): string => {
   return value > 0 ? `+${value}` : `${value}`
 }

@@ -6,13 +6,13 @@ import {
   requestLegacyRateCancel,
   requestLegacyScore,
   requestLegacySetTags
-} from "../src/lib/wikidot/wikidot-legacy-action-request.js"
+} from "../src/lib/wikidot/wikidot-legacy-action-request.ts"
 import {
   requestMembershipApplication,
   requestMembershipEmailInvitation,
   requestMembershipJoin,
   requestMembershipPassword
-} from "../src/lib/wikidot/wikidot-membership-action-request.js"
+} from "../src/lib/wikidot/wikidot-membership-action-request.ts"
 
 /** @param {any} res */
 const success = (res) => ({ type: "success", data: { res } })

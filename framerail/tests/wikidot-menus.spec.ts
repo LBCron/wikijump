@@ -22,8 +22,8 @@ test("the menu action wraps bare top-bar item text like Wikidot's fixMenuList", 
     document.body.append(bar)
     const module = (await import(
       /* @vite-ignore */
-      new URL("/src/lib/wikidot/wikidot-menus.js", location.href).href
-    )) as typeof import("../src/lib/wikidot/wikidot-menus.js")
+      new URL("/src/lib/wikidot/wikidot-menus.ts", location.href).href
+    )) as typeof import("../src/lib/wikidot/wikidot-menus.ts")
     module.wikidotMenu(bar, { list: true })
 
     const about = bar.querySelector(".top-bar > ul > li") as HTMLElement
@@ -51,8 +51,8 @@ test("the side-bar menu action only toggles hover state", async ({ page }) => {
     document.body.append(bar)
     const module = (await import(
       /* @vite-ignore */
-      new URL("/src/lib/wikidot/wikidot-menus.js", location.href).href
-    )) as typeof import("../src/lib/wikidot/wikidot-menus.js")
+      new URL("/src/lib/wikidot/wikidot-menus.ts", location.href).href
+    )) as typeof import("../src/lib/wikidot/wikidot-menus.ts")
     module.wikidotMenu(bar, undefined)
     const item = bar.querySelector("li") as HTMLElement
     item.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }))

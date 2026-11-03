@@ -6,7 +6,7 @@ const POST_OPTIONS = /^togglePostOptions\(event,([1-9][0-9]*)\)$/u
 const UPDATE_LIST =
   /^WIKIDOT\.modules\.ForumViewThreadPostsModule\.listeners\.updateList\(([1-9][0-9]*)\)$/u
 
-/** @typedef {{ threadId: number | null | undefined }} ForumThreadParameters */
+export type ForumThreadParameters = { threadId: number | null | undefined }
 
 /**
  * Reproduce the read-only part of Wikidot's ForumViewThreadModule and
@@ -19,11 +19,11 @@ const UPDATE_LIST =
  * - Page the posts in place through `forum/ForumViewThreadPostsModule`.
  *   Editing, posting, history and moderation handlers stay inert until
  *   their modules exist.
- *
- * @param {HTMLElement} root
- * @param {ForumThreadParameters} parameters
  */
-export const wikidotForumThread = (root, parameters) => {
+export const wikidotForumThread = (
+  root: HTMLElement,
+  parameters: ForumThreadParameters
+) => {
   let threadId = parameters.threadId
 
   const showPosts = () => {
@@ -31,8 +31,7 @@ export const wikidotForumThread = (root, parameters) => {
     if (posts instanceof HTMLElement) posts.style.display = "block"
   }
 
-  /** @param {string} postId */
-  const togglePostOptions = (postId) => {
+  const togglePostOptions = (postId: string) => {
     const options = root.querySelector(`#post-options-${postId}`)
     const template = root.querySelector("#post-options-template")
     if (!(options instanceof HTMLElement) || !template) return
@@ -50,8 +49,7 @@ export const wikidotForumThread = (root, parameters) => {
     }
   }
 
-  /** @param {Element} control */
-  const toggleThreadOptions = (control) => {
+  const toggleThreadOptions = (control: Element) => {
     const options = root.querySelector("#thread-options-2")
     if (!(options instanceof HTMLElement)) return
     if (options.style.display === "none") {
@@ -63,8 +61,7 @@ export const wikidotForumThread = (root, parameters) => {
     }
   }
 
-  /** @param {string} pageNo */
-  const updateList = (pageNo) => {
+  const updateList = (pageNo: string) => {
     const posts = root.querySelector("#thread-container-posts")
     const normalizedThreadId = String(threadId)
     if (
@@ -98,17 +95,15 @@ export const wikidotForumThread = (root, parameters) => {
       .catch(() => {})
   }
 
-  /** @param {Event} event */
-  const handleClick = (event) => {
+  const handleClick = (event: Event) => {
     const target = event.target
     if (!(target instanceof Element)) return
     const control = target.closest("a[onclick]")
     if (!control || !root.contains(control)) return
     const onclick = control.getAttribute("onclick") ?? ""
 
-    /** @type {(() => void) | null} */
-    let action = null
-    let match
+    let action: (() => void) | null = null
+    let match: RegExpExecArray | null
     if ((match = POST_FOLD.exec(onclick))) {
       const post = root.querySelector(`#post-${match[1]}`)
       action = () => post?.classList.toggle("folded")
@@ -142,8 +137,7 @@ export const wikidotForumThread = (root, parameters) => {
   showPosts()
   root.addEventListener("click", handleClick, true)
   return {
-    /** @param {ForumThreadParameters} nextParameters */
-    update(nextParameters) {
+    update(nextParameters: ForumThreadParameters) {
       threadId = nextParameters.threadId
       showPosts()
     },

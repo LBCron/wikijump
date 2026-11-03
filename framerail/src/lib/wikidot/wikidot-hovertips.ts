@@ -1,4 +1,4 @@
-import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
+import { isJapaneseWikidotLocale } from "./wikidot-locale.ts"
 
 /**
  * Wikidot page-option and footer hovertips.
@@ -14,7 +14,11 @@ import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
  * `OZONE.dialog.hovertip` from the retained Wikidot `init.combined.js`.
  */
 
-/** @typedef {readonly (readonly [string, string, readonly string[]])[]} WikidotHovertipTexts */
+export type WikidotHovertipTexts = readonly (readonly [
+  string,
+  string,
+  readonly string[]
+])[]
 
 /**
  * Text nodes the standard server template leaves around each tip text:
@@ -30,7 +34,7 @@ const LAST_FOOTER_TIP = Object.freeze(["\n            ", "          \n        "]
 const ENGLISH_TIPS = Object.freeze({
   first: Object.freeze([
     ["edit-button", "Click here to edit contents of this page.", PAGE_TIP]
-  ]),
+  ] as const),
   second: Object.freeze([
     [
       "edit-sections-button",
@@ -83,13 +87,13 @@ const ENGLISH_TIPS = Object.freeze({
       FOOTER_TIP
     ],
     ["wikidot-privacy-button", "Wikidot.com Privacy Policy.", LAST_FOOTER_TIP]
-  ])
+  ] as const)
 })
 
 const JAPANESE_TIPS = Object.freeze({
   first: Object.freeze([
     ["edit-button", "ページを編集するにはこのボタンをクリックしてください。", PAGE_TIP]
-  ]),
+  ] as const),
   second: Object.freeze([
     [
       "edit-sections-button",
@@ -150,15 +154,13 @@ const JAPANESE_TIPS = Object.freeze({
       FOOTER_TIP
     ],
     ["wikidot-privacy-button", "Wikidot.com プライバシーポリシー", LAST_FOOTER_TIP]
-  ])
+  ] as const)
 })
 
-/** @param {string | null | undefined} locale */
-export const wikidotHovertipTexts = (locale) =>
+export const wikidotHovertipTexts = (locale: string | null | undefined) =>
   isJapaneseWikidotLocale(locale) ? JAPANESE_TIPS : ENGLISH_TIPS
 
-/** @param {WikidotHovertipTexts} tips */
-const tipsHtml = (tips) =>
+const tipsHtml = (tips: WikidotHovertipTexts) =>
   tips
     .map(
       ([control, text, [before, after]]) =>
@@ -169,10 +171,8 @@ const tipsHtml = (tips) =>
 /**
  * The two hidden tip containers Wikidot emits at the end of every page
  * body. Texts are trusted constants already in their HTML form.
- *
- * @param {string | null | undefined} locale
  */
-export const buildWikidotHovertipContainersHtml = (locale) => {
+export const buildWikidotHovertipContainersHtml = (locale: string | null | undefined) => {
   const { first, second } = wikidotHovertipTexts(locale)
   return (
     `<div id="page-options-bottom-tips" style="display: none;">${tipsHtml(first)}</div>` +
@@ -188,13 +188,12 @@ const POINTER_GAP = 20
  * option that `dominit("html-body", ...)` uses: center the tip under the
  * pointer, flip it above the pointer near the viewport bottom, and keep it
  * inside the viewport horizontally.
- *
- * @param {{ pageY: number; clientX: number; clientY: number }} pointer
- * @param {{ width: number; height: number }} tip
- * @param {{ width: number; height: number }} viewport
- * @returns {{ left: number; top: number }}
  */
-export const positionWikidotHovertip = (pointer, tip, viewport) => {
+export const positionWikidotHovertip = (
+  pointer: { pageY: number; clientX: number; clientY: number },
+  tip: { width: number; height: number },
+  viewport: { width: number; height: number }
+): { left: number; top: number } => {
   let top = pointer.pageY
   if (
     viewport.height - pointer.clientY < tip.height + 2 * POINTER_GAP &&
@@ -211,13 +210,8 @@ export const positionWikidotHovertip = (pointer, tip, viewport) => {
   return { left, top }
 }
 
-/**
- * Port of `OZONE.dialog.hovertip.dominit(root)` plus its mouse handlers.
- *
- * @param {Document} document
- * @returns {() => void}
- */
-export const installWikidotHovertips = (document) => {
+/** Port of `OZONE.dialog.hovertip.dominit(root)` plus its mouse handlers. */
+export const installWikidotHovertips = (document: Document): (() => void) => {
   const window = document.defaultView
   const body = document.body
   if (!window || !body) return () => {}
@@ -233,14 +227,12 @@ export const installWikidotHovertips = (document) => {
     body.appendChild(container)
   }
 
-  /** @type {(() => void)[]} */
-  const cleanups = []
+  const cleanups: (() => void)[] = []
   let pending = [...body.getElementsByTagName("div")].filter(
     (element) => element.id.endsWith("-hovertip") && element.parentElement !== container
   )
 
-  /** @param {HTMLElement} tip */
-  const attach = (tip) => {
+  const attach = (tip: HTMLElement) => {
     const control = document.getElementById(tip.id.replace(/-hovertip$/u, ""))
     if (!control || control === tip) return false
 
@@ -255,8 +247,7 @@ export const installWikidotHovertips = (document) => {
     if (control.tagName.toLowerCase() !== "a") control.style.cursor = "help"
     container.appendChild(tip)
 
-    /** @param {MouseEvent} event */
-    const move = (event) => {
+    const move = (event: MouseEvent) => {
       const containerBox = container.getBoundingClientRect()
       const { left, top } = positionWikidotHovertip(
         event,
@@ -271,8 +262,7 @@ export const installWikidotHovertips = (document) => {
       tip.style.left = `${left - (containerBox.left + window.scrollX)}px`
       tip.style.top = `${top - (containerBox.top + window.scrollY)}px`
     }
-    /** @param {MouseEvent} event */
-    const over = (event) => {
+    const over = (event: MouseEvent) => {
       tip.style.display = "block"
       move(event)
     }

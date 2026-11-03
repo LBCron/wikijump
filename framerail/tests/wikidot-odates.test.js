@@ -6,7 +6,7 @@ import {
   formatOdateTimestamp,
   parseOdateSpan,
   rewriteOdateSpan
-} from "../src/lib/wikidot/wikidot-odates.js"
+} from "../src/lib/wikidot/wikidot-odates.ts"
 
 const TIMESTAMP = 1455223901
 const FORMAT = "%e %b %Y, %H:%M"

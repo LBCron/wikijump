@@ -1,4 +1,4 @@
-const escapeHtml = (value) =>
+const escapeHtml = (value: string) =>
   value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
 
 export const WIKIDOT_PRINTER_FRIENDLY_PREFIX = "/printer--friendly/"
@@ -7,15 +7,11 @@ export const WIKIDOT_PRINTER_FRIENDLY_PREFIX = "/printer--friendly/"
  * Build the live Wikidot printer-friendly child URL. The page path already
  * begins with `/`, which preserves Wikidot's exact doubled slash
  * (`/printer--friendly//<page>`).
- *
- * @param {string} pagePath
- * @returns {string}
  */
-export const buildWikidotPrinterFriendlyUrl = (pagePath) =>
+export const buildWikidotPrinterFriendlyUrl = (pagePath: string): string =>
   `${WIKIDOT_PRINTER_FRIENDLY_PREFIX}${pagePath}`
 
-/** @type {readonly string[]} */
-export const WIKIDOT_PRINT_FONT_SIZES = Object.freeze([
+export const WIKIDOT_PRINT_FONT_SIZES: readonly string[] = Object.freeze([
   "6pt",
   "8pt",
   "10pt",
@@ -42,7 +38,7 @@ const WIKIDOT_PRINT_FONT_FAMILIES = Object.freeze([
 ])
 
 const fontFamilyByValue = new Map(
-  WIKIDOT_PRINT_FONT_FAMILIES.map((choice) => [choice.value, choice])
+  WIKIDOT_PRINT_FONT_FAMILIES.map((choice) => [choice.value, choice] as const)
 )
 
 const fontFamiliesHtml = WIKIDOT_PRINT_FONT_FAMILIES.map(
@@ -84,21 +80,17 @@ export const buildWikidotPrintOptionsHtml = () =>
     "</div>"
   ].join("\n")
 
-/**
- * @param {{
- *   siteName: string
- *   siteUrl: string
- *   pageTitle: string
- *   pageUrl: string
- * }} input
- * @returns {string}
- */
 export const buildWikidotPrintSourceInfoHtml = ({
   siteName,
   siteUrl,
   pageTitle,
   pageUrl
-}) =>
+}: {
+  siteName: string
+  siteUrl: string
+  pageTitle: string
+  pageUrl: string
+}): string =>
   [
     '<div id="print-source-info">',
     `Site: <b>${escapeHtml(siteName)}</b> at ${escapeHtml(siteUrl)}`,
@@ -112,7 +104,7 @@ const CHANGE_FONT_FAMILY_ONCLICK =
   /^WIKIDOT\.printview\.listeners\.changeFontFamily\(event, '([^']+)'\)$/u
 const TOGGLE_SOURCE_INFO_ONCLICK = "WIKIDOT.printview.listeners.toggleSourceInfo(event)"
 
-const originalFontStyles = new WeakMap()
+const originalFontStyles = new WeakMap<HTMLElement, { value: string; priority: string }>()
 
 /**
  * Bind the printer-friendly child window's trusted behavior. Served markup
@@ -122,12 +114,10 @@ const originalFontStyles = new WeakMap()
  * printer-friendly root so `{@html}` child insertion or hydration timing
  * cannot leave a generated control unbound; only the exact generated
  * handler shapes activate.
- *
- * @param {HTMLElement} root
  */
-export const wikidotPrintView = (root) => {
-  const content = () => root.querySelector("#print-content")
-  const sourceInfo = () => root.querySelector("#print-source-info")
+export const wikidotPrintView = (root: HTMLElement) => {
+  const content = () => root.querySelector<HTMLElement>("#print-content")
+  const sourceInfo = () => root.querySelector<HTMLElement>("#print-source-info")
   if (!originalFontStyles.has(root)) {
     const targetContent = content()
     originalFontStyles.set(root, {
@@ -135,9 +125,9 @@ export const wikidotPrintView = (root) => {
       priority: targetContent?.style.getPropertyPriority("font-family") ?? ""
     })
   }
-  const listener = (event) => {
-    const target = typeof event.target?.closest === "function" ? event.target : null
-    if (!target) return
+  const listener = (event: MouseEvent) => {
+    const target = event.target as Element | null
+    if (typeof target?.closest !== "function" || target === null) return
     const print = target.closest('a[onclick="window.print()"]')
     if (print) {
       event.preventDefault()

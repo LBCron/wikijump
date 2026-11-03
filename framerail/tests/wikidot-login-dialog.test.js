@@ -7,7 +7,7 @@ import {
   installWikidotLoginActionHandler,
   interpretLoginActionResult,
   isPlainPrimaryActivation
-} from "../src/lib/wikidot/wikidot-login-dialog.js"
+} from "../src/lib/wikidot/wikidot-login-dialog.ts"
 
 test("successful native login action closes the in-place surface as success", () => {
   assert.deepEqual(

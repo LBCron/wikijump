@@ -1,17 +1,9 @@
-/**
- * @param {string | null | undefined} locale
- * @returns {boolean}
- */
-export const isJapaneseWikidotLocale = (locale) => {
+export const isJapaneseWikidotLocale = (locale: string | null | undefined): boolean => {
   const normalized = `${locale ?? ""}`.toLowerCase().replaceAll("_", "-")
   return normalized === "ja" || normalized.startsWith("ja-") || normalized === "jp"
 }
 
-/**
- * @param {string | null | undefined} locale
- * @returns {boolean}
- */
-export const isEnglishWikidotLocale = (locale) => {
+export const isEnglishWikidotLocale = (locale: string | null | undefined): boolean => {
   const normalized = `${locale ?? ""}`.toLowerCase().replaceAll("_", "-")
   return normalized === "en" || normalized.startsWith("en-")
 }
@@ -23,17 +15,17 @@ export const isEnglishWikidotLocale = (locale) => {
  * an inline `#action:login` sign-in anchor. Only the English dialog is
  * evidenced here; every other locale returns null so callers keep their
  * existing localized denial instead of applying the EN text universally.
- *
- * @param {string | null | undefined} locale
- * @returns {{
- *   title: string
- *   message: string
- *   extraMessage: string
- *   actionLink: { href: string; label: string }
- *   inlineActionLink: boolean
- * } | null}
  */
-export const editPermissionDeniedDialog = (locale) => {
+export const editPermissionDeniedDialog = (
+  locale: string | null | undefined
+): {
+  title: string
+  message: string
+  extraMessage: string
+  actionLink: { href: string; label: string }
+  inlineActionLink: boolean
+  closeLabel: string
+} | null => {
   if (!isEnglishWikidotLocale(locale)) return null
   return {
     title: "Permission error",
@@ -46,11 +38,9 @@ export const editPermissionDeniedDialog = (locale) => {
   }
 }
 
-/**
- * @param {string | null | undefined} locale
- * @returns {string}
- */
-export const editPermissionDeniedMessage = (locale) => {
+export const editPermissionDeniedMessage = (
+  locale: string | null | undefined
+): string => {
   const normalized = `${locale ?? ""}`.toLowerCase().replaceAll("_", "-")
   if (isJapaneseWikidotLocale(normalized)) return "このページを編集する権限がありません。"
 
@@ -69,10 +59,8 @@ export const editPermissionDeniedMessage = (locale) => {
  * Wikidot's permission dialog for a viewer who may not start creating a
  * missing page. Only the English sentence is evidenced here; the dialog's
  * sign-in link is not rendered by the native error popup.
- *
- * @returns {string}
  */
-export const createPageDeniedMessage = () =>
+export const createPageDeniedMessage = (): string =>
   "Sorry, you can not create a new page in this category. Only members of this site, site administrators and perhaps selected moderators are allowed to do it."
 
 /**
@@ -81,14 +69,11 @@ export const createPageDeniedMessage = () =>
  * any form is shown; only the English denial category (move/delete
  * permission, not a writable form) is evidenced here, so non-English
  * locales receive the same English sentence until their copy is observed.
- *
- * @returns {string}
  */
-export const movePermissionDeniedMessage = () =>
+export const movePermissionDeniedMessage = (): string =>
   "You don't have permission to move this page."
 
-/** @returns {string} */
-export const deletePermissionDeniedMessage = () =>
+export const deletePermissionDeniedMessage = (): string =>
   "You don't have permission to delete this page."
 
 /**
@@ -96,11 +81,8 @@ export const deletePermissionDeniedMessage = () =>
  * is not a valid BCP 47 locale and JavaScript's Intl APIs reject it.
  * Preserve the raw identifier at the Wikidot compatibility boundary and
  * use Japanese only when passing locale preferences to Intl.
- *
- * @param {string[]} locales
- * @returns {string[]}
  */
-export const toIntlLocales = (locales) =>
+export const toIntlLocales = (locales: string[]): string[] =>
   locales.map((locale) =>
     locale.toLowerCase().replaceAll("_", "-") === "ja-corrections" ? "ja" : locale
   )

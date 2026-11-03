@@ -7,7 +7,7 @@ import {
   isEnglishWikidotLocale,
   isJapaneseWikidotLocale,
   toIntlLocales
-} from "../src/lib/wikidot/wikidot-locale.js"
+} from "../src/lib/wikidot/wikidot-locale.ts"
 
 describe("Wikidot locale compatibility", () => {
   it("recognizes Wikidot Japanese locale identifiers", () => {

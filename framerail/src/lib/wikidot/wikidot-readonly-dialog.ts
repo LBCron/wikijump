@@ -1,7 +1,10 @@
-const dialogs = new WeakMap()
+const dialogs = new WeakMap<Document, { replace: () => void }>()
 
-/** @param {Document} document @param {string} html @param {boolean} error */
-export const showWikidotReadonlyDialog = (document, html, error = false) => {
+export const showWikidotReadonlyDialog = (
+  document: Document,
+  html: string,
+  error = false
+) => {
   if (!document?.body) return
   dialogs.get(document)?.replace()
   const view = document.defaultView
@@ -37,7 +40,7 @@ export const showWikidotReadonlyDialog = (document, html, error = false) => {
       (document.documentElement.clientHeight - window.offsetHeight) / 2,
     0
   )
-  const setXY = (x, y) => {
+  const setXY = (x: number, y: number) => {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       const rect = window.getBoundingClientRect()
       const style = view?.getComputedStyle(window)
@@ -50,9 +53,9 @@ export const showWikidotReadonlyDialog = (document, html, error = false) => {
   }
   setXY(left, top)
   window.id = "owindow-1"
-  const title = window.querySelector('[class="title"]')
-  let dragging = null
-  const move = (event) => {
+  const title = window.querySelector<HTMLElement>('[class="title"]')
+  let dragging: { x: number; y: number; pointerX: number; pointerY: number } | null = null
+  const move = (event: MouseEvent) => {
     if (!dragging) return
     setXY(
       dragging.x + event.pageX - dragging.pointerX,
@@ -78,8 +81,8 @@ export const showWikidotReadonlyDialog = (document, html, error = false) => {
     view?.addEventListener("mousemove", move)
     view?.addEventListener("mouseup", stopDrag)
   }
-  let timer
-  let fadeTimer
+  let timer: number | undefined
+  let fadeTimer: number | undefined
   const hide = () => {
     view?.removeEventListener("mousemove", move)
     view?.removeEventListener("mouseup", stopDrag)
@@ -129,6 +132,6 @@ export const showWikidotReadonlyDialog = (document, html, error = false) => {
     )
   }
   // OZONE does not close these windows on Escape or an outside click.
-  if (error) window.querySelector(".button-bar a")?.focus()
+  if (error) window.querySelector<HTMLElement>(".button-bar a")?.focus()
   dialogs.set(document, { replace: hide })
 }

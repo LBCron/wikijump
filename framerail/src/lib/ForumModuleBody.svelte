@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { wikidotForumThread } from "$lib/wikidot/wikidot-forum-thread.js"
+  import { wikidotForumThread } from "$lib/wikidot/wikidot-forum-thread"
 
   interface Props {
     body: string

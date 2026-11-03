@@ -5,7 +5,7 @@ import test from "node:test"
 import {
   WIKIDOT_STYLE_FRAME_SCRIPT,
   buildWikidotStyleFrameHtml
-} from "../src/lib/wikidot/wikidot-styleframe.js"
+} from "../src/lib/wikidot/wikidot-styleframe.ts"
 import { auditedExternalAssetOrigins } from "../src/lib/server/audited-external-asset-origins.js"
 
 const {

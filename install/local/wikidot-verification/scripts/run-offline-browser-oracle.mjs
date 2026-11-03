@@ -29,11 +29,11 @@ import {DEFAULT_PARITY_BROWSER_ROOT} from "../src/standing-browser-parity-browse
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ORACLE = path.resolve(
   HERE,
-  "../fixtures/offline-compatibility/scp-9506-final-zero-oracle.json",
+  "../fixtures/offline-compatibility/scp-9506-recapture-oracle.json",
 );
 const DEFAULT_RESPONSE_FIXTURE = path.resolve(
   HERE,
-  "../fixtures/offline-compatibility/scp-9506-browser-responses.json.gz",
+  "../fixtures/offline-compatibility/scp-9506-recapture-responses.json.gz",
 );
 const DEFAULT_LOCAL_ORIGIN = "https://scp-wiki.wikijump.localhost";
 
@@ -372,7 +372,7 @@ export async function runOfflineBrowserOracle(args) {
     oracle_sha256: await sha256File(loaded.oraclePath),
     browser: identity,
     accepted_browser: loaded.oracle.provenance.accepted_browser,
-    browser_identity_matches_final_zero:
+    browser_identity_matches_accepted:
       identity.executable_sha256 ===
       loaded.oracle.provenance.accepted_browser.executable_sha256,
     network: {

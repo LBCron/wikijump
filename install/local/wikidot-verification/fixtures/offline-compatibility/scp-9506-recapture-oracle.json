@@ -1,0 +1,5583 @@
+{
+  "schema": "wikijump.offline_compatibility_browser_oracle.v1",
+  "fixture_id": "scp-9506-recapture-20261103",
+  "successor_notice": "Accepted 2026-11-03 under the repository owner authorization recorded in issue #2463. This paired same-source re-capture (live Wikidot and Standing both captured 2026-11-03) supersedes fixture scp-9506-final-zero-20260915, whose golden went stale after live Wikidot changed the SCP-9506 page tail following the 2026-09-15 freeze.",
+  "pair": {
+    "live_url": "https://scp-wiki.wikidot.com/scp-9506",
+    "local_url": "https://scp-wiki.wikijump.localhost/scp-9506"
+  },
+  "live_capture": {
+    "attribute_signatures": [
+      {
+        "name": "class",
+        "tag": "a",
+        "value": "collapsible-block-link"
+      },
+      {
+        "name": "class",
+        "tag": "a",
+        "value": "collapsible-block-link"
+      },
+      {
+        "name": "class",
+        "tag": "a",
+        "value": "home"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "/scp-9505"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "/scp-9507"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "#"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "#u-target-1"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "#u-target-2"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "#u-target-3"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "#u-target-4"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "#u-target-5"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "https://scp-wiki.wikidot.com/seekgull"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "javascript:;"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "javascript:;"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "javascript:;"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "javascript:;"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "javascript:;"
+      },
+      {
+        "name": "href",
+        "tag": "a",
+        "value": "mailto:info@nfsi.gov"
+      },
+      {
+        "name": "onclick",
+        "tag": "a",
+        "value": "WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)"
+      },
+      {
+        "name": "onclick",
+        "tag": "a",
+        "value": "WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)"
+      },
+      {
+        "name": "onclick",
+        "tag": "a",
+        "value": "WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)"
+      },
+      {
+        "name": "title",
+        "tag": "a",
+        "value": "Cancel my vote"
+      },
+      {
+        "name": "title",
+        "tag": "a",
+        "value": "I don't like it"
+      },
+      {
+        "name": "title",
+        "tag": "a",
+        "value": "I like it"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "collapsible-block-folded"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "collapsible-block-folded"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "collapsible-block"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "collapsible-block"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "collection"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "footer-wikiwalk-nav"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "licensebox"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "name"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "navigation"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "page-rate-widget-box"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "start"
+      },
+      {
+        "name": "class",
+        "tag": "div",
+        "value": "tag"
+      },
+      {
+        "name": "style",
+        "tag": "div",
+        "value": "margin-top: -1rem;"
+      },
+      {
+        "name": "style",
+        "tag": "div",
+        "value": "text-align: center;"
+      },
+      {
+        "name": "style",
+        "tag": "div",
+        "value": "text-align: center;"
+      },
+      {
+        "name": "style",
+        "tag": "div",
+        "value": "text-align: right;"
+      },
+      {
+        "name": "id",
+        "tag": "h2",
+        "value": "toc0"
+      },
+      {
+        "name": "id",
+        "tag": "h2",
+        "value": "toc2"
+      },
+      {
+        "name": "id",
+        "tag": "h2",
+        "value": "toc3"
+      },
+      {
+        "name": "id",
+        "tag": "h4",
+        "value": "toc1"
+      },
+      {
+        "name": "alt",
+        "tag": "img",
+        "value": "NFSI.png"
+      },
+      {
+        "name": "alt",
+        "tag": "img",
+        "value": "weathermap.gif"
+      },
+      {
+        "name": "class",
+        "tag": "img",
+        "value": "image"
+      },
+      {
+        "name": "class",
+        "tag": "img",
+        "value": "image"
+      },
+      {
+        "name": "src",
+        "tag": "img",
+        "value": "http://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png"
+      },
+      {
+        "name": "src",
+        "tag": "img",
+        "value": "http://scp-wiki.wikidot.com/local--files/scp-9506/weathermap.gif"
+      },
+      {
+        "name": "class",
+        "tag": "span",
+        "value": "cancel btn btn-default"
+      },
+      {
+        "name": "class",
+        "tag": "span",
+        "value": "number prw54353"
+      },
+      {
+        "name": "class",
+        "tag": "span",
+        "value": "rate-points"
+      },
+      {
+        "name": "class",
+        "tag": "span",
+        "value": "ratedown btn btn-default"
+      },
+      {
+        "name": "class",
+        "tag": "span",
+        "value": "rateup btn btn-default"
+      },
+      {
+        "name": "class",
+        "tag": "span",
+        "value": "wiki-email"
+      },
+      {
+        "name": "style",
+        "tag": "span",
+        "value": "color: rgb(35, 122, 148);"
+      },
+      {
+        "name": "style",
+        "tag": "span",
+        "value": "font-size:2rem"
+      },
+      {
+        "name": "style",
+        "tag": "span",
+        "value": "font-size:80%;"
+      },
+      {
+        "name": "style",
+        "tag": "span",
+        "value": "visibility: visible;"
+      },
+      {
+        "name": "style",
+        "tag": "span",
+        "value": "white-space: pre-wrap;"
+      },
+      {
+        "name": "style",
+        "tag": "span",
+        "value": "white-space: pre-wrap;"
+      },
+      {
+        "name": "style",
+        "tag": "span",
+        "value": "white-space: pre-wrap;"
+      }
+    ],
+    "broken_images": [],
+    "canary": {
+      "slug": "scp-9506",
+      "theme_family": "basalt"
+    },
+    "captured_at": "2026-11-03T06:13:18.809Z",
+    "document": {
+      "attribute_signatures": [
+        {
+          "name": "class",
+          "tag": "a",
+          "value": "collapsible-block-link"
+        },
+        {
+          "name": "class",
+          "tag": "a",
+          "value": "collapsible-block-link"
+        },
+        {
+          "name": "class",
+          "tag": "a",
+          "value": "home"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "/scp-9505"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "/scp-9507"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "#"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "#u-target-1"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "#u-target-2"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "#u-target-3"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "#u-target-4"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "#u-target-5"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "https://scp-wiki.wikidot.com/seekgull"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "javascript:;"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "javascript:;"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "javascript:;"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "javascript:;"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "javascript:;"
+        },
+        {
+          "name": "href",
+          "tag": "a",
+          "value": "mailto:info@nfsi.gov"
+        },
+        {
+          "name": "onclick",
+          "tag": "a",
+          "value": "WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)"
+        },
+        {
+          "name": "onclick",
+          "tag": "a",
+          "value": "WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)"
+        },
+        {
+          "name": "onclick",
+          "tag": "a",
+          "value": "WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)"
+        },
+        {
+          "name": "title",
+          "tag": "a",
+          "value": "Cancel my vote"
+        },
+        {
+          "name": "title",
+          "tag": "a",
+          "value": "I don't like it"
+        },
+        {
+          "name": "title",
+          "tag": "a",
+          "value": "I like it"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "collapsible-block-folded"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "collapsible-block-folded"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "collapsible-block"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "collapsible-block"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "collection"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "footer-wikiwalk-nav"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "licensebox"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "name"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "navigation"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "page-rate-widget-box"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "start"
+        },
+        {
+          "name": "class",
+          "tag": "div",
+          "value": "tag"
+        },
+        {
+          "name": "style",
+          "tag": "div",
+          "value": "margin-top: -1rem;"
+        },
+        {
+          "name": "style",
+          "tag": "div",
+          "value": "text-align: center;"
+        },
+        {
+          "name": "style",
+          "tag": "div",
+          "value": "text-align: center;"
+        },
+        {
+          "name": "style",
+          "tag": "div",
+          "value": "text-align: right;"
+        },
+        {
+          "name": "id",
+          "tag": "h2",
+          "value": "toc0"
+        },
+        {
+          "name": "id",
+          "tag": "h2",
+          "value": "toc2"
+        },
+        {
+          "name": "id",
+          "tag": "h2",
+          "value": "toc3"
+        },
+        {
+          "name": "id",
+          "tag": "h4",
+          "value": "toc1"
+        },
+        {
+          "name": "alt",
+          "tag": "img",
+          "value": "NFSI.png"
+        },
+        {
+          "name": "alt",
+          "tag": "img",
+          "value": "weathermap.gif"
+        },
+        {
+          "name": "class",
+          "tag": "img",
+          "value": "image"
+        },
+        {
+          "name": "class",
+          "tag": "img",
+          "value": "image"
+        },
+        {
+          "name": "src",
+          "tag": "img",
+          "value": "http://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png"
+        },
+        {
+          "name": "src",
+          "tag": "img",
+          "value": "http://scp-wiki.wikidot.com/local--files/scp-9506/weathermap.gif"
+        },
+        {
+          "name": "class",
+          "tag": "span",
+          "value": "cancel btn btn-default"
+        },
+        {
+          "name": "class",
+          "tag": "span",
+          "value": "number prw54353"
+        },
+        {
+          "name": "class",
+          "tag": "span",
+          "value": "rate-points"
+        },
+        {
+          "name": "class",
+          "tag": "span",
+          "value": "ratedown btn btn-default"
+        },
+        {
+          "name": "class",
+          "tag": "span",
+          "value": "rateup btn btn-default"
+        },
+        {
+          "name": "class",
+          "tag": "span",
+          "value": "wiki-email"
+        },
+        {
+          "name": "style",
+          "tag": "span",
+          "value": "color: rgb(35, 122, 148);"
+        },
+        {
+          "name": "style",
+          "tag": "span",
+          "value": "font-size:2rem"
+        },
+        {
+          "name": "style",
+          "tag": "span",
+          "value": "font-size:80%;"
+        },
+        {
+          "name": "style",
+          "tag": "span",
+          "value": "visibility: visible;"
+        },
+        {
+          "name": "style",
+          "tag": "span",
+          "value": "white-space: pre-wrap;"
+        },
+        {
+          "name": "style",
+          "tag": "span",
+          "value": "white-space: pre-wrap;"
+        },
+        {
+          "name": "style",
+          "tag": "span",
+          "value": "white-space: pre-wrap;"
+        }
+      ],
+      "broken_images": [],
+      "captured_at_epoch_ms": 1793686409078,
+      "captured_at_performance_ms": 10264.7,
+      "custom_properties": {
+        "--header-logo": "url('https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png')",
+        "--header-subtitle": "\"National Fog Safety Initiative\"",
+        "--header-title": "\"NFSI\"",
+        "--logo": "url('https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png')"
+      },
+      "dom_signature": {
+        "attrs": {
+          "alt": 28,
+          "class": 192,
+          "colspan": 1,
+          "href": 74,
+          "id": 36,
+          "onclick": 19,
+          "src": 31,
+          "style": 33,
+          "title": 3
+        },
+        "classes": {
+          "active": 1,
+          "article": 10,
+          "articlecolumn": 3,
+          "avatarhover": 8,
+          "backtop": 3,
+          "big": 1,
+          "block-1": 1,
+          "block-2": 1,
+          "block-3": 1,
+          "block-4": 1,
+          "block-5": 1,
+          "btn": 3,
+          "btn-default": 3,
+          "cancel": 1,
+          "collapsible-block": 2,
+          "collapsible-block-content": 2,
+          "collapsible-block-folded": 2,
+          "collapsible-block-link": 4,
+          "collapsible-block-unfolded": 2,
+          "collapsible-block-unfolded-link": 2,
+          "collection": 1,
+          "collectiondot": 10,
+          "content": 4,
+          "content-separator": 2,
+          "coolheading": 10,
+          "crom-thumbnail": 1,
+          "display": 5,
+          "footer-wikiwalk-nav": 1,
+          "heading": 10,
+          "heading2": 10,
+          "home": 1,
+          "image": 19,
+          "licensebox": 1,
+          "list-pages-box": 5,
+          "list-pages-item": 12,
+          "more": 5,
+          "name": 1,
+          "namerow": 1,
+          "navigation": 1,
+          "normalcy": 10,
+          "number": 1,
+          "page-rate-widget-box": 1,
+          "picture": 10,
+          "preview": 1,
+          "printuser": 8,
+          "prw54353": 1,
+          "rate-points": 1,
+          "ratedown": 1,
+          "rateup": 1,
+          "small": 8,
+          "start": 1,
+          "tag": 1,
+          "titlecolumn": 3,
+          "wiki-email": 2,
+          "words": 10
+        },
+        "comment_count": 0,
+        "id_count": 36,
+        "tags": {
+          "a": 74,
+          "blockquote": 20,
+          "br": 74,
+          "div": 94,
+          "em": 10,
+          "h1": 3,
+          "h2": 18,
+          "h4": 10,
+          "hr": 11,
+          "iframe": 3,
+          "img": 28,
+          "li": 6,
+          "p": 140,
+          "span": 107,
+          "strong": 104,
+          "table": 1,
+          "tbody": 1,
+          "th": 7,
+          "tr": 4,
+          "ul": 1
+        }
+      },
+      "dom_signatures": [
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a",
+        "a.collapsible-block-link",
+        "a.collapsible-block-link",
+        "a.home",
+        "div",
+        "div",
+        "div",
+        "div",
+        "div.collapsible-block",
+        "div.collapsible-block",
+        "div.collapsible-block-folded",
+        "div.collapsible-block-folded",
+        "div.collection",
+        "div.footer-wikiwalk-nav",
+        "div.licensebox",
+        "div.name",
+        "div.navigation",
+        "div.page-rate-widget-box",
+        "div.start",
+        "div.tag",
+        "h2#toc0",
+        "h2#toc2",
+        "h2#toc3",
+        "h4#toc1",
+        "hr",
+        "img.image",
+        "img.image",
+        "p",
+        "p",
+        "p",
+        "p",
+        "p",
+        "p",
+        "p",
+        "p",
+        "span",
+        "span",
+        "span",
+        "span",
+        "span",
+        "span",
+        "span",
+        "span",
+        "span",
+        "span",
+        "span.btn.btn-default.cancel",
+        "span.btn.btn-default.ratedown",
+        "span.btn.btn-default.rateup",
+        "span.number.prw54353",
+        "span.rate-points",
+        "span.wiki-email",
+        "strong",
+        "strong",
+        "strong",
+        "strong",
+        "strong"
+      ],
+      "first_divergence_trace": null,
+      "geometry": {
+        "#header": {
+          "count": 1,
+          "rect": {
+            "height": 59.28,
+            "width": 1366,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "#header h1 a": {
+          "count": 1,
+          "rect": {
+            "height": 59.28,
+            "width": 251.53,
+            "x": 48,
+            "y": 0
+          }
+        },
+        "#main-content": {
+          "count": 1,
+          "rect": {
+            "height": 1917.77,
+            "width": 1120,
+            "x": 123,
+            "y": 83.28
+          }
+        },
+        "#page-content": {
+          "count": 1,
+          "rect": {
+            "height": 1804.42,
+            "width": 1120,
+            "x": 123,
+            "y": 83.28
+          }
+        },
+        "#page-content .navigation": {
+          "count": 1,
+          "rect": {
+            "height": 83,
+            "width": 1088,
+            "x": 139,
+            "y": 680.84
+          }
+        },
+        "#side-bar": {
+          "count": 1,
+          "rect": {
+            "height": 840.7,
+            "width": 272,
+            "x": -272,
+            "y": 59.28
+          }
+        }
+      },
+      "layout_stability": {
+        "observed_maximum_delta_px": 0,
+        "root_selector": "#page-content",
+        "samples": 4,
+        "stable_frames": 3,
+        "status": "stable",
+        "tolerance_px": 0.25
+      },
+      "page_chrome_skeleton": {
+        "links": [
+          {
+            "child": "#skrollr-body",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "body",
+            "parent_count": 1
+          },
+          {
+            "child": "#container-wrap-wrap",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#skrollr-body",
+            "parent_count": 1
+          },
+          {
+            "child": "#container-wrap",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#container-wrap-wrap",
+            "parent_count": 1
+          },
+          {
+            "child": "#container",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#container-wrap",
+            "parent_count": 1
+          },
+          {
+            "child": "#header",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#container",
+            "parent_count": 1
+          },
+          {
+            "child": "#top-bar",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#header",
+            "parent_count": 1
+          }
+        ],
+        "schema": "wikijump_local_lab.page_chrome_skeleton.v1"
+      },
+      "page_content_broken_images": [],
+      "page_content_rendered_images": 2,
+      "phase": "settled",
+      "presence_probes": [
+        {
+          "count": 1,
+          "id": "header_logo_element",
+          "pseudo": null,
+          "rect": {
+            "height": 59.28,
+            "width": 148.44,
+            "x": 122.45,
+            "y": 0
+          },
+          "rendered_count": 1,
+          "selector": "#header h1 a span",
+          "style": {}
+        },
+        {
+          "count": 1,
+          "id": "header_subtitle_element",
+          "pseudo": null,
+          "rect": {
+            "height": 0,
+            "width": 0,
+            "x": 0,
+            "y": 0
+          },
+          "rendered_count": 0,
+          "selector": "#header h2 span",
+          "style": {}
+        },
+        {
+          "count": 1,
+          "id": "header_logo",
+          "pseudo": "::before",
+          "pseudo_layout": {
+            "border_box": {
+              "height": 0,
+              "width": 0,
+              "x": 0,
+              "y": 0
+            },
+            "clipping_ancestors": [
+              {
+                "bounds": {
+                  "height": 900,
+                  "width": 1366,
+                  "x": 0,
+                  "y": 0
+                },
+                "kind": "viewport",
+                "node_index": null,
+                "style": {}
+              },
+              {
+                "bounds": {
+                  "height": 59.28,
+                  "width": 1366,
+                  "x": 0,
+                  "y": 0
+                },
+                "kind": "contract_container",
+                "node_index": 121,
+                "style": {}
+              },
+              {
+                "bounds": {
+                  "height": 59.28,
+                  "width": 251.53,
+                  "x": 48,
+                  "y": 0
+                },
+                "kind": "css_clipping_ancestor",
+                "node_index": 123,
+                "style": {
+                  "background-image": "none",
+                  "clip": "auto",
+                  "clip-path": "none",
+                  "color": "rgb(35, 35, 38)",
+                  "contain": "none",
+                  "content": "normal",
+                  "display": "grid",
+                  "font-family": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+                  "font-size": "27.0274px",
+                  "font-weight": "800",
+                  "letter-spacing": "normal",
+                  "line-height": "33.7842px",
+                  "opacity": "1",
+                  "overflow": "hidden",
+                  "overflow-x": "hidden",
+                  "overflow-y": "hidden",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "bounds": {
+                  "height": 2188.23,
+                  "width": 1366,
+                  "x": 0,
+                  "y": 0
+                },
+                "kind": "css_clipping_ancestor",
+                "node_index": 2,
+                "style": {
+                  "background-image": "none",
+                  "clip": "auto",
+                  "clip-path": "none",
+                  "color": "rgb(0, 0, 0)",
+                  "contain": "none",
+                  "content": "normal",
+                  "display": "block",
+                  "font-family": "\"Times New Roman\"",
+                  "font-size": "16px",
+                  "font-weight": "400",
+                  "letter-spacing": "normal",
+                  "line-height": "24px",
+                  "opacity": "1",
+                  "overflow": "hidden auto",
+                  "overflow-x": "hidden",
+                  "overflow-y": "auto",
+                  "visibility": "visible"
+                }
+              }
+            ],
+            "computed_style": {
+              "background-image": "url(\"https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png\")",
+              "clip": "auto",
+              "clip-path": "none",
+              "color": "rgb(35, 35, 38)",
+              "contain": "none",
+              "content": "\"\"",
+              "display": "block",
+              "font-family": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+              "font-size": "27.0274px",
+              "font-weight": "800",
+              "letter-spacing": "-0.523656px",
+              "line-height": "31.0815px",
+              "opacity": "1",
+              "overflow": "visible",
+              "overflow-x": "visible",
+              "overflow-y": "visible",
+              "visibility": "visible"
+            },
+            "descendant_text": "",
+            "layout_kind": "css_box_fallback",
+            "layout_present": true,
+            "node_present": true,
+            "painted_bounds": {
+              "height": 59.28,
+              "width": 52.98,
+              "x": 48,
+              "y": 0
+            },
+            "status": "captured",
+            "visible_area_ratio": 1,
+            "visible_bounds": {
+              "height": 59.28,
+              "width": 52.98,
+              "x": 48,
+              "y": 0
+            }
+          },
+          "rect": {
+            "height": 59.28,
+            "width": 251.53,
+            "x": 48,
+            "y": 0
+          },
+          "rendered_count": 1,
+          "selector": "#header h1 a",
+          "style": {
+            "background-image": "url(\"https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png\")",
+            "bottom": "auto",
+            "clip": "auto",
+            "clip-path": "none",
+            "color": "rgb(35, 35, 38)",
+            "content": "\"\"",
+            "display": "block",
+            "font-family": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+            "font-size": "27.0274px",
+            "font-weight": "800",
+            "height": "59.2812px",
+            "left": "auto",
+            "letter-spacing": "-0.523656px",
+            "line-height": "31.0815px",
+            "margin-bottom": "0px",
+            "margin-top": "0px",
+            "max-height": "none",
+            "max-width": "none",
+            "opacity": "1",
+            "overflow": "visible",
+            "overflow-x": "visible",
+            "overflow-y": "visible",
+            "padding-bottom": "0px",
+            "padding-top": "0px",
+            "position": "static",
+            "right": "auto",
+            "text-overflow": "clip",
+            "top": "auto",
+            "transform": "none",
+            "visibility": "visible",
+            "white-space": "normal",
+            "width": "52.9844px",
+            "z-index": "auto"
+          }
+        },
+        {
+          "count": 1,
+          "id": "header_title",
+          "pseudo": "::before",
+          "pseudo_layout": {
+            "border_box": {
+              "height": 29,
+              "width": 47.59,
+              "x": 122.45,
+              "y": 4.25
+            },
+            "clipping_ancestors": [
+              {
+                "bounds": {
+                  "height": 900,
+                  "width": 1366,
+                  "x": 0,
+                  "y": 0
+                },
+                "kind": "viewport",
+                "node_index": null,
+                "style": {}
+              },
+              {
+                "bounds": {
+                  "height": 59.28,
+                  "width": 1366,
+                  "x": 0,
+                  "y": 0
+                },
+                "kind": "contract_container",
+                "node_index": 121,
+                "style": {}
+              },
+              {
+                "bounds": {
+                  "height": 59.28,
+                  "width": 251.53,
+                  "x": 48,
+                  "y": 0
+                },
+                "kind": "css_clipping_ancestor",
+                "node_index": 123,
+                "style": {
+                  "background-image": "none",
+                  "clip": "auto",
+                  "clip-path": "none",
+                  "color": "rgb(35, 35, 38)",
+                  "contain": "none",
+                  "content": "normal",
+                  "display": "grid",
+                  "font-family": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+                  "font-size": "27.0274px",
+                  "font-weight": "800",
+                  "letter-spacing": "normal",
+                  "line-height": "33.7842px",
+                  "opacity": "1",
+                  "overflow": "hidden",
+                  "overflow-x": "hidden",
+                  "overflow-y": "hidden",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "bounds": {
+                  "height": 2188.23,
+                  "width": 1366,
+                  "x": 0,
+                  "y": 0
+                },
+                "kind": "css_clipping_ancestor",
+                "node_index": 2,
+                "style": {
+                  "background-image": "none",
+                  "clip": "auto",
+                  "clip-path": "none",
+                  "color": "rgb(0, 0, 0)",
+                  "contain": "none",
+                  "content": "normal",
+                  "display": "block",
+                  "font-family": "\"Times New Roman\"",
+                  "font-size": "16px",
+                  "font-weight": "400",
+                  "letter-spacing": "normal",
+                  "line-height": "24px",
+                  "opacity": "1",
+                  "overflow": "hidden auto",
+                  "overflow-x": "hidden",
+                  "overflow-y": "auto",
+                  "visibility": "visible"
+                }
+              }
+            ],
+            "computed_style": {
+              "background-image": "none",
+              "clip": "auto",
+              "clip-path": "none",
+              "color": "rgb(35, 35, 38)",
+              "contain": "none",
+              "content": "\"NFSI\"",
+              "display": "block",
+              "font-family": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+              "font-size": "24px",
+              "font-weight": "900",
+              "letter-spacing": "-0.523656px",
+              "line-height": "27.6px",
+              "opacity": "1",
+              "overflow": "visible",
+              "overflow-x": "visible",
+              "overflow-y": "visible",
+              "visibility": "visible"
+            },
+            "descendant_text": "NFSI",
+            "layout_present": true,
+            "node_present": true,
+            "painted_bounds": {
+              "height": 29,
+              "width": 47.59,
+              "x": 122.45,
+              "y": 4.25
+            },
+            "status": "captured",
+            "visible_area_ratio": 1,
+            "visible_bounds": {
+              "height": 29,
+              "width": 47.59,
+              "x": 122.45,
+              "y": 4.25
+            }
+          },
+          "rect": {
+            "height": 59.28,
+            "width": 148.44,
+            "x": 122.45,
+            "y": 0
+          },
+          "rendered_count": 1,
+          "selector": "#header h1 a span",
+          "style": {
+            "background-image": "none",
+            "bottom": "auto",
+            "clip": "auto",
+            "clip-path": "none",
+            "color": "rgb(35, 35, 38)",
+            "content": "\"NFSI\"",
+            "display": "block",
+            "font-family": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "font-size": "24px",
+            "font-weight": "900",
+            "height": "27.5938px",
+            "left": "auto",
+            "letter-spacing": "-0.523656px",
+            "line-height": "27.6px",
+            "margin-bottom": "0px",
+            "margin-top": "0px",
+            "max-height": "none",
+            "max-width": "none",
+            "opacity": "1",
+            "overflow": "visible",
+            "overflow-x": "visible",
+            "overflow-y": "visible",
+            "padding-bottom": "0px",
+            "padding-top": "0px",
+            "position": "static",
+            "right": "auto",
+            "text-overflow": "clip",
+            "top": "auto",
+            "transform": "none",
+            "visibility": "visible",
+            "white-space": "normal",
+            "width": "148.438px",
+            "z-index": "auto"
+          }
+        },
+        {
+          "count": 1,
+          "id": "header_subtitle",
+          "pseudo": "::after",
+          "pseudo_layout": {
+            "border_box": {
+              "height": 16,
+              "width": 148.44,
+              "x": 122.45,
+              "y": 31.84
+            },
+            "clipping_ancestors": [
+              {
+                "bounds": {
+                  "height": 900,
+                  "width": 1366,
+                  "x": 0,
+                  "y": 0
+                },
+                "kind": "viewport",
+                "node_index": null,
+                "style": {}
+              },
+              {
+                "bounds": {
+                  "height": 59.28,
+                  "width": 1366,
+                  "x": 0,
+                  "y": 0
+                },
+                "kind": "contract_container",
+                "node_index": 121,
+                "style": {}
+              },
+              {
+                "bounds": {
+                  "height": 59.28,
+                  "width": 251.53,
+                  "x": 48,
+                  "y": 0
+                },
+                "kind": "css_clipping_ancestor",
+                "node_index": 123,
+                "style": {
+                  "background-image": "none",
+                  "clip": "auto",
+                  "clip-path": "none",
+                  "color": "rgb(35, 35, 38)",
+                  "contain": "none",
+                  "content": "normal",
+                  "display": "grid",
+                  "font-family": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+                  "font-size": "27.0274px",
+                  "font-weight": "800",
+                  "letter-spacing": "normal",
+                  "line-height": "33.7842px",
+                  "opacity": "1",
+                  "overflow": "hidden",
+                  "overflow-x": "hidden",
+                  "overflow-y": "hidden",
+                  "visibility": "visible"
+                }
+              },
+              {
+                "bounds": {
+                  "height": 2188.23,
+                  "width": 1366,
+                  "x": 0,
+                  "y": 0
+                },
+                "kind": "css_clipping_ancestor",
+                "node_index": 2,
+                "style": {
+                  "background-image": "none",
+                  "clip": "auto",
+                  "clip-path": "none",
+                  "color": "rgb(0, 0, 0)",
+                  "contain": "none",
+                  "content": "normal",
+                  "display": "block",
+                  "font-family": "\"Times New Roman\"",
+                  "font-size": "16px",
+                  "font-weight": "400",
+                  "letter-spacing": "normal",
+                  "line-height": "24px",
+                  "opacity": "1",
+                  "overflow": "hidden auto",
+                  "overflow-x": "hidden",
+                  "overflow-y": "auto",
+                  "visibility": "visible"
+                }
+              }
+            ],
+            "computed_style": {
+              "background-image": "none",
+              "clip": "auto",
+              "clip-path": "none",
+              "color": "rgb(35, 35, 38)",
+              "contain": "none",
+              "content": "\"National Fog Safety Initiative\"",
+              "display": "block",
+              "font-family": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+              "font-size": "13.2px",
+              "font-weight": "600",
+              "letter-spacing": "-0.523656px",
+              "line-height": "15.18px",
+              "opacity": "1",
+              "overflow": "visible",
+              "overflow-x": "visible",
+              "overflow-y": "visible",
+              "visibility": "visible"
+            },
+            "descendant_text": "National Fog Safety Initiative",
+            "layout_present": true,
+            "node_present": true,
+            "painted_bounds": {
+              "height": 16,
+              "width": 148.44,
+              "x": 122.45,
+              "y": 31.84
+            },
+            "status": "captured",
+            "visible_area_ratio": 1,
+            "visible_bounds": {
+              "height": 16,
+              "width": 148.44,
+              "x": 122.45,
+              "y": 31.84
+            }
+          },
+          "rect": {
+            "height": 59.28,
+            "width": 148.44,
+            "x": 122.45,
+            "y": 0
+          },
+          "rendered_count": 1,
+          "selector": "#header h1 a span",
+          "style": {
+            "background-image": "none",
+            "bottom": "auto",
+            "clip": "auto",
+            "clip-path": "none",
+            "color": "rgb(35, 35, 38)",
+            "content": "\"National Fog Safety Initiative\"",
+            "display": "block",
+            "font-family": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "font-size": "13.2px",
+            "font-weight": "600",
+            "height": "15.1719px",
+            "left": "auto",
+            "letter-spacing": "-0.523656px",
+            "line-height": "15.18px",
+            "margin-bottom": "6px",
+            "margin-top": "0px",
+            "max-height": "none",
+            "max-width": "none",
+            "opacity": "1",
+            "overflow": "visible",
+            "overflow-x": "visible",
+            "overflow-y": "visible",
+            "padding-bottom": "0px",
+            "padding-top": "0px",
+            "position": "static",
+            "right": "auto",
+            "text-overflow": "clip",
+            "top": "auto",
+            "transform": "none",
+            "visibility": "visible",
+            "white-space": "normal",
+            "width": "148.438px",
+            "z-index": "auto"
+          }
+        },
+        {
+          "count": 1,
+          "id": "navigation_tab_bar",
+          "pseudo": null,
+          "rect": {
+            "height": 83,
+            "width": 1088,
+            "x": 139,
+            "y": 680.84
+          },
+          "rendered_count": 1,
+          "selector": "#page-content .navigation",
+          "style": {}
+        },
+        {
+          "count": 6,
+          "id": "navigation_tab_links",
+          "pseudo": null,
+          "rect": null,
+          "rendered_count": 6,
+          "selector": "#page-content .navigation a",
+          "style": null
+        }
+      ],
+      "ready_state": "complete",
+      "rendered_images": 9,
+      "resource_completion": {
+        "font_status": "loaded",
+        "image_count": 36,
+        "incomplete_image_count": 0,
+        "load_ready_state": "complete",
+        "status": "complete"
+      }
+    },
+    "dom_signature": {
+      "attrs": {
+        "alt": 28,
+        "class": 192,
+        "colspan": 1,
+        "href": 74,
+        "id": 36,
+        "onclick": 19,
+        "src": 31,
+        "style": 33,
+        "title": 3
+      },
+      "classes": {
+        "active": 1,
+        "article": 10,
+        "articlecolumn": 3,
+        "avatarhover": 8,
+        "backtop": 3,
+        "big": 1,
+        "block-1": 1,
+        "block-2": 1,
+        "block-3": 1,
+        "block-4": 1,
+        "block-5": 1,
+        "btn": 3,
+        "btn-default": 3,
+        "cancel": 1,
+        "collapsible-block": 2,
+        "collapsible-block-content": 2,
+        "collapsible-block-folded": 2,
+        "collapsible-block-link": 4,
+        "collapsible-block-unfolded": 2,
+        "collapsible-block-unfolded-link": 2,
+        "collection": 1,
+        "collectiondot": 10,
+        "content": 4,
+        "content-separator": 2,
+        "coolheading": 10,
+        "crom-thumbnail": 1,
+        "display": 5,
+        "footer-wikiwalk-nav": 1,
+        "heading": 10,
+        "heading2": 10,
+        "home": 1,
+        "image": 19,
+        "licensebox": 1,
+        "list-pages-box": 5,
+        "list-pages-item": 12,
+        "more": 5,
+        "name": 1,
+        "namerow": 1,
+        "navigation": 1,
+        "normalcy": 10,
+        "number": 1,
+        "page-rate-widget-box": 1,
+        "picture": 10,
+        "preview": 1,
+        "printuser": 8,
+        "prw54353": 1,
+        "rate-points": 1,
+        "ratedown": 1,
+        "rateup": 1,
+        "small": 8,
+        "start": 1,
+        "tag": 1,
+        "titlecolumn": 3,
+        "wiki-email": 2,
+        "words": 10
+      },
+      "comment_count": 0,
+      "id_count": 36,
+      "tags": {
+        "a": 74,
+        "blockquote": 20,
+        "br": 74,
+        "div": 94,
+        "em": 10,
+        "h1": 3,
+        "h2": 18,
+        "h4": 10,
+        "hr": 11,
+        "iframe": 3,
+        "img": 28,
+        "li": 6,
+        "p": 140,
+        "span": 107,
+        "strong": 104,
+        "table": 1,
+        "tbody": 1,
+        "th": 7,
+        "tr": 4,
+        "ul": 1
+      }
+    },
+    "dom_signatures": [
+      "a",
+      "a",
+      "a",
+      "a",
+      "a",
+      "a",
+      "a",
+      "a",
+      "a",
+      "a",
+      "a",
+      "a",
+      "a.collapsible-block-link",
+      "a.collapsible-block-link",
+      "a.home",
+      "div",
+      "div",
+      "div",
+      "div",
+      "div.collapsible-block",
+      "div.collapsible-block",
+      "div.collapsible-block-folded",
+      "div.collapsible-block-folded",
+      "div.collection",
+      "div.footer-wikiwalk-nav",
+      "div.licensebox",
+      "div.name",
+      "div.navigation",
+      "div.page-rate-widget-box",
+      "div.start",
+      "div.tag",
+      "h2#toc0",
+      "h2#toc2",
+      "h2#toc3",
+      "h4#toc1",
+      "hr",
+      "img.image",
+      "img.image",
+      "p",
+      "p",
+      "p",
+      "p",
+      "p",
+      "p",
+      "p",
+      "p",
+      "span",
+      "span",
+      "span",
+      "span",
+      "span",
+      "span",
+      "span",
+      "span",
+      "span",
+      "span",
+      "span.btn.btn-default.cancel",
+      "span.btn.btn-default.ratedown",
+      "span.btn.btn-default.rateup",
+      "span.number.prw54353",
+      "span.rate-points",
+      "span.wiki-email",
+      "strong",
+      "strong",
+      "strong",
+      "strong",
+      "strong"
+    ],
+    "expected_failures": [],
+    "failures": [],
+    "final_url": "https://scp-wiki.wikidot.com/scp-9506",
+    "first_paint": {
+      "document": {
+        "attribute_signatures": [
+          {
+            "name": "class",
+            "tag": "a",
+            "value": "collapsible-block-link"
+          },
+          {
+            "name": "class",
+            "tag": "a",
+            "value": "collapsible-block-link"
+          },
+          {
+            "name": "class",
+            "tag": "a",
+            "value": "home"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "/scp-9505"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "/scp-9507"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "#"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "#u-target-1"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "#u-target-2"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "#u-target-3"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "#u-target-4"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "#u-target-5"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "https://scp-wiki.wikidot.com/seekgull"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "javascript:;"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "javascript:;"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "javascript:;"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "javascript:;"
+          },
+          {
+            "name": "href",
+            "tag": "a",
+            "value": "javascript:;"
+          },
+          {
+            "name": "onclick",
+            "tag": "a",
+            "value": "WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)"
+          },
+          {
+            "name": "onclick",
+            "tag": "a",
+            "value": "WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, -1)"
+          },
+          {
+            "name": "onclick",
+            "tag": "a",
+            "value": "WIKIDOT.modules.PageRateWidgetModule.listeners.rate(event, 1)"
+          },
+          {
+            "name": "title",
+            "tag": "a",
+            "value": "Cancel my vote"
+          },
+          {
+            "name": "title",
+            "tag": "a",
+            "value": "I don't like it"
+          },
+          {
+            "name": "title",
+            "tag": "a",
+            "value": "I like it"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "collapsible-block-folded"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "collapsible-block-folded"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "collapsible-block"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "collapsible-block"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "collection"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "footer-wikiwalk-nav"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "licensebox"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "name"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "navigation"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "page-rate-widget-box"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "start"
+          },
+          {
+            "name": "class",
+            "tag": "div",
+            "value": "tag"
+          },
+          {
+            "name": "style",
+            "tag": "div",
+            "value": "margin-top: -1rem;"
+          },
+          {
+            "name": "style",
+            "tag": "div",
+            "value": "text-align: center;"
+          },
+          {
+            "name": "style",
+            "tag": "div",
+            "value": "text-align: center;"
+          },
+          {
+            "name": "style",
+            "tag": "div",
+            "value": "text-align: right;"
+          },
+          {
+            "name": "id",
+            "tag": "h2",
+            "value": "toc0"
+          },
+          {
+            "name": "id",
+            "tag": "h2",
+            "value": "toc2"
+          },
+          {
+            "name": "id",
+            "tag": "h2",
+            "value": "toc3"
+          },
+          {
+            "name": "id",
+            "tag": "h4",
+            "value": "toc1"
+          },
+          {
+            "name": "alt",
+            "tag": "img",
+            "value": "weathermap.gif"
+          },
+          {
+            "name": "class",
+            "tag": "img",
+            "value": "image"
+          },
+          {
+            "name": "src",
+            "tag": "img",
+            "value": "http://scp-wiki.wikidot.com/local--files/scp-9506/weathermap.gif"
+          },
+          {
+            "name": "class",
+            "tag": "span",
+            "value": "cancel btn btn-default"
+          },
+          {
+            "name": "class",
+            "tag": "span",
+            "value": "number prw54353"
+          },
+          {
+            "name": "class",
+            "tag": "span",
+            "value": "rate-points"
+          },
+          {
+            "name": "class",
+            "tag": "span",
+            "value": "ratedown btn btn-default"
+          },
+          {
+            "name": "class",
+            "tag": "span",
+            "value": "rateup btn btn-default"
+          },
+          {
+            "name": "style",
+            "tag": "span",
+            "value": "color: rgb(35, 122, 148);"
+          },
+          {
+            "name": "style",
+            "tag": "span",
+            "value": "font-size:2rem"
+          },
+          {
+            "name": "style",
+            "tag": "span",
+            "value": "font-size:80%;"
+          },
+          {
+            "name": "style",
+            "tag": "span",
+            "value": "white-space: pre-wrap;"
+          },
+          {
+            "name": "style",
+            "tag": "span",
+            "value": "white-space: pre-wrap;"
+          },
+          {
+            "name": "style",
+            "tag": "span",
+            "value": "white-space: pre-wrap;"
+          }
+        ],
+        "broken_images": [
+          {
+            "natural_height": 0,
+            "natural_width": 0,
+            "src": "http://scp-wiki.wikidot.com/local--files/scp-9506/weathermap.gif"
+          }
+        ],
+        "captured_at_epoch_ms": 1793686402319,
+        "captured_at_performance_ms": 3505.2,
+        "custom_properties": {
+          "--header-logo": "url('https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png')",
+          "--header-subtitle": "\"National Fog Safety Initiative\"",
+          "--header-title": "\"NFSI\"",
+          "--logo": "url('https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png')"
+        },
+        "dom_signature": {
+          "attrs": {
+            "alt": 28,
+            "class": 192,
+            "colspan": 1,
+            "href": 72,
+            "id": 36,
+            "onclick": 19,
+            "src": 31,
+            "style": 31,
+            "title": 3
+          },
+          "classes": {
+            "active": 1,
+            "article": 10,
+            "articlecolumn": 3,
+            "avatarhover": 8,
+            "backtop": 3,
+            "big": 1,
+            "block-1": 1,
+            "block-2": 1,
+            "block-3": 1,
+            "block-4": 1,
+            "block-5": 1,
+            "btn": 3,
+            "btn-default": 3,
+            "cancel": 1,
+            "collapsible-block": 2,
+            "collapsible-block-content": 2,
+            "collapsible-block-folded": 2,
+            "collapsible-block-link": 4,
+            "collapsible-block-unfolded": 2,
+            "collapsible-block-unfolded-link": 2,
+            "collection": 1,
+            "collectiondot": 10,
+            "content": 4,
+            "content-separator": 2,
+            "coolheading": 10,
+            "crom-thumbnail": 1,
+            "display": 5,
+            "footer-wikiwalk-nav": 1,
+            "heading": 10,
+            "heading2": 10,
+            "home": 1,
+            "image": 19,
+            "licensebox": 1,
+            "list-pages-box": 5,
+            "list-pages-item": 12,
+            "more": 5,
+            "name": 1,
+            "namerow": 1,
+            "navigation": 1,
+            "normalcy": 10,
+            "number": 1,
+            "page-rate-widget-box": 1,
+            "picture": 10,
+            "preview": 1,
+            "printuser": 8,
+            "prw54353": 1,
+            "rate-points": 1,
+            "ratedown": 1,
+            "rateup": 1,
+            "small": 8,
+            "start": 1,
+            "tag": 1,
+            "titlecolumn": 3,
+            "wiki-email": 2,
+            "words": 10
+          },
+          "comment_count": 0,
+          "id_count": 36,
+          "tags": {
+            "a": 72,
+            "blockquote": 20,
+            "br": 74,
+            "div": 94,
+            "em": 10,
+            "h1": 3,
+            "h2": 18,
+            "h4": 10,
+            "hr": 11,
+            "iframe": 3,
+            "img": 28,
+            "li": 6,
+            "p": 140,
+            "span": 107,
+            "strong": 104,
+            "table": 1,
+            "tbody": 1,
+            "th": 7,
+            "tr": 4,
+            "ul": 1
+          }
+        },
+        "dom_signatures": [
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a",
+          "a.collapsible-block-link",
+          "a.collapsible-block-link",
+          "a.home",
+          "div",
+          "div",
+          "div",
+          "div",
+          "div.collapsible-block",
+          "div.collapsible-block",
+          "div.collapsible-block-folded",
+          "div.collapsible-block-folded",
+          "div.collection",
+          "div.footer-wikiwalk-nav",
+          "div.licensebox",
+          "div.name",
+          "div.navigation",
+          "div.page-rate-widget-box",
+          "div.start",
+          "div.tag",
+          "h2#toc0",
+          "h2#toc2",
+          "h2#toc3",
+          "h4#toc1",
+          "hr",
+          "img.image",
+          "p",
+          "p",
+          "p",
+          "p",
+          "p",
+          "p",
+          "p",
+          "p",
+          "span",
+          "span",
+          "span",
+          "span",
+          "span",
+          "span",
+          "span",
+          "span",
+          "span",
+          "span",
+          "span.btn.btn-default.cancel",
+          "span.btn.btn-default.ratedown",
+          "span.btn.btn-default.rateup",
+          "span.number.prw54353",
+          "span.rate-points",
+          "strong",
+          "strong",
+          "strong",
+          "strong",
+          "strong"
+        ],
+        "first_divergence_trace": null,
+        "geometry": {
+          "#header": {
+            "count": 1,
+            "rect": {
+              "height": 59.28,
+              "width": 1366,
+              "x": 0,
+              "y": 0
+            }
+          }
+        },
+        "page_chrome_skeleton": {
+          "links": [
+            {
+              "child": "#skrollr-body",
+              "child_count": 1,
+              "direct_child_count": 1,
+              "parent": "body",
+              "parent_count": 1
+            },
+            {
+              "child": "#container-wrap-wrap",
+              "child_count": 1,
+              "direct_child_count": 1,
+              "parent": "#skrollr-body",
+              "parent_count": 1
+            },
+            {
+              "child": "#container-wrap",
+              "child_count": 1,
+              "direct_child_count": 1,
+              "parent": "#container-wrap-wrap",
+              "parent_count": 1
+            },
+            {
+              "child": "#container",
+              "child_count": 1,
+              "direct_child_count": 1,
+              "parent": "#container-wrap",
+              "parent_count": 1
+            },
+            {
+              "child": "#header",
+              "child_count": 1,
+              "direct_child_count": 1,
+              "parent": "#container",
+              "parent_count": 1
+            },
+            {
+              "child": "#top-bar",
+              "child_count": 1,
+              "direct_child_count": 1,
+              "parent": "#header",
+              "parent_count": 1
+            }
+          ],
+          "schema": "wikijump_local_lab.page_chrome_skeleton.v1"
+        },
+        "page_content_broken_images": [
+          {
+            "natural_height": 0,
+            "natural_width": 0,
+            "src": "http://scp-wiki.wikidot.com/local--files/scp-9506/weathermap.gif"
+          }
+        ],
+        "page_content_rendered_images": 1,
+        "phase": "domcontentloaded_immediate_observation",
+        "presence_probes": [
+          {
+            "count": 1,
+            "id": "header_logo_element",
+            "pseudo": null,
+            "rect": {
+              "height": 59.28,
+              "width": 164.56,
+              "x": 122.45,
+              "y": 0
+            },
+            "rendered_count": 1,
+            "selector": "#header h1 a span",
+            "style": {}
+          },
+          {
+            "count": 1,
+            "id": "header_subtitle_element",
+            "pseudo": null,
+            "rect": {
+              "height": 0,
+              "width": 0,
+              "x": 0,
+              "y": 0
+            },
+            "rendered_count": 0,
+            "selector": "#header h2 span",
+            "style": {}
+          },
+          {
+            "count": 1,
+            "id": "header_logo",
+            "pseudo": "::before",
+            "pseudo_layout": {
+              "border_box": {
+                "height": 0,
+                "width": 0,
+                "x": 0,
+                "y": 0
+              },
+              "clipping_ancestors": [
+                {
+                  "bounds": {
+                    "height": 900,
+                    "width": 1366,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "kind": "viewport",
+                  "node_index": null,
+                  "style": {}
+                },
+                {
+                  "bounds": {
+                    "height": 59.28,
+                    "width": 1366,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "kind": "contract_container",
+                  "node_index": 121,
+                  "style": {}
+                },
+                {
+                  "bounds": {
+                    "height": 59.28,
+                    "width": 267.66,
+                    "x": 48,
+                    "y": 0
+                  },
+                  "kind": "css_clipping_ancestor",
+                  "node_index": 123,
+                  "style": {
+                    "background-image": "none",
+                    "clip": "auto",
+                    "clip-path": "none",
+                    "color": "rgb(35, 35, 38)",
+                    "contain": "none",
+                    "content": "normal",
+                    "display": "grid",
+                    "font-family": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+                    "font-size": "27.0274px",
+                    "font-weight": "800",
+                    "letter-spacing": "normal",
+                    "line-height": "33.7842px",
+                    "opacity": "1",
+                    "overflow": "hidden",
+                    "overflow-x": "hidden",
+                    "overflow-y": "hidden",
+                    "visibility": "visible"
+                  }
+                },
+                {
+                  "bounds": {
+                    "height": 1389.34,
+                    "width": 1366,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "kind": "css_clipping_ancestor",
+                  "node_index": 2,
+                  "style": {
+                    "background-image": "none",
+                    "clip": "auto",
+                    "clip-path": "none",
+                    "color": "rgb(0, 0, 0)",
+                    "contain": "none",
+                    "content": "normal",
+                    "display": "block",
+                    "font-family": "\"Times New Roman\"",
+                    "font-size": "16px",
+                    "font-weight": "400",
+                    "letter-spacing": "normal",
+                    "line-height": "24px",
+                    "opacity": "1",
+                    "overflow": "hidden auto",
+                    "overflow-x": "hidden",
+                    "overflow-y": "auto",
+                    "visibility": "visible"
+                  }
+                }
+              ],
+              "computed_style": {
+                "background-image": "url(\"https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png\")",
+                "clip": "auto",
+                "clip-path": "none",
+                "color": "rgb(35, 35, 38)",
+                "contain": "none",
+                "content": "\"\"",
+                "display": "block",
+                "font-family": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+                "font-size": "27.0274px",
+                "font-weight": "800",
+                "letter-spacing": "-0.523656px",
+                "line-height": "31.0815px",
+                "opacity": "1",
+                "overflow": "visible",
+                "overflow-x": "visible",
+                "overflow-y": "visible",
+                "visibility": "visible"
+              },
+              "descendant_text": "",
+              "layout_kind": "css_box_fallback",
+              "layout_present": true,
+              "node_present": true,
+              "painted_bounds": {
+                "height": 59.28,
+                "width": 52.98,
+                "x": 48,
+                "y": 0
+              },
+              "status": "captured",
+              "visible_area_ratio": 1,
+              "visible_bounds": {
+                "height": 59.28,
+                "width": 52.98,
+                "x": 48,
+                "y": 0
+              }
+            },
+            "rect": {
+              "height": 59.28,
+              "width": 267.66,
+              "x": 48,
+              "y": 0
+            },
+            "rendered_count": 1,
+            "selector": "#header h1 a",
+            "style": {
+              "background-image": "url(\"https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png\")",
+              "bottom": "auto",
+              "clip": "auto",
+              "clip-path": "none",
+              "color": "rgb(35, 35, 38)",
+              "content": "\"\"",
+              "display": "block",
+              "font-family": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+              "font-size": "27.0274px",
+              "font-weight": "800",
+              "height": "59.2812px",
+              "left": "auto",
+              "letter-spacing": "-0.523656px",
+              "line-height": "31.0815px",
+              "margin-bottom": "0px",
+              "margin-top": "0px",
+              "max-height": "none",
+              "max-width": "none",
+              "opacity": "1",
+              "overflow": "visible",
+              "overflow-x": "visible",
+              "overflow-y": "visible",
+              "padding-bottom": "0px",
+              "padding-top": "0px",
+              "position": "static",
+              "right": "auto",
+              "text-overflow": "clip",
+              "top": "auto",
+              "transform": "none",
+              "visibility": "visible",
+              "white-space": "normal",
+              "width": "52.9844px",
+              "z-index": "auto"
+            }
+          },
+          {
+            "count": 1,
+            "id": "header_title",
+            "pseudo": "::before",
+            "pseudo_layout": {
+              "border_box": {
+                "height": 27,
+                "width": 52.58,
+                "x": 122.45,
+                "y": 5.25
+              },
+              "clipping_ancestors": [
+                {
+                  "bounds": {
+                    "height": 900,
+                    "width": 1366,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "kind": "viewport",
+                  "node_index": null,
+                  "style": {}
+                },
+                {
+                  "bounds": {
+                    "height": 59.28,
+                    "width": 1366,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "kind": "contract_container",
+                  "node_index": 121,
+                  "style": {}
+                },
+                {
+                  "bounds": {
+                    "height": 59.28,
+                    "width": 267.66,
+                    "x": 48,
+                    "y": 0
+                  },
+                  "kind": "css_clipping_ancestor",
+                  "node_index": 123,
+                  "style": {
+                    "background-image": "none",
+                    "clip": "auto",
+                    "clip-path": "none",
+                    "color": "rgb(35, 35, 38)",
+                    "contain": "none",
+                    "content": "normal",
+                    "display": "grid",
+                    "font-family": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+                    "font-size": "27.0274px",
+                    "font-weight": "800",
+                    "letter-spacing": "normal",
+                    "line-height": "33.7842px",
+                    "opacity": "1",
+                    "overflow": "hidden",
+                    "overflow-x": "hidden",
+                    "overflow-y": "hidden",
+                    "visibility": "visible"
+                  }
+                },
+                {
+                  "bounds": {
+                    "height": 1389.34,
+                    "width": 1366,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "kind": "css_clipping_ancestor",
+                  "node_index": 2,
+                  "style": {
+                    "background-image": "none",
+                    "clip": "auto",
+                    "clip-path": "none",
+                    "color": "rgb(0, 0, 0)",
+                    "contain": "none",
+                    "content": "normal",
+                    "display": "block",
+                    "font-family": "\"Times New Roman\"",
+                    "font-size": "16px",
+                    "font-weight": "400",
+                    "letter-spacing": "normal",
+                    "line-height": "24px",
+                    "opacity": "1",
+                    "overflow": "hidden auto",
+                    "overflow-x": "hidden",
+                    "overflow-y": "auto",
+                    "visibility": "visible"
+                  }
+                }
+              ],
+              "computed_style": {
+                "background-image": "none",
+                "clip": "auto",
+                "clip-path": "none",
+                "color": "rgb(35, 35, 38)",
+                "contain": "none",
+                "content": "\"NFSI\"",
+                "display": "block",
+                "font-family": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+                "font-size": "24px",
+                "font-weight": "900",
+                "letter-spacing": "-0.523656px",
+                "line-height": "27.6px",
+                "opacity": "1",
+                "overflow": "visible",
+                "overflow-x": "visible",
+                "overflow-y": "visible",
+                "visibility": "visible"
+              },
+              "descendant_text": "NFSI",
+              "layout_present": true,
+              "node_present": true,
+              "painted_bounds": {
+                "height": 27,
+                "width": 52.58,
+                "x": 122.45,
+                "y": 5.25
+              },
+              "status": "captured",
+              "visible_area_ratio": 1,
+              "visible_bounds": {
+                "height": 27,
+                "width": 52.58,
+                "x": 122.45,
+                "y": 5.25
+              }
+            },
+            "rect": {
+              "height": 59.28,
+              "width": 164.56,
+              "x": 122.45,
+              "y": 0
+            },
+            "rendered_count": 1,
+            "selector": "#header h1 a span",
+            "style": {
+              "background-image": "none",
+              "bottom": "auto",
+              "clip": "auto",
+              "clip-path": "none",
+              "color": "rgb(35, 35, 38)",
+              "content": "\"NFSI\"",
+              "display": "block",
+              "font-family": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+              "font-size": "24px",
+              "font-weight": "900",
+              "height": "27.5938px",
+              "left": "auto",
+              "letter-spacing": "-0.523656px",
+              "line-height": "27.6px",
+              "margin-bottom": "0px",
+              "margin-top": "0px",
+              "max-height": "none",
+              "max-width": "none",
+              "opacity": "1",
+              "overflow": "visible",
+              "overflow-x": "visible",
+              "overflow-y": "visible",
+              "padding-bottom": "0px",
+              "padding-top": "0px",
+              "position": "static",
+              "right": "auto",
+              "text-overflow": "clip",
+              "top": "auto",
+              "transform": "none",
+              "visibility": "visible",
+              "white-space": "normal",
+              "width": "164.562px",
+              "z-index": "auto"
+            }
+          },
+          {
+            "count": 1,
+            "id": "header_subtitle",
+            "pseudo": "::after",
+            "pseudo_layout": {
+              "border_box": {
+                "height": 15,
+                "width": 164.56,
+                "x": 122.45,
+                "y": 32.84
+              },
+              "clipping_ancestors": [
+                {
+                  "bounds": {
+                    "height": 900,
+                    "width": 1366,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "kind": "viewport",
+                  "node_index": null,
+                  "style": {}
+                },
+                {
+                  "bounds": {
+                    "height": 59.28,
+                    "width": 1366,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "kind": "contract_container",
+                  "node_index": 121,
+                  "style": {}
+                },
+                {
+                  "bounds": {
+                    "height": 59.28,
+                    "width": 267.66,
+                    "x": 48,
+                    "y": 0
+                  },
+                  "kind": "css_clipping_ancestor",
+                  "node_index": 123,
+                  "style": {
+                    "background-image": "none",
+                    "clip": "auto",
+                    "clip-path": "none",
+                    "color": "rgb(35, 35, 38)",
+                    "contain": "none",
+                    "content": "normal",
+                    "display": "grid",
+                    "font-family": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+                    "font-size": "27.0274px",
+                    "font-weight": "800",
+                    "letter-spacing": "normal",
+                    "line-height": "33.7842px",
+                    "opacity": "1",
+                    "overflow": "hidden",
+                    "overflow-x": "hidden",
+                    "overflow-y": "hidden",
+                    "visibility": "visible"
+                  }
+                },
+                {
+                  "bounds": {
+                    "height": 1389.34,
+                    "width": 1366,
+                    "x": 0,
+                    "y": 0
+                  },
+                  "kind": "css_clipping_ancestor",
+                  "node_index": 2,
+                  "style": {
+                    "background-image": "none",
+                    "clip": "auto",
+                    "clip-path": "none",
+                    "color": "rgb(0, 0, 0)",
+                    "contain": "none",
+                    "content": "normal",
+                    "display": "block",
+                    "font-family": "\"Times New Roman\"",
+                    "font-size": "16px",
+                    "font-weight": "400",
+                    "letter-spacing": "normal",
+                    "line-height": "24px",
+                    "opacity": "1",
+                    "overflow": "hidden auto",
+                    "overflow-x": "hidden",
+                    "overflow-y": "auto",
+                    "visibility": "visible"
+                  }
+                }
+              ],
+              "computed_style": {
+                "background-image": "none",
+                "clip": "auto",
+                "clip-path": "none",
+                "color": "rgb(35, 35, 38)",
+                "contain": "none",
+                "content": "\"National Fog Safety Initiative\"",
+                "display": "block",
+                "font-family": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+                "font-size": "13.2px",
+                "font-weight": "600",
+                "letter-spacing": "-0.523656px",
+                "line-height": "15.18px",
+                "opacity": "1",
+                "overflow": "visible",
+                "overflow-x": "visible",
+                "overflow-y": "visible",
+                "visibility": "visible"
+              },
+              "descendant_text": "National Fog Safety Initiative",
+              "layout_present": true,
+              "node_present": true,
+              "painted_bounds": {
+                "height": 15,
+                "width": 164.56,
+                "x": 122.45,
+                "y": 32.84
+              },
+              "status": "captured",
+              "visible_area_ratio": 1,
+              "visible_bounds": {
+                "height": 15,
+                "width": 164.56,
+                "x": 122.45,
+                "y": 32.84
+              }
+            },
+            "rect": {
+              "height": 59.28,
+              "width": 164.56,
+              "x": 122.45,
+              "y": 0
+            },
+            "rendered_count": 1,
+            "selector": "#header h1 a span",
+            "style": {
+              "background-image": "none",
+              "bottom": "auto",
+              "clip": "auto",
+              "clip-path": "none",
+              "color": "rgb(35, 35, 38)",
+              "content": "\"National Fog Safety Initiative\"",
+              "display": "block",
+              "font-family": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+              "font-size": "13.2px",
+              "font-weight": "600",
+              "height": "15.1719px",
+              "left": "auto",
+              "letter-spacing": "-0.523656px",
+              "line-height": "15.18px",
+              "margin-bottom": "6px",
+              "margin-top": "0px",
+              "max-height": "none",
+              "max-width": "none",
+              "opacity": "1",
+              "overflow": "visible",
+              "overflow-x": "visible",
+              "overflow-y": "visible",
+              "padding-bottom": "0px",
+              "padding-top": "0px",
+              "position": "static",
+              "right": "auto",
+              "text-overflow": "clip",
+              "top": "auto",
+              "transform": "none",
+              "visibility": "visible",
+              "white-space": "normal",
+              "width": "164.562px",
+              "z-index": "auto"
+            }
+          },
+          {
+            "count": 1,
+            "id": "navigation_tab_bar",
+            "pseudo": null,
+            "rect": {
+              "height": 83,
+              "width": 1088,
+              "x": 139,
+              "y": 403.05
+            },
+            "rendered_count": 1,
+            "selector": "#page-content .navigation",
+            "style": {}
+          },
+          {
+            "count": 6,
+            "id": "navigation_tab_links",
+            "pseudo": null,
+            "rect": null,
+            "rendered_count": 6,
+            "selector": "#page-content .navigation a",
+            "style": null
+          }
+        ],
+        "ready_state": "interactive",
+        "rendered_images": 6
+      },
+      "screenshot": {
+        "full_page": false,
+        "path": "standing-browser-live-00-db371bdd685ac6fa-domcontentloaded-immediate.png",
+        "sha256": "83b504d3528d48ae99c3c72dd811c55d5bc84dde0e2cb728974f5524f33f075c"
+      }
+    },
+    "geometry": {
+      "#header": {
+        "count": 1,
+        "rect": {
+          "height": 59.28,
+          "width": 1366,
+          "x": 0,
+          "y": 0
+        }
+      },
+      "#header h1 a": {
+        "count": 1,
+        "rect": {
+          "height": 59.28,
+          "width": 251.53,
+          "x": 48,
+          "y": 0
+        }
+      },
+      "#main-content": {
+        "count": 1,
+        "rect": {
+          "height": 1917.77,
+          "width": 1120,
+          "x": 123,
+          "y": 83.28
+        }
+      },
+      "#page-content": {
+        "count": 1,
+        "rect": {
+          "height": 1804.42,
+          "width": 1120,
+          "x": 123,
+          "y": 83.28
+        }
+      },
+      "#page-content .navigation": {
+        "count": 1,
+        "rect": {
+          "height": 83,
+          "width": 1088,
+          "x": 139,
+          "y": 680.84
+        }
+      },
+      "#side-bar": {
+        "count": 1,
+        "rect": {
+          "height": 840.7,
+          "width": 272,
+          "x": -272,
+          "y": 59.28
+        }
+      }
+    },
+    "input_url": "https://scp-wiki.wikidot.com/scp-9506",
+    "navigation_status": 200,
+    "page_chrome_skeleton": {
+      "links": [
+        {
+          "child": "#skrollr-body",
+          "child_count": 1,
+          "direct_child_count": 1,
+          "parent": "body",
+          "parent_count": 1
+        },
+        {
+          "child": "#container-wrap-wrap",
+          "child_count": 1,
+          "direct_child_count": 1,
+          "parent": "#skrollr-body",
+          "parent_count": 1
+        },
+        {
+          "child": "#container-wrap",
+          "child_count": 1,
+          "direct_child_count": 1,
+          "parent": "#container-wrap-wrap",
+          "parent_count": 1
+        },
+        {
+          "child": "#container",
+          "child_count": 1,
+          "direct_child_count": 1,
+          "parent": "#container-wrap",
+          "parent_count": 1
+        },
+        {
+          "child": "#header",
+          "child_count": 1,
+          "direct_child_count": 1,
+          "parent": "#container",
+          "parent_count": 1
+        },
+        {
+          "child": "#top-bar",
+          "child_count": 1,
+          "direct_child_count": 1,
+          "parent": "#header",
+          "parent_count": 1
+        }
+      ],
+      "schema": "wikijump_local_lab.page_chrome_skeleton.v1"
+    },
+    "rendered_images": 9,
+    "request_gate_aborts": [
+      {
+        "abort_reason": "blockedbyclient",
+        "decision": "unsupported_public_origin_resource_type",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector",
+        "kind": "request_gate_abort",
+        "resource_type": "script",
+        "url": "https://s.nitropay.com/ads-143.js"
+      },
+      {
+        "abort_reason": "blockedbyclient",
+        "decision": "unsupported_public_origin_resource_type",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector",
+        "kind": "request_gate_abort",
+        "resource_type": "script",
+        "url": "https://stats.g.doubleclick.net/dc.js"
+      }
+    ],
+    "schema": "wikijump_local_lab.standing_browser_parity_capture.v2",
+    "screenshot": {
+      "full_page": true,
+      "path": "standing-browser-live-00-db371bdd685ac6fa-settled-full-page.png",
+      "sha256": "e5d8e4bbf05902ef78c91d4096387838bbc38ca8a7d688a943ccd5dbc3007015"
+    },
+    "settled_viewport_screenshot": {
+      "full_page": false,
+      "path": "standing-browser-live-00-db371bdd685ac6fa-settled-viewport.png",
+      "sha256": "010adc1de606be34c4900aaf55368832aa91d66b023c8689949e031998c1680a"
+    }
+  },
+  "accepted_comparison": {
+    "anomalies": [],
+    "attributes": {
+      "anomalies": [],
+      "normalized": null,
+      "raw": null,
+      "status": "pass"
+    },
+    "classified_broken_images": [],
+    "classified_failures": [],
+    "classified_request_gate_aborts": [],
+    "comparison_scope": "standing-chrome",
+    "dom_multiset_distance": {
+      "different_elements": 0,
+      "ratio": 0,
+      "union_elements": 67
+    },
+    "dom_signature_normalization": {
+      "events": [],
+      "normalized": {
+        "different_elements": 0,
+        "ratio": 0,
+        "union_elements": 67
+      },
+      "raw": {
+        "different_elements": 0,
+        "ratio": 0,
+        "union_elements": 67
+      }
+    },
+    "domcontentloaded_immediate_custom_properties": [
+      {
+        "expected": {
+          "operator": "contains",
+          "value": "/local--files/scp-9506/NFSI.png"
+        },
+        "live": "url('https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png')",
+        "live_expected": true,
+        "local": "url('https://scp-wiki.wjfiles.localhost/local--files/scp-9506/NFSI.png')",
+        "local_expected": true,
+        "normalized_live": "url('/local--files/scp-9506/NFSI.png')",
+        "normalized_local": "url('/local--files/scp-9506/NFSI.png')",
+        "property": "--header-logo",
+        "status": "pass"
+      },
+      {
+        "expected": {
+          "operator": "eq",
+          "value": "\"National Fog Safety Initiative\""
+        },
+        "live": "\"National Fog Safety Initiative\"",
+        "live_expected": true,
+        "local": "\"National Fog Safety Initiative\"",
+        "local_expected": true,
+        "normalized_live": "\"National Fog Safety Initiative\"",
+        "normalized_local": "\"National Fog Safety Initiative\"",
+        "property": "--header-subtitle",
+        "status": "pass"
+      },
+      {
+        "expected": {
+          "operator": "eq",
+          "value": "\"NFSI\""
+        },
+        "live": "\"NFSI\"",
+        "live_expected": true,
+        "local": "\"NFSI\"",
+        "local_expected": true,
+        "normalized_live": "\"NFSI\"",
+        "normalized_local": "\"NFSI\"",
+        "property": "--header-title",
+        "status": "pass"
+      },
+      {
+        "expected": {
+          "operator": "contains",
+          "value": "/local--files/scp-9506/NFSI.png"
+        },
+        "live": "url('https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png')",
+        "live_expected": true,
+        "local": "url('https://scp-wiki.wjfiles.localhost/local--files/scp-9506/NFSI.png')",
+        "local_expected": true,
+        "normalized_live": "url('/local--files/scp-9506/NFSI.png')",
+        "normalized_local": "url('/local--files/scp-9506/NFSI.png')",
+        "property": "--logo",
+        "status": "pass"
+      }
+    ],
+    "domcontentloaded_immediate_first_divergent_element": null,
+    "domcontentloaded_immediate_geometry": [
+      {
+        "delta": {
+          "height": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        },
+        "live": {
+          "height": 59.28,
+          "width": 1366,
+          "x": 0,
+          "y": 0
+        },
+        "local": {
+          "height": 59.28,
+          "width": 1366,
+          "x": 0,
+          "y": 0
+        },
+        "selector": "#header",
+        "status": "pass"
+      }
+    ],
+    "domcontentloaded_immediate_probes": [
+      {
+        "id": "header_logo_element",
+        "live_count": 1,
+        "live_rendered_count": 1,
+        "local_count": 1,
+        "local_rendered_count": 1,
+        "properties": [],
+        "pseudo": null,
+        "pseudo_layout": null,
+        "selector": "#header h1 a span",
+        "status": "pass"
+      },
+      {
+        "id": "header_subtitle_element",
+        "live_count": 1,
+        "live_rendered_count": 0,
+        "local_count": 1,
+        "local_rendered_count": 0,
+        "properties": [],
+        "pseudo": null,
+        "pseudo_layout": null,
+        "selector": "#header h2 span",
+        "status": "pass"
+      },
+      {
+        "id": "header_logo",
+        "live_count": 1,
+        "live_rendered_count": 1,
+        "local_count": 1,
+        "local_rendered_count": 1,
+        "properties": [
+          {
+            "live": "\"\"",
+            "local": "\"\"",
+            "normalized_live": "\"\"",
+            "normalized_local": "\"\"",
+            "property": "content",
+            "status": "pass"
+          },
+          {
+            "live": "url(\"https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png\")",
+            "local": "url(\"https://scp-wiki.wjfiles.localhost/local--files/scp-9506/NFSI.png\")",
+            "normalized_live": "url(\"/local--files/scp-9506/NFSI.png\")",
+            "normalized_local": "url(\"/local--files/scp-9506/NFSI.png\")",
+            "property": "background-image",
+            "status": "pass"
+          },
+          {
+            "live": "rgb(35, 35, 38)",
+            "local": "rgb(35, 35, 38)",
+            "normalized_live": "rgb(35, 35, 38)",
+            "normalized_local": "rgb(35, 35, 38)",
+            "property": "color",
+            "status": "pass"
+          },
+          {
+            "live": "block",
+            "local": "block",
+            "normalized_live": "block",
+            "normalized_local": "block",
+            "property": "display",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "visibility",
+            "status": "pass"
+          },
+          {
+            "live": "1",
+            "local": "1",
+            "normalized_live": "1",
+            "normalized_local": "1",
+            "property": "opacity",
+            "status": "pass"
+          },
+          {
+            "live": "52.9844px",
+            "local": "52.9844px",
+            "normalized_live": "52.9844px",
+            "normalized_local": "52.9844px",
+            "property": "width",
+            "status": "pass"
+          },
+          {
+            "live": "59.2812px",
+            "local": "59.2812px",
+            "normalized_live": "59.2812px",
+            "normalized_local": "59.2812px",
+            "property": "height",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-width",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-height",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-x",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-y",
+            "status": "pass"
+          },
+          {
+            "live": "static",
+            "local": "static",
+            "normalized_live": "static",
+            "normalized_local": "static",
+            "property": "position",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "z-index",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "top",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "right",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "bottom",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "left",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "margin-top",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "margin-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-top",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "31.0815px",
+            "local": "31.0815px",
+            "normalized_live": "31.0815px",
+            "normalized_local": "31.0815px",
+            "property": "line-height",
+            "status": "pass"
+          },
+          {
+            "live": "27.0274px",
+            "local": "27.0274px",
+            "normalized_live": "27.0274px",
+            "normalized_local": "27.0274px",
+            "property": "font-size",
+            "status": "pass"
+          },
+          {
+            "live": "800",
+            "local": "800",
+            "normalized_live": "800",
+            "normalized_local": "800",
+            "property": "font-weight",
+            "status": "pass"
+          },
+          {
+            "live": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+            "local": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+            "normalized_live": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+            "normalized_local": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+            "property": "font-family",
+            "status": "pass"
+          },
+          {
+            "live": "-0.523656px",
+            "local": "-0.523656px",
+            "normalized_live": "-0.523656px",
+            "normalized_local": "-0.523656px",
+            "property": "letter-spacing",
+            "status": "pass"
+          },
+          {
+            "live": "normal",
+            "local": "normal",
+            "normalized_live": "normal",
+            "normalized_local": "normal",
+            "property": "white-space",
+            "status": "pass"
+          },
+          {
+            "live": "clip",
+            "local": "clip",
+            "normalized_live": "clip",
+            "normalized_local": "clip",
+            "property": "text-overflow",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "clip",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "clip-path",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "transform",
+            "status": "pass"
+          }
+        ],
+        "pseudo": "::before",
+        "pseudo_layout": {
+          "geometry": {
+            "height": 0,
+            "width": 0,
+            "x": 0,
+            "y": 0
+          },
+          "live": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 59.28,
+                  "width": 52.98,
+                  "x": 48,
+                  "y": 0
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "url(\"https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png\")",
+                "id": "background_image",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "local": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 59.28,
+                  "width": 52.98,
+                  "x": 48,
+                  "y": 0
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "url(\"https://scp-wiki.wjfiles.localhost/local--files/scp-9506/NFSI.png\")",
+                "id": "background_image",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "ratio_delta": 0,
+          "status": "pass"
+        },
+        "selector": "#header h1 a",
+        "status": "pass"
+      },
+      {
+        "id": "header_title",
+        "live_count": 1,
+        "live_rendered_count": 1,
+        "local_count": 1,
+        "local_rendered_count": 1,
+        "properties": [
+          {
+            "live": "\"NFSI\"",
+            "local": "\"NFSI\"",
+            "normalized_live": "\"NFSI\"",
+            "normalized_local": "\"NFSI\"",
+            "property": "content",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "background-image",
+            "status": "pass"
+          },
+          {
+            "live": "rgb(35, 35, 38)",
+            "local": "rgb(35, 35, 38)",
+            "normalized_live": "rgb(35, 35, 38)",
+            "normalized_local": "rgb(35, 35, 38)",
+            "property": "color",
+            "status": "pass"
+          },
+          {
+            "live": "block",
+            "local": "block",
+            "normalized_live": "block",
+            "normalized_local": "block",
+            "property": "display",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "visibility",
+            "status": "pass"
+          },
+          {
+            "live": "1",
+            "local": "1",
+            "normalized_live": "1",
+            "normalized_local": "1",
+            "property": "opacity",
+            "status": "pass"
+          },
+          {
+            "live": "164.562px",
+            "local": "148.438px",
+            "normalized_live": "164.562px",
+            "normalized_local": "148.438px",
+            "property": "width",
+            "status": "pass"
+          },
+          {
+            "live": "27.5938px",
+            "local": "27.5938px",
+            "normalized_live": "27.5938px",
+            "normalized_local": "27.5938px",
+            "property": "height",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-width",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-height",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-x",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-y",
+            "status": "pass"
+          },
+          {
+            "live": "static",
+            "local": "static",
+            "normalized_live": "static",
+            "normalized_local": "static",
+            "property": "position",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "z-index",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "top",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "right",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "bottom",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "left",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "margin-top",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "margin-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-top",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "27.6px",
+            "local": "27.6px",
+            "normalized_live": "27.6px",
+            "normalized_local": "27.6px",
+            "property": "line-height",
+            "status": "pass"
+          },
+          {
+            "live": "24px",
+            "local": "24px",
+            "normalized_live": "24px",
+            "normalized_local": "24px",
+            "property": "font-size",
+            "status": "pass"
+          },
+          {
+            "live": "900",
+            "local": "900",
+            "normalized_live": "900",
+            "normalized_local": "900",
+            "property": "font-weight",
+            "status": "pass"
+          },
+          {
+            "live": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "local": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "normalized_live": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "normalized_local": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "property": "font-family",
+            "status": "pass"
+          },
+          {
+            "live": "-0.523656px",
+            "local": "-0.523656px",
+            "normalized_live": "-0.523656px",
+            "normalized_local": "-0.523656px",
+            "property": "letter-spacing",
+            "status": "pass"
+          },
+          {
+            "live": "normal",
+            "local": "normal",
+            "normalized_live": "normal",
+            "normalized_local": "normal",
+            "property": "white-space",
+            "status": "pass"
+          },
+          {
+            "live": "clip",
+            "local": "clip",
+            "normalized_live": "clip",
+            "normalized_local": "clip",
+            "property": "text-overflow",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "clip",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "clip-path",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "transform",
+            "status": "pass"
+          }
+        ],
+        "pseudo": "::before",
+        "pseudo_layout": {
+          "geometry": {
+            "height": 2,
+            "width": -4.99,
+            "x": 0,
+            "y": -1
+          },
+          "live": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 27,
+                  "width": 52.58,
+                  "x": 122.45,
+                  "y": 5.25
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "\"NFSI\"",
+                "id": "generated_content",
+                "status": "pass"
+              },
+              {
+                "actual": "NFSI",
+                "id": "descendant_text",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "local": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 29,
+                  "width": 47.59,
+                  "x": 122.45,
+                  "y": 4.25
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "\"NFSI\"",
+                "id": "generated_content",
+                "status": "pass"
+              },
+              {
+                "actual": "NFSI",
+                "id": "descendant_text",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "ratio_delta": 0,
+          "status": "pass"
+        },
+        "selector": "#header h1 a span",
+        "status": "pass"
+      },
+      {
+        "id": "header_subtitle",
+        "live_count": 1,
+        "live_rendered_count": 1,
+        "local_count": 1,
+        "local_rendered_count": 1,
+        "properties": [
+          {
+            "live": "\"National Fog Safety Initiative\"",
+            "local": "\"National Fog Safety Initiative\"",
+            "normalized_live": "\"National Fog Safety Initiative\"",
+            "normalized_local": "\"National Fog Safety Initiative\"",
+            "property": "content",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "background-image",
+            "status": "pass"
+          },
+          {
+            "live": "rgb(35, 35, 38)",
+            "local": "rgb(35, 35, 38)",
+            "normalized_live": "rgb(35, 35, 38)",
+            "normalized_local": "rgb(35, 35, 38)",
+            "property": "color",
+            "status": "pass"
+          },
+          {
+            "live": "block",
+            "local": "block",
+            "normalized_live": "block",
+            "normalized_local": "block",
+            "property": "display",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "visibility",
+            "status": "pass"
+          },
+          {
+            "live": "1",
+            "local": "1",
+            "normalized_live": "1",
+            "normalized_local": "1",
+            "property": "opacity",
+            "status": "pass"
+          },
+          {
+            "live": "164.562px",
+            "local": "148.438px",
+            "normalized_live": "164.562px",
+            "normalized_local": "148.438px",
+            "property": "width",
+            "status": "pass"
+          },
+          {
+            "live": "15.1719px",
+            "local": "15.1719px",
+            "normalized_live": "15.1719px",
+            "normalized_local": "15.1719px",
+            "property": "height",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-width",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-height",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-x",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-y",
+            "status": "pass"
+          },
+          {
+            "live": "static",
+            "local": "static",
+            "normalized_live": "static",
+            "normalized_local": "static",
+            "property": "position",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "z-index",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "top",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "right",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "bottom",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "left",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "margin-top",
+            "status": "pass"
+          },
+          {
+            "live": "6px",
+            "local": "6px",
+            "normalized_live": "6px",
+            "normalized_local": "6px",
+            "property": "margin-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-top",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "15.18px",
+            "local": "15.18px",
+            "normalized_live": "15.18px",
+            "normalized_local": "15.18px",
+            "property": "line-height",
+            "status": "pass"
+          },
+          {
+            "live": "13.2px",
+            "local": "13.2px",
+            "normalized_live": "13.2px",
+            "normalized_local": "13.2px",
+            "property": "font-size",
+            "status": "pass"
+          },
+          {
+            "live": "600",
+            "local": "600",
+            "normalized_live": "600",
+            "normalized_local": "600",
+            "property": "font-weight",
+            "status": "pass"
+          },
+          {
+            "live": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "local": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "normalized_live": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "normalized_local": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "property": "font-family",
+            "status": "pass"
+          },
+          {
+            "live": "-0.523656px",
+            "local": "-0.523656px",
+            "normalized_live": "-0.523656px",
+            "normalized_local": "-0.523656px",
+            "property": "letter-spacing",
+            "status": "pass"
+          },
+          {
+            "live": "normal",
+            "local": "normal",
+            "normalized_live": "normal",
+            "normalized_local": "normal",
+            "property": "white-space",
+            "status": "pass"
+          },
+          {
+            "live": "clip",
+            "local": "clip",
+            "normalized_live": "clip",
+            "normalized_local": "clip",
+            "property": "text-overflow",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "clip",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "clip-path",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "transform",
+            "status": "pass"
+          }
+        ],
+        "pseudo": "::after",
+        "pseudo_layout": {
+          "geometry": {
+            "height": 1,
+            "width": -16.12,
+            "x": 0,
+            "y": -1
+          },
+          "live": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 15,
+                  "width": 164.56,
+                  "x": 122.45,
+                  "y": 32.84
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "\"National Fog Safety Initiative\"",
+                "id": "generated_content",
+                "status": "pass"
+              },
+              {
+                "actual": "National Fog Safety Initiative",
+                "id": "descendant_text",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "local": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 16,
+                  "width": 148.44,
+                  "x": 122.45,
+                  "y": 31.84
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "\"National Fog Safety Initiative\"",
+                "id": "generated_content",
+                "status": "pass"
+              },
+              {
+                "actual": "National Fog Safety Initiative",
+                "id": "descendant_text",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "ratio_delta": 0,
+          "status": "pass"
+        },
+        "selector": "#header h1 a span",
+        "status": "pass"
+      },
+      {
+        "id": "navigation_tab_bar",
+        "live_count": 1,
+        "live_rendered_count": 1,
+        "local_count": 1,
+        "local_rendered_count": 1,
+        "properties": [],
+        "pseudo": null,
+        "pseudo_layout": null,
+        "selector": "#page-content .navigation",
+        "status": "pass"
+      },
+      {
+        "id": "navigation_tab_links",
+        "live_count": 6,
+        "live_rendered_count": 6,
+        "local_count": 6,
+        "local_rendered_count": 6,
+        "properties": [],
+        "pseudo": null,
+        "pseudo_layout": null,
+        "selector": "#page-content .navigation a",
+        "status": "pass"
+      }
+    ],
+    "geometry": [
+      {
+        "delta": {
+          "height": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        },
+        "live": {
+          "height": 59.28,
+          "width": 1366,
+          "x": 0,
+          "y": 0
+        },
+        "local": {
+          "height": 59.28,
+          "width": 1366,
+          "x": 0,
+          "y": 0
+        },
+        "selector": "#header",
+        "status": "pass"
+      },
+      {
+        "delta": {
+          "height": 0,
+          "width": 0,
+          "x": 0,
+          "y": 0
+        },
+        "live": {
+          "height": 59.28,
+          "width": 251.53,
+          "x": 48,
+          "y": 0
+        },
+        "local": {
+          "height": 59.28,
+          "width": 251.53,
+          "x": 48,
+          "y": 0
+        },
+        "selector": "#header h1 a",
+        "status": "pass"
+      }
+    ],
+    "image_counts": {
+      "delta": 0,
+      "live": 9,
+      "local": 9,
+      "scope": "page-chrome"
+    },
+    "live_only_broken_images": [],
+    "live_only_failures": [],
+    "live_only_request_gate_aborts": [
+      {
+        "abort_reason": "blockedbyclient",
+        "decision": "unsupported_public_origin_resource_type",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector",
+        "kind": "request_gate_abort",
+        "resource_type": "script",
+        "url": "https://s.nitropay.com/ads-143.js"
+      },
+      {
+        "abort_reason": "blockedbyclient",
+        "decision": "unsupported_public_origin_resource_type",
+        "error": "net::ERR_BLOCKED_BY_CLIENT.Inspector",
+        "kind": "request_gate_abort",
+        "resource_type": "script",
+        "url": "https://stats.g.doubleclick.net/dc.js"
+      }
+    ],
+    "page_chrome_skeleton": {
+      "anomalies": [],
+      "links": [
+        {
+          "child": "#skrollr-body",
+          "live": {
+            "child": "#skrollr-body",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "body",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "local": {
+            "child": "#skrollr-body",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "body",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "parent": "body",
+          "status": "pass"
+        },
+        {
+          "child": "#container-wrap-wrap",
+          "live": {
+            "child": "#container-wrap-wrap",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#skrollr-body",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "local": {
+            "child": "#container-wrap-wrap",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#skrollr-body",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "parent": "#skrollr-body",
+          "status": "pass"
+        },
+        {
+          "child": "#container-wrap",
+          "live": {
+            "child": "#container-wrap",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#container-wrap-wrap",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "local": {
+            "child": "#container-wrap",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#container-wrap-wrap",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "parent": "#container-wrap-wrap",
+          "status": "pass"
+        },
+        {
+          "child": "#container",
+          "live": {
+            "child": "#container",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#container-wrap",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "local": {
+            "child": "#container",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#container-wrap",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "parent": "#container-wrap",
+          "status": "pass"
+        },
+        {
+          "child": "#header",
+          "live": {
+            "child": "#header",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#container",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "local": {
+            "child": "#header",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#container",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "parent": "#container",
+          "status": "pass"
+        },
+        {
+          "child": "#top-bar",
+          "live": {
+            "child": "#top-bar",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#header",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "local": {
+            "child": "#top-bar",
+            "child_count": 1,
+            "direct_child_count": 1,
+            "parent": "#header",
+            "parent_count": 1,
+            "status": "pass"
+          },
+          "parent": "#header",
+          "status": "pass"
+        }
+      ],
+      "status": "pass"
+    },
+    "settled_first_divergent_element": null,
+    "settled_probes": [
+      {
+        "id": "header_logo_element",
+        "live_count": 1,
+        "live_rendered_count": 1,
+        "local_count": 1,
+        "local_rendered_count": 1,
+        "properties": [],
+        "pseudo": null,
+        "pseudo_layout": null,
+        "selector": "#header h1 a span",
+        "status": "pass"
+      },
+      {
+        "id": "header_subtitle_element",
+        "live_count": 1,
+        "live_rendered_count": 0,
+        "local_count": 1,
+        "local_rendered_count": 0,
+        "properties": [],
+        "pseudo": null,
+        "pseudo_layout": null,
+        "selector": "#header h2 span",
+        "status": "pass"
+      },
+      {
+        "id": "header_logo",
+        "live_count": 1,
+        "live_rendered_count": 1,
+        "local_count": 1,
+        "local_rendered_count": 1,
+        "properties": [
+          {
+            "live": "\"\"",
+            "local": "\"\"",
+            "normalized_live": "\"\"",
+            "normalized_local": "\"\"",
+            "property": "content",
+            "status": "pass"
+          },
+          {
+            "live": "url(\"https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png\")",
+            "local": "url(\"https://scp-wiki.wjfiles.localhost/local--files/scp-9506/NFSI.png\")",
+            "normalized_live": "url(\"/local--files/scp-9506/NFSI.png\")",
+            "normalized_local": "url(\"/local--files/scp-9506/NFSI.png\")",
+            "property": "background-image",
+            "status": "pass"
+          },
+          {
+            "live": "rgb(35, 35, 38)",
+            "local": "rgb(35, 35, 38)",
+            "normalized_live": "rgb(35, 35, 38)",
+            "normalized_local": "rgb(35, 35, 38)",
+            "property": "color",
+            "status": "pass"
+          },
+          {
+            "live": "block",
+            "local": "block",
+            "normalized_live": "block",
+            "normalized_local": "block",
+            "property": "display",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "visibility",
+            "status": "pass"
+          },
+          {
+            "live": "1",
+            "local": "1",
+            "normalized_live": "1",
+            "normalized_local": "1",
+            "property": "opacity",
+            "status": "pass"
+          },
+          {
+            "live": "52.9844px",
+            "local": "52.9844px",
+            "normalized_live": "52.9844px",
+            "normalized_local": "52.9844px",
+            "property": "width",
+            "status": "pass"
+          },
+          {
+            "live": "59.2812px",
+            "local": "59.2812px",
+            "normalized_live": "59.2812px",
+            "normalized_local": "59.2812px",
+            "property": "height",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-width",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-height",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-x",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-y",
+            "status": "pass"
+          },
+          {
+            "live": "static",
+            "local": "static",
+            "normalized_live": "static",
+            "normalized_local": "static",
+            "property": "position",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "z-index",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "top",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "right",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "bottom",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "left",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "margin-top",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "margin-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-top",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "31.0815px",
+            "local": "31.0815px",
+            "normalized_live": "31.0815px",
+            "normalized_local": "31.0815px",
+            "property": "line-height",
+            "status": "pass"
+          },
+          {
+            "live": "27.0274px",
+            "local": "27.0274px",
+            "normalized_live": "27.0274px",
+            "normalized_local": "27.0274px",
+            "property": "font-size",
+            "status": "pass"
+          },
+          {
+            "live": "800",
+            "local": "800",
+            "normalized_live": "800",
+            "normalized_local": "800",
+            "property": "font-weight",
+            "status": "pass"
+          },
+          {
+            "live": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+            "local": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+            "normalized_live": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+            "normalized_local": "\"Sofia Sans\", -apple-system, system-ui, blinkmacsystemfont, \"Segoe UI\", roboto, oxygen-sans, ubuntu, cantrell, \"Helvetica Neue\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\"",
+            "property": "font-family",
+            "status": "pass"
+          },
+          {
+            "live": "-0.523656px",
+            "local": "-0.523656px",
+            "normalized_live": "-0.523656px",
+            "normalized_local": "-0.523656px",
+            "property": "letter-spacing",
+            "status": "pass"
+          },
+          {
+            "live": "normal",
+            "local": "normal",
+            "normalized_live": "normal",
+            "normalized_local": "normal",
+            "property": "white-space",
+            "status": "pass"
+          },
+          {
+            "live": "clip",
+            "local": "clip",
+            "normalized_live": "clip",
+            "normalized_local": "clip",
+            "property": "text-overflow",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "clip",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "clip-path",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "transform",
+            "status": "pass"
+          }
+        ],
+        "pseudo": "::before",
+        "pseudo_layout": {
+          "geometry": {
+            "height": 0,
+            "width": 0,
+            "x": 0,
+            "y": 0
+          },
+          "live": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 59.28,
+                  "width": 52.98,
+                  "x": 48,
+                  "y": 0
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "url(\"https://scp-wiki.wikidot.com/local--files/scp-9506/NFSI.png\")",
+                "id": "background_image",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "local": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 59.28,
+                  "width": 52.98,
+                  "x": 48,
+                  "y": 0
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "url(\"https://scp-wiki.wjfiles.localhost/local--files/scp-9506/NFSI.png\")",
+                "id": "background_image",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "ratio_delta": 0,
+          "status": "pass"
+        },
+        "selector": "#header h1 a",
+        "status": "pass"
+      },
+      {
+        "id": "header_title",
+        "live_count": 1,
+        "live_rendered_count": 1,
+        "local_count": 1,
+        "local_rendered_count": 1,
+        "properties": [
+          {
+            "live": "\"NFSI\"",
+            "local": "\"NFSI\"",
+            "normalized_live": "\"NFSI\"",
+            "normalized_local": "\"NFSI\"",
+            "property": "content",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "background-image",
+            "status": "pass"
+          },
+          {
+            "live": "rgb(35, 35, 38)",
+            "local": "rgb(35, 35, 38)",
+            "normalized_live": "rgb(35, 35, 38)",
+            "normalized_local": "rgb(35, 35, 38)",
+            "property": "color",
+            "status": "pass"
+          },
+          {
+            "live": "block",
+            "local": "block",
+            "normalized_live": "block",
+            "normalized_local": "block",
+            "property": "display",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "visibility",
+            "status": "pass"
+          },
+          {
+            "live": "1",
+            "local": "1",
+            "normalized_live": "1",
+            "normalized_local": "1",
+            "property": "opacity",
+            "status": "pass"
+          },
+          {
+            "live": "148.438px",
+            "local": "148.438px",
+            "normalized_live": "148.438px",
+            "normalized_local": "148.438px",
+            "property": "width",
+            "status": "pass"
+          },
+          {
+            "live": "27.5938px",
+            "local": "27.5938px",
+            "normalized_live": "27.5938px",
+            "normalized_local": "27.5938px",
+            "property": "height",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-width",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-height",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-x",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-y",
+            "status": "pass"
+          },
+          {
+            "live": "static",
+            "local": "static",
+            "normalized_live": "static",
+            "normalized_local": "static",
+            "property": "position",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "z-index",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "top",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "right",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "bottom",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "left",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "margin-top",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "margin-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-top",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "27.6px",
+            "local": "27.6px",
+            "normalized_live": "27.6px",
+            "normalized_local": "27.6px",
+            "property": "line-height",
+            "status": "pass"
+          },
+          {
+            "live": "24px",
+            "local": "24px",
+            "normalized_live": "24px",
+            "normalized_local": "24px",
+            "property": "font-size",
+            "status": "pass"
+          },
+          {
+            "live": "900",
+            "local": "900",
+            "normalized_live": "900",
+            "normalized_local": "900",
+            "property": "font-weight",
+            "status": "pass"
+          },
+          {
+            "live": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "local": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "normalized_live": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "normalized_local": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "property": "font-family",
+            "status": "pass"
+          },
+          {
+            "live": "-0.523656px",
+            "local": "-0.523656px",
+            "normalized_live": "-0.523656px",
+            "normalized_local": "-0.523656px",
+            "property": "letter-spacing",
+            "status": "pass"
+          },
+          {
+            "live": "normal",
+            "local": "normal",
+            "normalized_live": "normal",
+            "normalized_local": "normal",
+            "property": "white-space",
+            "status": "pass"
+          },
+          {
+            "live": "clip",
+            "local": "clip",
+            "normalized_live": "clip",
+            "normalized_local": "clip",
+            "property": "text-overflow",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "clip",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "clip-path",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "transform",
+            "status": "pass"
+          }
+        ],
+        "pseudo": "::before",
+        "pseudo_layout": {
+          "geometry": {
+            "height": 0,
+            "width": 0,
+            "x": 0,
+            "y": 0
+          },
+          "live": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 29,
+                  "width": 47.59,
+                  "x": 122.45,
+                  "y": 4.25
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "\"NFSI\"",
+                "id": "generated_content",
+                "status": "pass"
+              },
+              {
+                "actual": "NFSI",
+                "id": "descendant_text",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "local": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 29,
+                  "width": 47.59,
+                  "x": 122.45,
+                  "y": 4.25
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "\"NFSI\"",
+                "id": "generated_content",
+                "status": "pass"
+              },
+              {
+                "actual": "NFSI",
+                "id": "descendant_text",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "ratio_delta": 0,
+          "status": "pass"
+        },
+        "selector": "#header h1 a span",
+        "status": "pass"
+      },
+      {
+        "id": "header_subtitle",
+        "live_count": 1,
+        "live_rendered_count": 1,
+        "local_count": 1,
+        "local_rendered_count": 1,
+        "properties": [
+          {
+            "live": "\"National Fog Safety Initiative\"",
+            "local": "\"National Fog Safety Initiative\"",
+            "normalized_live": "\"National Fog Safety Initiative\"",
+            "normalized_local": "\"National Fog Safety Initiative\"",
+            "property": "content",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "background-image",
+            "status": "pass"
+          },
+          {
+            "live": "rgb(35, 35, 38)",
+            "local": "rgb(35, 35, 38)",
+            "normalized_live": "rgb(35, 35, 38)",
+            "normalized_local": "rgb(35, 35, 38)",
+            "property": "color",
+            "status": "pass"
+          },
+          {
+            "live": "block",
+            "local": "block",
+            "normalized_live": "block",
+            "normalized_local": "block",
+            "property": "display",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "visibility",
+            "status": "pass"
+          },
+          {
+            "live": "1",
+            "local": "1",
+            "normalized_live": "1",
+            "normalized_local": "1",
+            "property": "opacity",
+            "status": "pass"
+          },
+          {
+            "live": "148.438px",
+            "local": "148.438px",
+            "normalized_live": "148.438px",
+            "normalized_local": "148.438px",
+            "property": "width",
+            "status": "pass"
+          },
+          {
+            "live": "15.1719px",
+            "local": "15.1719px",
+            "normalized_live": "15.1719px",
+            "normalized_local": "15.1719px",
+            "property": "height",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-width",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "max-height",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-x",
+            "status": "pass"
+          },
+          {
+            "live": "visible",
+            "local": "visible",
+            "normalized_live": "visible",
+            "normalized_local": "visible",
+            "property": "overflow-y",
+            "status": "pass"
+          },
+          {
+            "live": "static",
+            "local": "static",
+            "normalized_live": "static",
+            "normalized_local": "static",
+            "property": "position",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "z-index",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "top",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "right",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "bottom",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "left",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "margin-top",
+            "status": "pass"
+          },
+          {
+            "live": "6px",
+            "local": "6px",
+            "normalized_live": "6px",
+            "normalized_local": "6px",
+            "property": "margin-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-top",
+            "status": "pass"
+          },
+          {
+            "live": "0px",
+            "local": "0px",
+            "normalized_live": "0px",
+            "normalized_local": "0px",
+            "property": "padding-bottom",
+            "status": "pass"
+          },
+          {
+            "live": "15.18px",
+            "local": "15.18px",
+            "normalized_live": "15.18px",
+            "normalized_local": "15.18px",
+            "property": "line-height",
+            "status": "pass"
+          },
+          {
+            "live": "13.2px",
+            "local": "13.2px",
+            "normalized_live": "13.2px",
+            "normalized_local": "13.2px",
+            "property": "font-size",
+            "status": "pass"
+          },
+          {
+            "live": "600",
+            "local": "600",
+            "normalized_live": "600",
+            "normalized_local": "600",
+            "property": "font-weight",
+            "status": "pass"
+          },
+          {
+            "live": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "local": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "normalized_live": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "normalized_local": "\"Sofia Sans\", \"franklin gothic medium\", \"franklin gothic\", \"itc franklin gothic\", \"Helvetica Neue\", Helvetica, arial, sans-serif",
+            "property": "font-family",
+            "status": "pass"
+          },
+          {
+            "live": "-0.523656px",
+            "local": "-0.523656px",
+            "normalized_live": "-0.523656px",
+            "normalized_local": "-0.523656px",
+            "property": "letter-spacing",
+            "status": "pass"
+          },
+          {
+            "live": "normal",
+            "local": "normal",
+            "normalized_live": "normal",
+            "normalized_local": "normal",
+            "property": "white-space",
+            "status": "pass"
+          },
+          {
+            "live": "clip",
+            "local": "clip",
+            "normalized_live": "clip",
+            "normalized_local": "clip",
+            "property": "text-overflow",
+            "status": "pass"
+          },
+          {
+            "live": "auto",
+            "local": "auto",
+            "normalized_live": "auto",
+            "normalized_local": "auto",
+            "property": "clip",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "clip-path",
+            "status": "pass"
+          },
+          {
+            "live": "none",
+            "local": "none",
+            "normalized_live": "none",
+            "normalized_local": "none",
+            "property": "transform",
+            "status": "pass"
+          }
+        ],
+        "pseudo": "::after",
+        "pseudo_layout": {
+          "geometry": {
+            "height": 0,
+            "width": 0,
+            "x": 0,
+            "y": 0
+          },
+          "live": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 16,
+                  "width": 148.44,
+                  "x": 122.45,
+                  "y": 31.84
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "\"National Fog Safety Initiative\"",
+                "id": "generated_content",
+                "status": "pass"
+              },
+              {
+                "actual": "National Fog Safety Initiative",
+                "id": "descendant_text",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "local": {
+            "checks": [
+              {
+                "actual": "captured",
+                "id": "capture",
+                "status": "pass"
+              },
+              {
+                "actual": true,
+                "id": "node",
+                "status": "pass"
+              },
+              {
+                "actual": {
+                  "height": 16,
+                  "width": 148.44,
+                  "x": 122.45,
+                  "y": 31.84
+                },
+                "id": "layout",
+                "status": "pass"
+              },
+              {
+                "actual": 1,
+                "id": "visible_area",
+                "minimum": 0.95,
+                "status": "pass"
+              },
+              {
+                "actual": "\"National Fog Safety Initiative\"",
+                "id": "generated_content",
+                "status": "pass"
+              },
+              {
+                "actual": "National Fog Safety Initiative",
+                "id": "descendant_text",
+                "status": "pass"
+              }
+            ],
+            "status": "pass"
+          },
+          "ratio_delta": 0,
+          "status": "pass"
+        },
+        "selector": "#header h1 a span",
+        "status": "pass"
+      },
+      {
+        "id": "navigation_tab_bar",
+        "live_count": 1,
+        "live_rendered_count": 1,
+        "local_count": 1,
+        "local_rendered_count": 1,
+        "properties": [],
+        "pseudo": null,
+        "pseudo_layout": null,
+        "selector": "#page-content .navigation",
+        "status": "pass"
+      },
+      {
+        "id": "navigation_tab_links",
+        "live_count": 6,
+        "live_rendered_count": 6,
+        "local_count": 6,
+        "local_rendered_count": 6,
+        "properties": [],
+        "pseudo": null,
+        "pseudo_layout": null,
+        "selector": "#page-content .navigation a",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  },
+  "verified_local_golden": {
+    "file": "scp-9506-recapture-settled-full-page.png",
+    "phase": "settled-full-page",
+    "sha256": "214b6aa5591cd8f5d705023c765e3f3a484849743a9ec0fc197219cd758904a8"
+  },
+  "provenance": {
+    "kind": "recapture-successor",
+    "status": "pass",
+    "supersedes": {
+      "fixture_id": "scp-9506-final-zero-20260915",
+      "oracle_sha256": "7e6a9c8a9861f583bb6f89fc6048a5f04006d0fbf59724e934370ecc44f34ccf",
+      "golden_sha256": "51ae7b9678a99368c3643f071b70111f01e00d50f72e358ce02847673089fac4"
+    },
+    "owner_authorized_on": "2026-11-03",
+    "issue_url": "https://github.com/Rokurolize/wikijump/issues/2463",
+    "live_captured_at": "2026-11-03T06:13:18.809Z",
+    "standing_captured_at": "2026-11-03T06:16:16.802Z",
+    "standing_wikijump_sha": "6729d955187efcde83516503779b0cb8f658f473",
+    "standing_wikijump_tree": "88f8aa81b5302eca1a0759662ef31ef92ff88846",
+    "ftml_sha": "bcfd17dbc2bf734d29370c1b398a3386d978b874",
+    "standing_browser_parity_sha256": "0247a28e7ca9fe5ff754a98a9b578278c44592ec3c370302bade1960ba97b026",
+    "standing_browser_proof_sha256": "b823fe9880d94782d8f9a6c9420b200a8bdaea1c9c067ecbec7fd0f591cf6b41",
+    "live_reference_sha256": "5284fd6a0343841e3732c4b1175f795a1f96bd47229bd519e064726c2ed859b7",
+    "golden_sha256": "214b6aa5591cd8f5d705023c765e3f3a484849743a9ec0fc197219cd758904a8",
+    "golden_width": 1366,
+    "golden_height": 2188,
+    "accepted_browser": {
+      "engine": "chromium",
+      "version": "149.0.7827.55",
+      "executable_sha256": "2d18db9d8608b052b6a552ee00ec1e830f93692e928b65ecc67d693bd33fe801"
+    }
+  }
+}

@@ -16,6 +16,9 @@ export const OFFLINE_BROWSER_ORACLE_SCHEMA =
 export const DEFAULT_VISUAL_RMSE_THRESHOLD = 0.015;
 
 const SHA256_RE = /^[0-9a-f]{64}$/u;
+const GIT_SHA_RE = /^[0-9a-f]{40}$/u;
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/u;
+const ISO_TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/u;
 const execFile = promisify(execFileCallback);
 
 function requireObject(value, label) {
@@ -39,6 +42,85 @@ function requireSha256(value, label) {
   return value;
 }
 
+function requireGitSha(value, label) {
+  if (typeof value !== "string" || !GIT_SHA_RE.test(value)) {
+    throw new Error(`${label} must be a lowercase git SHA-1`);
+  }
+  return value;
+}
+
+function requireIsoDate(value, label) {
+  if (typeof value !== "string" || !ISO_DATE_RE.test(value)) {
+    throw new Error(`${label} must be an ISO calendar date`);
+  }
+  return value;
+}
+
+function requireIsoTimestamp(value, label) {
+  if (typeof value !== "string" || !ISO_TIMESTAMP_RE.test(value)) {
+    throw new Error(`${label} must be a UTC ISO-8601 timestamp`);
+  }
+  return value;
+}
+
+function requirePositiveInteger(value, label) {
+  if (!Number.isSafeInteger(value) || value < 1) {
+    throw new Error(`${label} must be a positive integer`);
+  }
+  return value;
+}
+
+function validateRecaptureSuccessorProvenance(provenance) {
+  if (provenance.status !== "pass") {
+    throw new Error(
+      "offline browser oracle successor must record a passing recapture",
+    );
+  }
+  const supersedes = requireObject(
+    provenance.supersedes,
+    "oracle provenance.supersedes",
+  );
+  requireString(supersedes.fixture_id, "oracle provenance.supersedes.fixture_id");
+  requireSha256(
+    supersedes.oracle_sha256,
+    "oracle provenance.supersedes.oracle_sha256",
+  );
+  requireSha256(
+    supersedes.golden_sha256,
+    "oracle provenance.supersedes.golden_sha256",
+  );
+  requireIsoDate(
+    provenance.owner_authorized_on,
+    "oracle provenance.owner_authorized_on",
+  );
+  requireIsoTimestamp(
+    provenance.live_captured_at,
+    "oracle provenance.live_captured_at",
+  );
+  requireIsoTimestamp(
+    provenance.standing_captured_at,
+    "oracle provenance.standing_captured_at",
+  );
+  requireGitSha(
+    provenance.standing_wikijump_sha,
+    "oracle provenance.standing_wikijump_sha",
+  );
+  requireGitSha(
+    provenance.standing_wikijump_tree,
+    "oracle provenance.standing_wikijump_tree",
+  );
+  requireGitSha(provenance.ftml_sha, "oracle provenance.ftml_sha");
+  requireSha256(provenance.golden_sha256, "oracle provenance.golden_sha256");
+  requirePositiveInteger(
+    provenance.golden_width,
+    "oracle provenance.golden_width",
+  );
+  requirePositiveInteger(
+    provenance.golden_height,
+    "oracle provenance.golden_height",
+  );
+}
+
 function requireExactHttpsUrl(value, label) {
   const parsed = new URL(requireString(value, label));
   if (
@@ -60,11 +142,19 @@ export function validateOfflineBrowserOracle(value) {
     );
   }
   const provenance = requireObject(oracle.provenance, "oracle provenance");
-  if (provenance.final_zero_status !== "pass") {
-    throw new Error("offline browser oracle must derive from a passing final-zero");
+  const successor = provenance.kind === "recapture-successor";
+  if (successor) {
+    validateRecaptureSuccessorProvenance(provenance);
+  } else {
+    if (provenance.final_zero_status !== "pass") {
+      throw new Error("offline browser oracle must derive from a passing final-zero");
+    }
+    requireSha256(
+      provenance.final_zero_receipt_sha256,
+      "oracle provenance.final_zero_receipt_sha256",
+    );
   }
   for (const field of [
-    "final_zero_receipt_sha256",
     "standing_browser_proof_sha256",
     "standing_browser_parity_sha256",
     "live_reference_sha256",
@@ -102,6 +192,9 @@ export function validateOfflineBrowserOracle(value) {
     throw new Error("oracle golden file must be a basename");
   }
   requireSha256(golden.sha256, "oracle golden sha256");
+  if (successor && provenance.golden_sha256 !== golden.sha256) {
+    throw new Error("offline browser oracle successor golden SHA-256 mismatch");
+  }
   return Object.freeze({
     ...oracle,
     pair: Object.freeze({live_url: liveUrl, local_url: localUrl}),
@@ -121,11 +214,33 @@ export async function loadOfflineBrowserOracle(filePath) {
     path.dirname(absolutePath),
     oracle.verified_local_golden.file,
   );
-  const goldenSha256 = await sha256File(goldenPath);
+  const goldenBuffer = await fs.readFile(goldenPath);
+  const goldenSha256 = createHash("sha256").update(goldenBuffer).digest("hex");
   if (goldenSha256 !== oracle.verified_local_golden.sha256) {
     throw new Error("offline browser oracle golden PNG SHA-256 mismatch");
   }
+  if (oracle.provenance.kind === "recapture-successor") {
+    const dimensions = readPngDimensions(goldenBuffer);
+    if (
+      dimensions.width !== oracle.provenance.golden_width ||
+      dimensions.height !== oracle.provenance.golden_height
+    ) {
+      throw new Error("offline browser oracle golden PNG dimensions mismatch");
+    }
+  }
   return Object.freeze({oracle, goldenPath, oraclePath: absolutePath});
+}
+
+function readPngDimensions(buffer) {
+  const signature = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  const valid =
+    buffer.length >= 24 &&
+    signature.every((byte, index) => buffer[index] === byte) &&
+    buffer.toString("ascii", 12, 16) === "IHDR";
+  if (!valid) {
+    throw new Error("offline browser oracle golden PNG lacks a PNG IHDR header");
+  }
+  return {width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20)};
 }
 
 export function compareCaptureToOfflineOracle(localCapture, oracle) {

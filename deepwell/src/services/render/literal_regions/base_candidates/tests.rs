@@ -178,16 +178,17 @@ fn compact_comment_uses_the_pinned_close_token() {
         Some(DelimiterIdentity {
             kind: DelimiterKind::CommentClose,
             start: 4,
+            run_length: 2,
         }),
     );
 }
 
 #[test]
 fn wikidot_comments_accept_extended_hyphen_closers_contextually() {
-    for source in [
-        "[!-- hidden ---]\nvisible",
-        "[!-- hidden ----]\nvisible",
-        "[!-- hidden -----]\nvisible",
+    for (source, run_length) in [
+        ("[!-- hidden ---]\nvisible", 3),
+        ("[!-- hidden ----]\nvisible", 4),
+        ("[!-- hidden -----]\nvisible", 5),
     ] {
         let candidates = runtime_candidates(source);
 
@@ -204,6 +205,7 @@ fn wikidot_comments_accept_extended_hyphen_closers_contextually() {
             Some(DelimiterIdentity {
                 kind: DelimiterKind::CommentClose,
                 start: close - 2,
+                run_length,
             }),
             "{source:?}",
         );

@@ -89,6 +89,7 @@ impl DelimiterIndex {
                         identity: DelimiterIdentity {
                             kind: DelimiterKind::DoubleAt,
                             start: cursor,
+                            run_length: 2,
                         },
                         line_end: lines.advance_to_body_end_at(cursor),
                     },
@@ -98,6 +99,7 @@ impl DelimiterIndex {
                         identity: DelimiterIdentity {
                             kind: DelimiterKind::LeftRaw,
                             start: cursor,
+                            run_length: 2,
                         },
                         line_end: lines.advance_to_body_end_at(cursor),
                     });
@@ -106,6 +108,7 @@ impl DelimiterIndex {
                     index.right_raw.push(DelimiterIdentity {
                         kind: DelimiterKind::RightRaw,
                         start: cursor,
+                        run_length: 2,
                     });
                 }
                 Some(DelimiterKind::InlineMathOpen) => {
@@ -113,6 +116,7 @@ impl DelimiterIndex {
                         identity: DelimiterIdentity {
                             kind: DelimiterKind::InlineMathOpen,
                             start: cursor,
+                            run_length: 3,
                         },
                         line_end: lines.advance_to_body_end_at(cursor),
                     });
@@ -121,18 +125,21 @@ impl DelimiterIndex {
                     index.inline_math_close.push(DelimiterIdentity {
                         kind: DelimiterKind::InlineMathClose,
                         start: cursor,
+                        run_length: 3,
                     });
                 }
                 Some(DelimiterKind::CommentOpen) => {
                     index.comment_open.push(DelimiterIdentity {
                         kind: DelimiterKind::CommentOpen,
                         start: cursor,
+                        run_length: 4,
                     });
                 }
                 Some(DelimiterKind::CommentClose) => {
                     index.comment_close.push(DelimiterIdentity {
                         kind: DelimiterKind::CommentClose,
                         start: step.end - 3,
+                        run_length: step.run_length,
                     });
                 }
                 Some(_) | None => {}
@@ -147,17 +154,31 @@ impl DelimiterIndex {
 struct TokenStep {
     event: Option<DelimiterKind>,
     end: usize,
+    run_length: usize,
 }
 
 impl TokenStep {
     fn other(end: usize) -> Self {
-        Self { event: None, end }
+        Self {
+            event: None,
+            end,
+            run_length: 0,
+        }
     }
 
     fn delimiter(kind: DelimiterKind, end: usize) -> Self {
         Self {
             event: Some(kind),
             end,
+            run_length: 0,
+        }
+    }
+
+    fn comment_close(end: usize, run_length: usize) -> Self {
+        Self {
+            event: Some(DelimiterKind::CommentClose),
+            end,
+            run_length,
         }
     }
 }
@@ -180,7 +201,7 @@ fn next_token_step(source: &str, start: usize) -> TokenStep {
     if byte == b'-' {
         let end = scan_same(bytes, start, b'-');
         if end - start >= 2 && bytes.get(end) == Some(&b']') {
-            return TokenStep::delimiter(DelimiterKind::CommentClose, end + 1);
+            return TokenStep::comment_close(end + 1, end - start);
         }
     }
     if let Some(step) = scan_literal(bytes, start) {
@@ -214,7 +235,7 @@ fn scan_literal(bytes: &[u8], start: usize) -> Option<TokenStep> {
             TokenStep::delimiter(DelimiterKind::CommentOpen, start + 4)
         }
         b'-' if has(bytes, start, b"--]") => {
-            TokenStep::delimiter(DelimiterKind::CommentClose, start + 3)
+            TokenStep::comment_close(start + 3, scan_same(bytes, start, b'-') - start)
         }
         b'[' if has(bytes, start, b"[[[[")
             && start.checked_sub(1).and_then(|index| bytes.get(index)) != Some(&b'[') =>
@@ -419,17 +440,20 @@ mod tests {
                 Some(DelimiterIdentity {
                     kind,
                     start: token.span.start,
+                    run_length: token.span.end - token.span.start,
                 })
             })
             .collect::<Vec<_>>();
 
         for (index, token) in tokens.iter().enumerate() {
-            if token.slice.strip_suffix(']').is_some_and(|hyphens| {
-                hyphens.len() >= 2 && hyphens.bytes().all(|byte| byte == b'-')
-            }) {
+            if let Some(hyphens) = token.slice.strip_suffix(']')
+                && hyphens.len() >= 2
+                && hyphens.bytes().all(|byte| byte == b'-')
+            {
                 delimiters.push(DelimiterIdentity {
                     kind: DelimiterKind::CommentClose,
                     start: token.span.end - 3,
+                    run_length: hyphens.len(),
                 });
                 continue;
             }
@@ -452,6 +476,7 @@ mod tests {
                 delimiters.push(DelimiterIdentity {
                     kind: DelimiterKind::CommentClose,
                     start: token.span.start - 2,
+                    run_length: hyphen_count,
                 });
             }
         }

@@ -76,6 +76,7 @@ impl DelimiterKind {
 pub(super) struct DelimiterIdentity {
     pub(super) kind: DelimiterKind,
     pub(super) start: usize,
+    pub(super) run_length: usize,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

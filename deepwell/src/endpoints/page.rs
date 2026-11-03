@@ -226,7 +226,8 @@ pub async fn wikidot_page_preview(
         legacy_actions: LegacyActionRegistry::from_resource_requirements(
             &output.html_output.resource_requirements,
         )
-        .browser_actions_for_wikidot_html(&output.html_output.body),
+        .browser_actions_for_wikidot_html(&output.html_output.body)
+        .unwrap_or_default(),
         membership_actions: Vec::new(),
         body: output.html_output.body,
         styles: output.html_output.styles,

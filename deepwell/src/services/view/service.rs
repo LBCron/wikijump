@@ -1468,7 +1468,8 @@ impl ViewService {
                         ErrorType::RenderTimeout,
                     )
                 })?
-                .browser_actions_for_wikidot_html(&compiled_body_html);
+                .browser_actions_for_wikidot_html(&compiled_body_html)
+                .unwrap_or_default();
                 let membership_actions = membership_browser_actions_for_page(
                     ctx,
                     &page,

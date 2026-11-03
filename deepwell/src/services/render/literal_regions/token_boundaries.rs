@@ -29,9 +29,26 @@ fn record_email_bytes_examined(count: usize) {
     let _ = count;
 }
 
-enum EmailScan {
-    Token { end: usize },
-    Failed { safe_until: usize },
+struct TextTokenScanCursor {
+    position: usize,
+    failed_email_until: usize,
+}
+
+impl TextTokenScanCursor {
+    fn new() -> Self {
+        Self {
+            position: 0,
+            failed_email_until: 0,
+        }
+    }
+
+    fn email_scan_is_proven_futile(&self, start: usize) -> bool {
+        start < self.failed_email_until
+    }
+
+    fn record_failed_email_scan(&mut self, safe_until: usize) {
+        self.failed_email_until = self.failed_email_until.max(safe_until);
+    }
 }
 
 #[derive(Clone)]
@@ -50,34 +67,28 @@ impl TextTokenIndex {
     pub(in crate::services::render) fn new(source: &str) -> Self {
         let bytes = source.as_bytes();
         let mut ranges = Vec::new();
-        let mut cursor = 0usize;
-        let mut failed_email_until = 0usize;
-        while cursor < bytes.len() {
+        let mut scan = TextTokenScanCursor::new();
+        while scan.position < bytes.len() {
+            let cursor = scan.position;
             if bytes[cursor].is_ascii_alphanumeric() {
                 if matches!(bytes[cursor], b'f' | b'h' | b'm')
                     && let Some(end) = scan_url(source, cursor)
                 {
                     ranges.push(cursor..end);
-                    cursor = end;
+                    scan.position = end;
                     continue;
                 }
                 let identifier_end = scan_identifier(bytes, cursor);
-                if cursor >= failed_email_until {
-                    match scan_email(bytes, cursor, identifier_end) {
-                        EmailScan::Token { end } => {
-                            ranges.push(cursor..end);
-                            cursor = end;
-                            continue;
-                        }
-                        EmailScan::Failed { safe_until } => {
-                            debug_assert!(safe_until >= identifier_end);
-                            failed_email_until = failed_email_until.max(safe_until);
-                        }
-                    }
+                if !scan.email_scan_is_proven_futile(cursor)
+                    && let Some(end) = scan_email(bytes, &mut scan, identifier_end)
+                {
+                    ranges.push(cursor..end);
+                    scan.position = end;
+                    continue;
                 }
-                cursor = identifier_end;
+                scan.position = identifier_end;
             } else {
-                cursor += source[cursor..]
+                scan.position += source[cursor..]
                     .chars()
                     .next()
                     .expect("cursor is before the UTF-8 source end")
@@ -161,12 +172,16 @@ fn is_discarded_control(byte: u8) -> bool {
     )
 }
 
-fn scan_email(bytes: &[u8], start: usize, identifier_end: usize) -> EmailScan {
+fn scan_email(
+    bytes: &[u8],
+    scan: &mut TextTokenScanCursor,
+    identifier_end: usize,
+) -> Option<usize> {
+    let start = scan.position;
     match bytes.get(identifier_end) {
         Some(b' ' | b'\t' | b'\n' | b'\r') | None => {
-            return EmailScan::Failed {
-                safe_until: identifier_end,
-            };
+            scan.record_failed_email_scan(identifier_end);
+            return None;
         }
         _ => {}
     }
@@ -177,21 +192,20 @@ fn scan_email(bytes: &[u8], start: usize, identifier_end: usize) -> EmailScan {
     // Every later start inside the scanned local run reaches the same `@` or
     // stop, so a failed scan proves the whole local run.
     let local_end = scan_email_dotted(bytes, start, is_email_local_byte);
+    debug_assert!(local_end >= identifier_end);
     record_email_bytes_examined(local_end - start);
     if bytes.get(local_end) != Some(&b'@') {
-        return EmailScan::Failed {
-            safe_until: local_end,
-        };
+        scan.record_failed_email_scan(local_end);
+        return None;
     }
     let domain_start = local_end + 1;
     let domain_end = scan_email_dotted(bytes, domain_start, is_email_label_byte);
     record_email_bytes_examined(domain_end - domain_start);
     if bytes[domain_start..domain_end].contains(&b'.') {
-        EmailScan::Token { end: domain_end }
+        Some(domain_end)
     } else {
-        EmailScan::Failed {
-            safe_until: local_end,
-        }
+        scan.record_failed_email_scan(local_end);
+        None
     }
 }
 

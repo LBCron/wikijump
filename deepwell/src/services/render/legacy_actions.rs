@@ -201,14 +201,10 @@ impl LegacyActionRegistry {
     pub fn browser_actions_for_wikidot_html(
         &self,
         body: &str,
-    ) -> Vec<LegacyBrowserAction> {
+    ) -> Option<Vec<LegacyBrowserAction>> {
         let actions = self.browser_actions();
         let controls = body.matches(r#"href="javascript:;""#).count();
-        if controls == actions.len() {
-            actions
-        } else {
-            Vec::new()
-        }
+        (controls == actions.len()).then_some(actions)
     }
 
     pub fn fingerprint(&self, index: usize) -> Option<String> {
@@ -393,12 +389,11 @@ mod tests {
         assert!(!body.contains("wj-"));
         assert_eq!(
             registry.browser_actions_for_wikidot_html(&body),
-            [LegacyBrowserAction::Print],
+            Some(vec![LegacyBrowserAction::Print]),
         );
-        assert!(
-            registry
-                .browser_actions_for_wikidot_html("<p>no matching control</p>")
-                .is_empty()
+        assert_eq!(
+            registry.browser_actions_for_wikidot_html("<p>no matching control</p>"),
+            None,
         );
     }
 }

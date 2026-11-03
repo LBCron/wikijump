@@ -17,10 +17,10 @@ EXTENDS Integers, FiniteSets
 CONSTANTS Design              \* Design \in {"CUR", "FIX"}
 Pages == {"p1", "p2"}         \* p2 depends on p1 (fan-out target)
 VARIABLES rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen,
-          active, flipped, verifiedStale, lastCount, pc, outcome, receipt,
+          active, flipped, verifiedStale, lastCount, pc, outcome, summary,
           queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite, rbMoved, promoted
 vars == <<rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen,
-          active, flipped, verifiedStale, lastCount, pc, outcome, receipt,
+          active, flipped, verifiedStale, lastCount, pc, outcome, summary,
           queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite, rbMoved, promoted>>
 
 FreshGen(p) == outGen[p] = "new"   \* the activation count: generator only
@@ -37,7 +37,7 @@ Init ==
     /\ snapVer = [p \in Pages |-> 0] /\ snapGen = [p \in Pages |-> "old"]
     /\ active = "old" /\ flipped = FALSE /\ verifiedStale = -1
     /\ lastCount = -1 /\ pc = "render" /\ outcome = "running"
-    /\ receipt = FALSE /\ queue = 0 /\ impLeft = 1 /\ rpcLeft = 1
+    /\ summary = FALSE /\ queue = 0 /\ impLeft = 1 /\ rpcLeft = 1
     /\ failLeft \in 0..1 /\ retries = 0 /\ preFlipWrite = FALSE
     /\ rbMoved = [p \in Pages |-> FALSE] /\ promoted = [p \in Pages |-> FALSE]
 
@@ -49,19 +49,19 @@ RenderOne ==
         /\ aheadVer' = [aheadVer EXCEPT ![p] = rev[p]]
         /\ pc' = IF \A q \in Pages : aheadVer[q] = rev[q] \/ q = p
                  THEN "verify" ELSE "render"
-    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 Verify ==
     /\ pc = "verify" /\ outcome = "running"
     /\ verifiedStale' = VerifiedStaleCount /\ pc' = "snap"
-    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, lastCount, outcome, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 Snapshot ==
     /\ pc = "snap" /\ outcome = "running"
     /\ snapVer' = outVer /\ snapGen' = outGen /\ pc' = "park"
-    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, active, flipped, verifiedStale, lastCount, outcome, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 Park ==   \* the fence: no Deepwell runs, so no RPC write or fan-out can land
     /\ pc = "park" /\ outcome = "running"
     /\ active' = "none" /\ pc' = "up"
-    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, flipped, verifiedStale, lastCount, outcome, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 Up ==     \* new Deepwell promotes valid ahead rows in one txn at startup
     /\ pc = "up" /\ outcome = "running"
     /\ active' = "new" /\ flipped' = TRUE
@@ -70,24 +70,24 @@ Up ==     \* new Deepwell promotes valid ahead rows in one txn at startup
     /\ outTime' = [p \in Pages |-> IF aheadVer[p] = rev[p] THEN aheadTime[p] ELSE outTime[p]]
     /\ aheadVer' = [p \in Pages |-> 0] /\ pc' = "health"
     /\ promoted' = [p \in Pages |-> promoted[p] \/ aheadVer[p] = rev[p]]
-    /\ UNCHANGED <<rbMoved, rev, aheadTime, snapVer, snapGen, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<rbMoved, rev, aheadTime, snapVer, snapGen, verifiedStale, lastCount, outcome, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 HealthGateway ==
     /\ pc \in {"health", "gateway"} /\ outcome = "running"
     /\ pc' = IF pc = "health" THEN "gateway" ELSE "count"
-    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 Count ==  \* the activation stale count (and every catch-up re-count)
     /\ pc = "count" /\ outcome = "running"
     /\ lastCount' = StaleCount /\ rbMoved' = [p \in Pages |-> FALSE]
     /\ pc' = IF StaleCount = 0 THEN "commit"
              ELSE IF Design = "FIX" /\ retries < 3 THEN "catchup" ELSE "rbrestore"
-    /\ UNCHANGED <<promoted, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, outcome, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 CatchUpRender ==   \* render the stale delta with the new image (ahead rows)
     /\ pc = "catchup" /\ outcome = "running" /\ Design = "FIX"
     /\ retries' = retries + 1
     /\ aheadVer' = [p \in Pages |-> IF FreshGen(p) THEN aheadVer[p] ELSE rev[p]]
     /\ aheadTime' = [p \in Pages |-> IF FreshGen(p) THEN aheadTime[p] ELSE "post"]
     /\ pc' = "restart"
-    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, summary, queue, impLeft, rpcLeft, failLeft, preFlipWrite>>
 Restart ==   \* Deepwell restart promotes the catch-up ahead rows, then re-count
     /\ pc = "restart" /\ outcome = "running"
     /\ outVer' = [p \in Pages |-> IF aheadVer[p] = rev[p] THEN aheadVer[p] ELSE outVer[p]]
@@ -95,19 +95,19 @@ Restart ==   \* Deepwell restart promotes the catch-up ahead rows, then re-count
     /\ outTime' = [p \in Pages |-> IF aheadVer[p] = rev[p] THEN aheadTime[p] ELSE outTime[p]]
     /\ aheadVer' = [p \in Pages |-> 0] /\ pc' = "count"
     /\ promoted' = [p \in Pages |-> promoted[p] \/ aheadVer[p] = rev[p]]
-    /\ UNCHANGED <<rbMoved, rev, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
-Commit ==   \* receipt commit, then canary/proof; receipt records lastCount
+    /\ UNCHANGED <<rbMoved, rev, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+Commit ==   \* summary commit, then canary/proof; summary records lastCount
     /\ pc = "commit" /\ outcome = "running"
-    /\ receipt' = TRUE /\ pc' = "proof"
+    /\ summary' = TRUE /\ pc' = "proof"
     /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 Proof ==
     /\ pc = "proof" /\ outcome = "running"
     /\ outcome' = "activated" /\ pc' = "done"
-    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 PostFlipFail ==   \* health/gateway/canary/proof failure after the flip
     /\ pc \in {"health", "gateway", "count", "catchup", "restart", "commit", "proof"} /\ outcome = "running" /\ failLeft > 0
     /\ failLeft' = failLeft - 1 /\ pc' = "rbrestore" /\ rbMoved' = [p \in Pages |-> FALSE]
-    /\ UNCHANGED <<promoted, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, summary, queue, impLeft, rpcLeft, retries, preFlipWrite>>
 
 \* --- Rollback (guarded restore in FIX, then recovery convergence) ---
 RbRestore ==
@@ -119,19 +119,19 @@ RbRestore ==
     /\ outTime' = [p \in Pages |-> IF outGen[p] = "new" /\ snapGen[p] = "old"
             /\ (Design = "CUR" \/ outTime[p] = "pre") THEN "pre" ELSE outTime[p]]
     /\ pc' = "rbup"
-    /\ UNCHANGED <<promoted, rbMoved, rev, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, aheadVer, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 RbUp ==
     /\ pc = "rbup" /\ outcome = "running"
     /\ active' = "old"
     /\ IF Design = "CUR"
          THEN /\ outcome' = "rolledback" /\ pc' = "done"
          ELSE /\ pc' = "rbrender" /\ UNCHANGED outcome
-    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, flipped, verifiedStale, lastCount, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, aheadVer, aheadTime, snapVer, snapGen, flipped, verifiedStale, lastCount, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 RbRender ==   \* render the old build's stale delta with the old image
     /\ pc = "rbrender" /\ outcome = "running" /\ Design = "FIX"
     /\ aheadVer' = [p \in Pages |-> IF outGen[p] = "old" THEN aheadVer[p] ELSE rev[p]]
     /\ aheadTime' = [p \in Pages |-> "post"] /\ pc' = "rbrestart"
-    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, receipt, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, outVer, outGen, outTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, outcome, summary, queue, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 RbRestart ==   \* old Deepwell restart promotes them and its worker drains
               \* the bounded rerender queue (RSMQ survives: cache not parked)
     /\ pc = "rbrestart" /\ outcome = "running" /\ Design = "FIX"
@@ -140,7 +140,7 @@ RbRestart ==   \* old Deepwell restart promotes them and its worker drains
     /\ outTime' = [p \in Pages |-> IF aheadVer[p] = rev[p] THEN "post" ELSE outTime[p]]
     /\ aheadVer' = [p \in Pages |-> 0] /\ queue' = 0
     /\ outcome' = "rolledback" /\ pc' = "done"
-    /\ UNCHANGED <<promoted, rbMoved, rev, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, receipt, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, summary, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 
 \* --- Writers ---
 DbImport ==   \* direct SQL: any time, placeholder generator; its finalizer
@@ -154,7 +154,7 @@ DbImport ==   \* direct SQL: any time, placeholder generator; its finalizer
     /\ outTime' = [outTime EXCEPT !["p1"] = IF flipped THEN "post" ELSE "pre"]
     /\ aheadVer' = [aheadVer EXCEPT !["p1"] = 0]
     /\ queue' = IF queue < 2 THEN queue + 1 ELSE queue
-    /\ UNCHANGED <<promoted, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, pc, outcome, receipt, rpcLeft, failLeft, retries>>
+    /\ UNCHANGED <<promoted, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, pc, outcome, summary, rpcLeft, failLeft, retries>>
 RpcWrite ==   \* through the running Deepwell; renders with its generator
     /\ outcome = "running" /\ rpcLeft > 0 /\ active \in {"old", "new"}
     /\ rpcLeft' = rpcLeft - 1 /\ preFlipWrite' = (preFlipWrite \/ ~flipped)
@@ -165,7 +165,7 @@ RpcWrite ==   \* through the running Deepwell; renders with its generator
     /\ outTime' = [outTime EXCEPT !["p1"] = IF flipped THEN "post" ELSE "pre"]
     /\ aheadVer' = [aheadVer EXCEPT !["p1"] = 0]
     /\ queue' = IF queue < 2 THEN queue + 1 ELSE queue
-    /\ UNCHANGED <<promoted, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, pc, outcome, receipt, impLeft, failLeft, retries>>
+    /\ UNCHANGED <<promoted, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, pc, outcome, summary, impLeft, failLeft, retries>>
 FanOut ==     \* deferred rerender of dependent p2 by the running Deepwell
     /\ outcome = "running" /\ queue > 0 /\ active \in {"old", "new"}
     /\ queue' = queue - 1
@@ -173,7 +173,7 @@ FanOut ==     \* deferred rerender of dependent p2 by the running Deepwell
     /\ outGen' = [outGen EXCEPT !["p2"] = active]
     /\ outTime' = [outTime EXCEPT !["p2"] = IF flipped THEN "post" ELSE "pre"]
     /\ aheadVer' = [aheadVer EXCEPT !["p2"] = 0]
-    /\ UNCHANGED <<promoted, rbMoved, rev, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, pc, outcome, receipt, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
+    /\ UNCHANGED <<promoted, rbMoved, rev, aheadTime, snapVer, snapGen, active, flipped, verifiedStale, lastCount, pc, outcome, summary, impLeft, rpcLeft, failLeft, retries, preFlipWrite>>
 PromoterNext == RenderOne \/ Verify \/ Snapshot \/ Park \/ Up \/ HealthGateway
                 \/ Count \/ CatchUpRender \/ Restart \/ Commit \/ Proof
                 \/ PostFlipFail \/ RbRestore \/ RbUp \/ RbRender \/ RbRestart
@@ -185,7 +185,7 @@ TypeOK ==
     /\ active \in {"old", "new", "none"} /\ outcome \in {"running", "activated", "rolledback"}
     /\ \A p \in Pages : rev[p] \in 1..3 /\ outGen[p] \in {"old", "new", "import"}
 \* Receipt cannot pass while the last count saw stale pages.
-NoPassWithStale == receipt => lastCount = 0
+NoPassWithStale == summary => lastCount = 0
 \* After rollback a page is either refused (not the old generator's
 \* output) or reflects its latest inputs, scoped to inputs at rollback
 \* entry (rbMoved): later writes are the fan-out/finalizer's, as always.

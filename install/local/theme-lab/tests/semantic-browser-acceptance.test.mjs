@@ -200,7 +200,7 @@ test('a concrete visual question review binds every declared evidence item and c
   audit.semantic_reviews = {[q.id]: {question: q.question, evidence_sha256: q.evidence_sha256,
     method: 'direct-visual-question-review', status: 'pass', note: 'Source typography, palette and artwork compared across the listed evidence.',
     reviewer: 'test', reviewed_at: '2026-10-01T00:00:00Z', decision_authority: 'SCP_JP_LOCAL_TARGET_ACCEPTANCE_ONLY', port_conclusion_eligible: false,
-    source_url: 'https://scp-wiki.wikidot.com/theme:example', source_snapshot: {path: 'source.txt', sha256: sha}, source_html: {path: 'source.html', sha256: sha}, source_rendering: {path: 'source.png', sha256: sha}, source_rendering_receipt: {path: 'source-capture.json', sha256: sha}}};
+    source_url: 'https://scp-wiki.wikidot.com/theme:example', source_snapshot: {path: 'source.txt', sha256: sha}, source_html: {path: 'source.html', sha256: sha}, source_rendering: {path: 'source.png', sha256: sha}, source_rendering_record: {path: 'source-capture.json', sha256: sha}}};
   assert.equal(validateSemanticBrowserAcceptance(audit).status, 'pass');
   audit.records.push(row({viewport: 'mobile'}));
   assert.match(validateSemanticBrowserAcceptance(audit).failures.at(-1), /unanswered or stale/u);

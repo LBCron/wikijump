@@ -28,14 +28,14 @@ class PlainTextImportedCssTests(unittest.TestCase):
             object_path.write_bytes(b".legacy { color: #123; }")
             (cache / "manifest.json").write_text(json.dumps({"urls": {"https://local.invalid/theme-code": {"digest": digest}}, "objects": {digest: {"content_type": "text/plain"}}}))
             engine = freeze_css.CacheCSS(cache, root / "assets")
-            css, receipt = engine.build('@import url("https://local.invalid/theme-code");', "https://local.invalid/page")
+            css, manifest = engine.build('@import url("https://local.invalid/theme-code");', "https://local.invalid/page")
             self.assertIn(".legacy { color: #123; }", css)
-            self.assertEqual(receipt["missing"], [])
-            self.assertEqual(receipt["import_provenance"][0]["source_url"], "https://local.invalid/theme-code")
-            self.assertEqual(receipt["import_provenance"][0]["sha256"], digest)
-            self.assertEqual(receipt["import_provenance"][0]["content_type"], "text/plain")
-            self.assertEqual(receipt["import_provenance"][0]["provenance_basis"], "frozen-cache-exact-at-build")
-            self.assertEqual(receipt["import_provenance_status"], "complete")
+            self.assertEqual(manifest["missing"], [])
+            self.assertEqual(manifest["import_provenance"][0]["source_url"], "https://local.invalid/theme-code")
+            self.assertEqual(manifest["import_provenance"][0]["sha256"], digest)
+            self.assertEqual(manifest["import_provenance"][0]["content_type"], "text/plain")
+            self.assertEqual(manifest["import_provenance"][0]["provenance_basis"], "frozen-cache-exact-at-build")
+            self.assertEqual(manifest["import_provenance_status"], "complete")
             self.assertEqual((root / "assets" / f"{digest}.css").read_bytes(), b".legacy { color: #123; }")
 
     def test_exact_localization_transform_is_recorded(self):
@@ -55,10 +55,10 @@ class PlainTextImportedCssTests(unittest.TestCase):
                     "expected_matches": 1,
                 }],
             )
-            css, receipt = engine.build("#page-title { color: dark; }", "https://local.invalid/page")
+            css, manifest = engine.build("#page-title { color: dark; }", "https://local.invalid/page")
             self.assertEqual(css, "#page-title { color: light; }")
-            self.assertEqual(receipt["localization_transforms"][0]["id"], "jp-title-contrast")
-            self.assertEqual(receipt["localization_transforms"][0]["matches"], 1)
+            self.assertEqual(manifest["localization_transforms"][0]["id"], "jp-title-contrast")
+            self.assertEqual(manifest["localization_transforms"][0]["matches"], 1)
 
     def test_simple_import_at_eof_is_frozen_without_a_semicolon(self):
         for text in ['@import url("https://local.invalid/theme-code")',
@@ -72,11 +72,11 @@ class PlainTextImportedCssTests(unittest.TestCase):
                 target.parent.mkdir(parents=True)
                 target.write_bytes(body)
                 (cache / 'manifest.json').write_text(json.dumps({'urls': {'https://local.invalid/theme-code': {'digest': digest}}, 'objects': {digest: {'content_type': 'text/css'}}}))
-                css, receipt = freeze_css.CacheCSS(cache, root / 'assets').build(text, 'https://local.invalid/page')
+                css, manifest = freeze_css.CacheCSS(cache, root / 'assets').build(text, 'https://local.invalid/page')
                 self.assertIn('.theme { color: #123; }', css)
                 self.assertNotIn('@import', css)
-                self.assertEqual(receipt['missing'], [])
-                self.assertEqual(receipt['import_provenance'][0]['sha256'], digest)
+                self.assertEqual(manifest['missing'], [])
+                self.assertEqual(manifest['import_provenance'][0]['sha256'], digest)
 
     def test_localization_transform_fails_closed_when_anchor_changes(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -108,11 +108,11 @@ class PlainTextImportedCssTests(unittest.TestCase):
             object_path.write_bytes(body)
             (cache / "manifest.json").write_text(json.dumps({"urls": {"https://local.invalid/theme-code": {"digest": digest}}, "objects": {digest: {"content_type": "text/plain"}}}))
             engine = freeze_css.CacheCSS(cache, root / "assets")
-            css, receipt = engine.build('@import url("https://local.invalid/theme-code");', "https://local.invalid/page")
+            css, manifest = engine.build('@import url("https://local.invalid/theme-code");', "https://local.invalid/page")
             self.assertNotIn("No such page", css)
-            self.assertEqual(receipt["missing"][0]["reason"], "import-not-css:text/plain")
-            self.assertEqual(receipt["import_provenance"], [])
-            self.assertEqual(receipt["import_provenance_status"], "incomplete")
+            self.assertEqual(manifest["missing"][0]["reason"], "import-not-css:text/plain")
+            self.assertEqual(manifest["import_provenance"], [])
+            self.assertEqual(manifest["import_provenance_status"], "incomplete")
 
 
 class UnflattenedImportProvenanceTests(unittest.TestCase):
@@ -142,10 +142,10 @@ class UnflattenedImportProvenanceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             engine = self.engine_with_import(root)
-            css, receipt = engine.build('@import url("https://local.invalid/theme-code")', "https://local.invalid/page")
+            css, manifest = engine.build('@import url("https://local.invalid/theme-code")', "https://local.invalid/page")
             self.assertIn(".legacy { color: #123; }", css)
-            self.assertEqual(receipt["missing"], [])
-            self.assertEqual(receipt["import_provenance_status"], "complete")
+            self.assertEqual(manifest["missing"], [])
+            self.assertEqual(manifest["import_provenance_status"], "complete")
 
     def test_unquoted_url_does_not_swallow_closing_paren(self):
         # url(https://host/path) has no space before ")". The URL reference must
@@ -153,19 +153,19 @@ class UnflattenedImportProvenanceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             engine = self.engine_with_import(root)
-            css, receipt = engine.build('@import url(https://local.invalid/theme-code);', "https://local.invalid/page")
+            css, manifest = engine.build('@import url(https://local.invalid/theme-code);', "https://local.invalid/page")
             self.assertIn(".legacy { color: #123; }", css)
-            self.assertEqual(receipt["missing"], [])
-            self.assertEqual(receipt["import_provenance_status"], "complete")
+            self.assertEqual(manifest["missing"], [])
+            self.assertEqual(manifest["import_provenance_status"], "complete")
 
     def test_trailing_unquoted_import_without_semicolon_is_flattened(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             engine = self.engine_with_import(root)
-            css, receipt = engine.build('@import url(https://local.invalid/theme-code)', "https://local.invalid/page")
+            css, manifest = engine.build('@import url(https://local.invalid/theme-code)', "https://local.invalid/page")
             self.assertIn(".legacy { color: #123; }", css)
-            self.assertEqual(receipt["missing"], [])
-            self.assertEqual(receipt["import_provenance_status"], "complete")
+            self.assertEqual(manifest["missing"], [])
+            self.assertEqual(manifest["import_provenance_status"], "complete")
 
     def test_consecutive_semicolonless_imports_are_each_flattened(self):
         # Composed candidate files concatenate separate [[module CSS]] leading
@@ -177,15 +177,15 @@ class UnflattenedImportProvenanceTests(unittest.TestCase):
                 "https://local.invalid/a.css": (b".a { color: red; }", "text/css"),
                 "https://local.invalid/b.css": (b".b { color: blue; }", "text/css"),
             })
-            css, receipt = engine.build(
+            css, manifest = engine.build(
                 '@import url("https://local.invalid/a.css")\n\n@import url("https://local.invalid/b.css")\n\n:root { --x: 1; }',
                 "https://local.invalid/page",
             )
             self.assertIn(".a { color: red; }", css)
             self.assertIn(".b { color: blue; }", css)
             self.assertIn(":root { --x: 1; }", css)
-            self.assertEqual(receipt["missing"], [])
-            self.assertEqual(receipt["import_provenance_status"], "complete")
+            self.assertEqual(manifest["missing"], [])
+            self.assertEqual(manifest["import_provenance_status"], "complete")
 
     def test_media_import_prelude_is_preserved_by_wrapping(self):
         # A media condition on @import applies to the imported stylesheet, so it
@@ -198,46 +198,46 @@ class UnflattenedImportProvenanceTests(unittest.TestCase):
             with self.subTest(source=source), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)
                 engine = self.engine_with_import(root)
-                css, receipt = engine.build(source, "https://local.invalid/page")
+                css, manifest = engine.build(source, "https://local.invalid/page")
                 self.assertIn(f"@media {media} {{", css)
                 self.assertIn(".legacy { color: #123; }", css)
-                self.assertEqual(receipt["missing"], [])
-                self.assertEqual(receipt["import_provenance_status"], "complete")
+                self.assertEqual(manifest["missing"], [])
+                self.assertEqual(manifest["import_provenance_status"], "complete")
 
     def test_layer_import_prelude_fails_provenance_closed(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             engine = self.engine_with_import(root)
-            css, receipt = engine.build('@import url("https://local.invalid/theme-code") layer(base);', "https://local.invalid/page")
+            css, manifest = engine.build('@import url("https://local.invalid/theme-code") layer(base);', "https://local.invalid/page")
             self.assertNotIn(".legacy { color: #123; }", css)
-            self.assertEqual(receipt["import_provenance_status"], "incomplete")
-            self.assertTrue(any(row["reason"] == "css-import-prelude-unsupported" for row in receipt["missing"]))
+            self.assertEqual(manifest["import_provenance_status"], "incomplete")
+            self.assertTrue(any(row["reason"] == "css-import-prelude-unsupported" for row in manifest["missing"]))
 
     def test_supports_import_prelude_fails_provenance_closed(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             engine = self.engine_with_import(root)
-            css, receipt = engine.build('@import url("https://local.invalid/theme-code") supports(display: grid);', "https://local.invalid/page")
+            css, manifest = engine.build('@import url("https://local.invalid/theme-code") supports(display: grid);', "https://local.invalid/page")
             self.assertNotIn(".legacy { color: #123; }", css)
-            self.assertEqual(receipt["import_provenance_status"], "incomplete")
-            self.assertTrue(any(row["reason"] == "css-import-prelude-unsupported" for row in receipt["missing"]))
+            self.assertEqual(manifest["import_provenance_status"], "incomplete")
+            self.assertTrue(any(row["reason"] == "css-import-prelude-unsupported" for row in manifest["missing"]))
 
     def test_comments_and_strings_do_not_fake_unflattened_imports(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             engine = self.engine_with_import(root)
-            _css, receipt = engine.build('/* @import "https://local.invalid/theme-code"; */ .a { content: "@import"; }', "https://local.invalid/page")
-            self.assertEqual(receipt["missing"], [])
-            self.assertEqual(receipt["import_provenance_status"], "complete")
+            _css, manifest = engine.build('/* @import "https://local.invalid/theme-code"; */ .a { content: "@import"; }', "https://local.invalid/page")
+            self.assertEqual(manifest["missing"], [])
+            self.assertEqual(manifest["import_provenance_status"], "complete")
 
     def test_flattened_import_leaves_no_residual(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             engine = self.engine_with_import(root)
-            css, receipt = engine.build('@import url("https://local.invalid/theme-code");', "https://local.invalid/page")
+            css, manifest = engine.build('@import url("https://local.invalid/theme-code");', "https://local.invalid/page")
             self.assertIn(".legacy { color: #123; }", css)
-            self.assertEqual(receipt["missing"], [])
-            self.assertEqual(receipt["import_provenance_status"], "complete")
+            self.assertEqual(manifest["missing"], [])
+            self.assertEqual(manifest["import_provenance_status"], "complete")
             self.assertNotIn("@import", css)
 
 

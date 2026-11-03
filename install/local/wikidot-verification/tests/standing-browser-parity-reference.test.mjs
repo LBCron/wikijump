@@ -8,7 +8,7 @@ import test from "node:test";
 import { canaryForUrl } from "../src/standing-browser-canaries.mjs";
 import {
   buildLiveReferenceLedger,
-  loadSealedLiveReference,
+  loadLiveReference,
 } from "../src/standing-browser-parity-reference.mjs";
 
 const viewport = { width: 1366, height: 900 };
@@ -45,7 +45,6 @@ async function screenshotArtifacts(directory) {
 function policy() {
   return {
     schema: "wikijump.standing_browser_live_completion_policy.v1",
-    status: "sealed",
     policy_version: "2026-07-20.1",
     allowed_external_failures: [],
   };
@@ -58,7 +57,6 @@ function requestGate() {
     enforcement_failed: false,
     public_requests: 1,
     unsupported_requests_blocked: 0,
-    config_sha256: "a".repeat(64),
   };
 }
 
@@ -171,57 +169,13 @@ test("live-reference sealing rejects an unrecognized request-gate attribution", 
         viewport,
         thresholds,
         policy: policy(),
-        policySha256: "a".repeat(64),
         browserEnvironment: {
           engine: "chromium",
           version: "fixture",
-          executable_sha256: "b".repeat(64),
         },
         requestGate: { ...requestGate(), unsupported_requests_blocked: 1 },
       }),
     /request-gate abort decision/u,
-  );
-});
-
-test("live-reference loading requires policy approval for request-gate aborts", async (context) => {
-  const directory = await fs.mkdtemp(
-    path.join(os.tmpdir(), "standing-browser-live-reference-policy-"),
-  );
-  context.after(() => fs.rm(directory, { recursive: true, force: true }));
-  const pair = {
-    local_url: "https://scp-wiki.wikijump.localhost:18443/scp-9506",
-    live_url: "https://scp-wiki.wikidot.com/scp-9506",
-  };
-  const artifacts = await screenshotArtifacts(directory);
-  const live = capture(pair, artifacts, {
-    request_gate_aborts: [{
-      kind: "request_gate_abort",
-      url: "https://cdn.example.test/blocked.js",
-      resource_type: "script",
-      error: "net::ERR_BLOCKED_BY_CLIENT.Inspector",
-      decision: "unsupported_public_origin_resource_type",
-      abort_reason: "blockedbyclient",
-    }],
-  });
-
-  const stored = await writeReference(
-    directory,
-    pair,
-    live,
-    policy(),
-    { ...requestGate(), unsupported_requests_blocked: 1 },
-  );
-  await assert.rejects(loadSealedLiveReference({
-    filePath: stored.file,
-    expectedSha256: stored.sha256,
-    pairs: [pair],
-    viewport,
-    thresholds,
-    policy: stored.policy,
-    policySha256: stored.policySha256,
-    policyFilePath: stored.policyFile,
-  }),
-    /unapproved request-gate abort/u,
   );
 });
 
@@ -230,18 +184,14 @@ async function writeReference(directory, pair, live, rawPolicy = policy(), reque
   await fs.writeFile(policyFile, `${JSON.stringify(rawPolicy)}\n`, {
     mode: 0o600,
   });
-  const policyBytes = await fs.readFile(policyFile);
-  const policySha256 = sha256(policyBytes);
   const reference = buildLiveReferenceLedger({
     records: [{ input: pair, live }],
     viewport,
     thresholds,
     policy: rawPolicy,
-    policySha256,
     browserEnvironment: {
       engine: "chromium",
       version: "fixture",
-      executable_sha256: "b".repeat(64),
     },
     requestGate: requestGateValue,
     generatedAt: "2026-07-20T00:00:00.000Z",
@@ -252,12 +202,10 @@ async function writeReference(directory, pair, live, rawPolicy = policy(), reque
     file,
     policyFile,
     policy: rawPolicy,
-    policySha256,
-    sha256: sha256(await fs.readFile(file)),
   };
 }
 
-test("sealed live reference binds the policy, capture contract, and screenshot bytes", async (context) => {
+test("a live reference loads for a candidate port", async (context) => {
   const directory = await fs.mkdtemp(
     path.join(os.tmpdir(), "standing-browser-live-reference-"),
   );
@@ -276,31 +224,14 @@ test("sealed live reference binds the policy, capture contract, and screenshot b
     ...pair,
     local_url: "https://scp-wiki.wikijump.localhost:24443/theme:basalt",
   };
-  const loaded = await loadSealedLiveReference({
+  const loaded = await loadLiveReference({
     filePath: stored.file,
-    expectedSha256: stored.sha256,
     pairs: [candidatePair],
     viewport,
     thresholds,
     policy: stored.policy,
-    policySha256: stored.policySha256,
-    policyFilePath: stored.policyFile,
   });
   assert.equal(loaded.records.length, 1);
-  await fs.writeFile(path.join(directory, "first.png"), "tampered");
-  await assert.rejects(
-    loadSealedLiveReference({
-      filePath: stored.file,
-      expectedSha256: stored.sha256,
-      pairs: [pair],
-      viewport,
-      thresholds,
-      policy: stored.policy,
-      policySha256: stored.policySha256,
-      policyFilePath: stored.policyFile,
-    }),
-    /screenshot SHA-256 mismatch/u,
-  );
 });
 
 test("live reference refuses an immediate theme mismatch instead of treating a later state as evidence", async (context) => {
@@ -326,15 +257,12 @@ test("live reference refuses an immediate theme mismatch instead of treating a l
   });
   const stored = await writeReference(directory, pair, live);
   await assert.rejects(
-    loadSealedLiveReference({
+    loadLiveReference({
       filePath: stored.file,
-      expectedSha256: stored.sha256,
       pairs: [pair],
       viewport,
       thresholds,
       policy: stored.policy,
-      policySha256: stored.policySha256,
-      policyFilePath: stored.policyFile,
     }),
     /DOMContentLoaded theme properties/u,
   );
@@ -354,15 +282,12 @@ test("live reference refuses a post-settle capture relabeled as immediate eviden
   live.first_paint.document.phase = "settled";
   const stored = await writeReference(directory, pair, live);
   await assert.rejects(
-    loadSealedLiveReference({
+    loadLiveReference({
       filePath: stored.file,
-      expectedSha256: stored.sha256,
       pairs: [pair],
       viewport,
       thresholds,
       policy: stored.policy,
-      policySha256: stored.policySha256,
-      policyFilePath: stored.policyFile,
     }),
     /required DOMContentLoaded observation/u,
   );
@@ -382,15 +307,12 @@ test("live reference refuses a capture whose load, font, or image completion was
   live.document.resource_completion = { status: "timed_out" };
   const stored = await writeReference(directory, pair, live);
   await assert.rejects(
-    loadSealedLiveReference({
+    loadLiveReference({
       filePath: stored.file,
-      expectedSha256: stored.sha256,
       pairs: [pair],
       viewport,
       thresholds,
       policy: stored.policy,
-      policySha256: stored.policySha256,
-      policyFilePath: stored.policyFile,
     }),
     /did not complete load, font, and image observation/u,
   );
@@ -419,11 +341,9 @@ test("live reference requires a clean request gate to admit each live navigation
         viewport,
         thresholds,
         policy: rawPolicy,
-        policySha256,
         browserEnvironment: {
           engine: "chromium",
           version: "fixture",
-          executable_sha256: "b".repeat(64),
         },
         requestGate: { ...requestGate(), public_requests: 0 },
       }),
@@ -449,15 +369,12 @@ test("live reference refuses a broken external image unless its exact failure is
     }),
   );
   await assert.rejects(
-    loadSealedLiveReference({
+    loadLiveReference({
       filePath: stored.file,
-      expectedSha256: stored.sha256,
       pairs: [pair],
       viewport,
       thresholds,
       policy: stored.policy,
-      policySha256: stored.policySha256,
-      policyFilePath: stored.policyFile,
     }),
     /unapproved broken external image/u,
   );

@@ -42,9 +42,9 @@ async function loadTheme(name) {
     candidatePath = path.join(dir, manifest.candidate_source ?? "candidate.wikidot.txt");
   }
   const candidateSource = await fs.readFile(candidatePath, "utf8");
-  let assetsReceipt = {};
+  let assetsManifest = {};
   try {
-    assetsReceipt = JSON.parse(await fs.readFile(path.join(dir, "assets.json"), "utf8"));
+    assetsManifest = JSON.parse(await fs.readFile(path.join(dir, "assets.json"), "utf8"));
   } catch (error) {
     if (error.code !== "ENOENT") throw error;
   }
@@ -59,7 +59,7 @@ async function loadTheme(name) {
   }
   if (manifest.flattened_css_transforms) localizationTransformManifest = JSON.parse(await fs.readFile(path.join(dir, manifest.flattened_css_transforms), "utf8"));
   const maintenanceException = maintenanceExceptions?.import_provenance?.[manifest.slug] ?? null;
-  return {dir, manifest, upstreamSource, humanPortSource, candidateSource, assetsReceipt, maintenanceException, maintenanceManifest, maintenanceOverrideCss, maintenanceFinalSource, localizationTransformManifest};
+  return {dir, manifest, upstreamSource, humanPortSource, candidateSource, assetsManifest, maintenanceException, maintenanceManifest, maintenanceOverrideCss, maintenanceFinalSource, localizationTransformManifest};
 }
 
 async function themeNames() {

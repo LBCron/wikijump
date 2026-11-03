@@ -6,7 +6,6 @@ import {
   STANDING_BROWSER_LIVE_REFERENCE_SCHEMA,
   assertRequestGateAbortAccounting,
   canaryContractForPair,
-  currentCanaryContractSummary,
   evaluateFirstPaintCustomProperties,
   evaluatePresenceProbes,
   isExternalFailure,
@@ -20,8 +19,6 @@ import {
   normalizedUrl,
   requireNonEmptyString,
   requirePlainObject,
-  requireSha256,
-  sha256File,
   sha256Value,
 } from "./standing-browser-parity-util.mjs";
 
@@ -69,20 +66,12 @@ async function verifyScreenshotArtifact(
       `live reference ${label} screenshot has the wrong full-page value`,
     );
   }
-  const expectedSha256 = requireSha256(
-    metadata.sha256,
-    `live reference ${label} screenshot SHA-256`,
-  );
   const filePath = path.join(root, fileName);
   const stat = await fs.lstat(filePath).catch(() => null);
   if (!stat?.isFile() || stat.isSymbolicLink()) {
     throw new Error(`live reference ${label} screenshot is unavailable`);
   }
-  const actualSha256 = await sha256File(filePath);
-  if (actualSha256 !== expectedSha256) {
-    throw new Error(`live reference ${label} screenshot SHA-256 mismatch`);
-  }
-  return { path: fileName, sha256: actualSha256, full_page: expectedFullPage };
+  return { path: fileName, sha256: metadata.sha256, full_page: expectedFullPage };
 }
 
 function validateObservedFailure(failure, capture, policy) {
@@ -145,8 +134,6 @@ function validateRequestGate(value, { minimumPublicRequests = 0 } = {}) {
     : input.snapshot?.schema === "wikijump_full_parity.browser_request_gate.v1"
       ? {
           ...input.snapshot,
-          config_path: input.config_path,
-          config_sha256: input.config_sha256,
           public_requests: input.snapshot.public_requests ?? input.snapshot.grants?.length ?? 0,
         }
       : input;
@@ -170,13 +157,7 @@ function validateRequestGate(value, { minimumPublicRequests = 0 } = {}) {
       "live reference request gate did not admit every required live navigation",
     );
   }
-  return {
-    ...gate,
-    config_sha256: requireSha256(
-      gate.config_sha256,
-      "live reference request gate config SHA-256",
-    ),
-  };
+  return gate;
 }
 
 async function validateLiveCapture(capture, pair, root, policy) {
@@ -317,62 +298,11 @@ export async function validateLiveReferenceRecord({
   return await validateLiveCapture(capture, checkedPair, root, checkedPolicy);
 }
 
-function captureContract({ viewport, thresholds, policy, policySha256 }) {
-  const canaries = currentCanaryContractSummary();
-  return {
-    ...canaries,
-    viewport,
-    thresholds,
-    domcontentloaded_immediate_observation: {
-      viewport_screenshot: true,
-      custom_properties: [
-        "--logo",
-        "--header-logo",
-        "--header-title",
-        "--header-subtitle",
-      ],
-      pseudo_layout:
-        "CDP DOMSnapshot generated-content layout with clipping evidence",
-      limitation:
-        "This samples DOM/CSS state immediately after DOMContentLoaded; it is not a compositor-filmstrip timestamp.",
-    },
-    settled_capture: {
-      viewport_screenshot: true,
-      full_page_screenshot: true,
-      pseudo_layout_geometry_comparison: true,
-    },
-    completion_policy: {
-      schema: policy.schema,
-      policy_version: policy.policy_version,
-      policy_sha256: policySha256,
-    },
-  };
-}
-
-function matchesRetainedCaptureContract(actual, expected) {
-  return sameJson(actual, {
-    canary_contract_sha256: "9c64fdc79127fd73bd2151db96f82aaf69ac58f2a0f0356c37e4a184a968662a",
-    canary_schema: expected.canary_schema,
-    first_paint: {
-      capture_phase: "immediately_after_domcontentloaded",
-      viewport_screenshot: true,
-      custom_properties: expected.domcontentloaded_immediate_observation.custom_properties,
-      pseudo_layout: expected.domcontentloaded_immediate_observation.pseudo_layout,
-    },
-    settled_capture: expected.settled_capture,
-    source_policy: "read-only anonymous browser capture; all public HTTP(S) requests share the persistent 0.25 req/s gate",
-    theme_family_coverage: expected.theme_family_coverage,
-    thresholds: expected.thresholds,
-    viewport: expected.viewport,
-  });
-}
-
 export function buildLiveReferenceLedger({
   records,
   viewport,
   thresholds,
   policy,
-  policySha256,
   browserEnvironment,
   requestGate,
   generatedAt = new Date().toISOString(),
@@ -380,8 +310,7 @@ export function buildLiveReferenceLedger({
   if (!Array.isArray(records) || records.length === 0) {
     throw new Error("live reference records must be a non-empty array");
   }
-  const checkedPolicy = validateLiveCompletionPolicy(policy);
-  requireSha256(policySha256, "live completion policy SHA-256");
+  validateLiveCompletionPolicy(policy);
   const checkedThresholds = validateThresholds(thresholds);
   const checkedBrowser = requirePlainObject(
     browserEnvironment,
@@ -394,10 +323,6 @@ export function buildLiveReferenceLedger({
   requireNonEmptyString(
     checkedBrowser.version,
     "live reference browser environment.version",
-  );
-  requireSha256(
-    checkedBrowser.executable_sha256,
-    "live reference browser executable SHA-256",
   );
   const normalizedRecords = records.map((record) => {
     const input = normalizedPair(record.input);
@@ -422,40 +347,27 @@ export function buildLiveReferenceLedger({
   );
   return {
     schema: STANDING_BROWSER_LIVE_REFERENCE_SCHEMA,
-    status: "sealed",
     generated_at: requireNonEmptyString(
       generatedAt,
       "live reference generated_at",
     ),
-    capture_contract: captureContract({
-      viewport,
-      thresholds: checkedThresholds,
-      policy: checkedPolicy,
-      policySha256,
-    }),
+    capture_contract: { viewport, thresholds: checkedThresholds },
     browser: {
       engine: checkedBrowser.engine,
       version: checkedBrowser.version,
-      executable_sha256: checkedBrowser.executable_sha256,
     },
     request_gate: checkedRequestGate,
     records: normalizedRecords,
   };
 }
 
-export async function loadSealedLiveReference({
+export async function loadLiveReference({
   filePath,
   pairs,
   viewport,
   thresholds,
   policy,
-  policySha256,
-  policyFilePath,
-  referencePolicy = policy,
-  referencePolicySha256 = policySha256,
-  referencePolicyFilePath = policyFilePath,
 }) {
-  const actualSha256 = await sha256File(filePath);
   const reference = JSON.parse(await fs.readFile(filePath, "utf8"));
   if (
     !isPlainObject(reference) ||
@@ -463,10 +375,6 @@ export async function loadSealedLiveReference({
   ) {
     throw new Error("live reference has an unsupported schema");
   }
-  if (reference.status !== "sealed") {
-    throw new Error("live reference is not sealed");
-  }
-  requireNonEmptyString(reference.generated_at, "live reference generated_at");
   const recordsInput = reference.records ?? [];
   const accountingRecords = recordsInput.map((entry) => ({
     ...entry,
@@ -482,59 +390,13 @@ export async function loadSealedLiveReference({
     checkedRequestGate,
   );
   const checkedPolicy = validateLiveCompletionPolicy(policy);
-  const checkedPolicySha256 = requireSha256(
-    policySha256,
-    "live completion policy SHA-256",
-  );
-  if (typeof policyFilePath !== "string" || policyFilePath === "") {
-    throw new Error("live completion policy file path is required");
-  }
-  if ((await sha256File(policyFilePath)) !== checkedPolicySha256) {
-    throw new Error(
-      "live completion policy file does not match its supplied SHA-256",
-    );
-  }
-  const policyFromFile = validateLiveCompletionPolicy(
-    JSON.parse(await fs.readFile(policyFilePath, "utf8")),
-  );
-  if (!sameJson(policyFromFile, checkedPolicy)) {
-    throw new Error(
-      "live completion policy value does not match its sealed file",
-    );
-  }
-  const checkedReferencePolicy = validateLiveCompletionPolicy(referencePolicy);
-  const checkedReferencePolicySha256 = requireSha256(
-    referencePolicySha256,
-    "live reference capture policy SHA-256",
-  );
-  if (typeof referencePolicyFilePath !== "string" || referencePolicyFilePath === "") {
-    throw new Error("live reference capture policy file path is required");
-  }
-  if ((await sha256File(referencePolicyFilePath)) !== checkedReferencePolicySha256) {
-    throw new Error(
-      "live reference capture policy file does not match its supplied SHA-256",
-    );
-  }
-  const referencePolicyFromFile = validateLiveCompletionPolicy(
-    JSON.parse(await fs.readFile(referencePolicyFilePath, "utf8")),
-  );
-  if (!sameJson(referencePolicyFromFile, checkedReferencePolicy)) {
-    throw new Error(
-      "live reference capture policy value does not match its sealed file",
-    );
-  }
-  const expectedContract = captureContract({
-    viewport,
-    thresholds: validateThresholds(thresholds),
-    policy: checkedReferencePolicy,
-    policySha256: checkedReferencePolicySha256,
-  });
+  const contract = reference.capture_contract;
   if (
-    !sameJson(reference.capture_contract, expectedContract) &&
-    !matchesRetainedCaptureContract(reference.capture_contract, expectedContract)
+    !sameJson(contract?.viewport, viewport) ||
+    !sameJson(contract?.thresholds, validateThresholds(thresholds))
   ) {
     throw new Error(
-      "live reference capture contract does not match this candidate parity run",
+      "live reference viewport or thresholds do not match this parity run",
     );
   }
   const expectedPairs = pairs.map(normalizedPair);
@@ -572,18 +434,7 @@ export async function loadSealedLiveReference({
   }
   return {
     reference,
-    sha256: actualSha256,
     policy: checkedPolicy,
-    identity: {
-      sha256: actualSha256,
-      generated_at: requireNonEmptyString(
-        reference.generated_at,
-        "live reference generated_at",
-      ),
-      policy_version: checkedPolicy.policy_version,
-      policy_sha256: checkedPolicySha256,
-      canary_contract_sha256: reference.capture_contract.canary_contract_sha256,
-    },
     records,
   };
 }

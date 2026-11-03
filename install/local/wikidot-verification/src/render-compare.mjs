@@ -171,7 +171,7 @@ export function normalizeAttributeObservation(
 // Wikidot allocates a fresh 32-hex tabview identity on every render. The
 // identity binds the tabview's own bootstrap, but is not observable content;
 // compare the shape while keeping the exact narrow pattern visible in the
-// normalization receipt.
+// normalization record.
 export function normalizeDomSignature(
   value,
   channels = DEFAULT_ATTRIBUTE_CHANNELS,

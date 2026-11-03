@@ -3,7 +3,7 @@
 
 The result is a local, replayable candidate stylesheet. It never fetches URLs;
 uncached dependencies are removed from the injected copy and listed in the
-asset receipt so a missing acquisition cannot become a false PASS.
+asset manifest so a missing acquisition cannot become a false PASS.
 """
 
 from __future__ import annotations
@@ -204,7 +204,7 @@ class CacheCSS:
                 break
         # Any surviving @import is an unflattened remote dependency. Leaving it
         # in the frozen stylesheet would make the browser fetch it (blocked
-        # offline) while the receipt still claimed complete import provenance.
+        # offline) while the manifest still claimed complete import provenance.
         # Record it so flattening fails closed instead of silently omitting CSS.
         for match in IMPORT_AT_RULE_RE.finditer(without_css_comments_and_strings(text)):
             snippet = re.sub(r"\s+", " ", text[match.start() : match.start() + 160]).strip()
@@ -316,7 +316,7 @@ def main() -> int:
     parser.add_argument("--input", type=Path, required=True, help="candidate.css as authored in the port package")
     parser.add_argument("--output", type=Path, required=True, help="flattened stylesheet for Theme Lab and reproduction")
     parser.add_argument("--assets", type=Path, required=True, help="local output asset directory")
-    parser.add_argument("--receipt", type=Path, required=True, help="asset-localization receipt JSON")
+    parser.add_argument("--assets-manifest", type=Path, required=True, help="asset-localization manifest JSON")
     parser.add_argument("--base-url", required=True, help="candidate page whose imports are being frozen")
     parser.add_argument("--cache", type=Path, default=Path.home() / ".cache/wikijump/theme-lab")
     parser.add_argument("--transforms", type=Path, help="exact fail-closed flattened-CSS localization transform manifest")
@@ -345,18 +345,18 @@ def main() -> int:
         transforms = transform_manifest["transforms"]
         transform_manifest_sha256 = hashlib.sha256(transform_bytes).hexdigest()
     engine = CacheCSS(args.cache, args.assets, replacements, omissions, transforms)
-    css, receipt = engine.build(args.input.read_text(errors="replace"), args.base_url)
+    css, manifest = engine.build(args.input.read_text(errors="replace"), args.base_url)
     if args.transforms:
-        receipt["localization_transform_manifest"] = {
+        manifest["localization_transform_manifest"] = {
             "path": args.transforms.name,
             "sha256": transform_manifest_sha256,
         }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(normalize_css_transport(css), encoding="utf-8")
-    args.receipt.parent.mkdir(parents=True, exist_ok=True)
-    args.receipt.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({"output": str(args.output), "assets": len(receipt["assets"]), "missing": len(receipt["missing"]), "imports": len(receipt["imports"])}))
-    return 0 if not receipt["missing"] else 2
+    args.assets_manifest.parent.mkdir(parents=True, exist_ok=True)
+    args.assets_manifest.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({"output": str(args.output), "assets": len(manifest["assets"]), "missing": len(manifest["missing"]), "imports": len(manifest["imports"])}))
+    return 0 if not manifest["missing"] else 2
 
 
 if __name__ == "__main__":

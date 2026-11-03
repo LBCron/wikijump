@@ -17,7 +17,6 @@ standing as it was (or restores it):
                 the HTTP canary and the standing browser parity; restore the
                 parked containers (and reload Caddy from them) on any failure.
 
-The receipt records every stage's duration and result.
 """
 
 from __future__ import annotations
@@ -49,7 +48,6 @@ STANDING_NAMESPACE = "wikijump-standing-caddy-1"
 STANDING_FILES_VOLUME = "wikijump-standing-files-data"
 TEXT_BLOCKS_BUCKET = "deepwell-text-blocks"
 RESOURCE_LIFETIME = timedelta(days=30)
-PROMOTION_RECEIPT_SCHEMA = "wikijump.standing_promotion_receipt.v1"
 BROWSER_REFERENCE_SCHEMA = "wikijump.standing_browser_reference.v1"
 GIT_OBJECT = re.compile(r"[0-9a-f]{40}")
 
@@ -86,29 +84,17 @@ def last_json_line(stdout: str) -> dict[str, object]:
 
 
 class Stages:
-    """Stage durations and results for the receipt."""
+    """Run named stages and report each one's duration."""
 
     def __init__(self) -> None:
-        self.records: list[dict[str, object]] = []
         self.started = time.monotonic()
 
     def run(self, name: str, action):
         started = time.monotonic()
-        record: dict[str, object] = {"stage": name}
-        self.records.append(record)
         print(f"promote: {name} ...", file=sys.stderr, flush=True)
-        try:
-            result = action()
-        except BaseException as error:
-            record.update(status="fail", error=str(error))
-            raise
-        finally:
-            record["duration_seconds"] = round(time.monotonic() - started, 3)
-        record["status"] = "pass"
-        if isinstance(result, dict):
-            record["result"] = result
+        result = action()
         print(
-            f"promote: {name} {record['status']} in {record['duration_seconds']:.0f}s",
+            f"promote: {name} pass in {time.monotonic() - started:.0f}s",
             file=sys.stderr,
             flush=True,
         )
@@ -618,14 +604,14 @@ def mark_link_readers_stale(page_ids: list[int], database: str = STANDING_DATABA
 
 def render_ahead_link_readers(render_ahead_result: dict[str, object]) -> list[int]:
     """Link readers the render-ahead stage's own passes reported, from its
-    receipt; empty when that stage did not run or its receipt is unreadable."""
+    summary; empty when that stage did not run or its summary is unreadable."""
     if render_ahead_result.get("status") != "pass":
         return []
-    receipt = render_ahead_result.get("receipt")
-    if not isinstance(receipt, dict) or not isinstance(receipt.get("path"), str):
+    summary_path = render_ahead_result.get("summary_path")
+    if not isinstance(summary_path, str):
         return []
     try:
-        data = json.loads(Path(receipt["path"]).read_text(encoding="utf-8"))
+        data = json.loads(Path(summary_path).read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return []
     readers = data.get("link_reader_page_ids")
@@ -915,11 +901,6 @@ def main() -> int:
     override_file = source_root / "install" / "standing" / "refresh.compose.yaml"
     stages = Stages()
     started_at = datetime.now(UTC)
-    receipt: dict[str, object] = {
-        "schema": PROMOTION_RECEIPT_SCHEMA,
-        "started_at": started_at.isoformat(),
-        "stages": stages.records,
-    }
 
     # 1. identity
     def identity_stage():
@@ -943,22 +924,10 @@ def main() -> int:
         or state_root() / "promotions" / f"{target[:12]}-{started_at.strftime('%Y%m%dT%H%M%SZ')}"
     ).resolve()
     evidence.mkdir(mode=0o700, parents=True, exist_ok=False)
-    receipt_path = evidence / "promotion-receipt.json"
-    receipt["identity"] = identity
-
-    try:
-        return promote(args, source_root, runtime_home, override_file, identity, evidence, stages, receipt)
-    except BaseException as error:
-        receipt.update(status="fail", error=str(error))
-        raise
-    finally:
-        receipt["completed_at"] = datetime.now(UTC).isoformat()
-        receipt["duration_seconds"] = round(stages.elapsed(), 3)
-        refresh.atomic_json(receipt_path, receipt)
-        print(f"promote: receipt {receipt_path}", file=sys.stderr)
+    return promote(args, source_root, runtime_home, override_file, identity, evidence, stages)
 
 
-def promote(args, source_root, runtime_home, override_file, identity, evidence, stages, receipt) -> int:
+def promote(args, source_root, runtime_home, override_file, identity, evidence, stages) -> int:
     target, standing_sha = identity["wikijump_sha"], identity["standing_sha"]
     reference = browser_reference(args.browser_reference)
 
@@ -980,7 +949,6 @@ def promote(args, source_root, runtime_home, override_file, identity, evidence, 
         }
 
     plan = stages.run("plan", plan_stage)
-    receipt["plan"] = plan
 
     # 3. build
     def build_stage():
@@ -1043,7 +1011,7 @@ def promote(args, source_root, runtime_home, override_file, identity, evidence, 
     try:
         return finish(
             args, source_root, runtime_home, override_file, identity, evidence,
-            stages, receipt, plan, reference, built, rehearsal_volumes,
+            stages, plan, reference, built, rehearsal_volumes,
         )
     finally:
         if plan["rehearse"]:
@@ -1052,12 +1020,11 @@ def promote(args, source_root, runtime_home, override_file, identity, evidence, 
 
 def finish(
     args, source_root, runtime_home, override_file, identity, evidence,
-    stages, receipt, plan, reference, built, rehearsal_volumes,
+    stages, plan, reference, built, rehearsal_volumes,
 ) -> int:
     """Render ahead, rehearse, activate and prove, after the build."""
     target = identity["wikijump_sha"]
     images = {service: built["images"][service] for service in SERVICES}
-    receipt["images"] = images
 
     # 4. render-ahead
     render_ahead = {
@@ -1077,7 +1044,7 @@ def finish(
                 evidence / "render-ahead.log",
                 source_root,
             )
-            path = output / "render-ahead-receipt.json"
+            path = output / "render-ahead-summary.json"
             ahead = json.loads(path.read_text(encoding="utf-8"))
             if (
                 ahead.get("status") != "pass"
@@ -1090,7 +1057,7 @@ def finish(
                 "status": "pass",
                 "expected_compiled_generator": plan["expected_compiled_generator"],
                 "stale_pages_before": plan["stale_pages_before"],
-                "receipt": {"path": str(path)},
+                "summary_path": str(path),
             }
 
     def rehearsal_stage():
@@ -1111,27 +1078,17 @@ def finish(
             if error is not None:
                 raise error
         render_ahead = ahead.result()
-        receipt["rehearsal"] = rehearsal.result()
     elif plan["render_ahead"]:
         render_ahead = stages.run("render-ahead", render_stage)
-    receipt["render_ahead"] = render_ahead
-
-    if plan["rehearse"]:
-        if "rehearsal" not in receipt:
-            receipt["rehearsal"] = rehearsal_stage()
-    else:
-        receipt["rehearsal"] = {
-            "status": "not-needed",
-            "reason": "no migration change: a failed activation is undone by restoring the parked containers and saved pages",
-        }
+    if plan["rehearse"] and not plan["render_ahead"]:
+        rehearsal_stage()
 
     # 6. activation and standing proof
-    receipt["activation"] = activate(
+    activation = activate(
         source_root, runtime_home, override_file, identity, evidence, stages,
         images, render_ahead, reference, args.health_timeout_seconds,
     )
-    receipt["status"] = "pass"
-    print(json.dumps({"status": "pass", "wikijump_sha": target, "duration_seconds": round(stages.elapsed())}))
+    print(json.dumps({"status": "pass", "wikijump_sha": target, "duration_seconds": round(stages.elapsed()), "catch_up": activation["catch_up"]}))
     return 0
 
 

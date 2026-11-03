@@ -25,5 +25,5 @@ if(!file&&!packageName)throw new Error('usage: theme-scenario-live-state.mjs --f
 if(runContract&&!packageName)throw new Error('--run-contract requires --package and --generation');
 const config=packageName?themeScenarioConfigForPackage(root,{generation,packageName,runContract}):JSON.parse(fs.readFileSync(path.resolve(file),'utf8'));
 const materialized=materializeThemeTestScenario(root,config);
-const receipt=await verifyThemeScenarioSiteState({root,materialized,rpcClient:createDeepwellPreviewClient({...(rpcUrl?{rpcUrl}:{}),rpcToken:process.env.DEEPWELL_RPC_TOKEN}),siteSlug});
-process.stdout.write(JSON.stringify(receipt,null,2)+'\n');
+const siteState=await verifyThemeScenarioSiteState({root,materialized,rpcClient:createDeepwellPreviewClient({...(rpcUrl?{rpcUrl}:{}),rpcToken:process.env.DEEPWELL_RPC_TOKEN}),siteSlug});
+process.stdout.write(JSON.stringify(siteState,null,2)+'\n');

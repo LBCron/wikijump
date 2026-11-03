@@ -121,8 +121,7 @@ A mirrored site's favicon, iOS touch icon, and Windows tile are site-level asset
 ```sh
 node install/local/wikidot-verification/scripts/import-mirror-site-icons.mjs \
   --site scp-wiki --source-origin https://scp-wiki.wikidot.com \
-  --rpc-url http://127.0.0.1:2747/jsonrpc --session-file /private/operator-session.json \
-  --receipt /evidence/site-icons-scp-wiki.json
+  --rpc-url http://127.0.0.1:2747/jsonrpc --session-file /private/operator-session.json
 ```
 
 ### Verify imported source integrity
@@ -260,5 +259,5 @@ Renderer epoch 17 marks the persisted rendering change. A candidate must run
 its normal source-owned rerender/finalizer before saved-page acceptance.
 Import into the isolated candidate first. Standing still requires the normal
 promotion and fresh browser proof; a manifest or successful import is not a
-compatibility acceptance receipt.
+compatibility acceptance record.
 

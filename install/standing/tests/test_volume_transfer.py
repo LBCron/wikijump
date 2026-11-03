@@ -24,11 +24,11 @@ def digest(value: str = "a") -> dict[str, object]:
 
 
 class VolumeTransferTest(unittest.TestCase):
-    def test_load_migration_receipt_requires_all_canonical_equal_digests(self) -> None:
+    def test_load_migration_record_requires_all_canonical_equal_digests(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            receipt = root / "migration.json"
-            receipt.write_text(
+            record = root / "migration.json"
+            record.write_text(
                 json.dumps(
                     {
                         "schema": transfer.SCHEMA,
@@ -48,20 +48,20 @@ class VolumeTransferTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            loaded = transfer.load_migration_receipt(receipt)
+            loaded = transfer.load_migration_record(record)
             self.assertEqual(loaded["status"], "verified")
 
-            value = json.loads(receipt.read_text(encoding="utf-8"))
+            value = json.loads(record.read_text(encoding="utf-8"))
             value["roles"][1]["destination_after"]["entries"] = 13
-            receipt.write_text(json.dumps(value), encoding="utf-8")
+            record.write_text(json.dumps(value), encoding="utf-8")
             with self.assertRaisesRegex(
                 transfer.VolumeTransferError, "digest mismatch for files"
             ):
-                transfer.load_migration_receipt(receipt)
+                transfer.load_migration_record(record)
 
     def test_migrate_copies_each_legacy_role_and_keeps_rollback_inputs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            receipt = Path(temporary).resolve() / "migration.json"
+            record = Path(temporary).resolve() / "migration.json"
             copies: list[tuple[str, str, str]] = []
             created: list[tuple[str, bool]] = []
             tree_calls: dict[str, int] = {}
@@ -104,14 +104,14 @@ class VolumeTransferTest(unittest.TestCase):
             ):
                 status = transfer.migrate(
                     Namespace(
-                        receipt=receipt,
+                        record=record,
                         helper_image=None,
                         replace_destinations=False,
                     )
                 )
 
             self.assertEqual(status, 0)
-            value = json.loads(receipt.read_text(encoding="utf-8"))
+            value = json.loads(record.read_text(encoding="utf-8"))
             self.assertEqual(value["status"], "verified")
             self.assertTrue(value["legacy_retained"])
             self.assertEqual(created, [(role, False) for role in transfer.ROLES])
@@ -128,7 +128,7 @@ class VolumeTransferTest(unittest.TestCase):
 
     def test_migrate_writes_failed_receipt_without_deleting_partial_destination(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            receipt = Path(temporary).resolve() / "migration.json"
+            record = Path(temporary).resolve() / "migration.json"
             with (
                 mock.patch.object(transfer, "require_quiesced"),
                 mock.patch.object(transfer, "volume_exists", return_value=True),
@@ -147,12 +147,12 @@ class VolumeTransferTest(unittest.TestCase):
                 with self.assertRaisesRegex(transfer.VolumeTransferError, "boom"):
                     transfer.migrate(
                         Namespace(
-                            receipt=receipt,
+                            record=record,
                             helper_image=None,
                             replace_destinations=False,
                         )
                     )
-            value = json.loads(receipt.read_text(encoding="utf-8"))
+            value = json.loads(record.read_text(encoding="utf-8"))
             self.assertEqual(value["status"], "failed")
             self.assertEqual(
                 value["created_destinations"],
@@ -162,9 +162,9 @@ class VolumeTransferTest(unittest.TestCase):
     def test_post_cutover_requires_durable_mounts_and_retained_legacy_volumes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
-            receipt = root / "migration.json"
+            record = root / "migration.json"
             output = root / "cutover.json"
-            receipt.write_text(
+            record.write_text(
                 json.dumps(
                     {
                         "schema": transfer.SCHEMA,
@@ -208,7 +208,7 @@ class VolumeTransferTest(unittest.TestCase):
                 mock.patch.object(transfer, "volume_exists", return_value=True),
             ):
                 status = transfer.post_cutover(
-                    Namespace(receipt=receipt, output=output)
+                    Namespace(record=record, output=output)
                 )
             self.assertEqual(status, 0)
             value = json.loads(output.read_text(encoding="utf-8"))

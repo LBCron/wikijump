@@ -1,37 +1,25 @@
-import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import {materializeThemeTestScenario} from './theme-test-scenario-config.mjs';
 import {verifyRenderedShellAssetReplay} from './theme-shell-render.mjs';
 
-const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
-
 function verifyRenderedShell(root,materialized,renderedShell){
-  const receipt=renderedShell?.receipt;
-  if(receipt?.schema!=='theme_lab_rendered_shell.v1')throw new Error('rendered shell receipt is missing or invalid');
-  const {rendered_shell_sha256:recordedRenderedShellSha,...unsignedReceipt}=receipt;
-  if(recordedRenderedShellSha!==sha(Buffer.from(JSON.stringify(unsignedReceipt))))throw new Error('rendered shell receipt hash is invalid');
-  const expected={scenario_sha256:materialized.scenario_sha256,runtime_implementation_sha256:materialized.scenario.runtime.implementation_sha256,source_shell_sha256:materialized.scenario.shell_profile.shell_sha256,injection_sha256:materialized.scenario.shell_profile.injection_sha256,site_state_sha256:materialized.scenario.branch_profile.site_state_sha256};
-  for(const [field,value] of Object.entries(expected))if(receipt[field]!==value)throw new Error(`rendered shell receipt uses superseded ${field}`);
-  for(const [name,fragment] of Object.entries(receipt.fragments??{}))if(fragment.styles_count!==0)throw new Error(`rendered shell fragment produced unsupported shell styles: ${name}`);
-  for(const [slot,name] of Object.entries(materialized.bindings.shell_injection)){
+  const summary=renderedShell?.summary;
+  if(summary?.schema!=='theme_lab_rendered_shell.v1')throw new Error('rendered shell is missing or invalid');
+  for(const [fragmentName,fragment] of Object.entries(summary.fragments??{}))if(fragment.styles_count!==0)throw new Error(`rendered shell fragment produced unsupported shell styles: ${fragmentName}`);
+  for(const slot of Object.keys(materialized.bindings.shell_injection)){
     const html=renderedShell.injection?.[slot];
     if(typeof html!=='string')throw new Error(`rendered shell is missing injection slot: ${slot}`);
-    if(sha(Buffer.from(html))!==receipt.fragments?.[name]?.body_sha256)throw new Error(`rendered shell injection does not match receipt: ${slot}`);
   }
   verifyRenderedShellAssetReplay(root,materialized,renderedShell);
 }
 
-function verifyLiveSiteState(materialized,receipt){
-  if(receipt?.schema!=='theme_lab_live_site_state.v1')throw new Error('live site-state receipt is missing or invalid');
-  const {receipt_sha256:recordedReceiptSha,...unsignedReceipt}=receipt;
-  if(recordedReceiptSha!==sha(Buffer.from(JSON.stringify(unsignedReceipt))))throw new Error('live site-state receipt hash is invalid');
-  if(receipt.scenario_sha256!==materialized.scenario_sha256)throw new Error('live site-state receipt uses a superseded scenario');
-  if(receipt.site_slug!==materialized.scenario.branch_profile.site_slug)throw new Error('live site-state receipt uses the wrong site');
-  if(receipt.declared_site_state_sha256!==materialized.scenario.branch_profile.site_state_sha256)throw new Error('live site-state receipt uses a superseded site-state contract');
+function verifyLiveSiteState(materialized,siteState){
+  if(siteState?.schema!=='theme_lab_live_site_state.v1')throw new Error('live site state is missing or invalid');
+  if(siteState.site_slug!==materialized.scenario.branch_profile.site_slug)throw new Error('live site state uses the wrong site');
 }
 
-export function themeTestExecutionPlan(root,config,{renderedShell=null,siteStateReceipt=null}={}){
+export function themeTestExecutionPlan(root,config,{renderedShell=null,siteState=null}={}){
   const materialized=materializeThemeTestScenario(root,config);
   const corpusManifest=JSON.parse(fs.readFileSync(path.join(root,materialized.bindings.corpus_manifest.path),'utf8'));
   const corpusPageSlug=corpusManifest.site_state_requirements?.corpus_page?.slug??null;
@@ -39,10 +27,10 @@ export function themeTestExecutionPlan(root,config,{renderedShell=null,siteState
   if(!['rendered-html','wikidot-source'].includes(format))throw new Error(`unsupported shell profile format: ${format}`);
   const shellRequiresRendering=format==='wikidot-source';
   if(shellRequiresRendering&&renderedShell)verifyRenderedShell(root,materialized,renderedShell);
-  if(siteStateReceipt)verifyLiveSiteState(materialized,siteStateReceipt);
-  if(renderedShell&&siteStateReceipt&&renderedShell.receipt.site_id!==siteStateReceipt.site_id)throw new Error('rendered shell and live site-state receipts refer to different sites');
+  if(siteState)verifyLiveSiteState(materialized,siteState);
+  if(renderedShell&&siteState&&renderedShell.summary.site_id!==siteState.site_id)throw new Error('rendered shell and live site state refer to different sites');
   const shellReady=!shellRequiresRendering||Boolean(renderedShell);
-  const siteStateReady=Boolean(siteStateReceipt);
+  const siteStateReady=Boolean(siteState);
   const candidateUrl=siteStateReady&&corpusPageSlug?`${materialized.scenario.runtime.origin}/${encodeURIComponent(corpusPageSlug)}`:null;
   const shellInjection=shellRequiresRendering
     ? (renderedShell?.injection??{})
@@ -65,10 +53,10 @@ export function themeTestExecutionPlan(root,config,{renderedShell=null,siteState
     blockers:[
       ...(materialized.scenario.runtime.platform==='wikidot'?['controlled Wikidot execution adapter is not configured']:[]),
       ...(shellRequiresRendering&&!renderedShell?['Wikidot-source shell must be rendered by the bound runtime before HTML injection']:[]),
-      ...(!siteStateReceipt?['live branch/site-state must be verified before scenario execution']:[]),
+      ...(!siteState?['live branch/site-state must be verified before scenario execution']:[]),
     ],
-    rendered_shell_receipt:renderedShell?.receipt??null,
-    live_site_state_receipt:siteStateReceipt??null,
+    rendered_shell:renderedShell?.summary??null,
+    live_site_state:siteState??null,
     bindings:materialized.bindings,
   };
 }

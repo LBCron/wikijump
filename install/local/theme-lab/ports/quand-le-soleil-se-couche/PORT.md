@@ -1,7 +1,4 @@
-<!-- adaptation-authority-current -->
-Current publication inputs have passed the adaptation-authority gate. Historical campaign/local-runtime screenshots describe the superseded candidate; they are not acceptance for this CSS. See ../ADAPTATION-AUTHORITY-AUDIT.md and maintenance/historical-receipt.json where present.
 Current source SHA-256: 242dcf54d6b52cea946b65f1c38b508479d255853810d8d7cee3ed3be42815eb; CSS SHA-256: 6b82140e1f875394bb5ceb7e2e6be6e9805157dd18c04fc7c63c6eea72eb49a8. Full port acceptance remains a separate combined result.
-<!-- adaptation-authority-end -->
 
 # SCP-FR → SCP-JP port: `theme:quand-le-soleil-se-couche`
 

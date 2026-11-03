@@ -9,7 +9,7 @@ Read-only use of `wikidot.py` as an evidence tool for other Wikijump behavior re
 
 ## Start condition
 
-Start this plan only after the current campaign has completed its exact candidate, merge, standing verification, and final scoped-zero receipt. Pin the then-current Wikijump, `wikidot.py`, API guide, fixture, actor, and runtime identities before implementation begins.
+Start this plan only after the current campaign has completed its exact candidate, merge, standing verification, and final scoped-zero record. Pin the then-current Wikijump, `wikidot.py`, API guide, fixture, actor, and runtime identities before implementation begins.
 
 ## Deferred denominator
 
@@ -30,4 +30,4 @@ Compare parameter omission, duplication, ordering, types, `callbackIndex`, statu
 
 Treat only explicit nondeterministic fields such as IDs, times, and nonces as nondeterministic. Do not broadly normalize DOM, errors, or request failures. Mutation probes must be restart-safe, identity-bound, and prove cleanup before acceptance.
 
-Completion requires focused regressions, consolidated validation, one exact candidate, post-merge standing proof, and an independent final-zero receipt for this deferred denominator.
+Completion requires focused regressions, `scripts/preflight.sh --final`, one exact candidate, post-merge standing proof, and an independent final-zero record for this deferred denominator.

@@ -5,13 +5,13 @@ Version: 1.4 (2026-09-23)
 The normative requirement classes and surface requirements in this document
 apply to foreign-branch theme ports generally. The original 1.4 campaign
 covered all 34 SCP-EN sources listed in `en-theme-campaign.json` plus the
-retained SCP-KO Dear Dictator port; those historical receipts continue to bind
+retained SCP-KO Dear Dictator port; those historical records continue to bind
 that campaign version. New SCP-FR/SCP-KO/SCP-CN/etc. ports bind their own
 source authority, dependencies, existing-JP evidence and final acceptance in
-their package manifest/receipt. A previous JP or third-branch implementation
+their package manifest/record. A previous JP or third-branch implementation
 is evidence to inspect, never automatically the correctness authority. A
 requirement is accepted only when its current DOM/CSS evidence is recorded in
-the theme receipt.
+the theme record.
 
 ## Evidence and authority
 
@@ -48,7 +48,7 @@ the theme receipt.
 
 ### Dependencies and assets
 
-Record `[[include]]`, CSS-module, `@import`, font, image, icon, background, CDN, `local--files`, `local--code`, and CDN-origin edges. Classify every external surface as one of `retain-shared-upstream`, `replace-with-public-jp-counterpart`, `localize-into-package`, `replace-with-jp-owned-asset`, or `remove-obsolete`; include the exact evidence and digest. A same-name asset is only a candidate until its bytes and visual/semantic use are compared. Missing assets are blockers unless the receipt justifies an intentionally absent optional reference resource. Keep required candidate assets local and fail-closed.
+Record `[[include]]`, CSS-module, `@import`, font, image, icon, background, CDN, `local--files`, `local--code`, and CDN-origin edges. Classify every external surface as one of `retain-shared-upstream`, `replace-with-public-jp-counterpart`, `localize-into-package`, `replace-with-jp-owned-asset`, or `remove-obsolete`; include the exact evidence and digest. A same-name asset is only a candidate until its bytes and visual/semantic use are compared. Missing assets are blockers unless the record justifies an intentionally absent optional reference resource. Keep required candidate assets local and fail-closed.
 
 For BHL-derived themes, separately identify BHL normalize/base CSS, theme-specific CSS, logo, component includes, and theme assets. SCP-JP's public BHL CSS or logo is a replacement candidate only after current source/revision and rendered behavior are checked. For Sigma/Basalt-derived themes, record the actual inheritance chain and avoid duplicating shared base fixes in each child theme.
 
@@ -100,4 +100,4 @@ Font acceptance requires real Japanese text, not just a `font-family` declaratio
 
 A submenu rendered inside `#top-bar .top-bar > ul > li > ul` or `.mobile-top-bar > ul > li > ul` must remain within the viewport at the state where it opens. SCP-JP labels are longer than many EN labels, so the first-level submenu may anchor to the parent item’s right edge and wrap Japanese link text; nested submenu positioning remains theme-owned. This is `MUST_ADAPT_FOR_JP` when browser evidence shows viewport spill. Validate laptop/tablet desktop-bar widths and mobile open-menu states; do not hide the submenu or clip its overflow. Evidence: current interactive capture `nav.mobile-top/submenu-expanded` and Theme Lab `new_horizontal_overflow` source selectors `ul`, `li`, `a.newpage` for Foxtrot, SCPedia, Al-Slop, Pataphysics, Turbo Vision, Paperstack and Hansarp.
 
-The reference and candidate theme pages are documentation pages, often with different language, content, and showcase samples. Their raw pixel RMSE is diagnostic evidence, not a direct acceptance score. Review paired screenshots for broken theme identity/layout; explain selector-count warnings that are caused by showcase/component repetition differences. Every port's `receipt.json` binds the source identity, previous public JP identity/status, source/candidate hashes, dependency decisions, Theme Lab findings, edit/check counts, manual fallbacks, assets/fonts, rating/module evidence, all four viewport verdicts and screenshots, interactions when relevant, offline external-request count, warnings and rationale, torture result, and technical-spec version. A warning is acceptable only with a documented intentional visual difference, JP structural adaptation, reference/candidate content mismatch, or other concrete non-defect explanation.
+The reference and candidate theme pages are documentation pages, often with different language, content, and showcase samples. Their raw pixel RMSE is diagnostic evidence, not a direct acceptance score. Review paired screenshots for broken theme identity/layout; explain selector-count warnings that are caused by showcase/component repetition differences. Every port's `record.json` binds the source identity, previous public JP identity/status, source/candidate hashes, dependency decisions, Theme Lab findings, edit/check counts, manual fallbacks, assets/fonts, rating/module evidence, all four viewport verdicts and screenshots, interactions when relevant, offline external-request count, warnings and rationale, torture result, and technical-spec version. A warning is acceptable only with a documented intentional visual difference, JP structural adaptation, reference/candidate content mismatch, or other concrete non-defect explanation.

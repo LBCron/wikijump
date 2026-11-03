@@ -53,7 +53,7 @@ ahead rows), reload the gateway, and re-count — at most
 old behavior (no render, no restart). Non-convergence keeps the old
 failure (`standing serves {stale} stale saved pages`) and rolls back.
 When a catch-up render moves the link graph, known link readers (the
-render-ahead receipt's `link_reader_page_ids` plus readers the catch-up
+render-ahead summary's `link_reader_page_ids` plus readers the catch-up
 passes report) are marked stale, re-rendered, and settled by link-digest
 rounds exactly as `render_ahead.verify_with_catch_up` does (#2738);
 readers no pass in this promotion rendered are not enumerable without a
@@ -98,7 +98,7 @@ output is guarded and re-rendered as above.
   on Standing.
 - Properties dropped as true by construction in the pilot
   (`RollbackRestores`, the old `NoLostWrite`, `FenceReopens`,
-  `GateReopens`): FIX keeps `NoPassWithStale` (the receipt cannot pass
+  `GateReopens`): FIX keeps `NoPassWithStale` (the summary cannot pass
   while the last count saw stale pages; the view path refuses stale
   output for writes after that count), `RollbackNoRegression`,
   `Termination`, and `QuietSuccess`.
@@ -130,7 +130,7 @@ output is guarded and re-rendered as above.
   version moved the catch-up guard to `"snap"`, which did not test this
   claim, and was replaced on review). MB restore guard removed
   (`(Design = "CUR" \/ outTime[p] = "pre")` → `TRUE`) violates
-  `RollbackNoRegression`; MC receipt passing without the re-count
+  `RollbackNoRegression`; MC summary passing without the re-count
   (restart goes straight to `commit`) violates `NoPassWithStale`.
 - The model's activation count is generator-only, exactly like
   `saved_page_stale_ids`: a dependent awaiting fan-out at the target

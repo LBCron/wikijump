@@ -33,19 +33,19 @@ function replayFrozenLocalAssets(root,html){
 }
 
 export function verifyRenderedShellAssetReplay(root,materialized,renderedShell){
-  const receipt=renderedShell?.receipt;
-  if(!receipt||!Array.isArray(receipt.local_static_asset_replay))throw new Error('rendered shell local asset replay receipt is missing');
+  const summary=renderedShell?.summary;
+  if(!summary||!Array.isArray(summary.local_static_asset_replay))throw new Error('rendered shell local asset replay is missing');
   for(const [name,row] of Object.entries(renderedShell.rendered??{})){
     if(typeof row.source_body!=='string'||sha(Buffer.from(row.source_body))!==row.source_body_sha256)throw new Error(`rendered shell source body hash is invalid: ${name}`);
     const replay=replayFrozenLocalAssets(root,row.source_body);
     if(replay.body!==row.body||sha(Buffer.from(replay.body))!==row.body_sha256||JSON.stringify(replay.replayed)!==JSON.stringify(row.local_static_asset_replay??[]))throw new Error(`rendered shell local asset replay is stale: ${name}`);
     const sourceStyles=Array.isArray(row.styles)?row.styles:[];
     if(sha(Buffer.from(JSON.stringify(sourceStyles)))!==row.styles_sha256)throw new Error(`rendered shell styles hash is invalid: ${name}`);
-    const expected=receipt.fragments?.[name];
-    if(expected?.source_body_sha256!==row.source_body_sha256||expected?.body_sha256!==row.body_sha256||expected?.styles_sha256!==row.styles_sha256||expected?.styles_count!==sourceStyles.length)throw new Error(`rendered shell fragment receipt is stale: ${name}`);
+    const expected=summary.fragments?.[name];
+    if(expected?.source_body_sha256!==row.source_body_sha256||expected?.body_sha256!==row.body_sha256||expected?.styles_sha256!==row.styles_sha256||expected?.styles_count!==sourceStyles.length)throw new Error(`rendered shell fragment summary is stale: ${name}`);
   }
   const replayRows=Object.values(renderedShell.rendered??{}).flatMap(row=>row.local_static_asset_replay??[]);
-  if(JSON.stringify(replayRows)!==JSON.stringify(receipt.local_static_asset_replay))throw new Error('rendered shell asset replay differs from its receipt');
+  if(JSON.stringify(replayRows)!==JSON.stringify(summary.local_static_asset_replay))throw new Error('rendered shell asset replay differs from its summary');
   for(const [slot,name] of Object.entries(materialized.bindings.shell_injection)){
     if(typeof renderedShell.injection?.[slot]!=='string'||renderedShell.injection[slot]!==renderedShell.rendered?.[name]?.body)throw new Error(`rendered shell injection differs from the verified fragment: ${slot}`);
   }
@@ -66,6 +66,6 @@ export async function renderThemeShellProfile({root,materialized,previewClient,s
   }
   const injection={};
   for(const [slot,name] of Object.entries(materialized.bindings.shell_injection))injection[slot]=rendered[name]?.body??null;
-  const receipt={schema:'theme_lab_rendered_shell.v1',scenario_sha256:materialized.scenario_sha256,runtime_implementation_sha256:materialized.scenario.runtime.implementation_sha256,source_shell_sha256:materialized.scenario.shell_profile.shell_sha256,injection_sha256:materialized.scenario.shell_profile.injection_sha256,site_state_sha256:materialized.scenario.branch_profile.site_state_sha256,site_id:siteId,local_static_asset_replay:Object.values(rendered).flatMap(row=>row.local_static_asset_replay),fragments:Object.fromEntries(Object.entries(rendered).map(([name,row])=>[name,{body_sha256:row.body_sha256,source_body_sha256:row.source_body_sha256,styles_sha256:row.styles_sha256,styles_count:row.styles.length}]))};
-  return {receipt:{...receipt,rendered_shell_sha256:sha(Buffer.from(JSON.stringify(receipt)))},injection,rendered};
+  const summary={schema:'theme_lab_rendered_shell.v1',scenario_sha256:materialized.scenario_sha256,runtime_implementation_sha256:materialized.scenario.runtime.implementation_sha256,source_shell_sha256:materialized.scenario.shell_profile.shell_sha256,injection_sha256:materialized.scenario.shell_profile.injection_sha256,site_state_sha256:materialized.scenario.branch_profile.site_state_sha256,site_id:siteId,local_static_asset_replay:Object.values(rendered).flatMap(row=>row.local_static_asset_replay),fragments:Object.fromEntries(Object.entries(rendered).map(([name,row])=>[name,{body_sha256:row.body_sha256,source_body_sha256:row.source_body_sha256,styles_sha256:row.styles_sha256,styles_count:row.styles.length}]))};
+  return {summary,injection,rendered};
 }

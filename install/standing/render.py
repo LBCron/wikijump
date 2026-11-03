@@ -89,7 +89,7 @@ def replace_directory(staging: Path, output_dir: Path, replace: bool) -> Path | 
         staging.replace(output_dir)
         return None
     if not replace:
-        raise ValueError(f"output directory already exists: {output_dir}; pass --replace after preserving its receipt")
+        raise ValueError(f"output directory already exists: {output_dir}; pass --replace after preserving its record")
     previous = output_dir.with_name(f"{output_dir.name}.previous-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}")
     output_dir.replace(previous)
     staging.replace(output_dir)
@@ -142,7 +142,7 @@ def main() -> int:
         }
         write_environment(staging / ".env", environment)
         template_sha256 = hashlib.sha256(template.read_bytes()).hexdigest()
-        receipt = {
+        record = {
             "schema_version": 1,
             "template_sha256": template_sha256,
             "project_name": project_name,
@@ -157,10 +157,10 @@ def main() -> int:
             "images": images,
             "persistent_volumes": list(PERSISTENT_VOLUMES),
         }
-        (staging / "identity.json").write_text(json.dumps(receipt, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        (staging / "identity.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         os.chmod(staging / "identity.json", 0o600)
         replaced = replace_directory(staging, output_dir, args.replace)
-        result = {"output_dir": str(output_dir), "replaced_directory": str(replaced) if replaced else None, "identity": receipt}
+        result = {"output_dir": str(output_dir), "replaced_directory": str(replaced) if replaced else None, "identity": record}
         print(json.dumps(result, sort_keys=True))
     return 0
 

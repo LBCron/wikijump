@@ -24,9 +24,9 @@ surfaces belong in the port package's `surface-contract.json`.
 ## Classification vocabulary
 
 - `PASS_NATURAL`: screenshot and interaction both meet the criteria without a material theme-specific exception.
-- `PASS_INTENTIONAL_DIVERGENCE`: both pass, but a documented SCP-JP adaptation changes the upstream presentation; receipt names the source evidence and affected rule.
+- `PASS_INTENTIONAL_DIVERGENCE`: both pass, but a documented SCP-JP adaptation changes the upstream presentation; record names the source evidence and affected rule.
 - `NEEDS_FIX`: a reproducible visual or interaction defect exists. Capture before/after and review the regenerated after-image.
-- `UNCONFIRMED`: there is no valid runtime/state evidence. The receipt must state what is missing, why, and which source/runtime was checked. Never count this as pass.
+- `UNCONFIRMED`: there is no valid runtime/state evidence. The record must state what is missing, why, and which source/runtime was checked. Never count this as pass.
 
 ## Viewport and engine contract
 

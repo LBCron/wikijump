@@ -141,7 +141,7 @@ use super::render_options::{
     RenderContext, RenderExpansionOptions, RenderInnerOptions, RenderLifecycle,
     RenderPageOptions,
 };
-use super::runtime::{IncludeSource, IncludeSourceCache, RenderRuntime};
+use super::runtime::{AuthorizedIncludeSource, IncludeSourceCache, RenderRuntime};
 use super::runtime_modules::{RateModuleContext, SecondaryRuntimeModuleExpansionOptions};
 use super::site_utility_modules::resolve_typed_root_site_grid_runtime_modules;
 use super::structs::{RenderOutput, RenderPageOutput};
@@ -3606,7 +3606,7 @@ struct IncludeExpansionContext<'a> {
 }
 
 impl<'a> IncludeExpansionContext<'a> {
-    fn for_nested_source(&self, source: &IncludeSource) -> Self {
+    fn for_nested_source(&self, source: &AuthorizedIncludeSource) -> Self {
         Self {
             current_site_id: self.current_site_id,
             current_site_slug: self.current_site_slug.clone(),

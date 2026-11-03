@@ -34,9 +34,8 @@ use super::super::list_pages::{
     advance_literal_cursor_and_check_count_pages_capture_containment,
     build_wikidot_list_pages_module_request, build_wikidot_list_pages_module_source,
     count_pages_exact_count_render_diagnostics, count_pages_required_tag_batch_result,
-    count_pages_required_tag_batch_selector, count_pages_scan_requires_preservation,
-    count_pages_should_remain_literal, count_pages_unbounded_all_category_shape,
-    count_pages_unbounded_total, current_page_info_list_pages_row,
+    count_pages_required_tag_batch_selector, count_pages_should_remain_literal,
+    count_pages_unbounded_all_category_shape, current_page_info_list_pages_row,
     exact_name_list_pages_batch_key, format_list_pages_created_at,
     list_pages_author_cache_key, list_pages_body_is_no_visible_tracking_markup,
     list_pages_body_uses_content_variable, list_pages_body_variables_supported,
@@ -56,9 +55,8 @@ use super::super::literal_regions::ListPagesSourceProjection;
 use super::super::new_page_module::{NewPageTemplateRendering, render_new_page_module};
 use super::super::render_options::RenderLifecycle;
 use super::super::runtime_page_queries::{
-    CountPagesRawScanCompletion, count_pages_raw_scan_completion,
-    random_page_query_scan_limit, render_page_query_batch_limit,
-    render_page_query_uses_single_scan,
+    CountPagesSample, count_pages_sample_from_raw_scan, random_page_query_scan_limit,
+    render_page_query_batch_limit, render_page_query_uses_single_scan,
 };
 use super::{
     AttachmentOwner, AttachmentProvenanceRegistry, AttachmentVariableOwners,
@@ -88,13 +86,13 @@ use crate::models::site::Model as SiteModel;
 use crate::services::PageExistenceSnapshot;
 use crate::services::page_query::{
     ComparisonOperation, DataFormSelector, DateSelector, DateTimeResolution,
-    FoundPageFields, FoundPageRow, MAX_PAGE_QUERY_SCORE_SELECTORS, OrderBySelector,
-    OrderProperty, PageQueryResultMetadata, parse_static_wikidot_data_form_values,
-    static_wikidot_data_form_matches,
+    FoundPageFields, FoundPageRow, FoundPages, MAX_PAGE_QUERY_SCORE_SELECTORS,
+    OrderBySelector, OrderProperty, PageQueryResultMetadata,
+    parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
 };
 use crate::services::render::rate_module::render_read_only_rate_module;
 use crate::services::render::render_budget::RenderCostBudget;
-use crate::services::render::runtime::IncludeSource;
+use crate::services::render::runtime::AuthorizedIncludeSource;
 use crate::services::render::runtime_modules::RateModuleContext;
 use crate::services::render::{UrlArgumentPair, UrlArguments};
 use crate::services::settings::PageRatingType;

@@ -102,7 +102,7 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
         page_ref: &PageRef,
         imported_source_site: Option<&str>,
         cache: &mut IncludeSourceCache,
-    ) -> Result<Option<IncludeSource>> {
+    ) -> Result<Option<AuthorizedIncludeSource>> {
         match page_ref.site() {
             Some(site_slug) if site_slug != current_site_slug => {
                 let current_site = cache
@@ -198,12 +198,12 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
         }
     }
 
-    async fn find_imported_snapshot_page_id(
+    async fn find_imported_snapshot_match(
         &self,
         current_site_id: i64,
         source_site_slug: &str,
         source_fullname: &str,
-    ) -> Result<Option<i64>> {
+    ) -> Result<Option<SnapshotMatchedPageId>> {
         let statement = Statement::from_sql_and_values(
             DatabaseBackend::Postgres,
             r#"
@@ -243,6 +243,7 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
                     ErrorType::DatabaseQuery,
                 )
             })
+            .map(|page_id| page_id.map(SnapshotMatchedPageId))
     }
 
     async fn fetch_imported_cross_site_source(
@@ -252,7 +253,7 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
         source_site_slug: &str,
         source_page_slug: &str,
         cache: &mut IncludeSourceCache,
-    ) -> Result<Option<IncludeSource>> {
+    ) -> Result<Option<AuthorizedIncludeSource>> {
         let source_page_slug = trim_default(source_page_slug);
         let cache_key = (
             current_site_id,
@@ -260,40 +261,43 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
             source_page_slug.to_owned(),
         );
         if let Some(cached) = cache.imported_cross_site_sources.get(&cache_key) {
-            return Ok(cached.as_ref().map(|wikitext| IncludeSource {
-                site_slug: current_site_slug.to_owned(),
-                page_slug: source_page_slug.to_owned(),
-                wikitext: wikitext.clone(),
-                source_site: Some(source_site_slug.to_owned()),
+            return Ok(cached.as_ref().map(|wikitext| {
+                AuthorizedIncludeSource::snapshot_matched(
+                    current_site_slug.to_owned(),
+                    source_page_slug.to_owned(),
+                    wikitext.clone(),
+                    source_site_slug.to_owned(),
+                )
             }));
         }
 
-        let mut page_id = self
-            .find_imported_snapshot_page_id(
+        let mut snapshot_match = self
+            .find_imported_snapshot_match(
                 current_site_id,
                 source_site_slug,
                 source_page_slug,
             )
             .await?;
-        if page_id.is_none() {
+        if snapshot_match.is_none() {
             for alternate in alternate_source_fullnames(source_page_slug) {
-                page_id = self
-                    .find_imported_snapshot_page_id(
+                snapshot_match = self
+                    .find_imported_snapshot_match(
                         current_site_id,
                         source_site_slug,
                         &alternate,
                     )
                     .await?;
-                if page_id.is_some() {
+                if snapshot_match.is_some() {
                     break;
                 }
             }
         }
 
-        let Some(page_id) = page_id else {
+        let Some(snapshot_match) = snapshot_match else {
             cache.imported_cross_site_sources.insert(cache_key, None);
             return Ok(None);
         };
+        let page_id = snapshot_match.page_id();
         let Some(page) = PageService::get_optional_including_foreign_snapshots(
             self.ctx,
             current_site_id,
@@ -338,12 +342,12 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
         cache
             .imported_cross_site_sources
             .insert(cache_key, Some(wikitext.clone()));
-        Ok(Some(IncludeSource {
-            site_slug: current_site_slug.to_owned(),
-            page_slug: source_page_slug.to_owned(),
+        Ok(Some(AuthorizedIncludeSource::snapshot_matched(
+            current_site_slug.to_owned(),
+            source_page_slug.to_owned(),
             wikitext,
-            source_site: Some(source_site_slug.to_owned()),
-        }))
+            source_site_slug.to_owned(),
+        )))
     }
 
     async fn fetch_include_source_from_site(
@@ -352,7 +356,7 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
         site_slug: &str,
         page_slug: &str,
         cache: &mut IncludeSourceCache,
-    ) -> Result<Option<IncludeSource>> {
+    ) -> Result<Option<AuthorizedIncludeSource>> {
         let wikitext = cache
             .get_or_try_insert_with(site_id, page_slug, || async {
                 let page_ref = Reference::from(page_slug);
@@ -390,21 +394,71 @@ impl<'context, 'transaction> RenderRuntime<'context, 'transaction> {
             })
             .await?;
 
-        Ok(wikitext.map(|wikitext| IncludeSource {
-            site_slug: site_slug.to_owned(),
-            page_slug: trim_default(page_slug).to_owned(),
-            wikitext,
-            source_site: None,
+        Ok(wikitext.map(|wikitext| {
+            AuthorizedIncludeSource::view_checked(
+                site_slug.to_owned(),
+                trim_default(page_slug).to_owned(),
+                wikitext,
+            )
         }))
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+struct SnapshotMatchedPageId(i64);
+
+impl SnapshotMatchedPageId {
+    fn page_id(self) -> i64 {
+        self.0
+    }
+}
+
 #[derive(Debug)]
-pub(super) struct IncludeSource {
+pub(super) struct AuthorizedIncludeSource {
     pub(super) site_slug: String,
     pub(super) page_slug: String,
     pub(super) wikitext: String,
     pub(super) source_site: Option<String>,
+}
+
+impl AuthorizedIncludeSource {
+    fn view_checked(site_slug: String, page_slug: String, wikitext: String) -> Self {
+        Self {
+            site_slug,
+            page_slug,
+            wikitext,
+            source_site: None,
+        }
+    }
+
+    fn snapshot_matched(
+        site_slug: String,
+        page_slug: String,
+        wikitext: String,
+        source_site: String,
+    ) -> Self {
+        Self {
+            site_slug,
+            page_slug,
+            wikitext,
+            source_site: Some(source_site),
+        }
+    }
+
+    #[cfg(test)]
+    pub(super) fn for_test(
+        site_slug: String,
+        page_slug: String,
+        wikitext: String,
+        source_site: Option<String>,
+    ) -> Self {
+        Self {
+            site_slug,
+            page_slug,
+            wikitext,
+            source_site,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

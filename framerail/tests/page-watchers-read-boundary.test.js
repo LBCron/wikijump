@@ -105,13 +105,18 @@ test("WatchersPane SSR exposes a lazy read pane with no roster and no denial", (
 test("Watchers handler delegates the posted page id to the typed Deepwell view", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "page_watchers") {
-      return fixtureWatchers
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "page_watchers") {
+        return fixtureWatchers
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const request = new Request("https://wikijump.test/fixture?/watchers", {
     method: "POST",

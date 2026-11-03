@@ -16,8 +16,23 @@ fn main() {
     );
     println!("cargo:rerun-if-env-changed=WIKIJUMP_GIT_COMMIT");
 
+    // The pinned FTML commit, for the platform information page.
+    println!("cargo:rustc-env=DEEPWELL_FTML_COMMIT={}", ftml_commit());
+    println!("cargo:rerun-if-changed=Cargo.lock");
+
     // Trigger recompilation when a new migration is added.
     println!("cargo:rerun-if-changed=migrations");
+}
+
+fn ftml_commit() -> String {
+    let lockfile = std::fs::read_to_string("Cargo.lock").expect("Cargo.lock is readable");
+    lockfile
+        .lines()
+        .skip_while(|line| *line != "name = \"ftml\"")
+        .find_map(|line| line.strip_prefix("source = \"git+")?.strip_suffix('"'))
+        .and_then(|source| source.split_once('#'))
+        .map(|(_, commit)| commit.to_owned())
+        .expect("Cargo.lock pins FTML to a git commit")
 }
 
 fn cargo_version() -> String {

@@ -1196,9 +1196,7 @@ mod race {
         session: &str,
         site_id: i64,
         page_header: &str,
-        id: usize,
-        method: &str,
-        params: Value,
+        (id, method, params): (usize, &str, Value),
     ) -> Outcome {
         let response = client
             .post(format!("http://{address}"))
@@ -1312,9 +1310,7 @@ mod race {
                 &self.session,
                 self.site_id,
                 page_header,
-                id,
-                method,
-                params,
+                (id, method, params),
             )
             .await
         }

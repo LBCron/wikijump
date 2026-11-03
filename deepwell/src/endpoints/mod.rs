@@ -29,10 +29,9 @@ mod prelude {
         AliasService, BlobService, CaddyService, CategoryService, DomainService,
         FileRevisionService, FileService, LinkService, MessageReportService,
         MessageService, MfaService, PageEditLockService, PageLockService,
-        PageRevisionService, PageService,
-        ParentService, RelationService, RenderService, ScoreService, ServiceContext,
-        SessionService, SettingsService, SiteService, TextBlockService, TextService,
-        UserService, ViewService, VoteService,
+        PageRevisionService, PageService, ParentService, RelationService, RenderService,
+        ScoreService, ServiceContext, SessionService, SettingsService, SiteService,
+        TextBlockService, TextService, UserService, ViewService, VoteService,
     };
     pub use jsonrpsee::types::params::Params;
     pub use std::convert::TryFrom;

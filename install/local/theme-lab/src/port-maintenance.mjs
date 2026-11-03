@@ -256,12 +256,12 @@ export function extractSCPJPAdaptationBlocks(source) {
   return blocks;
 }
 
-function importUrls(assetsReceipt) {
-  return unique((assetsReceipt?.imports ?? []).map((item) => typeof item === "string" ? item : item?.source_url).filter(Boolean)).sort();
+function importUrls(assetsManifest) {
+  return unique((assetsManifest?.imports ?? []).map((item) => typeof item === "string" ? item : item?.source_url).filter(Boolean)).sort();
 }
 
-function importProvenance(assetsReceipt) {
-  return (assetsReceipt?.import_provenance ?? []).map((row) => ({
+function importProvenance(assetsManifest) {
+  return (assetsManifest?.import_provenance ?? []).map((row) => ({
     source_url: row.source_url,
     final_url: row.final_url ?? row.source_url,
     sha256: row.sha256,
@@ -299,15 +299,15 @@ function absoluteMetadataPaths(manifest) {
   return rows;
 }
 
-export function buildPortMaintenanceAudit({manifest, upstreamSource, humanPortSource, candidateSource, assetsReceipt = {}, maintenanceException = null, maintenanceManifest = null, maintenanceOverrideCss = "", maintenanceFinalSource = "", localizationTransformManifest = null}) {
+export function buildPortMaintenanceAudit({manifest, upstreamSource, humanPortSource, candidateSource, assetsManifest = {}, maintenanceException = null, maintenanceManifest = null, maintenanceOverrideCss = "", maintenanceFinalSource = "", localizationTransformManifest = null}) {
   const upstreamActiveTags = sourceTags(manifest, upstreamSource);
   const upstreamCss = cssFromSource(upstreamSource, upstreamActiveTags);
   const inferredCandidateTags = candidateTags(manifest, humanPortSource);
   const localizedCss = cssFromSource(humanPortSource, inferredCandidateTags);
   const baselineRuleChanges = diffCssRules(upstreamCss, localizedCss);
   const adaptations = extractSCPJPAdaptationBlocks(candidateSource);
-  const imports = importUrls(assetsReceipt);
-  const provenance = importProvenance(assetsReceipt);
+  const imports = importUrls(assetsManifest);
+  const provenance = importProvenance(assetsManifest);
   const provenanceUrls = new Set(provenance.map((row) => row.source_url));
   const upstreamSha = sha256Text(upstreamSource);
   const overrideCascade = maintenanceOverrideCss ? analyzeOverrideCascade(maintenanceOverrideCss) : null;
@@ -379,7 +379,7 @@ export function buildPortMaintenanceAudit({manifest, upstreamSource, humanPortSo
     upstream_dependencies: {
       css_import_count: imports.length,
       css_import_urls: imports,
-      import_provenance_status: assetsReceipt?.import_provenance_status ?? "legacy-untracked",
+      import_provenance_status: assetsManifest?.import_provenance_status ?? "legacy-untracked",
       import_provenance_count: provenance.length,
       import_provenance: provenance,
       missing_import_provenance: imports.filter((url) => !provenanceUrls.has(url)),
@@ -387,9 +387,9 @@ export function buildPortMaintenanceAudit({manifest, upstreamSource, humanPortSo
     },
     flattened_css_transforms: {
       manifest: manifest.flattened_css_transforms ?? null,
-      applied_count: assetsReceipt?.localization_transforms?.length ?? 0,
-      applied: assetsReceipt?.localization_transforms ?? [],
-      manifest_provenance: assetsReceipt?.localization_transform_manifest ?? null,
+      applied_count: assetsManifest?.localization_transforms?.length ?? 0,
+      applied: assetsManifest?.localization_transforms ?? [],
+      manifest_provenance: assetsManifest?.localization_transform_manifest ?? null,
       declared: transformDependencies,
     },
     maintenance_source: {

@@ -43,24 +43,29 @@ const requestEvent = (overrides = {}) =>
 test("deleted-page actions use the authenticated route context", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") {
-      return {
-        session_token: SESSION_TOKEN,
-        user_id: 91,
-        created_at: "2026-08-10T00:00:00Z",
-        expires_at: "2026-08-11T00:00:00Z",
-        ip_address: "192.0.2.91",
-        user_agent: "deleted page test",
-        restricted: false
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") {
+        return {
+          session_token: SESSION_TOKEN,
+          user_id: 91,
+          created_at: "2026-08-10T00:00:00Z",
+          expires_at: "2026-08-11T00:00:00Z",
+          ip_address: "192.0.2.91",
+          user_agent: "deleted page test",
+          restricted: false
+        }
       }
+      if (method === "page_get_deleted") {
+        return [{ page_id: 42, slug: "main", site_id: SITE_ID }]
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "page_get_deleted") {
-      return [{ page_id: 42, slug: "main", site_id: SITE_ID }]
-    }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const result = await actions.deletedGet(requestEvent())
   assert.deepEqual(result, {

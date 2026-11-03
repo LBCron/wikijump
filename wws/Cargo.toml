@@ -1,7 +1,7 @@
 [package]
 name = "wws"
 description = "Wilson's Web Server - Serves a zoo of user-generated content"
-repository = "https://github.com/scpwiki/wikijump/tree/develop/wws"
+repository = "https://github.com/Rokurolize/wikijump/tree/develop/wws"
 readme = "README.md"
 license = "AGPL-3.0-or-later"
 keywords = ["wikijump", "api", "backend", "wiki"]

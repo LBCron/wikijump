@@ -20,7 +20,7 @@ export function materializeThemeSessionInputs(root,plan,{sessionProfile='anonymo
     if(!['headerHtml','navigationHtml','sidebarHtml','interwikiHtml'].includes(slot))throw new Error(`unsupported session shell slot: ${slot}`);
     shell[slot]=typeof value==='string'?value:boundText(root,value,`session shell ${slot}`);
   }
-  const siteId=plan.live_site_state_receipt?.site_id;
+  const siteId=plan.live_site_state?.site_id;
   if(!Number.isSafeInteger(siteId))throw new Error('ready plan lacks a verified live site id');
   const measurementContract=JSON.parse(fs.readFileSync(resolveExistingContainedFile(root,plan.bindings.measurement_contract.path,'measurement contract'),'utf8'));
   if(!measurementContract.session_profiles?.includes(sessionProfile))throw new Error(`session profile is outside measurement contract: ${sessionProfile}`);
@@ -33,8 +33,6 @@ export function materializeThemeSessionInputs(root,plan,{sessionProfile='anonymo
   const scenarioEvidenceBase={
     schema:'theme_lab_scenario_execution_evidence.v1',
     scenario_sha256:plan.scenario_sha256,
-    live_site_state_receipt_sha256:plan.live_site_state_receipt.receipt_sha256,
-    rendered_shell_sha256:plan.rendered_shell_receipt?.rendered_shell_sha256??null,
     measurement_contract_sha256:plan.bindings.measurement_contract.sha256,
     theme_asset_dependency_sha256:plan.bindings.theme_asset_dependencies.asset_dependency_sha256,
     theme_css_sha256:plan.bindings.theme_css.sha256,

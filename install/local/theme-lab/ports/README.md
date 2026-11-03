@@ -5,7 +5,7 @@ package, read `NEW-FOREIGN-THEME-PORT.md` first. This file primarily documents
 the completed SCP-EN campaign and its offline replay/maintenance state; it is
 not the bootstrap procedure for a new foreign-branch port.
 
-`en-theme-campaign.json` retains campaign source and historical acceptance identities. It binds all 34 refreshed SCP-EN source revisions to one local candidate package, previous JP status/source, technical-spec version, final offline Theme Lab verdict, viewport and interaction results, warnings, and receipt for each theme. `TECHNICAL-LOCALIZATION-SPEC.md` states the acceptance requirements. `en-theme-dependency-graph.json` records shared BHL/Sigma/theme/include/asset dependencies.
+`en-theme-campaign.json` retains campaign source and historical acceptance identities. It binds all 34 refreshed SCP-EN source revisions to one local candidate package, previous JP status/source, technical-spec version, final offline Theme Lab verdict, viewport and interaction results, warnings, and record for each theme. `TECHNICAL-LOCALIZATION-SPEC.md` states the acceptance requirements. `en-theme-dependency-graph.json` records shared BHL/Sigma/theme/include/asset dependencies.
 
 Each package `PORT.md` explains the port.
 

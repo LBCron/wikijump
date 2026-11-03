@@ -1,9 +1,6 @@
 import { createHash } from "node:crypto";
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
-import path from "node:path";
-
-import { publishBytesNoReplace } from "./atomic-no-replace.mjs";
 
 export function isPlainObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -184,56 +181,8 @@ export async function createPrivateEmptyDirectory(directory) {
   await fs.chmod(directory, 0o700);
 }
 
-export async function sealJsonNoReplace(destination, value) {
-  const serialized = canonicalJson(value);
-  const result = await publishBytesNoReplace(destination, serialized, {
-    mode: 0o600,
-  });
-  if (result === "exists") {
-    const before = await fs.lstat(destination);
-    if (
-      !before.isFile() ||
-      before.isSymbolicLink() ||
-      before.nlink !== 1 ||
-      (before.mode & 0o077) !== 0
-    ) {
-      throw new Error(
-        `sealed JSON already exists but is not a private regular file: ${destination}`,
-      );
-    }
-    const handle = await fs.open(
-      destination,
-      fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0),
-    );
-    let existing;
-    try {
-      const opened = await handle.stat();
-      if (
-        !opened.isFile() ||
-        opened.isSymbolicLink() ||
-        opened.nlink !== 1 ||
-        opened.dev !== before.dev ||
-        opened.ino !== before.ino
-      ) {
-        throw new Error(
-          `sealed JSON changed while it was being verified: ${destination}`,
-        );
-      }
-      existing = await handle.readFile("utf8");
-    } finally {
-      await handle.close();
-    }
-    if (existing !== serialized) {
-      throw new Error(
-        `sealed JSON already exists with different bytes: ${destination}`,
-      );
-    }
-  }
-  return {
-    path: path.basename(destination),
-    sha256: sha256Text(serialized),
-    publication: result,
-  };
+export async function writeJson(destination, value) {
+  await fs.writeFile(destination, `${canonicalJson(value)}`, { mode: 0o600, flag: "wx" });
 }
 
 export function normalizedUrl(value, name) {

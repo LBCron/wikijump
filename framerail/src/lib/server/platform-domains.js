@@ -1,6 +1,5 @@
 import { parseDeploymentEnvironment } from "./deployment-environment.js"
 
-
 const DEFAULT_PLATFORM_DOMAINS = {
   local: { main: "wikijump.localhost", files: "wjfiles.localhost" },
   dev: { main: "wikijump.dev", files: "wjfiles.dev" },

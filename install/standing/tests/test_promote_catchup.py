@@ -99,11 +99,11 @@ class CatchUpActivationTest(unittest.TestCase):
         self.assertEqual(len(renders), render_ahead.CATCH_UP_ROUNDS)
 
     def test_link_readers_settle_after_a_catch_up_moves_links(self) -> None:
-        receipt = self.root / "render-ahead-receipt.json"
-        receipt.write_text(json.dumps({"link_reader_page_ids": [42]}), encoding="utf-8")
+        summary = self.root / "render-ahead-summary.json"
+        summary.write_text(json.dumps({"link_reader_page_ids": [42]}), encoding="utf-8")
         render_ahead_arg = {
             **GENERATION_CHANGE,
-            "receipt": {"path": str(receipt)},
+            "summary_path": str(summary),
         }
         self.standing.stale_sequence = [3, 0, 0]
         self.standing.stale_page_ids = [11, 12, 13]

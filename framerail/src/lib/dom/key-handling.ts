@@ -52,8 +52,7 @@ export class KeyObserver {
       if (evt.type === "mousedown") {
         if (evt.button === 0 && handler.key === "left-click") fire = true
         if (evt.button === 2 && handler.key === "right-click") fire = true
-      }
-      else {
+      } else {
         fire = evt.type === handler.key
       }
 

@@ -18,7 +18,8 @@ export const handleInfoRpc = ({ rpcRequest }) => {
         version: "0.0.0-fixture.2026.10.08+unreleased-build-metadata"
       },
       compile_info: {
-        rustc_version: "rustc 1.90.0-nightly (fixture build with long metadata string)"
+        rustc_version: "rustc 1.90.0-nightly (fixture build with long metadata string)",
+        ftml_commit: "bcfd17dbc2bf734d29370c1b398a3386d978b874"
       }
     }
   }

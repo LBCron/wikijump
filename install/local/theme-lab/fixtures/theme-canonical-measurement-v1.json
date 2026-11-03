@@ -9,7 +9,7 @@
     {"id": "narrow-mobile", "width": 320, "height": 800}
   ],
   "browser_engines": ["chromium", "firefox", "webkit"],
-  "browser_version_policy": "exact-runtime-version-receipt",
+  "browser_version_policy": "exact-runtime-version",
   "session_profiles": ["anonymous", "authenticated"],
   "network_policy": "block-external-after-local-materialization"
 }

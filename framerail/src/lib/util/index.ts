@@ -447,11 +447,9 @@ export function byteLength(str: string) {
       } else {
         throw new Error("malformed UTF-16 string")
       }
-    }
-    else if (high < 0xe000) {
+    } else if (high < 0xe000) {
       throw new Error("malformed UTF-16 string")
-    }
-    else len += 3
+    } else len += 3
   }
 
   return len

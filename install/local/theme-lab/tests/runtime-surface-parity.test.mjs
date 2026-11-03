@@ -64,7 +64,7 @@ test("derived active runtime surfaces retain local acceptance without parity aut
   assert.equal(accounting.counts.active_dependencies_removed_from_parity_port_conclusions, activeIds.length);
 });
 
-test("source receipts and accounting retain capture failures and narrow module limits", () => {
+test("source records and accounting retain capture failures and narrow module limits", () => {
   const browser = JSON.parse(fs.readFileSync(path.join(root, "evidence/wikidot-runtime-surface-20260930.states-v3/records.json"), "utf8"));
   const modules = JSON.parse(fs.readFileSync(path.join(root, "evidence/wikidot-runtime-surface-modules-20260930.json"), "utf8"));
   const states = browser.evidence.flatMap((record) => record.source_states);

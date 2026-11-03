@@ -23,15 +23,15 @@ def main() -> int:
         source = (package / "candidate.wikidot.source.txt").read_text(encoding="utf-8")
         preview, expanded, omitted = build(source, squares_source)
         (package / "candidate.wikidot.txt").write_text(preview, encoding="utf-8")
-        receipt_path = package / "preview-fixture.json"
-        receipt = json.loads(receipt_path.read_text())
-        receipt.update({
+        fixture_path = package / "preview-fixture.json"
+        fixture = json.loads(fixture_path.read_text())
+        fixture.update({
             "source_sha256": hashlib.sha256(source.encode()).hexdigest(),
             "expanded_theme_squares": expanded,
             "omitted_unseeded_includes": sorted(set(omitted)),
             "expanded_theme_squares_css_modules": len(re.findall(r"\[\[module\s+CSS\s*\]\].*?\[\[/module\s*\]\]", squares_source, flags=re.I | re.S)) if expanded else 0,
         })
-        receipt_path.write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        fixture_path.write_text(json.dumps(fixture, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         count += 1
     print(json.dumps({"rebuilt_previews": count}, ensure_ascii=False))
     return 0

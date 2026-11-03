@@ -39,7 +39,7 @@ rules:
 * Per-pass overhead accounting: each pass entry records `overhead_seconds`
   (controller wall-clock minus the image's own render time, i.e. container
   startup and log handling), and every link-digest snapshot is timed into
-  the receipt's `link_digest_timings`.
+  the summary's `link_digest_timings`.
 * Sharded full pass (`--shards`, default 1): the full pass renders disjoint
   chunks of the live page-ID space in concurrent containers through the same
   `render_pass` primitive and merges their summaries. Shard 1 is the exact
@@ -107,7 +107,7 @@ IMAGE_ID = re.compile(r"sha256:[0-9a-f]{64}")
 IDEMPOTENT_STATEMENT = re.compile(
     r"^(CREATE TABLE IF NOT EXISTS|CREATE INDEX IF NOT EXISTS)\s", re.IGNORECASE
 )
-SUMMARY_SCHEMA = "wikijump.render_ahead_receipt.v1"
+SUMMARY_SCHEMA = "wikijump.render_ahead_summary.v1"
 RENDER_TIMEOUT = re.compile(r"^render-timeout-ms\s*=\s*[0-9]+\s*$", re.MULTILINE)
 DEADLINE_MARKERS = ("deadline has elapsed", "due to timeout")
 # A link reader's own links can be read by another reader, so each level of
@@ -453,7 +453,7 @@ def render_full_sharded(render, name, cutoff, chunks, *, serial=False, extended=
     Each chunk runs through the same `render` callable as the serial path, so
     settings, log files, and summary shapes keep their meaning; chunks are
     recorded as `<name>-shard-<index>` in index order for a deterministic
-    receipt. Returns the merged summary, shaped like one pass summary for
+    summary. Returns the merged summary, shaped like one pass summary for
     the settle loop and the tail-retry path. A shard failure stops the run:
     still-queued shards are cancelled and the first error propagates, so a
     partial shard can never be mistaken for a complete pass.
@@ -736,7 +736,7 @@ def main() -> int:
         )
     finally:
         os.unlink(extended_config)
-    receipt = {
+    summary = {
         "schema": SUMMARY_SCHEMA,
         "status": "pass" if final["stale_without_valid_ahead"] == 0 else "incomplete",
         "started_at": started_at.isoformat(),
@@ -757,19 +757,19 @@ def main() -> int:
         "nondeterministic_link_page_ids": nondeterministic,
         "stale_without_valid_ahead": final["stale_without_valid_ahead"],
     }
-    receipt_path = args.output_dir / "render-ahead-receipt.json"
-    with receipt_path.open("x", encoding="utf-8") as output:
-        json.dump(receipt, output, indent=2, sort_keys=True)
+    summary_path = args.output_dir / "render-ahead-summary.json"
+    with summary_path.open("x", encoding="utf-8") as output:
+        json.dump(summary, output, indent=2, sort_keys=True)
         output.write("\n")
     print(
         json.dumps(
             {
-                key: receipt[key]
+                key: summary[key]
                 for key in ("status", "duration_seconds", "stale_without_valid_ahead")
             }
         )
     )
-    return 0 if receipt["status"] == "pass" else 1
+    return 0 if summary["status"] == "pass" else 1
 
 
 if __name__ == "__main__":

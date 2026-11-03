@@ -20,7 +20,7 @@ test('page-state identities bind the rendered tag wrapper and its escaped links'
   for(const surface of ['page.normal','page.history','page.source','page.tags']){
     const files=runtimeFilesForObservation(surface,'narrow-mobile');
     assert.ok(files.includes('framerail/src/routes/[slug]/[...extra]/WikidotFoundPageTags.svelte'));
-    assert.ok(files.includes('framerail/src/lib/wikidot/wikidot-page-tags.js'));
+    assert.ok(files.includes('framerail/src/lib/wikidot/wikidot-page-tags.ts'));
   }
 });
 

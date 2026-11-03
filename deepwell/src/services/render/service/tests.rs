@@ -3903,9 +3903,11 @@ fn empty_protection_bundle() -> RenderProtectionBundle {
 #[test]
 fn render_protection_bundle_drop_propagates_errors() {
     fn run_with_forced_error() -> Result<(), Box<Error>> {
-        let mut bundle = empty_protection_bundle();
+        let bundle = empty_protection_bundle();
         Err::<(), _>(Error::new("forced render failure", ErrorType::Render))
-            .inspect_err(|_| bundle.defuse())?;
+            .inspect_err(|_| {
+                bundle.defuse();
+            })?;
         Ok(())
     }
 

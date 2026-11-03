@@ -81,22 +81,27 @@ test("page form initialization gives ParentPane only its parents field", async (
 test("root and slug parentSet actions accept the parent pane JSON payload", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") {
-      return {
-        session_token: "parent-session",
-        user_id: 91,
-        created_at: "2026-08-10T00:00:00Z",
-        expires_at: "2026-08-11T00:00:00Z",
-        ip_address: "192.0.2.91",
-        user_agent: "parent action test",
-        restricted: false
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") {
+        return {
+          session_token: "parent-session",
+          user_id: 91,
+          created_at: "2026-08-10T00:00:00Z",
+          expires_at: "2026-08-11T00:00:00Z",
+          ip_address: "192.0.2.91",
+          user_agent: "parent action test",
+          restricted: false
+        }
       }
+      if (method === "parent_update") return { added: [101, 102], removed: [true] }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "parent_update") return { added: [101, 102], removed: [true] }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const serializedPayload =
     '[{"siteId":1,"pageId":2,"addParents":3,"removeParents":6},17,23,[4,5],"alpha","beta",[7],"old"]'

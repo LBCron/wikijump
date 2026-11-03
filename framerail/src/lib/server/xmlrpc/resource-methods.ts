@@ -424,9 +424,7 @@ async function acquireXmlRpcPageEditLease(
       .map(
         (conflict) =>
           `user_id ${conflict.user_id}, mode ${conflict.mode}${
-            conflict.section_index === null
-              ? ""
-              : `, section ${conflict.section_index}`
+            conflict.section_index === null ? "" : `, section ${conflict.section_index}`
           }, ${conflict.seconds_remaining} seconds remaining`
       )
       .join("; ")
@@ -452,15 +450,12 @@ async function releaseXmlRpcPageEditLease(
       {
         page: slug,
         lock_id: lease.lockId,
-        ["lock_secret"]: lease.lockSecret
+        "lock_secret": lease.lockSecret
       },
       { ...writeContext, page: slug }
     )
   } catch (error) {
-    console.error(
-      `Failed to release page edit lock ${lease.lockId} for ${slug}`,
-      error
-    )
+    console.error(`Failed to release page edit lock ${lease.lockId} for ${slug}`, error)
   }
 }
 
@@ -488,7 +483,7 @@ async function requestXmlRpcLeasedPageEdit(
         ...editParams,
         lease: {
           lock_id: lease.lockId,
-          ["lock_secret"]: lease.lockSecret,
+          "lock_secret": lease.lockSecret,
           mode: "page"
         }
       },

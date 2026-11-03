@@ -226,7 +226,6 @@
     }
   }
 
-
   // prettier-ignore
   @keyframes skeleton-fade-in {
     0%   { opacity: 0; }

@@ -1,4 +1,3 @@
-
 const SITE_ID_HEADER = "X-Wikijump-Site-Id"
 const SITE_SLUG_HEADER = "X-Wikijump-Site-Slug"
 

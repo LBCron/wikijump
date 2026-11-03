@@ -42,6 +42,7 @@ const isQuantifierStart = (character) => QUANTIFIER_STARTS.has(character)
  *   hasAlternation: boolean
  * }} NewPagePatternState
  *
+ *
  * @typedef {{
  *   source: string
  *   hasQuantifier: boolean

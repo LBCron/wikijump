@@ -60,13 +60,18 @@ const requestEvent = (action, overrides = {}) =>
 test("vote mutation actions forward the trusted route request context", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return installedSession()
-    if (method === "vote_set") return { page_id: 42, value: 1, score: 1 }
-    if (method === "vote_remove") return { page_id: 42, value: null, score: 0 }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return installedSession()
+      if (method === "vote_set") return { page_id: 42, value: 1, score: 1 }
+      if (method === "vote_remove") return { page_id: 42, value: null, score: 0 }
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
 
   const cast = await actions.voteCast(
     requestEvent("voteCast", { body: { pageId: 42, value: 1, siteId: 999 } })
@@ -102,11 +107,16 @@ test("vote mutation actions forward the trusted route request context", async ()
 test("page score actions use only trusted route context", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "page_get_score") return { page_id: 42, score: 7 }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "page_get_score") return { page_id: 42, score: 7 }
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
 
   const result = await actions.score(requestEvent("score"))
   assert.deepEqual(result, { res: { page_id: 42, score: 7 } })
@@ -148,13 +158,18 @@ test("Wikidot WhoRated pane uses the exact AMC pageId contract", async () => {
 test("legacy wiki actions derive the actor, client address, and revision binding from the trusted route", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return installedSession()
-    if (method === "wikidot_legacy_rate") return { page_id: 42, score: 1 }
-    if (method === "wikidot_legacy_set_tags") return { revision_id: 91 }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return installedSession()
+      if (method === "wikidot_legacy_rate") return { page_id: 42, score: 1 }
+      if (method === "wikidot_legacy_set_tags") return { revision_id: 91 }
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
 
   const actionFingerprint = "0123456789abcdef0123456789abcdef"
   const rate = await actions.legacyRate(

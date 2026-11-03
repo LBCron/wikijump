@@ -228,9 +228,12 @@ test("a timed-out partial upstream response closes without crashing the proxy", 
     requestTimeoutMs: 25,
   });
   try {
-    await assert.rejects(
-      proxyRequest(proxy.url, `http://fixture.test:${upstream.port}/partial`),
-    );
+    // The timeout can fire before or after the response headers reach the proxy.
+    const partial = await proxyRequest(
+      proxy.url,
+      `http://fixture.test:${upstream.port}/partial`,
+    ).catch(() => ({status: 502}));
+    assert.equal(partial.status, 502);
     assert.deepEqual(
       await proxyRequest(proxy.url, `http://fixture.test:${upstream.port}/ok`),
       {status: 200, body: "OK"},

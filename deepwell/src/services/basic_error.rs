@@ -23,6 +23,7 @@ use crate::services::ServiceContext;
 use crate::services::view::redirect::escape_wikidot_html_text;
 use crate::services::{DomainService, SiteService};
 use crate::types::Reference;
+use crate::utils::strip_fluent_control_chars;
 use fluent::{FluentArgs, FluentValue};
 use unic_langid::LanguageIdentifier;
 
@@ -44,6 +45,19 @@ pub struct BasicErrorService;
 /// slot cannot reintroduce reflection (issue #2560).
 fn html_arg(value: impl AsRef<str>) -> FluentValue<'static> {
     FluentValue::String(escape_wikidot_html_text(value.as_ref()).into())
+}
+
+/// Basic errors are HTML, and their Fluent arguments land inside attribute
+/// values such as `href`. Fluent's direction isolates would corrupt those URLs.
+fn basic_error_output(
+    title: impl Into<String>,
+    body: impl Into<String>,
+) -> BasicErrorOutput {
+    let mut title = title.into();
+    let mut body = body.into();
+    strip_fluent_control_chars(&mut title);
+    strip_fluent_control_chars(&mut body);
+    BasicErrorOutput { title, body }
 }
 
 impl BasicErrorService {
@@ -81,10 +95,7 @@ impl BasicErrorService {
             .translate(locales, "basic-error-site-slug", &args)
             .or_raise(make_error)?;
 
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 
     pub async fn missing_custom_domain(
@@ -121,10 +132,7 @@ impl BasicErrorService {
             .translate(locales, "basic-error-site-custom", &args)
             .or_raise(make_error)?;
 
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 
     pub async fn missing_page_slug(
@@ -163,10 +171,7 @@ impl BasicErrorService {
             .translate(locales, "basic-error-page-slug", &args)
             .or_raise(make_error)?;
 
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 
     pub async fn page_fetch(
@@ -205,10 +210,7 @@ impl BasicErrorService {
             .translate(locales, "basic-error-page-fetch", &args)
             .or_raise(make_error)?;
 
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 
     pub async fn missing_file_name(
@@ -249,10 +251,7 @@ impl BasicErrorService {
             .translate(locales, "basic-error-file-name", &args)
             .or_raise(make_error)?;
 
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 
     pub async fn file_fetch(
@@ -294,10 +293,7 @@ impl BasicErrorService {
             .translate(locales, "basic-error-file-fetch", &args)
             .or_raise(make_error)?;
 
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 
     pub async fn text_block(
@@ -340,10 +336,7 @@ impl BasicErrorService {
             .translate(locales, "basic-error-text-block", &args)
             .or_raise(make_error)?;
 
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 
     pub async fn file_root(
@@ -375,10 +368,7 @@ impl BasicErrorService {
             .translate(locales, "basic-error-file-root", &args)
             .or_raise(make_error)?;
 
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 
     pub async fn blob_fetch(
@@ -407,10 +397,7 @@ impl BasicErrorService {
             .localization()
             .translate(locales, "basic-error-blob-fetch", &args)
             .or_raise(make_error)?;
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 
     pub async fn user_fetch(
@@ -440,10 +427,7 @@ impl BasicErrorService {
             .localization()
             .translate(locales, "basic-error-user-fetch", &args)
             .or_raise(make_error)?;
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 
     pub async fn user_avatar_error(
@@ -473,9 +457,6 @@ impl BasicErrorService {
             .localization()
             .translate(locales, "basic-error-user-avatar", &args)
             .or_raise(make_error)?;
-        Ok(BasicErrorOutput {
-            title: title.to_string(),
-            body: body.to_string(),
-        })
+        Ok(basic_error_output(title, body))
     }
 }

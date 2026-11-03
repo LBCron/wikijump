@@ -32,7 +32,9 @@ use std::path::Path;
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
-    let fluent_directory = Path::new(env!("CARGO_MANIFEST_DIR")).join("../fluent");
+    let fluent_directory =
+        Path::new(&std::env::var("CARGO_MANIFEST_DIR").expect("run through cargo"))
+            .join("../fluent");
     match check::run(&fluent_directory) {
         Ok(ValidationOutcome::Valid) => {
             println!();

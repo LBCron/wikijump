@@ -14,7 +14,7 @@
 - Evidence: FTML PR #403, merged as `84e11acf30372f206a44554967b4928c4f7c3546`;
   Wikijump sandbox-oracle capture
   `/home/roku/oracle-store/wjlab/sandbox-oracle-20260807-c5-full/run-sigma-current/oracle-verdict.json`;
-  the syntax-tabview row passes after the narrow generated-identity receipt;
+  the syntax-tabview row passes after the narrow generated-identity record;
   live tabview script URL observed at
   `http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--javascript/yahooui/tabview-min.js`.
 - FTML backlog decision: keep this as bounded Wikijump-side debt while FTML

@@ -92,24 +92,29 @@ test("Append SSR exposes only new source while preserving the current revision f
 test("Append submission preserves metadata and commits only the appended source at the revision-bound edit action", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") {
-      return {
-        session_token: "append-session",
-        user_id: 23,
-        created_at: "2026-08-10T00:00:00Z",
-        expires_at: "2026-08-11T00:00:00Z",
-        ip_address: "192.0.2.42",
-        user_agent: "append test",
-        restricted: false
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") {
+        return {
+          session_token: "append-session",
+          user_id: 23,
+          created_at: "2026-08-10T00:00:00Z",
+          expires_at: "2026-08-11T00:00:00Z",
+          ip_address: "192.0.2.42",
+          user_agent: "append test",
+          restricted: false
+        }
       }
+      if (method === "page_edit") {
+        return { revision_id: 10, revision_number: 4, parser_errors: [] }
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "page_edit") {
-      return { revision_id: 10, revision_number: 4, parser_errors: [] }
-    }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const fields = new FormData()
   for (const [name, value] of Object.entries({
@@ -210,16 +215,21 @@ test("Backlinks SSR exposes a lazy read pane without page identifiers", () => {
 test("Backlinks handler delegates the current route to the typed public Deepwell view", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "page_backlinks_view") {
-      return [
-        { slug: "alpha-linker", title: "Alpha Linker" },
-        { slug: "beta-linker", title: "Beta Linker" }
-      ]
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "page_backlinks_view") {
+        return [
+          { slug: "alpha-linker", title: "Alpha Linker" },
+          { slug: "beta-linker", title: "Beta Linker" }
+        ]
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const request = new Request("https://wikijump.test/fixture?/backlinks", {
     method: "POST",

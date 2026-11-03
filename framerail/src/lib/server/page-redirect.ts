@@ -31,8 +31,7 @@ export function resolvePageRedirect(
   let search = ""
   try {
     search = new URL(requestUrl).search
-  } catch {
-  }
+  } catch {}
 
   return {
     status: 301,

@@ -67,7 +67,6 @@ import {annotateRuntimeSurfaceUsage, applyRuntimeSurfaceParityGate} from "./runt
 import {captureVisualPair} from "./visual-diff.mjs";
 import {bindVisualAcceptance} from "./visual-acceptance.mjs";
 import {measureTargetBaselineViewportOverflow} from "./target-baseline-viewport-probe.mjs";
-import {fullCheckInputBindings} from "./full-check-input-bindings.mjs";
 import {framerailSourceFingerprintSync} from "./framerail-source-fingerprint.mjs";
 import {dedupeCssLayers} from "./css-layers.mjs";
 import {inspectCandidateAssets, materializeCandidateCssAssets, materializeCandidatePageImages} from "./local-assets.mjs";
@@ -112,7 +111,7 @@ function verifyScenarioEvidence(evidence,{candidateUrl,siteId,css,baseCss,source
   const {execution_evidence_sha256:recorded,...unsigned}=evidence;
   const actual=crypto.createHash("sha256").update(JSON.stringify(unsigned)).digest("hex");
   if(recorded!==actual)fail("invalid_scenario_evidence","scenario execution evidence hash mismatch");
-  for(const field of ["scenario_sha256","live_site_state_receipt_sha256","measurement_contract_sha256","theme_asset_dependency_sha256","theme_css_sha256","theme_source_sha256"]){
+  for(const field of ["scenario_sha256","live_site_state_sha256","measurement_contract_sha256","theme_asset_dependency_sha256","theme_css_sha256","theme_source_sha256"]){
     if(!/^[0-9a-f]{64}$/u.test(evidence[field]??""))fail("invalid_scenario_evidence",`invalid ${field}`);
   }
   if(!['anonymous','authenticated'].includes(evidence.session_profile))fail("invalid_scenario_evidence","invalid scenario session profile");
@@ -757,7 +756,6 @@ export function createSession({
         };
       }
       verdict.target_fixture_identity = Object.fromEntries(Object.entries({baseline:baselineCss,sidebar:sidebarHtml,interwiki:interwikiHtml,header:headerHtml,navigation:navigationHtml}).map(([name,bytes])=>[name,bytes===null?null:crypto.createHash("sha256").update(bytes).digest("hex")]));
-      verdict.full_check_input_bindings = fullCheckInputBindings({selectors,surfaceContract,sourceStructure,pageAssets,referenceUrl});
       if (loadedReference) {
         const manifest = await session.referenceAssets.load();
         verdict.reference_identity = {source_url: loadedReference.root_url,

@@ -13,7 +13,7 @@ package workflow from an old completed campaign. Agent routing starts at
 This is a development tool, intentionally separate from
 `install/local/wikidot-verification` (whose offline suites forbid external
 network access and whose theme-localization runner is a hand-authored,
-receipt-driven validator, not a generic loop).
+check-driven validator, not a generic loop).
 
 ## The loop
 
@@ -109,7 +109,7 @@ mobile presentation, pager transitions, action outcomes, or other file
 revision variants. The overall `page.history` row is therefore still
 `INSUFFICIENT_EVIDENCE`; only `page.history.table-dom` and
 `page.history.file-revision-timeline` have narrow parity authority. Read-only
-source-side browser captures and exact module receipts add bounded observations
+source-side browser captures and exact module captures add bounded observations
 for shell and interaction states, but do not certify those broader contracts.
 See
 [`ports/RUNTIME-SURFACE-PARITY-AUDIT.md`](ports/RUNTIME-SURFACE-PARITY-AUDIT.md)

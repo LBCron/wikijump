@@ -394,7 +394,7 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
         granted: true,
         ...sectionFields,
         lockId: output.grant.lock_id,
-        ["lockSecret"]: output.grant.lock_secret,
+        "lockSecret": output.grant.lock_secret,
         baseRevisionId: output.grant.base_revision_id,
         timeLeft: secondsUntil(output.grant.expires_at),
         source
@@ -519,7 +519,7 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
             timeLeft,
             lockRecreated: true as const,
             lockId: renewed.lock_id,
-            ["lockSecret"]: renewed.lock_secret
+            "lockSecret": renewed.lock_secret
           }
         }
         return { timeLeft, lockRecreated: false as const }
@@ -786,8 +786,7 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
             if (score !== 0) {
               return { status: "ok", body: renderWikidotWhoRatedUnavailable() }
             }
-          } catch {
-          }
+          } catch {}
         }
         return { status: "ok", body: renderWikidotWhoRated(votes) }
       }

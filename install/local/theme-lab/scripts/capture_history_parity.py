@@ -186,8 +186,6 @@ class ReadOnlyRecorder:
             "response_sha256": sha256(raw),
             "response_bytes": len(raw),
         }
-        meta_path = self.responses_dir / f"{request_id}.receipt.json"
-        write_exclusive(meta_path, canonical_json(record))
         self.records.append(record)
         barrier.unlink()
         fsync_directory(barrier.parent)

@@ -53,8 +53,8 @@ for(const entry of entries){
   await fs.writeFile(sourcePath,sourceCss);
   const outputPath=path.join(dir,'candidate.css');
   const assetsPath=path.join(portsDir,'shared-replay-assets');
-  const assetReceiptPath=path.join(dir,'assets.json');
-  const freezeArgs=[path.join(portsDir,'scripts/freeze-css.py'),'--input',sourcePath,'--output',outputPath,'--assets',assetsPath,'--receipt',assetReceiptPath,'--base-url',manifest.reference_url,'--cache',cache];
+  const assetManifestPath=path.join(dir,'assets.json');
+  const freezeArgs=[path.join(portsDir,'scripts/freeze-css.py'),'--input',sourcePath,'--output',outputPath,'--assets',assetsPath,'--assets-manifest',assetManifestPath,'--base-url',manifest.reference_url,'--cache',cache];
   const assetTransforms=JSON.parse(await fs.readFile(path.join(dir,'asset-transforms.json'),'utf8'));
   for(const [before,after] of Object.entries(assetTransforms.replacements))freezeArgs.push('--replace-url',`${before}=${after}`);
   for(const [url,reason] of Object.entries(assetTransforms.omissions))freezeArgs.push('--omit-url',`${url}=${reason}`);
@@ -64,9 +64,9 @@ for(const entry of entries){
   if(command.stderr)process.stderr.write(command.stderr);
   if(command.status!==0)throw new Error(`${entry.name}: freeze-css exited ${command.status}`);
   const cssBytes=await fs.readFile(outputPath);
-  const assets=JSON.parse(await fs.readFile(assetReceiptPath,'utf8'));
+  const assets=JSON.parse(await fs.readFile(assetManifestPath,'utf8'));
   manifest.interactive_acceptance??={};
-  manifest.interactive_acceptance.resolved_theme_css={source_path:config?.path??'candidate-input.css',source_sha256:digest(Buffer.from(upstream)),active_tags:tags,candidate_source_sha256:digest(Buffer.from(candidate)),candidate_active_tags:candidateTags,runtime_active_tags:[],showcase_css_modules_removed_exact:runtimeCss.removed_showcase_modules,showcase_css_modules_removed_truncated:runtimeCss.removed_truncated_showcase_modules,showcase_css_modules_unmatched:runtimeCss.unmatched_showcase_modules,inactive_source_css_modules_removed_exact:runtimeCss.removed_inactive_source_modules,inactive_source_css_modules_ambiguous:runtimeCss.unmatched_inactive_source_modules,css_source_path:path.relative(dir,sourcePath),candidate_css_sha256:digest(cssBytes),asset_receipt_path:path.relative(dir,assetReceiptPath),assets:assets.assets.length,imports:assets.imports.length,localization_transforms:assets.localization_transforms?.length??0,localization_transform_manifest:assets.localization_transform_manifest??null,missing:assets.missing.length,external_requests_during_build:0};
+  manifest.interactive_acceptance.resolved_theme_css={source_path:config?.path??'candidate-input.css',source_sha256:digest(Buffer.from(upstream)),active_tags:tags,candidate_source_sha256:digest(Buffer.from(candidate)),candidate_active_tags:candidateTags,runtime_active_tags:[],showcase_css_modules_removed_exact:runtimeCss.removed_showcase_modules,showcase_css_modules_removed_truncated:runtimeCss.removed_truncated_showcase_modules,showcase_css_modules_unmatched:runtimeCss.unmatched_showcase_modules,inactive_source_css_modules_removed_exact:runtimeCss.removed_inactive_source_modules,inactive_source_css_modules_ambiguous:runtimeCss.unmatched_inactive_source_modules,css_source_path:path.relative(dir,sourcePath),candidate_css_sha256:digest(cssBytes),asset_receipt_path:path.relative(dir,assetManifestPath),assets:assets.assets.length,imports:assets.imports.length,localization_transforms:assets.localization_transforms?.length??0,localization_transform_manifest:assets.localization_transform_manifest??null,missing:assets.missing.length,external_requests_during_build:0};
   await fs.writeFile(path.join(dir,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');
   results.push({theme:entry.name,css_sha256:digest(cssBytes),bytes:cssBytes.length,assets:assets.assets.length,imports:assets.imports.length,missing:assets.missing.length,external_requests:0});
 }

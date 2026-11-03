@@ -1,7 +1,0 @@
-{
-  "path": "install/local/theme-lab/ports/shared-fixtures/component-theme-squares.jp.wikidot.txt",
-  "sha256": "85c7b8294847156d8e2ccc1dd79591d4c83db1f2cf767747d4fb59fc80ec42c0",
-  "source": "/home/roku/src/Rokurolize/scp-wiki-translation/corpus/jp/pages/component:theme-squares/source.wikidot.txt",
-  "source_meta_path": "/home/roku/src/Rokurolize/scp-wiki-translation/corpus/jp/pages/component:theme-squares/meta.json",
-  "purpose": "Render the public JP component markup contract locally in preview fixtures; the published human-port candidate keeps its original include."
-}

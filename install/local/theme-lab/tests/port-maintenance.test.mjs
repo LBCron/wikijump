@@ -67,7 +67,7 @@ test("maintenance audit separates baseline CSS localization from acceptance over
   const localized = "[[module CSS]]#header { color: red; } #side-bar a { white-space: normal; }[[/module]]";
   const candidate = `${localized}\n[[module CSS]]/* SCP-JP acceptance: account */ /* Keep the current JP account menu clickable. */ #login-status { pointer-events: auto; }[[/module]]`;
   const manifest = {slug: "theme:sample", reference_url: "https://example.invalid/theme:sample", source_file: "upstream-en.wikidot.txt", human_port_candidate: "human-port-candidate.wikidot.txt", en_source_sha256: sha256Text(upstream), source_identity: {en: {tags: []}}};
-  const audit = buildPortMaintenanceAudit({manifest, upstreamSource: upstream, humanPortSource: localized, candidateSource: candidate, assetsReceipt: {imports: ["https://cdn.invalid/base.css"]}});
+  const audit = buildPortMaintenanceAudit({manifest, upstreamSource: upstream, humanPortSource: localized, candidateSource: candidate, assetsManifest: {imports: ["https://cdn.invalid/base.css"]}});
   assert.equal(audit.upstream.matches_manifest, true);
   assert.deepEqual(audit.localization_baseline.inline_css_changed_selectors, ["#side-bar a"]);
   assert.equal(audit.final_candidate.adaptation_block_count, 1);
@@ -142,7 +142,7 @@ test("upstream update plan highlights selectors touched by JP localization", () 
   const localized = "[[module CSS]]#side-bar a { white-space: normal; }[[/module]]";
   const candidate = `${localized}\n[[module CSS]]/* SCP-JP acceptance: nav */ /* Japanese labels wrap. */ #side-bar a { overflow-wrap: anywhere; }[[/module]]`;
   const manifest = {slug: "theme:sample", en_source_sha256: sha256Text(oldUpstream), source_identity: {en: {tags: []}}};
-  const audit = buildPortMaintenanceAudit({manifest, upstreamSource: oldUpstream, humanPortSource: localized, candidateSource: candidate, assetsReceipt: {imports: ["https://cdn.invalid/base.css"]}, maintenanceOverrideCss: "#side-bar a { color: #123; }"});
+  const audit = buildPortMaintenanceAudit({manifest, upstreamSource: oldUpstream, humanPortSource: localized, candidateSource: candidate, assetsManifest: {imports: ["https://cdn.invalid/base.css"]}, maintenanceOverrideCss: "#side-bar a { color: #123; }"});
   const plan = buildUpstreamUpdatePlan({audit, manifest, oldUpstreamSource: oldUpstream, newUpstreamSource: newUpstream});
   assert.deepEqual(plan.localization_overlap_selectors, ["#side-bar a"]);
   assert.deepEqual(plan.localization_overlap_sources["#side-bar a"], ["jp-localization-baseline", "canonical-jp-overrides"]);

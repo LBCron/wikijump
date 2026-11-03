@@ -155,6 +155,40 @@ pub fn count_pages_exact_count_eligibility_diagnostics(
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CountPagesExactTotal {
+    total: usize,
+}
+
+impl CountPagesExactTotal {
+    pub fn total(&self) -> usize {
+        self.total
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CountPagesExactCountEvaluation {
+    pub diagnostics: CountPagesExactCountEligibilityDiagnostics,
+    pub exact_total: Option<CountPagesExactTotal>,
+}
+
+pub fn evaluate_count_pages_exact_count(
+    input: CountPagesExactCountEligibilityInput,
+) -> CountPagesExactCountEvaluation {
+    let candidate_count = input.metadata.candidate_count;
+    let diagnostics = count_pages_exact_count_eligibility_diagnostics(input);
+    let exact_total = if diagnostics.allowed {
+        candidate_count.map(|total| CountPagesExactTotal { total })
+    } else {
+        None
+    };
+
+    CountPagesExactCountEvaluation {
+        diagnostics,
+        exact_total,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -235,6 +269,25 @@ mod tests {
 
         assert!(decision.allowed);
         assert_eq!(decision.denied_reason, None);
+    }
+
+    #[test]
+    fn evaluate_count_pages_exact_count_yields_total_only_when_eligible() {
+        let evaluation = evaluate_count_pages_exact_count(input(exact_metadata()));
+        assert!(evaluation.diagnostics.allowed);
+        assert_eq!(evaluation.exact_total.map(|total| total.total()), Some(12));
+
+        let mut denied = input(exact_metadata());
+        denied.post_query_offset_applied = true;
+        let evaluation = evaluate_count_pages_exact_count(denied);
+        assert!(!evaluation.diagnostics.allowed);
+        assert_eq!(evaluation.exact_total, None);
+
+        let mut missing_count = exact_metadata();
+        missing_count.candidate_count = None;
+        let evaluation = evaluate_count_pages_exact_count(input(missing_count));
+        assert!(evaluation.diagnostics.allowed);
+        assert_eq!(evaluation.exact_total, None);
     }
 
     #[test]

@@ -11,11 +11,11 @@ import {materializeThemeSessionInputs} from '../src/theme-test-session-inputs.mj
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const config=JSON.parse(fs.readFileSync(path.join(root,'scenarios/jp-sigma9-extra-black-canonical.json'),'utf8'));
-const receipt=materialized=>{const base={schema:'theme_lab_live_site_state.v1',scenario_sha256:materialized.scenario_sha256,declared_site_state_sha256:materialized.scenario.branch_profile.site_state_sha256,site_id:17,site_slug:materialized.scenario.branch_profile.site_slug,observed:{}};return {...base,receipt_sha256:crypto.createHash('sha256').update(JSON.stringify(base)).digest('hex')}};
+const record=materialized=>{const base={schema:'theme_lab_live_site_state.v1',scenario_sha256:materialized.scenario_sha256,declared_site_state_sha256:materialized.scenario.branch_profile.site_state_sha256,site_id:17,site_slug:materialized.scenario.branch_profile.site_slug,observed:{}};return {...base,receipt_sha256:crypto.createHash('sha256').update(JSON.stringify(base)).digest('hex')}};
 
 test('ready Sigma-9 plan materializes exact session-server and check bytes',()=>{
   const materialized=materializeThemeTestScenario(root,config);
-  const plan=themeTestExecutionPlan(root,config,{siteStateReceipt:receipt(materialized)});
+  const plan=themeTestExecutionPlan(root,config,{siteState:record(materialized)});
   const inputs=materializeThemeSessionInputs(root,plan);
   assert.equal(inputs.server.candidateUrl,`${materialized.scenario.runtime.origin}/run-owned%3Atheme-lab-canonical-corpus-v1`);
   assert.match(inputs.server.sidebarHtml,/side-block/u);

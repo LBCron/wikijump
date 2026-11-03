@@ -413,7 +413,7 @@ test("pages.save_one reuses preflight names after mutation", async (t) => {
       return {
         grant: {
           lock_id: 7001,
-          ["lock_secret"]: "lifecycle-fixture-secret",
+          "lock_secret": "lifecycle-fixture-secret",
           base_revision_id: page.revision_id,
           expires_at: "2999-01-01T00:00:00Z"
         },

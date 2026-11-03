@@ -229,10 +229,7 @@ export function expectDeepwellPageEditLockAcquireOutput(
     !Array.isArray(value.conflicts) ||
     !value.conflicts.every(isDeepwellPageEditLockConflict)
   ) {
-    throw new XmlRpcFault(
-      -32603,
-      "Malformed Deepwell response: page_edit_lock_acquire"
-    )
+    throw new XmlRpcFault(-32603, "Malformed Deepwell response: page_edit_lock_acquire")
   }
   return {
     grant: value.grant as DeepwellPageEditLockGrant | null,

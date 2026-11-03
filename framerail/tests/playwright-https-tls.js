@@ -76,8 +76,7 @@ export const createOwnedTlsDirectory = (directory, token = randomUUID()) => {
   } catch (error) {
     try {
       rmdirSync(tlsDirectory)
-    } catch {
-    }
+    } catch {}
     throw error
   }
 

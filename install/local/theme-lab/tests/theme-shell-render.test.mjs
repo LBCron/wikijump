@@ -18,10 +18,9 @@ test('Sigma-10 shell renderer binds source/runtime/site identity and emits only 
   assert.deepEqual(Object.keys(output.injection).sort(),['navigationHtml','sidebarHtml']);
   assert.match(output.injection.navigationHtml,/navigation_top/u);
   assert.match(output.injection.sidebarHtml,/navigation_side/u);
-  assert.equal(output.receipt.scenario_sha256,materialized.scenario_sha256);
-  assert.equal(output.receipt.runtime_implementation_sha256,materialized.scenario.runtime.implementation_sha256);
-  assert.equal(output.receipt.site_state_sha256,materialized.scenario.branch_profile.site_state_sha256);
-  assert.match(output.receipt.rendered_shell_sha256,/^[0-9a-f]{64}$/u);
+  assert.equal(output.summary.scenario_sha256,materialized.scenario_sha256);
+  assert.equal(output.summary.runtime_implementation_sha256,materialized.scenario.runtime.implementation_sha256);
+  assert.equal(output.summary.site_state_sha256,materialized.scenario.branch_profile.site_state_sha256);
 });
 
 test('rendered-html shell profile cannot be accidentally sent through the Wikidot-source renderer',async()=>{

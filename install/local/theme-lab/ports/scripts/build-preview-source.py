@@ -176,17 +176,17 @@ def main() -> int:
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--squares-source", type=Path, required=True)
-    parser.add_argument("--receipt", type=Path)
+    parser.add_argument("--assets-manifest", type=Path)
     args = parser.parse_args()
     source = args.input.read_text(errors="replace")
     squares_source = args.squares_source.read_text(encoding="utf-8")
     output, count, omitted = build(source, squares_source)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(output, encoding="utf-8")
-    if args.receipt:
+    if args.assets_manifest:
         import hashlib, json
-        args.receipt.parent.mkdir(parents=True, exist_ok=True)
-        args.receipt.write_text(json.dumps({"source_sha256": hashlib.sha256(source.encode()).hexdigest(), "squares_source_sha256": hashlib.sha256(squares_source.encode()).hexdigest(), "expanded_theme_squares": count, "expanded_theme_squares_css_modules": len(CSS_MODULE.findall(squares_source)) if count else 0, "omitted_unseeded_includes": sorted(set(omitted)), "standard_runtime_fixture": ["Rate", "Japanese glyph specimen", "TOC", "tabs", "collapsible", "table", "blockquote", "image block", "footnote", "code"]}, ensure_ascii=False, indent=2) + "\n")
+        args.assets_manifest.parent.mkdir(parents=True, exist_ok=True)
+        args.assets_manifest.write_text(json.dumps({"source_sha256": hashlib.sha256(source.encode()).hexdigest(), "squares_source_sha256": hashlib.sha256(squares_source.encode()).hexdigest(), "expanded_theme_squares": count, "expanded_theme_squares_css_modules": len(CSS_MODULE.findall(squares_source)) if count else 0, "omitted_unseeded_includes": sorted(set(omitted)), "standard_runtime_fixture": ["Rate", "Japanese glyph specimen", "TOC", "tabs", "collapsible", "table", "blockquote", "image block", "footnote", "code"]}, ensure_ascii=False, indent=2) + "\n")
     print(f"preview source written; JP theme-squares component fixtures={count}; omitted unseeded includes={len(omitted)}; source_sha256={__import__('hashlib').sha256(args.squares_source.read_bytes()).hexdigest()}")
     return 0
 

@@ -47,6 +47,7 @@ export function usage() {
 }
 
 function makeFtmlIncludeScanner(binaryPath) {
+  let ftmlVersion = null;
   return (source) => {
     const result = spawnSync(binaryPath, [], {
       input: source,
@@ -61,10 +62,10 @@ function makeFtmlIncludeScanner(binaryPath) {
     if (!Array.isArray(parsed.includes) || typeof parsed.ftml_version !== 'string') {
       throw new Error('FTML include parser returned an invalid response');
     }
-    if (scanIncludes.ftmlVersion && scanIncludes.ftmlVersion !== parsed.ftml_version) {
+    if (ftmlVersion && ftmlVersion !== parsed.ftml_version) {
       throw new Error('FTML include parser version changed during closure resolution');
     }
-    scanIncludes.ftmlVersion = parsed.ftml_version;
+    ftmlVersion = parsed.ftml_version;
     return parsed.includes.map((include) => {
       const pageRef = include['page-ref'];
       if (!pageRef || typeof pageRef.page !== 'string') {

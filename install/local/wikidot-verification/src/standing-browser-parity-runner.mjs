@@ -19,7 +19,6 @@ import {
 } from "./standing-browser-parity-contract.mjs";
 import {
   captureBrowserParityObservation,
-  observationArtifactName,
 } from "./standing-browser-parity-observation.mjs";
 import {
   DEFAULT_PARITY_BROWSER_ROOT,
@@ -28,14 +27,13 @@ import {
 } from "./standing-browser-parity-browser-session.mjs";
 import {
   buildLiveReferenceLedger,
-  loadSealedLiveReference,
+  loadLiveReference,
   validateLiveReferenceRecord,
 } from "./standing-browser-parity-reference.mjs";
 import {
   createPrivateEmptyDirectory,
+  writeJson,
   readJsonObject,
-  sealJsonNoReplace,
-  sha256File,
 } from "./standing-browser-parity-util.mjs";
 
 const DEFAULT_LIVE_ORIGIN = "https://scp-wiki.wikidot.com";
@@ -136,9 +134,6 @@ export function parseStandingBrowserParityArgs(argv) {
     } else if (flag === "--live-completion-policy") {
       args.liveCompletionPolicy = path.resolve(nextArgument(argv, index, flag));
       index += 1;
-    } else if (flag === "--live-reference-capture-policy") {
-      args.liveReferenceCapturePolicy = path.resolve(nextArgument(argv, index, flag));
-      index += 1;
     } else if (flag === "--candidate-port") {
       args.candidatePort = positiveInteger(nextArgument(argv, index, flag), flag);
       index += 1;
@@ -186,8 +181,6 @@ async function readPolicy(filePath) {
   const raw = await readJsonObject(filePath, "live completion policy");
   return {
     value: validateLiveCompletionPolicy(raw),
-    sha256: await sha256File(filePath),
-    filePath,
   };
 }
 
@@ -319,7 +312,6 @@ async function writeLiveReference({
     viewport: args.viewport,
     thresholds: validateThresholds(DEFAULT_THRESHOLDS),
     policy: policy.value,
-    policySha256: policy.sha256,
     browserEnvironment,
     requestGate: finalGateSnapshot,
   });
@@ -327,45 +319,25 @@ async function writeLiveReference({
     args.outputDir,
     "standing-browser-live-reference.json",
   );
-  const sealed = await sealJsonNoReplace(outputPath, ledger);
-  const loaded = await loadSealedLiveReference({
+  await writeJson(outputPath, ledger);
+  const loaded = await loadLiveReference({
     filePath: outputPath,
     pairs,
     viewport: args.viewport,
     thresholds: DEFAULT_THRESHOLDS,
     policy: policy.value,
-    policySha256: policy.sha256,
-    policyFilePath: policy.filePath,
   });
-  const verdict = {
-    schema: "wikijump.standing_browser_live_reference_verdict.v1",
-    status: "sealed",
-    reference_sha256: loaded.sha256,
-    policy_sha256: policy.sha256,
-    canary_contract_sha256: loaded.identity.canary_contract_sha256,
-    pairs_total: loaded.records.length,
-    request_gate_config_sha256: finalGateSnapshot.config_sha256,
-  };
-  const verdictSeal = await sealJsonNoReplace(
-    path.join(args.outputDir, "standing-browser-live-reference-verdict.json"),
-    verdict,
-  );
-  return { ledger: loaded, ledgerSeal: sealed, verdict, verdictSeal };
+  return { ledger: loaded };
 }
 
-async function collectLocalParity({args, policy, referencePolicy, browser, localOrigin}) {
+async function collectLocalParity({args, policy, browser, localOrigin}) {
   const pairs = defaultCanaryPairs({localOrigin, liveOrigin: DEFAULT_LIVE_ORIGIN});
-  const liveReference = await loadSealedLiveReference({
+  const liveReference = await loadLiveReference({
     filePath: args.liveReferenceLedger,
     pairs,
     viewport: args.viewport,
     thresholds: DEFAULT_THRESHOLDS,
     policy: policy.value,
-    policySha256: policy.sha256,
-    policyFilePath: policy.filePath,
-    referencePolicy: referencePolicy.value,
-    referencePolicySha256: referencePolicy.sha256,
-    referencePolicyFilePath: referencePolicy.filePath,
   });
   const captures = await captureSet({browser, pairs, label: "local", args});
   for (const [index, capture] of captures.entries()) validateCandidateCapture(capture, pairs[index]);
@@ -391,7 +363,7 @@ async function writeParityResult({args, finalGateSnapshot, capture}) {
     records,
     summary: {pairs_total: records.length, pairs_failed: pairsFailed, pairs_passed: records.length - pairsFailed},
   };
-  await sealJsonNoReplace(path.join(args.outputDir, "standing-browser-parity.json"), proof);
+  await writeJson(path.join(args.outputDir, "standing-browser-parity.json"), proof);
   return {proof};
 }
 
@@ -411,9 +383,6 @@ function localEndpoint(args) {
 
 export async function runStandingBrowserParity(args) {
   const policy = await readPolicy(args.liveCompletionPolicy);
-  const referencePolicy = args.liveReferenceCapturePolicy
-    ? await readPolicy(args.liveReferenceCapturePolicy)
-    : policy;
   await createPrivateEmptyDirectory(args.outputDir);
   let controls = null;
   let browser = null;
@@ -447,7 +416,7 @@ export async function runStandingBrowserParity(args) {
     capture = args.mode === "live-reference"
       ? await collectLiveReference({args, policy, browser})
       : await collectLocalParity({
-          args, policy, referencePolicy, browser,
+          args, policy, browser,
           localOrigin: args.mode === "standing" ? STANDING_LOCAL_ORIGIN : `https://scp-wiki.wikijump.localhost:${args.candidatePort}`,
         });
   } catch (error) {

@@ -228,7 +228,7 @@ export async function handlePageEditSaveAction({ fields, moduleName, siteId, sav
       ...(hasLockId
         ? {
             lockId: Number.parseInt(lockIdValue, 10),
-            ["lockSecret"]: fieldValue(fields, "lock_secret")
+            "lockSecret": fieldValue(fields, "lock_secret")
           }
         : {}),
       revisionId,
@@ -380,7 +380,7 @@ export async function handlePageDraftEvents({
         ...(pageId === undefined ? {} : { pageId }),
         slug,
         lockId: Number.parseInt(lockId, 10),
-        ["lockSecret"]: fieldValue(fields, "lock_secret"),
+        "lockSecret": fieldValue(fields, "lock_secret"),
         mode: "page"
       })
       if (renewed.noLockError) {
@@ -394,7 +394,7 @@ export async function handlePageDraftEvents({
           status: "ok",
           lockRecreated: true,
           lockId: renewed.lockId,
-          ["lockSecret"]: renewed.lockSecret,
+          "lockSecret": renewed.lockSecret,
           timeLeft: renewed.timeLeft
         })
       }
@@ -438,7 +438,7 @@ export async function handlePageDraftEvents({
         ...(pageId === undefined ? {} : { pageId }),
         slug,
         lockId: Number.parseInt(lockId, 10),
-        ["lockSecret"]: fieldValue(fields, "lock_secret")
+        "lockSecret": fieldValue(fields, "lock_secret")
       })
     }
     return jsonResponse({ status: "ok" })
@@ -564,7 +564,7 @@ export async function handlePageEditOpenModule({
       mode,
       ...sectionFields,
       lock_id: outcome.lockId,
-      ["lock_secret"]: outcome.lockSecret,
+      "lock_secret": outcome.lockSecret,
       page_revision_id: outcome.baseRevisionId ?? null,
       timeLeft: outcome.timeLeft,
       body: pageEditFormBody(outcome.source ?? ""),

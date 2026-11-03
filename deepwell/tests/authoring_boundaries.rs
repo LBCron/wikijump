@@ -94,7 +94,7 @@ async fn edit_page(
 ) -> (i64, i32) {
     set_request_context(runner, Some(ADMIN_USER_ID), site_id, Reference::Id(page_id));
     let edit_lease_1 = common::acquire_page_edit_lease(
-        &runner,
+        runner,
         site_id,
         &serde_json::json!(page_id),
         ADMIN_USER_ID,

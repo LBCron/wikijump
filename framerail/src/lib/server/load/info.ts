@@ -29,6 +29,7 @@ export async function loadInfo(preloadData: PreloadDataAsync) {
     "about-info.cargo-version": {},
     "about-info.built-at": {},
     "about-info.git-commit": {},
+    "about-info.ftml-commit": {},
     "about-info.blurb": {},
     "about-info.blog": {},
     "about-info.node-version": {},
@@ -48,7 +49,8 @@ export async function loadInfo(preloadData: PreloadDataAsync) {
         rustc_version: response.compile_info.rustc_version,
         cargo_version: response.compile_info.cargo_version,
         built_at: response.compile_info.built_at,
-        git_commit: response.compile_info.git_commit
+        git_commit: response.compile_info.git_commit,
+        ftml_commit: response.compile_info.ftml_commit
       }
     },
     frontend: {

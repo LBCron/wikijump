@@ -4,13 +4,18 @@
   import { resolve } from "$app/paths"
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { buildWikidotSectionEditSubmission } from "$lib/wikidot/wikidot-edit-sections"
+  import { classifyEditLeaseSaveError } from "$lib/wikidot/wikidot-edit-lease.js"
   import {
     editPermissionDeniedDialog,
     editPermissionDeniedMessage
   } from "$lib/wikidot/wikidot-locale"
   import { superForm } from "sveltekit-superforms"
-  import { onMount, untrack } from "svelte"
+  import { onDestroy, onMount, untrack } from "svelte"
 
+  import EditLeaseDialog from "./EditLeaseDialog.svelte"
+  import { createPageEditLeaseSession, startEditLeaseTimers } from "./edit-lease-client"
+
+  import type { EditLeaseConflict } from "$lib/wikidot/wikidot-edit-lease.js"
   import type { PageProps } from "./$types"
 
   type EditSection = {
@@ -30,8 +35,78 @@
   const selectedSection = untrack(() => section)
   let permissionState = $state<"checking" | "allowed" | "denied">("checking")
 
+  const leaseSession = createPageEditLeaseSession()
+  let leaseSnapshot = $state<{
+    status: string
+    conflicts: EditLeaseConflict[]
+    seconds: number
+    superseded: boolean
+  }>({ status: "idle", conflicts: [], seconds: 0, superseded: false })
+  let leaseDialog = $state<"page_changed" | "other_locks" | null>(null)
+  let stopLeaseTimers: (() => void) | undefined
+
+  const syncLease = () => {
+    leaseSnapshot = {
+      status: leaseSession.status,
+      conflicts: leaseSession.conflictRows(),
+      seconds: leaseSession.secondsRemaining(),
+      superseded: leaseSession.status === "superseded"
+    }
+  }
+
+  const cancelSection = async () => {
+    await leaseSession.close()
+    close()
+  }
+
+  const forceLease = async () => {
+    await leaseSession.forceOpen()
+    syncLease()
+  }
+
+  const reacquireLease = async () => {
+    leaseDialog = null
+    await leaseSession.reopen()
+    syncLease()
+  }
+
+  const viewCurrentPage = () => {
+    leaseDialog = null
+    close()
+  }
+
+  const reloadEditor = async () => {
+    leaseDialog = null
+    await leaseSession.close()
+    window.location.reload()
+  }
+
+  const copySectionText = () => {
+    void navigator.clipboard?.writeText($form.wikitext)
+  }
+
   onMount(() => {
     let active = true
+    stopLeaseTimers = startEditLeaseTimers(leaseSession, syncLease)
+
+    const startLease = async () => {
+      try {
+        const opening = leaseSession.open("section", selectedSection.index)
+        syncLease()
+        await opening
+      } catch (error) {
+        if (!active) return
+        errorPopupState.current = {
+          state: true,
+          message:
+            error instanceof Error ? error.message : "The edit lock request failed.",
+          data: null
+        }
+        close()
+        return
+      }
+      if (active) syncLease()
+    }
 
     const checkEditPermission = async () => {
       try {
@@ -47,6 +122,7 @@
         if (!active) return
         if (result.type === "success" && result.data?.res?.can_edit === true) {
           permissionState = "allowed"
+          void startLease()
           return
         }
 
@@ -89,11 +165,31 @@
     }
   })
 
+  onDestroy(() => {
+    stopLeaseTimers?.()
+    void leaseSession.close()
+  })
+
   const { form, enhance } = superForm(
     untrack(() => data.forms.pageEditForm),
     {
       dataType: "json",
       onSubmit: ({ jsonData }) => {
+        const fields = leaseSession.saveFields()
+        if (fields) {
+          jsonData({
+            ...$form,
+            siteId: data.site.site_id,
+            pageId: data.page?.page_id,
+            lastRevisionId: fields.lastRevisionId,
+            wikitext: $form.wikitext,
+            lockId: fields.lockId,
+            ["lockSecret"]: fields.lockSecret,
+            leaseMode: fields.mode,
+            sectionIndex: fields.sectionIndex ?? null
+          })
+          return
+        }
         jsonData(
           buildWikidotSectionEditSubmission(
             $form,
@@ -114,9 +210,18 @@
       onResult: async ({ result, cancel }) => {
         if (result.type === "success" && result.data) {
           cancel()
+          leaseSession.noteSaveSucceeded(result.data.res)
+          syncLease()
           goto(resolve(`/${params.slug}`, {}), { noScroll: true })
         }
         if (result.type === "failure" && result.data) {
+          const kind = classifyEditLeaseSaveError((result.data as { code?: number }).code)
+          if (kind) {
+            leaseSession.noteSaveRejected(kind)
+            leaseDialog = kind
+            syncLease()
+            return
+          }
           errorPopupState.current = {
             state: true,
             message: result.data.message,
@@ -138,7 +243,20 @@
   <h1 class="page-edit-header">Edit Section</h1>
   {#if permissionState === "checking"}
     <p role="status">Checking edit permission…</p>
+  {:else if permissionState === "allowed" && leaseSnapshot.status === "acquiring"}
+    <p role="status">Acquiring the page edit lock&hellip;</p>
+  {:else if permissionState === "allowed" && leaseSnapshot.status === "conflict"}
+    <p role="alert">This page is being edited by another user.</p>
   {:else if permissionState === "allowed"}
+    {#if leaseSnapshot.superseded}
+      <p class="edit-lease-superseded" role="alert">
+        Your edit lock was taken by another user. Saving will be rejected until you take
+        the lock back.
+        <button class="btn" onclick={reacquireLease} type="button">
+          Take the lock back
+        </button>
+      </p>
+    {/if}
     <form id="editor" class="editor" action="?/edit" method="POST" use:enhance>
       <textarea name="wikitext" class="editor-wikitext" bind:value={$form.wikitext}
       ></textarea>
@@ -146,12 +264,12 @@
         name="comments"
         class="editor-comments"
         placeholder={data.internationalization?.["wiki-page-revision-comments"]}
-        bind:value={$form.comments}></textarea>
+      ></textarea>
       <div class="buttons alignleft">
         <input
           name="cancel"
           class="btn btn-danger"
-          onclick={close}
+          onclick={cancelSection}
           type="button"
           value={data.internationalization?.cancel}
         />
@@ -165,6 +283,27 @@
     </form>
   {/if}
 </div>
+
+{#if leaseSnapshot.status === "conflict"}
+  <EditLeaseDialog
+    conflicts={leaseSnapshot.conflicts}
+    kind="conflict"
+    onCancel={cancelSection}
+    onForce={forceLease}
+  />
+{/if}
+
+{#if leaseDialog}
+  <EditLeaseDialog
+    kind={leaseDialog}
+    onClose={() => (leaseDialog = null)}
+    onCopyText={copySectionText}
+    onLeave={cancelSection}
+    onReacquire={reacquireLease}
+    onReload={reloadEditor}
+    onViewPage={viewCurrentPage}
+  />
+{/if}
 
 <style lang="scss">
   .editor {

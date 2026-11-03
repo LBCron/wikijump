@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { scrollElement } from "./scrolling"
 
 export type Point = [x: number, y: number]
@@ -41,9 +40,7 @@ export class Gesture {
     const axis = diffAbs[1] > diffAbs[0] ? 1 : 0
     const dist = diffAbs[axis]
 
-    // prettier-ignore
-    const direction =
-      Gesture.Directions[axis * 2 + +(diff[axis] < 0)]
+    const direction = Gesture.directionFrom(axis, diff[axis])
 
     this.start = start
     this.end = end
@@ -54,7 +51,10 @@ export class Gesture {
     this.type = type
   }
 
-  static Directions = ["up", "down", "left", "right"] as const
+  static directionFrom(axis: 0 | 1, delta: number): Direction {
+    if (axis === 0) return delta < 0 ? "down" : "up"
+    return delta < 0 ? "right" : "left"
+  }
 
 
   /**
@@ -157,8 +157,6 @@ export class GestureObserver {
     public target: HTMLElement,
     public callback: (gesture: Gesture) => void
   ) {
-    this.handler = this.handler.bind(this)
-
     target.addEventListener("touchstart", this.handler, { passive: true })
   }
 
@@ -177,7 +175,7 @@ export class GestureObserver {
     this.start = null
   }
 
-  private handler(evt: TouchEvent) {
+  private handler = (evt: TouchEvent) => {
     let touch: Touch
 
     if (evt.type === "touchstart") {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { mod } from "$lib/util"
 
 // https://zellwk.com/blog/keyboard-focusable-elements/
@@ -29,11 +28,10 @@ export class FocusGroup {
     public target: HTMLElement,
     public direction: FocusGroupDirection
   ) {
-    this.handler = this.handler.bind(this)
     this.target.addEventListener("keydown", this.handler)
   }
 
-  private handler(evt: KeyboardEvent) {
+  private handler = (evt: KeyboardEvent) => {
     const key = evt.key
 
     if (!FocusGroup.keys.includes(key)) return
@@ -99,20 +97,17 @@ export class FocusObserver {
     private target: HTMLElement,
     private opts: FocusOpts
   ) {
-    this.focusin = this.focusin.bind(this)
-    this.focusout = this.focusout.bind(this)
-
     target.addEventListener("focusin", this.focusin)
     target.addEventListener("focusout", this.focusout)
   }
 
-  private focusin(evt: FocusEvent) {
+  private focusin = (evt: FocusEvent) => {
     if (this.focused && this.target.contains(evt.target as HTMLElement)) return
     this.focused = true
     if (this.opts.focus) this.opts.focus()
   }
 
-  private focusout(evt: FocusEvent) {
+  private focusout = (evt: FocusEvent) => {
     if (this.target.contains(evt.relatedTarget as HTMLElement)) return
     this.focused = false
     if (this.opts.blur) this.opts.blur()

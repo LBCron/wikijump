@@ -24,8 +24,7 @@ export function addElement<E extends CustomElement>(element: E, global?: string)
   // adds the element to the global scope
   // this is apparently standard practice,
   // GitHub does this with all of their elements
-  // @ts-ignore
-  if (global) globalThis[global] = element
+  if (global) (globalThis as Record<string, unknown>)[global] = element
 }
 
 /**

@@ -47,14 +47,22 @@ export class DisplayObserver {
 
 
     if (state) {
-      this.target.style.minHeight = ""
-      this.target.style.minWidth = ""
+      this.removeHiddenMinSize()
       this.opts.visible?.()
     } else {
-      this.target.style.minHeight = "1px"
-      this.target.style.minWidth = "1px"
+      this.applyHiddenMinSize()
       this.opts.hidden?.()
     }
+  }
+
+  private applyHiddenMinSize() {
+    this.target.style.minHeight = "1px"
+    this.target.style.minWidth = "1px"
+  }
+
+  private removeHiddenMinSize() {
+    this.target.style.minHeight = ""
+    this.target.style.minWidth = ""
   }
 
   update(opts: DisplayOpts = {}) {

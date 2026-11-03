@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type, @typescript-eslint/no-unsafe-function-type */
 declare global {
   /** Represents any function, without using the {@link Function} object. */
   type AnyFunction<R = unknown> = (...args: never[]) => R
@@ -60,17 +59,17 @@ declare global {
     T | ((this: G, ...args: A) => T)
 
   /** Represents a constructor function (a class, effectively) */
-  type Constructor<T = {}, A extends unknown[] | void = void> = A extends unknown[]
+  type Constructor<T = object, A extends unknown[] | void = void> = A extends unknown[]
     ? new (...args: A) => T
     : new () => T
 
   /** Represents an abstract class constructor function. */
-  type AbstractClass<T = {}, A extends unknown[] | void = void> = A extends unknown[]
+  type AbstractClass<T = object, A extends unknown[] | void = void> = A extends unknown[]
     ? abstract new (...args: A) => T
     : abstract new () => T
 
   /** Gets the methods of an object. */
-  type Methods<T> = FilterFor<T, Function>
+  type Methods<T> = FilterFor<T, AnyFunction>
 }
 
 export {}

@@ -29,7 +29,7 @@
     updateWikidotRateWidget,
     wikidotLegacyActions
   } from "$lib/wikidot/wikidot-legacy-actions"
-  import { wikidotSiteChanges } from "$lib/wikidot/wikidot-site-changes.js"
+  import { wikidotSiteChanges } from "$lib/wikidot/wikidot-site-changes"
   import {
     requestLegacyRate,
     requestLegacyRateCancel,

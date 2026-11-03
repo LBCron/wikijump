@@ -1,33 +1,29 @@
 const SITE_CHANGES_MODULE = "changes/SiteChangesListModule"
 const UPDATE_LIST_ONCLICK = "WIKIDOT.modules.SiteChangesModule.listeners.updateList(null)"
 
-/**
- * @typedef {{ pageId: number | string }} SiteChangesActionParameters
- *
- * @typedef {Window & typeof globalThis} SiteChangesRoot
- */
+export type SiteChangesActionParameters = { pageId: number | string }
+
+export type SiteChangesRoot = Window & typeof globalThis
 
 /**
  * Return only the request options whose browser meaning is already
  * established. The category-refresh slice does not infer the semantics of
  * checkbox mixtures.
- *
- * @param {ParentNode} box
  */
-const observedRevisionOptions = (box) => {
-  const all = box.querySelector("#rev-type-all")
-  const source = box.querySelector("#rev-type-source")
-  const files = box.querySelector("#rev-type-files")
+const observedRevisionOptions = (box: ParentNode) => {
+  const all = box.querySelector<HTMLInputElement>("#rev-type-all")
+  const source = box.querySelector<HTMLInputElement>("#rev-type-source")
+  const files = box.querySelector<HTMLInputElement>("#rev-type-files")
   const others = [
     "#rev-type-new",
     "#rev-type-title",
     "#rev-type-move",
     "#rev-type-tags",
     "#rev-type-meta"
-  ].map((selector) => box.querySelector(selector))
+  ].map((selector) => box.querySelector<HTMLInputElement>(selector))
   if (!all || !source || !files || others.some((control) => !control)) return null
 
-  const checkedOthers = others.some((control) => control.checked)
+  const checkedOthers = others.some((control) => control?.checked)
   if (all.checked && !source.checked && !files.checked && !checkedOthers) {
     return '{"all":true}'
   }
@@ -45,15 +41,14 @@ const observedRevisionOptions = (box) => {
  * existing read-only module endpoint. Unsupported revision checkbox
  * combinations remain inert until their Wikidot semantics are
  * established.
- *
- * @param {HTMLElement} root
- * @param {SiteChangesActionParameters} parameters
  */
-export const wikidotSiteChanges = (root, parameters) => {
+export const wikidotSiteChanges = (
+  root: HTMLElement,
+  parameters: SiteChangesActionParameters
+) => {
   let pageId = parameters.pageId
 
-  /** @param {Event} event */
-  const updateList = (event) => {
+  const updateList = (event: Event) => {
     const target = event.target
     if (!(target instanceof Element)) return
     const control = target.closest(
@@ -72,8 +67,12 @@ export const wikidotSiteChanges = (root, parameters) => {
     event.stopImmediatePropagation?.()
 
     const box = control.closest(".site-changes-box")
-    const category = box?.querySelector("#rev-category")
-    const perpage = box?.querySelector("#rev-perpage")
+    const category = box?.querySelector<HTMLInputElement | HTMLSelectElement>(
+      "#rev-category"
+    )
+    const perpage = box?.querySelector<HTMLInputElement | HTMLSelectElement>(
+      "#rev-perpage"
+    )
     const list = box?.querySelector("#site-changes-list.changes-list")
     const options = box && observedRevisionOptions(box)
     const normalizedPageId = String(pageId)
@@ -117,7 +116,7 @@ export const wikidotSiteChanges = (root, parameters) => {
 
   root.addEventListener("click", updateList, true)
   return {
-    update(nextParameters) {
+    update(nextParameters: SiteChangesActionParameters) {
       pageId = nextParameters.pageId
     },
     destroy() {

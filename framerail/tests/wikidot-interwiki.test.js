@@ -10,7 +10,7 @@ import { localizeWikidotThemeUrl } from "../src/lib/wikidot/wikidot-styleframe-c
 import {
   WIKIDOT_STYLE_FRAME_SCRIPT,
   buildWikidotStyleFrameHtml
-} from "../src/lib/wikidot/wikidot-styleframe.js"
+} from "../src/lib/wikidot/wikidot-styleframe.ts"
 
 class FakeElement {
   constructor(tagName) {

@@ -1,25 +1,20 @@
-import { isJapaneseWikidotLocale } from "./wikidot-locale.js"
+import { isJapaneseWikidotLocale } from "./wikidot-locale.ts"
 
-/**
- * @typedef {object} WikidotPageWatchLabel
- * @property {string} label
- * @property {string} helpLabel
- * @property {string} helpHref
- */
+export type WikidotPageWatchLabel = {
+  label: string
+  helpLabel: string
+  helpHref: string
+}
 
-/**
- * @param {{
- *   sourceSite?: string | null
- *   hasSession?: boolean
- *   locale?: string | null
- * }} input
- * @returns {WikidotPageWatchLabel | null}
- */
 export const buildWikidotPageWatchLabel = ({
   sourceSite,
   hasSession = false,
   locale = "en"
-}) => {
+}: {
+  sourceSite?: string | null
+  hasSession?: boolean
+  locale?: string | null
+}): WikidotPageWatchLabel | null => {
   if (!hasSession || !sourceSite) {
     return null
   }

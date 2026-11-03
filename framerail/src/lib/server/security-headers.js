@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto"
 
 import { auditedExternalAssetOrigins } from "./audited-external-asset-origins.js"
-import { WIKIDOT_STYLE_FRAME_SCRIPT } from "../wikidot/wikidot-styleframe.js"
+import { WIKIDOT_STYLE_FRAME_SCRIPT } from "../wikidot/wikidot-styleframe.ts"
 import { parseDeploymentEnvironment } from "./deployment-environment.js"
 import {
   LOCAL_MIRROR_FILE_ASSET_SITES,

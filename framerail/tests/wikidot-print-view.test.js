@@ -7,7 +7,7 @@ import {
   buildWikidotPrintSourceInfoHtml,
   buildWikidotPrinterFriendlyUrl,
   wikidotPrintView
-} from "../src/lib/wikidot/wikidot-print-view.js"
+} from "../src/lib/wikidot/wikidot-print-view.ts"
 
 test("printer-friendly URL preserves the live doubled slash", () => {
   assert.equal(

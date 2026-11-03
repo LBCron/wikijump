@@ -50,13 +50,13 @@
     buildWikidotHovertipContainersHtml,
     installWikidotHovertips
   } from "$lib/wikidot/wikidot-hovertips"
-  import { installWikidotOdates } from "$lib/wikidot/wikidot-odates.js"
+  import { installWikidotOdates } from "$lib/wikidot/wikidot-odates"
   import WikidotBottomToolbar from "$lib/wikidot/WikidotBottomToolbar.svelte"
   import WikidotLoginDialog from "$lib/wikidot/WikidotLoginDialog.svelte"
   import {
     installWikidotLoginActionHandler,
     isPlainPrimaryActivation
-  } from "$lib/wikidot/wikidot-login-dialog.js"
+  } from "$lib/wikidot/wikidot-login-dialog"
   import {
     installWikidotSearchAll,
     submitWikidotTopSearch

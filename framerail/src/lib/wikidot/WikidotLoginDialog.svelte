@@ -11,7 +11,7 @@
   import {
     WIKIDOT_LOGIN_DIALOG_LABELS,
     interpretLoginActionResult
-  } from "$lib/wikidot/wikidot-login-dialog.js"
+  } from "$lib/wikidot/wikidot-login-dialog"
 
   let {
     open = false,

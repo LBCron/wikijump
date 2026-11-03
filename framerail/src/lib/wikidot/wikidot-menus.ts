@@ -1,3 +1,5 @@
+import type { Action } from "svelte/action"
+
 /**
  * Wikidot's page init (retained WIKIDOT.combined.js) runs
  * `WIKIDOT.page.fixers.fixMenuList("top-bar")`, then `fixMenu("top-bar")`
@@ -12,10 +14,8 @@
  * Wrap the first child of each list item in a `javascript:;` anchor when
  * that child is a text node, as fixMenuList does (whitespace-only text
  * included).
- *
- * @param {Element} root
  */
-export const wrapWikidotMenuListText = (root) => {
+export const wrapWikidotMenuListText = (root: Element) => {
   for (const item of root.getElementsByTagName("li")) {
     const first = item.firstChild
     if (first?.nodeType !== Node.TEXT_NODE) continue
@@ -27,18 +27,12 @@ export const wrapWikidotMenuListText = (root) => {
   }
 }
 
-/** @param {Event} event */
-const addHover = (event) =>
-  /** @type {Element} */ (event.currentTarget).classList.add("sfhover")
-/** @param {Event} event */
-const removeHover = (event) =>
-  /** @type {Element} */ (event.currentTarget).classList.remove("sfhover")
+const addHover = (event: Event) =>
+  (event.currentTarget as Element).classList.add("sfhover")
+const removeHover = (event: Event) =>
+  (event.currentTarget as Element).classList.remove("sfhover")
 
-/**
- * @param {Element} root
- * @param {WeakSet<Element>} hovered
- */
-const addMenuHover = (root, hovered) => {
+const addMenuHover = (root: Element, hovered: WeakSet<Element>) => {
   for (const item of root.getElementsByTagName("li")) {
     if (hovered.has(item)) continue
     hovered.add(item)
@@ -50,16 +44,13 @@ const addMenuHover = (root, hovered) => {
 /**
  * Apply Wikidot's menu fixers to `#top-bar` (`list: true`) or `#side-bar`,
  * and again whenever the bar's content is replaced.
- *
- * @type {import("svelte/action").Action<
- *   Element,
- *   { list?: boolean } | undefined
- * >}
  */
-export const wikidotMenu = (root, options) => {
+export const wikidotMenu: Action<Element, { list?: boolean } | undefined> = (
+  root,
+  options
+) => {
   const list = options?.list ?? false
-  /** @type {WeakSet<Element>} */
-  const hovered = new WeakSet()
+  const hovered = new WeakSet<Element>()
   const apply = () => {
     if (list) wrapWikidotMenuListText(root)
     addMenuHover(root, hovered)

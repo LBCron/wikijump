@@ -1,7 +1,7 @@
 <script lang="ts">
   import { wikidotCollapsibles } from "$lib/wikidot/wikidot-collapsibles"
   import { wikidotFooterControls } from "$lib/wikidot/wikidot-footer"
-  import { wikidotMenu } from "$lib/wikidot/wikidot-menus.js"
+  import { wikidotMenu } from "$lib/wikidot/wikidot-menus"
 
   import type { HTMLAnchorAttributes } from "svelte/elements"
 

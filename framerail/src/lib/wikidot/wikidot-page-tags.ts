@@ -1,8 +1,4 @@
-/**
- * @param {unknown} value
- * @returns {string}
- */
-const escapeHtml = (value) =>
+const escapeHtml = (value: unknown): string =>
   String(value).replace(/[&<>"']/g, (character) => {
     switch (character) {
       case "&":
@@ -20,15 +16,10 @@ const escapeHtml = (value) =>
     }
   })
 
-/**
- * @param {readonly string[]} tags
- * @param {(tag: string) => string} hrefForTag
- * @returns {string}
- */
 export const buildWikidotPageTagsHtml = (
-  tags,
-  hrefForTag = (tag) => `/system:page-tags/tag/${tag}#pages`
-) =>
+  tags: readonly string[],
+  hrefForTag: (tag: string) => string = (tag) => `/system:page-tags/tag/${tag}#pages`
+): string =>
   tags
     .map((tag) => `<a href="${escapeHtml(hrefForTag(tag))}">${escapeHtml(tag)}</a>`)
     .join("")

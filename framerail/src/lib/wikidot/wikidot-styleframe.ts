@@ -22,8 +22,7 @@ export const WIKIDOT_STYLE_FRAME_SCRIPT = `
       });
     `
 
-/** @returns {string} */
-export const buildWikidotStyleFrameHtml = () => `<!DOCTYPE html>
+export const buildWikidotStyleFrameHtml = (): string => `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">

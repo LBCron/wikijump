@@ -1,4 +1,3 @@
-
 export const WIKIDOT_LOGIN_DIALOG_LABELS = Object.freeze({
   title: "Sign in",
   specifier: "Email or Username",
@@ -17,25 +16,26 @@ export const WIKIDOT_LOGIN_DIALOG_LABELS = Object.freeze({
  * to the dialog outcome. The MFA session token is intentionally ignored
  * here: the in-place surface does not hold it, so MFA continues on the
  * native page.
- *
- * @param {{ type?: string; data?: unknown } | null | undefined} result
- * @returns {{ kind: "success" }
- *   | { kind: "mfa" }
- *   | { kind: "failure"; message: string | null }
- *   | { kind: "error" }}
  */
-export const interpretLoginActionResult = (result) => {
+export const interpretLoginActionResult = (
+  result: { type?: string; data?: unknown } | null | undefined
+):
+  | { kind: "success" }
+  | { kind: "mfa" }
+  | { kind: "failure"; message: string | null }
+  | { kind: "error" } => {
   if (result?.type === "success") {
-    const data = /** @type {{ needsMfa?: unknown; isLoggedIn?: unknown }} */ (
-      result.data ?? {}
-    )
+    const data = (result.data ?? {}) as {
+      needsMfa?: unknown
+      isLoggedIn?: unknown
+    }
     if (data.needsMfa === true) return { kind: "mfa" }
     if (data.isLoggedIn === true) return { kind: "success" }
     return { kind: "failure", message: null }
   }
 
   if (result?.type === "failure") {
-    const data = /** @type {{ message?: unknown }} */ (result.data ?? {})
+    const data = (result.data ?? {}) as { message?: unknown }
     return {
       kind: "failure",
       message: typeof data.message === "string" ? data.message : null
@@ -49,16 +49,14 @@ export const interpretLoginActionResult = (result) => {
  * Only a plain primary-button activation opens the in-place surface.
  * Modified clicks, middle clicks, and other non-primary activations keep
  * the native link behaviour.
- *
- * @param {{
- *   button: number
- *   metaKey: boolean
- *   ctrlKey: boolean
- *   shiftKey: boolean
- *   altKey: boolean
- * }} event
  */
-export const isPlainPrimaryActivation = (event) =>
+export const isPlainPrimaryActivation = (event: {
+  button: number
+  metaKey: boolean
+  ctrlKey: boolean
+  shiftKey: boolean
+  altKey: boolean
+}) =>
   event.button === 0 &&
   !event.metaKey &&
   !event.ctrlKey &&
@@ -83,24 +81,20 @@ const WIKIDOT_LOGIN_ACTION_ANCHOR = `a[href="${WIKIDOT_LOGIN_ACTION_HREF}"]`
  * (imported Wikidot layout, anonymous viewer). Everywhere else the click
  * keeps its existing behaviour, so native layouts and modified clicks are
  * unchanged.
- *
- * @param {Pick<
- *   EventTarget,
- *   "addEventListener" | "removeEventListener"
- * >} root
- * @param {{
- *   isSurfaceAvailable: () => boolean
- *   openSurface: () => void
- * }} hooks
- * @returns {() => void} Uninstall function
  */
-export const installWikidotLoginActionHandler = (root, hooks) => {
-  const handler = (event) => {
+export const installWikidotLoginActionHandler = (
+  root: Pick<EventTarget, "addEventListener" | "removeEventListener">,
+  hooks: {
+    isSurfaceAvailable: () => boolean
+    openSurface: () => void
+  }
+): (() => void) => {
+  const handler = (event: Event) => {
     if (event.defaultPrevented) return
-    const target = event.target
-    if (typeof target?.closest !== "function") return
+    const target = event.target as Element | null
+    if (typeof target?.closest !== "function" || target === null) return
     if (!target.closest(WIKIDOT_LOGIN_ACTION_ANCHOR)) return
-    if (!isPlainPrimaryActivation(event)) return
+    if (!isPlainPrimaryActivation(event as MouseEvent)) return
     if (!hooks.isSurfaceAvailable()) return
     event.preventDefault()
     hooks.openSurface()

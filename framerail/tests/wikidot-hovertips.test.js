@@ -5,7 +5,7 @@ import {
   buildWikidotHovertipContainersHtml,
   positionWikidotHovertip,
   wikidotHovertipTexts
-} from "../src/lib/wikidot/wikidot-hovertips.js"
+} from "../src/lib/wikidot/wikidot-hovertips.ts"
 
 const WIKIDOT_CONTROL_ORDER = [
   "edit-button",

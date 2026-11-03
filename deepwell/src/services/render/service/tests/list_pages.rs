@@ -1894,7 +1894,7 @@ fn generated_list_pages_date_is_registered_before_authored_marker_neutralization
     let created_at = time::OffsetDateTime::from_unix_timestamp(1_782_003_564)
         .expect("fixture timestamp should be valid");
     let generated =
-        format_list_pages_created_at(Some(created_at), Some("%d %b %Y"), false, true);
+        format_list_pages_created_at(Some(created_at), Some("%d %b %Y"), false);
     let mut fragments = CompatHtmlFragments::new("");
     let mut protected = register_generated_list_pages_html(generated, &mut fragments);
 
@@ -1969,7 +1969,6 @@ fn defers_wikidot_list_pages_custom_date_format_to_odate_class() {
         Some(created_at),
         Some("%Y-%m-%d %R|agohover"),
         true,
-        true,
     );
 
     assert!(rendered.contains("format_%25Y-%25m-%25d%20%25R%7Cagohover"));
@@ -1988,18 +1987,15 @@ fn saved_list_pages_date_carries_utc_server_text_like_preview() {
     // `%d` grammar.
     let created_at = time::OffsetDateTime::from_unix_timestamp(1_454_705_501)
         .expect("fixture timestamp should be valid");
-    for page_preview in [false, true] {
-        let rendered =
-            format_list_pages_created_at(Some(created_at), None, true, page_preview);
-        assert!(
-            rendered.contains(r#"<span class="odate time_1454705501 format_%25e%20%25b%20%25Y%2C%20%25H%3A%25M%7Cagohover">"#),
-            "saved and preview paths must transport timestamp and format identically (preview={page_preview}): {rendered}",
-        );
-        assert!(
-            rendered.ends_with(">05 Feb 2016 20:51</span>"),
-            "saved and preview paths must carry UTC server text (preview={page_preview}): {rendered}",
-        );
-    }
+    let rendered = format_list_pages_created_at(Some(created_at), None, true);
+    assert!(
+        rendered.contains(r#"<span class="odate time_1454705501 format_%25e%20%25b%20%25Y%2C%20%25H%3A%25M%7Cagohover">"#),
+        "saved and preview paths must transport timestamp and format identically: {rendered}",
+    );
+    assert!(
+        rendered.ends_with(">05 Feb 2016 20:51</span>"),
+        "saved and preview paths must carry UTC server text: {rendered}",
+    );
 }
 
 #[test]
@@ -2013,7 +2009,6 @@ fn list_pages_custom_date_format_collapses_repeated_ascii_spaces() {
     let rendered = format_list_pages_created_at(
         Some(created_at),
         Some("%Y年 %m月%d日  %H:%M"),
-        true,
         true,
     );
 

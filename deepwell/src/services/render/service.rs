@@ -1227,13 +1227,6 @@ impl RenderService {
         })
     }
 
-    #[allow(dead_code)]
-    pub(crate) fn prepare_corpus_replay_wikitext(
-        input: CorpusReplayExpandedWikitext,
-    ) -> CorpusReplayPreparedWikitext {
-        Self::prepare_corpus_replay_wikitext_with_observer(input, |_| {})
-    }
-
     pub(crate) fn prepare_corpus_replay_wikitext_with_observer(
         input: CorpusReplayExpandedWikitext,
         mut observer: impl FnMut(CorpusReplayPreparationStage),

@@ -409,14 +409,6 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
     )
 }
 
-#[allow(dead_code)]
-fn _assert_module_body_ranges_are_original(source: &str) {
-    for module in find_list_pages_module_matches_with_delayed_links(source) {
-        let body_end = module.body_start + module.body.len();
-        debug_assert_eq!(module.body, &source[module.body_start..body_end]);
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -580,9 +580,7 @@ mod page_calendar_tests {
             .expect("the first calendar query should succeed");
         let second = cache
             .get_or_init(category, || async {
-                panic!("a cached calendar result must not query again");
-                #[allow(unreachable_code)]
-                Ok(None)
+                panic!("a cached calendar result must not query again")
             })
             .await
             .expect("the cached calendar query should succeed");

@@ -394,9 +394,7 @@ mod tests {
             .expect("the first PagesByTag load should succeed");
         let second = cache
             .get_or_init(key, || async {
-                panic!("a cached PagesByTag result must not query again");
-                #[allow(unreachable_code)]
-                Ok(Vec::new())
+                panic!("a cached PagesByTag result must not query again")
             })
             .await
             .expect("the cached PagesByTag load should succeed");

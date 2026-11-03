@@ -331,12 +331,10 @@ pub(in crate::services::render) fn format_list_pages_created_at(
     created_at: Option<time::OffsetDateTime>,
     format: Option<&str>,
     render_as_html: bool,
-    page_preview: bool,
 ) -> String {
     let Some(created_at) = created_at else {
         return String::new();
     };
-    let _ = page_preview;
     let created_at = created_at.to_offset(time::UtcOffset::UTC);
     const SERVER_FORMAT: &str = "%d %b %Y %H:%M";
     const DEFAULT_ODATE_FORMAT: &str = "%e %b %Y, %H:%M|agohover";

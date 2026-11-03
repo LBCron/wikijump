@@ -1,11 +1,10 @@
 import crypto from 'node:crypto';
-import {navigationOverlayProvenance,NAVIGATION_OVERLAY_SOURCE} from './navigation-overlay-provenance.mjs';
 import states from '../fixtures/browser-acceptance-states.json' with {type: 'json'};
 import {measureTitleComposition} from './title-composition.mjs';
 import {measureTitleTextIntersections} from './title-text-intersections.mjs';
 import {BASELINE_DOCUMENT_CONTAINMENT_CONTRACT_SHA256,BASELINE_DOCUMENT_CONTAINMENT_SCHEMA} from './baseline-document-containment.mjs';
 import {validateVisualGateRecord,visualGateNeedsScreenshot} from './visual-gate.mjs';
-import {loadFaithfulDesignExemptions,matchFaithfulDesignContainment} from './finalize-visual-acceptance.mjs';
+import {loadFaithfulDesignExemptions,matchFaithfulDesignContainment} from './faithful-design-exemptions.mjs';
 
 export const SEMANTIC_BROWSER_MODEL = 'theme_lab_semantic_browser_acceptance.v1';
 const hash = value => crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -181,32 +180,6 @@ function samePersistentTitleIntersection(left,right) {
     .every(key => (left?.[key] ?? null) === (right?.[key] ?? null));
 }
 
-function navigationOverlayBeyondNormalComposition(row,normal) {
-  const action=row.title_text_measurement,reading=normal?.title_text_measurement;
-  if(action?.schema!=='theme_lab_title_text_intersections.v1'||action.complete!==true||
-      reading?.schema!=='theme_lab_title_text_intersections.v1'||reading.complete!==true||
-      row.title_text_contract_sha256!==TITLE_TEXT_CONTRACT_SHA256||normal.title_text_contract_sha256!==TITLE_TEXT_CONTRACT_SHA256||
-      JSON.stringify(action.title_text_rects)!==JSON.stringify(reading.title_text_rects))return false;
-  const transient=action.intersections.filter(item=>!reading.intersections.some(existing=>samePersistentTitleIntersection(item,existing)));
-  if(!transient.length||transient.length===action.intersections.length)return false;
-  const retained=(row.visual_diagnostics?.title_overlaps??[]).filter(item=>transient.some(target=>
-    target.tag===item.tag&&target.text===item.text&&sameRect(target.rect,item.rect)));
-  return navigationOverlayProvenance({...row,
-    title_text_measurement:{...action,intersections:transient},
-    visual_diagnostics:{...row.visual_diagnostics,title_overlaps:retained}});
-}
-
-function settlesTransientNavigationOverlay(row, facts, normal) {
-  if (!transientNavigationStates.has(`${row.surface}.${row.state}`) || facts.title_composition !== 'visual' ||
-      Object.values(facts).some(value=>!['pass','visual'].includes(value)) || !normal ||
-      JSON.stringify(readingContext(row)) !== JSON.stringify(readingContext(normal))) return false;
-  const normalFacts = measuredFacts(normal);
-  return (navigationOverlayProvenance(row)||navigationOverlayBeyondNormalComposition(row,normal)) &&
-    normalFacts.observation_identity === 'pass' && normalFacts.capture_safety === 'pass' &&
-    normalFacts.maintained_action_execution === 'pass' && normalFacts.document_containment === 'pass' &&
-    ['pass','visual'].includes(titleCompositionFact(normal));
-}
-
 const identityQuestion = 'Does the JP rendering preserve the frozen source theme’s intentional imagery, typography, palette and information hierarchy across the evidenced responsive layouts, including page-title readability against persistent shell controls in normal reading states, allowing only documented localization differences?';
 
 const identityQuestionId = row => hash({kind: 'source_visual_identity', theme: row.theme,
@@ -224,9 +197,6 @@ export function planBrowserAcceptance(audit) {
     const key = observationKey(row), dependencies = observationDependencies(row);
     const facts = measuredFacts(row);
     facts.title_composition = titleCompositionFact(row);
-    const transientOverlaySettled = settlesTransientNavigationOverlay(row, facts,
-      normalRows.get(JSON.stringify(readingContext(row))));
-    if (transientOverlaySettled) facts.title_composition = 'pass';
     const titleNormal = titleNormalRows.get(JSON.stringify(titleReadingContext(row)));
     const identityCompositionCovered = facts.title_composition === 'visual' &&
       (row.surface === 'page.normal' && row.state === 'settled' || sameMeasuredTitleComposition(row, titleNormal));
@@ -288,11 +258,9 @@ export function planBrowserAcceptance(audit) {
     }
     observations.push({key, dependencies_sha256: hash(dependencies), facts, visual_questions: required,
       machine_explanations: [
-        ...(transientOverlaySettled ? ['title_composition: source-proven canonical transient navigation overlay over a clean exact-context reading state whose title composition is either machine-clean or bound to source-identity review'] : []),
         ...(identityCompositionCovered ? ['title_composition: exact measured composition is covered by the source-identity review of the corresponding normal reading state'] : []),
         ...(containmentExemption ? [`document_containment: faithful-design exemption ${containmentExemption.id} (decision ${containmentExemption.decision}); the measured candidate and baseline overflows remain recorded in the observation facts`] : []),
       ],
-      source_fact_authority:transientOverlaySettled?NAVIGATION_OVERLAY_SOURCE:null,
       machine_failures: machineFailures,
       additional_machine_evidence: Object.keys(facts).filter(name => facts[name] === 'missing')});
     observations.at(-1).additional_source_authority = Object.keys(facts).filter(name => facts[name] === 'source-required');

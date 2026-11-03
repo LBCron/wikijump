@@ -146,50 +146,6 @@ test('visible normal-state intersections are covered by the source identity ques
   assert.equal(plan.observations[0].facts.title_composition, 'visual-identity');
 });
 
-test('a transient navigation overlay is machine-settled over a clean exact-context reading state', () => {
-  const overlap = {effectively_visible:true,tag:'A',id:'',class:'menu-control',text:'ガイドハブ',color:'black',background:'white',position:'absolute',z:'20',ancestors:[{tag:'LI'},{tag:'UL',position:'absolute',rect:{x:0,y:50,width:100,height:60}},{tag:'LI'}]};
-  const action = withTextIntersections(row({surface:'nav.mobile-top',state:'submenu-expanded',viewport:'mobile',viewport_size:{width:390,height:844},
-    runtime_surface_contract_sha256:'b'.repeat(64),transport_origin:'https://candidate-action.invalid',
-    visual_diagnostics:{viewport:{width:390,documentWidth:390},title_overlaps:[{...overlap,rect:{x:0,y:50,width:100,height:60}}]}}));
-  const normal = row({viewport:'mobile',viewport_size:{width:390,height:844},transport_origin:'https://candidate-reading.invalid',
-    visual_diagnostics:{viewport:{width:390,documentWidth:390},title_overlaps:[]}});
-  const plan = planBrowserAcceptance({records:[normal,action]});
-  assert.equal(plan.visual_questions.filter(q=>q.kind==='ambiguous_composition').length,0);
-  const observation = plan.observations.find(item => item.key === observationKey(action));
-  assert.equal(observation.facts.title_composition,'pass');
-  assert.match(observation.machine_explanations[0],/transient navigation overlay/u);
-});
-
-test('transient overlay settlement fails closed on context drift or unsafe actions but normal visual composition stays with identity review', () => {
-  const overlap = {effectively_visible:true,tag:'A',id:'',class:'menu-control',text:'ガイドハブ',color:'black',background:'white',position:'absolute',z:'20',ancestors:[{tag:'LI'},{tag:'UL',position:'absolute',rect:{x:0,y:50,width:100,height:60}},{tag:'LI'}]};
-  const action = withTextIntersections(row({surface:'nav.mobile-top',state:'submenu-expanded',viewport:'mobile',viewport_size:{width:390,height:844},
-    visual_diagnostics:{viewport:{width:390,documentWidth:390},title_overlaps:[{...overlap,rect:{x:0,y:50,width:100,height:60}}]}}));
-  const normal = row({viewport:'mobile',viewport_size:{width:390,height:844},visual_diagnostics:{viewport:{width:390,documentWidth:390},title_overlaps:[]}});
-  const count = records => planBrowserAcceptance({records}).visual_questions.filter(q=>q.kind==='ambiguous_composition').length;
-  assert.equal(count([{...normal,candidate_sha256:'b'.repeat(64)},action]),1);
-  assert.equal(count([normal,{...action,failure:'action failed'}]),1);
-  const overlappingNormal = withTextIntersections({...normal,
-    visual_diagnostics:{viewport:{width:390,documentWidth:390},title_overlaps:[{...overlap,rect:{x:0,y:50,width:100,height:60}}]}});
-  assert.equal(count([overlappingNormal,action]),0);
-});
-
-test('a transient navigation overlay may add source-proven menu leaves beside an unchanged normal-state control', () => {
-  const account={effectively_visible:true,tag:'A',id:'',class:'account',text:'マイアカウント',rect:{x:250,y:10,width:100,height:30},color:'white',background:'black',position:'relative',z:'40'};
-  const menu={effectively_visible:true,tag:'A',id:'',class:'menu-control',text:'ガイドハブ',rect:{x:0,y:50,width:100,height:30},color:'black',background:'white',position:'absolute',z:'20'};
-  const normal=withTextIntersections(row({viewport:'mobile',viewport_size:{width:390,height:844},
-    visual_diagnostics:{viewport:{width:390,documentWidth:390},title_overlaps:[account]}}));
-  const action=withTextIntersections(row({surface:'nav.mobile-top',state:'submenu-expanded',viewport:'mobile',viewport_size:{width:390,height:844},
-    runtime_surface_contract_sha256:'b'.repeat(64),visual_diagnostics:{viewport:{width:390,documentWidth:390},title_overlaps:[account,{...menu,ancestors:[{tag:'LI'},{tag:'UL',position:'absolute',rect:{x:0,y:50,width:120,height:60}},{tag:'LI'}]}]}}));
-  const plan=planBrowserAcceptance({records:[normal,action]});
-  assert.equal(plan.visual_questions.filter(q=>q.kind==='ambiguous_composition').length,0);
-  const observation=plan.observations.find(item=>item.key===observationKey(action));
-  assert.equal(observation.facts.title_composition,'pass');
-  assert.match(observation.machine_explanations[0],/transient navigation overlay/u);
-  const unknown={...action,visual_diagnostics:{...action.visual_diagnostics,title_overlaps:[account,{...menu,text:'Unknown control'}]}};
-  unknown.title_text_measurement={...action.title_text_measurement,intersections:unknown.visual_diagnostics.title_overlaps};
-  assert.equal(planBrowserAcceptance({records:[normal,unknown]}).visual_questions.filter(q=>q.kind==='ambiguous_composition').length,1);
-});
-
 test('an exact non-normal title composition reuses the normal source-identity review', () => {
   const overlap = {effectively_visible:true,tag:'A',id:'',class:'account',text:'Account',color:'white',background:'black',position:'relative',z:'40'};
   const normal = withTextIntersections(row({viewport:'mobile',viewport_size:{width:390,height:844},

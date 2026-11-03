@@ -47,26 +47,10 @@ const metadataOnly = (file) =>
     "install/local/README.md"
   ].includes(file)
 
-const machineAuthorityDocument = (file) =>
-  file.startsWith("docs/development/") && file.endsWith(".json")
-
 const verificationInput = (file) =>
   file.startsWith("install/local/wikidot-verification/") ||
   file.startsWith("install/standing/") ||
-  machineAuthorityDocument(file) ||
-  file.startsWith("docs/wikidot-specifications/") ||
-  [
-    ".github/workflows/wikidot-verification.yaml",
-    "scripts/data/wikidot-implementation-ledger.json",
-    "scripts/data/wikidot-live-observations.json",
-    "scripts/data/wikidot-spec-supplements.json",
-    "scripts/generate-wikidot-specifications.mjs",
-    "scripts/initialize-wikidot-implementation-ledger.mjs",
-    "scripts/lib/wikidot-implementation-ledger.mjs"
-  ].includes(file) ||
-  // Dated detailed-spec evidence aliases are consumed only by the
-  // specification generator and implementation-ledger checks.
-  file.startsWith("scripts/data/wikidot-detailed-")
+  file === ".github/workflows/wikidot-verification.yaml"
 
 const verificationOnly = (file) =>
   verificationInput(file) && file !== ".github/workflows/wikidot-verification.yaml"

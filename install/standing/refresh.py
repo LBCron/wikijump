@@ -38,7 +38,6 @@ def default_runtime_home() -> Path:
 
 
 DEFAULT_RUNTIME_HOME = default_runtime_home()
-RUNTIME_DIFFERENTIAL_IDENTITY = "runtime-differential-identity.json"
 CANARY_URL = "http://scp-wiki.wikijump.localhost/scp-9506"
 FTML_SOURCE = re.compile(
     r'source = "git\+https://github\.com/Rokurolize/ftml[^\"]*#([0-9a-f]{40})"'
@@ -75,12 +74,10 @@ def repository_identity(source_root: Path) -> dict[str, str]:
     matches = set(FTML_SOURCE.findall(lock_contents))
     if len(matches) != 1:
         raise ValueError("deepwell/Cargo.lock must contain exactly one FTML revision")
-    lockfile = source_root / "deepwell" / "Cargo.lock"
     return {
         "wikijump_sha": head,
         "wikijump_tree": tree,
         "ftml_sha": matches.pop(),
-        "dependency_lock_sha256": file_sha256(lockfile),
     }
 
 
@@ -168,37 +165,6 @@ def expected_compiled_generator(source_root: Path) -> str:
     if len(epochs) != 1:
         raise ValueError("Deepwell renderer source must contain exactly one renderer epoch")
     return f"ftml v{versions.pop()}; deepwell-render/v{epochs.pop()}"
-
-
-def standing_stale_saved_pages(
-    runtime_home: Path, source_root: Path
-) -> tuple[int, str]:
-    expected = expected_compiled_generator(source_root)
-    sql_expected = expected.replace("'", "''")
-    sql = (
-        "SELECT count(*) FROM page p "
-        "JOIN page_revision pr ON pr.revision_id=p.latest_revision_id "
-        "WHERE p.deleted_at IS NULL "
-        f"AND pr.compiled_generator <> '{sql_expected}';"
-    )
-    output = command(
-        "docker",
-        "exec",
-        "wikijump-standing-database-1",
-        "sh",
-        "-lc",
-        'PGPASSWORD="$POSTGRES_PASSWORD" exec psql -h 127.0.0.1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -At -v ON_ERROR_STOP=1 -c "$1"',
-        "sh",
-        sql,
-        cwd=runtime_home,
-    )
-    try:
-        stale = int(output)
-    except ValueError as error:
-        raise RuntimeError("standing stale saved-page count is not an integer") from error
-    if stale < 0:
-        raise RuntimeError("standing stale saved-page count is negative")
-    return stale, expected
 
 
 def wait_for_health(
@@ -502,7 +468,6 @@ def restore_parked_containers(
     return restored
 
 
-
 def restore_or_recreate_previous_containers(
     parked: dict[str, dict[str, object]],
     runtime_home: Path,
@@ -688,33 +653,6 @@ def park_containers(
     return parked
 
 
-def file_sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def runtime_differential_identity(
-    source_root: Path,
-    source_identity: dict[str, str],
-    images: dict[str, dict[str, object]],
-    runtime_config: str,
-) -> dict[str, str]:
-    deepwell_image_id = images["deepwell"]["id"]
-    if not isinstance(deepwell_image_id, str) or not re.fullmatch(
-        r"sha256:[0-9a-f]{64}", deepwell_image_id
-    ):
-        raise ValueError("Deepwell image identity is not one SHA-256 digest")
-    return {
-        "schema": "wikijump_syntax_differential.wikijump_runtime_identity.v1",
-        "wikijump_sha": source_identity["wikijump_sha"],
-        "ftml_sha": source_identity["ftml_sha"],
-        "dependency_lock_sha256": file_sha256(source_root / "deepwell" / "Cargo.lock"),
-        "executable_sha256": deepwell_image_id.removeprefix("sha256:"),
-        "runtime_config_sha256": hashlib.sha256(
-            runtime_config.encode("utf-8")
-        ).hexdigest(),
-    }
-
-
 def atomic_json(path: Path, value: dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
@@ -729,23 +667,3 @@ def atomic_json(path: Path, value: dict[str, object]) -> None:
     os.replace(temporary_path, path)
 
 
-def atomic_json_no_replace(path: Path, value: dict[str, object]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(
-        "w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", delete=False
-    ) as temporary:
-        json.dump(value, temporary, indent=2, sort_keys=True)
-        temporary.write("\n")
-        temporary.flush()
-        os.fsync(temporary.fileno())
-        temporary_path = Path(temporary.name)
-    os.chmod(temporary_path, 0o600)
-    try:
-        os.link(temporary_path, path)
-        directory_fd = os.open(path.parent, os.O_RDONLY)
-        try:
-            os.fsync(directory_fd)
-        finally:
-            os.close(directory_fd)
-    finally:
-        temporary_path.unlink(missing_ok=True)

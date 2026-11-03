@@ -20,11 +20,7 @@ const root = path.resolve(here, "..");
 const registryById = new Map(RUNTIME_SURFACE_PARITY.surfaces.map((surface) => [surface.surface_id, surface]));
 
 test("registry classifies every discovered and interactive runtime surface explicitly", () => {
-  const captureSource = fs.readFileSync(path.join(root, "ports/interactive-visual-fixture/capture-interactive.mjs"), "utf8");
-  const interactiveIds = [...captureSource.matchAll(/surface\s*:\s*['"]([^'"]+)['"]/gu)].map((match) => match[1]);
-  assert.ok(interactiveIds.length > 0);
-
-  for (const surface of [...KNOWN_THEME_SURFACES.map((row) => row.id), ...interactiveIds]) {
+  for (const surface of KNOWN_THEME_SURFACES.map((row) => row.id)) {
     assert.ok(registryById.has(surface), `missing parity status for ${surface}`);
   }
   for (const surface of RUNTIME_SURFACE_PARITY.surfaces) {
@@ -49,9 +45,7 @@ test("registry classifies every discovered and interactive runtime surface expli
 });
 
 test("derived active runtime surfaces retain local acceptance without parity authority", () => {
-  const captureSource = fs.readFileSync(path.join(root, "ports/interactive-visual-fixture/capture-interactive.mjs"), "utf8");
-  const interactiveIds = [...captureSource.matchAll(/surface\s*:\s*['"]([^'"]+)['"]/gu)].map((match) => match[1]);
-  const activeIds = [...new Set([...KNOWN_THEME_SURFACES.map((row) => row.id), ...interactiveIds])].sort();
+  const activeIds = RUNTIME_SURFACE_PARITY.surfaces.filter((row) => row.theme_lab_activity === "ACTIVE_CSS_OR_INTERACTION_SURFACE").map((row) => row.surface_id).sort();
   const activeRows = activeIds.map((id) => registryById.get(id));
 
   assert.equal(activeIds.length, 41);
@@ -130,9 +124,7 @@ test("uncertified and unclassified runtime findings cannot become port next-acti
 });
 
 test("active uncertified surfaces stay in local acceptance and cannot alter port conclusions", () => {
-  const captureSource = fs.readFileSync(path.join(root, "ports/interactive-visual-fixture/capture-interactive.mjs"), "utf8");
-  const interactiveIds = [...captureSource.matchAll(/surface\s*:\s*['"]([^'"]+)['"]/gu)].map((match) => match[1]);
-  const activeIds = [...new Set([...KNOWN_THEME_SURFACES.map((row) => row.id), ...interactiveIds])];
+  const activeIds = RUNTIME_SURFACE_PARITY.surfaces.filter((row) => row.theme_lab_activity === "ACTIVE_CSS_OR_INTERACTION_SURFACE").map((row) => row.surface_id);
   const verdict = buildVerdict({extraIssues: activeIds.map((surface) => ({
     severity: "error",
     kind: "surface_fixture_missing",

@@ -15,11 +15,9 @@ export function themeScenarioConfigForPackage(root,{generation,packageName,runCo
   const templatePath=templateByGeneration[generation];
   if(!templatePath)throw new Error(`unsupported canonical scenario generation: ${generation}`);
   if(!/^[a-z0-9-]+$/u.test(packageName??''))throw new Error(`invalid maintained package name: ${packageName}`);
-  const ledger=JSON.parse(fs.readFileSync(resolveExistingContainedFile(root,'ports/adaptation-authority.json','Maintained package ledger'),'utf8'));
-  const entry=ledger.packages?.[packageName];if(!entry)throw new Error(`unknown maintained package: ${packageName}`);
   const directory=resolveExistingPackageDirectory(path.join(root,'ports'),packageName,`${packageName}: package directory`);
   resolveExistingPackageFile(directory,'candidate.css',`${packageName}: candidate CSS`);
-  const sourceFile=candidateSourceName(directory,entry);
+  const sourceFile=candidateSourceName(directory);
   resolveExistingPackageFile(directory,sourceFile,`${packageName}: candidate source`);
   const config=JSON.parse(fs.readFileSync(resolveExistingContainedFile(root,templatePath,'Canonical scenario generation template'),'utf8'));
   // Only a task-owned contract rebinds the runtime origin; the shared default

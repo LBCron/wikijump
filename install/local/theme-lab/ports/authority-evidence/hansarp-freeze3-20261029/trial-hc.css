@@ -1,2 +1,0 @@
-#history-form-1>table{width:100%;table-layout:fixed}
-#history-form-1>table>tbody>tr:first-child>td:nth-of-type(2){grid-template-columns:repeat(3,minmax(0,1fr))}

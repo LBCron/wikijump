@@ -1,6 +1,4 @@
-import fs from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 import {
   DEFAULT_SETTLE_MS,
@@ -29,33 +27,17 @@ import {
   launchParityBrowser,
 } from "./standing-browser-parity-browser-session.mjs";
 import {
-  buildCandidateParityReceipt,
-  candidatePageOrigin,
-  assertCandidateIdentityFresh,
-  validateCandidateParityIdentity,
-  validateCandidateParityReceipt,
-} from "./standing-browser-parity-receipt.mjs";
-import {
   buildLiveReferenceLedger,
   loadSealedLiveReference,
   validateLiveReferenceRecord,
 } from "./standing-browser-parity-reference.mjs";
 import {
-  assertStableCandidateRuntimeIdentity,
-  observeCandidateRuntimeIdentity,
-} from "./standing-browser-runtime-identity.mjs";
-import { collectCandidateExecutionIdentity } from "./standing-browser-execution-identity.mjs";
-import {validateStandingRefreshReceipt} from "../../../standing/scripts/verify-standing-refresh.mjs";
-import {
   createPrivateEmptyDirectory,
   readJsonObject,
-  requireSha256,
   sealJsonNoReplace,
   sha256File,
-  sha256Value,
 } from "./standing-browser-parity-util.mjs";
 
-const SOURCE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_LIVE_ORIGIN = "https://scp-wiki.wikidot.com";
 const REFERENCE_LOCAL_ORIGIN = "https://scp-wiki.wikijump.localhost:18443";
 const STANDING_LOCAL_ORIGIN = "https://scp-wiki.wikijump.localhost";
@@ -157,17 +139,11 @@ export function parseStandingBrowserParityArgs(argv) {
     } else if (flag === "--live-reference-capture-policy") {
       args.liveReferenceCapturePolicy = path.resolve(nextArgument(argv, index, flag));
       index += 1;
-    } else if (flag === "--candidate-identity") {
-      args.candidateIdentity = path.resolve(nextArgument(argv, index, flag));
-      index += 1;
-    } else if (flag === "--standing-refresh") {
-      args.standingRefresh = path.resolve(nextArgument(argv, index, flag));
+    } else if (flag === "--candidate-port") {
+      args.candidatePort = positiveInteger(nextArgument(argv, index, flag), flag);
       index += 1;
     } else if (flag === "--live-reference-ledger") {
       args.liveReferenceLedger = path.resolve(nextArgument(argv, index, flag));
-      index += 1;
-    } else if (flag === "--live-reference-sha256") {
-      args.liveReferenceSha256 = nextArgument(argv, index, flag);
       index += 1;
     } else {
       throw new Error(`unknown argument: ${flag}`);
@@ -188,18 +164,11 @@ export function parseStandingBrowserParityArgs(argv) {
   if (args.mode === "live-reference" && args.sourceResponseCacheDir === null) throw new Error("live-reference mode requires --source-response-cache-dir");
   if (args.mode === "live-reference" && !args.sourceResponseCacheDocuments) throw new Error("live-reference mode requires --cache-source-documents");
   if (args.mode !== "live-reference" && args.sourceResponseCacheDocuments) throw new Error("--cache-source-documents is available only in live-reference mode");
-  if (args.mode === "candidate" && !args.candidateIdentity) throw new Error("--candidate-identity is required in candidate mode");
-  if (args.mode === "candidate" || args.mode === "standing") {
-    for (const [flag, value] of [
-      ["--live-reference-ledger", args.liveReferenceLedger],
-      ["--live-reference-sha256", args.liveReferenceSha256],
-    ]) {
-      if (!value) throw new Error(`${flag} is required in candidate mode`);
-    }
-    requireSha256(args.liveReferenceSha256, "--live-reference-sha256");
+  if (args.mode === "candidate" && !args.candidatePort) throw new Error("--candidate-port is required in candidate mode");
+  if ((args.mode === "candidate" || args.mode === "standing") && !args.liveReferenceLedger) {
+    throw new Error(`--live-reference-ledger is required in ${args.mode} mode`);
   }
   if (args.mode === "standing") {
-    if (!args.standingRefresh) throw new Error("--standing-refresh is required in standing mode");
     if (args.sourceResponseCacheDir === null) throw new Error("standing mode requires --source-response-cache-dir");
   }
   if (
@@ -217,24 +186,6 @@ async function readPolicy(filePath) {
   const raw = await readJsonObject(filePath, "live completion policy");
   return {
     value: validateLiveCompletionPolicy(raw),
-    sha256: await sha256File(filePath),
-    filePath,
-  };
-}
-
-async function readCandidateIdentity(filePath) {
-  const raw = await readJsonObject(filePath, "candidate parity identity");
-  return {
-    value: validateCandidateParityIdentity(raw),
-    sha256: await sha256File(filePath),
-    filePath,
-  };
-}
-
-async function readStandingRefresh(filePath) {
-  const raw = await readJsonObject(filePath, "standing refresh receipt");
-  return {
-    value: validateStandingRefreshReceipt(raw),
     sha256: await sha256File(filePath),
     filePath,
   };
@@ -275,7 +226,7 @@ function screenshotHash(screenshot, label) {
   if (!screenshot || typeof screenshot.sha256 !== "string") {
     throw new Error(`${label} screenshot was not captured`);
   }
-  return requireSha256(screenshot.sha256, `${label} screenshot SHA-256`);
+  return screenshot.sha256;
 }
 
 function comparisonContractForPair(pair) {
@@ -338,69 +289,6 @@ function validateCandidateCapture(capture, pair) {
   screenshotHash(capture.screenshot, "candidate settled full page");
 }
 
-function candidateArtifactHashes(local, liveArtifacts) {
-  return {
-    local_domcontentloaded_immediate_png: screenshotHash(
-      local.first_paint?.screenshot,
-      "local DOMContentLoaded immediate",
-    ),
-    local_settled_viewport_png: screenshotHash(
-      local.settled_viewport_screenshot,
-      "local settled viewport",
-    ),
-    local_settled_full_page_png: screenshotHash(
-      local.screenshot,
-      "local settled full page",
-    ),
-    live_domcontentloaded_immediate_png:
-      liveArtifacts.domcontentloaded_immediate.sha256,
-    live_settled_viewport_png: liveArtifacts.settled_viewport.sha256,
-    live_settled_full_page_png: liveArtifacts.settled_full_page.sha256,
-  };
-}
-
-function requireExactHash(actual, expected, label) {
-  if (actual !== expected)
-    throw new Error(`${label} SHA-256 does not bind the supplied file`);
-}
-
-async function verifyLocalArtifacts(outputDir, records) {
-  for (const [index, record] of records.entries()) {
-    const localUrl = record.input.local_url;
-    const expected = {
-      local_domcontentloaded_immediate_png: observationArtifactName({
-        label: "local",
-        index,
-        url: localUrl,
-        phase: "domcontentloaded-immediate",
-      }),
-      local_settled_viewport_png: observationArtifactName({
-        label: "local",
-        index,
-        url: localUrl,
-        phase: "settled-viewport",
-      }),
-      local_settled_full_page_png: observationArtifactName({
-        label: "local",
-        index,
-        url: localUrl,
-        phase: "settled-full-page",
-      }),
-    };
-    for (const [key, name] of Object.entries(expected)) {
-      const stat = await fs.lstat(path.join(outputDir, name)).catch(() => null);
-      if (!stat?.isFile() || stat.isSymbolicLink()) {
-        throw new Error(`candidate artifact is unavailable: ${name}`);
-      }
-      requireExactHash(
-        await sha256File(path.join(outputDir, name)),
-        record.artifact_hashes[key],
-        `candidate artifact ${name}`,
-      );
-    }
-  }
-}
-
 async function collectLiveReference({ args, policy, browser }) {
   const pairs = defaultCanaryPairs({
     localOrigin: REFERENCE_LOCAL_ORIGIN,
@@ -418,7 +306,7 @@ async function collectLiveReference({ args, policy, browser }) {
   return { pairs, captures };
 }
 
-async function sealLiveReference({
+async function writeLiveReference({
   args,
   policy,
   browserEnvironment,
@@ -442,7 +330,6 @@ async function sealLiveReference({
   const sealed = await sealJsonNoReplace(outputPath, ledger);
   const loaded = await loadSealedLiveReference({
     filePath: outputPath,
-    expectedSha256: sealed.sha256,
     pairs,
     viewport: args.viewport,
     thresholds: DEFAULT_THRESHOLDS,
@@ -466,46 +353,10 @@ async function sealLiveReference({
   return { ledger: loaded, ledgerSeal: sealed, verdict, verdictSeal };
 }
 
-async function collectCandidateParity({
-  args,
-  policy,
-  referencePolicy,
-  candidateIdentity,
-  browser,
-}) {
-  assertCandidateIdentityFresh(candidateIdentity.value);
-  const pairs = defaultCanaryPairs({
-    localOrigin: candidatePageOrigin(candidateIdentity.value),
-    liveOrigin: DEFAULT_LIVE_ORIGIN,
-  });
+async function collectLocalParity({args, policy, referencePolicy, browser, localOrigin}) {
+  const pairs = defaultCanaryPairs({localOrigin, liveOrigin: DEFAULT_LIVE_ORIGIN});
   const liveReference = await loadSealedLiveReference({
     filePath: args.liveReferenceLedger,
-    expectedSha256: args.liveReferenceSha256,
-    pairs,
-    viewport: args.viewport,
-    thresholds: DEFAULT_THRESHOLDS,
-    policy: policy.value,
-    policySha256: policy.sha256,
-    policyFilePath: policy.filePath,
-    referencePolicy: referencePolicy.value,
-    referencePolicySha256: referencePolicy.sha256,
-    referencePolicyFilePath: referencePolicy.filePath,
-  });
-  const captures = await captureSet({ browser, pairs, label: "local", args });
-  for (const [index, capture] of captures.entries()) {
-    validateCandidateCapture(capture, pairs[index]);
-  }
-  return { pairs, liveReference, captures };
-}
-
-async function collectStandingParity({args, policy, referencePolicy, browser}) {
-  const pairs = defaultCanaryPairs({
-    localOrigin: STANDING_LOCAL_ORIGIN,
-    liveOrigin: DEFAULT_LIVE_ORIGIN,
-  });
-  const liveReference = await loadSealedLiveReference({
-    filePath: args.liveReferenceLedger,
-    expectedSha256: args.liveReferenceSha256,
     pairs,
     viewport: args.viewport,
     thresholds: DEFAULT_THRESHOLDS,
@@ -521,177 +372,41 @@ async function collectStandingParity({args, policy, referencePolicy, browser}) {
   return {pairs, liveReference, captures};
 }
 
-async function sealCandidateParity({
-  args,
-  candidateIdentity,
-  browserEnvironment,
-  finalGateSnapshot,
-  runtimeIdentity,
-  executionIdentity,
-  capture,
-}) {
-  assertCandidateIdentityFresh(candidateIdentity.value);
-  const { pairs, liveReference, captures } = capture;
-  assertRequestGateAbortAccounting(captures, finalGateSnapshot);
-  const records = captures.map((local, index) => {
-    const referenceRecord = liveReference.records[index];
-    return {
-      input: {
-        local_url: pairs[index].local_url,
-        live_url: pairs[index].live_url,
-      },
-      comparison: {
-        ...compareCaptures(
-          local,
-          referenceRecord.capture,
-          DEFAULT_THRESHOLDS,
-          undefined,
-          comparisonContractForPair(pairs[index]),
-        ),
-        comparison_scope: "standing-chrome",
-      },
-      artifact_hashes: candidateArtifactHashes(
-        local,
-        referenceRecord.artifacts,
-      ),
-    };
-  });
-  await verifyLocalArtifacts(args.outputDir, records);
-  const pairsFailed = records.filter(
-    (record) => record.comparison.status !== "pass",
-  ).length;
-  const ledger = {
-    schema: STANDING_BROWSER_PARITY_SCHEMA,
-    status: pairsFailed === 0 ? "pass" : "fail",
-    generated_at: new Date().toISOString(),
-    capture_phase: "domcontentloaded_immediate_observation",
-    viewport: args.viewport,
-    candidate_identity_sha256: candidateIdentity.sha256,
-    live_reference_sha256: liveReference.sha256,
-    local_capture_config_sha256: finalGateSnapshot.config_sha256,
-    request_gate: finalGateSnapshot,
-    records,
-    summary: {
-      pairs_total: records.length,
-      pairs_failed: pairsFailed,
-      pairs_passed: records.length - pairsFailed,
-    },
-  };
-  const ledgerPath = path.join(args.outputDir, "standing-browser-parity.json");
-  const builtReceipt = buildCandidateParityReceipt({
-    identity: candidateIdentity.value,
-    identitySha256: candidateIdentity.sha256,
-    parity: ledger,
-    parityLedgerSha256: sha256Value(ledger),
-    liveReference: liveReference.identity,
-    browserEnvironment,
-    runtimeIdentity,
-    executionIdentity,
-    runnerSha256: await sha256File(fileURLToPath(import.meta.url)),
-    observationSha256: await sha256File(
-      path.join(SOURCE_DIR, "standing-browser-parity-observation.mjs"),
-    ),
-  });
-  const receipt = builtReceipt.receipt;
-  requireExactHash(
-    sha256Value(ledger),
-    receipt.parity.ledger_sha256,
-    "parity ledger",
-  );
-  requireExactHash(
-    await sha256File(candidateIdentity.filePath),
-    receipt.parity.candidate_identity_sha256,
-    "candidate identity",
-  );
-  requireExactHash(
-    await sha256File(args.liveReferenceLedger),
-    receipt.parity.live_reference_sha256,
-    "live reference",
-  );
-  requireExactHash(
-    finalGateSnapshot.config_sha256,
-    receipt.parity.request_gate_config_sha256,
-    "request gate configuration",
-  );
-  if (sha256Value(ledger.records) !== sha256Value(receipt.parity.records)) {
-    throw new Error(
-      "candidate parity receipt records do not match the sealed ledger",
-    );
-  }
-  assertCandidateIdentityFresh(candidateIdentity.value);
-  validateCandidateParityReceipt(receipt, { requirePass: false });
-  const ledgerSeal = await sealJsonNoReplace(ledgerPath, ledger);
-  requireExactHash(
-    ledgerSeal.sha256,
-    receipt.parity.ledger_sha256,
-    "sealed parity ledger",
-  );
-  assertCandidateIdentityFresh(candidateIdentity.value);
-  const receiptPath = path.join(
-    args.outputDir,
-    "standing-candidate-parity-receipt.json",
-  );
-  const receiptSeal = await sealJsonNoReplace(receiptPath, receipt);
-  return { ledger, ledgerSeal, receipt, receiptSeal };
-}
-
-async function sealStandingParity({
-  args,
-  standingRefresh,
-  browserEnvironment,
-  finalGateSnapshot,
-  capture,
-}) {
+async function writeParityResult({args, finalGateSnapshot, capture}) {
   const {pairs, liveReference, captures} = capture;
   assertRequestGateAbortAccounting(captures, finalGateSnapshot);
-  const records = captures.map((local, index) => {
-    const referenceRecord = liveReference.records[index];
-    return {
-      input: {local_url: pairs[index].local_url, live_url: pairs[index].live_url},
-      comparison: {
-        ...compareCaptures(local, referenceRecord.capture, DEFAULT_THRESHOLDS, undefined, comparisonContractForPair(pairs[index])),
-        comparison_scope: "standing-chrome",
-      },
-      artifact_hashes: candidateArtifactHashes(local, referenceRecord.artifacts),
-    };
-  });
-  await verifyLocalArtifacts(args.outputDir, records);
+  const records = captures.map((local, index) => ({
+    input: {local_url: pairs[index].local_url, live_url: pairs[index].live_url},
+    comparison: {
+      ...compareCaptures(local, liveReference.records[index].capture, DEFAULT_THRESHOLDS, undefined, comparisonContractForPair(pairs[index])),
+      comparison_scope: "standing-chrome",
+    },
+  }));
   const pairsFailed = records.filter((record) => record.comparison.status !== "pass").length;
-  const ledger = {
+  const proof = {
     schema: STANDING_BROWSER_PARITY_SCHEMA,
     status: pairsFailed === 0 ? "pass" : "fail",
     generated_at: new Date().toISOString(),
-    capture_phase: "domcontentloaded_immediate_observation",
     viewport: args.viewport,
-    standing_refresh_sha256: standingRefresh.sha256,
-    live_reference_sha256: liveReference.sha256,
-    local_capture_config_sha256: finalGateSnapshot.config_sha256,
-    request_gate: finalGateSnapshot,
     records,
     summary: {pairs_total: records.length, pairs_failed: pairsFailed, pairs_passed: records.length - pairsFailed},
   };
-  const ledgerSeal = await sealJsonNoReplace(path.join(args.outputDir, "standing-browser-parity.json"), ledger);
-  const scp9506 = records.find((record) => record.input.local_url.endsWith("/scp-9506"));
-  const proof = {
-    schema: "wikijump.compatibility_standing_browser_proof.v1",
-    status: ledger.status,
-    generated_at: ledger.generated_at,
-    wikijump_sha: standingRefresh.value.wikijump_sha,
-    wikijump_tree: standingRefresh.value.wikijump_tree,
-    ftml_sha: standingRefresh.value.ftml_sha,
-    standing_refresh: {path: standingRefresh.filePath, sha256: standingRefresh.sha256},
-    parity: {path: ledgerSeal.path, sha256: ledgerSeal.sha256},
-    live_reference: {path: args.liveReferenceLedger, sha256: liveReference.sha256},
-    browser_environment: browserEnvironment,
-    request_gate: finalGateSnapshot,
-    summary: {
-      ...ledger.summary,
-      full_page_screenshots: records.length,
-      scp_9506_full_page_sha256: scp9506?.artifact_hashes?.local_settled_full_page_png ?? null,
-    },
-  };
-  const proofSeal = await sealJsonNoReplace(path.join(args.outputDir, "standing-browser-proof.json"), proof);
-  return {ledger, ledgerSeal, proof, proofSeal};
+  await sealJsonNoReplace(path.join(args.outputDir, "standing-browser-parity.json"), proof);
+  return {proof};
+}
+
+function localEndpoint(args) {
+  if (args.mode === "standing") {
+    return {candidate: {endpoint: {allowed_origin_set: [STANDING_LOCAL_ORIGIN, STANDING_FILES_ORIGIN], local_connect_address: "127.0.0.1"}}};
+  }
+  if (args.mode === "candidate") {
+    const port = args.candidatePort;
+    return {candidate: {endpoint: {
+      allowed_origin_set: [`https://scp-wiki.wikijump.localhost:${port}`, `https://scp-wiki.wjfiles.localhost:${port}`],
+      local_connect_address: "127.0.0.1",
+    }}};
+  }
+  return null;
 }
 
 export async function runStandingBrowserParity(args) {
@@ -699,15 +414,6 @@ export async function runStandingBrowserParity(args) {
   const referencePolicy = args.liveReferenceCapturePolicy
     ? await readPolicy(args.liveReferenceCapturePolicy)
     : policy;
-  const candidateIdentity =
-    args.mode === "candidate"
-      ? await readCandidateIdentity(args.candidateIdentity)
-      : null;
-  const standingRefresh = args.mode === "standing" ? await readStandingRefresh(args.standingRefresh) : null;
-  if (candidateIdentity) assertCandidateIdentityFresh(candidateIdentity.value);
-  const executionIdentity = candidateIdentity
-    ? await collectCandidateExecutionIdentity(candidateIdentity.value)
-    : null;
   await createPrivateEmptyDirectory(args.outputDir);
   let controls = null;
   let browser = null;
@@ -716,17 +422,12 @@ export async function runStandingBrowserParity(args) {
   let operationFailure = null;
   let cleanupFailure = null;
   let finalGateSnapshot = null;
-  let runtimeIdentityBefore = null;
-  let runtimeIdentityAfter = null;
   try {
-    const standingEndpointIdentity = args.mode === "standing"
-      ? {candidate: {endpoint: {allowed_origin_set: [STANDING_LOCAL_ORIGIN, STANDING_FILES_ORIGIN], local_connect_address: "127.0.0.1"}}}
-      : null;
     controls = await createParityBrowserControls({
       args,
       outputDir: args.outputDir,
       policy,
-      candidate: candidateIdentity?.value ?? standingEndpointIdentity,
+      candidate: localEndpoint(args),
       responseCacheOptions: args.sourceResponseCacheDir === null ? null : {
         persistentDir: args.sourceResponseCacheDir,
         persistentIdentity: args.sourceResponseCacheIdentity,
@@ -734,12 +435,6 @@ export async function runStandingBrowserParity(args) {
         evidenceReplay: true,
       },
     });
-    if (candidateIdentity) {
-      runtimeIdentityBefore = await observeCandidateRuntimeIdentity({
-        identity: candidateIdentity.value,
-        identitySha256: candidateIdentity.sha256,
-      });
-    }
     browser = await launchParityBrowser({
       browserRoot: args.browserRoot,
       browserExecutable: args.browserExecutable,
@@ -749,18 +444,12 @@ export async function runStandingBrowserParity(args) {
       responseCache: controls.responseCache,
     });
     browserEnvironment = browser.environment;
-    capture =
-      args.mode === "live-reference"
-        ? await collectLiveReference({ args, policy, browser })
-        : args.mode === "candidate"
-        ? await collectCandidateParity({
-            args,
-            policy,
-            referencePolicy,
-            candidateIdentity,
-            browser,
-          })
-        : await collectStandingParity({args, policy, referencePolicy, browser});
+    capture = args.mode === "live-reference"
+      ? await collectLiveReference({args, policy, browser})
+      : await collectLocalParity({
+          args, policy, referencePolicy, browser,
+          localOrigin: args.mode === "standing" ? STANDING_LOCAL_ORIGIN : `https://scp-wiki.wikijump.localhost:${args.candidatePort}`,
+        });
   } catch (error) {
     operationFailure = error;
   } finally {
@@ -777,46 +466,15 @@ export async function runStandingBrowserParity(args) {
   if (operationFailure) throw operationFailure;
   if (cleanupFailure) throw cleanupFailure;
   if (!capture || !browserEnvironment || !finalGateSnapshot) {
-    throw new Error(
-      "browser parity capture did not close cleanly before sealing",
-    );
+    throw new Error("browser parity capture did not close cleanly");
   }
-  if (candidateIdentity) {
-    runtimeIdentityAfter = await observeCandidateRuntimeIdentity({
-      identity: candidateIdentity.value,
-      identitySha256: candidateIdentity.sha256,
-    });
-    assertStableCandidateRuntimeIdentity(
-      runtimeIdentityBefore,
-      runtimeIdentityAfter,
-      candidateIdentity.value,
-      { identitySha256: candidateIdentity.sha256 },
-    );
-  }
-  const result =
-    args.mode === "live-reference"
-      ? await sealLiveReference({
-          args,
-          policy,
-          browserEnvironment,
-          finalGateSnapshot,
-          capture,
-        })
-      : args.mode === "candidate"
-      ? await sealCandidateParity({
-          args,
-          candidateIdentity,
-          browserEnvironment,
-          finalGateSnapshot,
-          runtimeIdentity: runtimeIdentityAfter,
-          executionIdentity,
-          capture,
-        })
-      : await sealStandingParity({args, standingRefresh, browserEnvironment, finalGateSnapshot, capture});
+  const result = args.mode === "live-reference"
+    ? await writeLiveReference({args, policy, browserEnvironment, finalGateSnapshot, capture})
+    : await writeParityResult({args, finalGateSnapshot, capture});
   return {
     mode: args.mode,
     output_dir: args.outputDir,
-    status: result.receipt?.status ?? result.verdict?.status ?? result.proof?.status,
+    status: result.verdict?.status ?? result.proof?.status,
     result,
   };
 }

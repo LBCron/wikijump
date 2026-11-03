@@ -1,8 +1,0 @@
-{
-  "schema": "roku.wikijump.issue_receipt.v1",
-  "issue": 1038,
-  "candidate_commit": "963ecbcf90c9c367ef9e8a15e0ce78772f382f53",
-  "candidate_tree": "5ecc4c1e677272f1c068e362c031db1686a66259",
-  "decision": "current-site administration only; remote/global mutations intentionally unavailable",
-  "test": "local-administration-module-policy.test.mjs"
-}

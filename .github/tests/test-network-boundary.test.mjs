@@ -76,8 +76,6 @@ test("maintained local test entrypoints are network-hermetic", () => {
   const browserSupport = read("framerail/playwright.browser-support.config.ts")
   const browserGuard = read("scripts/run-browser-test-no-external-network.sh")
   const unitRunner = read("scripts/run-framerail-unit-tests.sh")
-  const wikidotPyContractTest = read("install/local/wikidot-verification/tests/wikidot-py-amc-transport-contract.test.mjs")
-  const wikidotPyHermeticWrapper = read("install/local/wikidot-verification/fixtures/wikidot-python-hermetic-test-wrapper.sh")
 
   for (const name of ["test", "test:ci"]) {
     assert.match(verification.scripts[name], /run-test-no-external-network\.sh/u, name)
@@ -100,9 +98,6 @@ test("maintained local test entrypoints are network-hermetic", () => {
   assert.match(browserGuard, /exec sudo -n -E unshare -n/u)
   assert.match(browserGuard, /ip link set lo up/u)
   assert.match(browserGuard, /exec setpriv --reuid/u)
-  assert.match(wikidotPyContractTest, /wikidot-python-hermetic-test-wrapper\.sh/u)
-  assert.doesNotMatch(wikidotPyHermeticWrapper, /\buv\s+run\b/u)
-  assert.match(wikidotPyHermeticWrapper, /\.venv\/bin\/python/u)
 })
 
 test("test shell sources contain no literal external curl or wget targets", () => {

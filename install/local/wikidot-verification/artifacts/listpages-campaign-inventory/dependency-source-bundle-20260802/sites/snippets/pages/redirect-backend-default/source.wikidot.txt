@@ -1,3 +1,0 @@
-[[embed]]
-<iframe src="https://snippets.wdfiles.com/local--code/code:iframe-redirect#{$url}" frameborder="0" scrolling="no" style="width: 9px; height: 9px;" sandbox="allow-top-navigation allow-scripts" referrerpolicy="unsafe-url"></iframe>
-[[/embed]]

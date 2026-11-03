@@ -1,41 +1,9 @@
 name: Consolidated validation
 
-# The full consolidated validation suite runs here as an INFORMATIONAL
-# signal only: nightly on develop and on manual dispatch. It is not a
-# pull-request check and nothing may gate a merge or a promotion on it -
-# merge evidence is the fast targeted checks in pr-checks.yml. This
-# workflow runs
-# install/local/wikidot-verification/scripts/run-consolidated-validation.mjs
-# (the same runner, unmodified), seals the same receipt it seals locally,
-# and uploads it as an artifact for inspection.
-# install/standing/scripts/fetch-ci-validation-receipt.mjs can land a CI
-# receipt in the local validation store.
-#
-# A group whose inputs are local state cannot run here. Such groups are
-# absent from this run and the job summary names them loudly; they run
-# locally when a change actually touches them. Today the only local-only
-# group is:
-#   theme_lab - its evidence lives in the local Theme Lab authority
-#               object store (~/.local/state/wikijump/theme-lab), which
-#               is not in Git and is not published anywhere a runner
-#               could fetch. The group fails closed without the store.
-#
-# One check inside the verification group is likewise local-only: the
-# wikidot specification generator reads the scp-wiki-translation
-# documentation corpus (WIKIDOT_DOCUMENTATION_CORPUS), which is operator
-# data in no Git repository, so on a hosted runner the check can only
-# report its evidence absent. The job therefore sets
-# PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1: preflight excludes
-# the check and says so in its log, instead of failing every nightly
-# run on that one check. The plan step names the exclusion in the job
-# summary and as a warning annotation. The check still runs locally,
-# where the corpus exists.
-#
-# The standing application images are not built here: the runner is
-# invoked with its own --no-image-build flag because the
-# docker-build-*.yaml workflows already build those images on pull
-# requests, and promote.py does not require the image check in a receipt
-# it reuses. Local promotion runs still build them.
+# The full preflight barrier runs here as an informational signal only:
+# nightly on develop and on manual dispatch. Merge evidence is the fast
+# targeted checks in pr-checks.yml. The standing application images are not
+# built here because the docker-build-*.yaml workflows already build them.
 
 on:
   schedule:
@@ -68,14 +36,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 330
     env:
-      WIKIJUMP_FTML_CHECKOUT: ${{ github.workspace }}/ftml
-      WIKIDOT_PY_CHECKOUT: ${{ github.workspace }}/wikidot.py
       THEME_LAB_TEST_CONCURRENCY: "4"
-      # Excludes the one verification-group check whose input (the
-      # scp-wiki-translation documentation corpus) exists in no Git
-      # repository; see the header. The plan step names the exclusion
-      # in the summary and as a warning annotation.
-      PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR: "1"
       # A hosted runner has 4 cores; the local default of 12 task-owned
       # Deepwell stacks would thrash it. Same tests, fewer stacks at once.
       WIKIJUMP_DEEPWELL_TEST_SHARDS: "3"
@@ -95,7 +56,7 @@ jobs:
           path: wikijump
           fetch-depth: 0
 
-      - name: Resolve the base and the pinned FTML revision
+      - name: Resolve the base
         id: pins
         working-directory: wikijump
         run: |
@@ -104,47 +65,6 @@ jobs:
           base='${{ inputs.base }}'
           if [ -z "$base" ]; then base="$(git rev-parse origin/develop)"; fi
           echo "base=$(git rev-parse "${base}^{commit}")" >> "$GITHUB_OUTPUT"
-          echo "head=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          # The FTML revision the tree pins lives in deepwell/Cargo.lock as
-          # the ftml package's git source revision; the verification
-          # tooling extracts it the same way (ftmlPin()).
-          ftml_rev="$(sed -n '/^name = "ftml"$/,/^$/p' deepwell/Cargo.lock | grep -oE '[0-9a-f]{40}' | head -1)"
-          test -n "$ftml_rev"
-          echo "ftml_rev=$ftml_rev" >> "$GITHUB_OUTPUT"
-          # The wikidot.py revision the tree pins is the supported-source
-          # lock the inventory tooling itself reads.
-          wikidot_py_rev="$(node -e 'const fs = require("fs"); const v = JSON.parse(fs.readFileSync("docs/development/wikidot-py-supported-source.json", "utf8")); if (v.schema !== "wikijump.wikidot_py_supported_source.v1" || !/^[0-9a-f]{40}$/.test(v.commit ?? "")) process.exit(1); process.stdout.write(v.commit)')"
-          test -n "$wikidot_py_rev"
-          echo "wikidot_py_rev=$wikidot_py_rev" >> "$GITHUB_OUTPUT"
-          echo "Base: $base  FTML: $ftml_rev  Head: $(git rev-parse HEAD)"
-
-      - name: Check out FTML at the pinned revision
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-        with:
-          repository: Rokurolize/ftml
-          path: ftml
-          ref: ${{ steps.pins.outputs.ftml_rev }}
-          fetch-depth: 0
-
-      - name: Check out wikidot.py at the pinned revision
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-        with:
-          repository: Rokurolize/wikidot.py
-          path: wikidot.py
-          ref: ${{ steps.pins.outputs.wikidot_py_rev }}
-          fetch-depth: 0
-
-      - name: Prepare the wikidot.py locked test environment
-        working-directory: wikidot.py
-        run: |
-          # The AMC regression wrapper requires the checkout's own
-          # .venv (uv.lock) and never resolves dependencies at test
-          # time; build it here, in setup.
-          # uv is not on the hosted runner's PATH; install it, then
-          # build the locked environment.
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          export PATH="$HOME/.local/bin:$PATH"
-          uv sync --locked
 
       - name: Set up Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -276,56 +196,13 @@ jobs:
               sel[$g]=true
             done
           fi
-          # Groups whose inputs are local state and cannot run on a
-          # hosted runner. Keep this list honest: a group belongs here
-          # only with its blocker recorded in the workflow header.
-          local_only="theme_lab"
           run_groups=()
-          skipped=()
-          selected=()
           for g in deepwell wws framerail locales workflow theme_lab verification; do
-            if [ "${sel[$g]:-false}" = "true" ]; then
-              selected+=("$g")
-              case " $local_only " in
-                *" $g "*) skipped+=("$g") ;;
-                *) run_groups+=("$g") ;;
-              esac
-            fi
+            if [ "${sel[$g]:-false}" = "true" ]; then run_groups+=("$g"); fi
           done
-          join_by() { local IFS="$1"; shift; echo "$*"; }
-          echo "run_groups=$(join_by , "${run_groups[@]}")" >> "$GITHUB_OUTPUT"
-          echo "skipped_groups=$(join_by , "${skipped[@]}")" >> "$GITHUB_OUTPUT"
-          {
-            echo "## Consolidated validation plan (informational - not a merge gate)"
-            echo ""
-            echo "- Base: \`$base\`"
-            echo "- Selected groups: \`$(join_by ', ' "${selected[@]}")\`"
-            echo "- Groups run in CI: \`$(join_by ', ' "${run_groups[@]}")\`"
-          } >> "$GITHUB_STEP_SUMMARY"
-          if [ "${#skipped[@]}" -gt 0 ]; then
-            {
-              echo ""
-              echo "### Local-only groups selected but not run in CI"
-              echo ""
-              for g in "${skipped[@]}"; do echo "- \`$g\`"; done
-              echo ""
-              echo "These groups' inputs are local state (see the workflow header), so this informational run does **not** cover them; they are exercised locally when a change touches them."
-            } >> "$GITHUB_STEP_SUMMARY"
-            echo "::warning title=Local-only validation groups::Selected but not run in CI: $(join_by ', ' "${skipped[@]}"). These groups run locally; this informational run does not cover them."
-          fi
-          for g in "${run_groups[@]}"; do
-            if [ "$g" = "verification" ]; then
-              {
-                echo ""
-                echo "### Checks excluded in CI"
-                echo ""
-                echo "- \`wikidot specification generator\` (verification group)"
-                echo ""
-                echo "The check reads the scp-wiki-translation documentation corpus (\`WIKIDOT_DOCUMENTATION_CORPUS\`), operator data that exists in no Git repository, so it cannot run on a hosted runner. The gate step sets \`PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1\` and preflight excludes the check, saying so in its log. The check still runs locally, where the corpus exists; this informational run does **not** cover it."
-              } >> "$GITHUB_STEP_SUMMARY"
-              echo "::warning title=Local-only check excluded::The verification group's 'wikidot specification generator' check is excluded in CI (PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1): it reads the scp-wiki-translation documentation corpus (WIKIDOT_DOCUMENTATION_CORPUS), operator data in no Git repository. The check runs locally; this run does not cover it."
-            fi
-          done
+          joined="$(IFS=,; echo "${run_groups[*]}")"
+          echo "run_groups=$joined" >> "$GITHUB_OUTPUT"
+          echo "Consolidated validation groups: \`$joined\`" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build the Deepwell integration images
         if: contains(steps.plan.outputs.run_groups, 'deepwell') || contains(steps.plan.outputs.run_groups, 'wws')
@@ -355,58 +232,8 @@ jobs:
           exit 1
 
       - name: Run the consolidated validation
-        id: gate
         if: steps.plan.outputs.run_groups != ''
         working-directory: wikijump
         env:
           RUSTC_WRAPPER: sccache
-        run: |
-          set -euo pipefail
-          base='${{ steps.pins.outputs.base }}'
-          head='${{ steps.pins.outputs.head }}'
-          out="$RUNNER_TEMP/receipt/validation-ci-${head:0:12}.json"
-          mkdir -p "$RUNNER_TEMP/receipt"
-          echo "receipt_path=$out" >> "$GITHUB_OUTPUT"
-          args=(--repository "$PWD" --base "$base" --output "$out" --no-image-build)
-          # The plan step's output is the final selection (diff, input, or
-          # the nightly set) with local-only groups already removed.
-          args+=(--groups '${{ steps.plan.outputs.run_groups }}')
-          node install/local/wikidot-verification/scripts/run-consolidated-validation.mjs "${args[@]}"
-
-      - name: Upload the sealed receipt
-        if: always() && steps.plan.outputs.run_groups != ''
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: consolidated-validation-${{ steps.pins.outputs.head }}
-          path: |
-            ${{ runner.temp }}/receipt/validation-ci-*.json
-            ${{ runner.temp }}/receipt/validation-ci-*.json.log
-          if-no-files-found: warn
-          retention-days: 90
-
-      - name: Summarize the receipt
-        if: always() && steps.plan.outputs.run_groups != ''
-        run: |
-          node --input-type=module <<'EOF'
-          import fs from "node:fs";
-          import path from "node:path";
-          const dir = path.join(process.env.RUNNER_TEMP, "receipt");
-          const file = fs.readdirSync(dir).find((name) => name.endsWith(".json"));
-          const lines = ["", "## Consolidated validation result", ""];
-          if (!file) {
-            lines.push("No receipt was sealed; the gate step failed before sealing. See the gate log.");
-          } else {
-            const receipt = JSON.parse(fs.readFileSync(path.join(dir, file), "utf8"));
-            lines.push(`- Receipt: \`${file}\``);
-            lines.push(`- Status: **${receipt.status}**`);
-            lines.push(`- Head: \`${receipt.wikijump_commit}\` (tree \`${receipt.wikijump_tree}\`)`);
-            lines.push(`- Base: \`${receipt.base_commit}\``);
-            lines.push("");
-            lines.push("| Check | Result | Seconds |");
-            lines.push("| --- | --- | --- |");
-            for (const check of receipt.checks) {
-              lines.push(`| ${check.name} | ${check.status} | ${check.duration_seconds ?? ""} |`);
-            }
-          }
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
-          EOF
+        run: scripts/preflight.sh --base '${{ steps.pins.outputs.base }}' --final --jobs 0 --groups '${{ steps.plan.outputs.run_groups }}'

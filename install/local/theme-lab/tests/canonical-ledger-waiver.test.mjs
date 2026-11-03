@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {matchCanonicalContainmentWaivers,viewportIdForWidth} from '../src/canonical-ledger-waiver.mjs';
-import {canonicalJson} from '../src/finalize-visual-acceptance.mjs';
+import {canonicalJson} from '../src/faithful-design-exemptions.mjs';
 import crypto from 'node:crypto';
 
 const context={packageName:'classic',themeCssSha256:'c'.repeat(64),themeSourceSha256:'s'.repeat(64),scenarioSha256:'r'.repeat(64)};

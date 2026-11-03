@@ -1,3 +1,0 @@
-[[embed]]
-<iframe src="//interwiki.scp-jp.org/styleFrame.html?priority={$priority}&theme={$theme}&css={$css}" style="display: none"></iframe>
-[[/embed]]

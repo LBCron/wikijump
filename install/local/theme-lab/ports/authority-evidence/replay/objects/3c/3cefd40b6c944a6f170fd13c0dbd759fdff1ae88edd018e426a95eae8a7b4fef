@@ -1,6 +1,0 @@
-@font-face {
-  font-family: 'Space Mono';
-  font-style: normal;
-  font-weight: 400;
-  src: url("/o/829aad32ab9525358de2a7ebc718d05a6b335e67421aad5e1e09cd1fa796af4e") format('truetype');
-}

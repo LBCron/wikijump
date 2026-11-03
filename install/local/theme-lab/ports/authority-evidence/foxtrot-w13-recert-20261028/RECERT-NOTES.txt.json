@@ -1,6 +1,0 @@
-{
-  "schema": "theme_lab_w13_recert_summary.v1",
-  "theme": "foxtrot",
-  "block22": "Re-certified on the current reference snapshot after extending the block with the >=360px last-parent anchor: without-variant fails at 320 and 390, with-variant passes all rows at both widths (block22-receipt.json).",
-  "block23": "First W13 A/B run (pre-extension candidate) demonstrated need and pass in WebKit (normal + navigation-action; without fails at 390, with passes). After block 22 was extended, the same runs show no independent need (without passes), so block 23 was reclassified REMOVE; its containment is provided by block 22's extension in every engine. The no-need run receipts are the current contents of the driver output dirs (ephemeral /tmp), and the REMOVE rationale in the ledger records the sequence."
-}

@@ -5,32 +5,11 @@ package, read `NEW-FOREIGN-THEME-PORT.md` first. This file primarily documents
 the completed SCP-EN campaign and its offline replay/maintenance state; it is
 not the bootstrap procedure for a new foreign-branch port.
 
-Current publication authority is [adaptation-authority.json](adaptation-authority.json); see [ADAPTATION-AUTHORITY-AUDIT.md](ADAPTATION-AUTHORITY-AUDIT.md) for the cleanup and rebuild workflow. Historical local screenshot acceptance is superseded for changed CSS. Final completion consumes the combined `overall_acceptance.status`; local target failure always fails the final result.
-
 `en-theme-campaign.json` retains campaign source and historical acceptance identities. It binds all 34 refreshed SCP-EN source revisions to one local candidate package, previous JP status/source, technical-spec version, final offline Theme Lab verdict, viewport and interaction results, warnings, and receipt for each theme. `TECHNICAL-LOCALIZATION-SPEC.md` states the acceptance requirements. `en-theme-dependency-graph.json` records shared BHL/Sigma/theme/include/asset dependencies.
 
-Each package PORT.md explains the port, and its receipt preserves source identities, dependency decisions, first-to-final Theme Lab findings, initial image defects and final status, productivity counts, verdicts, and screenshot paths. Preview-only include omissions are listed with their fixture limitation; the candidate source snapshot remains untouched. The upstream EN and, where present, previous JP sources are frozen in each package. New SCP-JP candidates and adapted CSS remain local review artifacts; this repository campaign does not publish or mutate public Wikidot theme pages.
-
-Interactive screenshots use a content-addressed filename (`<state>-<sha256>.<ext>`) as their canonical path. When an older superseded audit row points to an unsuffixed filename whose bytes exactly match a same-directory SHA-256-named sibling, move only that locator to the canonical path and remove the duplicate alias. Preserve the row's `screenshot_sha256` and all review/evidence fields. Keep unsuffixed historical captures that do not have an exact content-addressed sibling, and do not deduplicate across different evidence runs or states merely because their pixels match. `tests/interactive-artifact-aliases.test.mjs` guards against reintroducing same-directory aliases.
+Each package `PORT.md` explains the port.
 
 The fixtures intentionally contain SCP-JP's current header, top bar, sidebar, rating/evaluation modules, page options, tabs, collapsible, tables, blockquotes, images, TOC, footnotes, code, Japanese glyph probe, and shared sidebar fixture. `real-port-regression.mjs` verifies the frozen source hashes and content-addressed assets, then executes every theme plus Dear Dictator through offline Theme Lab checks, torture, interactions, four viewports, and paired screenshots.
-
-## Offline replay
-
-Start the candidate Theme Lab daemon against the repository-owned `shared-replay-assets/` directory and the Dear Dictator daemon against its existing `dear-dictator/assets/` package. Keep the ordinary local-development runtime healthy and provide `DEEPWELL_RPC_TOKEN` through the workspace's normal local secret handling; do not put the token in this package. The candidate daemon also needs the campaign-owned sidebar fixture at `dear-dictator/sidebar-preview.html`.
-
-Then run the complete suite sequentially:
-
-```sh
-THEME_LAB_ASSET_DIR=install/local/theme-lab/ports/shared-replay-assets \
-THEME_LAB_DEAR_SOCKET=/tmp/theme-lab-dear-en34.sock \
-node install/local/theme-lab/scripts/real-port-regression.mjs
-```
-
-The runner reads already-acquired Theme Lab references in offline mode. Browser requests to third parties are blocked before send. Each package's `artifacts/` contains reference and candidate screenshots at desktop, laptop, tablet, and mobile sizes.
-
-`shared-replay-assets.json` indexes the deduplicated, content-addressed CSS and page-image bytes used by the port packages. `shared-replay-assets/` is committed evidence needed for repeatable offline replay; per-package `assets.json` and `page-assets.json` retain source URL, classification, decision, and digest provenance.
-
 
 ## Future upstream maintenance
 
@@ -40,15 +19,5 @@ Use `node ports/scripts/theme-port-maintenance.mjs audit` to inspect the current
 
 Each EN package also has a `maintenance/` source set for future authoring. `base.wikidot.txt` contains the accepted page source without trailing campaign-only JP CSS modules; `jp-overrides.css` contains the canonical JP/Wikijump obligations; and deterministic generation writes the publishable page to `final.wikidot.txt`. The generator removes exact duplicate rules, repeated same-value declarations, and superseded declarations with identical at-context + selector + property keys, while retaining documented browser fallback sequences. Per-finding decisions and rationales are machine-readable in `maintenance/manifest.json`; `theme-port-maintenance.mjs audit` reports reviewed status counts and requires zero unresolved findings. The generator proves unchanged active CSS identity, ordered includes, and exact-key winners against the frozen accepted candidate. The frozen `candidate.*` files remain unchanged acceptance evidence.
 
-Regenerate or verify this layer with:
-
-```sh
-node install/local/theme-lab/ports/scripts/prepare-maintainable-sources.mjs --write
-node install/local/theme-lab/ports/scripts/prepare-maintainable-sources.mjs --check
-```
-
-`--check` fails closed if any maintenance file, hash binding, candidate split, active-tag interpretation, or effective extracted CSS no longer matches the frozen accepted candidate.
-
 `maintenance-exceptions.json` records legacy packages where retrospective provenance intentionally fails closed. An exception is a review obligation, not permission to treat today's upstream bytes as the historical source.
 
-`node install/local/theme-lab/scripts/real-port-regression.mjs --verify-only` checks the frozen package identities and content-addressed CSS/page/import assets without requiring the Theme Lab daemon or launching browser checks. Use it after provenance/index maintenance before deciding whether a visual regression run is necessary.

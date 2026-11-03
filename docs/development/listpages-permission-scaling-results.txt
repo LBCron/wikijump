@@ -1,8 +1,0 @@
-R      reference(ms)  batched(ms)  speedup
-10             14.38         2.39     6.0x
-20             25.58         2.57    10.0x
-40             49.81         2.60    19.2x
-80            103.48         3.01    34.4x
-160           200.61         2.80    71.5x
-
-batched growth over 10->160 rows: 1.17x (a per-row path would be near 16x)

@@ -15,60 +15,25 @@ for `framerail/**`, the verification package suite for
 That targeted evidence is the merge signal; development runs the same
 targeted checks locally first and never waits on the full suite.
 
-The full consolidated validation suite is informational only.
-`consolidated-validation.yml` runs
-`install/local/wikidot-verification/scripts/run-consolidated-validation.mjs`
-- the same runner as the local barrier, unmodified - nightly on `develop`
-and on manual dispatch, and uploads its sealed receipt and preflight log
-as a workflow artifact. Nothing gates a merge or a promotion on it. On
-the nightly run there is no PR diff to select from, so it runs every
-CI-runnable group; on dispatch it runs the diff-selected groups or the
-groups named in the dispatch input.
-`install/standing/scripts/fetch-ci-validation-receipt.mjs` verifies a CI
-receipt against a requested head (schema, bound commit, bound tree) and
-can land it in the local validation store. External actions in every
-workflow stay pinned to full commit SHAs.
+The full preflight barrier is informational only.
+`consolidated-validation.yml` runs `scripts/preflight.sh --final` nightly on
+`develop` and on manual dispatch. Nothing gates a merge on it. On the nightly
+run there is no PR diff to select from, so it runs every CI-runnable group; on
+dispatch it runs the diff-selected groups or the groups named in the dispatch
+input. External actions in every workflow stay pinned to full commit SHAs.
 
 `scripts/preflight.sh` remains available as a local checkpoint and is
 what the informational workflow drives. It classifies working-tree and
 branch changes against the selected base and runs only the path-relevant
-checks. Machine-readable `docs/development/*.json` authority selects the
-verification group even though ordinary documentation remains cheap.
-Every verification, Deepwell, WWS, or Framerail checkpoint also runs the
-repository generated-contract verifier. Pushes do not invoke local
+checks. Pushes do not invoke local
 validation implicitly; automatic Git hooks were removed because they can
 accidentally mix unrelated uncommitted work into branch delivery.
 
-One group cannot run in Actions at all. Theme Lab's evidence lives in
-the local authority object store, which is not in Git and is not
-published anywhere a runner could fetch, so the group fails closed
-there. The informational workflow omits it and names it in its job
-summary and a warning annotation; Theme Lab is exercised locally when a
-change touches it. Theme Lab keeps its own path-owned group: its tests,
-adaptation-authority gate, maintenance bindings, deterministic packages
-and Sigma source/evidence checks run without selecting runtime
-components. Runtime paths and unknown paths retain their existing gates.
-
-The informational invocation passes the runner's own `--no-image-build`
-flag: the `docker-build-*.yaml` workflows already build the standing
-application images on pull requests. A local run of the runner still
-builds the images alongside the barrier, so a promotion of the same
-runtime inputs rebuilds from the BuildKit cache.
-
-The final barrier form adds dependency hygiene, every selected Clippy
-pass, full test suite, validator, and the Framerail production build. Its
-generated-contract check also regenerates the compatibility surface
-inventory from the inventory's exact pinned source revision and requires
-byte-for-byte reproduction; this deliberately avoids the inventory's
-self-reference trap where pinning it to the commit that contains itself
-can never converge. Verification tooling and Wikidot specification
-inputs select the verifier package tests, standing promotion
-precondition, specification generator check, and implementation-ledger
-check without selecting a Rust component. Campaign closure additionally
-requires the digest-bound consolidated-validation receipt consumed by
-final-zero. The Deepwell suite runs as nextest partitions side by side,
-each on its own task-owned stack (`WIKIJUMP_DEEPWELL_TEST_SHARDS`; a
-hosted runner takes fewer stacks at once than the local box).
+The final form adds dependency hygiene, every selected Clippy pass, the full
+test suites, the validator, and the Framerail production build. The Deepwell
+suite runs as nextest partitions side by side, each on its own task-owned
+stack (`WIKIJUMP_DEEPWELL_TEST_SHARDS`; a hosted runner takes fewer stacks at
+once than the local box).
 
 `full-ci.yaml` is retained only as a manual policy notice. It never runs
 Playwright in GitHub Actions. Browser validation is local WSL work.

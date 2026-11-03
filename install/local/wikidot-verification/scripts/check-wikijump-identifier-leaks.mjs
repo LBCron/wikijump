@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import {runCliIfMain} from "../src/cli-entry.mjs";
-import {DeepwellJsonRpcClient} from "../src/listpages-preview-differential.mjs";
+import {DeepwellJsonRpcClient} from "../src/deepwell-jsonrpc-client.mjs";
 import {
   CONSTRUCT_BATTERY,
   runWikijumpIdentifierLeakCheck,

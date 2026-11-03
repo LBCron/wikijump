@@ -39,8 +39,10 @@ globalThis.fetch=async(_url,options)=>{
     case 'page_create':{if(pages.has(params.slug))return fail('exists');
       const page={page_id:next++,slug:params.slug,revisions:[]};pages.set(params.slug,page);addRevision(page,params.wikitext,params.tags);
       return ok({page_id:page.page_id,revision_id:page.revisions[0].revision_id});}
+    case 'page_edit_lock_acquire':return ok({grant:{lock_id:77,['lock_secret']:'mock-secret'}});
+    case 'page_edit_lock_release':return ok({});
     case 'page_edit':{const page=[...pages.values()].find(p=>p.page_id===params.page);
-      if(!page)return fail('missing');addRevision(page,params.wikitext,params.tags);return ok({});}
+      if(!page)return fail('missing');if(params.lease?.lock_id!==77)return fail('edit lease required');addRevision(page,params.wikitext,params.tags);return ok({});}
     case 'import_wikidot_page':{pages.set(params.slug,{page_id:params.page_id,slug:params.slug,revisions:[]});return ok({});}
     case 'import_wikidot_page_revision':{const page=pages.get(params.slug);addRevision(page,params.wikitext,params.tags);return ok({});}
     default:return fail('unexpected method '+method);

@@ -3472,6 +3472,26 @@
       "target": "wikijump.deepwell"
     },
     {
+      "source": "deepwell-jsonrpc:page_edit_lock_acquire",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
+      "source": "deepwell-jsonrpc:page_edit_lock_force_acquire",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
+      "source": "deepwell-jsonrpc:page_edit_lock_release",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
+      "source": "deepwell-jsonrpc:page_edit_lock_renew",
+      "type": "implemented_by",
+      "target": "wikijump.deepwell"
+    },
+    {
       "source": "deepwell-jsonrpc:page_edit_permission",
       "type": "implemented_by",
       "target": "wikijump.deepwell"
@@ -4567,6 +4587,26 @@
       "target": "wikijump.framerail"
     },
     {
+      "source": "framerail-server-action:/?/editLockAcquire",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/?/editLockForceAcquire",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/?/editLockRelease",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/?/editLockRenew",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
       "source": "framerail-server-action:/?/editPermission",
       "type": "implemented_by",
       "target": "wikijump.framerail"
@@ -4773,6 +4813,26 @@
     },
     {
       "source": "framerail-server-action:/{slug}/{*extra}?/edit",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/{slug}/{*extra}?/editLockAcquire",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/{slug}/{*extra}?/editLockForceAcquire",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/{slug}/{*extra}?/editLockRelease",
+      "type": "implemented_by",
+      "target": "wikijump.framerail"
+    },
+    {
+      "source": "framerail-server-action:/{slug}/{*extra}?/editLockRenew",
       "type": "implemented_by",
       "target": "wikijump.framerail"
     },
@@ -11766,7 +11826,7 @@
   },
   "provenance": {
     "wikijump": {
-      "source_input_set_sha256": "87bfc4eb7dc9f60ed2851e9434c994d12338ee579cd94f061a052a28b92dd62d"
+      "source_input_set_sha256": "d8c9d7b2c8d8271d567a25798842e2762ad0811d52c4c13aafc00bc7f525654f"
     },
     "ftml": {
       "commit": "bcfd17dbc2bf734d29370c1b398a3386d978b874",
@@ -11783,7 +11843,7 @@
       },
       {
         "path": "deepwell/src/api.rs",
-        "sha256": "96efa6f4637f971eb64a4501687bae14b51d1a0e7e2b670873b7f680299c5422"
+        "sha256": "8f2c71dd3353c48fdc98eba5812867702a2604069da9d299635f64b7839aa180"
       },
       {
         "path": "deepwell/src/endpoints/auth.rs",
@@ -11866,6 +11926,10 @@
         "sha256": "120462a794e0413b355d37b8a5bd90322ad7cb9d41554ebd6ff94dbbf52f60ee"
       },
       {
+        "path": "deepwell/src/endpoints/page_edit_lock.rs",
+        "sha256": "147f6be892f836cf0d75233fce51657200beeeccfbc8745920f2a8a25134cee7"
+      },
+      {
         "path": "deepwell/src/endpoints/page_lock.rs",
         "sha256": "9d5889ab72012a1a934204728a3aa188ff2acd12ccd3661640a2d9344510f14c"
       },
@@ -11931,7 +11995,7 @@
       },
       {
         "path": "docs/development/compatibility-catalog-source-attribution.json",
-        "sha256": "f6b916ab216efbd4570a1e87a4777b289d89ed777f42dc9e1fcfd28c3901e7fe"
+        "sha256": "dc1298aa42a4ceeb472b6422b5e7a47310601379780d0f012283fa64ee45031f"
       },
       {
         "path": "docs/development/compatibility-surface-semantics.json",
@@ -11939,7 +12003,7 @@
       },
       {
         "path": "docs/development/deepwell-jsonrpc-contract-manifest.json",
-        "sha256": "38f2e1585ca8abaa014e852a3b401b079a9bbc31754541effbe42214dc706da6"
+        "sha256": "43bd260dbcdb19d0986e3c9ad1ddf45c50fd9ee863f6b8f9ec9f05ff8dedca62"
       },
       {
         "path": "docs/development/framerail-amc-wire-contracts.json",
@@ -11999,7 +12063,7 @@
       },
       {
         "path": "docs/development/wws-route-registration-denominator.json",
-        "sha256": "cdee418467b4eb7e1507fad1beb74b0873b830c698abdb6a925fec633afdb158"
+        "sha256": "3a2cb078ef32246a807289c58921a23e00b5fda5bd2dd1b509fdc3b152d1cd4e"
       },
       {
         "path": "docs/wikidot-specifications/catalog.json",
@@ -12019,11 +12083,11 @@
       },
       {
         "path": "framerail/src/lib/server/ajax-module-connector.js",
-        "sha256": "6abb06bcf4175b4da91f953fe4a516d58657943ad0de27f85f974095432de1f3"
+        "sha256": "6beba6523189cc16c4ec8afcb4f7a4d38ce343d9c1a6fb585966e0eac279fb34"
       },
       {
         "path": "framerail/src/lib/server/load/page/page-actions.ts",
-        "sha256": "b91973ccac3c153407edb69a3dfaed09a01819ffdde37100c1dc4cbc04dcc744"
+        "sha256": "58330443ca7506def00f1b622f6a172e45d50d7a9451eb9ba59fccbca041c9dd"
       },
       {
         "path": "framerail/src/lib/server/load/page/page-revision-actions.ts",
@@ -12207,7 +12271,7 @@
       },
       {
         "path": "framerail/src/routes/ajax-module-connector.php/+server.ts",
-        "sha256": "1236b2fbb694402cdafb4add24fae6d545a15658bbab42b9a6b1894de0964dca"
+        "sha256": "3978d3b04625c62212bff3fe42ee6d9525a6982a48073d3d6d586a69b484e45d"
       },
       {
         "path": "framerail/src/routes/common--images/jquery-raty/[asset]/+server.ts",
@@ -12426,14 +12490,14 @@
     ]
   },
   "counts": {
-    "total": 1019,
+    "total": 1031,
     "by_kind": {
       "catalog_feature": 210,
-      "deepwell_jsonrpc_method": 210,
+      "deepwell_jsonrpc_method": 214,
       "framerail_amc_action_shape": 2,
       "framerail_amc_module_shape": 27,
       "framerail_route": 41,
-      "framerail_server_action": 128,
+      "framerail_server_action": 136,
       "framerail_xmlrpc_method": 17,
       "missing_page_control": 2,
       "open43_audit_case": 285,
@@ -19632,7 +19696,7 @@
           "deepwell/src/endpoints/page_revision.rs#pub async fn page_revision_range(",
           "deepwell/src/services/page/service.rs#pub async fn edit(",
           "framerail/src/lib/wikidot/wikidot-edit-sections.js#export const buildWikidotSectionEditSubmission = (",
-          "framerail/src/routes/[slug]/[...extra]/AppendPane.svelte#<form id=\"page-append\"",
+          "framerail/src/routes/[slug]/[...extra]/AppendPane.svelte#id=\"page-append\"",
           "framerail/src/routes/[slug]/[...extra]/HistoryPane.svelte#class=\"revision-diff-controls\""
         ]
       },
@@ -27746,6 +27810,186 @@
         "status": "implemented",
         "references": [
           "deepwell/src/endpoints/page.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:page_edit_lock_acquire",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:page_edit_lock_acquire",
+        "deepwell/src/endpoints/page_edit_lock.rs#page_edit_lock_acquire"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "deepwell/tests/page_edit_lock_api.rs#page_edit_endpoint_requires_a_lease_for_source_saves"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/page_edit_lock.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:page_edit_lock_force_acquire",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:page_edit_lock_force_acquire",
+        "deepwell/src/endpoints/page_edit_lock.rs#page_edit_lock_force_acquire"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "deepwell/tests/page_edit_lock_api.rs#page_edit_lock_endpoints_grant_conflict_renew_release"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/page_edit_lock.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:page_edit_lock_release",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:page_edit_lock_release",
+        "deepwell/src/endpoints/page_edit_lock.rs#page_edit_lock_release"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "deepwell/tests/page_edit_lock_api.rs#page_edit_lock_endpoints_grant_conflict_renew_release"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/page_edit_lock.rs"
+        ]
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:deepwell-jsonrpc",
+      "implementation_owners": [
+        "wikijump.deepwell"
+      ]
+    },
+    {
+      "surface_id": "deepwell-jsonrpc:page_edit_lock_renew",
+      "kind": "deepwell_jsonrpc_method",
+      "public_reference": [
+        "deepwell/src/api.rs#register:page_edit_lock_renew",
+        "deepwell/src/endpoints/page_edit_lock.rs#page_edit_lock_renew"
+      ],
+      "existing_refs": {
+        "issues": [
+          1368
+        ],
+        "cases": [],
+        "tests": [
+          "deepwell/tests/page_edit_lock_api.rs#page_edit_lock_endpoints_grant_conflict_renew_release"
+        ]
+      },
+      "evidence": {
+        "status": "available",
+        "references": [
+          "docs/development/deepwell-jsonrpc-contract-manifest.json"
+        ]
+      },
+      "source": {
+        "status": "implemented",
+        "references": [
+          "deepwell/src/endpoints/page_edit_lock.rs"
         ]
       },
       "candidate": {
@@ -36858,6 +37102,162 @@
       ]
     },
     {
+      "surface_id": "framerail-server-action:/?/editLockAcquire",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:editLockAcquire",
+        "framerail/src/routes/+page.server.ts#action:editLockAcquire"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/?/editLockForceAcquire",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:editLockForceAcquire",
+        "framerail/src/routes/+page.server.ts#action:editLockForceAcquire"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/?/editLockRelease",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:editLockRelease",
+        "framerail/src/routes/+page.server.ts#action:editLockRelease"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/?/editLockRenew",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:editLockRenew",
+        "framerail/src/routes/+page.server.ts#action:editLockRenew"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
       "surface_id": "framerail-server-action:/?/editPermission",
       "kind": "framerail_server_action",
       "public_reference": [
@@ -38462,6 +38862,162 @@
       "public_reference": [
         "framerail/src/lib/server/load/page/page-actions.ts#action:edit",
         "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:edit"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/editLockAcquire",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:editLockAcquire",
+        "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:editLockAcquire"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/editLockForceAcquire",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:editLockForceAcquire",
+        "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:editLockForceAcquire"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/editLockRelease",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:editLockRelease",
+        "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:editLockRelease"
+      ],
+      "existing_refs": {
+        "issues": [
+          1372
+        ],
+        "cases": [],
+        "tests": []
+      },
+      "evidence": {
+        "status": "missing",
+        "references": []
+      },
+      "source": {
+        "status": "implemented",
+        "references": []
+      },
+      "candidate": {
+        "status": "pending",
+        "references": []
+      },
+      "standing": {
+        "status": "pending",
+        "references": []
+      },
+      "closure": {
+        "status": "open",
+        "references": []
+      },
+      "specification_owner": "wikijump.registry:framerail-action",
+      "implementation_owners": [
+        "wikijump.framerail"
+      ]
+    },
+    {
+      "surface_id": "framerail-server-action:/{slug}/{*extra}?/editLockRenew",
+      "kind": "framerail_server_action",
+      "public_reference": [
+        "framerail/src/lib/server/load/page/page-actions.ts#action:editLockRenew",
+        "framerail/src/routes/[slug]/[...extra]/+page.server.ts#action:editLockRenew"
       ],
       "existing_refs": {
         "issues": [
@@ -40585,7 +41141,7 @@
         },
         {
           "path": "framerail/src/lib/server/load/page/page-actions.ts",
-          "sha256": "b91973ccac3c153407edb69a3dfaed09a01819ffdde37100c1dc4cbc04dcc744"
+          "sha256": "58330443ca7506def00f1b622f6a172e45d50d7a9451eb9ba59fccbca041c9dd"
         }
       ],
       "specification_owner": "wikijump.registry:missing-page-control",
@@ -40685,7 +41241,7 @@
         },
         {
           "path": "framerail/src/lib/server/load/page/page-actions.ts",
-          "sha256": "b91973ccac3c153407edb69a3dfaed09a01819ffdde37100c1dc4cbc04dcc744"
+          "sha256": "58330443ca7506def00f1b622f6a172e45d50d7a9451eb9ba59fccbca041c9dd"
         },
         {
           "path": "framerail/src/lib/server/load/page/page.ts",

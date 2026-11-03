@@ -6,6 +6,7 @@ import {fileURLToPath} from 'node:url';
 
 import {deepwellRpcAuthorization} from '../../wikidot-verification/src/deepwell-rpc-auth.mjs';
 import {fixtureRpcTarget} from '../src/fixture-rpc-target.mjs';
+import {leasedPageEdit} from '../src/page-edit-lease.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const rpcUrl=fixtureRpcTarget().rpcUrl;
@@ -27,7 +28,7 @@ if(await get(missingSlug)!==null)throw new Error(`canonical missing-page sentine
 async function ensure({slug,title,wikitext,tags}){
   let page=await get(slug);
   if(page===null){const created=await rpc('page_create',{site_id:site.site_id,wikitext,title,alt_title:null,slug,layout:'wikidot',revision_comments:'Create run-owned Theme Lab canonical corpus fixture',user_id:session.user_id,ip_address:'127.0.0.1',tags},context(slug));if(created?.parser_errors?.length)throw new Error(`${slug}: parser errors: ${JSON.stringify(created.parser_errors)}`);page=await get(slug)}
-  else if(page.wikitext!==wikitext||JSON.stringify(page.tags)!==JSON.stringify(tags)){await rpc('page_edit',{site_id:site.site_id,page:page.page_id,last_revision_id:page.revision_id,revision_comments:'Refresh run-owned Theme Lab canonical corpus fixture',user_id:session.user_id,wikitext,tags,ip_address:'127.0.0.1'},context(slug));page=await get(slug)}
+  else if(page.wikitext!==wikitext||JSON.stringify(page.tags)!==JSON.stringify(tags)){await leasedPageEdit((method,params)=>rpc(method,params,context(slug)),{site_id:site.site_id,page:page.page_id,last_revision_id:page.revision_id,revision_comments:'Refresh run-owned Theme Lab canonical corpus fixture',user_id:session.user_id,wikitext,tags,ip_address:'127.0.0.1'});page=await get(slug)}
   if(page===null||page.wikitext!==wikitext||JSON.stringify(page.tags)!==JSON.stringify(tags))throw new Error(`${slug}: round-trip verification failed`);
   return {slug,page_id:page.page_id,revision_id:page.revision_id,tags:page.tags,source_sha256:crypto.createHash('sha256').update(page.wikitext).digest('hex')};
 }

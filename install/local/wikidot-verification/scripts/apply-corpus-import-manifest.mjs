@@ -129,9 +129,9 @@ function parseBooleanString(value, label) {
 }
 
 export function usage() {
-  return `Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--adopt-existing] [--replace-existing] [--assume-empty-db-import] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--attachment-s3-endpoint <url>] [--attachment-s3-bucket <bucket>] [--attachment-s3-access-key-id <key>] [--attachment-s3-region <region>] [--attachment-s3-path-style true|false] [--rerender-after-db-create] [--db-url <postgres-url>] [--text-hash-command <cmd>] [--text-hash-batch-command <cmd>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
+  return `Usage: apply-corpus-import-manifest.mjs --manifest <manifest.jsonl> [--apply-migration] [--slug <slug>...] [--foreign-source-site <slug>...] [--adopt-existing] [--replace-existing] [--assume-empty-db-import] [--skip-existing-done] [--skip-rerender] [--attachments-only-existing] [--skip-attachments] [--create-mode rpc|db] [--attachment-create-mode rpc|direct] [--attachment-s3-endpoint <url>] [--attachment-s3-bucket <bucket>] [--attachment-s3-access-key-id <key>] [--attachment-s3-region <region>] [--attachment-s3-path-style true|false] [--rerender-after-db-create] [--db-url <postgres-url>] [--text-hash-command <cmd>] [--text-hash-batch-command <cmd>] [--attachment-user-id <id>] [--presign-host-alias files=127.0.0.1] [--dry-run]
 
-Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. Non-dry-run --assume-empty-db-import is disabled until its site-level empty-page guard and DB shell writes are atomic; dry-run accepts the flag for planning without probing or changing the target. Corpus rows with attachments require --attachment-create-mode direct so their provenance descriptor commits atomically with the file revision; RPC attachment mode is rejected because file_create can expose a host-derived descriptor before a later correction. Direct attachment materialization requires --db-url plus --attachment-user-id or a non-default --user-id, and uploads blobs with non-secret S3 config from --attachment-s3-* options and all S3 config from S3_CUSTOM_ENDPOINT, S3_FILES_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION_NAME, and S3_PATH_STYLE. Secrets are accepted only through environment variables so they do not enter process arguments. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve.`;
+Imports current corpus snapshot pages into a local Wikijump mirror. This is an operator-only local tool: it uses Deepwell JSON-RPC for page create/rerender and corpus-backed file attachment materialization, and direct Postgres SQL for corpus snapshot metadata, timestamps, and tags. Set --db-url or DEEPWELL_VERIFY_DB_URL to use a persistent Postgres client instead of docker exec psql. Non-dry-run --assume-empty-db-import is disabled until its site-level empty-page guard and DB shell writes are atomic; dry-run accepts the flag for planning without probing or changing the target. Corpus rows with attachments require --attachment-create-mode direct so their provenance descriptor commits atomically with the file revision; RPC attachment mode is rejected because file_create can expose a host-derived descriptor before a later correction. Direct attachment materialization requires --db-url plus --attachment-user-id or a non-default --user-id, and uploads blobs with non-secret S3 config from --attachment-s3-* options and all S3 config from S3_CUSTOM_ENDPOINT, S3_FILES_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_REGION_NAME, and S3_PATH_STYLE. Secrets are accepted only through environment variables so they do not enter process arguments. Pass --attachment-user-id, or --user-id if page and attachment attribution should be the same authenticated user. Use --attachments-only-existing to materialize attachments for already-imported pages without replacing page source snapshots. Use --skip-attachments to defer attachment materialization. Use --presign-host-alias only when Deepwell returns a Docker-internal file-service host that the local operator process cannot resolve. Pass --foreign-source-site to classify a named source site as foreign even when a historical import run recorded a corpus branch spelled exactly like that site; the override is recorded in the import run summary.`;
 }
 
 export function parseArgs(argv) {
@@ -173,6 +173,7 @@ export function parseArgs(argv) {
     dryRun: false,
     sourceSite: 'scp-wiki',
     sourceBranch: 'en',
+    foreignSourceSites: [],
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -221,6 +222,7 @@ export function parseArgs(argv) {
     else if (arg === '--dry-run') args.dryRun = true;
     else if (arg === '--source-site') args.sourceSite = next();
     else if (arg === '--source-branch') args.sourceBranch = next();
+    else if (arg === '--foreign-source-site') args.foreignSourceSites.push(next());
     else if (arg === '--help' || arg === '-h') return {help: true};
     else {
       throw new Error(`unknown argument: ${arg}`);
@@ -1571,7 +1573,7 @@ export function assertForeignStoragePlan(args, selectedRows) {
 
 async function loadHoldingSite(args, sqlExecutor) {
   const persisted = parseHoldingSite(await sqlExecutor.runSql(holdingSiteSql(args.siteId), { capture: true }));
-  return holdingForImport(persisted, args.sourceBranch);
+  return holdingForImport(persisted, args.sourceBranch, args.foreignSourceSites);
 }
 
 async function rerenderParentLinkPages(args, sqlExecutor, selectedRows) {
@@ -1633,6 +1635,7 @@ export async function main(argv) {
     await timePhase(phaseTimingsMs, 'precreate_db_shell_categories', () => precreateDbShellCategories(args, sqlExecutor, selectedRows));
     const results = [];
     const summary = { created: 0, created_db_snapshot_ready: 0, adopted: 0, created_snapshot_ready: 0, adopted_snapshot_ready: 0, skipped_existing_done: 0, collision_existing_page: 0, collision_existing_snapshot_mismatch: 0, failed: 0, attachments_requested: 0, attachments_uploaded: 0, attachments_skipped_existing: 0, attachments_deferred: 0, import_run_id: importRunId, phase_timings_ms: phaseTimingsMs };
+    if (args.foreignSourceSites.length > 0) summary.foreign_source_sites = [...new Set(args.foreignSourceSites)].sort();
     let finalState = 'failed';
     let directAttachmentUpload = null;
 

@@ -5,6 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {deepwellRpcAuthorization} from '../../../wikidot-verification/src/deepwell-rpc-auth.mjs';
 import {fixtureRpcTarget} from '../../src/fixture-rpc-target.mjs';
+import {leasedPageEdit} from '../../src/page-edit-lease.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
 const rpcUrl=fixtureRpcTarget().rpcUrl;
@@ -59,7 +60,7 @@ for(const spec of pages){
   const hash=crypto.createHash('sha256').update(source).digest('hex');
   const tags=spec.tags??[];
   if(latest.wikitext!==source||JSON.stringify(latest.tags)!==JSON.stringify(tags)){
-    await rpc('page_edit',{site_id:site.site_id,page:latest.page_id,last_revision_id:latest.revision_id,revision_comments:'Update run-owned interactive theme acceptance fixture',user_id:session.user_id,wikitext:source,tags,ip_address:'127.0.0.1'},{sessionToken:login.session_token,siteId:site.site_id,page:spec.slug});
+    await leasedPageEdit((method,params)=>rpc(method,params,{sessionToken:login.session_token,siteId:site.site_id,page:spec.slug}),{site_id:site.site_id,page:latest.page_id,last_revision_id:latest.revision_id,revision_comments:'Update run-owned interactive theme acceptance fixture',user_id:session.user_id,wikitext:source,tags,ip_address:'127.0.0.1'});
   }
   const final=await rpc('page_get',{site_id:site.site_id,page:spec.slug,details:{wikitext:true,compiled:false}},{sessionToken:login.session_token,siteId:site.site_id,page:spec.slug});
   const actualHash=crypto.createHash('sha256').update(final.wikitext).digest('hex');
@@ -93,12 +94,12 @@ if(!imported||importedExistsWithoutRevision||!Number.isSafeInteger(imported.revi
   await createImportedRevision(imported?.page_id??importedPageId);
   imported=await rpc('page_get',{site_id:site.site_id,page:importedSlug,details:{wikitext:true,compiled:false}},{sessionToken:login.session_token,siteId:site.site_id,page:importedSlug});
 }else if(imported.wikitext!==importedSource||JSON.stringify(imported.tags)!==JSON.stringify(['theme-lab-visual-acceptance','jp','日本語'])){
-  await rpc('page_edit',{site_id:site.site_id,page:imported.page_id,last_revision_id:imported.revision_id,revision_comments:'Refresh run-owned imported-style visual fixture',user_id:session.user_id,wikitext:importedSource,tags:['theme-lab-visual-acceptance','jp','日本語'],ip_address:'127.0.0.1'},{sessionToken:login.session_token,siteId:site.site_id,page:importedSlug});
+  await leasedPageEdit((method,params)=>rpc(method,params,{sessionToken:login.session_token,siteId:site.site_id,page:importedSlug}),{site_id:site.site_id,page:imported.page_id,last_revision_id:imported.revision_id,revision_comments:'Refresh run-owned imported-style visual fixture',user_id:session.user_id,wikitext:importedSource,tags:['theme-lab-visual-acceptance','jp','日本語'],ip_address:'127.0.0.1'});
   imported=await rpc('page_get',{site_id:site.site_id,page:importedSlug,details:{wikitext:true,compiled:false}},{sessionToken:login.session_token,siteId:site.site_id,page:importedSlug});
 }
 if(!imported||imported.wikitext!==importedSource||JSON.stringify(imported.tags)!==JSON.stringify(['theme-lab-visual-acceptance','jp','日本語']))throw new Error('Imported-style fixture did not round-trip');
 if(imported.revision_number===0){
-  const edit=async(wikitext,comments)=>rpc('page_edit',{site_id:site.site_id,page:imported.page_id,last_revision_id:imported.revision_id,revision_comments:comments,user_id:session.user_id,wikitext,tags:['theme-lab-visual-acceptance','jp','日本語'],ip_address:'127.0.0.1'},{sessionToken:login.session_token,siteId:site.site_id,page:importedSlug});
+  const edit=async(wikitext,comments)=>leasedPageEdit((method,params)=>rpc(method,params,{sessionToken:login.session_token,siteId:site.site_id,page:importedSlug}),{site_id:site.site_id,page:imported.page_id,last_revision_id:imported.revision_id,revision_comments:comments,user_id:session.user_id,wikitext,tags:['theme-lab-visual-acceptance','jp','日本語'],ip_address:'127.0.0.1'});
   await edit(`${importedSource}\n\n== 履歴差分の追加行 ==\n追加された日本語のrevisionです。\n`,'Add run-owned Japanese history difference');
   imported=await rpc('page_get',{site_id:site.site_id,page:importedSlug,details:{wikitext:true,compiled:false}},{sessionToken:login.session_token,siteId:site.site_id,page:importedSlug});
   await edit(importedSource,'Restore final visual fixture after revision-diff setup');
@@ -115,7 +116,7 @@ if(!historyPage||historyWithoutRevision){
  const pageId=historyPage?.page_id??historyPageId;const initial=`[[module Rate]]\n\n${historySource}`;const revisionId=2_100_000_000+crypto.randomInt(0,100_000_000);const date=new Date();const revisionDate=`${date.toISOString().slice(0,10)} ${date.toISOString().slice(11,19)}.0 +00:00:00`;
  await rpc('import_wikidot_page_revision',{revision_id:revisionId,revision_type:'create',created_at:revisionDate,updated_at:null,revision_number:0,page_id:pageId,site_id:site.site_id,user_id:session.user_id,wikitext:initial,comments:'Create compact revision-diff fixture',title:historyTitle,slug:historySlug,tags:['theme-lab-visual-acceptance','history','日本語']},{sessionToken:login.session_token,siteId:site.site_id,page:historySlug});
  historyPage=await rpc('page_get',{site_id:site.site_id,page:historySlug,details:{wikitext:true,compiled:false}},{sessionToken:login.session_token,siteId:site.site_id,page:historySlug});
- const edit=async(wikitext,comments)=>rpc('page_edit',{site_id:site.site_id,page:historyPage.page_id,last_revision_id:historyPage.revision_id,revision_comments:comments,user_id:session.user_id,wikitext,tags:['theme-lab-visual-acceptance','history','日本語'],ip_address:'127.0.0.1'},{sessionToken:login.session_token,siteId:site.site_id,page:historySlug});
+ const edit=async(wikitext,comments)=>leasedPageEdit((method,params)=>rpc(method,params,{sessionToken:login.session_token,siteId:site.site_id,page:historySlug}),{site_id:site.site_id,page:historyPage.page_id,last_revision_id:historyPage.revision_id,revision_comments:comments,user_id:session.user_id,wikitext,tags:['theme-lab-visual-acceptance','history','日本語'],ip_address:'127.0.0.1'});
  await edit(`[[module Rate]]\n\n${historySource.replace('HISTORY_CHANGED_LINE','改訂前の長い日本語行')}`,'Create before-state for revision comparison');
  historyPage=await rpc('page_get',{site_id:site.site_id,page:historySlug,details:{wikitext:true,compiled:false}},{sessionToken:login.session_token,siteId:site.site_id,page:historySlug});
  await edit(`[[module Rate]]\n\n${historySource.replace('HISTORY_CHANGED_LINE','改訂後の長い日本語行')}`,'Create after-state for revision comparison');

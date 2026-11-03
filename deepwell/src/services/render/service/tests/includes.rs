@@ -269,6 +269,30 @@ fn expands_wikidot_image_block_includes_with_defaults_and_arguments() {
 }
 
 #[test]
+fn expands_wikidot_image_block_without_caption_to_literal_variable() {
+    let mut wikitext =
+        "[[include component:image-block name=spc-4531-1.png]]\n".to_owned();
+
+    let page_info = fallback_test_page_info("art:spc-4531-1", "SPC-4531-1");
+    let included_pages = RenderService::expand_wikidot_image_block_includes(
+        &mut wikitext,
+        &page_info,
+        None,
+    );
+
+    assert!(
+        wikitext.contains("[[div class=\"scp-image-caption\"]]\n{$caption}\n[[/div]]")
+    );
+    assert_eq!(
+        included_pages,
+        vec![
+            PageRef::page_only("component:image-block"),
+            PageRef::page_only("component:image-block-base"),
+        ],
+    );
+}
+
+#[test]
 fn expands_multiline_image_block_parameters_before_following_article_text() {
     let mut wikitext = concat!(
         "[[include component:image-block\n",

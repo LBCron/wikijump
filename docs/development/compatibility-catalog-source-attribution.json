@@ -705,7 +705,7 @@
         { "path": "deepwell/src/services/page/service.rs", "anchor": "pub async fn edit(" },
         { "path": "deepwell/src/endpoints/page_revision.rs", "anchor": "pub async fn page_revision_range(" },
         { "path": "framerail/src/lib/wikidot/wikidot-edit-sections.js", "anchor": "export const buildWikidotSectionEditSubmission = (" },
-        { "path": "framerail/src/routes/[slug]/[...extra]/AppendPane.svelte", "anchor": "<form id=\"page-append\"" },
+        { "path": "framerail/src/routes/[slug]/[...extra]/AppendPane.svelte", "anchor": "id=\"page-append\"" },
         { "path": "framerail/src/routes/[slug]/[...extra]/HistoryPane.svelte", "anchor": "class=\"revision-diff-controls\"" }
       ],
       "tests": [

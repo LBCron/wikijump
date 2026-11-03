@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
@@ -7,6 +6,7 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @param {{ json: any; file?: any }} input */
 const editRequest = ({ json, file }) => {
   const data = new FormData()
   data.set("__superform_json", JSON.stringify(json))
@@ -18,9 +18,11 @@ const editRequest = ({ json, file }) => {
   })
 }
 
+/** @param {any} request */
 const eventFor = (request) => ({
   request,
   cookies: {
+    /** @param {any} name */
     get(name) {
       assert.equal(name, "wikijump_token")
       return "avatar-removal-session"
@@ -48,23 +50,29 @@ test("only an explicit boolean removal flag clears the stored avatar", async () 
     const { userEditAction } = await vite.ssrLoadModule("/src/lib/server/load/user.ts")
     originalRequest = client.request
 
+    /** @type {any[]} */
     const calls = []
-    client.request = async (method, params, context) => {
-      calls.push({ method, params, context })
-      if (method === "session_get") {
-        return {
-          session_token: "avatar-removal-session",
-          user_id: 6000008,
-          created_at: "2026-10-10T00:00:00Z",
-          expires_at: "2099-01-01T00:00:00Z",
-          ip_address: "192.0.2.64",
-          user_agent: "avatar removal test",
-          restricted: false
+    client.request =
+      /** @param {any} method @param {any} params @param {any} context */ async (
+        method,
+        params,
+        context
+      ) => {
+        calls.push({ method, params, context })
+        if (method === "session_get") {
+          return {
+            session_token: "avatar-removal-session",
+            user_id: 6000008,
+            created_at: "2026-10-10T00:00:00Z",
+            expires_at: "2099-01-01T00:00:00Z",
+            ip_address: "192.0.2.64",
+            user_agent: "avatar removal test",
+            restricted: false
+          }
         }
+        if (method === "user_edit") return { user_id: params.user }
+        throw new Error(`Unexpected Deepwell method ${method}`)
       }
-      if (method === "user_edit") return { user_id: params.user }
-      throw new Error(`Unexpected Deepwell method ${method}`)
-    }
     const userEdits = () => calls.filter(({ method }) => method === "user_edit")
     const reset = () => (calls.length = 0)
 

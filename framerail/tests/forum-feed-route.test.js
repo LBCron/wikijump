@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { createServer as createHttpServer } from "node:http"
 import { fileURLToPath } from "node:url"
@@ -12,14 +11,23 @@ const siteHeaders = {
   "X-Wikijump-Site-Slug": "test"
 }
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let server
+/** @type {any} */
 let baseUrl
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any[]} */
 let feedCalls
+/** @type {any} */
 let feedOutput
+/** @type {any} */
 let requestedScopeOutput
 
 const feedItem = {
@@ -46,7 +54,10 @@ before(async () => {
   vite = await createTestViteServer()
   ;({ client } = await vite.ssrLoadModule("/src/lib/server/deepwell/index.ts"))
   originalClientRequest = client.request
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     if (method === "wikidot_forum_feed") {
       feedCalls.push([params.kind, params.category_id, params.thread_id])
       if (feedOutput === null) return null

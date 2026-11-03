@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -20,10 +19,15 @@ const capturedSite = {
   welcome_page: "system:welcome"
 }
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let route
 
 before(async () => {
@@ -43,8 +47,12 @@ after(async () => {
 })
 
 test("ManageSiteGeneral AMC route emits its active script over HTTPS", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     calls.push({ method, params })
     if (method === "admin_view") {
       return {
@@ -78,7 +86,7 @@ test("ManageSiteGeneral AMC route emits its active script over HTTPS", async () 
   assert.equal(payload.status, "ok")
   assert.deepEqual(payload.jsInclude, [EXPECTED_SCRIPT_URL])
   assert.equal(
-    payload.jsInclude.every((url) => url.startsWith("https://")),
+    payload.jsInclude.every(/** @param {any} url */ (url) => url.startsWith("https://")),
     true
   )
   assert.deepEqual(

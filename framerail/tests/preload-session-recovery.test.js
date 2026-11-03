@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -23,10 +22,15 @@ const anonymousPreload = {
   user_session: null
 }
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let layout
 
 before(async () => {
@@ -49,8 +53,12 @@ const logoutRequest = () =>
   new Request("https://wikijump.test/-/logout", { headers: siteHeaders })
 
 test("a stale session cookie recovers the root preload anonymously", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     calls.push({ method, params })
     if (params.session_token === "stale-session") {
       throw Object.assign(new Error("Session token is invalid"), { code: 3001 })
@@ -58,13 +66,16 @@ test("a stale session cookie recovers the root preload anonymously", async () =>
     return anonymousPreload
   }
 
+  /** @type {any[]} */
   const deletedCookies = []
+  /** @type {any} */
   const locals = {}
   const data = await layout.load({
     request: logoutRequest(),
     cookies: {
       get: () => "stale-session",
-      delete: (name, options) => deletedCookies.push({ name, options })
+      delete: /** @param {any} name @param {any} options */ (name, options) =>
+        deletedCookies.push({ name, options })
     },
     route: { id: "/[x+2d]/logout" },
     locals
@@ -88,8 +99,12 @@ test("a stale session cookie recovers the root preload anonymously", async () =>
 })
 
 test("an active session cookie remains attached to the root preload", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     calls.push({ method, params })
     return {
       ...anonymousPreload,
@@ -97,12 +112,14 @@ test("an active session cookie remains attached to the root preload", async () =
     }
   }
 
+  /** @type {any[]} */
   const deletedCookies = []
   const data = await layout.load({
     request: logoutRequest(),
     cookies: {
       get: () => "active-session",
-      delete: (name, options) => deletedCookies.push({ name, options })
+      delete: /** @param {any} name @param {any} options */ (name, options) =>
+        deletedCookies.push({ name, options })
     },
     route: { id: "/[x+2d]/logout" },
     locals: {}
@@ -126,19 +143,25 @@ test("non-session preload failures remain terminal and retain the cookie", async
   ]
 
   for (const expectedError of errors) {
+    /** @type {any[]} */
     const calls = []
-    client.request = async (method, params) => {
+    client.request = /** @param {any} method @param {any} params */ async (
+      method,
+      params
+    ) => {
       calls.push({ method, params })
       throw expectedError
     }
 
+    /** @type {any[]} */
     const deletedCookies = []
     await assert.rejects(
       layout.load({
         request: logoutRequest(),
         cookies: {
           get: () => "active-session",
-          delete: (name, options) => deletedCookies.push({ name, options })
+          delete: /** @param {any} name @param {any} options */ (name, options) =>
+            deletedCookies.push({ name, options })
         },
         route: { id: "/[x+2d]/logout" },
         locals: {}
@@ -155,11 +178,15 @@ test("non-session preload failures remain terminal and retain the cookie", async
 })
 
 test("an invalid anonymous preload is terminal without retrying", async () => {
+  /** @type {any[]} */
   const calls = []
   const expectedError = Object.assign(new Error("Session token is invalid"), {
     code: 3001
   })
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     calls.push({ method, params })
     throw expectedError
   }

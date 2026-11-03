@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -17,12 +16,19 @@ const parentData = {
   user_session: null
 }
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let routes
+/** @type {any} */
 let render
+/** @type {any} */
 let userProfilePage
 
 before(async () => {
@@ -53,14 +59,20 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
+/** @param {any} path */
 const pageRequest = (path) =>
   new Request(`https://wikijump.test${path}`, { headers: siteHeaders })
 
 test("account route loads expose their public SvelteKit page data", async () => {
   assert.equal(routes.preload.pageRouteProvidesPreload("/[x+2d]/user/[slug]"), true)
+  /** @type {any[]} */
   const userViewNames = []
+  /** @type {any[]} */
   const translateCalls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     if (method === "translate") {
       translateCalls.push(params)
       return {}
@@ -226,6 +238,7 @@ test("public profile websites render safe actionable links and leave user pages 
     user: { user_id: 41, name: "Profile fixture", slug: "profile-fixture" },
     internationalization: { "user-profile-info.website": "Website:" }
   }
+  /** @param {any} website */
   const userData = (website) => ({
     name: "Profile fixture",
     website,
@@ -255,23 +268,29 @@ test("public profile websites render safe actionable links and leave user pages 
 })
 
 test("display settings persist the forum signature through the existing account mutation", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") {
-      return {
-        session_token: "account-session",
-        user_id: 41,
-        created_at: "2026-08-10T00:00:00Z",
-        expires_at: "2026-08-11T00:00:00Z",
-        ip_address: "192.0.2.41",
-        user_agent: "account route test",
-        restricted: false
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") {
+        return {
+          session_token: "account-session",
+          user_id: 41,
+          created_at: "2026-08-10T00:00:00Z",
+          expires_at: "2026-08-11T00:00:00Z",
+          ip_address: "192.0.2.41",
+          user_agent: "account route test",
+          restricted: false
+        }
       }
+      if (method === "user_edit") return { user_id: 41 }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "user_edit") return { user_id: 41 }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const formData = new FormData()
   formData.set("locales", "en-US en")
@@ -332,7 +351,10 @@ test("login shares a session across native Wikijump wiki hosts but not custom do
   process.env.FRAMERAIL_ENV = "local"
 
   try {
-    client.request = async (method, params) => {
+    client.request = /** @param {any} method @param {any} params */ async (
+      method,
+      params
+    ) => {
       if (method === "login") {
         assert.equal(params.name_or_email, "account-fixture")
         assert.equal(params.password, "fixture-password")
@@ -353,10 +375,12 @@ test("login shares a session across native Wikijump wiki hosts but not custom do
       throw new Error(`Unexpected Deepwell method ${method}`)
     }
 
+    /** @param {any} origin */
     const login = async (origin) => {
       const formData = new FormData()
       formData.set("nameOrEmail", "account-fixture")
       formData.set("password", "fixture-password")
+      /** @type {any[]} */
       const setCookies = []
       const result = await routes.login.actions.default({
         request: new Request(`${origin}/-/login`, {
@@ -366,7 +390,11 @@ test("login shares a session across native Wikijump wiki hosts but not custom do
         }),
         getClientAddress: () => "192.0.2.41",
         cookies: {
-          set: (name, value, options) => setCookies.push({ name, value, options })
+          set: /** @param {any} name @param {any} value @param {any} options */ (
+            name,
+            value,
+            options
+          ) => setCookies.push({ name, value, options })
         }
       })
       assert.equal(result.isLoggedIn, true)
@@ -394,8 +422,12 @@ test("login shares a session across native Wikijump wiki hosts but not custom do
 })
 
 test("register binds account creation to the request address and redacts submitted passwords", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     calls.push({ method, params })
     if (method === "user_create") {
       return { user_id: 42, name: "registration-fixture", slug: "registration-fixture" }
@@ -443,8 +475,12 @@ test("register binds account creation to the request address and redacts submitt
 })
 
 test("register offers only deployment-advertised locales and rejects others before account creation", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     calls.push({ method, params })
     throw new Error(`Unexpected Deepwell method ${method}`)
   }
@@ -473,7 +509,7 @@ test("register offers only deployment-advertised locales and rejects others befo
 })
 
 test("register load advertises Japanese alongside the supported UI locales", async () => {
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     if (method === "translate") return {}
     throw new Error(`Unexpected Deepwell method ${method}`)
   }
@@ -484,13 +520,13 @@ test("register load advertises Japanese alongside the supported UI locales", asy
   })
 
   assert.deepEqual(
-    register.userInterfaceLocales.map(({ value }) => value),
+    register.userInterfaceLocales.map(/** @param {any} entry */ ({ value }) => value),
     ["en", "ja", "ko", "pl", "vi", "zh-Hans"]
   )
 })
 
 test("legacy user slug route fails closed for imported profiles", async () => {
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     if (method === "translate") return {}
     if (method === "user_view") {
       return {
@@ -531,7 +567,7 @@ test("legacy user slug route fails closed for imported profiles", async () => {
         site_file_domain: "files.wikijump.test"
       })
     }),
-    (error) => {
+    /** @param {any} error */ (error) => {
       assert.equal(error.status, 404)
       assert.equal(error.body.view, "user_missing")
       assert.equal("user" in error.body, false)
@@ -541,37 +577,45 @@ test("legacy user slug route fails closed for imported profiles", async () => {
 })
 
 test("logout and user-edit route actions bind mutations to the server session", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "logout") return null
-    if (method === "session_get") {
-      return {
-        session_token: "account-session",
-        user_id: 41,
-        created_at: "2026-08-10T00:00:00Z",
-        expires_at: "2026-08-11T00:00:00Z",
-        ip_address: "192.0.2.41",
-        user_agent: "account route test",
-        restricted: false
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "logout") return null
+      if (method === "session_get") {
+        return {
+          session_token: "account-session",
+          user_id: 41,
+          created_at: "2026-08-10T00:00:00Z",
+          expires_at: "2026-08-11T00:00:00Z",
+          ip_address: "192.0.2.41",
+          user_agent: "account route test",
+          restricted: false
+        }
       }
-    }
-    if (method === "user_edit") {
-      return {
-        user_id: 987654321,
-        slug: "rpc-user-edit-result-must-remain-private"
+      if (method === "user_edit") {
+        return {
+          user_id: 987654321,
+          slug: "rpc-user-edit-result-must-remain-private"
+        }
       }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
+  /** @type {any[]} */
   const deletedCookies = []
   assert.deepEqual(
     await routes.logout.actions.logout({
       request: pageRequest("/-/logout?/logout"),
       cookies: {
         get: () => "account-session",
-        delete: (name, options) => deletedCookies.push({ name, options })
+        delete: /** @param {any} name @param {any} options */ (name, options) =>
+          deletedCookies.push({ name, options })
       }
     }),
     { success: true }
@@ -622,17 +666,19 @@ test("logout and user-edit route actions bind mutations to the server session", 
 })
 
 test("logout clears a stale browser session when Deepwell reports it invalid", async () => {
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     assert.equal(method, "logout")
     throw Object.assign(new Error("Session token is invalid"), { code: 3001 })
   }
 
+  /** @type {any[]} */
   const deletedCookies = []
   const result = await routes.logout.actions.logout({
     request: pageRequest("/-/logout?/logout"),
     cookies: {
       get: () => "stale-account-session",
-      delete: (name, options) => deletedCookies.push({ name, options })
+      delete: /** @param {any} name @param {any} options */ (name, options) =>
+        deletedCookies.push({ name, options })
     }
   })
 
@@ -652,10 +698,11 @@ test("logout retains the browser session when invalidation otherwise fails", asy
     Object.assign(new Error("Unexpected logout failure"), { code: 3999 })
   ]
   const statuses = []
+  /** @type {any[]} */
   const deletedCookies = []
 
   for (const error of errors) {
-    client.request = async (method) => {
+    client.request = /** @param {any} method */ async (method) => {
       assert.equal(method, "logout")
       throw error
     }
@@ -664,7 +711,8 @@ test("logout retains the browser session when invalidation otherwise fails", asy
       request: pageRequest("/-/logout?/logout"),
       cookies: {
         get: () => "active-account-session",
-        delete: (name, options) => deletedCookies.push({ name, options })
+        delete: /** @param {any} name @param {any} options */ (name, options) =>
+          deletedCookies.push({ name, options })
       }
     })
     statuses.push(result.status)
@@ -675,7 +723,7 @@ test("logout retains the browser session when invalidation otherwise fails", asy
 })
 
 test("logout without a browser session remains a bad request", async () => {
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     assert.equal(method, "translate")
     return { "error-api.NOT_LOGGED_IN": "Not logged in" }
   }

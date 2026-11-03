@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
@@ -7,6 +6,7 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @param {any} input */
 const requestEvent = ({ locales, sessionToken, submittedUser } = {}) => {
   const data = new FormData()
   if (locales !== undefined) {
@@ -22,6 +22,7 @@ const requestEvent = ({ locales, sessionToken, submittedUser } = {}) => {
       body: data
     }),
     cookies: {
+      /** @param {any} name */
       get(name) {
         assert.equal(name, "wikijump_token")
         return sessionToken
@@ -52,42 +53,49 @@ test("user settings bind persistence to the server session actor", async () => {
     )
     originalRequest = client.request
 
+    /** @type {any[]} */
     const calls = []
     let persistedLocales = ["en-US"]
-    client.request = async (method, params, context) => {
-      calls.push({ method, params, context })
-      if (method === "session_get") {
-        if (params[0] === "stale-session") {
-          throw Object.assign(new Error("Session token is invalid"), { code: 3001 })
+    client.request =
+      /** @param {any} method @param {any} params @param {any} context */ async (
+        method,
+        params,
+        context
+      ) => {
+        calls.push({ method, params, context })
+        if (method === "session_get") {
+          if (params[0] === "stale-session") {
+            throw Object.assign(new Error("Session token is invalid"), { code: 3001 })
+          }
+          return {
+            session_token: "issue-1063-session",
+            user_id: 41,
+            created_at: "2026-08-09T00:00:00Z",
+            expires_at: "2026-08-10T00:00:00Z",
+            ip_address: "192.0.2.63",
+            user_agent: "issue 1063 test",
+            restricted: false
+          }
         }
-        return {
-          session_token: "issue-1063-session",
-          user_id: 41,
-          created_at: "2026-08-09T00:00:00Z",
-          expires_at: "2026-08-10T00:00:00Z",
-          ip_address: "192.0.2.63",
-          user_agent: "issue 1063 test",
-          restricted: false
+        if (method === "user_edit") {
+          persistedLocales = params.locales
+          return { user_id: params.user, locales: params.locales }
         }
-      }
-      if (method === "user_edit") {
-        persistedLocales = params.locales
-        return { user_id: params.user, locales: params.locales }
-      }
-      if (method === "translate") {
-        return {
-          settings: "Settings",
-          save: "Save",
-          cancel: "Cancel",
-          "user-profile-info.locales": "Display languages"
+        if (method === "translate") {
+          return {
+            settings: "Settings",
+            save: "Save",
+            cancel: "Cancel",
+            "user-profile-info.locales": "Display languages"
+          }
         }
+        throw new Error(`Unexpected Deepwell method ${method}`)
       }
-      throw new Error(`Unexpected Deepwell method ${method}`)
-    }
 
     await assert.rejects(
       loadUserSettings(async () => ({ user_session: null })),
-      (error) => error?.status === 303 && error?.location === "/-/login"
+      /** @param {any} error */ (error) =>
+        error?.status === 303 && error?.location === "/-/login"
     )
 
     const invalid = await userDisplaySettingsAction(requestEvent())

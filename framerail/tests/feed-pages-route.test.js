@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { createServer as createHttpServer } from "node:http"
 import { fileURLToPath } from "node:url"
@@ -12,11 +11,17 @@ const siteHeaders = {
   "X-Wikijump-Site-Slug": "test"
 }
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let server
+/** @type {any} */
 let baseUrl
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
 
 const missingArticleView = {
@@ -86,7 +91,7 @@ before(async () => {
   vite = await createTestViteServer()
   ;({ client } = await vite.ssrLoadModule("/src/lib/server/deepwell/index.ts"))
   originalClientRequest = client.request
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     if (method === "article_view") return structuredClone(missingArticleView)
     if (method === "translate") return {}
     if (method === "wikidot_list_pages_feed") {
@@ -123,7 +128,10 @@ test("anonymous exact feed/pages renders the generic missing-page shell", async 
 
 test("empty selector feeds retain the Wikidot root separator", async () => {
   const rejectingClientRequest = client.request
-  client.request = async (method, ...args) => {
+  client.request = /** @param {any} method @param {any[]} args */ async (
+    method,
+    ...args
+  ) => {
     if (method === "wikidot_list_pages_feed") return { items: [] }
     return rejectingClientRequest(method, ...args)
   }
@@ -152,7 +160,10 @@ test("populated feed items retain the multiline content CDATA envelope", async (
   const bodyHtml = "<p>body ]]> & text</p>"
   const createdByHtml = '<span class="printuser">A & B</span>'
   const rejectingClientRequest = client.request
-  client.request = async (method, ...args) => {
+  client.request = /** @param {any} method @param {any[]} args */ async (
+    method,
+    ...args
+  ) => {
     if (method === "wikidot_list_pages_feed") {
       return {
         items: [

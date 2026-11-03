@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import test from "node:test"
 
@@ -6,6 +5,7 @@ import { handleAjaxModuleConnectorRequest } from "../src/lib/server/ajax-module-
 
 const MODULE_NAME = "managesite/ManageSiteGeneralModule"
 
+/** @param {any} body */
 const request = (body) =>
   new Request("http://sandbox.local/ajax-module-connector.php", {
     method: "POST",
@@ -79,7 +79,7 @@ test("ManageSiteGeneral rejects unobserved fields and duplicates before renderin
     { moduleName: MODULE_NAME, extra: "1" }
   ]) {
     const response = await handleAjaxModuleConnectorRequest(
-      request(new URLSearchParams(fields)),
+      request(new URLSearchParams(/** @type {any} */ (fields))),
       options
     )
     assert.deepEqual(await response.json(), {

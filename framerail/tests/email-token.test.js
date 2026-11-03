@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
@@ -25,9 +24,11 @@ const parentData = {
 
 const WELL_FORMED = "a".repeat(EMAIL_TOKEN_LENGTH)
 
+/** @param {any} path */
 const pageRequest = (path) =>
   new Request(`https://wikijump.test${path}`, { headers: siteHeaders })
 
+/** @param {any} path @param {any} fields */
 const postRequest = (path, fields) => {
   const formData = new FormData()
   for (const [name, value] of Object.entries(fields)) formData.set(name, value)
@@ -38,6 +39,7 @@ const postRequest = (path, fields) => {
   })
 }
 
+/** @param {any} request */
 const actionEvent = (request) => ({
   request,
   getClientAddress: () => "192.0.2.77"
@@ -67,11 +69,17 @@ describe("email-token validation contract", () => {
 })
 
 describe("email-token routes", () => {
+  /** @type {any} */
   let previousWorkingDirectory
+  /** @type {any} */
   let vite
+  /** @type {any} */
   let client
+  /** @type {any} */
   let originalClientRequest
+  /** @type {any} */
   let routes
+  /** @type {any[]} */
   let calls
 
   before(async () => {
@@ -82,26 +90,31 @@ describe("email-token routes", () => {
     ;({ client } = await vite.ssrLoadModule("/src/lib/server/deepwell/index.ts"))
     originalClientRequest = client.request
     calls = []
-    client.request = async (method, params, context) => {
-      calls.push({ method, params, context })
-      if (method === "translate") return {}
-      if (method === "session_get") {
-        return { user_id: 7, session_token: "delete-session" }
+    client.request =
+      /** @param {any} method @param {any} params @param {any} context */ async (
+        method,
+        params,
+        context
+      ) => {
+        calls.push({ method, params, context })
+        if (method === "translate") return {}
+        if (method === "session_get") {
+          return { user_id: 7, session_token: "delete-session" }
+        }
+        if (
+          method === "password_reset_issue" ||
+          method === "email_verify_issue" ||
+          method === "email_verify_redeem" ||
+          method === "account_delete_issue"
+        ) {
+          return undefined
+        }
+        if (method === "password_reset_redeem") return { grant: "grant-token" }
+        if (method === "password_reset_complete") return { sessions_revoked: 3 }
+        if (method === "account_delete_redeem") return { grant: "delete-grant" }
+        if (method === "account_delete_complete") return { sessions_revoked: 2 }
+        throw new Error(`Unexpected Deepwell method ${method}`)
       }
-      if (
-        method === "password_reset_issue" ||
-        method === "email_verify_issue" ||
-        method === "email_verify_redeem" ||
-        method === "account_delete_issue"
-      ) {
-        return undefined
-      }
-      if (method === "password_reset_redeem") return { grant: "grant-token" }
-      if (method === "password_reset_complete") return { sessions_revoked: 3 }
-      if (method === "account_delete_redeem") return { grant: "delete-grant" }
-      if (method === "account_delete_complete") return { sessions_revoked: 2 }
-      throw new Error(`Unexpected Deepwell method ${method}`)
-    }
 
     routes = {
       forgot: await vite.ssrLoadModule("/src/routes/[x+2d]/forgot/+page.server.ts"),
@@ -314,7 +327,8 @@ describe("email-token routes", () => {
         request: pageRequest("/-/delete-account"),
         parent: async () => parentData
       }),
-      (error) => error?.status === 303 && error?.location === "/-/login"
+      /** @param {any} error */ (error) =>
+        error?.status === 303 && error?.location === "/-/login"
     )
 
     calls.length = 0
@@ -335,10 +349,12 @@ describe("email-token routes", () => {
   })
 
   test("delete issue binds the session actor and sends no identity", async () => {
+    /** @param {any} request */
     const sessionEvent = (request) => ({
       request,
       cookies: {
-        get: (name) => (name === "wikijump_token" ? "delete-session" : undefined)
+        get: /** @param {any} name */ (name) =>
+          name === "wikijump_token" ? "delete-session" : undefined
       },
       getClientAddress: () => "192.0.2.77",
       locals: { requestContext: { sessionToken: "delete-session" } }
@@ -378,10 +394,12 @@ describe("email-token routes", () => {
   })
 
   test("delete redemption exchanges the link for a grant only on POST", async () => {
+    /** @param {any} request */
     const sessionEvent = (request) => ({
       request,
       cookies: {
-        get: (name) => (name === "wikijump_token" ? "delete-session" : undefined)
+        get: /** @param {any} name */ (name) =>
+          name === "wikijump_token" ? "delete-session" : undefined
       },
       getClientAddress: () => "192.0.2.77",
       locals: { requestContext: { sessionToken: "delete-session" } }
@@ -419,10 +437,12 @@ describe("email-token routes", () => {
   })
 
   test("delete completion deletes on grant plus password and clears both", async () => {
+    /** @param {any} request */
     const sessionEvent = (request) => ({
       request,
       cookies: {
-        get: (name) => (name === "wikijump_token" ? "delete-session" : undefined)
+        get: /** @param {any} name */ (name) =>
+          name === "wikijump_token" ? "delete-session" : undefined
       },
       getClientAddress: () => "192.0.2.77",
       locals: { requestContext: { sessionToken: "delete-session" } }

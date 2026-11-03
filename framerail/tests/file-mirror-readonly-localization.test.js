@@ -1,8 +1,6 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { test } from "node:test"
-
 
 const enPath = new URL("../../locales/fluent/wiki-page/en.ftl", import.meta.url)
 const jaPath = new URL("../../locales/fluent/wiki-page/ja.ftl", import.meta.url)

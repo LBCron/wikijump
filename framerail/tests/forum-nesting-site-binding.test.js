@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -9,13 +8,21 @@ const root = fileURLToPath(new URL("..", import.meta.url))
 const routedSiteId = 17
 const sessionToken = "forum-nesting-session"
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let discussionAction
+/** @type {any} */
 let forumNestingAction
+/** @type {any} */
 let ratingAction
+/** @type {any} */
 let siteIconsAction
 
 before(async () => {
@@ -35,6 +42,7 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
+/** @param {any} action @param {any} submittedSiteId @param {any} fields */
 const actionEvent = (action, submittedSiteId, fields) => {
   const data = new FormData()
   data.set("siteId", String(submittedSiteId))
@@ -55,13 +63,19 @@ const actionEvent = (action, submittedSiteId, fields) => {
 }
 
 test("forum nesting updates stay bound to the routed site", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 41 }
-    if (method === "site_update") return { settings_revision: 5 }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 41 }
+      if (method === "site_update") return { settings_revision: 5 }
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
 
   const fields = { expectedSettingsRevision: 4, maxNestLevel: 3 }
   const denied = await forumNestingAction(actionEvent("forumNesting", 999, fields))
@@ -94,13 +108,19 @@ test("forum nesting updates stay bound to the routed site", async () => {
 })
 
 test("discussion updates stay bound to the routed site", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 41 }
-    if (method === "category_update") return { category_id: 23 }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 41 }
+      if (method === "category_update") return { category_id: 23 }
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
 
   const fields = { categoryId: 23, state: "enable" }
   const denied = await discussionAction(actionEvent("discussion", 999, fields))
@@ -130,13 +150,19 @@ test("discussion updates stay bound to the routed site", async () => {
 })
 
 test("rating updates stay bound to the routed site", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 41 }
-    if (method === "category_update") return { category_id: 23 }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 41 }
+      if (method === "category_update") return { category_id: 23 }
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
 
   const fields = {
     categoryId: 23,
@@ -176,13 +202,19 @@ test("rating updates stay bound to the routed site", async () => {
 })
 
 test("site icon updates stay bound to the routed site", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 41 }
-    if (method === "site_update") return { settings_revision: 5 }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 41 }
+      if (method === "site_update") return { settings_revision: 5 }
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
 
   const fields = {
     expectedSettingsRevision: 4,

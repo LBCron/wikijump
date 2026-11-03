@@ -52,6 +52,20 @@ test("action failures classify permission errors and honor fallback statuses", (
   })
 })
 
+test("invalid authentication failures are client errors, not server errors", () => {
+  const failure = failForActionError(
+    { message: "Invalid username, password, or TOTP code", code: 3000 },
+    { form: "preserved" },
+    500
+  )
+  assert.equal(failure.status, 401)
+  assert.deepEqual(failure.data, {
+    form: "preserved",
+    message: "Invalid username, password, or TOTP code",
+    code: 3000
+  })
+})
+
 test("action failures sanitize the final merged payload", () => {
   const password = "correct horse battery staple"
   const failure = failForActionError(

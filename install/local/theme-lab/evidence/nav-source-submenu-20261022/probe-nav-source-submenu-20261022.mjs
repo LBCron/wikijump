@@ -62,7 +62,7 @@ try {
   });
   const progDst = path.join(evid, 'probe-nav-source-submenu-20261022.mjs');
   fs.copyFileSync(programSrc, progDst);
-  const receipt = {
+  const record = {
     schema: 'theme_lab_source_navigation_submenu.v1', theme: 'basalt', source_url: url,
     source_sha256: 'df4b78d344536f5b7c363ac86b2ddc6f3c31b3647693f473169550e03fca17c5',
     observed_at: new Date().toISOString(), public_writes: 0, external_requests_sent: 0, offline: true,
@@ -74,8 +74,8 @@ try {
     measurement_programs: [{path: 'evidence/nav-source-submenu-20261022/probe-nav-source-submenu-20261022.mjs', sha256: shaFile(progDst)}],
     source_measurements: measurements,
   };
-  fs.writeFileSync(path.join(evid, 'basalt.json'), JSON.stringify(receipt, null, 2) + '\n');
-  console.log(JSON.stringify({receipt_sha256: shaFile(path.join(evid, 'basalt.json')), rows: measurements.map(x => ({v: x.viewport, err: x.action_error, links: x.visible_submenu_links, bg: x.backgrounds, backdrop: x.backdrops, overlap: x.links_overlapping_title}))}));
+  fs.writeFileSync(path.join(evid, 'basalt.json'), JSON.stringify(record, null, 2) + '\n');
+  console.log(JSON.stringify({record_sha256: shaFile(path.join(evid, 'basalt.json')), rows: measurements.map(x => ({v: x.viewport, err: x.action_error, links: x.visible_submenu_links, bg: x.backgrounds, backdrop: x.backdrops, overlap: x.links_overlapping_title}))}));
 } finally {
   for (const pg of Object.values(session.pages)) await pg?.context().close().catch(() => {});
   for (const r of session.replays.values()) await r.close().catch(() => {});

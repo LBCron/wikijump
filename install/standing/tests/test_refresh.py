@@ -244,11 +244,11 @@ class RefreshStandingTest(unittest.TestCase):
                 mock.patch.object(REFRESH, "command", side_effect=capture),
                 mock.patch.object(REFRESH, "runtime_containers", return_value=restored),
             ):
-                receipt = REFRESH.restore_or_recreate_previous_containers(
+                restored = REFRESH.restore_or_recreate_previous_containers(
                     parked, runtime, runtime / "override.yaml", images
                 )
-            self.assertEqual(receipt["mode"], "recreated-from-pinned-images")
-            self.assertEqual(sorted(receipt["missing_parked"]), sorted(REFRESH.SERVICES))
+            self.assertEqual(restored["mode"], "recreated-from-pinned-images")
+            self.assertEqual(sorted(restored["missing_parked"]), sorted(REFRESH.SERVICES))
             self.assertEqual(len(calls), 1)
             command = calls[0]
             self.assertIn("--force-recreate", command)
@@ -375,10 +375,10 @@ class RefreshStandingTest(unittest.TestCase):
             mock.patch.object(REFRESH, "restore_parked_containers", return_value={}),
             mock.patch.object(REFRESH, "command", side_effect=lambda *a, cwd: calls.append(a) or ""),
         ):
-            receipt = REFRESH.restore_or_recreate_previous_containers(
+            restored = REFRESH.restore_or_recreate_previous_containers(
                 parked, Path("/runtime"), Path("/runtime/override.yaml"), {}
             )
-        self.assertEqual(receipt["mode"], "parked")
+        self.assertEqual(restored["mode"], "parked")
         self.assertEqual(
             sorted(call[2] for call in calls if call[:2] == ("docker", "rmi")),
             sorted(REFRESH.parked_image_tag("run", service) for service in REFRESH.SERVICES),
@@ -420,14 +420,14 @@ class RefreshStandingTest(unittest.TestCase):
                 mock.patch.object(REFRESH, "command", side_effect=fake_command),
                 mock.patch.object(REFRESH, "runtime_containers", return_value=running),
             ):
-                receipt = REFRESH.restore_or_recreate_previous_containers(
+                restored = REFRESH.restore_or_recreate_previous_containers(
                     parked, runtime, runtime / "override.yaml",
                     {service: {"id": base[service]} for service in REFRESH.SERVICES},
                 )
-            self.assertEqual(receipt["mode"], "parked-image")
-            self.assertEqual(sorted(receipt["missing_parked"]), sorted(REFRESH.SERVICES))
-            self.assertEqual(sorted(receipt["parked_image_services"]), sorted(REFRESH.SERVICES))
-            self.assertEqual(receipt["base_image_services"], [])
+            self.assertEqual(restored["mode"], "parked-image")
+            self.assertEqual(sorted(restored["missing_parked"]), sorted(REFRESH.SERVICES))
+            self.assertEqual(sorted(restored["parked_image_services"]), sorted(REFRESH.SERVICES))
+            self.assertEqual(restored["base_image_services"], [])
             rebased = REFRESH.read_environment(runtime / ".env")
             for service in REFRESH.SERVICES:
                 self.assertEqual(rebased[f"STANDING_{service.upper()}_IMAGE"], tags[service])
@@ -496,10 +496,10 @@ class RefreshStandingTest(unittest.TestCase):
                 mock.patch.object(REFRESH, "command", return_value=""),
                 mock.patch.object(REFRESH, "runtime_containers", return_value=restored),
             ):
-                receipt = REFRESH.restore_or_recreate_previous_containers(
+                restored = REFRESH.restore_or_recreate_previous_containers(
                     parked, runtime, runtime / "override.yaml", images
                 )
-            self.assertEqual(receipt["mode"], "recreated-from-pinned-images")
+            self.assertEqual(restored["mode"], "recreated-from-pinned-images")
 
     def test_cleanup_helpers_never_raise(self) -> None:
         parked = {"deepwell": {"parked_image": {"tag": "tag-x"}}, "framerail": {}}

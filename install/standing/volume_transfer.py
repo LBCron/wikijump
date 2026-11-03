@@ -79,7 +79,7 @@ def docker(*args: str, **kwargs: Any) -> subprocess.CompletedProcess[Any]:
 
 def atomic_json(path: Path, value: object) -> None:
     if not path.is_absolute():
-        raise VolumeTransferError("receipt/manifest path must be absolute")
+        raise VolumeTransferError("record/manifest path must be absolute")
     path.parent.mkdir(parents=True, exist_ok=True)
     handle, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
     try:
@@ -341,9 +341,9 @@ def require_quiesced() -> None:
 
 
 def migrate(args: argparse.Namespace) -> int:
-    receipt = args.receipt.resolve()
-    if receipt.exists():
-        raise VolumeTransferError(f"migration receipt already exists: {receipt}")
+    record = args.record.resolve()
+    if record.exists():
+        raise VolumeTransferError(f"migration record already exists: {record}")
     require_quiesced()
     missing = [name for name in LEGACY_VOLUMES.values() if not volume_exists(name)]
     if missing:
@@ -392,12 +392,12 @@ def migrate(args: argparse.Namespace) -> int:
             "roles": rows,
             "legacy_retained": True,
         }
-        atomic_json(receipt, value)
-        print(json.dumps({"status": "verified", "receipt": str(receipt)}))
+        atomic_json(record, value)
+        print(json.dumps({"status": "verified", "record": str(record)}))
         return 0
     except Exception as error:
         atomic_json(
-            receipt,
+            record,
             {
                 "schema": SCHEMA,
                 "status": "failed",
@@ -412,27 +412,27 @@ def migrate(args: argparse.Namespace) -> int:
         raise
 
 
-def load_migration_receipt(path: Path) -> dict[str, object]:
+def load_migration_record(path: Path) -> dict[str, object]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if value.get("schema") != SCHEMA or value.get("status") != "verified":
-        raise VolumeTransferError("migration receipt is not verified")
+        raise VolumeTransferError("migration record is not verified")
     rows = value.get("roles")
     if not isinstance(rows, list) or len(rows) != len(ROLES):
-        raise VolumeTransferError("migration receipt role set is incomplete")
+        raise VolumeTransferError("migration record role set is incomplete")
     by_role = {row.get("role"): row for row in rows if isinstance(row, dict)}
     if set(by_role) != set(ROLES):
-        raise VolumeTransferError("migration receipt role set is non-canonical")
+        raise VolumeTransferError("migration record role set is non-canonical")
     for role in ROLES:
         row = by_role[role]
         if row.get("legacy_volume") != LEGACY_VOLUMES[role]:
-            raise VolumeTransferError(f"migration receipt legacy name drift for {role}")
+            raise VolumeTransferError(f"migration record legacy name drift for {role}")
         if row.get("durable_volume") != DURABLE_VOLUMES[role]:
-            raise VolumeTransferError(f"migration receipt durable name drift for {role}")
+            raise VolumeTransferError(f"migration record durable name drift for {role}")
         before = row.get("source_before")
         after = row.get("source_after")
         destination = row.get("destination_after")
         if not isinstance(before, dict) or before != after or before != destination:
-            raise VolumeTransferError(f"migration receipt digest mismatch for {role}")
+            raise VolumeTransferError(f"migration record digest mismatch for {role}")
         exact_sha256(before.get("tree_sha256"), f"{role} source tree")
     return value
 
@@ -482,7 +482,7 @@ def bind_runtime_home_to_durable_volumes(
     identity["volume_migration"] = {
         "schema": SCHEMA,
         "receipt_sha256": exact_sha256(
-            migration_receipt_sha256, "runtime identity migration receipt"
+            migration_receipt_sha256, "runtime identity migration record"
         ),
     }
     atomic_json(identity_path, identity)
@@ -495,7 +495,7 @@ def bind_runtime_home_to_durable_volumes(
 
 
 def post_cutover(args: argparse.Namespace) -> int:
-    receipt = load_migration_receipt(args.receipt.resolve())
+    record = load_migration_record(args.record.resolve())
     running = running_project_containers()
     if len(running) != 7:
         raise VolumeTransferError(
@@ -530,7 +530,7 @@ def post_cutover(args: argparse.Namespace) -> int:
             "legacy rollback volume(s) disappeared before validation: "
             + ", ".join(sorted(missing_rollback))
         )
-    migration_receipt_sha256 = sha256_file(args.receipt.resolve())
+    migration_receipt_sha256 = sha256_file(args.record.resolve())
     runtime_binding = None
     if getattr(args, "runtime_home", None) is not None:
         runtime_binding = bind_runtime_home_to_durable_volumes(
@@ -542,7 +542,7 @@ def post_cutover(args: argparse.Namespace) -> int:
         "status": "pass",
         "checked_at": utc_now(),
         "migration_receipt_sha256": migration_receipt_sha256,
-        "migration": receipt,
+        "migration": record,
         "project": PROJECT_NAME,
         "running_containers": sorted(running),
         "active_durable_consumers": durable_consumers,
@@ -551,7 +551,7 @@ def post_cutover(args: argparse.Namespace) -> int:
         "runtime_binding": runtime_binding,
     }
     atomic_json(args.output.resolve(), value)
-    print(json.dumps({"status": "pass", "receipt": str(args.output.resolve())}))
+    print(json.dumps({"status": "pass", "record": str(args.output.resolve())}))
     return 0
 
 
@@ -757,13 +757,13 @@ def parser() -> argparse.ArgumentParser:
     commands = result.add_subparsers(dest="command", required=True)
 
     migrate_parser = commands.add_parser("migrate")
-    migrate_parser.add_argument("--receipt", type=Path, required=True)
+    migrate_parser.add_argument("--record", type=Path, required=True)
     migrate_parser.add_argument("--helper-image")
     migrate_parser.add_argument("--replace-destinations", action="store_true")
     migrate_parser.set_defaults(handler=migrate)
 
     cutover_parser = commands.add_parser("post-cutover")
-    cutover_parser.add_argument("--receipt", type=Path, required=True)
+    cutover_parser.add_argument("--record", type=Path, required=True)
     cutover_parser.add_argument("--output", type=Path, required=True)
     cutover_parser.add_argument(
         "--runtime-home",

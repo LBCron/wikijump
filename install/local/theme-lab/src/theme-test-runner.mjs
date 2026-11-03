@@ -7,12 +7,10 @@ import {startSessionServer} from './session-server.mjs';
 import {createDeepwellPreviewClient} from './deepwell-preview.mjs';
 import {themeTestExecutionPlan} from './theme-test-execution-plan.mjs';
 import {materializeThemeSessionInputs} from './theme-test-session-inputs.mjs';
-import {themeTestMeasurementReceipt} from './theme-test-measurement-receipt.mjs';
 import {runCanonicalInteractionStates,runCanonicalSemanticProbes} from './theme-canonical-execution.mjs';
-import crypto from 'node:crypto';
 
-export async function runThemeScenarioSmoke({root,config,siteStateReceipt,renderedShell=null,browserType,browserEngine='chromium',expectedBrowserVersions,socketPath,headless=true,sessionStorageStates={anonymous:null},startServer=startSessionServer,runInteractions=runCanonicalInteractionStates,runProbes=runCanonicalSemanticProbes,observeSession=observeThemeSession}){
-  const plan=themeTestExecutionPlan(root,config,{siteStateReceipt,renderedShell});
+export async function runThemeScenarioSmoke({root,config,siteState,renderedShell=null,browserType,browserEngine='chromium',expectedBrowserVersions,socketPath,headless=true,sessionStorageStates={anonymous:null},startServer=startSessionServer,runInteractions=runCanonicalInteractionStates,runProbes=runCanonicalSemanticProbes,observeSession=observeThemeSession}){
+  const plan=themeTestExecutionPlan(root,config,{siteState,renderedShell});
   const measurementContract=JSON.parse(fs.readFileSync(path.join(root,plan.bindings.measurement_contract.path),'utf8'));
   const corpusStates=JSON.parse(fs.readFileSync(path.join(root,plan.bindings.corpus_states.path),'utf8'));
   const corpusManifest=JSON.parse(fs.readFileSync(path.join(root,plan.bindings.corpus_manifest.path),'utf8'));
@@ -48,9 +46,9 @@ export async function runThemeScenarioSmoke({root,config,siteStateReceipt,render
         japanese_glyph_rendering:verdict.font_diagnostics?.portable_glyph_measurement?.status==='pass'?'pass':'fail',
       };
       const executionBase={schema:'theme_lab_canonical_execution.v1',scenario_sha256:plan.scenario_sha256,session_profile:sessionProfile,backend_runtime_identity:backendRuntimeIdentity,session_observation:sessionObservation,check_evidence:checkEvidence,interaction_states:interactionStates,semantic_probes:semanticProbes};
-      const canonicalExecution={...executionBase,canonical_execution_sha256:crypto.createHash('sha256').update(JSON.stringify(executionBase)).digest('hex')};
-      const measurementReceipt=themeTestMeasurementReceipt({scenarioSha256:plan.scenario_sha256,measurementContractSha256:plan.bindings.measurement_contract.sha256,measurementContract,engine:verdict.browser_runtime?.engine,browserVersion:verdict.browser_runtime?.version,sessionProfile,canonicalExecutionSha256:canonicalExecution.canonical_execution_sha256,expectedVersions:expectedBrowserVersions});
-      runs[sessionProfile]={measurement_receipt:measurementReceipt,canonical_execution:canonicalExecution,verdict};
+      const canonicalExecution=executionBase;
+      const measurement={engine:verdict.browser_runtime?.engine,browser_version:verdict.browser_runtime?.browser_version,session_profile:sessionProfile};
+      runs[sessionProfile]={measurement:measurement,canonical_execution:canonicalExecution,verdict};
     }finally{await server.close()}
   }
   const missingProfiles=measurementContract.session_profiles.filter(profile=>!(profile in runs));

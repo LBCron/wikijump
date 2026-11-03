@@ -109,7 +109,7 @@ class ReadOnlyRecorder:
         raw = response.content
         raw_path = self.responses_dir / f"{request_id}.json"
         write_exclusive(raw_path, raw)
-        receipt = {
+        record = {
             "request_id": request_id,
             "site": self.site_label,
             "host": self.domain,
@@ -121,8 +121,7 @@ class ReadOnlyRecorder:
             "response_sha256": sha256(raw),
             "response_bytes": len(raw),
         }
-        write_exclusive(self.responses_dir / f"{request_id}.receipt.json", canonical_json(receipt))
-        self.records.append(receipt)
+        self.records.append(record)
         barrier.unlink()
         fsync_directory(barrier.parent)
         return responses

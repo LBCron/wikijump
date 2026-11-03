@@ -1,4 +1,4 @@
-// Builds the sibling mobile/narrow-mobile search receipt by offline replay of the cached frozen Basalt snapshot.
+// Builds the sibling mobile/narrow-mobile search record by offline replay of the cached frozen Basalt snapshot.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -71,7 +71,7 @@ try {
     fs.writeFileSync(dst, buf);
     pngs.push({path: rel, sha256: sha(buf)});
   }
-  const receipt = {
+  const record = {
     schema: 'theme_lab_wikidot_search_control.v1',
     theme: 'basalt',
     source_url: url,
@@ -91,8 +91,8 @@ try {
     source_measurements: measurements,
     measurement_programs: [{path: 'evidence/search-controls-20261022/probe-frozen-search-mobile-narrow-20261022.mjs', sha256: shaFile(progDst)}],
   };
-  fs.writeFileSync(path.join(evid, 'basalt.json'), JSON.stringify(receipt, null, 2) + '\n');
-  console.log(JSON.stringify({receipt_sha256: shaFile(path.join(evid, 'basalt.json')), browser: receipt.browser_version, navigation: measurements.map(x => [x.viewport, x.navigation, x.after_focus.display, x.action_error])}));
+  fs.writeFileSync(path.join(evid, 'basalt.json'), JSON.stringify(record, null, 2) + '\n');
+  console.log(JSON.stringify({record_sha256: shaFile(path.join(evid, 'basalt.json')), browser: record.browser_version, navigation: measurements.map(x => [x.viewport, x.navigation, x.after_focus.display, x.action_error])}));
 } finally {
   for (const pg of Object.values(session.pages)) await pg?.context().close().catch(() => {});
   for (const r of session.replays.values()) await r.close().catch(() => {});

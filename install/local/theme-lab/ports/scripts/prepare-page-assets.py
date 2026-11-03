@@ -2,7 +2,7 @@
 """Freeze missing theme-demo page images as portable Wikidot attachments.
 
 Consumes an offline Theme Lab DOM image finding and content-addressed one-time
-acquisition receipts. It preserves the original human candidate, adds per-page
+acquisition records. It preserves the original human candidate, adds per-page
 attachment bundles, converts only executable image references to local
 attachments, and regenerates each local preview fixture.
 """
@@ -112,7 +112,7 @@ def main() -> int:
         fixture["source_sha256"] = hashlib.sha256(localized_source.encode()).hexdigest()
         fixture["page_assets"] = len(attachments)
         (directory / "preview-fixture.json").write_text(json.dumps(fixture, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        for name in ("manifest.json", "receipt.json"):
+        for name in ("manifest.json",):
             path = directory / name
             meta = json.loads(path.read_text())
             meta["candidate_source_hash"] = hashlib.sha256(localized_source.encode()).hexdigest()

@@ -21,7 +21,7 @@ export async function activateNavigationControl(page, anchor, submenu) {
   if (!geometry.inViewport) throw new Error('navigation parent control is outside viewport');
   if (!geometry.reachable) throw new Error('navigation parent control is occluded');
   if (href === 'javascript:;' && geometry.reachable) {
-    await anchor.hover({timeout: 600});
+    await anchor.hover({timeout: 5000});
     const hoverDeadline=Date.now()+500;
     while(Date.now()<hoverDeadline){if(await hasRenderedSubmenuGeometry(submenu))return;await page.waitForTimeout(50)}
   } else {

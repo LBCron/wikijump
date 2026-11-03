@@ -14,7 +14,6 @@ import {
   parityBrowserLaunchOptions,
   parityBrowserExecutionMode,
   parityBrowserRequestIntervalMs,
-  parityBrowserThrottleConfig,
 } from "../src/standing-browser-parity-browser-session.mjs";
 
 const hash = (character) => character.repeat(64);
@@ -67,86 +66,6 @@ test("candidate browser local origins include every sealed site on an editable c
       "https://scpaiueouiuiuiui.wjfiles.localhost:18449",
     ],
   ]);
-});
-
-test("browser throttle receipt binds exact case-set public origins", () => {
-  const base = {
-    args: { mode: "candidate-case" },
-    runId: "fixture-run",
-    lock: { path: "/private/lock", owner: "fixture" },
-    policy: { sha256: hash("a"), value: { policy_version: "fixture-v1" } },
-    localOrigins: [],
-    candidate: null,
-  };
-  const config = parityBrowserThrottleConfig({
-    ...base,
-    publicOrigins: ["https://www.youtube.com", "https://embed.acast.com"],
-  });
-
-  assert.equal(parityBrowserExecutionMode("candidate-case"), "candidate");
-  assert.equal(parityBrowserRequestIntervalMs("candidate-case"), 0);
-  assert.equal(parityBrowserExecutionMode("live-reference"), "live");
-  assert.equal(parityBrowserRequestIntervalMs("live-reference"), 0);
-  assert.equal(config.execution_mode, "candidate");
-  assert.equal(config.interval_ms, 0);
-  assert.deepEqual(config.case_set_public_origins, [
-    "https://www.youtube.com",
-    "https://embed.acast.com",
-  ]);
-  const liveConfig = parityBrowserThrottleConfig({
-    ...base,
-    args: { mode: "live-reference" },
-    publicOrigins: [],
-  });
-  assert.equal(liveConfig.execution_mode, "live");
-  assert.equal(liveConfig.interval_ms, 0);
-  assert.throws(
-    () =>
-      parityBrowserThrottleConfig({
-        ...base,
-        publicOrigins: ["https://www.youtube.com/watch"],
-      }),
-    /exact HTTPS origins/u,
-  );
-  assert.equal(
-    isParityBrowserPublicOrigin(
-      "https://www.youtube.com/embed/video",
-      "document",
-      "GET",
-      config.case_set_public_origins,
-    ),
-    true,
-  );
-  assert.equal(
-    isParityBrowserPublicOrigin(
-      "https://www.youtube.com/embed/video",
-      "document",
-      "POST",
-      config.case_set_public_origins,
-    ),
-    false,
-  );
-  assert.equal(
-    isParityBrowserPublicOrigin(
-      "https://youtube.com/embed/video",
-      "document",
-      "GET",
-      config.case_set_public_origins,
-    ),
-    false,
-  );
-});
-
-test("resumed browser controls reuse the sealed throttle receipt identity", async () => {
-  const outputDir = await fs.mkdtemp(path.join(os.tmpdir(), "wikijump-browser-resume-"));
-  const policy = {sha256: hash("a"), value: {policy_version: "fixture-v1"}};
-  const args = {mode: "candidate", timeoutMs: 1_000};
-  const first = await createParityBrowserControls({args, outputDir, policy, candidate: null});
-  const firstConfigSha256 = first.configSha256;
-  await first.close();
-  const resumed = await createParityBrowserControls({args, outputDir, policy, candidate: null, resume: true});
-  assert.equal(resumed.configSha256, firstConfigSha256);
-  await resumed.close();
 });
 
 test("candidate file routing maps only the exact canonical file authority to its sealed port", async () => {

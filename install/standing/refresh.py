@@ -1,5 +1,5 @@
 """Standing runtime helpers: source and container identity, container parking
-and restore, health, saved-page freshness and receipts. `promote.py` drives
+and restore, health, and saved-page freshness. `promote.py` drives
 the promotion with them."""
 
 from __future__ import annotations

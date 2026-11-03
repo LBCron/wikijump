@@ -47,7 +47,7 @@ function validateMeasurement(config,corpusStates,measurement){
   if(JSON.stringify(corpusStates.viewports??[])!==JSON.stringify(viewportIds))throw new Error('corpus viewport states do not match measurement viewports');
   if(JSON.stringify(measurement.session_profiles??[])!==JSON.stringify(corpusStates.session_profiles??[]))throw new Error('measurement session profiles do not match corpus states');
   if(JSON.stringify(measurement.browser_engines??[])!==JSON.stringify(['chromium','firefox','webkit']))throw new Error('measurement browser engines must match the current three-engine acceptance contract');
-  if(measurement.browser_version_policy!=='exact-runtime-version-receipt')throw new Error('measurement browser version policy must require exact runtime receipts');
+  if(measurement.browser_version_policy!=='exact-runtime-version')throw new Error('measurement browser version policy must require exact runtime receipts');
   if(measurement.network_policy!=='block-external-after-local-materialization')throw new Error('measurement network policy does not match canonical acceptance');
 }
 

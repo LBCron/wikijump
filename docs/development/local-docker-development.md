@@ -56,7 +56,7 @@ containers and networks while retaining all development caches and runtime
 data. Never pass `--volumes` to a normal development shutdown.
 
 For a targeted Cargo cleanup, first check leases, processes, containers, and
-rollback receipts, then inspect Cargo's plan:
+rollback state, then inspect Cargo's plan:
 
 ```sh
 cargo clean --dry-run --manifest-path deepwell/Cargo.toml --profile dev

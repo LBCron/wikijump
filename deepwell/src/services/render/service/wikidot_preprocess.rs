@@ -1,3 +1,4 @@
+use super::super::include_attachment_owners::DirectiveEndScan;
 use super::{
     AttachmentOwner, AttachmentProvenanceRegistry, BTreeMap, CompatTextFragments,
     INCLUDE_VARIABLE_REGEX, LiteralRegionIndex, PageInfo, PageRef, Range, RenderService,
@@ -485,11 +486,13 @@ impl RenderService {
                 (match_end - 2, match_end)
             } else {
                 let args_start = match_end - after.len();
-                let Some(include_end) = find_wikidot_image_block_directive_end(
-                    &source,
-                    match_end,
-                    source.len(),
-                ) else {
+                let DirectiveEndScan::Found(include_end) =
+                    find_wikidot_image_block_directive_end(
+                        &source,
+                        match_end,
+                        source.len(),
+                    )
+                else {
                     search_start = match_end;
                     continue;
                 };

@@ -60,14 +60,13 @@ pub(super) use self::argument_errors::{
 };
 pub(super) use self::budget::ListPagesExpansionBudget;
 pub(super) use self::current_data_form::list_pages_head_has_current_data_form_query_selector;
-pub(super) use self::current_page::{
-    count_pages_scan_requires_preservation, count_pages_unbounded_total,
-    list_pages_content_query_target, list_pages_row_scan_target,
-    page_query_cap_requires_original_module, should_render_current_page_list_pages_row,
-};
 #[cfg(test)]
 pub(super) use self::current_page::{
     current_page_info_list_pages_row, requested_page_info_score,
+};
+pub(super) use self::current_page::{
+    list_pages_content_query_target, list_pages_row_scan_target,
+    page_query_cap_requires_original_module, should_render_current_page_list_pages_row,
 };
 pub(super) use self::data_forms::load_list_pages_data_form_definitions;
 #[cfg(test)]

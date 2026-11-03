@@ -24,7 +24,6 @@ use crate::services::page_query::{
     parse_static_wikidot_data_form_values, static_wikidot_data_form_matches,
 };
 use crate::services::page_revision::GetPageRevision;
-use crate::services::render::runtime_page_queries::CountPagesRawScanCompletion;
 use crate::services::render::service::{MAX_LISTPAGES_RENDER_SCAN_ROWS, RenderService};
 use crate::services::{
     CategoryService, PageQueryService, PageRevisionService, PageService, ServiceContext,
@@ -33,31 +32,10 @@ use crate::types::Reference;
 use ftml::data::PageInfo;
 use std::borrow::Cow;
 
-pub(in crate::services::render) fn count_pages_unbounded_total(
-    raw_scan_completion: CountPagesRawScanCompletion,
-    scanned_total: usize,
-) -> Option<usize> {
-    match raw_scan_completion {
-        CountPagesRawScanCompletion::Complete => Some(scanned_total),
-        CountPagesRawScanCompletion::RandomSampleCapped
-        | CountPagesRawScanCompletion::Capped => None,
-    }
-}
-
 pub(in crate::services::render) fn page_query_cap_requires_original_module(
     metadata: &PageQueryResultMetadata,
 ) -> bool {
     metadata.cap_exceeded
-}
-
-pub(in crate::services::render) fn count_pages_scan_requires_preservation(
-    raw_scan_completion: CountPagesRawScanCompletion,
-    viewable_count: usize,
-    target_count: usize,
-) -> bool {
-    raw_scan_completion == CountPagesRawScanCompletion::RandomSampleCapped
-        || (raw_scan_completion == CountPagesRawScanCompletion::Capped
-            && viewable_count < target_count)
 }
 
 pub(in crate::services::render) fn list_pages_row_scan_target(

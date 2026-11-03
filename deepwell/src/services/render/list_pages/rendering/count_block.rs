@@ -204,22 +204,23 @@ impl RenderService {
         }
 
         let mut count_pages_metadata = None;
-        let mut raw_scan_completion = CountPagesRawScanCompletion::Complete;
-        let pages = if current_page_only && current_page_identity.is_none() {
-            FoundPages { pages: Vec::new() }
+        let sample = if current_page_only && current_page_identity.is_none() {
+            CountPagesSample::Complete(FoundPages { pages: Vec::new() })
         } else if current_page_only
             && should_render_current_page_list_pages_row(current_page_only, limit, offset)
         {
-            Self::current_page_list_pages_row(
-                ctx,
-                current_site_id,
-                current_page_id,
-                page_info,
-                &query.fields,
+            CountPagesSample::Complete(
+                Self::current_page_list_pages_row(
+                    ctx,
+                    current_site_id,
+                    current_page_id,
+                    page_info,
+                    &query.fields,
+                )
+                .await?,
             )
-            .await?
         } else if current_page_only {
-            FoundPages { pages: Vec::new() }
+            CountPagesSample::Complete(FoundPages { pages: Vec::new() })
         } else {
             let target_count = count_pages_query_limit.min(usize::MAX as u64) as usize;
             let found = RenderRuntime::new(ctx)
@@ -229,8 +230,7 @@ impl RenderService {
                 found.metadata.clone(),
                 found.view_permission_filtering_applied,
             ));
-            raw_scan_completion = found.raw_scan_completion;
-            found.pages
+            found.sample
         };
         if let Some((metadata, view_permission_filtering_applied)) = count_pages_metadata
         {
@@ -248,24 +248,22 @@ impl RenderService {
                 return Ok(CountPagesBlockRenderResult::PreserveOriginal);
             }
         }
-        if count_pages_scan_requires_preservation(
-            raw_scan_completion,
-            pages.pages.len(),
+        if sample.requires_preservation(
+            sample.pages().pages.len(),
             count_pages_query_limit.min(usize::MAX as u64) as usize,
         ) {
             return Ok(CountPagesBlockRenderResult::PreserveOriginal);
         }
-        let pages = pages
+        let pages = sample
+            .pages()
             .pages
-            .into_iter()
+            .iter()
             .filter(|page| !exclude_current_page || page.page_id != current_page_id)
             .skip(offset as usize);
         let total = match count_pages_explicit_limit {
             Some(limit) => pages.take(limit.min(usize::MAX as u64) as usize).count(),
             None => {
-                let Some(total) =
-                    count_pages_unbounded_total(raw_scan_completion, pages.count())
-                else {
+                let Some(total) = sample.exact_unbounded_total(pages.count()) else {
                     return Ok(CountPagesBlockRenderResult::PreserveOriginal);
                 };
                 total

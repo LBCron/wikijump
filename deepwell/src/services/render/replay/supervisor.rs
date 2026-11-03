@@ -7,7 +7,7 @@ use std::io;
 use std::process::{ExitStatus, Stdio};
 use std::time::Duration;
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWriteExt};
-use tokio::process::Command;
+use tokio::process::{Child, Command};
 use tokio::time::timeout;
 
 const MAX_CAPTURE_BYTES: usize = 2 * 1024 * 1024;
@@ -102,25 +102,12 @@ async fn supervise_command(
         }
     });
 
-    let (status, timed_out, killed, reaped) = match timeout(deadline, child.wait()).await
-    {
-        Ok(result) => match result {
-            Ok(status) => (Some(status), false, false, true),
-            Err(_) => (None, false, false, false),
-        },
-        Err(_) => match child.try_wait() {
-            Ok(Some(status)) => (Some(status), false, false, true),
-            _ => {
-                let killed = child.start_kill().is_ok();
-                let status = timeout(REAP_TIMEOUT, child.wait())
-                    .await
-                    .ok()
-                    .and_then(Result::ok);
-                let reaped = status.is_some();
-                (status, true, killed, reaped)
-            }
-        },
-    };
+    let DeadlineCleanup {
+        status,
+        timed_out,
+        killed,
+        reaped,
+    } = DeadlineCleanup::enforce(&mut child, deadline).await;
 
     drop(child);
     if timed_out && !reaped {
@@ -222,6 +209,54 @@ async fn supervise_command(
         },
         events,
         pid,
+    }
+}
+
+#[derive(Debug)]
+struct DeadlineCleanup {
+    status: Option<ExitStatus>,
+    timed_out: bool,
+    killed: bool,
+    reaped: bool,
+}
+
+impl DeadlineCleanup {
+    async fn enforce(child: &mut Child, deadline: Duration) -> Self {
+        match timeout(deadline, child.wait()).await {
+            Ok(Ok(status)) => Self {
+                status: Some(status),
+                timed_out: false,
+                killed: false,
+                reaped: true,
+            },
+            Ok(Err(_)) => Self {
+                status: None,
+                timed_out: false,
+                killed: false,
+                reaped: false,
+            },
+            Err(_) => match child.try_wait() {
+                Ok(Some(status)) => Self {
+                    status: Some(status),
+                    timed_out: false,
+                    killed: false,
+                    reaped: true,
+                },
+                _ => {
+                    let killed = child.start_kill().is_ok();
+                    let status = timeout(REAP_TIMEOUT, child.wait())
+                        .await
+                        .ok()
+                        .and_then(Result::ok);
+                    Self {
+                        reaped: status.is_some(),
+                        status,
+                        timed_out: true,
+                        killed,
+                    }
+                }
+            },
+        }
     }
 }
 

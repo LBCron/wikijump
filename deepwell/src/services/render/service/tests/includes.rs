@@ -1404,12 +1404,12 @@ fn nested_cross_site_includes_keep_the_original_lookup_site() {
         max_total_includes: 100,
         render_cost_budget: RenderCostBudget::new_default(),
     };
-    let source = IncludeSource {
-        site_slug: "scp-wiki".to_owned(),
-        page_slug: "main".to_owned(),
-        wikitext: "[[include fragment:front-page-features]]".to_owned(),
-        source_site: None,
-    };
+    let source = AuthorizedIncludeSource::for_test(
+        "scp-wiki".to_owned(),
+        "main".to_owned(),
+        "[[include fragment:front-page-features]]".to_owned(),
+        None,
+    );
 
     let nested = context.for_nested_source(&source);
 
@@ -1441,12 +1441,12 @@ fn nested_imported_source_includes_carry_the_source_site() {
         max_total_includes: 100,
         render_cost_budget: RenderCostBudget::new_default(),
     };
-    let source = IncludeSource {
-        site_slug: "scp-wiki".to_owned(),
-        page_slug: "workbench-siddo".to_owned(),
-        wikitext: "[[include component:avviso-iscriviti]]".to_owned(),
-        source_site: Some("fondazionescp".to_owned()),
-    };
+    let source = AuthorizedIncludeSource::for_test(
+        "scp-wiki".to_owned(),
+        "workbench-siddo".to_owned(),
+        "[[include component:avviso-iscriviti]]".to_owned(),
+        Some("fondazionescp".to_owned()),
+    );
 
     let nested = context.for_nested_source(&source);
 

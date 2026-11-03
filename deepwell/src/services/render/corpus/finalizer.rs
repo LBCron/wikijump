@@ -112,6 +112,41 @@ struct RenderObservationCompletion {
     dimensions: BTreeMap<String, u64>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct ClaimFence {
+    import_run_id: i64,
+    source_entity_id: String,
+    attempt: i32,
+}
+
+impl ClaimFence {
+    fn from_claimed_item(item: &RenderFinalizerItem) -> Self {
+        Self {
+            import_run_id: item.import_run_id,
+            source_entity_id: item.source_entity_id.clone(),
+            attempt: item.attempts,
+        }
+    }
+
+    fn item_sql(&self, item: &str, run: &str, entity: &str, attempt: &str) -> String {
+        format!(
+            "{item}.import_run_id = {run} \
+             AND {item}.source_entity_id = {entity}::uuid \
+             AND {item}.attempts = {attempt} \
+             AND {item}.state = 'render_running'"
+        )
+    }
+
+    fn patch_sql(item: &str, patch: &str) -> String {
+        format!(
+            "{item}.import_run_id = {patch}.import_run_id \
+             AND {item}.source_entity_id = {patch}.source_entity_id::uuid \
+             AND {item}.attempts = {patch}.attempt \
+             AND {item}.state = 'render_running'"
+        )
+    }
+}
+
 #[derive(Debug)]
 enum RenderPageOutcome {
     Completed(RenderObservationCompletion),
@@ -887,17 +922,16 @@ impl CorpusRenderFinalizerService {
                 ErrorType::DatabaseQuery,
             )
         };
+        let fence = ClaimFence::from_claimed_item(item);
+        let fence_sql = fence.item_sql("item", "$1", "$2", "$3");
         let statement = Statement::from_sql_and_values(
             DatabaseBackend::Postgres,
-            str!(
+            format!(
                 "
                 WITH item_guard AS (
                     SELECT page_id
-                    FROM wikidot_corpus_import_item
-                    WHERE import_run_id = $1
-                    AND source_entity_id = $2::uuid
-                    AND attempts = $3
-                    AND state = 'render_running'
+                    FROM wikidot_corpus_import_item AS item
+                    WHERE {fence_sql}
                     FOR UPDATE
                 ), observation_update AS (
                     UPDATE wikidot_corpus_render_observation
@@ -925,9 +959,9 @@ impl CorpusRenderFinalizerService {
                 "
             ),
             [
-                Value::from(item.import_run_id),
-                Value::from(item.source_entity_id.clone()),
-                Value::from(item.attempts),
+                Value::from(fence.import_run_id),
+                Value::from(fence.source_entity_id.clone()),
+                Value::from(fence.attempt),
                 Value::from(success_state),
                 Value::from(pass),
                 Value::from(pg_micros(snapshot.pipeline_us)),
@@ -978,10 +1012,12 @@ impl CorpusRenderFinalizerService {
             )
         };
         let snapshot = trace.snapshot();
+        let fence = ClaimFence::from_claimed_item(item);
+        let fence_sql = fence.item_sql("item", "$1", "$2", "$3");
         let txn = state.database.begin().await.or_raise(make_error)?;
         let statement = Statement::from_sql_and_values(
             DatabaseBackend::Postgres,
-            str!(
+            format!(
                 "
                 WITH eligible AS (
                     SELECT item.page_id
@@ -996,13 +1032,10 @@ impl CorpusRenderFinalizerService {
                             CASE $6::text WHEN 'pass1' THEN 'rendered' ELSE 'done' END
                         )
                         AND observation.complete = FALSE
-                    WHERE item.import_run_id = $1
-                    AND item.source_entity_id = $2::uuid
-                    AND item.attempts = $3
-                    AND item.state = 'render_running'
+                    WHERE {fence_sql}
                     FOR UPDATE OF item, observation
                 ), item_update AS (
-                    UPDATE wikidot_corpus_import_item
+                    UPDATE wikidot_corpus_import_item AS item
                     SET state = 'render_failed',
                         lease_until = NULL,
                         error = jsonb_build_object(
@@ -1011,11 +1044,8 @@ impl CorpusRenderFinalizerService {
                         ),
                         updated_at = NOW()
                     FROM eligible
-                    WHERE import_run_id = $1
-                    AND source_entity_id = $2::uuid
-                    AND attempts = $3
-                    AND state = 'render_running'
-                    RETURNING wikidot_corpus_import_item.page_id
+                    WHERE {fence_sql}
+                    RETURNING item.page_id
                 ), observation_update AS (
                     UPDATE wikidot_corpus_render_observation
                     SET outcome = 'render_failed',
@@ -1049,9 +1079,9 @@ impl CorpusRenderFinalizerService {
                 "
             ),
             [
-                Value::from(item.import_run_id),
-                Value::from(item.source_entity_id.clone()),
-                Value::from(item.attempts),
+                Value::from(fence.import_run_id),
+                Value::from(fence.source_entity_id.clone()),
+                Value::from(fence.attempt),
                 Value::from(message.to_owned()),
                 Value::from(error_chain.to_owned()),
                 Value::from(pass.as_str()),
@@ -1107,9 +1137,10 @@ impl CorpusRenderFinalizerService {
             )
         };
         let payload = serde_json::to_value(&completions).or_raise(make_error)?;
+        let fence_sql = ClaimFence::patch_sql("item", "patches");
         let statement = Statement::from_sql_and_values(
             DatabaseBackend::Postgres,
-            str!(
+            format!(
                 "
                 WITH patches AS (
                     SELECT *
@@ -1134,10 +1165,7 @@ impl CorpusRenderFinalizerService {
                         error = NULL,
                         updated_at = NOW()
                     FROM patches
-                    WHERE item.import_run_id = patches.import_run_id
-                    AND item.source_entity_id = patches.source_entity_id::uuid
-                    AND item.attempts = patches.attempt
-                    AND item.state = 'render_running'
+                    WHERE {fence_sql}
                     AND EXISTS (
                         SELECT 1
                         FROM wikidot_corpus_render_observation AS observation
@@ -1507,6 +1535,27 @@ mod tests {
         assert_eq!(counts.get("nav_source"), Some(&1));
         assert_eq!(counts.get("template_source"), Some(&1));
         assert_eq!(counts.get("source_query_module"), Some(&2));
+    }
+
+    #[test]
+    fn claim_fence_sql_pins_the_claimed_attempt_and_running_state() {
+        let item = test_item("component:claim-fence", None, &[]);
+        let fence = ClaimFence::from_claimed_item(&item);
+
+        assert_eq!(fence.import_run_id, item.import_run_id);
+        assert_eq!(fence.source_entity_id, item.source_entity_id);
+        assert_eq!(fence.attempt, item.attempts);
+        assert_eq!(
+            fence.item_sql("item", "$1", "$2", "$3"),
+            "item.import_run_id = $1 AND item.source_entity_id = $2::uuid \
+             AND item.attempts = $3 AND item.state = 'render_running'",
+        );
+        assert_eq!(
+            ClaimFence::patch_sql("item", "patches"),
+            "item.import_run_id = patches.import_run_id \
+             AND item.source_entity_id = patches.source_entity_id::uuid \
+             AND item.attempts = patches.attempt AND item.state = 'render_running'",
+        );
     }
 
     #[test]

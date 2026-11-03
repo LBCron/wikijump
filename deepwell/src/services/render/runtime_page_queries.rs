@@ -32,17 +32,60 @@ use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug)]
 pub(in crate::services::render) struct ViewableCountPagesRows {
-    pub(in crate::services::render) pages: FoundPages,
+    pub(in crate::services::render) sample: CountPagesSample,
     pub(in crate::services::render) metadata: PageQueryResultMetadata,
     pub(in crate::services::render) view_permission_filtering_applied: bool,
-    pub(in crate::services::render) raw_scan_completion: CountPagesRawScanCompletion,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::services::render) enum CountPagesRawScanCompletion {
-    Complete,
-    Capped,
-    RandomSampleCapped,
+#[derive(Debug)]
+pub(in crate::services::render) enum CountPagesSample {
+    Complete(FoundPages),
+    Capped(FoundPages),
+    RandomSampleCapped(FoundPages),
+}
+
+impl CountPagesSample {
+    pub(in crate::services::render) fn pages(&self) -> &FoundPages {
+        match self {
+            Self::Complete(pages)
+            | Self::Capped(pages)
+            | Self::RandomSampleCapped(pages) => pages,
+        }
+    }
+
+    pub(in crate::services::render) fn into_pages(self) -> FoundPages {
+        match self {
+            Self::Complete(pages)
+            | Self::Capped(pages)
+            | Self::RandomSampleCapped(pages) => pages,
+        }
+    }
+
+    pub(in crate::services::render) fn is_complete(&self) -> bool {
+        matches!(self, Self::Complete(_))
+    }
+
+    pub(in crate::services::render) fn exact_unbounded_total(
+        &self,
+        scanned_total: usize,
+    ) -> Option<usize> {
+        match self {
+            Self::Complete(_) => Some(scanned_total),
+            Self::Capped(_) | Self::RandomSampleCapped(_) => None,
+        }
+    }
+
+    pub(in crate::services::render) fn requires_preservation(
+        &self,
+        viewable_count: usize,
+        target_count: usize,
+    ) -> bool {
+        match self {
+            Self::RandomSampleCapped(_) => true,
+            Self::Capped(_) => viewable_count < target_count,
+            Self::Complete(_) => false,
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -72,7 +115,7 @@ pub(in crate::services::render) async fn find_viewable_list_pages_rows(
     )
     .await?;
     Ok(ViewableListPagesRows {
-        pages: found.pages,
+        pages: found.sample.into_pages(),
         metadata: found.metadata,
         view_permission_filtering_applied: found.view_permission_filtering_applied,
     })
@@ -99,7 +142,7 @@ pub(in crate::services::render) async fn find_viewable_list_pages_rows_with_batc
     )
     .await?;
     Ok(ViewableListPagesRows {
-        pages: found.pages,
+        pages: found.sample.into_pages(),
         metadata: found.metadata,
         view_permission_filtering_applied: found.view_permission_filtering_applied,
     })
@@ -162,10 +205,9 @@ async fn find_viewable_render_page_rows(
         let view_permission_filtering_applied = pages.len() != raw_count;
         pages.truncate(target_count);
         return Ok(ViewableCountPagesRows {
-            pages: FoundPages { pages },
+            sample: count_pages_sample_from_raw_scan(FoundPages { pages }, raw_count),
             metadata: found.metadata,
             view_permission_filtering_applied,
-            raw_scan_completion: count_pages_raw_scan_completion(raw_count),
         });
     }
 
@@ -173,7 +215,7 @@ async fn find_viewable_render_page_rows(
     let mut raw_offset = 0;
     let mut metadata = None;
     let mut view_permission_filtering_applied = false;
-    let mut raw_scan_completion = CountPagesRawScanCompletion::Complete;
+    let mut scan_capped = false;
 
     while pages.len() < target_count && raw_offset < MAX_LISTPAGES_RENDER_SCAN_ROWS {
         let mut query = query.clone();
@@ -201,10 +243,9 @@ async fn find_viewable_render_page_rows(
         merge_render_page_query_metadata(&mut metadata, found.metadata);
         if cap_exceeded {
             return Ok(ViewableCountPagesRows {
-                pages: FoundPages { pages: Vec::new() },
+                sample: CountPagesSample::Capped(FoundPages { pages: Vec::new() }),
                 metadata: metadata.unwrap_or_default(),
                 view_permission_filtering_applied: false,
-                raw_scan_completion: CountPagesRawScanCompletion::Capped,
             });
         }
         let raw_count = found.pages.pages.len();
@@ -225,16 +266,21 @@ async fn find_viewable_render_page_rows(
         }
         raw_offset = raw_offset.saturating_add(raw_count as u32);
         if raw_offset >= MAX_LISTPAGES_RENDER_SCAN_ROWS {
-            raw_scan_completion = CountPagesRawScanCompletion::Capped;
+            scan_capped = true;
         }
     }
 
     pages.truncate(target_count);
+    let pages = FoundPages { pages };
+    let sample = if scan_capped {
+        CountPagesSample::Capped(pages)
+    } else {
+        CountPagesSample::Complete(pages)
+    };
     Ok(ViewableCountPagesRows {
-        pages: FoundPages { pages },
+        sample,
         metadata: metadata.unwrap_or_default(),
         view_permission_filtering_applied,
-        raw_scan_completion,
     })
 }
 
@@ -357,13 +403,14 @@ async fn filter_viewable_rows(
         .collect())
 }
 
-pub(in crate::services::render) fn count_pages_raw_scan_completion(
+pub(in crate::services::render) fn count_pages_sample_from_raw_scan(
+    pages: FoundPages,
     raw_count: usize,
-) -> CountPagesRawScanCompletion {
+) -> CountPagesSample {
     if raw_count >= MAX_LISTPAGES_RENDER_SCAN_ROWS as usize {
-        CountPagesRawScanCompletion::RandomSampleCapped
+        CountPagesSample::RandomSampleCapped(pages)
     } else {
-        CountPagesRawScanCompletion::Complete
+        CountPagesSample::Complete(pages)
     }
 }
 

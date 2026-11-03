@@ -1549,18 +1549,19 @@ fn count_pages_exact_count_render_diagnostics_denies_post_query_exclusion_before
 
 #[test]
 fn unbounded_count_pages_remains_literal_when_scan_cap_is_reached() {
+    let empty = || FoundPages { pages: Vec::new() };
     assert_eq!(
-        count_pages_unbounded_total(CountPagesRawScanCompletion::Capped, 1_000),
+        CountPagesSample::Capped(empty()).exact_unbounded_total(1_000),
         None,
     );
     assert_eq!(
-        count_pages_unbounded_total(CountPagesRawScanCompletion::Complete, 17),
+        CountPagesSample::Complete(empty()).exact_unbounded_total(17),
         Some(17),
     );
     assert_eq!(
-        count_pages_unbounded_total(CountPagesRawScanCompletion::RandomSampleCapped, 17,),
+        CountPagesSample::RandomSampleCapped(empty()).exact_unbounded_total(17),
         None,
-        "a capped random CountPages scan must stay literal instead of exposing a sampled hidden-page ratio",
+        "a capped random CountPages sample must stay literal instead of exposing a sampled hidden-page ratio",
     );
 }
 
@@ -1581,31 +1582,26 @@ fn data_form_candidate_cap_requires_original_listpages_and_countpages_modules() 
 
 #[test]
 fn capped_random_scan_remains_literal_for_privacy() {
-    assert_eq!(
-        count_pages_raw_scan_completion(MAX_LISTPAGES_RENDER_SCAN_ROWS as usize - 1,),
-        CountPagesRawScanCompletion::Complete,
+    let empty = || FoundPages { pages: Vec::new() };
+    assert!(matches!(
+        count_pages_sample_from_raw_scan(
+            empty(),
+            MAX_LISTPAGES_RENDER_SCAN_ROWS as usize - 1,
+        ),
+        CountPagesSample::Complete(_),
+    ));
+    let sample = count_pages_sample_from_raw_scan(
+        empty(),
+        MAX_LISTPAGES_RENDER_SCAN_ROWS as usize,
     );
-    let raw_scan_completion =
-        count_pages_raw_scan_completion(MAX_LISTPAGES_RENDER_SCAN_ROWS as usize);
 
-    assert_eq!(
-        raw_scan_completion,
-        CountPagesRawScanCompletion::RandomSampleCapped,
-    );
-    assert!(count_pages_scan_requires_preservation(
-        raw_scan_completion,
-        99,
-        100,
-    ));
+    assert!(matches!(sample, CountPagesSample::RandomSampleCapped(_)));
+    assert!(sample.requires_preservation(99, 100));
     assert!(
-        count_pages_scan_requires_preservation(raw_scan_completion, 100, 100,),
-        "a capped random scan remains literal even when the visible sample fills the requested count"
+        sample.requires_preservation(100, 100),
+        "a capped random sample remains literal even when the visible sample fills the requested count"
     );
-    assert!(!count_pages_scan_requires_preservation(
-        CountPagesRawScanCompletion::Complete,
-        99,
-        100,
-    ));
+    assert!(!CountPagesSample::Complete(empty()).requires_preservation(99, 100));
 }
 
 #[test]

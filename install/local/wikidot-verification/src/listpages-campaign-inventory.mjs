@@ -362,7 +362,7 @@ async function seedDocQueue(docsRoot, allFullnames) {
   return reasonsByFullname;
 }
 
-class LexicographicMinHeap {
+class OutputOrderedQueue {
   #items = [];
   #nextSequence = 0;
 
@@ -471,7 +471,7 @@ export async function buildDocumentationInventory({
           }
           if (!existing.has(reason)) {
             if (queue === null) {
-              queue = new LexicographicMinHeap();
+              queue = new OutputOrderedQueue();
               for (let i = initialIndex; i < initialQueue.length; i += 1) {
                 queue.push(initialQueue[i]);
               }

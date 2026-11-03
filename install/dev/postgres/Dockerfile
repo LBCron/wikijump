@@ -1,6 +1,13 @@
-FROM postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+FROM postgres:19rc1-alpine3.24@sha256:a3095ec8782b77587ca34006edaf09df362212351745069cb7758e256ecd488f
 
 EXPOSE 5432
+
+# Every topology mounts its data volume here. Since PostgreSQL 18 the image
+# defaults to a major-versioned path below its VOLUME and refuses a mount here
+# unless PGDATA is set. The directory must exist with this owner so a new named
+# volume copies it up writable for tools that run as postgres (pg_basebackup).
+ENV PGDATA=/var/lib/postgresql/data
+RUN install -d -o postgres -g postgres -m 700 "${PGDATA}"
 
 # Create system user
 RUN adduser -S wikijump
@@ -10,7 +17,6 @@ RUN apk add --no-cache --upgrade ca-certificates ca-certificates-bundle
 
 RUN apk add --no-cache \
     musl-locales \
-    postgresql17-contrib \
     sudo
 
 # Install files

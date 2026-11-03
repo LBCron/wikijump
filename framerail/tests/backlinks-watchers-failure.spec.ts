@@ -271,8 +271,7 @@ for (const pane of ["backlinks", "watchers"] as const) {
               contentType: "application/json",
               body: actionResult("success", populatedResult(pane))
             })
-          } catch {
-          }
+          } catch {}
           return
         }
         const result =

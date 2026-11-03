@@ -56,7 +56,6 @@ export class Gesture {
     return delta < 0 ? "right" : "left"
   }
 
-
   /**
    * Returns the angle of the direction in degrees. For reference, `0`
    * faces right, with up (`90`), left (`180`), and down (`-90`) following
@@ -185,14 +184,11 @@ export class GestureObserver {
       touch = evt.changedTouches[0]
       this.id = touch.identifier
       this.start = [touch.clientX, touch.clientY]
-    }
-    else if (this.id !== null) {
+    } else if (this.id !== null) {
       const found = this.findTouch(evt)
       if (!found) return
       touch = found
-    }
-    else return
-
+    } else return
 
     let type: GestureType
     // prettier-ignore

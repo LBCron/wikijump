@@ -90,7 +90,7 @@ export class WikidotEditLeaseSession {
     if (!this.held) return undefined
     return {
       lockId: /** @type {number} */ (this.lockId),
-      ["lockSecret"]: /** @type {string} */ (this.lockSecret),
+      "lockSecret": /** @type {string} */ (this.lockSecret),
       mode: this.mode,
       sectionIndex: this.sectionIndex
     }
@@ -279,13 +279,13 @@ export const createEditLeaseTransport = (post) => ({
   renew: (credentials) =>
     post("editLockRenew", {
       lockId: credentials.lockId,
-      ["lockSecret"]: credentials.lockSecret,
+      "lockSecret": credentials.lockSecret,
       mode: credentials.mode,
       sectionIndex: credentials.sectionIndex ?? null
     }),
   release: (credentials) =>
     post("editLockRelease", {
       lockId: credentials.lockId,
-      ["lockSecret"]: credentials.lockSecret
+      "lockSecret": credentials.lockSecret
     })
 })

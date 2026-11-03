@@ -6,7 +6,6 @@ export namespace UserAgent {
   export let scroll = 0
   export const isMobile = /Mobi|Android/i.test(navigator.userAgent)
 
-
   window.addEventListener("mousemove", (evt) => {
     mouseX = evt.clientX / window.innerWidth
     mouseY = evt.clientY / window.innerHeight

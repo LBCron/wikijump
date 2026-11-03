@@ -151,7 +151,6 @@ class MediaQueryHandler {
    * @see {@link matchBreakpoint}
    */
   matchBreakpoint(query: BreakpointString) {
-
     let operator: Operator = "=="
 
     const match = /^[=<>]+/.exec(query)

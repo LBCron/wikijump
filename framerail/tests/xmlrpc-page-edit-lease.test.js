@@ -93,7 +93,7 @@ const installStub = (t, overrides = {}) => {
       return {
         grant: {
           lock_id: 7001,
-          ["lock_secret"]: "lease-fixture-secret",
+          "lock_secret": "lease-fixture-secret",
           base_revision_id: page.revision_id,
           expires_at: "2999-01-01T00:00:00Z"
         },
@@ -137,7 +137,7 @@ test("pages.save_one acquires, presents, and releases an edit lease for a conten
   const edit = calls.find((call) => call.method === "page_edit")
   assert.deepEqual(edit.params.lease, {
     lock_id: 7001,
-    ["lock_secret"]: "lease-fixture-secret",
+    "lock_secret": "lease-fixture-secret",
     mode: "page"
   })
   assert.equal(edit.params.wikitext, "updated body")
@@ -146,7 +146,7 @@ test("pages.save_one acquires, presents, and releases an edit lease for a conten
   assert.deepEqual(release.params, {
     page: page.slug,
     lock_id: 7001,
-    ["lock_secret"]: "lease-fixture-secret"
+    "lock_secret": "lease-fixture-secret"
   })
 })
 

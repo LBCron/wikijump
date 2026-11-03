@@ -19,12 +19,12 @@
  */
 
 use super::prelude::*;
+use crate::services::MutationAuthorization;
 use crate::services::page_edit_lock::{
     AcquirePageEditLock, AcquirePageEditLockInput, AcquirePageEditLockOutput,
     ReleasePageEditLock, ReleasePageEditLockInput, RenewPageEditLock,
     RenewPageEditLockInput, RenewPageEditLockOutput,
 };
-use crate::services::MutationAuthorization;
 use crate::types::{Action, Permission, Reference, Resource};
 
 async fn require_page_edit_permission(
@@ -48,9 +48,9 @@ async fn require_page_edit_permission(
 }
 
 fn request_site_id(ctx: &ServiceContext<'_>) -> Result<i64> {
-    ctx.request().site_id().or_raise(|| {
-        Error::new("no site ID found", ErrorType::Page)
-    })
+    ctx.request()
+        .site_id()
+        .or_raise(|| Error::new("no site ID found", ErrorType::Page))
 }
 
 pub async fn page_edit_lock_acquire(
@@ -98,9 +98,7 @@ async fn acquire_impl(
     } else {
         PageEditLockService::acquire(ctx, acquire).await
     };
-    output.or_raise(|| {
-        Error::new("failed to acquire page edit lock", ErrorType::Page)
-    })
+    output.or_raise(|| Error::new("failed to acquire page edit lock", ErrorType::Page))
 }
 
 pub async fn page_edit_lock_renew(

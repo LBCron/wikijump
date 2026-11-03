@@ -45,7 +45,6 @@ export class DisplayObserver {
     if (state) this.opts.visible?.()
     else this.opts.hidden?.()
 
-
     if (state) {
       this.removeHiddenMinSize()
       this.opts.visible?.()

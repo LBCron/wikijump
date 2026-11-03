@@ -42,7 +42,6 @@
 
     submit?: boolean
 
-
     wide?: boolean
 
     primary?: boolean

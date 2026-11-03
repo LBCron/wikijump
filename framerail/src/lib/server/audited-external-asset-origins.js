@@ -1,4 +1,3 @@
-
 /**
  * @typedef {object} AuditedExternalAssetOrigin
  * @property {string} origin Exact CSP host-source, always an

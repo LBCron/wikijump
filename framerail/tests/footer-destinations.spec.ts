@@ -1,7 +1,6 @@
 /* eslint-disable no-script-url -- Wikidot footer and fixture markup use javascript:; no-op links that parity requires */
 import { expect, test, waitForSvelteDelegatedHandler } from "./hermetic-playwright"
 
-
 const SITE_HEADERS = {
   "X-Wikijump-Site-Id": "6000005",
   "X-Wikijump-Site-Slug": "scp-wiki"

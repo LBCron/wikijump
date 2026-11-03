@@ -21,7 +21,8 @@ const rawInfo = {
     endian: "PRIVATE_ENDIAN_SENTINEL",
     target: "PRIVATE_TARGET_SENTINEL",
     threads: 987654321,
-    git_commit: "PUBLIC_GIT_COMMIT_SENTINEL"
+    git_commit: "PUBLIC_GIT_COMMIT_SENTINEL",
+    ftml_commit: "PUBLIC_FTML_COMMIT_SENTINEL"
   },
   current_time: "PRIVATE_CURRENT_TIME_SENTINEL",
   hostname: "PRIVATE_HOSTNAME_SENTINEL",
@@ -87,7 +88,8 @@ test("GET /-/about projects Deepwell info to its public fields", async () => {
       rustc_version: "PUBLIC_RUSTC_VERSION_SENTINEL",
       cargo_version: "PUBLIC_CARGO_VERSION_SENTINEL",
       built_at: "PUBLIC_BUILT_AT_SENTINEL",
-      git_commit: "PUBLIC_GIT_COMMIT_SENTINEL"
+      git_commit: "PUBLIC_GIT_COMMIT_SENTINEL",
+      ftml_commit: "PUBLIC_FTML_COMMIT_SENTINEL"
     }
   })
 
@@ -96,7 +98,16 @@ test("GET /-/about projects Deepwell info to its public fields", async () => {
   assert.match(body, /PUBLIC_RUSTC_VERSION_SENTINEL/u)
   assert.match(body, /PUBLIC_CARGO_VERSION_SENTINEL/u)
   assert.match(body, /PUBLIC_BUILT_AT_SENTINEL/u)
-  assert.match(body, /PUBLIC_GIT_COMMIT_SENTINEL/u)
+  assert.ok(
+    body.includes(
+      'href="https://github.com/Rokurolize/wikijump/commit/PUBLIC_GIT_COMMIT_SENTINEL"'
+    )
+  )
+  assert.ok(
+    body.includes(
+      'href="https://github.com/Rokurolize/ftml/commit/PUBLIC_FTML_COMMIT_SENTINEL"'
+    )
+  )
   assert.doesNotMatch(body, /PRIVATE_[A-Z_]+_SENTINEL/u)
   assert.doesNotMatch(body, /<textarea\b/u)
 })

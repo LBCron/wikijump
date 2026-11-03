@@ -24,10 +24,6 @@ mod common;
 use self::common::TestRunner;
 use serde_json::json;
 
-fn without_bidi_isolates(text: &str) -> String {
-    text.replace(['\u{2068}', '\u{2069}'], "")
-}
-
 #[tokio::test]
 async fn basic_error_endpoints_generate_localized_html() {
     let runner = TestRunner::setup().await;
@@ -42,11 +38,15 @@ async fn basic_error_endpoints_generate_localized_html() {
     );
     assert!(!site_slug.title.is_empty());
     assert!(site_slug.body.contains("wikijump.com"));
-    assert!(site_slug.body.contains("missing-site.wikijump.com"));
     assert!(
         site_slug
             .body
-            .contains("https://www.wikijump.com/new-site"),
+            .contains(r#"href="https://missing-site.wikijump.com/""#),
+        "the missing-site link must be a usable URL: {}",
+        site_slug.body,
+    );
+    assert!(
+        site_slug.body.contains("https://www.wikijump.com/new-site"),
         "missing-site page must offer the site creation flow: {}",
         site_slug.body,
     );
@@ -123,7 +123,8 @@ async fn basic_error_endpoints_generate_localized_html() {
         }),
     );
     assert!(
-        without_bidi_isolates(&text_block.body)
+        text_block
+            .body
             .contains("No code block with index <code>2</code> exists."),
         "the missing-block message must name the block type: {}",
         text_block.body,
@@ -141,7 +142,8 @@ async fn basic_error_endpoints_generate_localized_html() {
         }),
     );
     assert!(
-        without_bidi_isolates(&html_block.body)
+        html_block
+            .body
             .contains("No HTML block with index <code>3</code> exists."),
         "the missing-block message must name the block type: {}",
         html_block.body,
@@ -170,7 +172,7 @@ async fn basic_error_text_block_index_renders_attacker_markup_inert() {
             "reason": "missing",
         }),
     );
-    let body = without_bidi_isolates(&attack.body);
+    let body = &attack.body;
     assert!(
         !body.contains("<img"),
         "attacker markup must not survive into the error body: {}",

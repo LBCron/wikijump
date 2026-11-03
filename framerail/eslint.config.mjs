@@ -10,6 +10,7 @@ export default defineConfig(
   js.configs.recommended,
   {
     rules: {
+      "no-empty": ["error", { allowEmptyCatch: true }],
       // these rules are deprecated and replaced by @stylistic/eslint-plugin
       // "template-curly-spacing": "error",
       // "wrap-iife": "error",

@@ -58,7 +58,7 @@ export const handlePageEditLockRpc = ({ rpcRequest, request }) => {
       result: {
         grant: {
           lock_id: lockId,
-          ["lock_secret"]: secret,
+          "lock_secret": secret,
           base_revision_id: page.revision_id,
           expires_at: "2999-01-01T00:00:00Z"
         },

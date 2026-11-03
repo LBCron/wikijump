@@ -1977,9 +1977,7 @@ test("pages.save_one faults without saving when another editor holds the page ed
   })
   expect(createResponse.status()).toBe(200)
 
-  const resetWriteRequests = await request.get(
-    `${fixtureUrl}/last-page-write-requests`
-  )
+  const resetWriteRequests = await request.get(`${fixtureUrl}/last-page-write-requests`)
   expect(resetWriteRequests.status()).toBe(200)
 
   const holdResponse = await request.post(
@@ -1999,9 +1997,7 @@ test("pages.save_one faults without saving when another editor holds the page ed
   expect(conflictResponse.status()).toBe(200)
   const conflictBody = await conflictResponse.text()
   expect(conflictBody).toContain("<fault>")
-  expect(conflictBody).toContain(
-    "<name>faultCode</name><value><int>4304</int></value>"
-  )
+  expect(conflictBody).toContain("<name>faultCode</name><value><int>4304</int></value>")
   expect(conflictBody).toContain("user_id 456")
   expect(conflictBody).toContain("seconds remaining")
 

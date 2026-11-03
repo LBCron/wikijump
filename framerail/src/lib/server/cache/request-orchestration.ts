@@ -10,8 +10,7 @@ export async function readCachedResponseWithFallback({
   try {
     const response = await readPrimary()
     if (response) return response
-  } catch {
-  }
+  } catch {}
 
   try {
     return await readFallback()

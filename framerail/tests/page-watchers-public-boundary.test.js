@@ -74,22 +74,27 @@ test("Watchers renders typed public identities without exposing an untyped ID", 
 test("Watchers action derives the site from trusted context and remains anonymous", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "page_watchers") {
-      return [
-        {
-          "user-id": 19_000_001,
-          "user-slug": "watcher-fixture",
-          "user-name": "Watcher Fixture",
-          "user-karma": 0,
-          "user-avatar-data": "",
-          "user-profile-url": "/-/user/watcher-fixture"
-        }
-      ]
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "page_watchers") {
+        return [
+          {
+            "user-id": 19_000_001,
+            "user-slug": "watcher-fixture",
+            "user-name": "Watcher Fixture",
+            "user-karma": 0,
+            "user-avatar-data": "",
+            "user-profile-url": "/-/user/watcher-fixture"
+          }
+        ]
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const result = await pageWatchersAction({
     request: new Request("https://wikijump.test/fixture?/watchers", {

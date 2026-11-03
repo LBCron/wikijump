@@ -141,8 +141,7 @@ export async function loadPage(
           page: slug ?? parentData.site.default_page
         })
         restoreAvailable = deletedPages.length > 0
-      } catch {
-      }
+      } catch {}
     }
     const errorViewData = {
       ...response.data,

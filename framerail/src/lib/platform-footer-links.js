@@ -1,4 +1,3 @@
-
 const PLATFORM_FOOTER_ORIGIN = "https://wikijump.com"
 
 export const NATIVE_FOOTER_DESTINATION_KEYS = Object.freeze([

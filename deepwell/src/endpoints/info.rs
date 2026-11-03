@@ -54,6 +54,7 @@ pub struct CompileInfo {
     pub target: &'static str,
     pub threads: u32,
     pub git_commit: Option<&'static str>,
+    pub ftml_commit: &'static str,
 }
 
 pub async fn server_info(
@@ -78,6 +79,7 @@ pub async fn server_info(
             target: info::TARGET,
             threads: info::NUM_JOBS,
             git_commit: *info::GIT_COMMIT,
+            ftml_commit: info::FTML_COMMIT,
         },
         config_path: config.raw_toml_path.clone(),
         hostname: &info::HOSTNAME,

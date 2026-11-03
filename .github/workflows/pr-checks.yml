@@ -171,8 +171,9 @@ jobs:
           RUSTC_WRAPPER: sccache
         run: |
           set -euo pipefail
+          cargo fmt --manifest-path deepwell/Cargo.toml --check
           cargo test --manifest-path deepwell/Cargo.toml --lib --locked
-          cargo clippy --manifest-path deepwell/Cargo.toml --locked -- -D warnings
+          cargo clippy --manifest-path deepwell/Cargo.toml --tests --locked -- -D warnings
 
       - name: Start the ambient Valkey the WWS tests expect
         if: steps.plan.outputs.wws == '1'
@@ -199,10 +200,12 @@ jobs:
           cargo fmt --manifest-path wws/Cargo.toml --check
           cargo test --manifest-path wws/Cargo.toml --locked --all-features
 
-      - name: Framerail unit tests
+      - name: Framerail lint and unit tests
         if: steps.plan.outputs.framerail == '1'
         working-directory: framerail
-        run: pnpm test:unit
+        run: |
+          pnpm lint
+          pnpm test:unit
 
       - name: Configure the runner's git identity
         if: steps.plan.outputs.verification == '1'
@@ -232,7 +235,6 @@ jobs:
             .github/tests/ftml-boundary-deviations.test.mjs \
             .github/tests/local-postgres-security.test.mjs \
             .github/tests/local-publish-loopback.test.mjs \
-            .github/tests/markdown-table-cell.test.mjs \
             .github/tests/role-edit-backfill-security.test.mjs \
             .github/tests/seeded-admin-security.test.mjs \
             .github/tests/silo-publish-workflow.test.mjs \

@@ -11,6 +11,7 @@ export interface Locales {
   "about-info.cargo-version": string
   "about-info.built-at": string
   "about-info.git-commit": string
+  "about-info.ftml-commit": string
   "about-info.blurb": string
   "about-info.blog": string
   "about-info.node-version": string

@@ -20,7 +20,7 @@
 
 use crate::services::page_revision::CreatePageRevisionOutput;
 use crate::services::score::ScoreValue;
-use crate::types::{Maybe, Reference};
+use crate::types::{Maybe, PageEditLockMode, Reference};
 use crate::types::{PageDetails, PageRevisionType};
 use ftml::layout::Layout;
 use ftml::parsing::ParseError;
@@ -177,6 +177,18 @@ pub struct EditPage<'a> {
     #[serde(flatten)]
     pub body: EditPageBody,
     pub ip_address: IpAddr,
+
+    #[serde(default)]
+    pub lease: Option<EditPageLease>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct EditPageLease {
+    pub lock_id: i64,
+    pub lock_secret: String,
+    pub mode: PageEditLockMode,
+    #[serde(default)]
+    pub section_index: Option<i32>,
 }
 
 #[derive(Deserialize, Debug, Default, Clone)]
@@ -273,6 +285,7 @@ impl From<(CreatePageRevisionOutput, i64)> for DeletePageOutput {
                 revision_id,
                 revision_number,
                 parser_errors,
+                ..
             },
             page_id,
         ): (CreatePageRevisionOutput, i64),
@@ -298,6 +311,7 @@ impl From<(CreatePageRevisionOutput, String)> for RestorePageOutput {
                 revision_id,
                 revision_number,
                 parser_errors,
+                ..
             },
             slug,
         ): (CreatePageRevisionOutput, String),
@@ -325,6 +339,7 @@ mod tests {
                 revision_id: 50,
                 revision_number: 4,
                 parser_errors: None,
+                lock_recreated: false,
             },
             20,
         ));
@@ -341,6 +356,7 @@ mod tests {
                 revision_id: 51,
                 revision_number: 5,
                 parser_errors: Some(Vec::new()),
+                lock_recreated: false,
             },
             str!("restored-page"),
         ));
@@ -359,6 +375,7 @@ mod tests {
                 revision_id: 51,
                 revision_number: 5,
                 parser_errors: None,
+                lock_recreated: false,
             },
             str!("restored-page"),
         ));

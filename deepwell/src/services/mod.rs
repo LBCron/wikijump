@@ -60,6 +60,7 @@ mod mutation_authorization;
 pub mod outdate;
 pub mod page;
 pub mod page_draft;
+pub mod page_edit_lock;
 pub mod page_lock;
 pub mod page_meta_tag;
 pub mod page_query;
@@ -122,6 +123,7 @@ pub use self::page::PageService;
 pub use self::page_draft::{
     PageDraftIdentity, PageDraftPageType, PageDraftService, PageDraftView, SavePageDraft,
 };
+pub use self::page_edit_lock::PageEditLockService;
 pub use self::page_lock::PageLockService;
 pub use self::page_meta_tag::PageMetaTagService;
 pub use self::page_query::PageQueryService;

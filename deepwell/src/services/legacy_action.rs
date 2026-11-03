@@ -185,6 +185,7 @@ impl LegacyActionService {
                     ..EditPageBody::default()
                 },
                 ip_address: input.ip_address,
+                lease: None,
             },
         )
         .await

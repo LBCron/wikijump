@@ -4,7 +4,9 @@ import { sqlInt, sqlQuote } from './corpus-import-sql-values.mjs';
 export const FOREIGN_STORAGE_PREFIX = '_foreign:';
 
 export function isForeignSource(holding, sourceSite) {
-  return sourceSite !== holding.siteSlug && !holding.runBranches.includes(sourceSite);
+  if (sourceSite === holding.siteSlug) return false;
+  if (Array.isArray(holding.foreignSourceSites) && holding.foreignSourceSites.includes(sourceSite)) return true;
+  return !holding.runBranches.includes(sourceSite);
 }
 
 export function storageSlug(holding, row) {
@@ -43,10 +45,11 @@ export function parseHoldingSite(output) {
   return holding;
 }
 
-export function holdingForImport(persistedHolding, sourceBranch) {
+export function holdingForImport(persistedHolding, sourceBranch, foreignSourceSites = []) {
   return {
     siteSlug: persistedHolding.siteSlug,
     runBranches: [...new Set([...persistedHolding.runBranches, sourceBranch])].sort(),
+    foreignSourceSites: [...new Set(foreignSourceSites)].sort(),
   };
 }
 

@@ -25,3 +25,28 @@ test('corpus import run state writes a single-source manifest lifecycle', async 
   await finishCorpusImportRun(args, sqlExecutor, 9, { created: 1 });
   assert.match(queries[1], /SET state = 'done'/);
 });
+
+test('corpus import run records operator foreign-source overrides in the run summary', async () => {
+  const queries = [];
+  const sqlExecutor = {
+    async runSql(sql) {
+      queries.push(sql);
+      return '11';
+    },
+  };
+  const rows = [{ source_site: '05command', source_branch: 'live:05command-acquisition-20261103' }];
+  const args = { siteId: 6000006, sourceSite: null, sourceBranch: null, foreignSourceSites: ['05command', '05command'] };
+
+  assert.equal(await createCorpusImportRun(args, sqlExecutor, 'fixture', rows, rows, false), 11);
+  assert.match(queries[0], /"foreign_source_sites":\["05command"\]/);
+
+  const plainQueries = [];
+  const plainExecutor = {
+    async runSql(sql) {
+      plainQueries.push(sql);
+      return '12';
+    },
+  };
+  await createCorpusImportRun({ siteId: 6000006, sourceSite: null, sourceBranch: null }, plainExecutor, 'fixture', rows, rows, false);
+  assert.doesNotMatch(plainQueries[0], /foreign_source_sites/);
+});

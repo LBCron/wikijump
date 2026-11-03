@@ -15,7 +15,11 @@ export async function createCorpusImportRun(args, sqlExecutor, manifestText, man
   }
   const [sourceSite = args.sourceSite] = sourceSites;
   const [sourceBranch = args.sourceBranch] = sourceBranches;
-  const summary = JSON.stringify({ selected_row_count: selectedRows.length, complete_inventory: completeInventory });
+  const summaryFields = { selected_row_count: selectedRows.length, complete_inventory: completeInventory };
+  if (Array.isArray(args.foreignSourceSites) && args.foreignSourceSites.length > 0) {
+    summaryFields.foreign_source_sites = [...new Set(args.foreignSourceSites)].sort();
+  }
+  const summary = JSON.stringify(summaryFields);
   const sql = `
 INSERT INTO wikidot_corpus_import_run (
   site_id, source_branch, source_site, manifest_sha256, manifest_row_count, complete_inventory, state, summary

@@ -217,6 +217,7 @@ async fn older_rerender_does_not_overwrite_newer_blocks() {
                 ..Default::default()
             },
             ip_address: IP_ADDRESS,
+            lease: None,
         };
         Box::pin(async move { PageService::edit(ctx, edit).await.map_err(err_string) })
     })

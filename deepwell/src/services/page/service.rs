@@ -20,16 +20,19 @@
 
 use super::structs::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageBody,
-    EditPageOutput, MovePage, MovePageOutput, PageLifecycleIdentity, RestorePage,
-    RestorePageOutput, RollbackPage, SetPageLayout,
+    EditPageLease, EditPageOutput, MovePage, MovePageOutput, PageLifecycleIdentity,
+    RestorePage, RestorePageOutput, RollbackPage, SetPageLayout,
 };
 use crate::error::prelude::{Error, ErrorType, ExnError, Result, ResultExt};
 use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_category::Model as PageCategoryModel;
-use crate::models::page_revision::Model as PageRevisionModel;
+use crate::models::page_revision::{
+    self as page_revision, Entity as PageRevision, Model as PageRevisionModel,
+};
 use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, AuditService, ObjectScope};
 use crate::services::filter::{FilterClass, FilterType};
+use crate::services::page_edit_lock;
 use crate::services::page_revision::{
     CreateFirstPageRevision, CreateFirstPageRevisionOutput, CreatePageRevision,
     CreatePageRevisionBody, CreatePageRevisionOutput, CreateResurrectionPageRevision,
@@ -37,11 +40,13 @@ use crate::services::page_revision::{
 };
 use crate::services::permission::{PermissionService, PermissionTarget};
 use crate::services::{
-    CategoryService, FilterService, PageRevisionService, TextBlockService, TextService,
+    CategoryService, FilterService, PageEditLockService, PageRevisionService,
+    TextBlockService, TextService,
 };
 use crate::types::Maybe;
 use crate::types::{
-    Action, PageId, PageOrder, PageRevisionType, Reference, RerenderDepth,
+    Action, PageEditLockMode, PageId, PageOrder, PageRevisionChange, PageRevisionType,
+    Reference, RerenderDepth,
 };
 use crate::utils::now;
 use crate::utils::{get_category_name, trim_default};
@@ -364,10 +369,33 @@ WHERE page.site_id = $1
                     tags,
                 },
             ip_address,
+            lease,
         }: EditPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         if let Some(wikitext) = wikitext.to_option() {
             check_page_source_length(wikitext)?;
+        }
+
+        if let Some(lease) = lease {
+            return Self::edit_with_lease(
+                ctx,
+                EditPage {
+                    site_id,
+                    page: reference,
+                    last_revision_id,
+                    revision_comments: comments,
+                    user_id,
+                    body: EditPageBody {
+                        wikitext,
+                        title,
+                        alt_title,
+                        tags,
+                    },
+                    ip_address,
+                    lease: Some(lease),
+                },
+            )
+            .await;
         }
 
         let txn = ctx.transaction();
@@ -480,6 +508,471 @@ WHERE page.site_id = $1
         .or_raise(make_error)?;
 
         Ok(revision_output)
+    }
+
+    async fn edit_with_lease(
+        ctx: &ServiceContext<'_>,
+        EditPage {
+            site_id,
+            page: reference,
+            last_revision_id: presented_revision_id,
+            revision_comments: comments,
+            user_id,
+            body:
+                EditPageBody {
+                    wikitext,
+                    title,
+                    alt_title,
+                    tags,
+                },
+            ip_address,
+            lease,
+        }: EditPage<'_>,
+    ) -> Result<Option<EditPageOutput>> {
+        let lease = lease.expect("edit_with_lease called without lease data");
+        let txn = ctx.transaction();
+
+        let PageModel {
+            page_id,
+            page_category_id: category_id,
+            slug,
+            ..
+        } = Self::get(ctx, site_id, reference)
+            .await
+            .or_raise(|| Error::new("failed to edit page", ErrorType::Page))?;
+
+        let id = PageId {
+            site_id,
+            category_id,
+            page_id,
+        };
+
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to edit page '{}' (ID {}) in site ID {}, performed by user ID {}",
+                    slug, page_id, site_id, user_id,
+                ),
+                ErrorType::Page,
+            )
+        };
+
+        let locked_page = Self::get_direct_optional_for_update(ctx, page_id, false)
+            .await
+            .or_raise(make_error)?;
+        let Some(_locked_page) = locked_page else {
+            bail!(Error::new(
+                format!(
+                    "page ID {} was deleted before the edit could proceed",
+                    page_id
+                ),
+                ErrorType::Page,
+            ));
+        };
+
+        let last_revision = PageRevisionService::get_latest(ctx, site_id, page_id)
+            .await
+            .or_raise(make_error)?;
+
+        let decision = Self::decide_lease_save(
+            ctx,
+            page_id,
+            user_id,
+            &lease,
+            presented_revision_id,
+            &last_revision,
+        )
+        .await
+        .or_raise(make_error)?;
+
+        let latest_wikitext = match lease.mode {
+            PageEditLockMode::Page => None,
+            _ => Some(
+                TextService::get(ctx, &last_revision.wikitext_hash)
+                    .await
+                    .or_raise(make_error)?,
+            ),
+        };
+
+        let effective_wikitext: Maybe<String> = match lease.mode {
+            PageEditLockMode::Page => wikitext,
+            PageEditLockMode::Append => match wikitext {
+                Maybe::Set(addition) => Maybe::Set(page_edit_lock::append_wikitext(
+                    latest_wikitext
+                        .as_deref()
+                        .expect("append mode fetched wikitext"),
+                    &addition,
+                )),
+                Maybe::Unset => Maybe::Unset,
+            },
+            PageEditLockMode::Section => match wikitext {
+                Maybe::Set(replacement) => {
+                    let section_index = lease.section_index.ok_or_else(|| {
+                        Error::new(
+                            "section edit lease is missing its section index",
+                            ErrorType::BadRequest,
+                        )
+                    })?;
+                    let spliced = page_edit_lock::splice_section(
+                        latest_wikitext
+                            .as_deref()
+                            .expect("section mode fetched wikitext"),
+                        section_index,
+                        &replacement,
+                    )
+                    .ok_or_else(|| {
+                        Error::new(
+                            format!(
+                                "section {} no longer exists on page ID {}",
+                                section_index, page_id,
+                            ),
+                            ErrorType::BadRequest,
+                        )
+                    })?;
+                    Maybe::Set(spliced)
+                }
+                Maybe::Unset => Maybe::Unset,
+            },
+        };
+
+        if let Some(text) = effective_wikitext.to_option() {
+            check_page_source_length(text)?;
+        }
+
+        let (filter_title, filter_alt_title) = match lease.mode {
+            PageEditLockMode::Page => (
+                title.to_option(),
+                match alt_title {
+                    Maybe::Set(Some(ref alt_title)) => Some(alt_title),
+                    _ => None,
+                },
+            ),
+            _ => (None, None),
+        };
+
+        Self::run_filter(
+            ctx,
+            site_id,
+            Some(page_id),
+            effective_wikitext.to_option(),
+            filter_title,
+            filter_alt_title,
+            ip_address,
+        )
+        .await
+        .or_raise(make_error)?;
+
+        let revision_body = match lease.mode {
+            PageEditLockMode::Page => CreatePageRevisionBody {
+                wikitext: effective_wikitext,
+                title,
+                alt_title,
+                tags,
+                ..Default::default()
+            },
+            _ => CreatePageRevisionBody {
+                wikitext: effective_wikitext,
+                ..Default::default()
+            },
+        };
+
+        let revision_input = CreatePageRevision {
+            user_id,
+            comments,
+            revision_type: PageRevisionType::Regular,
+            body: revision_body,
+        };
+
+        let persisted_revision =
+            PageRevisionService::create(ctx, id, revision_input, last_revision)
+                .await
+                .map_err(|error| {
+                    raise_if_revision_insert_conflict(error, presented_revision_id)
+                })
+                .or_raise(make_error)?;
+
+        if let Some(row_id) = decision.release_row_id {
+            PageEditLockService::delete_by_id(ctx, row_id)
+                .await
+                .or_raise(make_error)?;
+        }
+
+        let revision_id =
+            persisted_revision.ref_map(|revision| revision.output.revision_id);
+
+        let model = page::ActiveModel {
+            page_id: Set(page_id),
+            latest_revision_id: match revision_id {
+                Some(revision_id) => ActiveValue::Set(Some(revision_id)),
+                None => ActiveValue::NotSet,
+            },
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+
+        let page = model.update(txn).await.or_raise(make_error)?;
+        assert_latest_revision(&page);
+
+        let mut revision_output = match persisted_revision {
+            Some(revision) => Some(
+                PageRevisionService::apply_followups(ctx, id, revision)
+                    .await
+                    .or_raise(make_error)?,
+            ),
+            None => None,
+        };
+
+        if let Some(output) = &mut revision_output {
+            output.lock_recreated = decision.lock_recreated;
+        }
+
+        AuditService::log(
+            ctx,
+            ip_address,
+            AuditEvent::PageEdit {
+                site_id,
+                page_id,
+                user_id,
+                revision_id,
+            },
+        )
+        .await
+        .or_raise(make_error)?;
+
+        Ok(revision_output)
+    }
+
+    async fn decide_lease_save(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        user_id: i64,
+        lease: &EditPageLease,
+        presented_revision_id: i64,
+        last_revision: &PageRevisionModel,
+    ) -> Result<LeaseSaveDecision> {
+        let now = now();
+        let rows = PageEditLockService::rows_for_page(ctx, page_id).await?;
+        let named = rows.iter().find(|row| row.lock_id == lease.lock_id);
+
+        if let Some(row) = named
+            && row.lock_secret == lease.lock_secret
+            && row.user_id == user_id
+            && page_edit_lock::is_live(row, now)
+        {
+            let moved = Self::lease_base_moved(
+                ctx,
+                page_id,
+                row.base_revision_id,
+                row.mode,
+                row.section_index,
+                last_revision,
+            )
+            .await?;
+
+            if moved {
+                bail!(Error::new(
+                    format!(
+                        "last revision verification failed, the source changed after \
+                         edit lock {} took its base at revision ID {:?}",
+                        lease.lock_id, row.base_revision_id,
+                    ),
+                    ErrorType::NotLatestRevisionId,
+                ));
+            }
+
+            let conflict = rows.iter().any(|other| {
+                other.page_edit_lock_id != row.page_edit_lock_id
+                    && page_edit_lock::is_live(other, now)
+                    && page_edit_lock::modes_conflict(
+                        row.mode,
+                        row.section_index,
+                        other.mode,
+                        other.section_index,
+                    )
+            });
+
+            if conflict {
+                bail!(Error::new(
+                    format!(
+                        "page ID {} has another live edit lock conflicting with lock {}",
+                        page_id, lease.lock_id,
+                    ),
+                    ErrorType::PageEditLockConflict,
+                ));
+            }
+
+            return Ok(LeaseSaveDecision {
+                lock_recreated: false,
+                release_row_id: Some(row.page_edit_lock_id),
+            });
+        }
+
+        let moved =
+            Self::source_moved_after(ctx, page_id, Some(presented_revision_id)).await?;
+
+        if moved {
+            bail!(Error::new(
+                format!(
+                    "last revision verification failed, actual last revision ID {}, \
+                     but user passed in ID {}",
+                    last_revision.revision_id, presented_revision_id,
+                ),
+                ErrorType::NotLatestRevisionId,
+            ));
+        }
+
+        let conflict = rows.iter().any(|other| {
+            page_edit_lock::is_live(other, now)
+                && page_edit_lock::modes_conflict(
+                    lease.mode,
+                    lease.section_index,
+                    other.mode,
+                    other.section_index,
+                )
+        });
+
+        if conflict {
+            bail!(Error::new(
+                format!(
+                    "page ID {} has a live edit lock conflicting with the presented \
+                     lock {}",
+                    page_id, lease.lock_id,
+                ),
+                ErrorType::PageEditLockConflict,
+            ));
+        }
+
+        let release_row_id = named
+            .filter(|row| !page_edit_lock::is_live(row, now))
+            .map(|row| row.page_edit_lock_id);
+
+        Ok(LeaseSaveDecision {
+            lock_recreated: true,
+            release_row_id,
+        })
+    }
+
+    async fn lease_base_moved(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        base_revision_id: Option<i64>,
+        mode: PageEditLockMode,
+        section_index: Option<i32>,
+        last_revision: &PageRevisionModel,
+    ) -> Result<bool> {
+        match mode {
+            PageEditLockMode::Page => {
+                Self::source_moved_after(ctx, page_id, base_revision_id).await
+            }
+            PageEditLockMode::Append => Ok(false),
+            PageEditLockMode::Section => {
+                Self::section_moved(
+                    ctx,
+                    page_id,
+                    base_revision_id,
+                    section_index,
+                    last_revision,
+                )
+                .await
+            }
+        }
+    }
+
+    async fn source_moved_after(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        base_revision_id: Option<i64>,
+    ) -> Result<bool> {
+        let Some(base_revision_id) = base_revision_id else {
+            return Ok(false);
+        };
+
+        let txn = ctx.transaction();
+        let make_error = || {
+            Error::new(
+                format!("failed to check revisions after ID {base_revision_id}"),
+                ErrorType::PageRevision,
+            )
+        };
+
+        let base = PageRevisionService::get_direct_optional(ctx, base_revision_id)
+            .await
+            .or_raise(make_error)?;
+
+        let Some(base) = base else {
+            return Ok(true);
+        };
+
+        if base.page_id != page_id {
+            return Ok(true);
+        }
+
+        let revisions = PageRevision::find()
+            .filter(page_revision::Column::PageId.eq(page_id))
+            .filter(page_revision::Column::RevisionNumber.gt(base.revision_number))
+            .all(txn)
+            .await
+            .or_raise(make_error)?;
+
+        Ok(revisions.iter().any(|revision| {
+            revision
+                .changes
+                .iter()
+                .any(|change| change == PageRevisionChange::Wikitext.database_value())
+        }))
+    }
+
+    async fn section_moved(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+        base_revision_id: Option<i64>,
+        section_index: Option<i32>,
+        last_revision: &PageRevisionModel,
+    ) -> Result<bool> {
+        let (Some(base_revision_id), Some(section_index)) =
+            (base_revision_id, section_index)
+        else {
+            return Ok(true);
+        };
+
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to compare section {} against revision ID {}",
+                    section_index, base_revision_id,
+                ),
+                ErrorType::PageRevision,
+            )
+        };
+
+        let base = PageRevisionService::get_direct_optional(ctx, base_revision_id)
+            .await
+            .or_raise(make_error)?;
+
+        let Some(base) = base else {
+            return Ok(true);
+        };
+
+        if base.page_id != page_id {
+            return Ok(true);
+        }
+
+        let base_wikitext = TextService::get(ctx, &base.wikitext_hash)
+            .await
+            .or_raise(make_error)?;
+        let latest_wikitext = TextService::get(ctx, &last_revision.wikitext_hash)
+            .await
+            .or_raise(make_error)?;
+
+        match (
+            page_edit_lock::extract_section(&base_wikitext, section_index),
+            page_edit_lock::extract_section(&latest_wikitext, section_index),
+        ) {
+            (Some(base_section), Some(latest_section)) => {
+                Ok(base_section != latest_section)
+            }
+            _ => Ok(true),
+        }
     }
 
     pub(crate) async fn record_parent_metadata_revision(
@@ -665,6 +1158,7 @@ WHERE page.site_id = $1
                 revision_id,
                 revision_number,
                 parser_errors,
+                ..
             }) => {
                 AuditService::log(
                     ctx,
@@ -1537,6 +2031,11 @@ WHERE page.site_id = $1
         .await
         .or_raise(make_error)
     }
+}
+
+struct LeaseSaveDecision {
+    lock_recreated: bool,
+    release_row_id: Option<i64>,
 }
 
 fn check_last_revision(

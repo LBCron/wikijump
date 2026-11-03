@@ -28,6 +28,7 @@ pub mod page_category;
 pub mod page_connection;
 pub mod page_connection_missing;
 pub mod page_draft;
+pub mod page_edit_lock;
 pub mod page_link;
 pub mod page_lock;
 pub mod page_meta_tag;

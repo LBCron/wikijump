@@ -551,6 +551,7 @@ impl PageRevisionService {
                 revision_id,
                 revision_number,
                 parser_errors,
+                lock_recreated: false,
             },
             followups,
         }))
@@ -834,6 +835,7 @@ impl PageRevisionService {
             revision_id,
             revision_number,
             parser_errors: None,
+            lock_recreated: false,
         })
     }
 
@@ -1001,6 +1003,7 @@ impl PageRevisionService {
                 revision_id,
                 revision_number,
                 parser_errors: Some(errors),
+                lock_recreated: false,
             },
             rerender_after_latest_revision,
         })

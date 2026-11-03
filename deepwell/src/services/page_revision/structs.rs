@@ -85,6 +85,7 @@ pub struct CreatePageRevisionOutput {
     pub revision_id: i64,
     pub revision_number: i32,
     pub parser_errors: Option<Vec<ParseError>>,
+    pub lock_recreated: bool,
 }
 
 #[derive(Serialize, Debug, Clone)]

@@ -198,6 +198,7 @@ pub enum ErrorType {
     PageNotDeleted,
     CannotHideLatestRevision,
     NotLatestRevisionId,
+    PageEditLockConflict,
 
     FileNameEmpty,
     FileNameTooLong {
@@ -453,6 +454,7 @@ impl ErrorType {
             ErrorType::PageNotDeleted => 4301,
             ErrorType::CannotHideLatestRevision => 4302,
             ErrorType::NotLatestRevisionId => 4303,
+            ErrorType::PageEditLockConflict => 4304,
 
             ErrorType::FileNameEmpty => 4400,
             ErrorType::FileNameTooLong { .. } => 4401,
@@ -682,6 +684,9 @@ impl ErrorType {
             }
             ErrorType::NotLatestRevisionId => {
                 "Revision ID passed for this operation is not the latest"
+            }
+            ErrorType::PageEditLockConflict => {
+                "The page is being edited under another user's edit lock"
             }
 
             ErrorType::FileNameEmpty => "File name cannot be empty",
@@ -1018,6 +1023,7 @@ mod tests {
             (ErrorType::PageNotDeleted, 4301),
             (ErrorType::CannotHideLatestRevision, 4302),
             (ErrorType::NotLatestRevisionId, 4303),
+            (ErrorType::PageEditLockConflict, 4304),
             (ErrorType::FileNameEmpty, 4400),
             (
                 ErrorType::FileNameTooLong {

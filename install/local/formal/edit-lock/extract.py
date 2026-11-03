@@ -55,16 +55,16 @@ ANCHORS = [
     ("framerail/src/lib/server/ajax-module-connector.js",
      '"removePageEditLock"',
      "the Ajax connector knows the Wikidot draft events; removePageEditLock today only deletes the caller's own draft"),
+    ("deepwell/src/models/page_edit_lock.rs",
+     "page_edit_lock",
+     "the lease store exists as its own table, separate from page_lock (RULING-2 step 3, landed)"),
+    ("deepwell/src/services/page/service.rs",
+     "edit_with_lease",
+     "the lease-aware save in Deepwell: acquire/force/renew/release with typed outcomes 4303/4304 (RULING-2 step 3, landed)"),
 ]
 
 PENDING = [
     # (repo-relative path, needle, fact awaiting an implementation step)
-    ("deepwell/src/models/page_edit_lock.rs",
-     "page_edit_lock",
-     "PENDING (RULING-2 step 3): a lease model/table separate from page_lock"),
-    ("deepwell/src/services/page/service.rs",
-     "lease",
-     "PENDING (RULING-2 step 3): lease-aware save in Deepwell (acquire/force/renew/release, typed outcomes)"),
     ("framerail/src/lib/server/ajax-module-connector.js",
      "PageEditModule",
      "PENDING (RULING-2 step 5): the Ajax edit-open surface issuing lock_id/lock_secret with the acquisition base"),

@@ -25,9 +25,10 @@ pub use self::service::PageService;
 pub(in crate::services) use self::service::foreign_snapshot_exclusion_sql;
 pub use self::structs::{
     CreatePage, CreatePageOutput, DeletePage, DeletePageOutput, EditPage, EditPageBody,
-    EditPageOutput, GetDeletedPageOutput, GetPageAnyDetails, GetPageOutput,
-    GetPageReference, GetPageReferenceDetails, GetPageScoreOutput, GetPageSlug, MovePage,
-    MovePageOutput, PageCreatePermissionOutput, PageDeletePermissionOutput,
-    PageEditPermissionOutput, PageLifecycleIdentity, PageMovePermissionOutput,
-    RestorePage, RestorePageOutput, RollbackPage, SetPageLayout,
+    EditPageLease, EditPageOutput, GetDeletedPageOutput, GetPageAnyDetails,
+    GetPageOutput, GetPageReference, GetPageReferenceDetails, GetPageScoreOutput,
+    GetPageSlug, MovePage, MovePageOutput, PageCreatePermissionOutput,
+    PageDeletePermissionOutput, PageEditPermissionOutput, PageLifecycleIdentity,
+    PageMovePermissionOutput, RestorePage, RestorePageOutput, RollbackPage,
+    SetPageLayout,
 };

@@ -1,5 +1,6 @@
 import {
   DEEPWELL_PERMISSION_DENIED,
+  isInvalidAuthenticationError,
   isInvalidSessionTokenError
 } from "../deepwell/public-error.js"
 import type { JsonValue } from "$lib/types"
@@ -105,9 +106,11 @@ export function failForActionError(
         ? 401
         : isInvalidSessionTokenError(error)
           ? 401
-          : details.code === DEEPWELL_PERMISSION_DENIED
-            ? 403
-            : fallbackStatus
+          : isInvalidAuthenticationError(error)
+            ? 401
+            : details.code === DEEPWELL_PERMISSION_DENIED
+              ? 403
+              : fallbackStatus
   return fail(
     status,
     sanitizePayload({

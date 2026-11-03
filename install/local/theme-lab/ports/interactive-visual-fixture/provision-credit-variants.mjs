@@ -5,6 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {deepwellRpcAuthorization} from '../../../wikidot-verification/src/deepwell-rpc-auth.mjs';
 import {fixtureRpcTarget} from '../../src/fixture-rpc-target.mjs';
+import {leasedPageEdit} from '../../src/page-edit-lease.mjs';
 
 const dir=path.dirname(fileURLToPath(import.meta.url));
 const origin=fixtureRpcTarget().rpcUrl;
@@ -41,7 +42,7 @@ for(const item of variants){
   await rpc('import_wikidot_page_revision',{revision_id:2_200_000_000+crypto.randomInt(0,100_000_000),revision_type:'create',created_at:revisionDate,updated_at:null,revision_number:0,page_id:item.page_id,site_id:site.site_id,user_id:session.user_id,wikitext:source,comments:'Create run-owned credit variant fixture',title:item.title,slug:item.slug,tags:item.tags},{sessionToken:login.session_token,siteId:site.site_id,page:item.slug});
   current=await rpc('page_get',{site_id:site.site_id,page:item.slug,details:{wikitext:true,compiled:false}},{sessionToken:login.session_token,siteId:site.site_id,page:item.slug});
  }else if(current.wikitext!==source||JSON.stringify(current.tags)!==JSON.stringify(item.tags)){
-  await rpc('page_edit',{site_id:site.site_id,page:current.page_id,last_revision_id:current.revision_id,revision_comments:'Refresh run-owned credit acceptance variant',user_id:session.user_id,wikitext:source,tags:item.tags,ip_address:'127.0.0.1'},{sessionToken:login.session_token,siteId:site.site_id,page:item.slug});
+  await leasedPageEdit((method,params)=>rpc(method,params,{sessionToken:login.session_token,siteId:site.site_id,page:item.slug}),{site_id:site.site_id,page:current.page_id,last_revision_id:current.revision_id,revision_comments:'Refresh run-owned credit acceptance variant',user_id:session.user_id,wikitext:source,tags:item.tags,ip_address:'127.0.0.1'});
   current=await rpc('page_get',{site_id:site.site_id,page:item.slug,details:{wikitext:true,compiled:false}},{sessionToken:login.session_token,siteId:site.site_id,page:item.slug});
  }
  if(!current||current.wikitext!==source||JSON.stringify(current.tags)!==JSON.stringify(item.tags))throw new Error(`Credit variant failed source/tag verification: ${item.slug}`);

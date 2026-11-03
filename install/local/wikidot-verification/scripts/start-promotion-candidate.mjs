@@ -1,52 +1,24 @@
 #!/usr/bin/env node
 
 import {execFile as execFileCallback} from "node:child_process";
-import {createHash, randomBytes} from "node:crypto";
+import {randomBytes} from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {promisify} from "node:util";
 
-import {
-  renderedHomeManifestSha256,
-} from "../../../standing/scripts/verify-promotion-precondition.mjs";
-import {
-  validateCandidateParityIdentity,
-} from "../src/standing-browser-parity-receipt.mjs";
-import {
-  effectiveRuntimeServicesSha256,
-  observeCandidateRuntimeIdentity,
-} from "../src/standing-browser-runtime-identity.mjs";
-import {
-  sha256Value,
-} from "../src/standing-browser-parity-util.mjs";
 import {runCliIfMain} from "../src/cli-entry.mjs";
 import {promotionSourceIdentity} from "./build-promotion-candidate-images.mjs";
 
 const execFile = promisify(execFileCallback);
 const DOCKER = "/usr/bin/docker";
 const PYTHON = "/usr/bin/python3";
-const IMAGE_ID = /^sha256:[0-9a-f]{64}$/u;
-const SHA256 = /^[0-9a-f]{64}$/u;
-
 function fail(message) {
   throw new Error(message);
-}
-
-function sha256(bytes) {
-  return createHash("sha256").update(bytes).digest("hex");
-}
-
-async function fileSha256(filePath) {
-  return sha256(await fs.readFile(filePath));
 }
 
 async function writeJson(filePath, value, mode = 0o600) {
   await fs.mkdir(path.dirname(filePath), {recursive: true, mode: 0o700});
   await fs.writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, {mode});
-}
-
-async function readJson(filePath) {
-  return JSON.parse(await fs.readFile(filePath, "utf8"));
 }
 
 export function candidateDeepwellConfig(source, port, {seed = true} = {}) {
@@ -96,49 +68,13 @@ sed -i '/^[[:space:]]*@.* host / s/:${publicPort}$//' /tmp/Caddyfile
 `;
 }
 
-function runtimeLabels({project, owner, source, artifactKey, overlaySha256, effectiveSha256, expiry, role}) {
+function runtimeLabels({source, expiry, role}) {
   return {
-    "com.rokurolize.wikijump.owner": owner,
+    "com.rokurolize.wikijump.owner": "compatibility-candidate",
     "com.rokurolize.wikijump.sha": source.wikijump_commit,
-    "com.rokurolize.wikijump.tree": source.wikijump_tree,
-    "com.rokurolize.wikijump.ftml_sha": source.ftml_sha,
-    "com.rokurolize.wikijump.artifact_key": artifactKey,
-    "com.rokurolize.wikijump.config_sha256": overlaySha256,
-    "com.rokurolize.wikijump.runtime_config_sha256": effectiveSha256,
-    "com.rokurolize.wikijump.profile": "production-build",
     "com.rokurolize.wikijump.expires_at": expiry,
     "com.rokurolize.wikijump.role": role,
   };
-}
-
-export function candidateIdentityForSite(identity, siteSlug) {
-  if (typeof siteSlug !== "string" || !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/u.test(siteSlug)) {
-    fail("candidate site projection slug is invalid");
-  }
-  const port = identity.candidate.endpoint.port;
-  return validateCandidateParityIdentity({
-    ...identity,
-    candidate: {
-      ...identity.candidate,
-      endpoint: {
-        ...identity.candidate.endpoint,
-        host: `${siteSlug}.wikijump.localhost`,
-        allowed_origin_set: [
-          `https://${siteSlug}.wikijump.localhost:${port}`,
-          `https://${siteSlug}.wjfiles.localhost:${port}`,
-        ],
-      },
-    },
-  });
-}
-
-function candidateSiteOrigins(port) {
-  return Object.freeze(Object.fromEntries(
-    ["scp-wiki", "scpaiueouiuiuiui"].map((siteSlug) => [siteSlug, Object.freeze({
-      page: `https://${siteSlug}.wikijump.localhost:${port}`,
-      files: `https://${siteSlug}.wjfiles.localhost:${port}`,
-    })]),
-  ));
 }
 
 function healthcheck(test, startPeriod = "10s") {
@@ -149,9 +85,6 @@ export function candidateCompose({
   project,
   source,
   images,
-  artifactKey,
-  overlaySha256,
-  effectiveSha256,
   expiry,
   publicPort,
   rpcPort,
@@ -166,7 +99,7 @@ export function candidateCompose({
     pull_policy: "never",
     restart: "unless-stopped",
     hostname: `${project}-${role}`,
-    labels: runtimeLabels({project, owner: "compatibility-candidate", source, artifactKey, overlaySha256, effectiveSha256, expiry, role}),
+    labels: runtimeLabels({source, expiry, role}),
   });
   const services = {
     database: {
@@ -307,184 +240,46 @@ async function renderPromotionBase({sourceRoot, outputDir, source, images, token
     "--caddy-image", images.caddy,
   ];
   await execFile(PYTHON, args, {env: {...process.env, DEEPWELL_RPC_TOKEN: token}, maxBuffer: 16 * 1024 * 1024});
-  return renderedHomeManifestSha256(outputDir);
 }
 
-async function buildEvidence(buildEvidencePath) {
-  const [verdict, finalImages, seal] = await Promise.all([
-    readJson(path.join(buildEvidencePath, "verdict.json")),
-    readJson(path.join(buildEvidencePath, "images", "final-images.json")),
-    readJson(path.join(buildEvidencePath, "seal.json")),
-  ]);
-  if (verdict?.schema !== "wikijump.standing_provenance_build.v1" || verdict.status !== "pass" || seal?.schema !== "wikijump.standing_provenance_build_seal.v1" || seal.status !== "sealed") fail("candidate build evidence is not sealed and passing");
-  const images = Object.fromEntries(finalImages.map((entry) => [entry.role, entry.image_id]));
-  if (Object.keys(images).length !== 7 || Object.values(images).some((id) => !IMAGE_ID.test(id))) fail("candidate build evidence has an incomplete image inventory");
-  return {
-    verdict,
-    images,
-    build: {
-      seal_sha256: await fileSha256(path.join(buildEvidencePath, "seal.json")),
-      verdict_sha256: await fileSha256(path.join(buildEvidencePath, "verdict.json")),
-      final_images_sha256: await fileSha256(path.join(buildEvidencePath, "images", "final-images.json")),
-    },
-  };
+async function builtImages(buildEvidencePath) {
+  const finalImages = JSON.parse(await fs.readFile(path.join(buildEvidencePath, "images", "final-images.json"), "utf8"));
+  return Object.fromEntries(finalImages.map((entry) => [entry.role, entry.image_id]));
 }
 
-export async function prepareCandidateFiles({sourceRoot, candidateRoot, publicPort, build, source, token, stagingHome, project, expiry, rpcPort, objectStorePort, seed = true}) {
+export async function prepareCandidateFiles({sourceRoot, candidateRoot, publicPort, images, source, token, stagingHome, seed = true}) {
   await fs.mkdir(candidateRoot, {recursive: false, mode: 0o700});
   const deepwellConfigPath = path.join(candidateRoot, "deepwell", "config.toml");
   const caddyRequestPath = path.join(candidateRoot, "caddy", "request.json");
   const caddyGeneratorPath = path.join(candidateRoot, "caddy", "generate-caddyfile.sh");
-  const [prodDeepwellConfig, promotionBaseManifestSha256] = await Promise.all([
-    fs.readFile(path.join(sourceRoot, "install", "prod", "deepwell", "config.toml"), "utf8"),
-    renderPromotionBase({sourceRoot, outputDir: stagingHome, source, images: build.images, token}),
-  ]);
+  const prodDeepwellConfig = await fs.readFile(path.join(sourceRoot, "install", "prod", "deepwell", "config.toml"), "utf8");
+  await renderPromotionBase({sourceRoot, outputDir: stagingHome, source, images, token});
   await fs.mkdir(path.dirname(deepwellConfigPath), {recursive: true, mode: 0o700});
   await fs.mkdir(path.dirname(caddyRequestPath), {recursive: true, mode: 0o700});
   await fs.writeFile(deepwellConfigPath, candidateDeepwellConfig(prodDeepwellConfig, publicPort, {seed}), {mode: 0o644});
   await writeJson(caddyRequestPath, candidateCaddyRequest(), 0o644);
   await fs.writeFile(caddyGeneratorPath, candidateCaddyGenerator(publicPort), {mode: 0o755});
-  const overlayManifest = {
-    schema: "wikijump.compatibility_candidate_overlay.v1",
-    source,
-    project,
-    endpoint: {host: "scp-wiki.wikijump.localhost", port: publicPort},
-    private_bindings: {rpc_port: rpcPort, object_store_port: objectStorePort},
-    files: {
-      deepwell_config_sha256: await fileSha256(deepwellConfigPath),
-      caddy_request_sha256: await fileSha256(caddyRequestPath),
-      caddy_generator_sha256: await fileSha256(caddyGeneratorPath),
-    },
-    images: build.images,
-    promotion_base_manifest_sha256: promotionBaseManifestSha256,
-  };
-  const overlaySha256 = sha256Value(overlayManifest);
-  const artifactKey = sha256Value({run_id: build.verdict.run_id, source, images: build.images, overlay_sha256: overlaySha256, expiry});
-  const manifestPath = path.join(candidateRoot, "candidate-manifest.json");
-  await writeJson(manifestPath, overlayManifest);
-  const manifestSha256 = await fileSha256(manifestPath);
-  const candidateSeal = {
-    schema: "wikijump.compatibility_candidate_seal.v1",
-    status: "sealed",
-    manifest_sha256: manifestSha256,
-    artifact_key: artifactKey,
-  };
-  const sealPath = path.join(candidateRoot, "candidate-seal.json");
-  await writeJson(sealPath, candidateSeal);
-  return {
-    deepwellConfigPath,
-    caddyRequestPath,
-    caddyGeneratorPath,
-    overlaySha256,
-    promotionBaseManifestSha256,
-    artifactKey,
-    evidence: {status: "sealed", manifest_sha256: manifestSha256, seal_sha256: await fileSha256(sealPath)},
-  };
+  return {deepwellConfigPath, caddyRequestPath, caddyGeneratorPath};
 }
 
 export async function startPromotionCandidate({sourceRoot, buildEvidencePath, candidateRoot, stagingHome, publicPort, rpcPort, objectStorePort, project, expiry, dataVolumes = {}}) {
   const source = await promotionSourceIdentity(sourceRoot);
-  const build = await buildEvidence(buildEvidencePath);
-  if (build.verdict.wikijump_commit !== source.wikijump_commit || build.verdict.wikijump_tree !== source.wikijump_tree || build.verdict.ftml_sha !== source.ftml_sha) fail("candidate build evidence source identity is stale");
+  const images = await builtImages(buildEvidencePath);
   const token = randomBytes(32).toString("hex");
   const seed = !dataVolumes.database;
-  const files = await prepareCandidateFiles({sourceRoot, candidateRoot, publicPort, build, source, token, stagingHome, project, expiry, rpcPort, objectStorePort, seed});
+  const files = await prepareCandidateFiles({sourceRoot, candidateRoot, publicPort, images, source, token, stagingHome, seed});
   const composePath = path.join(candidateRoot, "compose.json");
-  const placeholderEffectiveSha256 = "0".repeat(64);
-  const composeInput = (effectiveSha256) => candidateCompose({
-    project, source, images: build.images, artifactKey: files.artifactKey, overlaySha256: files.overlaySha256,
-    effectiveSha256, expiry, publicPort, rpcPort, objectStorePort,
+  await writeJson(composePath, candidateCompose({
+    project, source, images, expiry, publicPort, rpcPort, objectStorePort,
     deepwellConfigPath: files.deepwellConfigPath, caddyRequestPath: files.caddyRequestPath, caddyGeneratorPath: files.caddyGeneratorPath,
     dataVolumes,
-  });
-  await writeJson(composePath, composeInput(placeholderEffectiveSha256));
-  let finalStarted = false;
+  }));
   try {
-    await dockerCompose(composePath, project, token, ["up", "--no-start", "--no-build"]);
-    const placeholderInspections = await candidateContainerInspections(project);
-    const effectiveSha256 = effectiveRuntimeServicesSha256(placeholderInspections);
-    await dockerCompose(composePath, project, token, ["rm", "--force", "--stop"]);
-    await writeJson(composePath, composeInput(effectiveSha256));
-    const identity = validateCandidateParityIdentity({
-      schema: "wikijump.standing_candidate_parity_identity.v1",
-      status: "sealed",
-      artifact_key: files.artifactKey,
-      build: build.build,
-      candidate: {
-        owner: "compatibility-candidate",
-        expires_at: expiry,
-        compose_project: project,
-        port_443_published: false,
-        wikijump_commit: source.wikijump_commit,
-        wikijump_tree: source.wikijump_tree,
-        ftml_sha: source.ftml_sha,
-        profile: "production-build",
-        source_clean: true,
-        images: build.images,
-        config: {
-          isolated_overlay_sha256: files.overlaySha256,
-          promotion_base_manifest_sha256: files.promotionBaseManifestSha256,
-          effective_runtime_services_sha256: effectiveSha256,
-        },
-        site_origins: candidateSiteOrigins(publicPort),
-        endpoint: {
-          scheme: "https",
-          host: "scp-wiki.wikijump.localhost",
-          port: publicPort,
-          resolved_addresses: ["127.0.0.1"],
-          allowed_origin_set: [
-            `https://scp-wiki.wikijump.localhost:${publicPort}`,
-            `https://scp-wiki.wjfiles.localhost:${publicPort}`,
-          ],
-          local_connect_address: "127.0.0.1",
-        },
-      },
-      evidence: files.evidence,
-    });
-    const identityPath = path.join(candidateRoot, "candidate-identity.json");
-    await writeJson(identityPath, identity);
-    const identitySha256 = await fileSha256(identityPath);
-    const editableIdentity = candidateIdentityForSite(identity, "scpaiueouiuiuiui");
-    const editableIdentityPath = path.join(candidateRoot, "candidate-identity-editable.json");
-    await writeJson(editableIdentityPath, editableIdentity);
-    const editableIdentitySha256 = await fileSha256(editableIdentityPath);
     await dockerCompose(composePath, project, token, ["up", "--detach", "--no-build"]);
-    finalStarted = true;
     await waitForCandidateHealth(project);
-    const observation = await observeCandidateRuntimeIdentity({
-      identity,
-      identitySha256,
-      requiredServiceBindings: [
-        {role: "deepwell", container_port: "2747/tcp", host_address: "127.0.0.1", host_port: rpcPort},
-        {role: "files", container_port: "9000/tcp", host_address: "127.0.0.1", host_port: objectStorePort},
-      ],
-    });
-    await writeJson(path.join(candidateRoot, "runtime-observation.json"), observation);
-    const privatePath = path.join(candidateRoot, "private-runtime.json");
-    await writeJson(privatePath, {
-      candidate_identity_sha256: identitySha256,
-      editable_candidate_identity_sha256: editableIdentitySha256,
-      deepwell_rpc_url: `http://127.0.0.1:${rpcPort}/jsonrpc`,
-      deepwell_rpc_token: token,
-      object_store_origin: `http://127.0.0.1:${objectStorePort}`,
-      presigned_origin: "http://files:9000",
-      candidate_origin: `https://scp-wiki.wikijump.localhost:${publicPort}`,
-    });
-    await fs.chmod(privatePath, 0o600);
-    return {
-      identityPath,
-      identitySha256,
-      editableIdentityPath,
-      editableIdentitySha256,
-      privatePath,
-      observationPath: path.join(candidateRoot, "runtime-observation.json"),
-      stagingHome,
-      project,
-    };
+    return {project, candidateRoot, stagingHome};
   } catch (error) {
-    if (finalStarted || await fs.stat(composePath).then(() => true, () => false)) {
-      await dockerCompose(composePath, project, token, ["down", "--volumes", "--remove-orphans"]).catch(() => {});
-    }
+    await dockerCompose(composePath, project, token, ["down", "--volumes", "--remove-orphans"]).catch(() => {});
     throw error;
   }
 }

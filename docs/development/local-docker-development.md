@@ -14,8 +14,7 @@ Node and pnpm are pinned to `24.22.1` and `11.10.0`; the local Node image is
 `node:24.22.1-alpine@sha256:6a1c190e17215d844926b0677f4bf87273ff7d5e54db06d3b5b5863ab0b09a3d`.
 The Rust watcher helpers are `cargo-watch 8.5.3` and `sqlx-cli 0.9.0`.
 Postgres, Valkey, MinIO, and Caddy use the digest-pinned references in their
-local Dockerfiles. The exact values and host tool versions are copied into
-`local-docker-development-receipt.json` after each measurement run.
+local Dockerfiles.
 
 ## Cargo profiles and caches
 
@@ -81,16 +80,3 @@ docker compose -f install/local/docker-compose.yaml \
   cargo test --manifest-path /src/deepwell/Cargo.toml services::render::list_pages
 ```
 
-The checked-in receipt records the exact Wikijump and FTML revisions, lockfile
-hashes, image digests, Cargo profile, feature set, `RUSTFLAGS`, target/cache
-volumes, owner and expiry, plus cold/warm checks, hot rebuild, focused-test and
-restart timings, disk growth, and cache-preserving recreation evidence. A
-receipt with missing measurements is not evidence that Docker development is
-lightweight.
-
-That receipt is a historical snapshot measured at revision `2b762e15`, before
-the Node `24.22.1` pin, and it still records the superseded `24.18.0` stack
-(`historical_snapshot` in the file). Do not read its toolchain or image entries
-as current pins: those are this page and the `install/*/Dockerfile` references.
-Regenerate the receipt with a fresh measurement run before citing it as
-current evidence.

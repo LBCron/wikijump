@@ -50,7 +50,6 @@ test('triage resolves a fixture package end to end without writing artifacts', (
   const ports = path.join(dir, 'ports');
   const pkgDir = path.join(ports, 'fixture-theme');
   fs.mkdirSync(pkgDir, {recursive: true});
-  fs.writeFileSync(path.join(ports, 'adaptation-authority.json'), JSON.stringify({packages: {}}));
   fs.writeFileSync(path.join(pkgDir, 'manifest.json'), JSON.stringify({slug: 'theme:fixture-theme', reference_url: 'https://example.test/theme:fixture-theme'}));
   fs.writeFileSync(path.join(pkgDir, 'candidate.wikidot.txt'), 'preview');
   fs.writeFileSync(path.join(pkgDir, 'candidate.wikidot.source.txt'), 'source');

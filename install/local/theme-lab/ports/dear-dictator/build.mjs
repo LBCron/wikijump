@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-import {assertPublishablePackage} from "../../src/adaptation-authority.mjs";
-
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -9,7 +7,6 @@ import {fileURLToPath} from "node:url";
 import {inspectCandidateAssets, materializeCandidateCssAssets} from "../../src/local-assets.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-assertPublishablePackage(path.basename(here), {checkOutputs: true});
 const output = process.argv[2];
 if (!output) throw new Error("usage: node build.mjs /absolute/output.wikidot.txt");
 const css = await fs.readFile(path.join(here, "candidate.css"), "utf8");

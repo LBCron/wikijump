@@ -169,8 +169,8 @@ test("live reference capture requires an identity-bound persistent document cach
   const candidateCache = parseStandingBrowserParityArgs([
     "node", "runner", "--mode", "candidate", "--output-dir", "/tmp/candidate",
     "--live-completion-policy", policy, "--source-response-cache-dir", "/tmp/cache",
-    "--source-response-cache-identity", "identity", "--candidate-identity", "/tmp/candidate.json",
-    "--live-reference-ledger", "/tmp/reference.json", "--live-reference-sha256", "a".repeat(64),
+    "--source-response-cache-identity", "identity", "--candidate-port", "20443",
+    "--live-reference-ledger", "/tmp/reference.json",
   ]);
   assert.equal(candidateCache.sourceResponseCacheDir, "/tmp/cache");
   assert.equal(candidateCache.sourceResponseCacheIdentity, "identity");
@@ -179,72 +179,42 @@ test("live reference capture requires an identity-bound persistent document cach
       "node", "runner", "--mode", "candidate", "--output-dir", "/tmp/candidate",
       "--live-completion-policy", policy, "--source-response-cache-dir", "/tmp/cache",
       "--source-response-cache-identity", "identity", "--cache-source-documents",
-      "--candidate-identity", "/tmp/candidate.json", "--live-reference-ledger", "/tmp/reference.json",
-      "--live-reference-sha256", "a".repeat(64),
+      "--candidate-port", "20443", "--live-reference-ledger", "/tmp/reference.json",
     ]),
     /only in live-reference mode/u,
   );
 });
 
-test("candidate capture requires its sealed identity and exact live reference digest", () => {
+test("candidate capture requires the candidate port and live reference", () => {
   assert.throws(
-    () =>
-      parseStandingBrowserParityArgs([
-        "node",
-        "runner",
-        "--mode",
-        "candidate",
-        "--output-dir",
-        "/tmp/standing-candidate",
-        "--live-completion-policy",
-        policy,
-      ]),
-    /candidate-identity/u,
+    () => parseStandingBrowserParityArgs([
+      "node", "runner", "--mode", "candidate", "--output-dir", "/tmp/standing-candidate",
+      "--live-completion-policy", policy,
+    ]),
+    /candidate-port/u,
   );
   const args = parseStandingBrowserParityArgs([
-    "node",
-    "runner",
-    "--mode",
-    "candidate",
-    "--output-dir",
-    "/tmp/standing-candidate",
-    "--live-completion-policy",
-    policy,
-    "--candidate-identity",
-    "/tmp/candidate.json",
-    "--live-reference-ledger",
-    "/tmp/reference.json",
-    "--live-reference-sha256",
-    "a".repeat(64),
+    "node", "runner", "--mode", "candidate", "--output-dir", "/tmp/standing-candidate",
+    "--live-completion-policy", policy, "--candidate-port", "20443",
+    "--live-reference-ledger", "/tmp/reference.json",
   ]);
   assert.equal(args.mode, "candidate");
-  assert.equal(args.liveReferenceSha256, "a".repeat(64));
+  assert.equal(args.candidatePort, 20443);
 });
 
-test("standing capture binds the canonical refresh and persistent replay cache", () => {
+test("standing capture requires the persistent replay cache", () => {
   assert.throws(
     () => parseStandingBrowserParityArgs([
       "node", "runner", "--mode", "standing", "--output-dir", "/tmp/standing",
       "--live-completion-policy", policy, "--live-reference-ledger", "/tmp/reference.json",
-      "--live-reference-sha256", "a".repeat(64),
-    ]),
-    /standing-refresh/u,
-  );
-  assert.throws(
-    () => parseStandingBrowserParityArgs([
-      "node", "runner", "--mode", "standing", "--output-dir", "/tmp/standing",
-      "--live-completion-policy", policy, "--standing-refresh", "/tmp/refresh.json",
-      "--live-reference-ledger", "/tmp/reference.json", "--live-reference-sha256", "a".repeat(64),
     ]),
     /source-response-cache-dir/u,
   );
   const args = parseStandingBrowserParityArgs([
     "node", "runner", "--mode", "standing", "--output-dir", "/tmp/standing",
-    "--live-completion-policy", policy, "--standing-refresh", "/tmp/refresh.json",
-    "--live-reference-ledger", "/tmp/reference.json", "--live-reference-sha256", "a".repeat(64),
+    "--live-completion-policy", policy, "--live-reference-ledger", "/tmp/reference.json",
     "--source-response-cache-dir", "/tmp/cache", "--source-response-cache-identity", "identity",
   ]);
   assert.equal(args.mode, "standing");
-  assert.equal(args.standingRefresh, "/tmp/refresh.json");
   assert.equal(args.sourceResponseCacheIdentity, "identity");
 });

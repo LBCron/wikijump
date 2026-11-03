@@ -1,1 +1,0 @@
-Theme Lab baseline-only probe. No article/custom theme CSS is applied.

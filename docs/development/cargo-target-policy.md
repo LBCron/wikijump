@@ -30,7 +30,7 @@ incremental compilation, so a source change rebuilds in minutes.
 
 Promotion and rehearsal images are built inside Docker by
 `install/local/wikidot-verification/scripts/build-promotion-candidate-images.mjs`
-(called by `install/standing/promote.py` and `run-consolidated-validation.mjs`),
+(called by `install/standing/promote.py`),
 never from a host `target/` directory. Their compiler state lives in BuildKit
 cache mounts: the cargo registry and Git caches, and the target directories
 `id=deepwell-target` and `id=wws-release-target`. Those caches are content

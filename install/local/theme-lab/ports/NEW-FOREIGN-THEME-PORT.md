@@ -8,9 +8,7 @@ branch. It exists so a coding agent can execute a request such as:
 without relying on prior-session memory.
 
 The worked repository example is
-`ports/quand-le-soleil-se-couche/`. The procedure is deliberately separate
-from `UPSTREAM-MAINTENANCE.md`, which owns later upstream refreshes of an
-already accepted package.
+`ports/quand-le-soleil-se-couche/`.
 
 ## 1. Establish source authority
 
@@ -365,9 +363,7 @@ Acceptance requires `overall_acceptance.status` (also exposed as the public
 pass never overrides a failed local target. Inconclusive results are incomplete;
 CLI exit codes 1 and 2 must stop completion. Keep both diagnostic dimensions.
 
-Every JP adaptation must pass the authority inventory gate described in
-[ADAPTATION-AUTHORITY-AUDIT.md](ADAPTATION-AUTHORITY-AUDIT.md). Source CSS is
-preserved; local Wikijump observations and synthetic fixture/image reviews
+Source CSS is preserved; local Wikijump observations and synthetic fixture/image reviews
 cannot create publishable CSS. Freeze real source/target A/B evidence before
 adding a target correction. Check all submenu/link left and right bounds at
 320px and 390px, in addition to document width. Sigma-9 and Sigma-10 credit
@@ -399,7 +395,6 @@ At minimum keep:
 ports/<slug>/
   PORT.md
   manifest.json
-  receipt.json
   upstream-<branch>.wikidot.txt
   candidate-template.css       # when include variables exist
   candidate.css                # concrete validation CSS
@@ -409,16 +404,13 @@ ports/<slug>/
   surface-contract.json         # when source-specific active selectors/reviews exist
   build.mjs                    # when build/materialization is required
   assets/
-  artifacts/
 ```
 
 Additional source/include/cross-branch snapshots belong in the package when
 they materially explain a decision.
 
 Standalone foreign-port manifests use their own schema and are intentionally
-not auto-discovered by the completed SCP-EN campaign's
-`prepare-maintainable-sources.mjs` / `theme-port-maintenance.mjs` commands.
-Those commands select manifests carrying the EN campaign's
+not auto-discovered by `theme-port-maintenance.mjs`, which selects manifests carrying the EN campaign's
 `en_source_sha256` contract. If a standalone port later adopts that
 maintenance model, migrate it deliberately rather than making a generic
 `manifest.json` silently enter the EN campaign.
@@ -434,9 +426,6 @@ maintenance model, migrate it deliberately rather than making a generic
 - warnings/non-defects;
 - how to build the publishable source and which attachments it requires.
 
-`receipt.json` should carry the machine-readable hashes and final check
-summary.
-
 ## 12. Publication is a separate authority boundary
 
 Creating and validating a JP port in this repository does not authorize
@@ -444,8 +433,7 @@ editing `scp-jp.wikidot.com`. Keep real branch sites read-only unless the user
 explicitly requests and authorizes publication.
 
 If publication is later authorized, publish exactly the reviewed source and
-named attachments, then capture the resulting public identity as a new
-receipt. Do not silently substitute a newly fetched upstream revision.
+named attachments. Do not silently substitute a newly fetched upstream revision.
 
 ## 13. Refresh a standalone foreign-port package later
 
@@ -468,7 +456,6 @@ For a later upstream refresh:
 6. rebuild the publishable source and prove it is deterministic;
 7. run focused Theme Lab checks for changed surfaces, then the complete
    offline acceptance and manual paired visual review;
-8. replace receipt/screenshot evidence only with the newly accepted identity.
 
 If this workflow becomes common enough to automate, add a standalone-port
 planner rather than weakening the EN maintenance manifest guard.
@@ -481,8 +468,3 @@ paired image review and the applicable interaction matrix. Unreviewed visual
 results are inconclusive even when raw pixel comparison succeeds. A separate
 `candidate-base.css` must be included with `--css-base`.
 
-For maintained campaigns, run
-`node install/local/theme-lab/scripts/check-campaign-completion.mjs`. Completion
-requires current combined package acceptance and current Sigma-10 acceptance,
-complete current-identity browser coverage, and reviewed screenshot hashes.
-`check-final.mjs --historical-only` is evidence inspection, never promotion.

@@ -1,45 +1,17 @@
-# Historical compatibility campaign execution efficiency
+# Long-running work
 
-This file preserves lessons from the retired compatibility campaign. It is not
-the normal Wikidot regression runbook. Routine compatibility validation uses
-the hermetic offline commands in `docs/agents/compatibility/README.md` and
-`install/local/wikidot-verification/README.md`; no developer-specific WJLab
-path is current authority.
+## Waiting
 
-## Work from one current matrix
+Wait on a long build, validation, promotion, or browser campaign under a watchdog cap, not indefinitely. When the cap expires, the waiter dumps the current stage, the elapsed time, and the state of the processes it was waiting on before anything is stopped. An uncapped waiter cannot distinguish a slow stage from a hung one — a promotion once waited 64 minutes on an idle browser worker — and the dump is what makes the hang diagnosable afterwards.
 
-For a future explicitly declared campaign, build one current matrix from GitHub
-issues plus that campaign's checked-in audits/denominator. Classify incomplete
-acceptances by finishing authority and batch rows sharing authority/causal fix.
-Historical developer-local evidence roots may be consulted only as provenance;
-they are not inputs required by the maintained offline suite.
+## Batching
 
-## Reuse proof by identity
-
-Time alone is not a rerun reason. Reuse retained acceptance only if source/runtime/browser/fixture/denominator identity satisfies current acceptance; rerun affected proof on material identity or acceptance-contract change. Historical diagnostics never count. Freeze/build production once per material source identity. Use incremental local stack for edits/focused tests, never production images per fix; push exact review head before long immutable build so measured tree is remotely reviewable. If correctness depends on another merge, land it first; update dependent source/test/lock pin together; never publish intentionally red intermediate head whose only failure is an unmerged prerequisite.
-
-## Parallel preparation
-
-During a long build, finalizer, or browser campaign, prepare independent downstream inputs—issue snapshot, denominator, candidate-private fixture mapping, promotion command, standing evidence directory, cleanup plan. Never duplicate an expensive operation for progress output. Poll with the longest supported empty-process interval in the current DevSpace schema, never at one-second intervals; current tool limits override copied timeout numbers in old runbooks.
-
-Wait on a long build, validation, promotion, or browser campaign under a watchdog cap, not indefinitely. When the cap expires, the waiter dumps the current stage, the elapsed time, and the state of the processes it was waiting on into the run's evidence directory before anything is stopped. An uncapped waiter cannot distinguish a slow stage from a hung one — a promotion once waited 64 minutes on an idle browser worker — and the dump is what makes the hang diagnosable afterwards.
-
-## Adaptive batch size
-
-For thousands of homogeneous render/import items, use bounded batches/concurrency within the known DB/service pool; for a small tail, use direct site/run groups or individual retries, not large-batch machinery. Once the failure mode is known, separate exceptional heavy pages; retry at low concurrency and preserve failure evidence. Extend a one-shot deadline only when renderer semantics are unchanged and the recorded failure is the deadline. Local WSL services need no pacing; external origins use persistent caches, not sleeps; after the first retained acquisition, cache hits target zero external requests.
+For thousands of homogeneous render or import items, use bounded batches within the known database pool. For a small tail, retry individual items. Once a failure mode is known, separate the heavy pages and retry them at low concurrency.
 
 ## Validation cadence
 
-Develop focused RED/GREEN tests; validate the coherent batch once. Keep `RUSTFLAGS` stable to avoid full rebuilds; run warnings-as-errors clippy once per source batch before push, not per edit; run full candidate/standing suffix once the material identity is frozen.
+Develop with focused tests and validate the coherent batch once. Keep `RUSTFLAGS` stable to avoid full rebuilds. Run warnings-as-errors Clippy once per batch before pushing.
 
 On WSL, check the user memory guard before treating a `rustc` or test SIGTERM as a product/test failure. `wsl-memory-guard.service` (`~/.config/systemd/user/wsl-memory-guard.sh`) does not cap processes by RSS; when `MemAvailable` stays below max(4 GiB, total/6) for three samples, or drops below max(2 GiB, total/12), it terminates the user's largest process. Parallel heavy Rust work across worktrees (compiles, test shards, image builds) is what triggers it, so keep concurrent heavy jobs within the VM's memory and serialize them across worktrees. Keep the guard enabled.
 
-Before high-touch render changes, search focused helpers and existing regression seams; reuse the narrow owner rather than adding a nearby parser/rewriter. If an integration test fails from absent environment/shared-fixture race, reproduce it alone on a clean baseline before source edits. Distinguish product, baseline, and test-environment failures explicitly; expensive suites must not drive unrelated fixes.
-
-## Mutation campaign efficiency
-
-For live sandbox mutation, if shared-sandbox rollback blocks, create one run-owned disposable site for all compatible acceptance branches; use independent actors/run markers, verified cleanup, and separate actors for non-reusable terminal histories; delete only after no remaining branch needs it. Read current client/static JS once for exact action/field names, not by guessing/retrying UI selectors. Separate read-only contract discovery from mutation execution so a navigation/selector failure cannot accidentally duplicate a write.
-
-## Stop discipline
-
-Each completed subtest, PR merge, candidate pass, standing refresh, or issue close is routing, not campaign completion. Continue through current incomplete rows until authoritative final-zero passes or a true external stop remains. If externally blocked, record missing authority, attempted steps, and the smallest external unblock action.
+If an integration test fails from a missing environment or a shared-fixture race, reproduce it alone on a clean baseline before editing source.

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {composeAuthoritySource,digest} from '../src/adaptation-authority.mjs';
+import crypto from 'node:crypto';
+import {composeAuthoritySource} from '../src/authority-source-composition.mjs';
+const digest=value=>crypto.createHash('sha256').update(value).digest('hex');
 import {extractSCPJPAdaptationBlocks} from '../src/port-maintenance.mjs';
 test('independent authority corrections retain separately hash-bound CSS modules',()=>{
  const first='/* SCP-JP first correction */\n.a { color: red; }';

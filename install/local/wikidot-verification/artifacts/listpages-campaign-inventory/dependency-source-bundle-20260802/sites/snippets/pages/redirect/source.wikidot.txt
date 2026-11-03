@@ -1,6 +1,0 @@
-[[include :snippets:redirect-backend
-|mode={$mode_{$mode}}
-|mode_advanced=advanced | mode=default
-|mode_{$mode}={$mode_default} | mode_default=default
-|url={$url}
-]]

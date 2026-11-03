@@ -34,44 +34,6 @@ test("freshly seeded isolated database keeps the canonical SCP-JP target site an
   );
 });
 
-test("attachment writer requires explicit task contract or shared-site opt-in", () => {
-  const repo = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "../../../..",
-  );
-  const script = path.join(
-    repo,
-    "install/local/theme-lab/ports/interactive-visual-fixture/provision-file.mjs",
-  );
-  for (const extra of [
-    { THEME_LAB_BACKEND_PROJECT: task, DEEPWELL_RPC_URL: url },
-    {
-      THEME_LAB_BACKEND_PROJECT: task,
-      DEEPWELL_RPC_URL: "http://127.0.0.1:2747/jsonrpc",
-    },
-    {},
-  ]) {
-    const env = { ...process.env };
-    for (const key of [
-      "THEME_LAB_BACKEND_PROJECT",
-      "THEME_LAB_FIXTURE_SCOPE",
-      "DEEPWELL_RPC_URL",
-    ])
-      delete env[key];
-    Object.assign(env, extra, {
-      WIKIDOT_VERIFY_ADMIN_EMAIL: "fake@localhost",
-      WIKIDOT_VERIFY_ADMIN_PASS: "test-only",
-    });
-    const result = spawnSync(process.execPath, [script], {
-      encoding: "utf8",
-      timeout: 5000,
-      env,
-    });
-    assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /requires|require|scope/u);
-  }
-});
-
 test("shared-development writes require explicit opt-in and exact loopback target", () => {
   assert.throws(() => fixtureRpcTarget({}), /require explicit/u);
   assert.deepEqual(
@@ -163,7 +125,7 @@ test("malformed or ambiguous project markers never enable fixture write access",
     );
 });
 
-test("all four mutating fixture scripts reject shared RPC under a task-owned project before network access", () => {
+test("all mutating fixture scripts reject shared RPC under a task-owned project before network access", () => {
   const repo = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
     "../../../..",
@@ -172,7 +134,6 @@ test("all four mutating fixture scripts reject shared RPC under a task-owned pro
     "install/local/theme-lab/scripts/provision-canonical-corpus.mjs",
     "install/local/theme-lab/ports/interactive-visual-fixture/provision-fixture.mjs",
     "install/local/theme-lab/ports/interactive-visual-fixture/provision-credit-variants.mjs",
-    "install/local/theme-lab/sigma10-migration/provision-fixtures.mjs",
   ];
   for (const script of scripts) {
     const result = spawnSync(process.execPath, [path.join(repo, script)], {
@@ -196,7 +157,7 @@ test("all four mutating fixture scripts reject shared RPC under a task-owned pro
   }
 });
 
-test("wrong local site ID blocks all four fixture writers before any database edit", (t) => {
+test("wrong local site ID blocks all fixture writers before any database edit", (t) => {
   const repo = path.resolve(
     path.dirname(fileURLToPath(import.meta.url)),
     "../../../..",
@@ -218,7 +179,6 @@ test("wrong local site ID blocks all four fixture writers before any database ed
     "install/local/theme-lab/scripts/provision-canonical-corpus.mjs",
     "install/local/theme-lab/ports/interactive-visual-fixture/provision-fixture.mjs",
     "install/local/theme-lab/ports/interactive-visual-fixture/provision-credit-variants.mjs",
-    "install/local/theme-lab/sigma10-migration/provision-fixtures.mjs",
   ];
   for (const script of scripts) {
     const result = spawnSync(

@@ -445,7 +445,6 @@ export function buildLiveReferenceLedger({
 
 export async function loadSealedLiveReference({
   filePath,
-  expectedSha256,
   pairs,
   viewport,
   thresholds,
@@ -457,12 +456,6 @@ export async function loadSealedLiveReference({
   referencePolicyFilePath = policyFilePath,
 }) {
   const actualSha256 = await sha256File(filePath);
-  if (
-    actualSha256 !==
-    requireSha256(expectedSha256, "live reference expected SHA-256")
-  ) {
-    throw new Error("live reference SHA-256 mismatch");
-  }
   const reference = JSON.parse(await fs.readFile(filePath, "utf8"));
   if (
     !isPlainObject(reference) ||

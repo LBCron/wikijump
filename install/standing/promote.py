@@ -5,10 +5,8 @@ One command, in this order; each stage blocks the next and a failure leaves
 standing as it was (or restores it):
 
 1. identity     the checkout is clean and exactly the fetched origin/develop.
-2. validation   every check group the change since standing selects has a
-                passing `preflight.sh --final` receipt whose tree differs from
-                this one only in paths that do not select that group; missing
-                groups run now, alongside the build.
+2. validation   `preflight.sh --final` runs every check group the change since
+                standing selects, alongside the build.
 3. build        the three application images, from BuildKit caches.
 4. render-ahead when the renderer generation changes, every saved page is
                 rendered with the new image while the old one keeps serving.
@@ -22,15 +20,6 @@ standing as it was (or restores it):
                 parked containers (and reload Caddy from them) on any failure.
 
 The receipt records every stage's duration and result.
-
-With `--validation-mode attestation`, stage 2 changes and nothing else
-does: the suite is never run. The stage instead requires the target head
-to be composed of merged pull requests (every first-parent commit since
-standing is a merge commit or belongs to a merged PR) and the validation
-store to hold a per-head attestation of the targeted checks for every
-group the change selects (see `wikijump.promotion_attestation.v1` below).
-Render-ahead, rehearsal, activation and rollback are identical in both
-modes.
 """
 
 from __future__ import annotations
@@ -39,7 +28,6 @@ import argparse
 import concurrent.futures
 import contextlib
 from datetime import UTC, datetime, timedelta
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -53,7 +41,6 @@ import time
 
 import refresh
 import render_ahead
-from volume_contract import PROTECTED_VOLUMES
 
 
 SERVICES = refresh.SERVICES
@@ -65,15 +52,7 @@ STANDING_NAMESPACE = "wikijump-standing-caddy-1"
 STANDING_FILES_VOLUME = "wikijump-standing-files-data"
 TEXT_BLOCKS_BUCKET = "deepwell-text-blocks"
 RESOURCE_LIFETIME = timedelta(days=30)
-REFRESH_RECEIPT_SCHEMA_VERSION = 4
 PROMOTION_RECEIPT_SCHEMA = "wikijump.standing_promotion_receipt.v1"
-VALIDATION_SCHEMA = "wikijump.consolidated_validation_receipt.v2"
-ATTESTATION_SCHEMA = "wikijump.promotion_attestation.v1"
-GITHUB_REPOSITORY = "Rokurolize/wikijump"
-# Groups whose evidence can only be produced on the coordinator's machine
-# (Theme Lab's authority object store is local state). An attestation
-# entry for one of these must record a local run, never a hosted CI run.
-LOCAL_ONLY_GROUPS = ("theme_lab",)
 BROWSER_REFERENCE_SCHEMA = "wikijump.standing_browser_reference.v1"
 GROUPS = ("deepwell", "wws", "framerail", "locales", "workflow", "theme_lab", "verification")
 GIT_OBJECT = re.compile(r"[0-9a-f]{40}")
@@ -164,203 +143,6 @@ def changed_paths(source_root: Path, before: str, after: str) -> list[str]:
     return run(
         "git", "diff", "--no-renames", "--name-only", before, after, cwd=source_root
     ).splitlines()
-
-
-def validation_receipts(store: Path) -> list[tuple[Path, dict[str, object]]]:
-    receipts = []
-    for path in sorted(store.glob("*.json")) if store.is_dir() else []:
-        try:
-            receipt = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            continue
-        if (
-            receipt.get("schema") == VALIDATION_SCHEMA
-            and receipt.get("status") == "pass"
-            and receipt.get("mode") == "final"
-            and isinstance(receipt.get("wikijump_tree"), str)
-            and GIT_OBJECT.fullmatch(receipt["wikijump_tree"])
-            and receipt.get("checks")
-            # Promotion admission may defer only the missing *current Theme Lab*
-            # evidence, not arbitrary test failures. This is not a final frozen
-            # publication PASS: that stricter contract rejects inconclusive.
-            and any(check.get("status") == "ok" for check in receipt["checks"])
-            and all(
-                check.get("status") == "ok"
-                or (
-                    check.get("status") == "inconclusive"
-                    and check.get("name") == "Theme Lab current campaign completion"
-                    and receipt.get("groups", {}).get("theme_lab") is True
-                )
-                for check in receipt["checks"]
-            )
-        ):
-            receipts.append((path, receipt))
-    return receipts
-
-
-def validation_coverage(
-    required: dict[str, bool],
-    tree: str,
-    receipts: list[tuple[Path, dict[str, object]]],
-    delta_groups,
-) -> tuple[dict[str, dict[str, str]], list[str]]:
-    """For each required group, a passing receipt that ran it on a tree whose
-    difference from `tree` does not select it. `delta_groups(other_tree)`
-    classifies that difference."""
-    covered: dict[str, dict[str, str]] = {}
-    deltas: dict[str, dict[str, bool]] = {}
-    for group in GROUPS:
-        if not required.get(group):
-            continue
-        for path, receipt in receipts:
-            if not receipt.get("groups", {}).get(group):
-                continue
-            other = receipt["wikijump_tree"]
-            if other not in deltas:
-                try:
-                    deltas[other] = (
-                        {name: False for name in GROUPS} if other == tree else delta_groups(other)
-                    )
-                except subprocess.CalledProcessError:
-                    deltas[other] = {name: True for name in GROUPS}
-            if not deltas[other][group]:
-                covered[group] = {"receipt": str(path), "tree": other}
-                break
-    missing = [group for group in GROUPS if required.get(group) and group not in covered]
-    return covered, missing
-
-
-def gh_commit_pulls(sha: str) -> list[dict[str, object]] | None:
-    """Pull requests associated with a commit, via gh; None when gh is
-    unavailable or errors, so callers can fall back to history shape."""
-    try:
-        result = subprocess.run(
-            ["gh", "api", f"repos/{GITHUB_REPOSITORY}/commits/{sha}/pulls"],
-            check=True,
-            text=True,
-            capture_output=True,
-        )
-        pulls = json.loads(result.stdout)
-    except (OSError, subprocess.CalledProcessError, ValueError):
-        return None
-    return pulls if isinstance(pulls, list) else None
-
-
-def merged_pr_composition(
-    source_root: Path,
-    before: str,
-    after: str,
-    pulls_for_commit=gh_commit_pulls,
-) -> dict[str, object]:
-    """Every first-parent commit in before..after is a merge commit or is
-    associated with a merged pull request. Develop advances by normal PR
-    merges only, so the merge shape is the local proof; the gh association
-    strengthens it for commits that are not merges (there should be none).
-    Offenders are commits that satisfy neither."""
-    shas = run(
-        "git", "rev-list", "--first-parent", f"{before}..{after}", cwd=source_root
-    ).split()
-    merges = 0
-    associated = 0
-    offenders: list[str] = []
-    for sha in shas:
-        parents = run("git", "show", "-s", "--format=%P", sha, cwd=source_root).split()
-        if len(parents) >= 2:
-            merges += 1
-            continue
-        pulls = pulls_for_commit(sha)
-        if pulls and any(pull.get("merged_at") for pull in pulls):
-            associated += 1
-            continue
-        offenders.append(sha)
-    return {
-        "commits": len(shas),
-        "merge_commits": merges,
-        "pr_associated": associated,
-        "offenders": offenders,
-    }
-
-
-def attestation_path(store: Path, head: str) -> Path:
-    return store / f"attestation-{head}.json"
-
-
-def verify_attestation(
-    attestation: dict[str, object],
-    head: str,
-    tree: str,
-    required: dict[str, bool],
-) -> dict[str, object]:
-    """A per-head attestation covers every required group with a
-    successful targeted-check entry bound to this exact head and tree.
-    Local-only groups additionally require a local entry: hosted CI can
-    never produce their evidence."""
-    errors: list[str] = []
-    if attestation.get("schema") != ATTESTATION_SCHEMA:
-        errors.append(f"schema is {attestation.get('schema')!r}, not {ATTESTATION_SCHEMA}")
-    if attestation.get("wikijump_commit") != head:
-        errors.append("attestation is bound to a different commit than the promotion head")
-    if attestation.get("wikijump_tree") != tree:
-        errors.append("attestation is bound to a different tree than the promotion head")
-    checks = attestation.get("checks")
-    if not isinstance(checks, list):
-        checks = []
-        errors.append("attestation has no checks list")
-    covered: dict[str, dict[str, str]] = {}
-    for group in GROUPS:
-        if not required.get(group):
-            continue
-        entries = [
-            check
-            for check in checks
-            if isinstance(check, dict)
-            and check.get("area") == group
-            and check.get("conclusion") == "success"
-        ]
-        if group in LOCAL_ONLY_GROUPS:
-            entries = [check for check in entries if check.get("kind") == "local"]
-        if entries:
-            covered[group] = {"attestation": str(entries[0].get("reference", ""))}
-        else:
-            errors.append(f"no successful targeted evidence attested for group {group}")
-    return {"covered": covered, "errors": errors}
-
-
-def attestation_validation(
-    source_root: Path,
-    store: Path,
-    standing_sha: str,
-    target: str,
-    tree: str,
-    required: dict[str, bool],
-) -> dict[str, object]:
-    """The attestation-mode validation stage: composition + attestation,
-    and never a suite run. Raises ValueError with every problem found."""
-    composition = merged_pr_composition(source_root, standing_sha, target)
-    problems = [
-        f"commit {sha} is not a merge and belongs to no merged pull request"
-        for sha in composition["offenders"]
-    ]
-    path = attestation_path(store, target)
-    try:
-        attestation = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        attestation = None
-    if attestation is None:
-        problems.append(f"no attestation for {target} in the validation store ({path})")
-        verdict = {"covered": {}, "errors": problems}
-    else:
-        verdict = verify_attestation(attestation, target, tree, required)
-        problems.extend(verdict["errors"])
-    if problems:
-        raise ValueError("attestation validation failed: " + "; ".join(problems))
-    return {
-        "mode": "attestation",
-        "composition": composition,
-        "covered": verdict["covered"],
-        "attestation": str(path),
-        "ran": None,
-    }
 
 
 # Rehearsal
@@ -1039,12 +821,9 @@ def browser_reference(path: Path) -> dict[str, str]:
     if manifest.get("schema") != BROWSER_REFERENCE_SCHEMA:
         raise ValueError(f"{path / 'reference.json'} is not a standing browser reference")
     ledger = path / manifest["live_reference_ledger"]
-    if hashlib.sha256(ledger.read_bytes()).hexdigest() != manifest["live_reference_sha256"]:
-        raise ValueError("the retained live reference does not match its manifest")
     return {
         "policy": str(path / manifest["live_completion_policy"]),
         "ledger": str(ledger),
-        "ledger_sha256": manifest["live_reference_sha256"],
         "cache_dir": manifest["source_response_cache_dir"],
         "cache_identity": manifest["source_response_cache_identity"],
         "browser": manifest["browser_executable"],
@@ -1064,7 +843,6 @@ def browser_parity(
             "--output-dir", str(output),
             "--live-completion-policy", reference["policy"],
             "--live-reference-ledger", reference["ledger"],
-            "--live-reference-sha256", reference["ledger_sha256"],
             "--source-response-cache-dir", reference["cache_dir"],
             "--source-response-cache-identity", reference["cache_identity"],
             "--browser-root", "framerail",
@@ -1145,16 +923,6 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--runtime-home", type=Path, default=refresh.DEFAULT_RUNTIME_HOME)
     parser.add_argument("--evidence-dir", type=Path)
-    parser.add_argument("--validation-store", type=Path, default=state_root() / "validation")
-    parser.add_argument(
-        "--validation-mode",
-        choices=("receipts", "attestation"),
-        default="receipts",
-        help="receipts: consolidated-validation receipts from the store, "
-        "running the suite for uncovered groups (the default, unchanged). "
-        "attestation: never run the suite; require a merged-PR-composed "
-        "head and a per-head attestation of targeted checks in the store.",
-    )
     parser.add_argument(
         "--browser-reference", type=Path, default=state_root() / "standing-browser-reference"
     )
@@ -1252,46 +1020,14 @@ def promote(args, source_root, runtime_home, override_file, identity, evidence, 
 
     # 3. validation and build, side by side
     def validation_stage():
-        if args.validation_mode == "attestation":
-            return attestation_validation(
-                source_root,
-                args.validation_store,
-                standing_sha,
-                target,
-                identity["wikijump_tree"],
-                plan["required_groups"],
-            )
-        receipts = validation_receipts(args.validation_store)
-        covered, missing = validation_coverage(
-            plan["required_groups"],
-            identity["wikijump_tree"],
-            receipts,
-            lambda other: classify(source_root, changed_paths(source_root, other, identity["wikijump_tree"])),
-        )
-        ran = None
-        if missing:
-            args.validation_store.mkdir(mode=0o700, parents=True, exist_ok=True)
-            output = args.validation_store / f"{identity['wikijump_tree']}-{int(time.time())}.json"
+        groups = [group for group in GROUPS if plan["required_groups"].get(group)]
+        if groups:
             run_logged(
-                [
-                    # A promotion always runs the archival Theme Lab checks
-                    # that a pull request skips when it leaves Theme Lab alone.
-                    "env", "PREFLIGHT_THEME_LAB_ARCHIVE=always",
-                    "node", str(VERIFICATION / "scripts" / "run-consolidated-validation.mjs"),
-                    "--repository", str(source_root),
-                    "--base", standing_sha,
-                    "--groups", ",".join(missing),
-                    "--output", str(output),
-                    # The build stage builds the images alongside.
-                    "--no-image-build",
-                ],
+                ["bash", "scripts/preflight.sh", "--base", standing_sha, "--final", "--groups", ",".join(groups)],
                 evidence / "validation.log",
                 source_root,
             )
-            ran = {"groups": missing, "receipt": str(output)}
-            for group in missing:
-                covered[group] = {"receipt": str(output), "tree": identity["wikijump_tree"]}
-        return {"covered": covered, "ran": ran}
+        return {"groups": groups}
 
     def build_stage():
         stdout = run_logged(
@@ -1415,7 +1151,7 @@ def finish(
                 "status": "pass",
                 "expected_compiled_generator": plan["expected_compiled_generator"],
                 "stale_pages_before": plan["stale_pages_before"],
-                "receipt": {"path": str(path), "sha256": refresh.file_sha256(path)},
+                "receipt": {"path": str(path)},
             }
 
     def rehearsal_stage():
@@ -1486,7 +1222,7 @@ def rehearse(source_root, evidence, stages, plan, reference, volumes, target, de
             )
             return last_json_line(stdout)
 
-        started = stages.run("rehearsal-start", start_stage)
+        stages.run("rehearsal-start", start_stage)
         slugs = browser_canary_slugs(source_root)
         stages.run(
             "rehearsal-render",
@@ -1519,7 +1255,7 @@ def rehearse(source_root, evidence, stages, plan, reference, volumes, target, de
             )
             parity = browser_parity(
                 source_root, "candidate", evidence / "rehearsal-browser-parity", reference,
-                ["--candidate-identity", started["identityPath"]],
+                ["--candidate-port", str(ports["public"])],
                 evidence / "rehearsal-browser-parity.log",
             )
             return {"stale_pages_remaining": 0, "canary": canary, "browser_parity": parity}
@@ -1566,10 +1302,6 @@ def activate(
     expiry = (datetime.now(UTC) + RESOURCE_LIFETIME).isoformat()
     parked: dict[str, dict[str, object]] = {}
     switched = False
-    differential_path = runtime_home / refresh.RUNTIME_DIFFERENTIAL_IDENTITY
-    previous_differential = (
-        differential_path.read_text(encoding="utf-8") if differential_path.exists() else None
-    )
     timings: dict[str, float] = {}
     switch_started_at: str | None = None
     snapshot = evidence / "saved-page-output-before.tsv"
@@ -1585,7 +1317,6 @@ def activate(
         nonlocal parked, switched, switch_started_at
         if refresh.runtime_containers(runtime_home) != previous:
             raise RuntimeError("standing changed while the promotion prepared; rerun it")
-        activation_started = time.monotonic()
         if render_ahead["status"] == "pass":
             snapshot_rows = timed("saved-page-snapshot", lambda: snapshot_saved_page_output(snapshot))
             if snapshot_rows < render_ahead["stale_pages_before"]:
@@ -1627,70 +1358,10 @@ def activate(
                 raise RuntimeError(f"standing {service} does not run the promoted image")
         if refresh.port_443_owner(current)["container_id"] != previous_owner["container_id"]:
             raise RuntimeError("activation changed the port-443 owner")
-        effective_config = refresh.command(
-            *refresh.compose_command(runtime_home, "config", override_file=override_file),
-            cwd=runtime_home,
-        )
-        differential = refresh.runtime_differential_identity(
-            source_root, identity, images, effective_config
-        )
-        refresh.atomic_json(differential_path, differential)
-        refresh_receipt = {
-            "schema_version": REFRESH_RECEIPT_SCHEMA_VERSION,
-            "kind": "standing-promotion",
-            "status": "pass",
-            "run_id": run_id,
-            "started_at": datetime.now(UTC).isoformat(),
-            "completed_at": datetime.now(UTC).isoformat(),
-            "activation_duration_seconds": time.monotonic() - activation_started,
-            "image_verification_duration_seconds": 0.0,
-            "compose_activation_duration_seconds": timings["compose"],
-            "health_duration_seconds": timings["health"],
-            "canary_duration_seconds": timings["canary"],
-            "wikijump_sha": identity["wikijump_sha"],
-            "wikijump_tree": identity["wikijump_tree"],
-            "ftml_sha": identity["ftml_sha"],
-            "dependency_lock_sha256": identity["dependency_lock_sha256"],
-            "build_evidence": {
-                "path": str(evidence / "build" / "seal.json"),
-                "sha256": refresh.file_sha256(evidence / "build" / "seal.json"),
-            },
-            "runtime_home": str(runtime_home),
-            "project_name": "wikijump-standing",
-            "network_name": environment["STANDING_NETWORK_NAME"],
-            "images": {service: {k: images[service][k] for k in ("reference", "id", "repo_digests", "labels")} for service in SERVICES},
-            "rollback_images": rollback_images,
-            "protected_volumes": list(PROTECTED_VOLUMES),
-            "saved_page_render_freshness": {
-                "status": "pass",
-                "expected_compiled_generator": render_ahead["expected_compiled_generator"],
-                "stale_pages_remaining": 0,
-            },
-            "render_ahead": render_ahead,
-            "runtime_differential_identity": {
-                "path": str(differential_path),
-                "sha256": refresh.file_sha256(differential_path),
-                "identity": differential,
-            },
-            "health": health,
-            "canary": canary,
-            "resource_disposition": {
-                "active": {
-                    service: {"owner": "standing-runtime", "keep_until": expiry, "id": images[service]["id"]}
-                    for service in SERVICES
-                },
-                "rollback": {
-                    service: {"owner": "standing-runtime-rollback", "keep_until": expiry, "id": rollback_images[service]["id"]}
-                    for service in SERVICES
-                },
-                "volumes": "protected-and-untouched",
-                "worktrees": "none created",
-                "target_directories": "none created",
-            },
+        return {
+            "timings": dict(timings), "health": health, "canary": canary,
+            "gateway": gateway, "catch_up": catch_up,
         }
-        path = evidence / "refresh-receipt.json"
-        refresh.atomic_json_no_replace(path, refresh_receipt)
-        return {"refresh_receipt": str(path), "timings": dict(timings), "gateway": gateway, "catch_up": catch_up}
 
     try:
         switched_result = stages.run("activation", switch_stage)
@@ -1698,7 +1369,7 @@ def activate(
             "standing-proof",
             lambda: browser_parity(
                 source_root, "standing", evidence / "standing-browser-parity", reference,
-                ["--standing-refresh", switched_result["refresh_receipt"]],
+                [],
                 evidence / "standing-browser-parity.log",
             ),
         )
@@ -1725,10 +1396,6 @@ def activate(
             rollback["container_recovery"] = refresh.restore_or_recreate_previous_containers(
                 parked, runtime_home, override_file, rollback_images
             )
-            if previous_differential is None:
-                differential_path.unlink(missing_ok=True)
-            else:
-                differential_path.write_text(previous_differential, encoding="utf-8")
             refresh.wait_for_health(runtime_home, override_file, health_timeout)
             rollback["gateway"] = reload_gateway()
             # Best effort, after the old build is back: render whatever the

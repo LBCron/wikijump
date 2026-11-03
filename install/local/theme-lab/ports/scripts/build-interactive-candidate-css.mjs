@@ -10,7 +10,6 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {sourceCssIncludes} from '../../src/source-css-includes.mjs';
 import {composeThemeCss} from '../../src/candidate-css-composition.mjs';
-import {assertPublishablePackage} from '../../src/adaptation-authority.mjs';
 import {candidatePageTags,genericRuntimeThemeCss} from '../../src/runtime-theme-css.mjs';
 
 const portsDir=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -26,7 +25,6 @@ for(const entry of entries){
   const dir=path.join(portsDir,entry.name);
   let manifest;try{manifest=JSON.parse(await fs.readFile(path.join(dir,'manifest.json'),'utf8'))}catch{continue}
   if(!manifest.en_source_sha256)continue;
-  assertPublishablePackage(entry.name);
   const includeCss=await sourceCssIncludes(dir);
   if(includeCss){
     manifest.interactive_acceptance??={};

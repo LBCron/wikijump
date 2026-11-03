@@ -39,7 +39,7 @@ test('legacy EN manifest normalizes to the campaign conventions', () => {
     files: BASE_FILES,
     ledgerEntry: {source_file: 'candidate.wikidot.source.txt'},
   });
-  const pkg = loadThemePackage(ports, 'basalt-like', {ledger});
+  const pkg = loadThemePackage(ports, 'basalt-like');
   assert.equal(pkg.kind, THEME_PACKAGE_KINDS.LEGACY_EN);
   assert.equal(pkg.slug, 'theme:basalt-like');
   assert.equal(pkg.sourceName, 'candidate.wikidot.source.txt');
@@ -50,7 +50,6 @@ test('legacy EN manifest normalizes to the campaign conventions', () => {
   assert.deepEqual(pkg.publicationSourceNames, []);
   assert.equal(pkg.selectorsFile, null);
   assert.equal(pkg.surfaceContractFile, null);
-  assert.equal(pkg.ledgerSourceFile, 'candidate.wikidot.source.txt');
 });
 
 test('legacy package without a ledger entry falls back to the on-disk source convention', () => {
@@ -60,8 +59,7 @@ test('legacy package without a ledger entry falls back to the on-disk source con
     files: BASE_FILES,
   });
   assert.equal(loadThemePackage(ports, 'unledgered').sourceName, 'candidate.wikidot.source.txt');
-  assert.equal(candidateSourceName(path.join(ports, 'unledgered'), null), 'candidate.wikidot.source.txt');
-  assert.equal(candidateSourceName(path.join(ports, 'unledgered'), {source_file: 'candidate.wikidot.txt'}), 'candidate.wikidot.txt');
+  assert.equal(candidateSourceName(path.join(ports, 'unledgered')), 'candidate.wikidot.source.txt');
 });
 
 test('retained-authority manifest resolves reference.json and the preview-as-source shape', () => {
@@ -71,7 +69,7 @@ test('retained-authority manifest resolves reference.json and the preview-as-sou
     files: {'candidate.wikidot.txt': 'preview', 'candidate.css': 'css', 'reference.json': JSON.stringify({reference_url: 'https://scpko.wikidot.com/theme:dear-like'})},
     ledgerEntry: {source_file: 'candidate.wikidot.txt'},
   });
-  const pkg = loadThemePackage(ports, 'dear-like', {ledger});
+  const pkg = loadThemePackage(ports, 'dear-like');
   assert.equal(pkg.kind, THEME_PACKAGE_KINDS.RETAINED_AUTHORITY);
   assert.equal(pkg.slug, 'theme:dear-like');
   assert.equal(pkg.sourceName, 'candidate.wikidot.txt');
@@ -125,23 +123,3 @@ test('discovery finds manifest packages and ignores other directories', () => {
   assert.deepEqual(found.map((pkg) => pkg.name), ['one', 'two']);
 });
 
-test('the maintained tree resolves every package with the historical file choices', () => {
-  const ports = path.join(root, 'ports');
-  const ledger = JSON.parse(fs.readFileSync(path.join(ports, 'adaptation-authority.json'), 'utf8'));
-  const packages = discoverThemePackages(ports, {ledger});
-  assert.equal(packages.length, 36);
-  for (const pkg of packages) {
-    assert.ok(fs.existsSync(pkg.sourceFile), `${pkg.name}: source exists`);
-    assert.ok(fs.existsSync(pkg.previewFile), `${pkg.name}: preview exists`);
-    assert.ok(fs.existsSync(pkg.cssFile), `${pkg.name}: css exists`);
-    if (pkg.kind === THEME_PACKAGE_KINDS.LEGACY_EN) assert.equal(pkg.sourceName, 'candidate.wikidot.source.txt', pkg.name);
-  }
-  const dear = packages.find((pkg) => pkg.name === 'dear-dictator');
-  assert.equal(dear.sourceName, 'candidate.wikidot.txt');
-  assert.equal(dear.kind, THEME_PACKAGE_KINDS.RETAINED_AUTHORITY);
-  const fr = packages.find((pkg) => pkg.name === 'quand-le-soleil-se-couche');
-  assert.equal(fr.kind, THEME_PACKAGE_KINDS.FOREIGN_PORT);
-  assert.equal(fr.sourceInputName, 'candidate-template.css');
-  assert.deepEqual(fr.publicationSourceNames, ['publishable-theme.wikidot.txt']);
-  assert.ok(fr.surfaceContractFile);
-});

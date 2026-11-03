@@ -12,7 +12,7 @@ name: PR checks
 #   wws/**                                 cargo test --all-features + fmt check
 #   framerail/**                           pnpm test:unit
 #   install/local/wikidot-verification/**  pnpm test (the package suite)
-#   install/standing/**                    node --test install/standing/tests/
+#   install/standing/**                    python3 -m unittest (the standing tooling tests)
 #   .github/**, scripts/**                 node --test .github/tests/ (policy suite)
 #   locales/**                             cargo fmt --check (validator runs nightly)
 #
@@ -204,40 +204,6 @@ jobs:
         working-directory: framerail
         run: pnpm test:unit
 
-      - name: Resolve the sibling pins for the verification suite
-        if: steps.plan.outputs.verification == '1'
-        id: siblings
-        run: |
-          set -euo pipefail
-          # The verification tooling reads its FTML and wikidot.py source
-          # objects from sibling checkouts at the revisions the tree pins:
-          # FTML from deepwell/Cargo.lock, wikidot.py from the
-          # supported-source lock.
-          ftml_rev="$(sed -n '/^name = "ftml"$/,/^$/p' deepwell/Cargo.lock | grep -oE '[0-9a-f]{40}' | head -1)"
-          test -n "$ftml_rev"
-          echo "ftml_rev=$ftml_rev" >> "$GITHUB_OUTPUT"
-          wikidot_py_rev="$(node -e 'const fs = require("fs"); const v = JSON.parse(fs.readFileSync("docs/development/wikidot-py-supported-source.json", "utf8")); if (v.schema !== "wikijump.wikidot_py_supported_source.v1" || !/^[0-9a-f]{40}$/.test(v.commit ?? "")) process.exit(1); process.stdout.write(v.commit)')"
-          test -n "$wikidot_py_rev"
-          echo "wikidot_py_rev=$wikidot_py_rev" >> "$GITHUB_OUTPUT"
-
-      - name: Check out FTML at the pinned revision
-        if: steps.plan.outputs.verification == '1'
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-        with:
-          repository: Rokurolize/ftml
-          path: .ci-siblings/ftml
-          ref: ${{ steps.siblings.outputs.ftml_rev }}
-          fetch-depth: 0
-
-      - name: Check out wikidot.py at the pinned revision
-        if: steps.plan.outputs.verification == '1'
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-        with:
-          repository: Rokurolize/wikidot.py
-          path: .ci-siblings/wikidot.py
-          ref: ${{ steps.siblings.outputs.wikidot_py_rev }}
-          fetch-depth: 0
-
       - name: Configure the runner's git identity
         if: steps.plan.outputs.verification == '1'
         run: |
@@ -248,34 +214,14 @@ jobs:
           git config --global user.email "ci@localhost"
           git config --global user.name "wikijump-ci"
 
-      - name: Prepare the wikidot.py locked test environment
-        if: steps.plan.outputs.verification == '1'
-        working-directory: .ci-siblings/wikidot.py
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          export PATH="$HOME/.local/bin:$PATH"
-          uv sync --locked
-
-      - name: Fetch the full history for the verification suite
-        if: steps.plan.outputs.verification == '1'
-        run: |
-          # The suite's source-attribution tests resolve historical
-          # commits of this repository (the audited evidence files cite
-          # nested sources by commit), which the depth-1 checkout above
-          # does not carry; without this they fail on missing objects.
-          git fetch --unshallow origin
-
       - name: Wikidot verification suite
         if: steps.plan.outputs.verification == '1'
         working-directory: install/local/wikidot-verification
-        env:
-          WIKIJUMP_FTML_CHECKOUT: ${{ github.workspace }}/.ci-siblings/ftml
-          WIKIDOT_PY_CHECKOUT: ${{ github.workspace }}/.ci-siblings/wikidot.py
         run: pnpm test
 
       - name: Standing tooling tests
         if: steps.plan.outputs.standing == '1'
-        run: node --test install/standing/tests/*.test.mjs
+        run: python3 -m unittest discover -s install/standing/tests -p 'test_*.py'
 
       - name: Workflow policy tests
         if: steps.plan.outputs.policy == '1'

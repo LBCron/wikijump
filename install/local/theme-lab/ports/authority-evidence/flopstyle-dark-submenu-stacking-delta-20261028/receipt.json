@@ -1,8 +1,0 @@
-{
-  "schema": "theme_lab_w13_delta.v1",
-  "theme": "flopstyle-dark",
-  "item": "G2-02 (Q1-33): narrow-mobile submenu first row covered by page-title glyph fragments",
-  "correction": "#top-bar .mobile-top-bar>ul>li>ul{z-index:100}",
-  "frame": "Acceptance frame (capture machinery, W10 runtime, W13 S9 contract): nav.mobile-top submenu-expanded, chromium narrow-mobile. Pre-fix W13 capture is byte-identical to the W11 defect frame (screenshot sha c1439d8684c9969bbe4f9ce568e1d4c27445bb07d2760a2ed29c7cc2b87a2582). Post-fix verdict recorded in the W13 re-review from the recaptured frame in the branch audit (ports/current-acceptance/runs/campaign-20261028-w13-s9).",
-  "verdict": "pass \u2014 see the W13 report's re-review entry for the post-fix frame"
-}

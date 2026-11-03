@@ -6,9 +6,6 @@
 //   - legacy EN campaign manifests (no `schema` field);
 //   - `theme_lab_retained_source_authority.v1` (retained foreign ports);
 //   - `theme_lab_foreign_port.v1` (foreign ports with a surface contract).
-// The adaptation-authority ledger still owns each package's candidate
-// source file declaration; the resolver reads it from there and fails
-// closed when a required file is missing instead of guessing by name.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -28,12 +25,6 @@ export const FOREIGN_SOURCE_INPUT_FILE = 'candidate-template.css';
 export const DEFAULT_SOURCE_INPUT_FILE = 'candidate-input.css';
 export const FOREIGN_PUBLICATION_SOURCE_FILES = Object.freeze(['publishable-theme.wikidot.txt']);
 
-export function loadAuthorityLedger(root) {
-  const ledgerPath = path.join(root, 'ports', 'adaptation-authority.json');
-  if (!fs.existsSync(ledgerPath)) throw new Error('adaptation-authority ledger is missing (ports/adaptation-authority.json)');
-  return JSON.parse(fs.readFileSync(ledgerPath, 'utf8'));
-}
-
 export function themePackageKind(manifest) {
   if (manifest === null || typeof manifest !== 'object') throw new Error('package manifest must be a JSON object');
   if (manifest.schema === undefined || manifest.schema === null) return THEME_PACKAGE_KINDS.LEGACY_EN;
@@ -42,19 +33,10 @@ export function themePackageKind(manifest) {
   throw new Error(`unsupported package manifest schema: ${manifest.schema}`);
 }
 
-// The candidate source file for a package: the adaptation-authority
-// ledger declaration wins; otherwise the on-disk convention (EN packages
+// The candidate source file for a package follows the on-disk convention (EN packages
 // keep a distinct candidate.wikidot.source.txt, foreign packages publish
 // straight from the preview file). Callers resolve the returned name
 // against the package directory, which fails closed when it is absent.
-// The ledger-declared candidate source name with no filesystem access.
-// Expectation/inventory computations that must not touch the package
-// directory (it may be untrusted or not yet validated) use this form.
-export function declaredCandidateSourceName(ledgerEntry) {
-  const declared = ledgerEntry?.source_file;
-  return typeof declared === 'string' && declared ? declared : PACKAGE_CANDIDATE_SOURCE_FILE;
-}
-
 // The adaptation-authority input names for a package directory, derived
 // from the manifest kind alone. Unlike loadThemePackage this performs no
 // package-file validation, so callers whose own checks must fire first
@@ -71,9 +53,7 @@ export function adaptationInputNames(directory) {
   };
 }
 
-export function candidateSourceName(directory, ledgerEntry) {
-  const declared = ledgerEntry?.source_file;
-  if (typeof declared === 'string' && declared) return declared;
+export function candidateSourceName(directory) {
   return fs.existsSync(path.join(directory, PACKAGE_CANDIDATE_SOURCE_FILE))
     ? PACKAGE_CANDIDATE_SOURCE_FILE
     : PACKAGE_PREVIEW_FILE;
@@ -89,13 +69,12 @@ function slugFromSourceUrl(sourceUrl) {
   }
 }
 
-export function loadThemePackage(portsDirectory, name, {ledger = null} = {}) {
+export function loadThemePackage(portsDirectory, name) {
   const directory = resolveExistingPackageDirectory(portsDirectory, name, `${name}: package directory`);
   const manifestFile = path.join(directory, 'manifest.json');
   if (!fs.existsSync(manifestFile)) throw new Error(`${name}: package manifest is missing (manifest.json)`);
   const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
   const kind = themePackageKind(manifest);
-  const ledgerEntry = ledger?.packages?.[name] ?? null;
 
   let slug = null;
   if (kind === THEME_PACKAGE_KINDS.LEGACY_EN) slug = manifest.slug ?? null;
@@ -114,7 +93,7 @@ export function loadThemePackage(portsDirectory, name, {ledger = null} = {}) {
     if (!fs.existsSync(path.join(directory, fileName))) throw new Error(`${name}: ${label} is missing (${fileName})`);
     return resolveExistingPackageFile(directory, fileName, `${name}: ${label}`);
   };
-  const sourceName = candidateSourceName(directory, ledgerEntry);
+  const sourceName = candidateSourceName(directory);
   const previewName = PACKAGE_PREVIEW_FILE;
   const cssName = typeof manifest.candidate_css === 'string' && manifest.candidate_css ? manifest.candidate_css : PACKAGE_CSS_FILE;
   const selectorsPath = path.join(directory, PACKAGE_SELECTORS_FILE);
@@ -126,8 +105,6 @@ export function loadThemePackage(portsDirectory, name, {ledger = null} = {}) {
     slug,
     directory,
     manifest,
-    ledgerEntry,
-    ledgerSourceFile: typeof ledgerEntry?.source_file === 'string' ? ledgerEntry.source_file : null,
     previewName,
     previewFile: required(previewName, 'candidate preview'),
     sourceName,
@@ -157,12 +134,12 @@ export function loadThemePackage(portsDirectory, name, {ledger = null} = {}) {
   return Object.freeze(descriptor);
 }
 
-export function discoverThemePackages(portsDirectory, {ledger = null} = {}) {
+export function discoverThemePackages(portsDirectory) {
   const packages = [];
   for (const entry of fs.readdirSync(portsDirectory, {withFileTypes: true})) {
     if (!entry.isDirectory()) continue;
     if (!fs.existsSync(path.join(portsDirectory, entry.name, 'manifest.json'))) continue;
-    packages.push(loadThemePackage(portsDirectory, entry.name, {ledger}));
+    packages.push(loadThemePackage(portsDirectory, entry.name));
   }
   return packages.sort((a, b) => a.name.localeCompare(b.name));
 }

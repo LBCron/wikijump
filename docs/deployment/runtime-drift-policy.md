@@ -1,14 +1,12 @@
 # Runtime Drift Policy
 
-This policy governs the local standing Wikijump runtime used for continuous browser and client compatibility checks. Its purpose is to make every accepted observation attributable to one merged source revision and to prevent an old candidate from silently becoming the browser-facing service.
+This policy governs the local standing Wikijump runtime used for continuous browser and client compatibility checks. Its purpose is to keep the browser-facing service on one merged source revision and to stop an old candidate from silently taking over.
 
 ## Authoritative standing runtime
 
 Port 443 is owned by exactly one standing Compose stack. That stack is built only from the current merged `develop` head and its committed FTML lock pin. It is not a branch checkout, a pull-request image, a local dirty tree, or a retained test container.
 
-Before a standing runtime is accepted, record the merged Wikijump SHA and tree, FTML SHA, image digests for the gateway and every application upstream, profile and feature set where applicable, and the artifact key for any compiled Deepwell binary. The recorded gateway-to-upstream chain is the identity of the service, not the image tag alone.
-
-`install/standing/promote.py` promotes the merged `origin/develop` head in one command: it verifies the exact clean source, reuses or runs the final validation for the check groups the change selects, builds the application images labelled with that source from BuildKit caches, renders saved pages ahead when the renderer generation changes, rehearses on a copy of standing's data when migrations change, and activates with `docker compose up --no-build`. Activation itself never recompiles Rust or rebundles Framerail. One receipt records every stage. Local development remains the `install/local` watch-mode tier.
+`install/standing/promote.py` promotes the merged `origin/develop` head in one command: it verifies the exact clean source, runs the final validation for the check groups the change selects, builds the application images labelled with that source from BuildKit caches, renders saved pages ahead when the renderer generation changes, rehearses on a copy of standing's data when migrations change, and activates with `docker compose up --no-build`. Activation itself never recompiles Rust or rebundles Framerail. One receipt records every stage. Local development remains the `install/local` watch-mode tier.
 
 The standing stack must remain available as a deliverable. Its normal canaries cover HTTP responses for representative pages and assets, WIKIREQUEST metadata, AJAX ListPages, DOM rendering, and an unmodified `wikidot.py` site and page lookup. A failed canary is a runtime incident and is repaired before unrelated candidate work proceeds.
 
@@ -32,15 +30,15 @@ and post-cutover checks.
 
 ## Candidate runtimes
 
-Candidate stacks are isolated from the standing stack and never publish port 443. Each candidate has an explicit owner label naming the run that created it, Wikijump SHA and tree, FTML SHA, profile, artifact key or image digest, creation time, expiry time, and evidence directory. Candidate names, Compose project names, container labels, and receipts must carry that identity.
+Candidate stacks are isolated from the standing stack and never publish port 443. Each candidate carries owner, source SHA, and expiry labels.
 
-Candidates may use a dedicated non-443 port or no host port. They must not share the authoritative service name or network alias while the standing stack is serving traffic. A candidate is stopped and archived or removed when its receipt is terminal or its expiry passes. Retaining an image or volume is not evidence that a candidate is still authoritative.
+Candidates may use a dedicated non-443 port or no host port. They must not share the authoritative service name or network alias while the standing stack is serving traffic. A candidate is removed when its run ends or its expiry passes.
 
 ## Candidate image lifecycle
 
-Candidate images are disposable build outputs, not durable provenance. When a candidate is superseded or its verdict receipt becomes terminal, remove its containers and images in the same closure step after proving that no live container references them. The closure receipt records the image digest, candidate owner and identity, container-reference check, removal result, and the retained receipt path. If a historical candidate is needed again, rebuild it from the receipt's source revision, FTML pin, artifact key, profile, and features instead of relying on an old local image.
+Candidate images are disposable build outputs. Remove a candidate's containers and images when it ends, after confirming no live container uses them.
 
-The current production image and one immediate rollback image are explicitly retained through a successful promotion. They are standing-runtime recovery assets, not candidate retention. They may be removed only after a later promotion receipt confirms a newer healthy production image and replacement rollback image. Image cleanup must never remove a digest referenced by the live standing stack, the immediate rollback stack, or a nonterminal candidate receipt.
+Keep the current production image and one immediate rollback image through a successful promotion. Image cleanup must never remove an image the live stack uses.
 
 ## Promotion after merge
 
@@ -48,7 +46,7 @@ Promotion begins only after the change has merged normally to `develop`, and its
 
 The switch is atomic from the browser's perspective: park the old standing application containers, start the exact merged-head containers with the authoritative aliases, wait for health, require zero stale saved pages, and run the HTTP canary and the standing browser parity. If any of these fails, remove the new containers, put back the saved-page output a renderer generation change replaced (snapshotted before parking), restore the parked known-good containers, and record the failed promotion receipt. A change that adds migrations is rehearsed on a copy of standing's data first, because the old build cannot start on the migrated schema. Do not leave a candidate under the standing container name after a failed or interrupted promotion.
 
-`promote.py` writes `promotion-receipt.json` under `${XDG_STATE_HOME:-$HOME/.local/state}/wikijump/promotions/<sha>-<time>/`: every stage with its duration and result, the source and standing identities, the validation receipts that covered each check group, the image IDs, render-ahead and rehearsal results, and the activation's `refresh-receipt.json` (schema 4) with health, freshness, canary, runtime identity, and the retained production and rollback image IDs. The parked old containers are removed only after the standing proof passes.
+`promote.py` writes `promotion-receipt.json` under `${XDG_STATE_HOME:-$HOME/.local/state}/wikijump/promotions/<sha>-<time>/` with each stage's duration and result.
 
 ## Measurements and maintenance windows
 
@@ -56,4 +54,4 @@ Browser-facing measurement work is normally performed against an isolated candid
 
 ## Drift response
 
-When a source checkout, container name, image digest, FTML pin, or canary result disagrees with the standing receipt, stop accepting evidence from that runtime. Recover the authoritative stack from the latest merged-head promotion receipt, then issue a compact incident receipt describing the observed identity, the expected identity, the owner if known, and the repair result. Do not infer safety from an HTTP 200 alone.
+When the served revision disagrees with `origin/develop` or a canary fails, stop trusting that runtime and run `install/standing/promote.py`.

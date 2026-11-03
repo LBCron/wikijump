@@ -10,7 +10,7 @@ import {fileURLToPath} from 'node:url';
 export const THEME_LAB_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 import {KNOWN_THEME_SURFACES} from './theme-surface-contract.mjs';
-import {loadAuthorityLedger, loadThemePackage} from './theme-package.mjs';
+import {loadThemePackage} from './theme-package.mjs';
 
 function stripComments(css) {
   return css.replace(/\/\*[\s\S]*?\*\//gu, '');
@@ -136,9 +136,8 @@ export function classifySelectors(selectors, {surfaces = KNOWN_THEME_SURFACES, c
 
 export function triageThemePackage(themeLabRoot, nameOrSlug) {
   const ports = path.join(themeLabRoot, 'ports');
-  const ledger = loadAuthorityLedger(themeLabRoot);
   const byName = fs.existsSync(path.join(ports, nameOrSlug, 'manifest.json'));
-  const pkg = loadThemePackage(ports, byName ? nameOrSlug : nameOrSlug.replace(/^theme:/u, ''), {ledger});
+  const pkg = loadThemePackage(ports, byName ? nameOrSlug : nameOrSlug.replace(/^theme:/u, ''));
   const css = fs.readFileSync(pkg.cssFile, 'utf8');
   const {selectors, atRules, externalReferences} = extractCssSelectors(css);
   let customSelectors = [];

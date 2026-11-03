@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
@@ -8,14 +7,23 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let appendPane
+/** @type {any} */
 let backlinksPane
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let pageEditAction
+/** @type {any} */
 let pageBacklinksAction
 
 before(async () => {
@@ -82,8 +90,9 @@ test("Append SSR exposes only new source while preserving the current revision f
 })
 
 test("Append submission preserves metadata and commits only the appended source at the revision-bound edit action", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") {
       return {
@@ -199,8 +208,9 @@ test("Backlinks SSR exposes a lazy read pane without page identifiers", () => {
 })
 
 test("Backlinks handler delegates the current route to the typed public Deepwell view", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "page_backlinks_view") {
       return [

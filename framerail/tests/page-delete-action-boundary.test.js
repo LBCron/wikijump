@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -7,10 +6,15 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let slugActions
 
 before(async () => {
@@ -31,6 +35,7 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
+/** @param {any} body @param {any} [contentType] */
 const deleteEvent = (body, contentType = "application/x-www-form-urlencoded") => ({
   request: new Request("https://wikijump.test/source-page/delete?/delete", {
     method: "POST",
@@ -62,8 +67,9 @@ const foundPage = {
 }
 
 test("native delete-pane move resolves the routed page before moving it", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") return { user_id: 91 }
     if (method === "page_view") return foundPage
@@ -111,8 +117,9 @@ test("native delete-pane move resolves the routed page before moving it", async 
 })
 
 test("native Wikidot delete accepts an omitted comment", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") return { user_id: 91 }
     if (method === "page_view") return foundPage
@@ -144,8 +151,9 @@ test("native Wikidot delete accepts an omitted comment", async () => {
 })
 
 test("native Wikijump delete accepts an empty comment", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (method, params) => {
     calls.push({ method, params })
     if (method === "session_get") return { user_id: 91 }
     if (method === "page_view") return foundPage
@@ -163,8 +171,9 @@ test("native Wikijump delete accepts an empty comment", async () => {
 })
 
 test("native delete stops without mutation when the routed page is missing", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     calls.push(method)
     if (method === "session_get") return { user_id: 91 }
     if (method === "page_view") return { type: "missing", data: {} }
@@ -178,8 +187,9 @@ test("native delete stops without mutation when the routed page is missing", asy
 })
 
 test("enhanced delete preserves supplied page identity without resolving the route", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") return { user_id: 91 }
     if (method === "page_delete") {
@@ -219,8 +229,9 @@ test("enhanced delete preserves supplied page identity without resolving the rou
 })
 
 test("enhanced delete-pane move preserves supplied page identity without resolving the route", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") return { user_id: 91 }
     if (method === "page_move") {
@@ -266,8 +277,9 @@ test("enhanced delete-pane move preserves supplied page identity without resolvi
 })
 
 test("native delete-pane move rejects supplied identity fields before Deepwell", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (...args) => {
+  client.request = /** @param {...any} args */ async (...args) => {
     calls.push(args)
     throw new Error("Deepwell must not be called for an invalid native move")
   }
@@ -281,8 +293,9 @@ test("native delete-pane move rejects supplied identity fields before Deepwell",
 })
 
 test("native delete rejects move-only fields before Deepwell", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (...args) => {
+  client.request = /** @param {...any} args */ async (...args) => {
     calls.push(args)
     throw new Error("Deepwell must not be called for an invalid native delete")
   }

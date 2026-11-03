@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { after, before, test } from "node:test"
 import { fileURLToPath } from "node:url"
@@ -7,13 +6,21 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let watchersPane
+/** @type {any} */
 let watchersList
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let pageWatchersAction
 
 const fixtureWatchers = [
@@ -96,8 +103,9 @@ test("WatchersPane SSR exposes a lazy read pane with no roster and no denial", (
 })
 
 test("Watchers handler delegates the posted page id to the typed Deepwell view", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "page_watchers") {
       return fixtureWatchers

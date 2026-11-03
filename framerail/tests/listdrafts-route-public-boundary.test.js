@@ -6,11 +6,12 @@ const read = (relativePath) =>
   readFile(new URL(`../${relativePath}`, import.meta.url), "utf8")
 
 test("the public AMC route wires ListDrafts to its persisted renderer", async () => {
-  const [route, renderer, deepwellPage, connector] = await Promise.all([
+  const [route, renderer, deepwellPage, connector, editLease] = await Promise.all([
     read("src/routes/ajax-module-connector.php/+server.ts"),
     read("src/lib/server/wikidot-site-tools.js"),
     read("src/lib/server/deepwell/page.ts"),
-    read("src/lib/server/ajax-module-connector.js")
+    read("src/lib/server/ajax-module-connector.js"),
+    read("src/lib/server/ajax-module-connector-edit-lease.js")
   ])
 
   assert.match(route, /renderWikidotListDrafts/u)
@@ -25,7 +26,8 @@ test("the public AMC route wires ListDrafts to its persisted renderer", async ()
     assert.match(route, new RegExp(`\\b${name}\\b`, "u"), name)
     assert.match(deepwellPage, new RegExp(`export async function ${name}\\b`, "u"), name)
   }
-  assert.match(connector, /pageDraftEvent === "synchronize"/u)
-  assert.match(connector, /pageDraftEvent === "checkDraftExists"/u)
-  assert.match(connector, /leaveDraft === "false"/u)
+  assert.match(connector, /handlePageDraftEvents/u)
+  assert.match(editLease, /pageDraftEvent === "synchronize"/u)
+  assert.match(editLease, /pageDraftEvent === "checkDraftExists"/u)
+  assert.match(editLease, /leaveDraft === "false"/u)
 })

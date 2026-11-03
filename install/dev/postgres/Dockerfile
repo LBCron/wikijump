@@ -22,3 +22,7 @@ RUN apk add --no-cache \
 # Install files
 COPY ./install/local/postgres/init /docker-entrypoint-initdb.d
 COPY ./install/local/postgres/health-check.sh /bin/wikijump-health-check
+COPY ./install/common/postgres/locked-entrypoint.sh /usr/local/bin/wikijump-locked-entrypoint
+
+ENTRYPOINT ["wikijump-locked-entrypoint"]
+CMD ["postgres"]

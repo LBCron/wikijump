@@ -49,11 +49,24 @@ loop.
 
 ## Compose lifecycle and safe cleanup
 
-Database, MinIO, and Valkey data use the separate named volumes
-`local-postgres-data`, `local-minio-data`, and `local-valkey-data`. Caddy keeps
-its existing named volumes. Ordinary `docker compose down` therefore removes
-containers and networks while retaining all development caches and runtime
-data. Never pass `--volumes` to a normal development shutdown.
+Database, MinIO, Valkey, and Caddy data use named volumes whose names start with
+`WIKIJUMP_LOCAL_VOLUME_NAMESPACE`, read from the ignored `install/local/.env`.
+Set a value unique to the stack before its first start:
+
+```sh
+echo 'WIKIJUMP_LOCAL_VOLUME_NAMESPACE=wikijump-local-development' > install/local/.env
+```
+
+Without it the namespace is `local`. Two stacks must never share a namespace: two
+PostgreSQL servers on one data directory corrupt it, and their process namespaces
+hide each from the other's `postmaster.pid`. The server entrypoint therefore holds
+a lock on the data directory and a second server refuses to start. Cache volumes
+for Rust and pnpm are shared on purpose. Caddy's names can never equal Standing's
+`local-caddy-data` and `local-caddy-config`.
+
+Ordinary `docker compose down` removes containers and networks while retaining
+all development caches and runtime data. Never pass `--volumes` to a normal
+development shutdown.
 
 ### PostgreSQL major versions
 
@@ -64,14 +77,14 @@ database and upgrade the volume in place, then start the stack again:
 
 ```sh
 docker compose -f install/local/docker-compose.yaml stop database
-scripts/upgrade-postgres-volume.sh local-postgres-data --check
-scripts/upgrade-postgres-volume.sh local-postgres-data
+scripts/upgrade-postgres-volume.sh <namespace>-postgres-data --check
+scripts/upgrade-postgres-volume.sh <namespace>-postgres-data
 ```
 
 The upgrade cannot be undone. Add `--rollback-volume <new volume>` when the data
 would be expensive to recreate. Other stacks work the same way with their own
 volume name. `scripts/test-postgres-volume-upgrade.sh` proves the tool on a
-throwaway volume, and the tool's image names the previous major in
+throwaway volume, and the tool's image names the versions it can read in
 `install/common/postgres/upgrade/`.
 
 For a targeted Cargo cleanup, first check leases, processes, containers, and

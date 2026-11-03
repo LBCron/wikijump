@@ -5,7 +5,6 @@
 set -euo pipefail
 
 mode="$1"
-old_bin=/opt/pg17/bin
 new=/volume/.pg-upgrade-new
 superuser=wikijump
 hba=/tmp/upgrade/pg_hba.conf
@@ -19,11 +18,22 @@ if [[ "$(id -u)" == 0 ]]; then
   exec gosu postgres "$0" "$@"
 fi
 
-version="$(cat /volume/PG_VERSION)"
-if [[ "${version}" != 17 ]]; then
-  echo "expected a PostgreSQL 17 cluster, found ${version}" >&2
+# The same lock the server entrypoint holds, so no server can start meanwhile.
+exec 9</volume
+if ! flock -n 9; then
+  echo "a running server holds the lock on this volume" >&2
   exit 1
 fi
+
+version="$(cat /volume/PG_VERSION)"
+case "${version}" in
+  17) old_bin=/opt/pg17/bin ;;
+  19) old_bin=/opt/pg19rc1/bin ;;
+  *)
+    echo "no binaries for a PostgreSQL ${version} cluster" >&2
+    exit 1
+    ;;
+esac
 
 unset PGDATA
 cd /tmp/upgrade
@@ -37,6 +47,16 @@ if "${old_bin}/pg_controldata" /volume | grep -Eq '^Data page checksum version: 
   checksums=--data-checksums
 fi
 initdb -D "${new}" -U "${superuser}" --locale en_US.UTF-8 --encoding UTF8 "${checksums}" >/dev/null
+
+catalog_version() {
+  "$1" "$2" | sed -n 's/^Catalog version number: *//p'
+}
+if [[ "$(catalog_version "${old_bin}/pg_controldata" /volume)" == "$(catalog_version pg_controldata "${new}")" ]]; then
+  rm -rf "${new}"
+  echo "the server image already reads this cluster's catalog; nothing to upgrade"
+  exit 0
+fi
+
 cp /volume/pg_hba.conf /volume/pg_ident.conf /volume/postgresql.auto.conf "${new}/"
 
 upgrade_args=(

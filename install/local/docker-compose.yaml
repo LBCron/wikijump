@@ -203,17 +203,20 @@ services:
       timeout: 2s
       retries: 3
 
+# Every stack started from this file sets WIKIJUMP_LOCAL_VOLUME_NAMESPACE in
+# install/local/.env, so two stacks cannot attach one data directory. The Caddy
+# names can never equal Standing's local-caddy-data and local-caddy-config.
 volumes:
   local-caddy-data:
-    name: local-caddy-data
+    name: ${WIKIJUMP_LOCAL_VOLUME_NAMESPACE:-local}-dev-caddy-data
   local-caddy-config:
-    name: local-caddy-config
+    name: ${WIKIJUMP_LOCAL_VOLUME_NAMESPACE:-local}-dev-caddy-config
   local-postgres-data:
-    name: local-postgres-data
+    name: ${WIKIJUMP_LOCAL_VOLUME_NAMESPACE:-local}-postgres-data
   local-minio-data:
-    name: local-minio-data
+    name: ${WIKIJUMP_LOCAL_VOLUME_NAMESPACE:-local}-minio-data
   local-valkey-data:
-    name: local-valkey-data
+    name: ${WIKIJUMP_LOCAL_VOLUME_NAMESPACE:-local}-valkey-data
   local-rust-1-99-1-target:
     name: local-rust-1-99-1-target
   local-rust-1-99-1-cargo-registry:

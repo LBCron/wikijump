@@ -5,7 +5,10 @@ on:
   pull_request:
     paths:
       - 'install/common/postgres/**'
+      - 'install/dev/postgres/Dockerfile'
       - 'install/local/postgres/Dockerfile'
+      - 'scripts/upgrade-postgres-volume.sh'
+      - 'scripts/test-postgres-volume-upgrade.sh'
       - '.github/workflows/docker-build-postgres.local.yaml'
 
 permissions:
@@ -22,3 +25,6 @@ jobs:
         run: docker build -f install/local/postgres/Dockerfile .
         env:
           DOCKER_BUILDKIT: 1
+
+      - name: Upgrade a volume from the previous major version
+        run: bash scripts/test-postgres-volume-upgrade.sh

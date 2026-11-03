@@ -234,6 +234,7 @@ jobs:
             .github/tests/docker-build-workflow-security.test.mjs \
             .github/tests/ftml-boundary-deviations.test.mjs \
             .github/tests/local-postgres-security.test.mjs \
+            .github/tests/postgres-image-pins.test.mjs \
             .github/tests/local-publish-loopback.test.mjs \
             .github/tests/role-edit-backfill-security.test.mjs \
             .github/tests/seeded-admin-security.test.mjs \

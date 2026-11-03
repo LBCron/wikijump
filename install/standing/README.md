@@ -117,6 +117,18 @@ Tier 2 is the controlled maintenance ceremony for changes to named volume attach
 
 Physical volume migration is explicit and rollback-preserving. Copying data to a durable name and changing the Compose attachment are separate operations; neither is an incidental effect of Compose recreation. The migration verifier must prove checksum-equivalent copies while the old volumes are quiesced before the active topology is switched.
 
+### PostgreSQL major upgrade
+
+`install/local/postgres/Dockerfile` names the database image, but a promotion never changes the database (Tier 1 above), so a major bump is a Tier 2 step on the merged head. The data stays in `wikijump-standing-postgres-data`, at the path `SERVICE_DESTINATIONS` names.
+
+1. Check on a copy first: `promote.clone_standing_database(<volume>)`, start the old image on it once so it finishes recovery, stop it, then `scripts/upgrade-postgres-volume.sh <volume>`.
+2. Build the new image from the merged head and hold the 503 maintenance response. Stop Deepwell, Framerail, WWS, and the database with `docker compose stop` and no `-v`.
+3. `scripts/upgrade-postgres-volume.sh wikijump-standing-postgres-data --rollback-volume <rollback volume>`. The rollback volume is compared against the source before the upgrade starts. The upgrade uses hard links and cannot be undone.
+4. Set `STANDING_DATABASE_IMAGE` in the runtime `.env` to the new image ID, then `docker compose up -d --no-deps --no-build database deepwell framerail wws`, and verify health and the canaries (step 5 of the ceremony).
+5. To roll back, stop the same services, swap the rollback volume's contents back into the standing volume, and restore the old image ID. Writes made since the upgrade are lost, so remove the rollback volume only once the new runtime is trusted.
+
+An upgraded cluster keeps checksums off, as it was initialised; `pg_upgrade` requires the setting to match.
+
 ### One-time legacy volume migration
 
 The campaign-era `runtime50x-*` names are migrated exactly once. Stop the

@@ -55,6 +55,25 @@ its existing named volumes. Ordinary `docker compose down` therefore removes
 containers and networks while retaining all development caches and runtime
 data. Never pass `--volumes` to a normal development shutdown.
 
+### PostgreSQL major versions
+
+A data volume only starts on the PostgreSQL major version that created it. After
+a major bump in `install/local/postgres/Dockerfile`, the server exits with
+`database files are incompatible with server` on an existing volume. Stop the
+database and upgrade the volume in place, then start the stack again:
+
+```sh
+docker compose -f install/local/docker-compose.yaml stop database
+scripts/upgrade-postgres-volume.sh local-postgres-data --check
+scripts/upgrade-postgres-volume.sh local-postgres-data
+```
+
+The upgrade cannot be undone. Add `--rollback-volume <new volume>` when the data
+would be expensive to recreate. Other stacks work the same way with their own
+volume name. `scripts/test-postgres-volume-upgrade.sh` proves the tool on a
+throwaway volume, and the tool's image names the previous major in
+`install/common/postgres/upgrade/`.
+
 For a targeted Cargo cleanup, first check leases, processes, containers, and
 rollback state, then inspect Cargo's plan:
 

@@ -5,6 +5,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {deepwellRpcAuthorization} from '../../wikidot-verification/src/deepwell-rpc-auth.mjs';
 import {fixtureRpcTarget} from '../src/fixture-rpc-target.mjs';
+import {leasedPageEdit} from '../src/page-edit-lease.mjs';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
 const manifest=JSON.parse(await fs.readFile(path.join(root,'fixture-manifest.json'),'utf8'));
@@ -49,7 +50,7 @@ for(const fixture of manifest.fixtures){
   await rpc('page_create',{site_id:site.site_id,wikitext:source,title,alt_title:null,slug:fixture.slug,layout:'wikidot',revision_comments:`Materialize frozen ${fixture.source_identity} into migration fixture`,user_id:session.user_id,ip_address:'127.0.0.1',tags:['theme-lab-sigma10-migration']},context(fixture.slug));
   page=await rpc('page_get',{site_id:site.site_id,page:fixture.slug,details:{wikitext:true,compiled:false}},context(fixture.slug));
  }else if(page.wikitext!==source||page.title!==title){
-  await rpc('page_edit',{site_id:site.site_id,page:page.page_id,last_revision_id:page.revision_id,revision_comments:`Refresh frozen ${fixture.source_identity} migration fixture`,user_id:session.user_id,wikitext:source,title,tags:['theme-lab-sigma10-migration'],ip_address:'127.0.0.1'},context(fixture.slug));
+  await leasedPageEdit((method,params)=>rpc(method,params,context(fixture.slug)),{site_id:site.site_id,page:page.page_id,last_revision_id:page.revision_id,revision_comments:`Refresh frozen ${fixture.source_identity} migration fixture`,user_id:session.user_id,wikitext:source,title,tags:['theme-lab-sigma10-migration'],ip_address:'127.0.0.1'});
   page=await rpc('page_get',{site_id:site.site_id,page:fixture.slug,details:{wikitext:true,compiled:false}},context(fixture.slug));
  }
  if(!page||sha(page.wikitext)!==fixture.sha256)throw new Error(`fixture did not round-trip: ${fixture.slug}`);

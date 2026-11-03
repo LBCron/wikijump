@@ -99,7 +99,7 @@ use deepwell::services::page_query::{
     AuthorSelector, CategoriesSelector, ComparisonOperation, DataFormSelector,
     DateSelector, FoundPageFields, IncludedCategories, OrderBySelector, OrderProperty,
     PageParentSelector, PageQuery, PageQueryService, PageTypeSelector,
-    PaginationSelector, RangeSelector, ScoreSelector, TagCondition,
+    PaginationSelector, ScoreSelector, TagCondition,
 };
 use deepwell::services::page_revision::{PageRevisionService, RerenderType};
 use deepwell::services::permission::{
@@ -25663,7 +25663,6 @@ async fn query_listpages_test_author_slugs(
             score: &[],
             votes: &[],
             offset: 0,
-            range: RangeSelector::Current,
             name: None,
             slug: None,
             slugs: &[],
@@ -25677,7 +25676,6 @@ async fn query_listpages_test_author_slugs(
                 limit: Some(20),
                 ..Default::default()
             },
-            variables: &[],
             fields: FoundPageFields {
                 slug: true,
                 ..Default::default()

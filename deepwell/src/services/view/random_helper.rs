@@ -28,7 +28,7 @@ use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::page_query::{
     AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields,
     IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
-    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    PageTypeSelector, PaginationSelector, TagCondition,
 };
 use crate::services::render::{ViewablePageRef, view_decisions_for_scanned_pages};
 use crate::services::{PageQueryService, ServiceContext};
@@ -118,7 +118,6 @@ pub(super) async fn resolve_random_helper_redirect(
     let empty_cow: &[Cow<'_, str>] = &[];
     let empty_scores: &[crate::services::page_query::ScoreSelector] = &[];
     let empty_data_forms: &[crate::services::page_query::DataFormSelector<'_>] = &[];
-    let empty_variables = &[];
 
     let query = PageQuery {
         current_page_id,
@@ -151,7 +150,6 @@ pub(super) async fn resolve_random_helper_redirect(
         score: empty_scores,
         votes: empty_scores,
         offset: 0,
-        range: RangeSelector::Current,
         name: None,
         slug: None,
         slugs: empty_cow,
@@ -165,7 +163,6 @@ pub(super) async fn resolve_random_helper_redirect(
             limit: Some(RANDOM_HELPER_SCAN_ROWS),
             ..PaginationSelector::default()
         },
-        variables: empty_variables,
         fields: FoundPageFields {
             slug: true,
             page_category_id: true,

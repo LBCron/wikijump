@@ -50,6 +50,7 @@ pub fn trim_start_matches_in_place(string: &mut String, pattern: &str) {
         string.drain(..pattern.len());
     }
 }
+
 #[inline]
 pub fn trim_spaces_in_place(string: &mut String) {
     regex_replace_in_place(string, regex!(r"(^\s+)|(\s+$)"), "");

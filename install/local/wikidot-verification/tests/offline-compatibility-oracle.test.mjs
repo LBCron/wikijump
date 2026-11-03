@@ -22,24 +22,36 @@ const oraclePath = path.join(
   "..",
   "fixtures",
   "offline-compatibility",
-  "scp-9506-final-zero-oracle.json",
+  "scp-9506-recapture-oracle.json",
 );
 const responseFixturePath = path.join(
   here,
   "..",
   "fixtures",
   "offline-compatibility",
-  "scp-9506-browser-responses.json.gz",
+  "scp-9506-recapture-responses.json.gz",
 );
 
-test("SCP-9506 offline oracle is repository-owned and binds final-zero evidence", async () => {
+test("SCP-9506 offline oracle is repository-owned and binds its recapture successor provenance", async () => {
   const {oracle, goldenPath} = await loadOfflineBrowserOracle(oraclePath);
-  assert.equal(oracle.fixture_id, "scp-9506-final-zero-20260915");
-  assert.equal(oracle.provenance.final_zero_status, "pass");
+  assert.equal(oracle.fixture_id, "scp-9506-recapture-20261103");
+  assert.equal(oracle.provenance.kind, "recapture-successor");
+  assert.equal(oracle.provenance.status, "pass");
   assert.equal(
-    oracle.provenance.final_zero_wikijump_sha,
-    "162b0a5fe340ea126c9d0e5bddd8398be511e55e",
+    oracle.provenance.supersedes.fixture_id,
+    "scp-9506-final-zero-20260915",
   );
+  assert.equal(
+    oracle.provenance.supersedes.oracle_sha256,
+    "7e6a9c8a9861f583bb6f89fc6048a5f04006d0fbf59724e934370ecc44f34ccf",
+  );
+  assert.equal(oracle.provenance.owner_authorized_on, "2026-11-03");
+  assert.equal(
+    oracle.provenance.standing_wikijump_sha,
+    "6729d955187efcde83516503779b0cb8f658f473",
+  );
+  assert.equal(oracle.provenance.golden_width, 1366);
+  assert.equal(oracle.provenance.golden_height, 2188);
   assert.equal(oracle.pair.live_url, "https://scp-wiki.wikidot.com/scp-9506");
   assert.equal(
     oracle.pair.local_url,
@@ -84,6 +96,66 @@ test("offline browser oracle rejects self-approved or incomplete fixtures", () =
   assert.throws(
     () => validateOfflineBrowserOracle(base),
     /lacks a passing accepted comparison/u,
+  );
+});
+
+test("offline browser oracle rejects a recapture successor with broken provenance", () => {
+  const base = {
+    schema: "wikijump.offline_compatibility_browser_oracle.v1",
+    provenance: {
+      kind: "recapture-successor",
+      status: "pass",
+      supersedes: {
+        fixture_id: "scp-9506-final-zero-20260915",
+        oracle_sha256: "a".repeat(64),
+        golden_sha256: "b".repeat(64),
+      },
+      owner_authorized_on: "2026-11-03",
+      live_captured_at: "2026-11-03T06:13:18.809Z",
+      standing_captured_at: "2026-11-03T06:16:16.802Z",
+      standing_wikijump_sha: "c".repeat(40),
+      standing_wikijump_tree: "d".repeat(40),
+      ftml_sha: "e".repeat(40),
+      standing_browser_proof_sha256: "f".repeat(64),
+      standing_browser_parity_sha256: "0".repeat(64),
+      live_reference_sha256: "1".repeat(64),
+      golden_sha256: "2".repeat(64),
+      golden_width: 1366,
+      golden_height: 2188,
+      accepted_browser: {executable_sha256: "3".repeat(64)},
+    },
+    pair: {
+      live_url: "https://scp-wiki.wikidot.com/scp-9506",
+      local_url: "https://scp-wiki.wikijump.localhost/scp-9506",
+    },
+    live_capture: {
+      input_url: "https://scp-wiki.wikidot.com/scp-9506",
+      final_url: "https://scp-wiki.wikidot.com/scp-9506",
+      navigation_status: 200,
+    },
+    accepted_comparison: {status: "pass"},
+    verified_local_golden: {
+      file: "golden.png",
+      sha256: "2".repeat(64),
+    },
+  };
+  validateOfflineBrowserOracle(base);
+  base.provenance.supersedes.oracle_sha256 = "not-a-sha256";
+  assert.throws(
+    () => validateOfflineBrowserOracle(base),
+    /supersedes\.oracle_sha256 must be a lowercase SHA-256/u,
+  );
+  base.provenance.supersedes.oracle_sha256 = "a".repeat(64);
+  base.provenance.golden_sha256 = "4".repeat(64);
+  assert.throws(
+    () => validateOfflineBrowserOracle(base),
+    /successor golden SHA-256 mismatch/u,
+  );
+  base.provenance.golden_sha256 = "2".repeat(64);
+  base.provenance.status = "fail";
+  assert.throws(
+    () => validateOfflineBrowserOracle(base),
+    /successor must record a passing recapture/u,
   );
 });
 
@@ -135,7 +207,7 @@ test("offline browser CLI defaults to the hermetic SCP-9506 oracle", () => {
   assert.equal(args.localOrigin, "https://scp-wiki.wikijump.localhost");
   assert.equal(args.viewport.width, 1366);
   assert.equal(args.viewport.height, 900);
-  assert.match(args.oracle, /scp-9506-final-zero-oracle\.json$/u);
+  assert.match(args.oracle, /scp-9506-recapture-oracle\.json$/u);
   assert.throws(
     () => parseArgs(["--local-origin", "https://scp-wiki.wikidot.com"]),
     /wikijump\.localhost/u,

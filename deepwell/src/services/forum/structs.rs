@@ -35,14 +35,6 @@ pub struct CreateForumGroup {
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
-pub struct GetForumGroup {
-    pub site_id: i64,
-    pub forum_group_id: i64,
-    #[serde(default)]
-    pub include_deleted: bool,
-}
-
-#[derive(Deserialize, Debug, Copy, Clone)]
 pub struct GetForumGroups {
     pub site_id: i64,
     #[serde(default)]

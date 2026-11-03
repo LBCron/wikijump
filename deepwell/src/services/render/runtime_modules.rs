@@ -69,8 +69,8 @@ use crate::services::membership::{JoinModuleState, MembershipService};
 use crate::services::page_query::{
     AuthorSelector, CategoriesSelector, ComparisonOperation, DateSelector,
     FoundPageFields, IncludedCategories, OrderBySelector, OrderProperty,
-    PageParentSelector, PageQuery, PageTypeSelector, PaginationSelector, RangeSelector,
-    ScoreSelector, TagCondition,
+    PageParentSelector, PageQuery, PageTypeSelector, PaginationSelector, ScoreSelector,
+    TagCondition,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::relation::{GetSiteMember, RelationObject, RelationReference};

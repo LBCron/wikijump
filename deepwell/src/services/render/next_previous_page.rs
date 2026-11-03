@@ -49,7 +49,7 @@ use crate::services::page_query::{
     AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields, FoundPageRow,
     FoundPages, IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector,
     PageQuery, PageQueryScoreFilterCache, PageTypeSelector, PaginationSelector,
-    RangeSelector, TagCondition,
+    TagCondition,
 };
 use crate::services::{PageQueryService, PageService, ServiceContext};
 
@@ -642,7 +642,6 @@ async fn select_next_previous_page(
         score: &[],
         votes: &[],
         offset: 0,
-        range: RangeSelector::Current,
         name: None,
         slug: None,
         slugs: &[],
@@ -654,7 +653,6 @@ async fn select_next_previous_page(
             per_page: PaginationSelector::default().per_page,
             reversed: false,
         },
-        variables: &[],
         fields,
     };
 

@@ -254,7 +254,6 @@ impl PageQueryService {
             score,
             votes,
             offset,
-            range: _,
             name,
             slug,
             slugs,
@@ -262,7 +261,6 @@ impl PageQueryService {
             order,
             candidate_limit,
             pagination,
-            variables: _,
             fields,
         } = query;
         let (category_mode, included_category_count) = match &included_categories {

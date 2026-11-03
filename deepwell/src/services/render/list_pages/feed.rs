@@ -25,8 +25,7 @@ use crate::error::prelude::{Error, ErrorType, ExnError, Result, ResultExt};
 use crate::services::page_query::{
     AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields,
     IncludedCategories, OrderBySelector, PageParentSelector, PageQuery,
-    PageQueryScoreFilterCache, PageTypeSelector, PaginationSelector, RangeSelector,
-    TagCondition,
+    PageQueryScoreFilterCache, PageTypeSelector, PaginationSelector, TagCondition,
 };
 use crate::services::{PageRevisionService, ServiceContext, SiteService, TextService};
 use crate::types::Reference;
@@ -223,7 +222,6 @@ impl RenderService {
                 score: &score,
                 votes: &[],
                 offset: 0,
-                range: RangeSelector::Current,
                 name: None,
                 slug: None,
                 slugs: &[],
@@ -237,7 +235,6 @@ impl RenderService {
                     per_page: WIKIDOT_RSS_ITEM_LIMIT as u8,
                     reversed: false,
                 },
-                variables: &[],
                 fields: FoundPageFields {
                     title: true,
                     slug: true,

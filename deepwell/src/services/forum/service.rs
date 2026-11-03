@@ -20,8 +20,7 @@
 
 use super::structs::{
     CreateForumCategory, CreateForumGroup, DeleteForumCategory, DeleteForumGroup,
-    ForumGroupStructure, GetForumCategory, GetForumGroup, GetForumGroups,
-    GetForumStructure,
+    ForumGroupStructure, GetForumCategory, GetForumGroups, GetForumStructure,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::forum_category::{
@@ -117,40 +116,6 @@ impl ForumService {
         };
 
         let group = model.update(txn).await.or_raise(make_error)?;
-        Ok(group)
-    }
-
-    pub async fn get_group_optional(
-        ctx: &ServiceContext<'_>,
-        GetForumGroup {
-            site_id,
-            forum_group_id,
-            include_deleted,
-        }: GetForumGroup,
-    ) -> Result<Option<ForumGroupModel>> {
-        let txn = ctx.transaction();
-        let group = ForumGroup::find()
-            .filter(
-                Condition::all()
-                    .add(forum_group::Column::SiteId.eq(site_id))
-                    .add(forum_group::Column::ForumGroupId.eq(forum_group_id))
-                    .add_option(Self::deleted_condition(
-                        include_deleted,
-                        forum_group::Column::DeletedAt,
-                    )),
-            )
-            .one(txn)
-            .await
-            .or_raise(|| {
-                Error::new(
-                    format!(
-                        "failed to get forum group ID {} in site ID {}",
-                        forum_group_id, site_id,
-                    ),
-                    ErrorType::ForumGroup,
-                )
-            })?;
-
         Ok(group)
     }
 

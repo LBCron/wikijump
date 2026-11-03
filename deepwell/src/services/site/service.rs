@@ -194,7 +194,6 @@ pub(super) fn validate_site_icon_source(
     ));
 }
 
-#[allow(dead_code)]
 const DEFAULT_FORUM_PER_PAGE_DISCUSSION: bool = false;
 
 impl SiteService {

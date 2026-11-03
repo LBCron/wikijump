@@ -22,7 +22,6 @@ use strum_macros::{Display, EnumString, IntoStaticStr};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, EnumString, Display, IntoStaticStr)]
 #[strum(serialize_all = "kebab_case", ascii_case_insensitive)]
-#[allow(dead_code)]
 pub enum SystemRole {
     Root,
     Member,

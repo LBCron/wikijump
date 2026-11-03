@@ -104,7 +104,6 @@ pub struct GetSiteOutput {
     pub settings: SiteSettings,
 }
 
-#[allow(dead_code)]
 #[derive(Serialize, Deserialize, Debug, Copy, Clone)]
 pub struct SiteForumSettings {
     pub max_nest_level: i16,

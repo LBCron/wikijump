@@ -49,7 +49,6 @@ pub struct GetRoleInput<'a> {
 }
 
 #[derive(Deserialize, Debug, Clone)]
-#[allow(dead_code)]
 pub struct UpdateRoleInput {
     pub site_id: i64,
     pub role_id: i64,

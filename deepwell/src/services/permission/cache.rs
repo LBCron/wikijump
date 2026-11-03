@@ -60,7 +60,6 @@ pub struct SetUserPermissionInput {
     pub has_permission: bool,
 }
 
-#[allow(dead_code)]
 impl PermissionCache {
     fn site_user_key(site_id: Option<i64>, user_id: Option<i64>) -> String {
         format!(

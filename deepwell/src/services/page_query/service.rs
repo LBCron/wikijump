@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code, unused_variables)]
-
 use super::structs::{
     AuthorSelector, CategoriesSelector, ComparisonOperation, DataFormSelector,
     DateSelector, DateTimeResolution, FoundPageFields, FoundPageRow, FoundPages,
@@ -256,7 +254,7 @@ impl PageQueryService {
             score,
             votes,
             offset,
-            range,
+            range: _,
             name,
             slug,
             slugs,
@@ -264,7 +262,7 @@ impl PageQueryService {
             order,
             candidate_limit,
             pagination,
-            variables,
+            variables: _,
             fields,
         } = query;
         let (category_mode, included_category_count) = match &included_categories {

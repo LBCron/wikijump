@@ -660,40 +660,37 @@ impl MessageService {
         Ok(())
     }
 
+    fn message_not_found(purpose: &'static str, record_id: &str) -> Error {
+        Error::new(
+            format!("the {purpose} message record with ID {record_id} does not exist"),
+            ErrorType::MessageNotFound,
+        )
+    }
+
     async fn check_message_access(
         ctx: &ServiceContext<'_>,
         record_id: &str,
         user_id: i64,
         purpose: &'static str,
     ) -> Result<()> {
-        let make_error = || {
-            Error::new(
-                format!(
-                    "the {} message record with ID {} does not exist",
-                    purpose, record_id,
-                ),
-                ErrorType::MessageNotFound,
-            )
-        };
-
         let record = match Self::get_record_optional(ctx, record_id)
             .await
-            .or_raise(make_error)?
+            .or_raise(|| Self::message_not_found(purpose, record_id))?
         {
             Some(record) => record,
             None => {
                 error!("The {purpose} message record does not exist: {record_id}");
-                bail!(make_error());
+                bail!(Self::message_not_found(purpose, record_id));
             }
         };
 
         if record.sender_id != user_id
             && !Self::any_recipient_exists(ctx, record_id, user_id)
                 .await
-                .or_raise(make_error)?
+                .or_raise(|| Self::message_not_found(purpose, record_id))?
         {
             error!("User ID {user_id} is not a sender or recipient of the {purpose}");
-            bail!(make_error());
+            bail!(Self::message_not_found(purpose, record_id));
         }
 
         Ok(())
@@ -757,6 +754,23 @@ impl MessageService {
             })?;
 
         Ok(output)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn message_not_found_is_the_single_access_failure_shape() {
+        for purpose in ["reply", "forward"] {
+            let error = MessageService::message_not_found(purpose, "record-1");
+            assert_eq!(error.error_type, ErrorType::MessageNotFound);
+            assert_eq!(
+                error.message,
+                format!("the {purpose} message record with ID record-1 does not exist"),
+            );
+        }
     }
 }
 

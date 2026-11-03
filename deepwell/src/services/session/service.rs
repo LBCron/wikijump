@@ -36,6 +36,59 @@ use sea_orm::{
 
 #[derive(Debug)]
 pub struct SessionService;
+#[derive(Debug)]
+pub struct LockedMfaAttempt {
+    session: SessionModel,
+    user: UserModel,
+}
+
+impl LockedMfaAttempt {
+    pub async fn lock(
+        ctx: &ServiceContext<'_>,
+        session_token: &str,
+    ) -> Result<Option<Self>> {
+        info!("Locking restricted session for MFA verification");
+
+        let make_error = || {
+            Error::new(
+                "failed to lock restricted session for MFA verification",
+                ErrorType::Session,
+            )
+        };
+        let session = SessionService::mfa_attempt_session_query(session_token)
+            .one(ctx.transaction())
+            .await
+            .or_raise(make_error)?;
+        let Some(session) = session else {
+            return Ok(None);
+        };
+
+        let user = SessionService::mfa_attempt_user_query(session.user_id)
+            .one(ctx.transaction())
+            .await
+            .or_raise(make_error)?
+            .ok_or_raise(|| {
+                Error::new(
+                    "restricted session refers to a user that does not exist",
+                    ErrorType::UserNotFound,
+                )
+            })?;
+
+        Ok(Some(Self { session, user }))
+    }
+
+    pub fn session(&self) -> &SessionModel {
+        &self.session
+    }
+
+    pub fn user(&self) -> &UserModel {
+        &self.user
+    }
+
+    pub fn into_user(self) -> UserModel {
+        self.user
+    }
+}
 
 impl SessionService {
     pub const MAX_MFA_FAILED_ATTEMPTS: i32 = 5;
@@ -175,34 +228,8 @@ impl SessionService {
         ctx: &ServiceContext<'_>,
         session_token: &str,
     ) -> Result<Option<UserModel>> {
-        info!("Locking restricted session for MFA verification");
-
-        let make_error = || {
-            Error::new(
-                "failed to lock restricted session for MFA verification",
-                ErrorType::Session,
-            )
-        };
-        let session = Self::mfa_attempt_session_query(session_token)
-            .one(ctx.transaction())
-            .await
-            .or_raise(make_error)?;
-        let Some(session) = session else {
-            return Ok(None);
-        };
-
-        let user = Self::mfa_attempt_user_query(session.user_id)
-            .one(ctx.transaction())
-            .await
-            .or_raise(make_error)?
-            .ok_or_raise(|| {
-                Error::new(
-                    "restricted session refers to a user that does not exist",
-                    ErrorType::UserNotFound,
-                )
-            })?;
-
-        Ok(Some(user))
+        let locked = LockedMfaAttempt::lock(ctx, session_token).await?;
+        Ok(locked.map(LockedMfaAttempt::into_user))
     }
 
     pub async fn record_failed_mfa_attempt(

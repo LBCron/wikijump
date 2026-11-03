@@ -21,7 +21,7 @@
 mod service;
 mod structs;
 
-pub use self::service::SessionService;
+pub use self::service::{LockedMfaAttempt, SessionService};
 pub use self::structs::{
     CreateSession, GetOtherSessions, GetOtherSessionsOutput, InvalidateOtherSessions,
     RenewSession,

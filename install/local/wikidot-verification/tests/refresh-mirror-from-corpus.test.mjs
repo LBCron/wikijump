@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
-import {localPagesSql, parseArgs, planMirrorRefresh, planMirrorReconciliation, readCorpusEntityId, readCorpusEntities} from '../scripts/refresh-mirror-from-corpus.mjs';
+import {localPagesExcludingForeignSnapshotsSql, parseArgs, planMirrorRefresh, planMirrorReconciliation, readCorpusEntityId, readCorpusEntities} from '../scripts/refresh-mirror-from-corpus.mjs';
 
 const sha = (value) => crypto.createHash('sha256').update(value).digest('hex');
 const corpus = {
@@ -152,7 +152,7 @@ test('corpus entity inventory reads entity_id.txt and flags incomplete inventori
 });
 
 test('mirror refresh never lists foreign include-source storage as a mirror page', () => {
-  const sql = localPagesSql('scp-wiki', []);
+  const sql = localPagesExcludingForeignSnapshotsSql('scp-wiki', []);
   assert.match(
     sql,
     /foreign_snapshot\.source_site <> s\.slug\n {10}AND foreign_snapshot\.source_site NOT IN \(\n {12}SELECT source_branch FROM wikidot_corpus_import_run run WHERE run\.site_id = s\.site_id\)\)/u,

@@ -5,8 +5,8 @@ import test from "node:test";
 
 import {
   ALLOWLIST_SCHEMA,
-  DEFAULT_MAX_PINNED_CASES,
-  MIN_FINDING_LENGTH,
+  DEFAULT_MAX_PINNED_CASES_FORTYFOLD_RARITY_GAP,
+  MIN_FINDING_LENGTH_SIXTEEN_CHARACTER_FLOOR,
   REFERENCE_SCHEMA,
   analyzeRustSource,
   buildCorpusIndex,
@@ -71,7 +71,7 @@ test("rarity in the corpus is what marks a literal as pinned", () => {
   });
   const common = locateInCorpus("[[/module]]", corpus);
   assert.equal(common.pinned, false);
-  assert.ok(common.total > DEFAULT_MAX_PINNED_CASES);
+  assert.ok(common.total > DEFAULT_MAX_PINNED_CASES_FORTYFOLD_RARITY_GAP);
 });
 
 test("a literal absent from the corpus is not a finding", () => {
@@ -241,7 +241,7 @@ test("the checked-in allowlist is valid", () => {
 
 test("a short rare literal is a notice, not a finding", () => {
   const short = "%%x%%";
-  assert.ok(short.length < MIN_FINDING_LENGTH);
+  assert.ok(short.length < MIN_FINDING_LENGTH_SIXTEEN_CHARACTER_FLOOR);
   const shortCorpus = buildCorpusIndex([
     reference("one", `[[module ListPages]]${short}[[/module]]`),
     ...Array.from({length: 30}, (unused, index) =>
@@ -265,7 +265,7 @@ test("the CLI parses its options and requires a corpus", () => {
     allowlist:
       "install/local/wikidot-verification/fixtures/corpus-pinned-literals/allowlist.json",
     corpus: ["refs.jsonl"],
-    maxCases: DEFAULT_MAX_PINNED_CASES,
+    maxCases: DEFAULT_MAX_PINNED_CASES_FORTYFOLD_RARITY_GAP,
     strict: false,
     json: true,
     paths: ["some/path"],

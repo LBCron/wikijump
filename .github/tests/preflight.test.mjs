@@ -21,12 +21,15 @@ function createHarness(t) {
   const commandLog = path.join(directory, "commands.log")
   const pathLog = path.join(directory, "paths.log")
   mkdirSync(bin)
+  mkdirSync(path.join(directory, "evidence-store"), { recursive: true })
   writeFileSync(commandLog, "")
   writeFileSync(pathLog, "")
   t.after(() => rmSync(directory, { recursive: true, force: true }))
 
   writeExecutable(path.join(bin, "git"), `#!/usr/bin/env bash
 set -euo pipefail
+
+if [[ "\${1:-}" == -C ]]; then shift 2; fi
 
 emit_scope() {
   case "$1" in
@@ -57,6 +60,8 @@ case "$1" in
   rev-parse)
     if [[ "\${2:-}" == --show-toplevel ]]; then
       printf '%s\\n' "$PREFLIGHT_FAKE_ROOT"
+    elif [[ "\${2:-}" == --path-format=absolute && "\${3:-}" == --git-path ]]; then
+      printf '%s\\n' "$PREFLIGHT_FAKE_EXCLUDE"
     elif [[ "\${2:-}" == HEAD ]]; then
       printf '%s\\n' "$PREFLIGHT_HEAD_OID"
     else
@@ -106,7 +111,13 @@ if [[ "\${1:-}" == .github/scripts/classify-changes.mjs ]]; then
   tee "$PREFLIGHT_PATH_LOG" | "$PREFLIGHT_REAL_NODE" "$@"
 else
   line="node$(printf ' %s' "$@")"
+  if [[ -n "\${PREFLIGHT_DELAY_MATCH:-}" && "$*" == *"$PREFLIGHT_DELAY_MATCH"* ]]; then sleep 1; fi
   printf '%s\n' "$line" >> "$PREFLIGHT_COMMAND_LOG"
+  if [[ -n "\${THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED:-}" ]]; then
+    printf 'env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED=%s %s\n' "$THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED" "$line" >> "$PREFLIGHT_COMMAND_LOG"
+  fi
+  if [[ -n "\${PREFLIGHT_FAIL_MATCH:-}" && "$*" == *"$PREFLIGHT_FAIL_MATCH"* ]]; then exit 1; fi
+  if [[ -n "\${PREFLIGHT_INCONCLUSIVE_MATCH:-}" && "$*" == *"$PREFLIGHT_INCONCLUSIVE_MATCH"* ]]; then exit 2; fi
 fi
 `)
 
@@ -117,7 +128,10 @@ fi
     // Serial, so the recorded command order is deterministic.
     PREFLIGHT_JOBS: "1",
     PREFLIGHT_COMMAND_LOG: commandLog,
+    PREFLIGHT_FAKE_EXCLUDE: path.join(directory, "info-exclude"),
     PREFLIGHT_FAKE_ROOT: root,
+    THEME_LAB_AUTHORITY_STORE: path.join(directory, "evidence-store"),
+    THEME_LAB_EVIDENCE_STORE: path.join(directory, "evidence-store"),
     PREFLIGHT_FALLBACK_SCOPE: "all",
     PREFLIGHT_GIT_DIFF_FAIL: "false",
     PREFLIGHT_HEAD_OID: headOid,
@@ -410,4 +424,118 @@ test("listing without a change-set still prints the group plan (the nightly shap
   assert.equal(quiet.status, 0, quiet.stderr)
   assert.match(quiet.stdout, /nothing to check/)
   assert.deepEqual(gated.commands(), [])
+})
+
+const themeLabFanoutScenario = (t, overrides = {}) => {
+  const harness = createHarness(t)
+  const result = harness.runPreflight(["--base", remoteOid, "--final", "--groups", "theme_lab"], {
+    PREFLIGHT_JOBS: "0",
+    PREFLIGHT_REMOTE_SCOPE: "deepwell",
+    PREFLIGHT_THEME_LAB_ARCHIVE: "always",
+    ...overrides
+  })
+  return { harness, result }
+}
+
+const flagReadings = (harness) => harness.commands()
+  .filter((line) => line.startsWith("env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED="))
+  .map((line) => {
+    const match = /^env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED=(\d) (.*)$/u.exec(line)
+    return { flag: match[1], command: match[2] }
+  })
+  .sort((a, b) => a.command.localeCompare(b.command))
+
+const flagReaderCommands = [
+  "node install/local/theme-lab/scripts/real-port-regression.mjs --verify-only",
+  "node install/local/theme-lab/sigma10-migration/check-final.mjs --historical-only"
+]
+
+test("fan-out hands the authority flag to both readers: 1 when the authority segment passes, 0 when either half fails", (t) => {
+  const control = themeLabFanoutScenario(t)
+  assert.equal(control.result.status, 0, control.result.stdout + control.result.stderr)
+  assert.deepEqual(flagReadings(control.harness), [
+    { flag: "1", command: flagReaderCommands[0] },
+    { flag: "1", command: flagReaderCommands[1] }
+  ])
+
+  const adaptation = themeLabFanoutScenario(t, { PREFLIGHT_FAIL_MATCH: "check-adaptation-authority" })
+  assert.equal(adaptation.result.status, 1, adaptation.result.stdout)
+  assert.match(adaptation.result.stdout, /^--- Theme Lab adaptation authority: FAILED \(\d+s\)$/mu)
+  assert.match(adaptation.result.stdout, /^--- Theme Lab authority evidence restore: ok \(\d+s\)$/mu)
+  assert.deepEqual(flagReadings(adaptation.harness), [
+    { flag: "0", command: flagReaderCommands[0] },
+    { flag: "0", command: flagReaderCommands[1] }
+  ])
+
+  const restore = themeLabFanoutScenario(t, { PREFLIGHT_FAIL_MATCH: "content-addressed-authority-store" })
+  assert.equal(restore.result.status, 1, restore.result.stdout)
+  assert.match(restore.result.stdout, /^--- Theme Lab authority evidence restore: FAILED \(\d+s\)$/mu)
+  assert.match(restore.result.stdout, /^--- Theme Lab adaptation authority: ok \(\d+s\)$/mu)
+  assert.deepEqual(flagReadings(restore.harness), [
+    { flag: "0", command: flagReaderCommands[0] },
+    { flag: "0", command: flagReaderCommands[1] }
+  ])
+})
+
+test("fan-out reports every simultaneous failure and INCONCLUSIVE survives the nested merges", (t) => {
+  const harness = createHarness(t)
+  const result = harness.runPreflight(["--base", remoteOid, "--final", "--groups", "theme_lab,verification"], {
+    PREFLIGHT_JOBS: "0",
+    PREFLIGHT_REMOTE_SCOPE: "deepwell",
+    PREFLIGHT_THEME_LAB_ARCHIVE: "always",
+    PREFLIGHT_FAIL_MATCH: "check-",
+    PREFLIGHT_INCONCLUSIVE_MATCH: "generate-wikidot-specifications"
+  })
+  assert.equal(result.status, 1, result.stdout + result.stderr)
+  const failedChecks = [
+    "Theme Lab adaptation authority",
+    "Sigma-10 source evidence",
+    "Sigma-10 historical evidence integrity",
+    "Theme Lab campaign record integrity",
+    "Theme Lab post-closure changes",
+    "Theme Lab runtime drift report"
+  ]
+  for (const name of failedChecks) {
+    assert.match(result.stdout, new RegExp(`^--- ${name}: FAILED \\(\\d+s\\)$`, "mu"), name)
+  }
+  const summary = result.stdout.match(/^preflight: FAILED: (.*)$/mu)?.[1] ?? ""
+  for (const name of failedChecks) assert.ok(summary.includes(name), `${name} missing from: ${summary}`)
+  assert.match(result.stdout, /^preflight: INCONCLUSIVE \(no evidence to judge; not a pass\): wikidot specification generator$/mu)
+  assert.match(result.stdout, /^--- Theme Lab authority evidence restore: ok \(\d+s\)$/mu)
+  assert.match(result.stdout, /^--- Theme Lab deterministic packages: ok \(\d+s\)$/mu)
+  assert.match(result.stdout, /^--- Theme Lab Python tests: ok \(\d+s\)$/mu)
+})
+
+test("fan-out yields the serial receipt check set and statuses, in a deterministic order", async (t) => {
+  const { parsePreflightOutput } = await import(
+    "../../install/local/wikidot-verification/scripts/run-consolidated-validation.mjs"
+  )
+  const serial = themeLabFanoutScenario(t, { PREFLIGHT_JOBS: "1" })
+  assert.equal(serial.result.status, 0, serial.result.stdout + serial.result.stderr)
+  const fanoutA = themeLabFanoutScenario(t)
+  assert.equal(fanoutA.result.status, 0, fanoutA.result.stdout + fanoutA.result.stderr)
+  const fanoutB = themeLabFanoutScenario(t)
+  assert.equal(fanoutB.result.status, 0, fanoutB.result.stdout + fanoutB.result.stderr)
+
+  const byName = (parsed) => Object.fromEntries(parsed.checks.map((check) => [check.name, check.status]))
+  const serialParsed = parsePreflightOutput(serial.result.stdout)
+  const fanoutAParsed = parsePreflightOutput(fanoutA.result.stdout)
+  const fanoutBParsed = parsePreflightOutput(fanoutB.result.stdout)
+  assert.ok(serialParsed.checks.some((check) => check.name === "Theme Lab campaign record integrity"))
+  assert.ok(serialParsed.checks.some((check) => check.name === "Theme Lab tests"))
+  assert.deepEqual(byName(fanoutAParsed), byName(serialParsed))
+  assert.deepEqual(
+    fanoutAParsed.checks.map((check) => check.name),
+    fanoutBParsed.checks.map((check) => check.name)
+  )
+})
+
+test("fan-out starts post-closure changes only after the campaign restore has returned", (t) => {
+  const { harness, result } = themeLabFanoutScenario(t, { PREFLIGHT_DELAY_MATCH: "campaign-evidence-store" })
+  assert.equal(result.status, 0, result.stdout + result.stderr)
+  const commands = harness.commands()
+  const restoreIndex = commands.findIndex((line) => line.includes("campaign-evidence-store.py"))
+  const postClosureIndex = commands.findIndex((line) => line.includes("check-post-closure-changes.mjs"))
+  assert.ok(restoreIndex >= 0, commands.join("\n"))
+  assert.ok(postClosureIndex > restoreIndex, commands.join("\n"))
 })

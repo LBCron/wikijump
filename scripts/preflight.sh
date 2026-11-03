@@ -241,35 +241,101 @@ theme_lab_archive_selected() {
   return 1
 }
 
+check_theme_lab_python_tests() {
+  run_test "Theme Lab Python tests" python3 -m unittest discover -s install/local/theme-lab/tests -p 'test_*.py'
+}
+
+check_theme_lab_maintainable_sources() {
+  run_test "Theme Lab maintainable sources" node install/local/theme-lab/ports/scripts/prepare-maintainable-sources.mjs --check
+}
+
+check_theme_lab_deterministic_packages() {
+  run_test "Theme Lab deterministic packages" env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED="${TL_AUTHORITY_EVIDENCE_VERIFIED}" node install/local/theme-lab/scripts/real-port-regression.mjs --verify-only
+}
+
+check_theme_lab_sigma10_source() {
+  run_test "Sigma-10 source evidence" node install/local/theme-lab/sigma10-migration/check-sources.mjs
+}
+
+check_theme_lab_sigma10_historical() {
+  run_test "Sigma-10 historical evidence integrity" env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED="${TL_AUTHORITY_EVIDENCE_VERIFIED}" node install/local/theme-lab/sigma10-migration/check-final.mjs --historical-only
+}
+
+check_theme_lab_campaign_restore() {
+  run_test "Theme Lab current campaign evidence restore" install/local/theme-lab/scripts/restore-checkout-campaign-evidence.sh
+}
+
+check_theme_lab_campaign_integrity() {
+  # ALLOC-32 B: the frozen campaign record is verified historically
+  # against its own recorded identities (Check 1, hard PASS/FAIL, never
+  # INCONCLUSIVE); candidate changes are admitted live only with a
+  # complete successor entry (Check 2, --base is the change-set base the
+  # validation receipt carries); runtime drift is reported, not gated
+  # (Check 3). The original live completion checker remains the next
+  # campaign's closure checker and is no longer run post-closure.
+  run_test "Theme Lab campaign record integrity" node install/local/theme-lab/scripts/check-campaign-record-integrity.mjs
+}
+
+check_theme_lab_post_closure() {
+  run_test "Theme Lab post-closure changes" node install/local/theme-lab/scripts/check-post-closure-changes.mjs --base "${MERGE_BASE}"
+}
+
+check_theme_lab_restore_and_post_closure() {
+  if [[ "${TL_ARCHIVE_SELECTED}" == 1 ]]; then
+    check_theme_lab_campaign_restore
+  fi
+  check_theme_lab_post_closure
+}
+
+check_theme_lab_drift_report() {
+  run_test "Theme Lab runtime drift report" node install/local/theme-lab/scripts/check-runtime-drift.mjs
+}
+
 check_theme_lab_evidence() {
     run_test "Theme Lab authority evidence restore" install/local/theme-lab/scripts/restore-checkout-authority-evidence.sh
     run_test "Theme Lab adaptation authority" node install/local/theme-lab/ports/scripts/check-adaptation-authority.mjs
     # The deterministic-packages and Sigma-10 historical checks repeat the
     # per-package authority check; once it has passed on this tree, they skip
     # re-hashing the same evidence.
-    local authority_evidence_verified=0
+    TL_AUTHORITY_EVIDENCE_VERIFIED=0
     if ! "${LIST}" && ! failed_check "Theme Lab authority evidence restore" && ! failed_check "Theme Lab adaptation authority"; then
-      authority_evidence_verified=1
+      TL_AUTHORITY_EVIDENCE_VERIFIED=1
     fi
+    TL_ARCHIVE_SELECTED=0
     if [[ "${MODE}" == "final" ]]; then
-      run_test "Theme Lab Python tests" python3 -m unittest discover -s install/local/theme-lab/tests -p 'test_*.py'
-      run_test "Theme Lab maintainable sources" node install/local/theme-lab/ports/scripts/prepare-maintainable-sources.mjs --check
-      run_test "Theme Lab deterministic packages" env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED="${authority_evidence_verified}" node install/local/theme-lab/scripts/real-port-regression.mjs --verify-only
-      run_test "Sigma-10 source evidence" node install/local/theme-lab/sigma10-migration/check-sources.mjs
-      if theme_lab_archive_selected; then
-        run_test "Sigma-10 historical evidence integrity" env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED="${authority_evidence_verified}" node install/local/theme-lab/sigma10-migration/check-final.mjs --historical-only
-        run_test "Theme Lab current campaign evidence restore" install/local/theme-lab/scripts/restore-checkout-campaign-evidence.sh
-        # ALLOC-32 B: the frozen campaign record is verified historically
-        # against its own recorded identities (Check 1, hard PASS/FAIL, never
-        # INCONCLUSIVE); candidate changes are admitted live only with a
-        # complete successor entry (Check 2, --base is the change-set base the
-        # validation receipt carries); runtime drift is reported, not gated
-        # (Check 3). The original live completion checker remains the next
-        # campaign's closure checker and is no longer run post-closure.
-        run_test "Theme Lab campaign record integrity" node install/local/theme-lab/scripts/check-campaign-record-integrity.mjs
+      if "${LIST}" || [[ "${JOBS}" == 1 ]]; then
+        check_theme_lab_python_tests
+        check_theme_lab_maintainable_sources
+        check_theme_lab_deterministic_packages
+        check_theme_lab_sigma10_source
+        if theme_lab_archive_selected; then
+          TL_ARCHIVE_SELECTED=1
+          check_theme_lab_sigma10_historical
+          check_theme_lab_campaign_restore
+          check_theme_lab_campaign_integrity
+        fi
+        check_theme_lab_post_closure
+        check_theme_lab_drift_report
+      else
+        if theme_lab_archive_selected; then
+          TL_ARCHIVE_SELECTED=1
+        fi
+        local -a branches=(
+          check_theme_lab_python_tests
+          check_theme_lab_maintainable_sources
+          check_theme_lab_deterministic_packages
+          check_theme_lab_sigma10_source
+        )
+        if [[ "${TL_ARCHIVE_SELECTED}" == 1 ]]; then
+          branches+=(check_theme_lab_sigma10_historical)
+        fi
+        branches+=(check_theme_lab_restore_and_post_closure)
+        if [[ "${TL_ARCHIVE_SELECTED}" == 1 ]]; then
+          branches+=(check_theme_lab_campaign_integrity)
+        fi
+        branches+=(check_theme_lab_drift_report)
+        run_checks_concurrent "${branches[@]}"
       fi
-      run_test "Theme Lab post-closure changes" node install/local/theme-lab/scripts/check-post-closure-changes.mjs --base "${MERGE_BASE}"
-      run_test "Theme Lab runtime drift report" node install/local/theme-lab/scripts/check-runtime-drift.mjs
     fi
 }
 

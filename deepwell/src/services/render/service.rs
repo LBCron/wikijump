@@ -129,7 +129,8 @@ use super::list_pages::{
 };
 use super::literal_regions::LiteralRegionIndex;
 use super::metacomponent::{
-    MetacomponentSourceContext, select_metacomponent_documentation,
+    RootMetacomponentContext, select_included_metacomponent_documentation,
+    select_root_metacomponent_documentation,
 };
 use super::module_arguments::wikidot_module_argument;
 use super::next_previous_page::NextPreviousPageExpansion;
@@ -1347,16 +1348,10 @@ impl RenderService {
         let mut include_budget = IncludeExpansionBudget::new(max_include_expansions);
         let initial_include_expansions = include_budget.remaining;
         let mut include_source_cache = IncludeSourceCache::default();
-        let metacomponent_context = if page_info
-            .tags
-            .iter()
-            .any(|tag| tag.eq_ignore_ascii_case("component"))
-        {
-            MetacomponentSourceContext::RootComponent
-        } else {
-            MetacomponentSourceContext::RootNonComponent
-        };
-        select_metacomponent_documentation(&mut wikitext, metacomponent_context);
+        select_root_metacomponent_documentation(
+            &mut wikitext,
+            RootMetacomponentContext::from_root_tags(&page_info.tags),
+        );
         if settings.layout.legacy() {
             Self::trim_wikidot_document_leading_whitespace(&mut wikitext);
         }
@@ -3082,10 +3077,7 @@ impl RenderService {
                     &source.site_slug,
                     &source.page_slug,
                 );
-                select_metacomponent_documentation(
-                    &mut source.wikitext,
-                    MetacomponentSourceContext::Included,
-                );
+                select_included_metacomponent_documentation(&mut source.wikitext);
 
                 let nested_context = expansion_context.for_nested_source(&source);
                 let expansion = Self::expand_includes_for_site(

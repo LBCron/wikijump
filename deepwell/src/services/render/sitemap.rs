@@ -59,11 +59,21 @@ pub struct WikidotSitemapOutput {
     pub shard_count: Option<u64>,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct AnonymousViewer;
+
+impl AnonymousViewer {
+    pub const fn user_id(self) -> Option<i64> {
+        None
+    }
+}
+
 impl RenderService {
     pub async fn wikidot_sitemap(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         shard: u64,
+        viewer: AnonymousViewer,
     ) -> Result<Option<WikidotSitemapOutput>> {
         let start = shard
             .saturating_sub(1)
@@ -71,11 +81,10 @@ impl RenderService {
             .ok_or_else(|| {
                 Error::new("sitemap shard number overflow", ErrorType::Render)
             })?;
-        let viewer_user_id = None;
         let site_viewable = PermissionService::check_user_can(
             ctx,
             &CheckPermissionContext {
-                user_id: viewer_user_id,
+                user_id: viewer.user_id(),
                 site_id,
                 page_reference: None,
             },
@@ -118,7 +127,7 @@ impl RenderService {
         let mut category_permissions = BTreeMap::new();
         let decisions = PermissionService::batch_check_page_view_without_page_roles(
             ctx,
-            None,
+            viewer.user_id(),
             site_id,
             &candidate_ids,
             &mut category_permissions,

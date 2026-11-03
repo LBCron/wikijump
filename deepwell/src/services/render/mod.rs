@@ -140,7 +140,7 @@ pub use self::site_changes_feed::{
     WikidotSiteChangesFeedOutput, wikidot_site_changes_change_type,
 };
 pub use self::sitemap::{
-    SITEMAP_ENTRIES_PER_SHARD, WikidotSitemapEntry, WikidotSitemapOutput,
+    AnonymousViewer, SITEMAP_ENTRIES_PER_SHARD, WikidotSitemapEntry, WikidotSitemapOutput,
 };
 pub use self::structs::{
     RenderOutput, RenderPageOutput, WikidotListPagesFeedInput, WikidotListPagesFeedItem,

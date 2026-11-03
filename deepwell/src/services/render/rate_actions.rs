@@ -30,11 +30,33 @@ pub enum RateBrowserAction {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct RateBrowserActionRegistry {
-    pub site_id: i64,
-    pub page_id: i64,
-    pub revision_id: i64,
-    pub current_value: Option<i16>,
-    pub actions: Vec<RateBrowserAction>,
+    site_id: i64,
+    page_id: i64,
+    revision_id: i64,
+    current_value: Option<i16>,
+    actions: Vec<RateBrowserAction>,
+}
+
+impl RateBrowserActionRegistry {
+    pub fn site_id(&self) -> i64 {
+        self.site_id
+    }
+
+    pub fn page_id(&self) -> i64 {
+        self.page_id
+    }
+
+    pub fn revision_id(&self) -> i64 {
+        self.revision_id
+    }
+
+    pub fn current_value(&self) -> Option<i16> {
+        self.current_value
+    }
+
+    pub fn actions(&self) -> &[RateBrowserAction] {
+        &self.actions
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

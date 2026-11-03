@@ -1111,7 +1111,13 @@ fn strips_included_comment_usage_examples_after_expansion() {
             "component:interwiki-style"
         )]
     );
-    assert!(rendered.contains("styleFrame.html?priority=1"));
+    assert!(
+        rendered.contains(
+            "<div class=\"error-block\">Sorry, no match for the embedded content.</div>"
+        ),
+        "{rendered:?}",
+    );
+    assert!(!rendered.contains("styleFrame.html"), "{rendered:?}");
     assert!(!rendered.contains("Usage:"));
     assert!(!rendered.contains("[[include :scp-wiki:component:interwiki-style"));
 }
@@ -1913,4 +1919,86 @@ fn wikidot_image_block_include_with_unterminated_quote_cannot_swallow_enclosing_
         "{wikitext}"
     );
     assert!(!wikitext.contains("scp-image-caption"), "{wikitext}");
+}
+
+#[test]
+fn included_interwiki_style_embed_survives_production_preparation() {
+    let page_info = fallback_test_page_info("scp-anthology-2024", "SCP Anthology 2024");
+    let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+    let component_source = concat!(
+        "[!--\n",
+        "Usage:\n",
+        "[[include :scp-wiki:component:interwiki-style\n",
+        "| priority=1\n",
+        "]]\n",
+        "--]\n",
+        "[[embed]]\n",
+        "<iframe src=\"//interwiki.scpwiki.com/styleFrame.html?priority=1\" style=\"display: none\"></iframe>\n",
+        "[[/embed]]\n",
+    )
+    .to_owned();
+
+    let (expanded, included_pages) = ftml::include(
+        "[[include :scp-wiki:component:interwiki-style]]\n",
+        &settings,
+        PreparedIncluder {
+            pages: vec![Some(component_source)],
+            missing_replacements: Default::default(),
+        },
+        include_error,
+    )
+    .expect("prepared include should expand the component source");
+    assert_eq!(
+        included_pages,
+        vec![PageRef::page_and_site(
+            "scp-wiki",
+            "component:interwiki-style"
+        )]
+    );
+
+    let outer = RenderService::prepare_outer_render_wikitext(
+        super::super::ExpandedRenderWikitext {
+            theme_previewer_blank: false,
+            wikidot_compat_html: CompatHtmlFragments::new(&expanded),
+            wikidot_compat_text: CompatTextFragments::new(&expanded),
+            wikitext: expanded,
+            included_pages: Vec::new(),
+            expanded_include_count: 0,
+            url_offset_list_pages_content_bytes: 0,
+            runtime_css_insertions: Vec::new(),
+        },
+        &page_info,
+        &settings,
+    );
+    let inner = RenderService::prepare_inner_render_wikitext(outer, &settings);
+    assert_eq!(inner.wikidot_embed_iframes.len(), 1);
+    assert!(
+        inner.wikidot_embed_iframes[0]
+            .contains("src=\"/-/wikidot-interwiki/styleFrame.html?priority=1\""),
+        "{:?}",
+        inner.wikidot_embed_iframes,
+    );
+    assert!(!inner.wikitext.contains("[[embed]]"), "{}", inner.wikitext);
+
+    let tokens = ftml::tokenize(&inner.wikitext);
+    let (tree, _) = ftml::parse(&tokens, &page_info, &settings).into();
+    let html = HtmlRender.render(&tree, &page_info, &settings).body;
+    let html = RenderService::restore_protected_wikidot_embed_iframes(
+        html,
+        &inner.wikidot_embed_iframes,
+    );
+    let html = inner.protection.restore(|protection| {
+        let html = protection.compat_html().restore(&html);
+        protection.compat_text().restore(&html)
+    });
+
+    assert!(
+        html.contains(
+            "<iframe src=\"/-/wikidot-interwiki/styleFrame.html?priority=1\" style=\"display: none\"></iframe>"
+        ),
+        "{html}",
+    );
+    assert!(!html.contains("Usage:"), "{html}");
+    assert!(!html.contains("[[include"), "{html}");
+    assert!(!html.contains("error-block"), "{html}");
 }

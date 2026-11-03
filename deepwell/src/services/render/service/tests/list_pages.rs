@@ -4594,10 +4594,10 @@ fn substituted_identity_and_tag_values_escape_html_inside_html_blocks() {
 #[test]
 fn substituted_tag_values_escape_html_blocks_at_any_line_position() {
     let templates = [
-        "[[html]]\n<b>%%tags%%</b>\n[[/html]]",
-        "Summary [[html]]<b>%%tags%%</b>[[/html]]",
-        "Summary [[html]]\n<b>%%tags%%</b>\n[[/html]]",
-        "Summary\n[[html]]\n<b>%%tags%%</b>[[/html]]",
+        ("[[html]]\n<b>%%tags%%</b>\n[[/html]]", true),
+        ("Summary [[html]]<b>%%tags%%</b>[[/html]]", false),
+        ("Summary [[html]]\n<b>%%tags%%</b>\n[[/html]]", false),
+        ("Summary\n[[html]]\n<b>%%tags%%</b>[[/html]]", true),
     ];
     let page = FoundPageRow {
         page_id: 7,
@@ -4626,7 +4626,7 @@ fn substituted_tag_values_escape_html_blocks_at_any_line_position() {
         &data_form_values,
         false,
     );
-    for template in templates {
+    for (template, html_block) in templates {
         let substituted =
             substitute_list_pages_variables(template, &page, 1, 1, &context);
         assert!(
@@ -4648,9 +4648,28 @@ fn substituted_tag_values_escape_html_blocks_at_any_line_position() {
         let (tree, _) = ftml::parse(&tokens, &page_info, &settings).into();
         let rendered = HtmlRender.render(&tree, &page_info, &settings).body;
         assert!(
-            rendered.contains("html-block-iframe"),
-            "the shape must still be a raw html block: {template:?} -> {rendered:?}",
+            !rendered.contains("<img"),
+            "no raw hostile markup may reach the output: {template:?} -> {rendered:?}",
         );
+        if html_block {
+            assert!(
+                rendered.contains("html-block-iframe"),
+                "a block-position shape must still be a raw html block: {template:?} -> {rendered:?}",
+            );
+        } else {
+            assert!(
+                !rendered.contains("html-block-iframe"),
+                "a mid-line shape must not be a raw html block: {template:?} -> {rendered:?}",
+            );
+            assert!(
+                rendered.contains("[[html]]"),
+                "mid-line html markers render as literal text: {template:?} -> {rendered:?}",
+            );
+            assert!(
+                rendered.contains("&amp;lt;img src=x onerror=alert(1)&amp;gt;"),
+                "the substituted value may only appear escaped: {template:?} -> {rendered:?}",
+            );
+        }
     }
 }
 

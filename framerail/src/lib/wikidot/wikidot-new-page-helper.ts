@@ -1,55 +1,39 @@
-/**
- * @typedef {{
- *   status?: string
- *   goToUrl?: string
- *   unixName?: string
- *   templateId?: string
- *   pageTitle?: string
- *   tags?: string
- *   parentPage?: string
- *   message?: string
- * }} NewPageHelperResponse
- *
- *
- * @typedef {{
- *   listeners: Record<string, (event: Event) => false>
- *   callbacks: Record<string, (data: NewPageHelperResponse) => void>
- * }} NewPageHelperModule
- *
- *
- * @typedef {Window &
- *   typeof globalThis & {
- *     WIKIDOT?: {
- *       modules?: {
- *         NewPageHelperModule?: NewPageHelperModule
- *       }
- *     }
- *     __wikijumpNewPageHelperSubmitListenerInstalled?: boolean
- *   }} WikidotNewPageRoot
- */
+export type NewPageHelperResponse = {
+  status?: string
+  goToUrl?: string
+  unixName?: string
+  templateId?: string
+  pageTitle?: string
+  tags?: string
+  parentPage?: string
+  message?: string
+}
 
-/**
- * @param {WikidotNewPageRoot} root
- * @returns {NewPageHelperModule}
- */
-const ensureWikidotNamespace = (root) => {
+export type NewPageHelperModule = {
+  listeners: Record<string, (event: Event) => false>
+  callbacks: Record<string, (data: NewPageHelperResponse) => void>
+}
+
+export type WikidotNewPageRoot = Window &
+  typeof globalThis & {
+    WIKIDOT?: {
+      modules?: {
+        NewPageHelperModule?: NewPageHelperModule
+      }
+    }
+    __wikijumpNewPageHelperSubmitListenerInstalled?: boolean
+  }
+
+const ensureWikidotNamespace = (root: WikidotNewPageRoot): NewPageHelperModule => {
   const wikidot = (root.WIKIDOT ??= {})
   const modules = (wikidot.modules ??= {})
   return (modules.NewPageHelperModule ??= { listeners: {}, callbacks: {} })
 }
 
-/**
- * @param {Event | undefined} event
- * @returns {Element | null}
- */
-const eventTarget = (event) =>
+const eventTarget = (event: Event | undefined): Element | null =>
   event && "target" in event && event.target instanceof Element ? event.target : null
 
-/**
- * @param {Element | null} target
- * @returns {HTMLFormElement | null}
- */
-const containingForm = (target) => {
+const containingForm = (target: Element | null): HTMLFormElement | null => {
   let cursor = target
   while (cursor && !(cursor instanceof HTMLFormElement)) {
     cursor = cursor.parentElement
@@ -57,11 +41,7 @@ const containingForm = (target) => {
   return cursor instanceof HTMLFormElement ? cursor : null
 }
 
-/**
- * @param {WikidotNewPageRoot} root
- * @param {string} name
- */
-const cookieValue = (root, name) => {
+const cookieValue = (root: WikidotNewPageRoot, name: string): string => {
   const cookie = root.document?.cookie ?? ""
   for (const part of cookie.split(";")) {
     const [rawName, ...rawValue] = part.trim().split("=")
@@ -70,11 +50,10 @@ const cookieValue = (root, name) => {
   return ""
 }
 
-/**
- * @param {WikidotNewPageRoot} root
- * @param {HTMLFormElement} form
- */
-const formToUrlSearchParams = (root, form) => {
+const formToUrlSearchParams = (
+  root: WikidotNewPageRoot,
+  form: HTMLFormElement
+): URLSearchParams => {
   const params = new URLSearchParams()
   for (const control of Array.from(form.elements)) {
     if (
@@ -102,12 +81,8 @@ const formToUrlSearchParams = (root, form) => {
   return params
 }
 
-/**
- * @param {WikidotNewPageRoot} root
- * @param {NewPageHelperResponse} data
- */
-const navigateToSameOriginPath = (root, path) => {
-  let target
+const navigateToSameOriginPath = (root: WikidotNewPageRoot, path: string): boolean => {
+  let target: URL
   try {
     target = new URL(path, root.location.href)
   } catch {
@@ -120,7 +95,10 @@ const navigateToSameOriginPath = (root, path) => {
   return true
 }
 
-const redirectFromNewPageResponse = (root, data) => {
+const redirectFromNewPageResponse = (
+  root: WikidotNewPageRoot,
+  data: NewPageHelperResponse
+): void => {
   if (data.goToUrl) {
     if (data.goToUrl === ".") {
       root.location.reload()
@@ -138,26 +116,23 @@ const redirectFromNewPageResponse = (root, data) => {
   navigateToSameOriginPath(root, path)
 }
 
-/**
- * @param {WikidotNewPageRoot} root
- * @param {NewPageHelperResponse} data
- */
-const handleNewPageError = (root, data) => {
+const handleNewPageError = (
+  root: WikidotNewPageRoot,
+  data: NewPageHelperResponse
+): void => {
   const message = data.message || data.status || "NewPage request failed"
   root.alert(message)
 }
 
-/** @param {HTMLFormElement} form */
-const isNewPageHelperForm = (form) => {
+const isNewPageHelperForm = (form: HTMLFormElement) => {
   return (
     form.getAttribute("onsubmit")?.includes("NewPageHelperModule.listeners.create") ||
     form.closest(".new-page-box") !== null
   )
 }
 
-/** @param {WikidotNewPageRoot} [root] */
 export const installWikidotNewPageHelper = (
-  root = /** @type {WikidotNewPageRoot} */ (globalThis)
+  root: WikidotNewPageRoot = globalThis as WikidotNewPageRoot
 ) => {
   const helper = ensureWikidotNamespace(root)
   helper.listeners ??= {}

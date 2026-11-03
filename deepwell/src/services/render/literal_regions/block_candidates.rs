@@ -191,6 +191,7 @@ fn collect_oversized_fail_closed(source: &str) -> Vec<BlockCandidate> {
             opener: DelimiterIdentity {
                 kind: family.open_kind(),
                 start,
+                run_length: 2,
             },
             terminator: None,
         });
@@ -281,6 +282,7 @@ fn parse_block_opener(
         identity: DelimiterIdentity {
             kind: family.open_kind(),
             start,
+            run_length: 2,
         },
         content_start,
         quote_depth: line.native_quote_depth,
@@ -315,6 +317,7 @@ fn parse_block_close(
         identity: DelimiterIdentity {
             kind: family.close_kind(),
             start,
+            run_length: 2,
         },
         end,
         quote_depth: line.quote_depth,

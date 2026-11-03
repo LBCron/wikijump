@@ -8,7 +8,7 @@ use super::super::html_text::{
     html_preformatted_content_ranges, is_foreign_self_closing, opaque_element_end,
     protected_construct_end, tag_kind,
 };
-use super::super::literal_regions::LiteralRegionIndex;
+use super::super::literal_regions::{HtmlColorRestorationIndex, LiteralRegionIndex};
 use super::text_fragments::escape_html_text;
 
 #[cfg(test)]
@@ -491,7 +491,7 @@ impl CompatHtmlFragments {
     fn restore_with<'a>(
         &'a self,
         text: &str,
-        literal_regions: Option<&LiteralRegionIndex>,
+        literal_regions: Option<&HtmlColorRestorationIndex>,
         html_data_segments: Option<&[HtmlDataSegment]>,
         unwrap_block_paragraphs: bool,
         value: impl Fn(&'a CompatFragment) -> Option<&'a str>,

@@ -291,10 +291,14 @@ impl LiteralRegionIndex {
         index
     }
 
-    pub(super) fn new_html_color_restoration(source: &str) -> Self {
+    pub(super) fn new_html_color_restoration(source: &str) -> HtmlColorRestorationIndex {
         let mut index = Self { ranges: Vec::new() };
         let mut ranges = Vec::new();
-        collect_html_literal_ranges(source, &mut ranges, false, false);
+        collect_html_literal_ranges(
+            source,
+            &mut ranges,
+            HtmlLiteralContext::RenderedHtml,
+        );
         index.merge_sorted_ranges(ranges);
         let mut ranges = Vec::new();
         collect_html_tag_ranges(source, &mut ranges);
@@ -302,7 +306,7 @@ impl LiteralRegionIndex {
         let mut ranges = Vec::new();
         collect_paired_ranges(source, "<!--", "-->", &mut ranges);
         index.merge_sorted_ranges(ranges);
-        index
+        HtmlColorRestorationIndex { index }
     }
 
     fn build(source: &str, include_rendered_html: bool) -> Self {
@@ -316,7 +320,11 @@ impl LiteralRegionIndex {
             select_owned_ranges([&block_ranges, &raw_ranges, &comment_ranges]);
         if include_rendered_html {
             let mut html_ranges = Vec::new();
-            collect_html_literal_ranges(source, &mut html_ranges, true, true);
+            collect_html_literal_ranges(
+                source,
+                &mut html_ranges,
+                HtmlLiteralContext::WikitextSource,
+            );
             ranges = merge_sorted_ranges(ranges, html_ranges);
         }
 
@@ -562,11 +570,27 @@ fn collect_paired_ranges(
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum HtmlLiteralContext {
+    WikitextSource,
+    RenderedHtml,
+}
+
+#[derive(Debug, Default)]
+pub(super) struct HtmlColorRestorationIndex {
+    index: LiteralRegionIndex,
+}
+
+impl HtmlColorRestorationIndex {
+    pub(super) fn contains(&self, offset: usize) -> bool {
+        self.index.contains(offset)
+    }
+}
+
 fn collect_html_literal_ranges(
     source: &str,
     ranges: &mut Vec<Range<usize>>,
-    standalone_code_is_literal: bool,
-    div_code_is_literal: bool,
+    context: HtmlLiteralContext,
 ) {
     let mut cursor = 0usize;
     let mut active: Option<(String, usize, usize)> = None;
@@ -596,12 +620,7 @@ fn collect_html_literal_ranges(
             }
         } else if !closing
             && !self_closing
-            && html_tag_starts_literal(
-                &name,
-                tag,
-                standalone_code_is_literal,
-                div_code_is_literal,
-            )
+            && html_tag_starts_literal(&name, tag, context)
         {
             active = Some((name, tag_end, 1));
         }
@@ -649,19 +668,14 @@ fn html_tag_name(tag: &str) -> Option<(String, bool, bool)> {
     (!name.is_empty()).then(|| (name, closing, inner.ends_with('/')))
 }
 
-fn html_tag_starts_literal(
-    name: &str,
-    tag: &str,
-    standalone_code_is_literal: bool,
-    div_code_is_literal: bool,
-) -> bool {
+fn html_tag_starts_literal(name: &str, tag: &str, context: HtmlLiteralContext) -> bool {
     if name == "code" {
-        return standalone_code_is_literal;
+        return context == HtmlLiteralContext::WikitextSource;
     }
     if matches!(name, "pre" | "script" | "style" | "textarea") {
         return true;
     }
-    if name != "div" || !div_code_is_literal {
+    if name != "div" || context != HtmlLiteralContext::WikitextSource {
         return false;
     }
     let lower = tag.to_ascii_lowercase();

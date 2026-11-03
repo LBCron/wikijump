@@ -10,6 +10,7 @@ import {
   formatJsonl,
 } from "../src/corpus-import-manifest.mjs";
 import {writePage} from "./support/corpus-import-manifest-fixture.mjs";
+import {parseArgs} from "../scripts/apply-corpus-import-manifest.mjs";
 
 test('apply-corpus-import-manifest rejects DB create mode without a text hash command', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'corpus-apply-'));
@@ -324,4 +325,14 @@ test('apply-corpus-import-manifest rejects the racy empty-DB fast path before si
   assert.equal(result.status, 1);
   assert.match(result.stderr, /disabled until its empty-target guard and DB shell writes are atomic/);
   assert.doesNotMatch(result.stderr, /ENOENT|postgres|docker|S3/u);
+});
+
+test('apply-corpus-import-manifest parses repeatable foreign-source-site overrides', () => {
+  const parsed = parseArgs([
+    '--manifest', 'manifest.jsonl',
+    '--foreign-source-site', '05command',
+    '--foreign-source-site', 'other-site',
+  ]);
+  assert.deepEqual(parsed.foreignSourceSites, ['05command', 'other-site']);
+  assert.deepEqual(parseArgs(['--manifest', 'manifest.jsonl']).foreignSourceSites, []);
 });

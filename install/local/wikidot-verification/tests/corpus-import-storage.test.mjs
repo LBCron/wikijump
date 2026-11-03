@@ -12,6 +12,7 @@ import {
 import {
   assertNotReservedFullname,
   classifyForeignSnapshotHolders,
+  holdingForImport,
   isForeignSource,
   parseHoldingSite,
   storageSlug,
@@ -176,5 +177,49 @@ test("the snapshot upsert never moves a page between a foreign and another sourc
     own,
     /OR \(TRUE AND wikidot_page_snapshot\.source_site IN \('scp-wiki', '05command', 'en', 'ko'\)\)/u,
     "an own row may replace another own source of the same site",
+  );
+});
+
+test("holdingForImport carries the run branch and the operator foreign override", () => {
+  const holding = holdingForImport(
+    parseHoldingSite('{"siteSlug": "scp-wiki", "runBranches": ["en", "ko"]}'),
+    "live:05command-acquisition-20261103",
+    ["05command", "05command"],
+  );
+  assert.deepEqual(holding.runBranches, ["en", "ko", "live:05command-acquisition-20261103"]);
+  assert.deepEqual(holding.foreignSourceSites, ["05command"]);
+  assert.deepEqual(holdingForImport(SCP_WIKI, "en").foreignSourceSites, []);
+});
+
+test("an operator override classifies a branch-named source site as foreign", () => {
+  const holding = { ...SCP_WIKI, foreignSourceSites: ["05command"] };
+  assert.equal(isForeignSource(holding, "05command"), true);
+  assert.equal(
+    storageSlug(holding, row({ source_site: "05command", source_branch: "live:05command-acquisition-20261103", fullname: "contact-staff" })),
+    "_foreign:05command:contact-staff",
+  );
+  assert.equal(
+    isForeignSource({ ...SCP_WIKI, foreignSourceSites: ["scp-wiki"] }, "scp-wiki"),
+    false,
+    "the site's own slug stays own even when listed in the override",
+  );
+  assert.equal(isForeignSource(holding, "en"), false, "branch-named sources without an override stay own");
+  assert.equal(isForeignSource(holding, "scpko"), true, "unlisted sites stay foreign");
+});
+
+test("the branch-equals-site plan guard follows the override classification", () => {
+  const planArgs = { ...PLAN_ARGS, holding: { ...SCP_WIKI, foreignSourceSites: ["05command"] } };
+  assert.throws(
+    () => assertForeignStoragePlan(planArgs, [row({ source_site: "05command", source_branch: "05command", fullname: "contact-staff" })]),
+    /source_branch equals its source_site/u,
+    "a site-spelled branch is rejected once the override makes the source foreign",
+  );
+  assert.doesNotThrow(
+    () => assertForeignStoragePlan(planArgs, [row({ source_site: "05command", source_branch: "live:05command-acquisition-20261103", fullname: "contact-staff" })]),
+    "a distinct corpus branch applies under the override",
+  );
+  assert.doesNotThrow(
+    () => assertForeignStoragePlan(PLAN_ARGS, [row({ source_site: "05command", source_branch: "05command", fullname: "contact-staff" })]),
+    "without the override the same row keeps the existing own classification",
   );
 });

@@ -1074,7 +1074,7 @@ test("CLI emits the pinned FTML raw manifest without changing the public denomin
   ))
   assert.equal(inventory.counts.total, trackedInventory.counts.total)
   assert.deepEqual(inventory.ftml_raw_surface_manifest.counts, {
-    lexer_rules: 62,
+    lexer_rules: 64,
     parser_functions: 3,
     canonical_blocks: 63,
     block_aliases: 48,
@@ -1084,7 +1084,7 @@ test("CLI emits the pinned FTML raw manifest without changing the public denomin
     generated_runtime_kinds: 2,
     renderer_modules: 30,
     wikidot_fixtures: 140,
-    total: 414
+    total: 416
   })
   assert.equal(inventory.ftml_raw_surface_manifest.catalog_crosswalk.length, 41)
   assert.deepEqual(inventory.ftml_raw_surface_manifest.source, inventory.provenance.ftml)

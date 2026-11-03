@@ -2,7 +2,7 @@
   "schema": "wikijump.compatibility_surface_semantics.v1",
   "ftml": {
     "counts": {
-      "lexer_rules": 62,
+      "lexer_rules": 64,
       "parser_functions": 3,
       "canonical_blocks": 63,
       "block_aliases": 48,
@@ -12,7 +12,7 @@
       "generated_runtime_kinds": 2,
       "renderer_modules": 30,
       "wikidot_fixtures": 140,
-      "total": 414
+      "total": 416
     },
     "raw_surface_identities": [
       {
@@ -1665,6 +1665,14 @@
       },
       {
         "surface_id": "ftml.tokenizer:url",
+        "kind": "lexer_rule"
+      },
+      {
+        "surface_id": "ftml.tokenizer:url_star",
+        "kind": "lexer_rule"
+      },
+      {
+        "surface_id": "ftml.tokenizer:url_star_pre",
         "kind": "lexer_rule"
       },
       {

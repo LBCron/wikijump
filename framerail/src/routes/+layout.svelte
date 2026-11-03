@@ -254,6 +254,9 @@
     void import("$lib/wikidot/wikidot-code-highlighting").then((module) => {
       if (!disposed) stop = module.observeWikidotCodeBlocks(document)
     })
+    void import("$lib/dom/wj-tabs").then((module) => {
+      module.installWjTabs()
+    })
     return () => {
       disposed = true
       stop?.()

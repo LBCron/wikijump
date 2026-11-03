@@ -9,8 +9,7 @@ import {
   createFastPathFixtureStore,
   createFenceSubscriber,
   fastPathHeaders,
-  // eslint-disable-next-line no-redeclare
-  fetch
+  fetch as rawFetch
 } from "./article-response-fast-path/helpers.js"
 
 const readDockerfile = (tier) =>
@@ -82,7 +81,7 @@ test("production-like server construction wires cache stores through hit and inv
     subscriber.callbacks.onSubscribed()
     const baseUrl = await listen(runtime.server)
 
-    const cached = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const cached = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
     assert.equal(cached.status, 200)
     assert.equal(
       await cached.text(),
@@ -101,7 +100,7 @@ test("production-like server construction wires cache stores through hit and inv
       { path: "/about" },
       { path: "/scp-173/__data.json?x-sveltekit-invalidated=01" }
     ]) {
-      const response = await fetch(`${baseUrl}${request.path}`, {
+      const response = await rawFetch(`${baseUrl}${request.path}`, {
         method: request.method,
         headers: { ...fastPathHeaders, ...request.headers }
       })
@@ -114,7 +113,7 @@ test("production-like server construction wires cache stores through hit and inv
     subscriber.callbacks.onMessage(
       JSON.stringify({ type: "public-content", site_id: 6000005, version: "8" })
     )
-    const invalidated = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const invalidated = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
     assert.equal(invalidated.status, 209)
     assert.equal(await invalidated.text(), "authoritative response 7")
     assert.equal(handlerCalls, 7)
@@ -142,7 +141,7 @@ test("cache store outages leave the authoritative production handler available",
       tokenStore: null
     })
     const baseUrl = await listen(runtime.server)
-    const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const response = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
     assert.equal(response.status, 200)
     assert.equal(await response.text(), "fresh authoritative response")
   } finally {

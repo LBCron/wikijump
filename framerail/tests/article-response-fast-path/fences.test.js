@@ -12,8 +12,7 @@ import {
   createFastPathFixtureStore,
   createTrustedFenceCache,
   fastPathHeaders,
-  // eslint-disable-next-line no-redeclare
-  fetch,
+  fetch as rawFetch,
   withServer
 } from "./helpers.js"
 
@@ -21,7 +20,7 @@ test("article response fast path sends no cached body for HEAD hits", async () =
   const stores = await createFastPathFixtureStore()
 
   await withServer(stores, async ({ baseUrl, handlerCalls }) => {
-    const response = await fetch(`${baseUrl}/scp-173`, {
+    const response = await rawFetch(`${baseUrl}/scp-173`, {
       method: "HEAD",
       headers: fastPathHeaders
     })
@@ -39,7 +38,7 @@ test("article response fast path local hot hit avoids token and response store r
   const responseStore = createCountingStore(stores.responseStore)
 
   await withServer({ responseStore, tokenStore }, async ({ baseUrl, handlerCalls }) => {
-    const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
     assert.equal(first.status, 200)
     assert.equal(
       await first.text(),
@@ -49,7 +48,7 @@ test("article response fast path local hot hit avoids token and response store r
     assert.equal(tokenStore.getCalls(), 1)
     assert.equal(responseStore.getCalls(), 1)
 
-    const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
     assert.equal(second.status, 200)
     assert.equal(
       await second.text(),
@@ -92,7 +91,7 @@ test("article response fast path uses trusted shared local hot replay", async ()
   await withServer(
     stores,
     async ({ baseUrl, handlerCalls }) => {
-      const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const response = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
 
       assert.equal(response.status, 200)
       assert.equal(response.headers.get("x-cache-fixture"), "shared")
@@ -115,7 +114,7 @@ test("article response fast path trusted local fence second hot hit does zero st
   await withServer(
     { responseStore, tokenStore },
     async ({ baseUrl, handlerCalls }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       assert.equal(
         await first.text(),
@@ -125,7 +124,7 @@ test("article response fast path trusted local fence second hot hit does zero st
       assert.equal(tokenStore.getCalls(), 1)
       assert.equal(responseStore.getCalls(), 1)
 
-      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(second.status, 200)
       assert.equal(
         await second.text(),
@@ -149,14 +148,14 @@ test("article response fast path untrusted local fence cache falls back to Redis
   await withServer(
     { responseStore, tokenStore },
     async ({ baseUrl, handlerCalls }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       assert.equal(
         await first.text(),
         "<!doctype html><html><body>cached article</body></html>"
       )
 
-      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(second.status, 200)
       assert.equal(
         await second.text(),
@@ -177,7 +176,7 @@ test("article response fast path local hot cache misses after a fence change", a
   const responseStore = createCountingStore(stores.responseStore)
 
   await withServer({ responseStore, tokenStore }, async ({ baseUrl, handlerCalls }) => {
-    const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
     assert.equal(first.status, 200)
     assert.equal(
       await first.text(),
@@ -185,7 +184,7 @@ test("article response fast path local hot cache misses after a fence change", a
     )
 
     await tokenStore.set(buildPublicContentFenceKey(SITE_ID), "8")
-    const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
     assert.equal(second.status, 209)
     assert.equal(await second.text(), "fallback handler")
     assert.equal(handlerCalls(), 1)
@@ -204,7 +203,7 @@ test("article response fast path trusted public content invalidation prevents ol
   await withServer(
     { responseStore, tokenStore },
     async ({ baseUrl, handlerCalls }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       assert.equal(
         await first.text(),
@@ -219,7 +218,7 @@ test("article response fast path trusted public content invalidation prevents ol
         })
       )
 
-      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(second.status, 209)
       assert.equal(await second.text(), "fallback handler")
       assert.equal(handlerCalls(), 1)
@@ -240,7 +239,7 @@ test("article response fast path trusted anonymous permission invalidation preve
   await withServer(
     { responseStore, tokenStore },
     async ({ baseUrl, handlerCalls }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       assert.equal(
         await first.text(),
@@ -256,7 +255,7 @@ test("article response fast path trusted anonymous permission invalidation preve
         })
       )
 
-      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(second.status, 209)
       assert.equal(await second.text(), "fallback handler")
       assert.equal(handlerCalls(), 1)
@@ -304,7 +303,7 @@ test("article response fast path revalidates local fences after invalidation dur
     await withServer(
       { responseStore: deferredResponseStore, tokenStore: deferredTokenStore },
       async ({ baseUrl, handlerCalls }) => {
-        const responsePromise = fetch(`${baseUrl}/scp-173`, {
+        const responsePromise = rawFetch(`${baseUrl}/scp-173`, {
           headers: fastPathHeaders
         })
         await deferredStore.started
@@ -330,7 +329,7 @@ test("article response fast path malformed fence messages fail closed to Redis f
   await withServer(
     { responseStore, tokenStore },
     async ({ baseUrl, handlerCalls }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       assert.equal(
         await first.text(),
@@ -339,7 +338,7 @@ test("article response fast path malformed fence messages fail closed to Redis f
 
       subscriber.callbacks.onMessage("{not-json")
 
-      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(second.status, 200)
       assert.equal(
         await second.text(),
@@ -363,7 +362,7 @@ test("article response fast path local fence disconnect clears hot cache and fal
   await withServer(
     { responseStore, tokenStore },
     async ({ baseUrl, handlerCalls }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       assert.equal(
         await first.text(),
@@ -372,7 +371,7 @@ test("article response fast path local fence disconnect clears hot cache and fal
 
       subscriber.callbacks.onDisconnect()
 
-      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(second.status, 200)
       assert.equal(
         await second.text(),

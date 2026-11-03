@@ -8,8 +8,7 @@ import {
   createFastPathFixtureStore,
   createTrustedFenceCache,
   fastPathHeaders,
-  // eslint-disable-next-line no-redeclare
-  fetch,
+  fetch as rawFetch,
   withServer
 } from "./helpers.js"
 
@@ -36,7 +35,7 @@ test("article response fast path enforces static security headers on replay", as
   })
 
   await withServer(stores, async ({ baseUrl, handlerCalls }) => {
-    const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const response = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
 
     assert.equal(response.status, 200)
     const renewedNonce = renewedNonceFrom(response.headers.get("content-security-policy"))
@@ -70,7 +69,7 @@ test("article response fast path lets static security headers override mixed-cas
   })
 
   await withServer(stores, async ({ baseUrl, handlerCalls }) => {
-    const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const response = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
 
     assert.equal(response.status, 200)
     assert.equal(response.headers.get("x-frame-options"), "DENY")
@@ -97,7 +96,7 @@ test("article response fast path replays prepared static security headers from l
   await withServer(
     stores,
     async ({ baseUrl, handlerCalls }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       const firstNonce = renewedNonceFrom(first.headers.get("content-security-policy"))
       assert.equal(await first.text(), cachedBody.replace("cached-nonce", firstNonce))
@@ -120,7 +119,7 @@ test("article response fast path replays prepared static security headers from l
       ])
       assert.deepEqual(replay.nodeRawHeaders, replay.headers.flat())
 
-      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(second.status, 200)
       const renewedNonce = renewedNonceFrom(second.headers.get("content-security-policy"))
       assert.equal(second.headers.get("cross-origin-opener-policy"), "same-origin")
@@ -142,7 +141,7 @@ test("article response fast path fence invalidation clears prepared replay entri
   await withServer(
     { responseStore, tokenStore },
     async ({ baseUrl, handlerCalls }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       assert.equal(
         await first.text(),
@@ -161,7 +160,7 @@ test("article response fast path fence invalidation clears prepared replay entri
       assert.equal(hotCache.size(), 0)
       assert.equal(hotCache.getReplay(stores.tokenKey), null)
 
-      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(second.status, 209)
       assert.equal(await second.text(), "fallback handler")
       assert.equal(handlerCalls(), 1)
@@ -182,7 +181,7 @@ test("article response fast path falls through for unsafe requests", async () =>
 
   await withServer(stores, async ({ baseUrl, handlerCalls }) => {
     for (const [path, init] of candidates) {
-      const response = await fetch(`${baseUrl}${path}`, init)
+      const response = await rawFetch(`${baseUrl}${path}`, init)
       assert.equal(response.status, 209)
       assert.equal(await response.text(), "fallback handler")
     }
@@ -195,7 +194,7 @@ test("article response fast path fails closed on malformed cached response value
   await stores.responseStore.set(stores.cacheKey, "{not-json")
 
   await withServer(stores, async ({ baseUrl, handlerCalls }) => {
-    const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const response = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
 
     assert.equal(response.status, 209)
     assert.equal(await response.text(), "fallback handler")

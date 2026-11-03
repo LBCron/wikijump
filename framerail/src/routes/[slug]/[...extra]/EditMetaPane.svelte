@@ -158,7 +158,7 @@
     <p class="pane-loading" aria-live="polite">Loading…</p>
   {:else}
     <div style:padding-left="3em">
-      {#each rows as row (`${row.all_pages}:${row.name}`)}
+      {#each rows as row, index (index)}
         <div>
           <button
             class="edit-meta-remove"

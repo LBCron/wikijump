@@ -143,3 +143,54 @@ async fn page_edit_lock_endpoints_grant_conflict_renew_release() {
     );
     assert!(reacquired.grant.is_some());
 }
+
+#[tokio::test]
+async fn page_edit_endpoint_requires_a_lease_for_source_saves() {
+    const SLUG: &str = "edit-lock-api-flip";
+
+    let mut runner = TestRunner::setup().await;
+    let (site_id, page_id, revision_id) = setup_page(&mut runner, SLUG).await;
+
+    let leaseless = run_endpoint_err!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": page_id,
+            "last_revision_id": revision_id,
+            "revision_comments": "leaseless api edit",
+            "user_id": USER,
+            "wikitext": "leaseless v1",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(leaseless, ErrorType::PageEditLockConflict);
+
+    let acquired = run_endpoint!(
+        runner,
+        page_edit_lock_acquire,
+        json!({ "page": page_id, "mode": "page" }),
+    );
+    let grant = acquired.grant.expect("acquire should grant");
+
+    let output = run_endpoint!(
+        runner,
+        page_edit,
+        json!({
+            "site_id": site_id,
+            "page": page_id,
+            "last_revision_id": revision_id,
+            "revision_comments": "leased api edit",
+            "user_id": USER,
+            "wikitext": "leased v1",
+            "ip_address": common::IP_ADDRESS,
+            "lease": {
+                "lock_id": grant.lock_id,
+                "lock_secret": grant.lock_secret,
+                "mode": "page",
+            },
+        }),
+    )
+    .expect("leased api edit should create a revision");
+    assert_eq!(output.revision_number, 1);
+}

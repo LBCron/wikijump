@@ -172,6 +172,7 @@ async fn edit(
             body,
             ip_address: common::IP_ADDRESS,
             lease,
+            system_writer: false,
         },
     )
     .await
@@ -495,6 +496,17 @@ async fn rollback_kills_live_lease_and_dead_row_rules_follow() {
     let (site_id, page_id, revision_id) =
         setup_page(&mut runner, "lease-writers-rollback", "rollback v0").await;
 
+    let b = grant(
+        &acquire(
+            &runner,
+            site_id,
+            page_id,
+            USER_B,
+            PageEditLockMode::Page,
+            None,
+        )
+        .await,
+    );
     let v1 = edit(
         &runner,
         site_id,
@@ -502,7 +514,7 @@ async fn rollback_kills_live_lease_and_dead_row_rules_follow() {
         USER_B,
         revision_id,
         text_body("rollback v1"),
-        None,
+        Some(lease_of(&b, PageEditLockMode::Page)),
     )
     .await
     .expect("plain edit should commit")

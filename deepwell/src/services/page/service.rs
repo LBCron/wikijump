@@ -370,6 +370,7 @@ WHERE page.site_id = $1
                 },
             ip_address,
             lease,
+            system_writer,
         }: EditPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         if let Some(wikitext) = wikitext.to_option() {
@@ -393,6 +394,7 @@ WHERE page.site_id = $1
                     },
                     ip_address,
                     lease: Some(lease),
+                    system_writer,
                 },
             )
             .await;
@@ -425,6 +427,17 @@ WHERE page.site_id = $1
                 ErrorType::Page,
             )
         };
+
+        if wikitext.is_set() && !system_writer {
+            bail!(Error::new(
+                format!(
+                    "page edit of '{}' (ID {}) in site ID {}, performed by user ID {}, \
+                     carries new source but no edit lease",
+                    slug, page_id, site_id, user_id,
+                ),
+                ErrorType::PageEditLockConflict,
+            ));
+        }
 
         Self::run_filter(
             ctx,
@@ -527,6 +540,7 @@ WHERE page.site_id = $1
                 },
             ip_address,
             lease,
+            system_writer: _,
         }: EditPage<'_>,
     ) -> Result<Option<EditPageOutput>> {
         let lease = lease.expect("edit_with_lease called without lease data");

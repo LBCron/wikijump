@@ -997,10 +997,18 @@ async fn page_view_and_edit_round_trip_date_field_scalars_and_options() {
     }
 
     set_page_actor(&mut runner, site_id, PAGE_SLUG);
+    let edit_lease_27 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(PAGE_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_27,
             "site_id": site_id,
             "page": PAGE_SLUG,
             "last_revision_id": page.revision_id,
@@ -1231,10 +1239,18 @@ async fn assigned_data_form_template_edit_invalidates_warm_imported_article_cach
     assert_eq!(warm_cache_key, cold_cache_key);
 
     set_page_actor(&mut runner, site_id, TEMPLATE_SLUG);
+    let edit_lease_28 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(TEMPLATE_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_28,
             "site_id": site_id,
             "page": TEMPLATE_SLUG,
             "last_revision_id": template.revision_id,
@@ -1366,10 +1382,18 @@ async fn data_form_template_deletion_requires_actual_form_removal() {
     }
 
     set_page_actor(&mut runner, site_id, TEMPLATE_SLUG);
+    let edit_lease_29 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(TEMPLATE_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     let commented = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_29,
             "site_id": site_id,
             "page": TEMPLATE_SLUG,
             "last_revision_id": template.revision_id,
@@ -1405,10 +1429,18 @@ async fn data_form_template_deletion_requires_actual_form_removal() {
     }
 
     set_page_actor(&mut runner, site_id, TEMPLATE_SLUG);
+    let edit_lease_30 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(TEMPLATE_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     let removed = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_30,
             "site_id": site_id,
             "page": TEMPLATE_SLUG,
             "last_revision_id": commented.revision_id,
@@ -1479,10 +1511,18 @@ async fn data_form_template_deletion_requires_actual_form_removal() {
     }
 
     set_page_actor(&mut runner, site_id, TEMPLATE_SLUG);
+    let edit_lease_31 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(TEMPLATE_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_31,
             "site_id": site_id,
             "page": TEMPLATE_SLUG,
             "last_revision_id": removed.revision_id,
@@ -2150,10 +2190,18 @@ async fn empty_text_values_survive_public_create_edit_view_and_listpages_lifecyc
     }
 
     set_page_actor(&mut runner, site_id, TARGET_SLUG);
+    let edit_lease_32 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(TARGET_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     let populated = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_32,
             "site_id": site_id,
             "page": TARGET_SLUG,
             "last_revision_id": page.revision_id,
@@ -2164,10 +2212,18 @@ async fn empty_text_values_survive_public_create_edit_view_and_listpages_lifecyc
         }),
     )
     .expect("populated data-form edit should create a revision");
+    let edit_lease_33 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(TARGET_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     let emptied = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_33,
             "site_id": site_id,
             "page": TARGET_SLUG,
             "last_revision_id": populated.revision_id,

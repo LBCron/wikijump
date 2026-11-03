@@ -186,6 +186,7 @@ impl LegacyActionService {
                 },
                 ip_address: input.ip_address,
                 lease: None,
+                system_writer: true,
             },
         )
         .await

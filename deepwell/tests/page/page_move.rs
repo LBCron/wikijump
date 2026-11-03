@@ -1018,10 +1018,18 @@ async fn basic_move() {
         page_reference: Some(Reference::Slug(PAGE_SLUG_2.into())),
     });
 
+    let edit_lease_23 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(PAGE_SLUG_2),
+        ADMIN_USER_ID,
+    )
+    .await;
     let output = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_23,
             "site_id": site_id,
             "page": PAGE_SLUG_2,
             "last_revision_id": revision_id,

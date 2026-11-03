@@ -1202,6 +1202,25 @@ async fn component_css_save_refreshes_direct_dependent_before_rpc_returns() {
     );
 
     let component_page_header = component_id.to_string();
+    let acquire = rpc_page_response(
+        &client,
+        address,
+        Some(&session_token),
+        Some(site_id),
+        Some(&component_page_header),
+        "page_edit_lock_acquire",
+        json!({
+            "page": component_id,
+            "mode": "page",
+        }),
+    )
+    .await;
+    let grant = acquire["result"]["grant"].clone();
+    let lease = json!({
+        "lock_id": grant["lock_id"],
+        "lock_secret": grant["lock_secret"],
+        "mode": "page",
+    });
     let blue_edit = rpc_page_response(
         &client,
         address,
@@ -1217,6 +1236,7 @@ async fn component_css_save_refreshes_direct_dependent_before_rpc_returns() {
             "user_id": ADMIN_USER_ID,
             "wikitext": blue_css,
             "ip_address": "192.0.2.61",
+            "lease": lease.clone(),
         }),
     );
     let green_edit = rpc_page_response(
@@ -1234,6 +1254,7 @@ async fn component_css_save_refreshes_direct_dependent_before_rpc_returns() {
             "user_id": ADMIN_USER_ID,
             "wikitext": green_css,
             "ip_address": "192.0.2.61",
+            "lease": lease,
         }),
     );
     let (blue_response, green_response) = tokio::join!(blue_edit, green_edit);

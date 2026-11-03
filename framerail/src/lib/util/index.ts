@@ -67,7 +67,6 @@ export function removeUndefined<T>(obj: T) {
 }
 
 export function escapeRegExp(str: string) {
-  // @ts-ignore
   // eslint-disable-next-line no-useless-escape
   return str.replace(/[.*+?^${}()|\[\]\\]/g, "\\$&")
 }
@@ -177,7 +176,6 @@ export function throttle<T extends AnyFunction>(
   return function (this: ThisParameterType<T>, ...args: Parameters<T>) {
     const callNow = immediate && initialCall
     const next = () => {
-      // @ts-ignore
       fn.apply(this, [...args])
       timeout = null
     }
@@ -284,7 +282,6 @@ export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
     useArgs = args
     if (queued !== true) {
       queued = true
-      // @ts-ignore
       requestIdleCallback(
         async () => {
           if (useArgs !== null) await fn(...useArgs)

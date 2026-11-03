@@ -81,32 +81,16 @@ pub async fn text_block_get_index(
         }
         (None, None, None, Some(sha1)) if block_type == TextBlockType::Html => {
             let digest = parse_wikidot_sha1(&sha1)?;
-            let Some(candidates) =
-                TextBlockService::get_blocks_by_wikidot_sha1(ctx, site_id, &digest).await?
-            else {
-                return Ok(None);
-            };
-            let mut visible_candidate = None;
-            for candidate in candidates {
-                match ensure_parent_page_view_permission(
-                    ctx,
-                    site_id,
-                    candidate.page_id,
-                    session_token.as_deref(),
-                )
-                .await
-                {
-                    Ok(()) => {
-                        if visible_candidate.is_some() {
-                            return Ok(None);
-                        }
-                        visible_candidate = Some(candidate);
-                    }
-                    Err(error) if error.error_type == ErrorType::PermissionDenied => {}
-                    Err(error) => return Err(error),
-                }
-            }
-            Ok(visible_candidate.map(|candidate| TextBlockIndex {
+            let user_id = session_user_id(ctx, session_token.as_deref()).await?;
+            let candidate = TextBlockService::get_visible_block_by_wikidot_sha1(
+                ctx,
+                site_id,
+                &digest,
+                user_id,
+            )
+            .await?;
+
+            Ok(candidate.map(|candidate| TextBlockIndex {
                 index: candidate.index,
                 s3_filename: candidate.s3_filename,
             }))
@@ -153,13 +137,7 @@ async fn ensure_parent_page_view_permission(
         )
     };
 
-    let user_id = match session_token {
-        Some("") | None => None,
-        Some(token) => SessionService::get_optional(ctx, token)
-            .await
-            .or_raise(make_error)?
-            .map(|session| session.user_id),
-    };
+    let user_id = session_user_id(ctx, session_token).await?;
 
     let page = PageService::get(ctx, site_id, Reference::Id(page_id))
         .await
@@ -189,5 +167,25 @@ async fn ensure_parent_page_view_permission(
             ErrorType::PermissionDenied,
         )
         .into())
+    }
+}
+
+async fn session_user_id(
+    ctx: &ServiceContext<'_>,
+    session_token: Option<&str>,
+) -> Result<Option<i64>> {
+    let make_error = || {
+        Error::new(
+            "failed to check parent page view permission for text block",
+            ErrorType::Permission,
+        )
+    };
+
+    match session_token {
+        Some("") | None => Ok(None),
+        Some(token) => SessionService::get_optional(ctx, token)
+            .await
+            .or_raise(make_error)
+            .map(|session| session.map(|session| session.user_id)),
     }
 }

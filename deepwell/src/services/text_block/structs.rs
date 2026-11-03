@@ -38,7 +38,6 @@ pub struct TextBlockIndex {
 
 #[derive(Debug, Clone)]
 pub(crate) struct TextBlockCandidate {
-    pub(crate) page_id: i64,
     pub(crate) index: i16,
     pub(crate) s3_filename: String,
 }

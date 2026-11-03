@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use super::article_cache::ArticlePageCache;
+use super::article_cache::{ArticlePageCache, ArticlePageCacheMetadataInput};
 use super::module_arguments::PageModuleArguments;
 use super::module_render::render_body_for_module_arguments;
 use super::options::PageOptions;
@@ -323,9 +323,14 @@ impl ViewService {
         }
         Self::apply_article_category_license(ctx, &mut preload.viewer, &input).await?;
         let response_cache_eligible = !preload.viewer.site_settings.toolbars.bottom;
-        let cache_metadata =
-            ArticlePageCache::metadata(ctx, &input, Some(public_content_cache_fence))
-                .await?;
+        let cache_metadata = ArticlePageCache::metadata(
+            ctx,
+            ArticlePageCacheMetadataInput {
+                page_view: &input,
+                public_content_cache_fence: Some(public_content_cache_fence),
+            },
+        )
+        .await?;
         if let Some(cache_key) =
             cache_metadata.as_ref().map(|metadata| &metadata.cache_key)
             && let Some(mut page) = ArticlePageCache::get(ctx, cache_key).await?
@@ -542,7 +547,14 @@ impl ViewService {
             input.locales.push(site.locale);
         }
 
-        let cache_metadata = ArticlePageCache::metadata(ctx, &input, None).await?;
+        let cache_metadata = ArticlePageCache::metadata(
+            ctx,
+            ArticlePageCacheMetadataInput {
+                page_view: &input,
+                public_content_cache_fence: None,
+            },
+        )
+        .await?;
 
         Ok(GetArticleViewCacheMetadataOutput {
             article_page_cache_key: cache_metadata

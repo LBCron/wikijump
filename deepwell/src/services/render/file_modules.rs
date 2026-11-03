@@ -23,6 +23,7 @@ use super::literal_regions::LiteralRegionIndex;
 use super::percent_encoding::percent_encode_path_segment;
 use super::service::{escape_list_pages_html_attr, escape_list_pages_html_text};
 use crate::error::Result;
+use crate::models::page::Model as PageModel;
 use crate::services::file::VisibleFileRow;
 use crate::services::{FileService, PageService, ServiceContext};
 use crate::types::Reference;
@@ -187,21 +188,40 @@ fn fresh_files_module_suffix(used_suffixes: &mut Vec<u32>, page_id: i64) -> u32 
     }
 }
 
+enum FilesModulePageAccess {
+    Viewable(PageModel),
+    Unavailable,
+}
+
+async fn resolve_files_module_page(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    page_id: i64,
+    viewer_user_id: Option<i64>,
+) -> Result<FilesModulePageAccess> {
+    let Some(page) =
+        PageService::get_optional(ctx, site_id, Reference::Id(page_id)).await?
+    else {
+        return Ok(FilesModulePageAccess::Unavailable);
+    };
+    let mut authorized = AuthorizedPageSelector::new(ctx, viewer_user_id);
+    if !authorized.check_page_viewability(&page).await? {
+        return Ok(FilesModulePageAccess::Unavailable);
+    }
+    Ok(FilesModulePageAccess::Viewable(page))
+}
+
 async fn load_files_module_state(
     ctx: &ServiceContext<'_>,
     site_id: i64,
     page_id: i64,
     viewer_user_id: Option<i64>,
 ) -> Result<FilesModuleState> {
-    let Some(page) =
-        PageService::get_optional(ctx, site_id, Reference::Id(page_id)).await?
+    let FilesModulePageAccess::Viewable(page) =
+        resolve_files_module_page(ctx, site_id, page_id, viewer_user_id).await?
     else {
         return Ok(FilesModuleState::Unsupported);
     };
-    let mut authorized = AuthorizedPageSelector::new(ctx, viewer_user_id);
-    if !authorized.check_page_viewability(&page).await? {
-        return Ok(FilesModuleState::Unsupported);
-    }
 
     let Some(rows) =
         FileService::get_visible_rows(ctx, site_id, page_id, MAX_VISIBLE_FILE_ROWS)

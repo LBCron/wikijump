@@ -945,6 +945,35 @@ async fn load_forum_feed_thread(
     }))
 }
 
+#[derive(Clone, Debug)]
+enum ForumFeedScopeVisibility {
+    Visible(Option<ForumFeedScopeMetadata>),
+    NotVisible,
+}
+
+async fn resolve_forum_feed_scope_visibility(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    scope: WikidotForumFeedScope,
+) -> Result<ForumFeedScopeVisibility> {
+    let metadata = match scope {
+        WikidotForumFeedScope::Site => None,
+        WikidotForumFeedScope::Category(category_id) => {
+            match load_forum_feed_category(ctx, site_id, category_id).await? {
+                Some(category) => Some(category),
+                None => return Ok(ForumFeedScopeVisibility::NotVisible),
+            }
+        }
+        WikidotForumFeedScope::Thread(thread_id) => {
+            match load_forum_feed_thread(ctx, site_id, thread_id).await? {
+                Some(thread) => Some(thread),
+                None => return Ok(ForumFeedScopeVisibility::NotVisible),
+            }
+        }
+    };
+    Ok(ForumFeedScopeVisibility::Visible(metadata))
+}
+
 impl RenderService {
     pub async fn wikidot_forum_feed(
         ctx: &ServiceContext<'_>,
@@ -958,21 +987,11 @@ impl RenderService {
             return Ok(None);
         }
 
-        let scope_metadata = match scope {
-            WikidotForumFeedScope::Site => None,
-            WikidotForumFeedScope::Category(category_id) => {
-                match load_forum_feed_category(ctx, site_id, category_id).await? {
-                    Some(category) => Some(category),
-                    None => return Ok(None),
-                }
-            }
-            WikidotForumFeedScope::Thread(thread_id) => {
-                match load_forum_feed_thread(ctx, site_id, thread_id).await? {
-                    Some(thread) => Some(thread),
-                    None => return Ok(None),
-                }
-            }
-        };
+        let scope_metadata =
+            match resolve_forum_feed_scope_visibility(ctx, site_id, scope).await? {
+                ForumFeedScopeVisibility::Visible(metadata) => metadata,
+                ForumFeedScopeVisibility::NotVisible => return Ok(None),
+            };
 
         let site = SiteService::get(ctx, Reference::Id(site_id)).await?;
         let mut items = Vec::with_capacity(FORUM_FEED_ITEM_LIMIT);

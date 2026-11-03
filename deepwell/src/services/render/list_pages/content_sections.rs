@@ -1,6 +1,8 @@
 use std::ops::Range;
 
-use super::super::include_attachment_owners::find_wikidot_directive_end;
+use super::super::include_attachment_owners::{
+    DirectiveEndScan, find_wikidot_directive_end,
+};
 use super::super::literal_regions::LiteralRegionIndex;
 
 fn is_wikidot_content_separator_line(line: &str) -> bool {
@@ -67,7 +69,8 @@ fn boundary_is_inside_wikidot_head(
             cursor = start + 2;
             continue;
         }
-        let Some(end) = find_wikidot_directive_end(source, start + 2, source.len())
+        let DirectiveEndScan::Found(end) =
+            find_wikidot_directive_end(source, start + 2, source.len())
         else {
             return true;
         };

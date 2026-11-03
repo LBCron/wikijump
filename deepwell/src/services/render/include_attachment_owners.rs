@@ -318,7 +318,8 @@ fn directive_heads(
                 .find('\n')
                 .map_or(source.len(), |line_end| body_start + line_end)
         };
-        let Some(whole_end) = find_wikidot_directive_end(source, body_start, scan_limit)
+        let DirectiveEndScan::Found(whole_end) =
+            find_wikidot_directive_end(source, body_start, scan_limit)
         else {
             search_start = recovery_start.unwrap_or_else(|| {
                 source[body_start..]
@@ -343,11 +344,18 @@ pub(super) fn wikidot_include_directive_ranges(source: &str) -> Vec<Range<usize>
         .collect()
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(super) enum DirectiveEndScan {
+    Found(usize),
+    UnterminatedQuote,
+    NotFound,
+}
+
 pub(super) fn find_wikidot_directive_end(
     source: &str,
     offset: usize,
     scan_limit: usize,
-) -> Option<usize> {
+) -> DirectiveEndScan {
     find_wikidot_directive_end_with_value_quote_policy(source, offset, scan_limit, false)
 }
 
@@ -355,7 +363,7 @@ pub(super) fn find_wikidot_image_block_directive_end(
     source: &str,
     offset: usize,
     scan_limit: usize,
-) -> Option<usize> {
+) -> DirectiveEndScan {
     find_wikidot_directive_end_with_value_quote_policy(source, offset, scan_limit, true)
 }
 
@@ -364,14 +372,14 @@ fn find_wikidot_directive_end_with_value_quote_policy(
     mut offset: usize,
     scan_limit: usize,
     only_quote_argument_values: bool,
-) -> Option<usize> {
+) -> DirectiveEndScan {
     let bytes = source.as_bytes();
     let mut quote = None;
     let mut depth = 1usize;
     while offset < scan_limit {
         if let Some(expected) = quote {
             if bytes[offset] == b'\n' {
-                return None;
+                return DirectiveEndScan::UnterminatedQuote;
             }
             if bytes[offset] == expected && !quote_is_escaped_at(source, offset) {
                 quote = None;
@@ -389,37 +397,50 @@ fn find_wikidot_directive_end_with_value_quote_policy(
         } else if offset + 4 <= scan_limit
             && source[offset..scan_limit].starts_with("[!--")
         {
-            let close = source[offset + 4..scan_limit].find("--]")?;
+            let Some(close) = source[offset + 4..scan_limit].find("--]") else {
+                return DirectiveEndScan::NotFound;
+            };
             offset += 4 + close + 3;
         } else if offset + 3 <= scan_limit
             && source[offset..scan_limit].starts_with("[[[")
         {
-            let close = source[offset + 3..scan_limit].find("]]]")?;
+            let Some(close) = source[offset + 3..scan_limit].find("]]]") else {
+                return DirectiveEndScan::NotFound;
+            };
             offset += 3 + close + 3;
         } else if offset + 2 <= scan_limit && source[offset..scan_limit].starts_with("[[")
         {
-            depth = depth.checked_add(1)?;
+            let Some(next_depth) = depth.checked_add(1) else {
+                return DirectiveEndScan::NotFound;
+            };
+            depth = next_depth;
             if depth > MAX_ATTACHMENT_DIRECTIVE_NESTING {
-                return None;
+                return DirectiveEndScan::NotFound;
             }
             offset += 2;
         } else if source[offset..].starts_with("]]") {
             if offset + 2 > scan_limit {
-                return None;
+                return DirectiveEndScan::NotFound;
             }
             depth -= 1;
             offset += 2;
             if depth == 0 {
-                return Some(offset);
+                return DirectiveEndScan::Found(offset);
             }
         } else if bytes[offset] == b'[' {
-            let close = source[offset + 1..scan_limit].find(']')?;
+            let Some(close) = source[offset + 1..scan_limit].find(']') else {
+                return DirectiveEndScan::NotFound;
+            };
             offset += 1 + close + 1;
         } else {
             offset = advance_one_char(source, offset);
         }
     }
-    None
+    if quote.is_some() {
+        DirectiveEndScan::UnterminatedQuote
+    } else {
+        DirectiveEndScan::NotFound
+    }
 }
 
 fn include_argument_values(
@@ -586,12 +607,17 @@ fn next_top_level_pipe(
             let close = source[offset + 3..].find("]]]")?;
             offset += 3 + close + 3;
         } else if source[offset..].starts_with("[[") {
-            offset = find_wikidot_directive_end_with_value_quote_policy(
-                source,
-                offset + 2,
-                source.len(),
-                only_quote_argument_values,
-            )?;
+            let DirectiveEndScan::Found(directive_end) =
+                find_wikidot_directive_end_with_value_quote_policy(
+                    source,
+                    offset + 2,
+                    source.len(),
+                    only_quote_argument_values,
+                )
+            else {
+                return None;
+            };
+            offset = directive_end;
         } else if bytes[offset] == b'[' {
             let close = source[offset + 1..].find(']')?;
             offset += 1 + close + 1;
@@ -910,7 +936,7 @@ mod tests {
                 "[[include component:image-block ".len(),
                 closed.len(),
             ),
-            Some(closed.len()),
+            DirectiveEndScan::Found(closed.len()),
         );
 
         let unclosed = r#"[[include component:image-block caption="unclosed ]]"#;
@@ -920,7 +946,7 @@ mod tests {
                 "[[include component:image-block ".len(),
                 unclosed.len(),
             ),
-            None,
+            DirectiveEndScan::UnterminatedQuote,
         );
     }
 
@@ -937,7 +963,7 @@ mod tests {
                 "[[include component:image-block ".len(),
                 crossed.len(),
             ),
-            None,
+            DirectiveEndScan::UnterminatedQuote,
         );
 
         let multiline = concat!(
@@ -951,7 +977,7 @@ mod tests {
                 "[[include component:image-block ".len(),
                 multiline.len(),
             ),
-            Some(multiline.len() - 1),
+            DirectiveEndScan::Found(multiline.len() - 1),
         );
     }
 

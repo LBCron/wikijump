@@ -40,6 +40,23 @@ struct PassProjection {
     changed: bool,
 }
 
+#[derive(Clone, Default)]
+struct SelfReferenceGuard {
+    names: HashSet<String>,
+}
+
+impl SelfReferenceGuard {
+    fn blocks(&self, name: &str) -> bool {
+        self.names.contains(name)
+    }
+
+    fn observe(&mut self, name: &str, value: &str, reference: &str) {
+        if value.contains(reference) {
+            self.names.insert(name.to_owned());
+        }
+    }
+}
+
 pub(super) fn apply_include_variables(
     content: &mut String,
     include: &IncludeRef<'_>,
@@ -58,7 +75,7 @@ fn apply_include_variables_with_limits(
     maximum_passes: usize,
     maximum_output_bytes: usize,
 ) -> Result<()> {
-    let mut self_referential_names = HashSet::new();
+    let mut self_referential_names = SelfReferenceGuard::default();
 
     for _ in 0..maximum_passes {
         let Some(projection) = project_include_variable_pass(
@@ -80,7 +97,7 @@ fn apply_include_variables_with_limits(
             let mtch = capture.get(0).unwrap();
             let name = &capture["name"];
 
-            if self_referential_names.contains(name) {
+            if self_referential_names.blocks(name) {
                 continue;
             }
 
@@ -89,9 +106,7 @@ fn apply_include_variables_with_limits(
                 expanded.push_str(&value);
                 previous_end = mtch.end();
                 matched = true;
-                if value.contains(mtch.as_str()) {
-                    self_referential_names.insert(name.to_owned());
-                }
+                self_referential_names.observe(name, &value, mtch.as_str());
                 changed |= value != mtch.as_str();
             }
         }
@@ -114,7 +129,7 @@ fn apply_include_variables_with_limits(
 fn project_include_variable_pass(
     content: &str,
     include: &IncludeRef<'_>,
-    self_referential_names: &HashSet<String>,
+    self_referential_names: &SelfReferenceGuard,
     maximum_output_bytes: usize,
 ) -> Result<Option<PassProjection>> {
     let mut projected_self_referential_names = self_referential_names.clone();
@@ -126,7 +141,7 @@ fn project_include_variable_pass(
     for capture in INCLUDE_VARIABLE_REGEX.captures_iter(content) {
         let mtch = capture.get(0).expect("full include variable match");
         let name = &capture["name"];
-        if projected_self_referential_names.contains(name) {
+        if projected_self_referential_names.blocks(name) {
             continue;
         }
 
@@ -143,9 +158,7 @@ fn project_include_variable_pass(
             checked_projected_add(output_bytes, value.len(), maximum_output_bytes)?;
         previous_end = mtch.end();
         matched = true;
-        if value.contains(mtch.as_str()) {
-            projected_self_referential_names.insert(name.to_owned());
-        }
+        projected_self_referential_names.observe(name, &value, mtch.as_str());
         changed |= value != mtch.as_str();
     }
 

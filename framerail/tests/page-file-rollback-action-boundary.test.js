@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { after, before, test } from "node:test"
 
@@ -14,7 +13,9 @@ const ROLLBACK = {
   comments: "issue 2195 test"
 }
 
+/** @type {any} */
 let harness
+/** @type {any} */
 let originalClientRequest
 
 before(async () => {
@@ -30,8 +31,9 @@ after(async () => {
 })
 
 test("forged anonymous file rollback is rejected before the mutation RPC", async () => {
+  /** @type {any[]} */
   const calls = []
-  harness.client.request = async (method, params, context) => {
+  harness.client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     throw new Error(`Unexpected Deepwell method ${method}`)
   }
@@ -51,8 +53,9 @@ test("forged anonymous file rollback is rejected before the mutation RPC", async
 })
 
 test("an authenticated file rollback retains its existing scoped Deepwell request", async () => {
+  /** @type {any[]} */
   const calls = []
-  harness.client.request = async (method, params, context) => {
+  harness.client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") return { user_id: 91 }
     if (method === "file_rollback") return { file_id: 5, revision_id: 9 }
@@ -60,7 +63,7 @@ test("an authenticated file rollback retains its existing scoped Deepwell reques
   }
 
   const result = await harness.actions.fileRollback(
-    pageActionEvent({
+    pageActionEvent(/** @type {any} */ ({
       action: "fileRollback",
       body: ROLLBACK,
       siteId: SITE_ID,
@@ -71,7 +74,7 @@ test("an authenticated file rollback retains its existing scoped Deepwell reques
         sessionToken: "rollback-session"
       },
       clientAddress: "192.0.2.14"
-    })
+    }))
   )
 
   assert.deepEqual(result.res, { file_id: 5, revision_id: 9 })

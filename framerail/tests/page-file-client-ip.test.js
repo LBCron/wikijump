@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
@@ -8,6 +7,7 @@ const CLIENT_IP = "192.0.2.14"
 const SITE_ID = 17
 const TRUSTED_CONTEXT = { siteId: SITE_ID, page: "main" }
 
+/** @param {any} action @param {any} fields */
 const formEvent = (action, fields) => {
   const data = new FormData()
   for (const [name, value] of Object.entries(fields)) data.set(name, String(value))
@@ -36,8 +36,9 @@ test("file edit, restore, and rollback actions forward getClientAddress through 
   const harness = await startPageActionHarness()
   const { client, actions } = harness
   try {
+    /** @type {any[]} */
     const calls = []
-    client.request = async (method, params, context) => {
+    client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
       calls.push({ method, params, context })
       if (method === "session_get") return { user_id: 3 }
       if (["file_edit", "file_restore", "file_rollback"].includes(method)) {
@@ -68,7 +69,7 @@ test("file edit, restore, and rollback actions forward getClientAddress through 
       })
     )
     await actions.fileRollback(
-      pageActionEvent({
+      pageActionEvent(/** @type {any} */ ({
         action: "fileRollback",
         body: {
           siteId: SITE_ID,
@@ -85,7 +86,7 @@ test("file edit, restore, and rollback actions forward getClientAddress through 
           sessionToken: "file-session"
         },
         clientAddress: CLIENT_IP
-      })
+      }))
     )
 
     const mutations = calls.filter(({ method }) =>
@@ -116,8 +117,9 @@ test("file delete and move actions bind the actor and routed page context", asyn
   const harness = await startPageActionHarness()
   const { client, actions } = harness
   try {
+    /** @type {any[]} */
     const calls = []
-    client.request = async (method, params, context) => {
+    client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
       calls.push({ method, params, context })
       if (method === "session_get") return { user_id: 3 }
       if (method === "file_delete" || method === "file_move") return { ok: true }
@@ -125,7 +127,7 @@ test("file delete and move actions bind the actor and routed page context", asyn
     }
 
     await actions.fileDelete(
-      pageActionEvent({
+      pageActionEvent(/** @type {any} */ ({
         action: "fileDelete",
         body: {
           siteId: SITE_ID,
@@ -137,7 +139,7 @@ test("file delete and move actions bind the actor and routed page context", asyn
         siteId: SITE_ID,
         sessionToken: "file-session",
         requestContext: { ...TRUSTED_CONTEXT, sessionToken: "file-session" }
-      })
+      }))
     )
     await actions.fileMove(
       formEvent("fileMove", {
@@ -191,8 +193,9 @@ test("file revision reads forward the routed request context to Deepwell", async
   const harness = await startPageActionHarness()
   const { client, actions } = harness
   try {
+    /** @type {any[]} */
     const calls = []
-    client.request = async (method, params, context) => {
+    client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
       calls.push({ method, params, context })
       if (method === "file_revision_range") {
         return [{ revision_id: 5, revision_number: 2 }]
@@ -200,6 +203,7 @@ test("file revision reads forward the routed request context to Deepwell", async
       throw new Error(`Unexpected Deepwell method ${method}`)
     }
 
+    /** @param {any} body @param {any} [siteId] */
     const requestEvent = (body, siteId = SITE_ID) =>
       pageActionEvent({
         action: "fileHistory",

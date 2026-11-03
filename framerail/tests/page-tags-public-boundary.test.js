@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -7,12 +6,19 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let tagsPane
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let pageEditAction
 
 before(async () => {
@@ -72,8 +78,9 @@ test("Tags SSR exposes the current space-separated tags through the trusted edit
 })
 
 test("Tags submission preserves page content and changes tags at the authenticated page action", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") {
       return {

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -7,10 +6,15 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let slugActions
 
 before(async () => {
@@ -31,6 +35,7 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
+/** @param {any} body @param {any} [contentType] */
 const moveEvent = (body, contentType = "application/x-www-form-urlencoded") => ({
   request: new Request("https://wikijump.test/source-page/move?/move", {
     method: "POST",
@@ -54,8 +59,9 @@ const moveEvent = (body, contentType = "application/x-www-form-urlencoded") => (
 })
 
 test("native page move resolves the routed page before moving it", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") {
       return {
@@ -125,8 +131,9 @@ test("native page move resolves the routed page before moving it", async () => {
 })
 
 test("enhanced page move keeps the existing Superforms payload schema", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") return { user_id: 91 }
     if (method === "page_move") {
@@ -173,8 +180,9 @@ test("enhanced page move keeps the existing Superforms payload schema", async ()
 })
 
 test("native page move rejects client-supplied identity fields before Deepwell", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (...args) => {
+  client.request = /** @param {...any} args */ async (...args) => {
     calls.push(args)
     throw new Error("Deepwell must not be called for an invalid native move")
   }
@@ -188,8 +196,9 @@ test("native page move rejects client-supplied identity fields before Deepwell",
 })
 
 test("native page move stops when the routed page view is not found", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     calls.push(method)
     if (method === "session_get") return { user_id: 91 }
     if (method === "page_view") return { type: "missing", data: {} }

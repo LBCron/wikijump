@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { after, before, test } from "node:test"
@@ -18,8 +17,11 @@ const TRUSTED_CONTEXT = {
   sessionToken: SESSION_TOKEN
 }
 
+/** @type {any} */
 let client
+/** @type {any} */
 let actions
+/** @type {any} */
 let closeHarness
 
 before(async () => {
@@ -43,18 +45,22 @@ const installedSession = () => ({
   restricted: false
 })
 
+/** @param {any} action @param {any} [overrides] */
 const requestEvent = (action, overrides = {}) =>
-  pageActionEvent({
-    action,
-    siteId: SITE_ID,
-    sessionToken: SESSION_TOKEN,
-    requestContext: { ...TRUSTED_CONTEXT },
-    ...overrides
-  })
+  pageActionEvent(
+    /** @type {any} */ ({
+      action,
+      siteId: SITE_ID,
+      sessionToken: SESSION_TOKEN,
+      requestContext: { ...TRUSTED_CONTEXT },
+      ...overrides
+    })
+  )
 
 test("vote mutation actions forward the trusted route request context", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") return installedSession()
     if (method === "vote_set") return { page_id: 42, value: 1, score: 1 }
@@ -94,8 +100,9 @@ test("vote mutation actions forward the trusted route request context", async ()
 })
 
 test("page score actions use only trusted route context", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "page_get_score") return { page_id: 42, score: 7 }
     throw new Error(`Unexpected Deepwell method ${method}`)
@@ -139,8 +146,9 @@ test("Wikidot WhoRated pane uses the exact AMC pageId contract", async () => {
 })
 
 test("legacy wiki actions derive the actor, client address, and revision binding from the trusted route", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") return installedSession()
     if (method === "wikidot_legacy_rate") return { page_id: 42, score: 1 }

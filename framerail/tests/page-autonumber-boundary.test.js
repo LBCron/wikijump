@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
@@ -9,8 +8,11 @@ const root = fileURLToPath(new URL("..", import.meta.url))
 
 test("page creation binds parent follow-up to the assigned autonumbered slug", async () => {
   const previousWorkingDirectory = process.cwd()
+  /** @type {any} */
   let vite
+  /** @type {any} */
   let client
+  /** @type {any} */
   let originalRequest
 
   try {
@@ -22,8 +24,9 @@ test("page creation binds parent follow-up to the assigned autonumbered slug", a
     )
     originalRequest = client.request
 
+    /** @type {any[]} */
     const calls = []
-    client.request = async (method, params, context) => {
+    client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
       calls.push({ method, params, context })
       if (method === "session_get") {
         return {

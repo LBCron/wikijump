@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
@@ -7,11 +6,15 @@ import { createJiti } from "jiti"
 
 const libRoot = fileURLToPath(new URL("../src/lib/", import.meta.url))
 const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
-const { pageFileCreate, pageFileEdit } = await jiti.import(
-  fileURLToPath(new URL("../src/lib/server/deepwell/page-file.ts", import.meta.url))
+const { pageFileCreate, pageFileEdit } = /** @type {any} */ (
+  await jiti.import(
+    fileURLToPath(new URL("../src/lib/server/deepwell/page-file.ts", import.meta.url))
+  )
 )
-const { client } = await jiti.import(
-  fileURLToPath(new URL("../src/lib/server/deepwell/index.ts", import.meta.url))
+const { client } = /** @type {any} */ (
+  await jiti.import(
+    fileURLToPath(new URL("../src/lib/server/deepwell/index.ts", import.meta.url))
+  )
 )
 
 const requestContext = {
@@ -30,6 +33,7 @@ const createInput = () => ({
   ipAddress: "192.0.2.62"
 })
 
+/** @param {any} t @param {any} request @param {any} fetchImpl @param {any} operation */
 const withUploadBoundaries = async (t, request, fetchImpl, operation) => {
   const originalRequest = client.request
   const originalFetch = globalThis.fetch
@@ -43,9 +47,10 @@ const withUploadBoundaries = async (t, request, fetchImpl, operation) => {
 }
 
 test("page file create cancels its page-scoped pending blob when commit fails", async (t) => {
+  /** @type {any[]} */
   const calls = []
   const commitError = new Error("file_create rejected")
-  const request = async (method, params, context) => {
+  const request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "page_edit_permission") return { can_edit: true }
     if (method === "blob_upload") {
@@ -66,7 +71,7 @@ test("page file create cancels its page-scoped pending blob when commit fails", 
       async () => new Response(null, { status: 200 }),
       () => pageFileCreate(createInput(), requestContext)
     ),
-    (error) => error === commitError
+    /** @param {any} error */ (error) => error === commitError
   )
 
   assert.deepEqual(
@@ -87,11 +92,12 @@ test("page file create cancels its page-scoped pending blob when commit fails", 
 })
 
 test("page file create preserves the commit error when pending cleanup also fails", async (t) => {
+  /** @type {any[]} */
   const calls = []
   const commitError = new Error("file_create commit sentinel")
   const cancelError = new Error("blob_cancel cleanup sentinel")
   let cancelCount = 0
-  const request = async (method, params, context) => {
+  const request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "page_edit_permission") return { can_edit: true }
     if (method === "blob_upload") {
@@ -115,7 +121,7 @@ test("page file create preserves the commit error when pending cleanup also fail
       async () => new Response(null, { status: 200 }),
       () => pageFileCreate(createInput(), requestContext)
     ),
-    (error) => error === commitError
+    /** @param {any} error */ (error) => error === commitError
   )
 
   assert.equal(cancelCount, 1)
@@ -134,8 +140,9 @@ test("page file create preserves the commit error when pending cleanup also fail
 })
 
 test("page file create cancels after PUT failure but not before pending creation", async (t) => {
+  /** @type {any[]} */
   const calls = []
-  const request = async (method, params, context) => {
+  const request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "page_edit_permission") return { can_edit: true }
     if (method === "blob_upload") {
@@ -165,9 +172,10 @@ test("page file create cancels after PUT failure but not before pending creation
 })
 
 test("page file create leaves a successful committed upload alone", async (t) => {
+  /** @type {any[]} */
   const calls = []
   const expected = { file_id: 31, file_revision_id: 37, blob_created: true }
-  const request = async (method, params, context) => {
+  const request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "page_edit_permission") return { can_edit: true }
     if (method === "blob_upload") {
@@ -195,9 +203,10 @@ test("page file create leaves a successful committed upload alone", async (t) =>
 })
 
 test("page file edit uses the same cleanup lifecycle for replacement content", async (t) => {
+  /** @type {any[]} */
   const calls = []
   const editError = new Error("file_edit rejected")
-  const request = async (method, params, context) => {
+  const request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "page_edit_permission") return { can_edit: true }
     if (method === "blob_upload") {
@@ -226,7 +235,7 @@ test("page file edit uses the same cleanup lifecycle for replacement content", a
           requestContext
         )
     ),
-    (error) => error === editError
+    /** @param {any} error */ (error) => error === editError
   )
 
   assert.deepEqual(

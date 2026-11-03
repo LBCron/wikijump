@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -8,11 +7,17 @@ import { createTestViteServer } from "./vite-test-server.js"
 const root = fileURLToPath(new URL("..", import.meta.url))
 const clientAddress = "192.0.2.91"
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let rootActions
+/** @type {any} */
 let slugActions
 
 before(async () => {
@@ -61,6 +66,7 @@ const membershipEvent = () => ({
   }
 })
 
+/** @param {any} action @param {any} body @param {any} [sessionToken] @param {any} [extra] */
 const typedMembershipEvent = (
   action,
   body,
@@ -89,8 +95,9 @@ const typedMembershipEvent = (
 })
 
 test("root and slug page routes bind actor-verified membership Join", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") {
       return {
@@ -140,12 +147,14 @@ test("root and slug page routes bind actor-verified membership Join", async () =
 })
 
 test("malformed and unauthenticated membership Join requests fail without mutation", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     throw new Error(`Unexpected Deepwell method ${method}`)
   }
 
+  /** @param {any} body @param {any} [sessionToken] */
   const joinEvent = (body, sessionToken = "membership-session") => ({
     request: new Request("https://wikijump.test/?/membershipJoin", {
       method: "POST",
@@ -193,8 +202,9 @@ test("malformed and unauthenticated membership Join requests fail without mutati
 })
 
 test("application and password actions preserve actor-bound page context", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") {
       return {
@@ -260,12 +270,14 @@ test("application and password actions preserve actor-bound page context", async
 })
 
 test("malformed application and password action bodies fail before Deepwell mutation", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     throw new Error(`Unexpected Deepwell method ${method}`)
   }
   const fingerprint = "0123456789abcdef0123456789abcdef"
+  /** @type {any[]} */
   const invalid = [
     [
       "membershipApplication",
@@ -289,8 +301,9 @@ test("malformed application and password action bodies fail before Deepwell muta
 })
 
 test("email invitation action derives the opaque hash from the trusted route, not the request body", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") return { user_id: 91 }
     if (method === "membership_email_invitation_accept") {

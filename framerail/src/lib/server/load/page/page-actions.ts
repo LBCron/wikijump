@@ -52,11 +52,21 @@ import {
   membershipPasswordAction
 } from "$lib/server/load/page/page-membership-actions"
 import { newSitePageAction } from "$lib/server/load/page/page-newsite-actions"
+import {
+  pageEditLockAcquireAction,
+  pageEditLockForceAcquireAction,
+  pageEditLockReleaseAction,
+  pageEditLockRenewAction
+} from "$lib/server/load/page/page-edit-lock-actions"
 
 export const pageActions = {
   backlinks: pageBacklinksAction,
   delete: pageDeleteAction,
   edit: pageEditAction,
+  editLockAcquire: pageEditLockAcquireAction,
+  editLockForceAcquire: pageEditLockForceAcquireAction,
+  editLockRenew: pageEditLockRenewAction,
+  editLockRelease: pageEditLockReleaseAction,
   createPermission: pageCreatePermissionAction,
   editPermission: pageEditPermissionAction,
   movePermission: pageMovePermissionAction,

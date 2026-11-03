@@ -115,6 +115,8 @@ export interface LeaseSaveInput {
   revisionComments: string
   wikitext: string
   title: string
+  altTitle?: Optional<string>
+  tags?: string[]
   lease?: {
     lockId: number
     lockSecret: string
@@ -152,6 +154,8 @@ export async function pageSave(
       ip_address: input.userIpAddr,
       wikitext: input.wikitext,
       title: input.title,
+      alt_title: input.altTitle,
+      tags: input.tags,
       lease
     },
     requestContext

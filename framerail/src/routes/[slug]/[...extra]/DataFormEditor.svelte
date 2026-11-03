@@ -25,6 +25,20 @@
 
   type PageEditForm = Awaited<ReturnType<typeof buildPageForms>>["pageEditForm"]
 
+  type LeaseSaveFields = {
+    lockId: number
+    lockSecret: string
+    mode: string
+    sectionIndex?: number | null
+    lastRevisionId: number
+  }
+
+  type LeaseSaveFailure = {
+    code?: number
+    message?: string
+    data?: unknown
+  }
+
   let {
     definition,
     editForm,
@@ -40,7 +54,10 @@
     pageId,
     lastRevisionId,
     slug,
-    creating
+    creating,
+    leaseSaveFields,
+    onLeaseSaveSuccess,
+    onLeaseSaveFailure
   }: {
     definition: DataFormDefinition
     editForm: PageEditForm
@@ -57,6 +74,9 @@
     lastRevisionId?: number
     slug: string
     creating: boolean
+    leaseSaveFields?: () => LeaseSaveFields | undefined
+    onLeaseSaveSuccess?: (res: unknown) => void
+    onLeaseSaveFailure?: (failure: LeaseSaveFailure) => boolean
   } = $props()
 
   let values = $state<Record<string, string>>(
@@ -384,17 +404,31 @@
           valuesSnapshot
         )
         $form.wikitext = wikitext
+        const leaseFields = creating ? undefined : leaseSaveFields?.()
         jsonData({
           ...formSnapshot,
           wikitext,
           siteId,
           pageId: creating ? 0 : pageId,
-          lastRevisionId: creating ? 0 : lastRevisionId
+          lastRevisionId: leaseFields
+            ? leaseFields.lastRevisionId
+            : creating
+              ? 0
+              : lastRevisionId,
+          ...(leaseFields
+            ? {
+                lockId: leaseFields.lockId,
+                ["lockSecret"]: leaseFields.lockSecret,
+                leaseMode: leaseFields.mode,
+                sectionIndex: leaseFields.sectionIndex ?? null
+              }
+            : {})
         })
       },
       onResult: async ({ result, cancel }) => {
         if (result.type === "success" && result.data) {
           cancel()
+          onLeaseSaveSuccess?.(result.data.res)
           const destinationSlug = pageMutationDestinationSlug({
             creating,
             requestedSlug: slug,
@@ -411,10 +445,17 @@
           goto(resolve(`/${destinationSlug}`, {}), { noScroll: true })
         }
         if (result.type === "failure" && result.data) {
-          errorPopupState.current = {
-            state: true,
+          const handled = onLeaseSaveFailure?.({
+            code: (result.data as { code?: number }).code,
             message: result.data.message,
             data: result.data.data
+          })
+          if (!handled) {
+            errorPopupState.current = {
+              state: true,
+              message: result.data.message,
+              data: result.data.data
+            }
           }
         }
       }

@@ -4,11 +4,14 @@ import {
   pageDeletePermission,
   pageEdit,
   pageEditPermission,
+  pageGet,
   pageLayout,
   pageMove,
   pageMovePermission,
   pageParentUpdate
 } from "$lib/server/deepwell/page"
+import { pageSave } from "$lib/server/deepwell/page-edit-lock"
+import type { PageEditLockMode } from "$lib/server/deepwell/page-edit-lock"
 import { pageView } from "$lib/server/deepwell/views"
 import {
   failForActionError,
@@ -31,8 +34,10 @@ import { valibot } from "sveltekit-superforms/adapters"
 import {
   literal,
   nullable,
+  number,
   object,
   optional,
+  picklist,
   strictObject,
   string,
   variant,
@@ -271,7 +276,11 @@ export async function pageEditAction(event: RequestEvent) {
       altTitle,
       tags: tagsStr,
       parent,
-      layout
+      layout,
+      lockId,
+      lockSecret,
+      leaseMode,
+      sectionIndex
     } = form.data
     const context = await resolvePageActionRequestContext(event, {
       submittedSiteId: siteId,
@@ -279,28 +288,62 @@ export async function pageEditAction(event: RequestEvent) {
     })
     const userId = requirePageMutationUserId(context, siteId)
     const tags = tagsStr.split(" ").filter((tag) => tag.length)
-    const res = await pageEdit(
-      {
-        siteId,
-        pageId,
-        userId,
-        userIpAddr: ipAddress,
-        slug,
-        lastRevisionId,
-        revisionComments: comments,
-        wikitext,
-        title,
-        altTitle,
-        tags,
-        layout
-      },
-      context.requestContext
-    )
+    const lease =
+      lockId !== undefined && lockSecret !== undefined
+        ? {
+            lockId,
+            lockSecret,
+            mode: (leaseMode ?? "page") as PageEditLockMode,
+            sectionIndex: sectionIndex ?? undefined
+          }
+        : undefined
+    const res = lease
+      ? await pageSave(
+          {
+            siteId,
+            pageId,
+            slug: slug ?? "",
+            userId,
+            userIpAddr: ipAddress ?? "",
+            lastRevisionId,
+            revisionComments: comments,
+            wikitext,
+            title,
+            altTitle,
+            tags,
+            lease
+          },
+          context.requestContext
+        ).then(
+          (saved) =>
+            saved ??
+            latestLeaseSaveResult(siteId, pageId, slug ?? "", context.requestContext)
+        )
+      : await pageEdit(
+          {
+            siteId,
+            pageId,
+            userId,
+            userIpAddr: ipAddress,
+            slug,
+            lastRevisionId,
+            revisionComments: comments,
+            wikitext,
+            title,
+            altTitle,
+            tags,
+            layout
+          },
+          context.requestContext
+        )
     if (!pageId && parent) {
-      if (!res.slug) throw new Error("Page creation did not return its assigned slug.")
-      await pageParentUpdate(siteId, res.slug, userId, [parent], [], {
+      const createdSlug = (res as { slug?: string }).slug
+      if (!createdSlug) {
+        throw new Error("Page creation did not return its assigned slug.")
+      }
+      await pageParentUpdate(siteId, createdSlug, userId, [parent], [], {
         ...context.requestContext,
-        page: res.slug
+        page: createdSlug
       })
     }
 
@@ -318,8 +361,33 @@ export const pageEditSchema = object({
   tags: string(),
   parent: optional(string()),
   comments: string(),
-  layout: optional(nullable(vEnum(Layout)))
+  layout: optional(nullable(vEnum(Layout))),
+  lockId: optional(number()),
+  lockSecret: optional(string()),
+  leaseMode: optional(picklist(["page", "append", "section"])),
+  sectionIndex: optional(nullable(number()))
 })
+
+async function latestLeaseSaveResult(
+  siteId: number,
+  pageId: number | undefined,
+  slug: string,
+  requestContext: PageActionRequestContext["requestContext"]
+) {
+  const page = (await pageGet(siteId, pageId ?? slug, requestContext)) as {
+    revision_id?: number
+    revision_number?: number
+  } | null
+  const revisionId = page?.revision_id
+  if (revisionId === undefined || !Number.isSafeInteger(revisionId)) {
+    throw new Error("savePage target is unavailable")
+  }
+  return {
+    revision_id: revisionId,
+    revision_number: page?.revision_number ?? 0,
+    lock_recreated: false
+  }
+}
 
 export async function pageLayoutAction(event: RequestEvent) {
   const { request, getClientAddress } = event

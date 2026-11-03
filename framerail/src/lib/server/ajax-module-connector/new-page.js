@@ -30,11 +30,152 @@ export const toWikidotUnixName = ({ pageName, categoryName }) => {
   return prefixed.slice(0, MAX_WIKIDOT_PAGE_UNIX_NAME_LENGTH)
 }
 
+const QUANTIFIER_STARTS = new Set(["*", "+", "?", "{"])
+
+/** @param {string} character */
+const isQuantifierStart = (character) => QUANTIFIER_STARTS.has(character)
+
+/**
+ * @typedef {{
+ *   index: number
+ *   quantifierCount: number
+ *   hasAlternation: boolean
+ * }} NewPagePatternState
+ *
+ * @typedef {{
+ *   source: string
+ *   hasQuantifier: boolean
+ *   hasAlternation: boolean
+ * }} NewPagePatternBody
+ */
+
+/**
+ * @param {NewPagePatternState} state
+ * @param {string} pattern
+ * @returns {string | null}
+ */
+const parseNewPagePatternEscape = (state, pattern) => {
+  state.index += 1
+  if (state.index >= pattern.length) return "\\"
+  const character = pattern[state.index]
+  if (/^[1-9]$/u.test(character)) return null
+  state.index += 1
+  return `\\${character}`
+}
+
+/**
+ * @param {NewPagePatternState} state
+ * @param {string} pattern
+ */
+const parseNewPagePatternClass = (state, pattern) => {
+  let source = ""
+  while (state.index < pattern.length) {
+    const character = pattern[state.index]
+    source += character
+    state.index += 1
+    if (character === "]") break
+  }
+  return source
+}
+
+/**
+ * @param {NewPagePatternState} state
+ * @param {string} pattern
+ * @returns {{ source: string; hasQuantifier: boolean } | null}
+ */
+const parseNewPagePatternGroup = (state, pattern) => {
+  let source = "("
+  state.index += 1
+  if (pattern[state.index] === "?") {
+    if (pattern[state.index + 1] !== ":") return null
+    source += "?:"
+    state.index += 2
+  }
+  const body = parseNewPagePatternBody(state, pattern)
+  if (body === null) return null
+  source += body.source
+  if (pattern[state.index] === ")") {
+    source += ")"
+    state.index += 1
+  }
+  let hasQuantifier = body.hasQuantifier
+  if (state.index < pattern.length && isQuantifierStart(pattern[state.index])) {
+    if (body.hasQuantifier || body.hasAlternation) return null
+    state.quantifierCount += 1
+    if (state.quantifierCount > 1) return null
+    source += pattern[state.index]
+    state.index += 1
+    hasQuantifier = true
+  }
+  return { source, hasQuantifier }
+}
+
+/**
+ * @param {NewPagePatternState} state
+ * @param {string} pattern
+ * @returns {{ source: string; hasQuantifier: boolean } | null}
+ */
+const parseNewPagePatternTerm = (state, pattern) => {
+  const character = pattern[state.index]
+  if (character === "(") return parseNewPagePatternGroup(state, pattern)
+
+  let source
+  if (character === "[") {
+    source = parseNewPagePatternClass(state, pattern)
+  } else if (character === "\\") {
+    source = parseNewPagePatternEscape(state, pattern)
+    if (source === null) return null
+  } else if (isQuantifierStart(character)) {
+    return null
+  } else {
+    source = character
+    state.index += 1
+  }
+
+  let hasQuantifier = false
+  if (state.index < pattern.length && isQuantifierStart(pattern[state.index])) {
+    state.quantifierCount += 1
+    if (state.quantifierCount > 1) return null
+    source += pattern[state.index]
+    state.index += 1
+    hasQuantifier = true
+  }
+  return { source, hasQuantifier }
+}
+
+/**
+ * @param {NewPagePatternState} state
+ * @param {string} pattern
+ * @returns {NewPagePatternBody | null}
+ */
+const parseNewPagePatternBody = (state, pattern) => {
+  let source = ""
+  let hasQuantifier = false
+  let hasAlternation = false
+  while (state.index < pattern.length) {
+    const character = pattern[state.index]
+    if (character === ")") break
+    if (character === "|") {
+      state.hasAlternation = true
+      hasAlternation = true
+      source += character
+      state.index += 1
+      continue
+    }
+    const term = parseNewPagePatternTerm(state, pattern)
+    if (term === null) return null
+    if (term.hasQuantifier) hasQuantifier = true
+    source += term.source
+  }
+  return { source, hasQuantifier, hasAlternation }
+}
+
 /**
  * @param {string} format
- * @returns {RegExp | null}
+ * @returns {RegExp | "unsafe" | null}
  */
-const parseDelimitedRegex = (format) => {
+const compileNewPageFormat = (format) => {
+  if (format.length > MAX_NEWPAGE_FORMAT_LENGTH) return "unsafe"
   if (!format.startsWith("/")) return null
 
   const delimiter = format.lastIndexOf("/")
@@ -45,101 +186,17 @@ const parseDelimitedRegex = (format) => {
   let flags = ""
   if (rawFlags.includes("i")) flags += "i"
   if (rawFlags.includes("m")) flags += "m"
+
+  const state = { index: 0, quantifierCount: 0, hasAlternation: false }
+  const body = parseNewPagePatternBody(state, pattern)
+  if (body === null || state.index !== pattern.length) return "unsafe"
+  if (state.hasAlternation && state.quantifierCount > 0) return "unsafe"
+
   try {
-    return new RegExp(pattern, flags)
+    return new RegExp(body.source, flags)
   } catch {
     return null
   }
-}
-
-/**
- * Reject regex features whose backtracking cost cannot be bounded by this
- * synchronous request handler. The accepted NewPage formats are simple
- * anchored patterns; nested or sequential quantified atoms, alternation,
- * lookarounds, and backreferences are unsupported and fail closed. A
- * single quantified atom without alternation cannot cause exponential
- * backtracking on the bounded (128-character) page name. Adjacent but
- * separate quantifiers are unsafe even if no group contains two
- * quantifiers.
- *
- * @param {string} format
- */
-const newPageFormatIsSafe = (format) => {
-  if (format.length > MAX_NEWPAGE_FORMAT_LENGTH) return false
-  if (!format.startsWith("/")) return true
-
-  const delimiter = format.lastIndexOf("/")
-  if (delimiter <= 0) return true
-
-  const pattern = format.slice(1, delimiter)
-  const groups = [{ hasQuantifier: false, hasAlternation: false }]
-  let escaped = false
-  let inCharacterClass = false
-  let previousWasQuantifier = false
-  let quantifierCount = 0
-  let hasAlternation = false
-
-  for (let index = 0; index < pattern.length; index += 1) {
-    const character = pattern[index]
-    if (escaped) {
-      if (/^[1-9]$/u.test(character)) return false
-      escaped = false
-      previousWasQuantifier = false
-      continue
-    }
-    if (character === "\\") {
-      escaped = true
-      continue
-    }
-    if (inCharacterClass) {
-      if (character === "]") inCharacterClass = false
-      continue
-    }
-    if (character === "[") {
-      inCharacterClass = true
-      previousWasQuantifier = false
-      continue
-    }
-    if (character === "(") {
-      if (pattern[index + 1] === "?" && pattern[index + 2] !== ":") return false
-      groups.push({ hasQuantifier: false, hasAlternation: false })
-      if (pattern[index + 1] === "?" && pattern[index + 2] === ":") index += 2
-      previousWasQuantifier = false
-      continue
-    }
-    if (character === "|") {
-      hasAlternation = true
-      groups.at(-1).hasAlternation = true
-      previousWasQuantifier = false
-      continue
-    }
-    if (character === ")") {
-      if (groups.length === 1) return false
-      const group = groups.pop()
-      const next = pattern[index + 1]
-      const quantifiesGroup = next === "*" || next === "+" || next === "?" || next === "{"
-      if (quantifiesGroup && (group.hasQuantifier || group.hasAlternation)) return false
-      if (quantifiesGroup) groups.at(-1).hasQuantifier = true
-      previousWasQuantifier = false
-      continue
-    }
-    if (
-      character === "*" ||
-      character === "+" ||
-      character === "?" ||
-      character === "{"
-    ) {
-      if (previousWasQuantifier) return false
-      quantifierCount += 1
-      if (quantifierCount > 1) return false
-      groups.at(-1).hasQuantifier = true
-      previousWasQuantifier = true
-      continue
-    }
-    previousWasQuantifier = false
-  }
-
-  return !hasAlternation || quantifierCount === 0
 }
 
 /**
@@ -150,10 +207,10 @@ const matchesNewPageFormat = (pageName, format) => {
   if (format.length === 0) return true
 
   if (pageName.length > MAX_NEWPAGE_PAGE_NAME_LENGTH) return false
-  if (!newPageFormatIsSafe(format)) return false
 
-  const regex = parseDelimitedRegex(format)
-  if (!regex) return true
+  const regex = compileNewPageFormat(format)
+  if (regex === "unsafe") return false
+  if (regex === null) return true
   return regex.test(pageName)
 }
 

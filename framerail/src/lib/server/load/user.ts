@@ -5,6 +5,7 @@ import { authGetSession } from "$lib/server/auth/get-session"
 import { getFileByHash } from "$lib/server/deepwell/file"
 import { translate } from "$lib/server/deepwell/translate"
 import { userEdit, userView } from "$lib/server/deepwell/user"
+import type { UserViewResult } from "$lib/server/deepwell/user"
 import {
   failForActionError,
   failForMissingSession,
@@ -79,18 +80,11 @@ export async function loadUser(
     "error-api.GENERIC": {}
   }
 
-  let errorStatus = null
-
-  switch (response.type) {
-    case "user_found":
-      if (unsupportedImportedUser) errorStatus = 404
-      break
-    case "user_missing":
-      errorStatus = 404
-      break
-    default:
-      errorStatus = 500
+  const errorStatusByResponseType: Record<UserViewResult["type"], number | null> = {
+    user_found: unsupportedImportedUser ? 404 : null,
+    user_missing: 404
   }
+  const errorStatus = errorStatusByResponseType[response.type]
 
   if (
     errorStatus === null &&

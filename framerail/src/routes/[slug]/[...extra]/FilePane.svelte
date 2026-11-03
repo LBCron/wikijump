@@ -45,10 +45,8 @@
         initialFileList?.map((file) => [file.file_id, file] as [number, PageFile]) ?? []
     )
   )
-  let fileListLoading = $state(untrack(() => initialFileList === null))
   let fileListError = $state<string | null>(null)
   let fileListLoaded = $state(untrack(() => initialFileList !== null))
-  let requestedDeletedFiles = $state(false)
   let fileEditId = $state<number>(0)
   let historyRequestId = $state(0)
 
@@ -62,8 +60,6 @@
 
   async function getFileList(deleted = false) {
     const requestId = ++fileListRequestId
-    requestedDeletedFiles = deleted
-    fileListLoading = true
 
     try {
       const res = await fetch("?/fileList", {
@@ -107,10 +103,6 @@
         fileListError = FILE_LIST_LOAD_ERROR
         onFileListVisibilityChange?.(false)
         activeFileAction = null
-      }
-    } finally {
-      if (requestId === fileListRequestId) {
-        fileListLoading = false
       }
     }
   }
@@ -339,10 +331,8 @@
     {deleteFile}
     {fileMap}
     {getFileList}
-    {fileListLoading}
     {fileListError}
     {fileListLoaded}
-    {requestedDeletedFiles}
     {openFileHistory}
     wikidot={pageLayoutContext.current === Layout.WIKIDOT}
     bind:activeFileAction

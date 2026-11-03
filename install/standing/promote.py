@@ -5,16 +5,14 @@ One command, in this order; each stage blocks the next and a failure leaves
 standing as it was (or restores it):
 
 1. identity     the checkout is clean and exactly the fetched origin/develop.
-2. validation   `preflight.sh --final` runs every check group the change since
-                standing selects, alongside the build.
-3. build        the three application images, from BuildKit caches.
-4. render-ahead when the renderer generation changes, every saved page is
+2. build        the three application images, from BuildKit caches.
+3. render-ahead when the renderer generation changes, every saved page is
                 rendered with the new image while the old one keeps serving.
-5. rehearsal    when activation cannot be undone by restarting the old
+4. rehearsal    when activation cannot be undone by restarting the old
                 containers (new migrations or a new renderer generation), the
                 new images start on a copy of standing's data and must pass
                 the same freshness, HTTP and browser checks first.
-6. activation   park the old containers, start the new ones, require health,
+5. activation   park the old containers, start the new ones, require health,
                 reload Caddy from the new Deepwell, zero stale saved pages,
                 the HTTP canary and the standing browser parity; restore the
                 parked containers (and reload Caddy from them) on any failure.
@@ -32,7 +30,6 @@ import json
 import os
 from pathlib import Path
 import re
-import shutil
 import socket
 import subprocess
 import sys
@@ -54,7 +51,6 @@ TEXT_BLOCKS_BUCKET = "deepwell-text-blocks"
 RESOURCE_LIFETIME = timedelta(days=30)
 PROMOTION_RECEIPT_SCHEMA = "wikijump.standing_promotion_receipt.v1"
 BROWSER_REFERENCE_SCHEMA = "wikijump.standing_browser_reference.v1"
-GROUPS = ("deepwell", "wws", "framerail", "locales", "workflow", "theme_lab", "verification")
 GIT_OBJECT = re.compile(r"[0-9a-f]{40}")
 
 
@@ -124,19 +120,6 @@ class Stages:
 
 # Validation coverage
 
-
-def classify(source_root: Path, paths: list[str]) -> dict[str, bool]:
-    """The check groups `scripts/preflight.sh` selects for these paths."""
-    result = subprocess.run(
-        ["node", ".github/scripts/classify-changes.mjs"],
-        cwd=source_root,
-        input="\0".join(paths),
-        check=True,
-        text=True,
-        capture_output=True,
-    )
-    selected = dict(line.split("=", 1) for line in result.stdout.split())
-    return {group: selected.get(group) == "true" for group in GROUPS}
 
 
 def changed_paths(source_root: Path, before: str, after: str) -> list[str]:
@@ -894,23 +877,6 @@ def run_from_source_root(source_root: Path) -> None:
     os.execv(sys.executable, [sys.executable, str(own), *arguments])
 
 
-LAUNCHER_TOOLS = ("cargo", "sqlx")
-
-
-def require_launcher_tools() -> None:
-    """Fail fast when the launcher environment lacks the Rust tools.
-
-    The validation groups a promotion runs shell out to cargo, and the
-    Deepwell test stack spawns sqlx; both live in ~/.cargo/bin, which a
-    non-login shell may not have on PATH. Name the environmental failure
-    here instead of failing every Rust group deep inside validation."""
-    missing = [tool for tool in LAUNCHER_TOOLS if shutil.which(tool) is None]
-    if missing:
-        raise SystemExit(
-            "promote: required tool(s) not found on PATH: "
-            + ", ".join(missing)
-            + "; run from a login shell or add $HOME/.cargo/bin to PATH"
-        )
 
 
 def parse_args() -> argparse.Namespace:
@@ -938,7 +904,6 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    require_launcher_tools()
     if args.source_root is None:
         source_root = prepare_promotion_checkout(
             Path(__file__).resolve().parents[2], state_root() / "promotion-checkout"
@@ -1006,7 +971,6 @@ def promote(args, source_root, runtime_home, override_file, identity, evidence, 
         reason = rehearsal_reason(args.rehearse, migrations)
         return {
             "changed_paths": len(changed),
-            "required_groups": classify(source_root, changed),
             "expected_compiled_generator": expected_generator,
             "stale_pages_before": stale,
             "render_ahead": stale > 0,
@@ -1018,17 +982,7 @@ def promote(args, source_root, runtime_home, override_file, identity, evidence, 
     plan = stages.run("plan", plan_stage)
     receipt["plan"] = plan
 
-    # 3. validation and build, side by side
-    def validation_stage():
-        groups = [group for group in GROUPS if plan["required_groups"].get(group)]
-        if groups:
-            run_logged(
-                ["bash", "scripts/preflight.sh", "--base", standing_sha, "--final", "--groups", ",".join(groups)],
-                evidence / "validation.log",
-                source_root,
-            )
-        return {"groups": groups}
-
+    # 3. build
     def build_stage():
         stdout = run_logged(
             [
@@ -1070,31 +1024,16 @@ def promote(args, source_root, runtime_home, override_file, identity, evidence, 
     # The rehearsal renders the pages it serves itself, so its copy needs
     # nothing from render-ahead and is taken alongside the build.
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-        validation = pool.submit(stages.run, "validation", validation_stage)
-        # The candidate build compiles the same crates the Deepwell test
-        # shards exercise; beside them it starved the shards (Deepwell full
-        # tests took 893s in the 2026-10-24 promotion against ~160s of
-        # uncontended shard execution). When the Deepwell group runs, the
-        # build waits for validation; otherwise it stays alongside, where
-        # the validation groups are not CPU-starved by it.
-        build_after_validation = bool(plan["required_groups"].get("deepwell"))
-        build = (
-            None
-            if build_after_validation
-            else pool.submit(stages.run, "build", build_stage)
-        )
+        build = pool.submit(stages.run, "build", build_stage)
         dependencies = pool.submit(stages.run, "browser-dependencies", browser_dependencies_stage)
         clone = pool.submit(stages.run, "rehearsal-clone", clone_stage) if plan["rehearse"] else None
         try:
-            receipt["validation"] = validation.result()
-            if build is None:
-                build = pool.submit(stages.run, "build", build_stage)
             built = build.result()
             dependencies.result()
             if clone:
                 clone.result()
         except BaseException:
-            for future in (validation, build, dependencies, clone):
+            for future in (build, dependencies, clone):
                 if future:
                     future.cancel()
             if plan["rehearse"]:

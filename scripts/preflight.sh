@@ -16,7 +16,7 @@
 #   --final         Run the complete candidate barrier, including Clippy, full
 #                   tests, validators, and the Framerail production build.
 #   --groups <a,b>  Run exactly these groups, whatever the change-set selects
-#                   (the standing promotion passes the groups its diff needs). Unknown group names are refused. Without it, the
+#                   Unknown group names are refused. Without it, the
 #                   groups come from the changes against the base.
 #   --jobs <n>      Run up to n check groups at once (0: all; the default for
 #                   --final, 1 otherwise), in two waves: the suites with

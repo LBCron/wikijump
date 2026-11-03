@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
@@ -14,13 +13,20 @@ const paneUrl = new URL(
   import.meta.url
 )
 
+/** @type {any} */
 let paneSource
+/** @type {any} */
 let rowsBlock
+/** @type {any} */
 let tempDirectory
+/** @type {any} */
 let rowsComponent
 
+/** @param {any} source */
 const findRowsBlock = (source) => {
+  /** @type {any[]} */
   const blocks = []
+  /** @param {any} node */
   const visit = (node) => {
     if (!node || typeof node !== "object") return
     if (node.type === "EachBlock") blocks.push(node)
@@ -62,8 +68,14 @@ after(async () => {
   if (tempDirectory) await rm(tempDirectory, { recursive: true, force: true })
 })
 
+/**
+ * @param {any} name
+ * @param {any} content
+ * @param {any} all_pages
+ */
 const row = (name, content, all_pages) => ({ name, content, all_pages })
 
+/** @param {any} rows */
 const renderRows = (rows) => render(rowsComponent, { props: { rows } }).body
 
 test("editor renders two same-name rows with different values as separate rows", () => {

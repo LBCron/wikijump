@@ -28,7 +28,6 @@
   let summary = $state<HTMLElement>()
   let menu: HTMLElement
 
-
   function checkClose(evt: PointerEvent) {
     if (!open) return
     if (!evt.target) return
@@ -36,7 +35,6 @@
     if (details.contains(evt.target as Node)) return
     closeMenu()
   }
-
 
   function toggleMenu() {
     open = !open

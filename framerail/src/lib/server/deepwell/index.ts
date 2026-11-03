@@ -86,6 +86,7 @@ interface CompileInfo {
   target: string
   threads: number
   git_commit: Nullable<string>
+  ftml_commit: string
 }
 
 export async function info(): Promise<Info> {

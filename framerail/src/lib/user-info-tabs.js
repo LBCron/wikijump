@@ -1,4 +1,3 @@
-
 /**
  * @typedef {{ id: string; label: string }} UserInfoTab
  *

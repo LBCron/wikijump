@@ -103,7 +103,6 @@ async function loadEmailTokenCopy(
   return { internationalization }
 }
 
-
 export async function loadForgotPage(request: Request, preloadData: PreloadDataAsync) {
   const copy = await loadEmailTokenCopy(request, preloadData, {
     "password-recovery": {},
@@ -135,7 +134,6 @@ export async function forgotAction({ request, getClientAddress }: RequestEvent) 
     return failForActionError(error, { form }, 500)
   }
 }
-
 
 export async function loadVerifyPage(request: Request, preloadData: PreloadDataAsync) {
   const copy = await loadEmailTokenCopy(request, preloadData, {
@@ -208,7 +206,6 @@ export async function verifyRedeemAction({ request, getClientAddress }: RequestE
     return failForActionError(error, { form }, 500)
   }
 }
-
 
 export async function loadResetTokenPage(
   request: Request,

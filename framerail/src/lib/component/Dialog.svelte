@@ -44,8 +44,7 @@
     if (target === dialog || dialog.contains(target)) {
       const scroll = scrollElement(evt.target as HTMLElement)
       if (target !== scroll && !dialog.contains(scroll)) evt.preventDefault()
-    }
-    else {
+    } else {
       evt.preventDefault()
     }
   }

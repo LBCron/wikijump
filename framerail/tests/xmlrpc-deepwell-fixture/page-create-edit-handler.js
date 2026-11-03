@@ -10,8 +10,6 @@ import { handlePageEditLockRpc } from "./page-edit-lock-handler.js"
  */
 export const handlePageCreateEditRpc = (input) => {
   return (
-    handlePageCreateRpc(input) ??
-    handlePageEditLockRpc(input) ??
-    handlePageEditRpc(input)
+    handlePageCreateRpc(input) ?? handlePageEditLockRpc(input) ?? handlePageEditRpc(input)
   )
 }

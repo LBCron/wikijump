@@ -17,7 +17,6 @@
     info: "wj-info"
   }
 
-
   function intro(evt: Event) {
     const node = evt.currentTarget as HTMLElement
     const toast = node.children[0] as HTMLElement

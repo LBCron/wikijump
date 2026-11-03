@@ -184,7 +184,7 @@
             lastRevisionId: fields.lastRevisionId,
             wikitext: $form.wikitext,
             lockId: fields.lockId,
-            ["lockSecret"]: fields.lockSecret,
+            "lockSecret": fields.lockSecret,
             leaseMode: fields.mode,
             sectionIndex: fields.sectionIndex ?? null
           })

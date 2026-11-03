@@ -25,7 +25,7 @@ export function runtimeFilesForObservation(surface, viewport) {
     `${PAGE_ROUTE}/+page.svelte`,
     `${PAGE_ROUTE}/+page.server.ts`,
     ...(surface === 'dialog.generic'
-    ? ['framerail/src/lib/popup/error.svelte', 'framerail/src/routes/[slug]/[...extra]/PageView.svelte', 'framerail/src/lib/wikidot/wikidot-locale.js']
+    ? ['framerail/src/lib/popup/error.svelte', 'framerail/src/routes/[slug]/[...extra]/PageView.svelte', 'framerail/src/lib/wikidot/wikidot-locale.ts']
     : surface.startsWith('page.history')
       ? ['framerail/src/routes/[slug]/[...extra]/HistoryPane.svelte', 'framerail/src/lib/wikidot-history-contract.js']
       : surface.startsWith('page.files') ? ['framerail/src/routes/[slug]/[...extra]/FileList.svelte']
@@ -39,7 +39,7 @@ export function runtimeFilesForObservation(surface, viewport) {
   // Page states retain the saved page's tag row alongside their action pane.
   // Its wrapper participates in CSS layout (including History document width),
   // even though PageView imports the renderer from a separate component.
-  if (surface.startsWith('page.')) files.push('framerail/src/routes/[slug]/[...extra]/WikidotFoundPageTags.svelte', 'framerail/src/lib/wikidot/wikidot-page-tags.js');
+  if (surface.startsWith('page.')) files.push('framerail/src/routes/[slug]/[...extra]/WikidotFoundPageTags.svelte', 'framerail/src/lib/wikidot/wikidot-page-tags.ts');
   if (viewport === 'mobile' || viewport === 'narrow-mobile') files.push('framerail/src/lib/sigma-esque/wikidot.svelte');
   if (surface === 'shell.search' && viewport !== 'mobile' && viewport !== 'narrow-mobile') files.push('framerail/src/lib/wikidot/wikidot-search.js');
   const pane=paneRoot(surface);if(pane)files.push(`${PAGE_ROUTE}/${pane}`);

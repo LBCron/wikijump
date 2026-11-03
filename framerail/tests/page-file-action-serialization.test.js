@@ -106,13 +106,18 @@ test("anonymous file upload failures remain serializable action results", async 
 test("blob upload failures before commit remain serializable action results", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 29 }
-    if (method === "page_edit_permission") return { can_edit: true }
-    if (method === "blob_upload") throw new Error("blob_upload failed before commit")
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 29 }
+      if (method === "page_edit_permission") return { can_edit: true }
+      if (method === "blob_upload") throw new Error("blob_upload failed before commit")
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
 
   const result = await actions.fileUpload(authenticatedUploadEvent())
 
@@ -135,19 +140,24 @@ test("public file upload cancels a pending blob when the PUT fails", async (t) =
     globalThis.fetch = originalFetch
   })
 
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    events.push({ kind: "rpc", method, params, context })
-    if (method === "session_get") return { user_id: 29 }
-    if (method === "page_edit_permission") return { can_edit: true }
-    if (method === "blob_upload") {
-      return {
-        pending_blob_id: "pending-public-put-failure",
-        presign_url: "https://uploads.example.test/pending-public-put-failure"
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      events.push({ kind: "rpc", method, params, context })
+      if (method === "session_get") return { user_id: 29 }
+      if (method === "page_edit_permission") return { can_edit: true }
+      if (method === "blob_upload") {
+        return {
+          pending_blob_id: "pending-public-put-failure",
+          presign_url: "https://uploads.example.test/pending-public-put-failure"
+        }
       }
+      if (method === "blob_cancel") return null
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "blob_cancel") return null
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
   globalThis.fetch = async (url, init) => {
     events.push({ kind: "put", url, init })
     return new Response(null, { status: 503 })
@@ -180,21 +190,26 @@ test("public file upload commits the pending blob without returning the File obj
     globalThis.fetch = originalFetch
   })
 
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    events.push({ kind: "rpc", method, params, context })
-    if (method === "session_get") return { user_id: 29 }
-    if (method === "page_edit_permission") return { can_edit: true }
-    if (method === "blob_upload") {
-      return {
-        pending_blob_id: "pending-public-commit",
-        presign_url: "https://uploads.example.test/pending-public-commit"
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      events.push({ kind: "rpc", method, params, context })
+      if (method === "session_get") return { user_id: 29 }
+      if (method === "page_edit_permission") return { can_edit: true }
+      if (method === "blob_upload") {
+        return {
+          pending_blob_id: "pending-public-commit",
+          presign_url: "https://uploads.example.test/pending-public-commit"
+        }
       }
+      if (method === "file_create") {
+        return { file_id: 1062, file_revision_id: 1063, blob_created: true }
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "file_create") {
-      return { file_id: 1062, file_revision_id: 1063, blob_created: true }
-    }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
   globalThis.fetch = async (url, init) => {
     events.push({ kind: "put", url, init })
     return new Response(null, { status: 200 })

@@ -30,7 +30,9 @@ test("article response fast path local hot cache entries expire by TTL", async (
       assert.equal(responseStore.getCalls(), 1)
 
       now = 9
-      const stillFresh = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const stillFresh = await rawFetch(`${baseUrl}/scp-173`, {
+        headers: fastPathHeaders
+      })
       assert.equal(stillFresh.status, 200)
       assert.equal(
         await stillFresh.text(),

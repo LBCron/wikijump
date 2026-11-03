@@ -52,6 +52,7 @@ about-info = プラットフォーム情報
     .cargo-version = Cargo のバージョン
     .built-at = ビルド日時
     .git-commit = Git コミット
+    .ftml-commit = FTML コミット
     .blurb = Wikijump は、共同創作とワールドビルディングのための無料のオープンソースプラットフォームです。Wikidot の後継として、Wikijump チームと SCP コミュニティによって開発されています。
     .blog = Wikijump ブログ
     .node-version = Node のバージョン

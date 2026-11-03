@@ -1,8 +1,7 @@
 let domParser: DOMParser
 try {
   domParser = new DOMParser()
-} catch {
-}
+} catch {}
 
 export function toFragment(html: string) {
   const parsed = domParser.parseFromString(html, "text/html")
@@ -11,7 +10,10 @@ export function toFragment(html: string) {
   return fragment
 }
 
-export function unsafeHtml(strings: TemplateStringsArray, ...subs: (string | string[])[]) {
+export function unsafeHtml(
+  strings: TemplateStringsArray,
+  ...subs: (string | string[])[]
+) {
   const src = strings.raw.reduce((prev, cur, idx) => {
     let sub = subs[idx - 1]
     if (Array.isArray(sub)) sub = sub.join("")

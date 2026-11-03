@@ -1,4 +1,3 @@
-
 const NORENDER_KEY = "norender"
 const ACTIVATING_VALUES: ReadonlySet<string> = new Set(["true", "t", "1", "false"])
 

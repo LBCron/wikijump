@@ -140,7 +140,18 @@ export const fixtureState = {
     nextPendingBlobId: 1,
     nextEditLockId: 7000000
   },
-  /** @type {Record<string, { lock_id: number, secret: string, user_id: number, mode: string, section_index: number | null }>} */
+  /**
+   * @type {Record<
+   *   string,
+   *   {
+   *     lock_id: number
+   *     secret: string
+   *     user_id: number
+   *     mode: string
+   *     section_index: number | null
+   *   }
+   * >}
+   */
   editLocks: {},
   ratingScores: {
     3000341: 3,

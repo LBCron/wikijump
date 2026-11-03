@@ -3,7 +3,6 @@ import * as Popper from "@popperjs/core"
 import { BaseButton } from "./base-button"
 import { HoverObserver } from "./hover"
 
-
 export abstract class BaseTooltipButton extends BaseButton {
   abstract get parent(): HTMLElement
 

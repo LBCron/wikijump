@@ -35,6 +35,7 @@ about-info = Platform information
     .cargo-version = Cargo version
     .built-at = Built at
     .git-commit = Git commit
+    .ftml-commit = FTML commit
     .blurb = Wikijump is a free, open-source platform for collaborative fiction and worldbuilding: a modern replacement for Wikidot, developed by the Wikijump Team and the SCP community.
     .blog = Wikijump blog
     .node-version = Node version

@@ -41,7 +41,6 @@ export abstract class BaseButton extends HTMLElement {
     }
   }
 
-
   connectedCallback() {
     this.baseEnsureAttributes()
   }

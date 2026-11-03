@@ -61,33 +61,38 @@ const moveEvent = (body, contentType = "application/x-www-form-urlencoded") => (
 test("native page move resolves the routed page before moving it", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") {
-      return {
-        session_token: "move-session",
-        user_id: 91,
-        created_at: "2026-08-13T00:00:00Z",
-        expires_at: "2026-08-14T00:00:00Z",
-        ip_address: "192.0.2.91",
-        user_agent: "native move boundary test",
-        restricted: false
-      }
-    }
-    if (method === "page_view") {
-      return {
-        type: "found",
-        data: {
-          page: { page_id: 42, latest_revision_id: 9, slug: "source-page" },
-          page_revision: { revision_id: 9 }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") {
+        return {
+          session_token: "move-session",
+          user_id: 91,
+          created_at: "2026-08-13T00:00:00Z",
+          expires_at: "2026-08-14T00:00:00Z",
+          ip_address: "192.0.2.91",
+          user_agent: "native move boundary test",
+          restricted: false
         }
       }
+      if (method === "page_view") {
+        return {
+          type: "found",
+          data: {
+            page: { page_id: 42, latest_revision_id: 9, slug: "source-page" },
+            page_revision: { revision_id: 9 }
+          }
+        }
+      }
+      if (method === "page_move") {
+        return { page_id: 42, revision_id: 10, revision_number: 5, new_slug: "next page" }
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "page_move") {
-      return { page_id: 42, revision_id: 10, revision_number: 5, new_slug: "next page" }
-    }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const result = await slugActions.move(
     moveEvent("new-slug=next+page&comments=Renamed+%26+retained")
@@ -133,19 +138,24 @@ test("native page move resolves the routed page before moving it", async () => {
 test("enhanced page move keeps the existing Superforms payload schema", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 91 }
-    if (method === "page_move") {
-      return {
-        page_id: 42,
-        revision_id: 10,
-        revision_number: 5,
-        new_slug: "enhanced-destination"
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 91 }
+      if (method === "page_move") {
+        return {
+          page_id: 42,
+          revision_id: 10,
+          revision_number: 5,
+          new_slug: "enhanced-destination"
+        }
       }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const data = new FormData()
   data.set(

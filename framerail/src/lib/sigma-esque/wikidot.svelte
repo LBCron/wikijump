@@ -160,6 +160,5 @@
     .header {
       height: initial;
     }
-
   }
 </style>

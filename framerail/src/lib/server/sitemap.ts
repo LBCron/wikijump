@@ -1,4 +1,3 @@
-
 export const SITEMAP_ENTRIES_PER_SHARD = 1_000
 
 export const SITEMAP_XML_HEADERS = {

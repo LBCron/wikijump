@@ -66,7 +66,10 @@ const membershipEvent = () => ({
   }
 })
 
-/** @param {any} action @param {any} body @param {any} [sessionToken] @param {any} [extra] */
+/**
+ * @param {any} action @param {any} body @param {any} [sessionToken] @param
+ *   {any} [extra]
+ */
 const typedMembershipEvent = (
   action,
   body,
@@ -97,22 +100,27 @@ const typedMembershipEvent = (
 test("root and slug page routes bind actor-verified membership Join", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") {
-      return {
-        session_token: "membership-session",
-        user_id: 91,
-        created_at: "2026-08-10T00:00:00Z",
-        expires_at: "2026-08-11T00:00:00Z",
-        ip_address: "192.0.2.91",
-        user_agent: "membership route test",
-        restricted: false
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") {
+        return {
+          session_token: "membership-session",
+          user_id: 91,
+          created_at: "2026-08-10T00:00:00Z",
+          expires_at: "2026-08-11T00:00:00Z",
+          ip_address: "192.0.2.91",
+          user_agent: "membership route test",
+          restricted: false
+        }
       }
+      if (method === "membership_join") return "joined"
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "membership_join") return "joined"
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   for (const actions of [rootActions, slugActions]) {
     assert.equal(typeof actions.membershipJoin, "function")
@@ -149,10 +157,15 @@ test("root and slug page routes bind actor-verified membership Join", async () =
 test("malformed and unauthenticated membership Join requests fail without mutation", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
 
   /** @param {any} body @param {any} [sessionToken] */
   const joinEvent = (body, sessionToken = "membership-session") => ({
@@ -204,23 +217,28 @@ test("malformed and unauthenticated membership Join requests fail without mutati
 test("application and password actions preserve actor-bound page context", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") {
-      return {
-        session_token: "membership-session",
-        user_id: 91,
-        created_at: "2026-08-10T00:00:00Z",
-        expires_at: "2026-08-11T00:00:00Z",
-        ip_address: "192.0.2.91",
-        user_agent: "membership route test",
-        restricted: false
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") {
+        return {
+          session_token: "membership-session",
+          user_id: 91,
+          created_at: "2026-08-10T00:00:00Z",
+          expires_at: "2026-08-11T00:00:00Z",
+          ip_address: "192.0.2.91",
+          user_agent: "membership route test",
+          restricted: false
+        }
       }
+      if (method === "membership_application_submit") return "submitted"
+      if (method === "membership_password_submit") return "wrong_password"
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "membership_application_submit") return "submitted"
-    if (method === "membership_password_submit") return "wrong_password"
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const fingerprint = "0123456789abcdef0123456789abcdef"
   for (const actions of [rootActions, slugActions]) {
@@ -272,10 +290,15 @@ test("application and password actions preserve actor-bound page context", async
 test("malformed application and password action bodies fail before Deepwell mutation", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
   const fingerprint = "0123456789abcdef0123456789abcdef"
   /** @type {any[]} */
   const invalid = [
@@ -303,16 +326,21 @@ test("malformed application and password action bodies fail before Deepwell muta
 test("email invitation action derives the opaque hash from the trusted route, not the request body", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 91 }
-    if (method === "membership_email_invitation_accept") {
-      return params.hash === ""
-        ? { status: "unavailable" }
-        : { status: "accepted", site_name: "Test Wiki", site_slug: "test" }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 91 }
+      if (method === "membership_email_invitation_accept") {
+        return params.hash === ""
+          ? { status: "unavailable" }
+          : { status: "accepted", site_name: "Test Wiki", site_slug: "test" }
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
   const fingerprint = "0123456789abcdef0123456789abcdef"
   const body = {
     pageId: 42,

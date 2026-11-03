@@ -1,6 +1,5 @@
 import { formatWikidotFeedDate } from "./list-pages-feed.ts"
 
-
 export interface WikidotSiteChangesFeedItem {
   revision_id: number
   revision_number: number

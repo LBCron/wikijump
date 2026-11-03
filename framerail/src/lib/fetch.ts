@@ -1,4 +1,3 @@
-
 export const DEFAULT_TIMEOUT = 1500
 
 type WjFetchOptions = RequestInit & { timeout?: number }

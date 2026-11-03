@@ -37,11 +37,16 @@ const requestEvent = (overrides = {}) =>
 test("parent lookup forwards only the trusted site and page selector", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "parent_get_all") return ["parent-page"]
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "parent_get_all") return ["parent-page"]
+      throw new Error(`Unexpected Deepwell method ${method}`)
+    }
 
   const byId = await actions.parentGet(
     requestEvent({ body: { pageId: 42, slug: "main", siteId: 999 } })

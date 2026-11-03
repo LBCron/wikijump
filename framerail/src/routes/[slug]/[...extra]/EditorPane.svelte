@@ -123,7 +123,7 @@
           ...(fields
             ? {
                 lockId: fields.lockId,
-                ["lockSecret"]: fields.lockSecret,
+                "lockSecret": fields.lockSecret,
                 leaseMode: fields.mode,
                 sectionIndex: fields.sectionIndex ?? null
               }

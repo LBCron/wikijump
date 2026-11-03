@@ -38,14 +38,19 @@ test("file edit, restore, and rollback actions forward getClientAddress through 
   try {
     /** @type {any[]} */
     const calls = []
-    client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-      calls.push({ method, params, context })
-      if (method === "session_get") return { user_id: 3 }
-      if (["file_edit", "file_restore", "file_rollback"].includes(method)) {
-        return { ok: true }
+    client.request =
+      /** @param {any} method @param {any} params @param {any} context */ async (
+        method,
+        params,
+        context
+      ) => {
+        calls.push({ method, params, context })
+        if (method === "session_get") return { user_id: 3 }
+        if (["file_edit", "file_restore", "file_rollback"].includes(method)) {
+          return { ok: true }
+        }
+        throw new Error(`Unexpected Deepwell method ${method}`)
       }
-      throw new Error(`Unexpected Deepwell method ${method}`)
-    }
 
     await actions.fileEdit(
       formEvent("fileEdit", {
@@ -69,24 +74,26 @@ test("file edit, restore, and rollback actions forward getClientAddress through 
       })
     )
     await actions.fileRollback(
-      pageActionEvent(/** @type {any} */ ({
-        action: "fileRollback",
-        body: {
+      pageActionEvent(
+        /** @type {any} */ ({
+          action: "fileRollback",
+          body: {
+            siteId: SITE_ID,
+            pageId: 42,
+            lastRevisionId: 8,
+            fileId: 5,
+            revisionNumber: 6,
+            comments: "rollback"
+          },
           siteId: SITE_ID,
-          pageId: 42,
-          lastRevisionId: 8,
-          fileId: 5,
-          revisionNumber: 6,
-          comments: "rollback"
-        },
-        siteId: SITE_ID,
-        sessionToken: "file-session",
-        requestContext: {
-          ...TRUSTED_CONTEXT,
-          sessionToken: "file-session"
-        },
-        clientAddress: CLIENT_IP
-      }))
+          sessionToken: "file-session",
+          requestContext: {
+            ...TRUSTED_CONTEXT,
+            sessionToken: "file-session"
+          },
+          clientAddress: CLIENT_IP
+        })
+      )
     )
 
     const mutations = calls.filter(({ method }) =>
@@ -119,27 +126,34 @@ test("file delete and move actions bind the actor and routed page context", asyn
   try {
     /** @type {any[]} */
     const calls = []
-    client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-      calls.push({ method, params, context })
-      if (method === "session_get") return { user_id: 3 }
-      if (method === "file_delete" || method === "file_move") return { ok: true }
-      throw new Error(`Unexpected Deepwell method ${method}`)
-    }
+    client.request =
+      /** @param {any} method @param {any} params @param {any} context */ async (
+        method,
+        params,
+        context
+      ) => {
+        calls.push({ method, params, context })
+        if (method === "session_get") return { user_id: 3 }
+        if (method === "file_delete" || method === "file_move") return { ok: true }
+        throw new Error(`Unexpected Deepwell method ${method}`)
+      }
 
     await actions.fileDelete(
-      pageActionEvent(/** @type {any} */ ({
-        action: "fileDelete",
-        body: {
+      pageActionEvent(
+        /** @type {any} */ ({
+          action: "fileDelete",
+          body: {
+            siteId: SITE_ID,
+            pageId: 42,
+            lastRevisionId: 8,
+            fileId: 5,
+            comments: "delete"
+          },
           siteId: SITE_ID,
-          pageId: 42,
-          lastRevisionId: 8,
-          fileId: 5,
-          comments: "delete"
-        },
-        siteId: SITE_ID,
-        sessionToken: "file-session",
-        requestContext: { ...TRUSTED_CONTEXT, sessionToken: "file-session" }
-      }))
+          sessionToken: "file-session",
+          requestContext: { ...TRUSTED_CONTEXT, sessionToken: "file-session" }
+        })
+      )
     )
     await actions.fileMove(
       formEvent("fileMove", {
@@ -195,13 +209,18 @@ test("file revision reads forward the routed request context to Deepwell", async
   try {
     /** @type {any[]} */
     const calls = []
-    client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-      calls.push({ method, params, context })
-      if (method === "file_revision_range") {
-        return [{ revision_id: 5, revision_number: 2 }]
+    client.request =
+      /** @param {any} method @param {any} params @param {any} context */ async (
+        method,
+        params,
+        context
+      ) => {
+        calls.push({ method, params, context })
+        if (method === "file_revision_range") {
+          return [{ revision_id: 5, revision_number: 2 }]
+        }
+        throw new Error(`Unexpected Deepwell method ${method}`)
       }
-      throw new Error(`Unexpected Deepwell method ${method}`)
-    }
 
     /** @param {any} body @param {any} [siteId] */
     const requestEvent = (body, siteId = SITE_ID) =>

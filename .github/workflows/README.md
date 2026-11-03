@@ -6,9 +6,9 @@ Every workflow here costs wall-clock time on a pull request, so each one needs a
 
 Pull requests are checked by `pr-checks.yml`: fast, path-scoped targeted
 checks, and nothing else. It maps each changed path to the targeted checks
-for the area it touches (Deepwell library tests and Clippy for
-`deepwell/**`, WWS tests and formatting for `wws/**`, Framerail unit tests
-for `framerail/**`, the verification package suite for
+for the area it touches (Deepwell formatting, library tests and Clippy for
+`deepwell/**`, WWS tests and formatting for `wws/**`, Framerail lint and unit
+tests for `framerail/**`, the verification package suite for
 `install/local/wikidot-verification/**`, the standing tooling tests for
 `install/standing/**`, the workflow policy tests for `.github/**` and
 `scripts/**`, a formatting check for `locales/**`) and runs only those.

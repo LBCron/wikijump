@@ -28,7 +28,6 @@ const field = (name, fieldType, configuredValue = null) => ({
   join: false
 })
 
-
 test("hidden-configured-value-create ignores injected submissions", () => {
   const definition = {
     default_layout: true,

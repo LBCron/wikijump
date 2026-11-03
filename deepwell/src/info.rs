@@ -78,6 +78,9 @@ pub static GIT_COMMIT: LazyLock<Option<&'static str>> =
         _ => build::GIT_COMMIT_HASH,
     });
 
+/// The FTML commit this binary pins, read from Cargo.lock by build.rs.
+pub const FTML_COMMIT: &str = env!("DEEPWELL_FTML_COMMIT");
+
 pub static GIT_COMMIT_HASH_SHORT: LazyLock<Option<&'static str>> =
     LazyLock::new(|| GIT_COMMIT.map(|s| &s[..usize::min(8, s.len())]));
 

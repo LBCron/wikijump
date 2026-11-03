@@ -28395,10 +28395,10 @@ async fn tagcloud_module_filters_anonymous_hidden_category_pages_before_loading_
         "TagCloud security holder",
         concat!(
             "SITEWIDE_START\n",
-            "[[module TagCloud]]\n",
+            "[[module TagCloud limit=\"100000\"]]\n",
             "SITEWIDE_END\n",
             "PRIVATE_START\n",
-            "[[module TagCloud category=\"fixture-tagcloud-security-private\"]]\n",
+            "[[module TagCloud category=\"fixture-tagcloud-security-private\" limit=\"100000\"]]\n",
             "PRIVATE_END\n",
         ),
     )

@@ -79,7 +79,7 @@ export async function pageEditLockRenew(
   const params = {
     page: input.pageId ?? input.slug,
     lock_id: input.lockId,
-    ["lock_secret"]: input.lockSecret,
+    "lock_secret": input.lockSecret,
     mode: input.mode,
     section_index: input.sectionIndex
   }
@@ -100,7 +100,7 @@ export async function pageEditLockRelease(
   const params = {
     page: input.pageId ?? input.slug,
     lock_id: input.lockId,
-    ["lock_secret"]: input.lockSecret
+    "lock_secret": input.lockSecret
   }
   return client.request("page_edit_lock_release", params, requestContext)
 }
@@ -138,7 +138,7 @@ export async function pageSave(
   const lease = input.lease
     ? {
         lock_id: input.lease.lockId,
-        ["lock_secret"]: input.lease.lockSecret,
+        "lock_secret": input.lease.lockSecret,
         mode: input.lease.mode,
         section_index: input.lease.sectionIndex
       }

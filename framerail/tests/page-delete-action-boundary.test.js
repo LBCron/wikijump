@@ -69,15 +69,20 @@ const foundPage = {
 test("native delete-pane move resolves the routed page before moving it", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 91 }
-    if (method === "page_view") return foundPage
-    if (method === "page_move") {
-      return { page_id: 42, revision_id: 10, revision_number: 5, new_slug: "next page" }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 91 }
+      if (method === "page_view") return foundPage
+      if (method === "page_move") {
+        return { page_id: 42, revision_id: 10, revision_number: 5, new_slug: "next page" }
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const result = await slugActions.delete(
     deleteEvent("option=move&new-slug=next+page&comments=Renamed+%26+retained")
@@ -119,15 +124,20 @@ test("native delete-pane move resolves the routed page before moving it", async 
 test("native Wikidot delete accepts an omitted comment", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 91 }
-    if (method === "page_view") return foundPage
-    if (method === "page_delete") {
-      return { page_id: 42, revision_id: 10, revision_number: 5 }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 91 }
+      if (method === "page_view") return foundPage
+      if (method === "page_delete") {
+        return { page_id: 42, revision_id: 10, revision_number: 5 }
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const result = await slugActions.delete(deleteEvent("option=delete"))
 
@@ -153,7 +163,10 @@ test("native Wikidot delete accepts an omitted comment", async () => {
 test("native Wikijump delete accepts an empty comment", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params */ async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     calls.push({ method, params })
     if (method === "session_get") return { user_id: 91 }
     if (method === "page_view") return foundPage
@@ -189,14 +202,19 @@ test("native delete stops without mutation when the routed page is missing", asy
 test("enhanced delete preserves supplied page identity without resolving the route", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 91 }
-    if (method === "page_delete") {
-      return { page_id: 742, revision_id: 910, revision_number: 5 }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 91 }
+      if (method === "page_delete") {
+        return { page_id: 742, revision_id: 910, revision_number: 5 }
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const data = new FormData()
   data.set(
@@ -231,19 +249,24 @@ test("enhanced delete preserves supplied page identity without resolving the rou
 test("enhanced delete-pane move preserves supplied page identity without resolving the route", async () => {
   /** @type {any[]} */
   const calls = []
-  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "session_get") return { user_id: 91 }
-    if (method === "page_move") {
-      return {
-        page_id: 743,
-        revision_id: 911,
-        revision_number: 5,
-        new_slug: "enhanced destination"
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "session_get") return { user_id: 91 }
+      if (method === "page_move") {
+        return {
+          page_id: 743,
+          revision_id: 911,
+          revision_number: 5,
+          new_slug: "enhanced destination"
+        }
       }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const data = new FormData()
   data.set(

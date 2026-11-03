@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { PageProps } from "./$types"
 
+  const WIKIJUMP_COMMIT_URL = "https://github.com/Rokurolize/wikijump/commit/"
+  const FTML_COMMIT_URL = "https://github.com/Rokurolize/ftml/commit/"
+
   let { data }: PageProps = $props()
 </script>
 
@@ -76,9 +79,25 @@
         <th class="info-attribute-name"
           >{data.internationalization?.["about-info.git-commit"]}</th
         >
-        <td class="info-attribute-value">{data.backend.compile_info.git_commit}</td>
+        <td class="info-attribute-value">
+          <a
+            href={`${WIKIJUMP_COMMIT_URL}${data.backend.compile_info.git_commit}`}
+            rel="external">{data.backend.compile_info.git_commit}</a
+          >
+        </td>
       </tr>
     {/if}
+    <tr class="info-attribute-row">
+      <th class="info-attribute-name"
+        >{data.internationalization?.["about-info.ftml-commit"]}</th
+      >
+      <td class="info-attribute-value">
+        <a
+          href={`${FTML_COMMIT_URL}${data.backend.compile_info.ftml_commit}`}
+          rel="external">{data.backend.compile_info.ftml_commit}</a
+        >
+      </td>
+    </tr>
   </tbody>
   <tbody>
     <tr class="info-header">
@@ -135,7 +154,11 @@
         <th class="info-attribute-name"
           >{data.internationalization?.["about-info.git-commit"]}</th
         >
-        <td class="info-attribute-value">{data.frontend.git_commit}</td>
+        <td class="info-attribute-value">
+          <a href={`${WIKIJUMP_COMMIT_URL}${data.frontend.git_commit}`} rel="external"
+            >{data.frontend.git_commit}</a
+          >
+        </td>
       </tr>
     {/if}
   </tbody>

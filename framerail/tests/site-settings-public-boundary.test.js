@@ -366,9 +366,9 @@ describe("Wikidot site settings public boundaries", () => {
     } finally {
       if (previousElement === undefined) delete (/** @type {any} */ (globalThis).Element)
       else globalThis.Element = previousElement
-      if (previousHTMLElement === undefined)
+      if (previousHTMLElement === undefined) {
         delete (/** @type {any} */ (globalThis).HTMLElement)
-      else globalThis.HTMLElement = previousHTMLElement
+      } else globalThis.HTMLElement = previousHTMLElement
     }
   })
 

@@ -26,25 +26,30 @@ test("page creation binds parent follow-up to the assigned autonumbered slug", a
 
     /** @type {any[]} */
     const calls = []
-    client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
-      calls.push({ method, params, context })
-      if (method === "session_get") {
-        return {
-          session_token: "autonumber-session",
-          user_id: 41,
-          created_at: "2026-08-10T00:00:00Z",
-          expires_at: "2026-08-11T00:00:00Z",
-          ip_address: "192.0.2.63",
-          user_agent: "autonumber test",
-          restricted: false
+    client.request =
+      /** @param {any} method @param {any} params @param {any} context */ async (
+        method,
+        params,
+        context
+      ) => {
+        calls.push({ method, params, context })
+        if (method === "session_get") {
+          return {
+            session_token: "autonumber-session",
+            user_id: 41,
+            created_at: "2026-08-10T00:00:00Z",
+            expires_at: "2026-08-11T00:00:00Z",
+            ip_address: "192.0.2.63",
+            user_agent: "autonumber test",
+            restricted: false
+          }
         }
+        if (method === "page_create") {
+          return { page_id: 73, revision_id: 91, slug: "104", parser_errors: [] }
+        }
+        if (method === "parent_update") return { added: [], removed: [] }
+        throw new Error(`Unexpected Deepwell method ${method}`)
       }
-      if (method === "page_create") {
-        return { page_id: 73, revision_id: 91, slug: "104", parser_errors: [] }
-      }
-      if (method === "parent_update") return { added: [], removed: [] }
-      throw new Error(`Unexpected Deepwell method ${method}`)
-    }
 
     const data = new FormData()
     for (const [name, value] of Object.entries({

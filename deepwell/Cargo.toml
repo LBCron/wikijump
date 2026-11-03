@@ -2,7 +2,7 @@
 name = "deepwell"
 default-run = "deepwell"
 description = "DEEPWELL - Wikijump API provider and database manager"
-repository = "https://github.com/scpwiki/wikijump/tree/develop/deepwell"
+repository = "https://github.com/Rokurolize/wikijump/tree/develop/deepwell"
 readme = "README.md"
 license = "AGPL-3.0-or-later"
 keywords = ["wikijump", "api", "backend", "wiki"]
@@ -78,7 +78,6 @@ arrayvec = "0.7.6"
 
 # Local crates
 deepwell-relation-impl-derive = { path = "relation-impl-derive" }
-parking_lot = "0.13.0"
 
 [dev-dependencies]
 maplit = "1"

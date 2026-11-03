@@ -418,7 +418,7 @@
           ...(leaseFields
             ? {
                 lockId: leaseFields.lockId,
-                ["lockSecret"]: leaseFields.lockSecret,
+                "lockSecret": leaseFields.lockSecret,
                 leaseMode: leaseFields.mode,
                 sectionIndex: leaseFields.sectionIndex ?? null
               }

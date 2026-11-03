@@ -46,7 +46,6 @@ export interface WikidotPageBreadcrumbView {
   title: string
 }
 
-
 export async function preloadView(
   siteId: number,
   locales: string[],

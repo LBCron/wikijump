@@ -91,9 +91,7 @@ async fn rpc(
     session: &str,
     site_id: i64,
     page_header: &str,
-    id: usize,
-    method: &str,
-    params: Value,
+    (id, method, params): (usize, &str, Value),
 ) -> Outcome {
     let response = client
         .post(format!("http://{address}"))
@@ -206,9 +204,7 @@ impl Fixture {
             &self.session,
             self.site_id,
             page_header,
-            id,
-            method,
-            params,
+            (id, method, params),
         )
         .await
     }
@@ -508,18 +504,20 @@ async fn leased_edit_holding_row_lock_serializes_racing_move() {
             &victim_session,
             victim_site,
             &page_id.to_string(),
-            3,
-            "page_edit",
-            json!({
-                "site_id": victim_site,
-                "page": page_id,
-                "last_revision_id": rev1,
-                "revision_comments": "victim edit",
-                "user_id": ADMIN_USER_ID,
-                "wikitext": "victim content",
-                "ip_address": IP,
-                "lease": lease,
-            }),
+            (
+                3,
+                "page_edit",
+                json!({
+                    "site_id": victim_site,
+                    "page": page_id,
+                    "last_revision_id": rev1,
+                    "revision_comments": "victim edit",
+                    "user_id": ADMIN_USER_ID,
+                    "wikitext": "victim content",
+                    "ip_address": IP,
+                    "lease": lease,
+                }),
+            ),
         )
         .await
     });
@@ -547,17 +545,19 @@ async fn leased_edit_holding_row_lock_serializes_racing_move() {
             &move_session,
             move_site,
             &page_id.to_string(),
-            4,
-            "page_move",
-            json!({
-                "site_id": move_site,
-                "page": page_id,
-                "new_slug": new_slug,
-                "last_revision_id": rev1,
-                "revision_comments": "racing move",
-                "user_id": ADMIN_USER_ID,
-                "ip_address": IP,
-            }),
+            (
+                4,
+                "page_move",
+                json!({
+                    "site_id": move_site,
+                    "page": page_id,
+                    "new_slug": new_slug,
+                    "last_revision_id": rev1,
+                    "revision_comments": "racing move",
+                    "user_id": ADMIN_USER_ID,
+                    "ip_address": IP,
+                }),
+            ),
         )
         .await
     });
@@ -612,18 +612,20 @@ async fn two_edits_passing_check_then_insert_race_loser_gets_typed_conflict() {
                 &session,
                 site_id,
                 &page_id.to_string(),
-                id,
-                "page_edit",
-                json!({
-                    "site_id": site_id,
-                    "page": page_id,
-                    "last_revision_id": rev1,
-                    "revision_comments": format!("saver {label}"),
-                    "user_id": ADMIN_USER_ID,
-                    "wikitext": format!("content from saver {label}"),
-                    "ip_address": IP,
-                    "lease": lease,
-                }),
+                (
+                    id,
+                    "page_edit",
+                    json!({
+                        "site_id": site_id,
+                        "page": page_id,
+                        "last_revision_id": rev1,
+                        "revision_comments": format!("saver {label}"),
+                        "user_id": ADMIN_USER_ID,
+                        "wikitext": format!("content from saver {label}"),
+                        "ip_address": IP,
+                        "lease": lease,
+                    }),
+                ),
             )
             .await
         })
@@ -670,18 +672,20 @@ async fn delete_racing_edit_at_insert_race_loser_gets_typed_conflict() {
             &edit_session,
             edit_site,
             &page_id.to_string(),
-            3,
-            "page_edit",
-            json!({
-                "site_id": edit_site,
-                "page": page_id,
-                "last_revision_id": rev1,
-                "revision_comments": "racing edit",
-                "user_id": ADMIN_USER_ID,
-                "wikitext": "racing edit content",
-                "ip_address": IP,
-                "lease": lease,
-            }),
+            (
+                3,
+                "page_edit",
+                json!({
+                    "site_id": edit_site,
+                    "page": page_id,
+                    "last_revision_id": rev1,
+                    "revision_comments": "racing edit",
+                    "user_id": ADMIN_USER_ID,
+                    "wikitext": "racing edit content",
+                    "ip_address": IP,
+                    "lease": lease,
+                }),
+            ),
         )
         .await
     });
@@ -701,16 +705,18 @@ async fn delete_racing_edit_at_insert_race_loser_gets_typed_conflict() {
             &delete_session,
             delete_site,
             &page_id.to_string(),
-            4,
-            "page_delete",
-            json!({
-                "site_id": delete_site,
-                "page": page_id,
-                "last_revision_id": rev1,
-                "revision_comments": "racing delete",
-                "user_id": ADMIN_USER_ID,
-                "ip_address": IP,
-            }),
+            (
+                4,
+                "page_delete",
+                json!({
+                    "site_id": delete_site,
+                    "page": page_id,
+                    "last_revision_id": rev1,
+                    "revision_comments": "racing delete",
+                    "user_id": ADMIN_USER_ID,
+                    "ip_address": IP,
+                }),
+            ),
         )
         .await
     });
@@ -758,18 +764,20 @@ async fn move_racing_leased_edit_both_commit_serialized() {
             &edit_session,
             edit_site,
             &page_id.to_string(),
-            3,
-            "page_edit",
-            json!({
-                "site_id": edit_site,
-                "page": page_id,
-                "last_revision_id": rev1,
-                "revision_comments": "racing edit",
-                "user_id": ADMIN_USER_ID,
-                "wikitext": "racing edit content",
-                "ip_address": IP,
-                "lease": lease,
-            }),
+            (
+                3,
+                "page_edit",
+                json!({
+                    "site_id": edit_site,
+                    "page": page_id,
+                    "last_revision_id": rev1,
+                    "revision_comments": "racing edit",
+                    "user_id": ADMIN_USER_ID,
+                    "wikitext": "racing edit content",
+                    "ip_address": IP,
+                    "lease": lease,
+                }),
+            ),
         )
         .await
     });
@@ -790,17 +798,19 @@ async fn move_racing_leased_edit_both_commit_serialized() {
             &move_session,
             move_site,
             &page_id.to_string(),
-            4,
-            "page_move",
-            json!({
-                "site_id": move_site,
-                "page": page_id,
-                "new_slug": new_slug,
-                "last_revision_id": rev1,
-                "revision_comments": "racing move",
-                "user_id": ADMIN_USER_ID,
-                "ip_address": IP,
-            }),
+            (
+                4,
+                "page_move",
+                json!({
+                    "site_id": move_site,
+                    "page": page_id,
+                    "new_slug": new_slug,
+                    "last_revision_id": rev1,
+                    "revision_comments": "racing move",
+                    "user_id": ADMIN_USER_ID,
+                    "ip_address": IP,
+                }),
+            ),
         )
         .await
     });
@@ -856,18 +866,20 @@ async fn rollback_racing_edit_at_insert_race_loser_gets_typed_conflict() {
             &edit_session,
             edit_site,
             &page_id.to_string(),
-            3,
-            "page_edit",
-            json!({
-                "site_id": edit_site,
-                "page": page_id,
-                "last_revision_id": rev1,
-                "revision_comments": "racing edit",
-                "user_id": ADMIN_USER_ID,
-                "wikitext": "racing edit content",
-                "ip_address": IP,
-                "lease": lease,
-            }),
+            (
+                3,
+                "page_edit",
+                json!({
+                    "site_id": edit_site,
+                    "page": page_id,
+                    "last_revision_id": rev1,
+                    "revision_comments": "racing edit",
+                    "user_id": ADMIN_USER_ID,
+                    "wikitext": "racing edit content",
+                    "ip_address": IP,
+                    "lease": lease,
+                }),
+            ),
         )
         .await
     });
@@ -887,17 +899,19 @@ async fn rollback_racing_edit_at_insert_race_loser_gets_typed_conflict() {
             &rollback_session,
             rollback_site,
             &page_id.to_string(),
-            4,
-            "page_rollback",
-            json!({
-                "site_id": rollback_site,
-                "page": page_id,
-                "last_revision_id": rev1,
-                "revision_number": 0,
-                "revision_comments": "racing rollback",
-                "user_id": ADMIN_USER_ID,
-                "ip_address": IP,
-            }),
+            (
+                4,
+                "page_rollback",
+                json!({
+                    "site_id": rollback_site,
+                    "page": page_id,
+                    "last_revision_id": rev1,
+                    "revision_number": 0,
+                    "revision_comments": "racing rollback",
+                    "user_id": ADMIN_USER_ID,
+                    "ip_address": IP,
+                }),
+            ),
         )
         .await
     });

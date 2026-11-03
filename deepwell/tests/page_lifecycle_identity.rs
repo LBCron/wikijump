@@ -208,10 +208,18 @@ async fn lifecycle_identity_preserves_imported_native_and_mixed_display_names() 
         page_reference: Some(Reference::Slug(Cow::Borrowed(MIXED))),
         ..Default::default()
     });
+    let edit_lease_14 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(MIXED),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_14,
             "site_id": site_id,
             "page": MIXED,
             "last_revision_id": mixed.revision_id,

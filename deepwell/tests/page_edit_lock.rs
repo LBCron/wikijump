@@ -176,6 +176,7 @@ async fn edit(
             body,
             ip_address: common::IP_ADDRESS,
             lease,
+            system_writer: false,
         },
     )
     .await
@@ -1070,6 +1071,82 @@ async fn bad_credentials_against_a_live_lease_are_other_locks() {
     assert_contains_error!(error, ErrorType::PageEditLockConflict);
 
     assert_eq!(revision_count(&runner, page_id).await, revisions_before);
+}
+
+#[tokio::test]
+async fn leaseless_source_save_is_rejected_and_changes_nothing() {
+    let mut runner = TestRunner::setup().await;
+    let (site_id, page_id, revision_id) =
+        setup_page(&mut runner, "edit-lock-flip", "v0").await;
+
+    let result = edit(
+        &runner,
+        site_id,
+        page_id,
+        USER_A,
+        revision_id,
+        text_body("leaseless v1"),
+        None,
+    )
+    .await;
+    let error = result.expect_err("a source save without a lease must fail");
+    assert_contains_error!(error, ErrorType::PageEditLockConflict);
+    assert_eq!(revision_count(&runner, page_id).await, 1);
+    assert_eq!(
+        latest_revision_id(&runner, site_id, page_id).await,
+        revision_id
+    );
+
+    let a = grant(
+        &acquire(
+            &runner,
+            site_id,
+            page_id,
+            USER_A,
+            PageEditLockMode::Page,
+            None,
+        )
+        .await,
+    );
+    let output = edit(
+        &runner,
+        site_id,
+        page_id,
+        USER_A,
+        revision_id,
+        text_body("leased v1"),
+        Some(lease_of(&a, PageEditLockMode::Page)),
+    )
+    .await
+    .expect("a leased save should still commit after the rejection")
+    .expect("leased save should create a revision");
+    assert_eq!(output.revision_number, 1);
+}
+
+#[tokio::test]
+async fn system_writer_source_save_bypasses_the_lease_requirement() {
+    let mut runner = TestRunner::setup().await;
+    let (site_id, page_id, revision_id) =
+        setup_page(&mut runner, "edit-lock-flip-system", "v0").await;
+
+    let output = PageService::edit(
+        runner.context(),
+        EditPage {
+            site_id,
+            page: Reference::Id(page_id),
+            last_revision_id: revision_id,
+            revision_comments: "system writer save".to_owned(),
+            user_id: USER_A,
+            body: text_body("system v1"),
+            ip_address: common::IP_ADDRESS,
+            lease: None,
+            system_writer: true,
+        },
+    )
+    .await
+    .expect("a system writer save should commit without a lease")
+    .expect("system writer save should create a revision");
+    assert_eq!(output.revision_number, 1);
 }
 
 mod race {

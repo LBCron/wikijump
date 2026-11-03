@@ -93,7 +93,15 @@ async fn blank_theme_previewer_survives_save_and_include_but_not_preview_or_remo
                 site_id,
                 Reference::Slug(Cow::Borrowed(slug)),
             );
+            let edit_lease_17 = common::acquire_page_edit_lease(
+                &runner,
+                site_id,
+                &serde_json::json!(slug),
+                ADMIN_USER_ID,
+            )
+            .await;
             run_endpoint!(runner, page_edit, json!({
+                "lease": edit_lease_17,
                 "site_id": site_id, "page": slug, "last_revision_id": revision,
                 "revision_comments": "remove blank theme selection", "user_id": ADMIN_USER_ID,
                 "wikitext": "Ordinary page body.", "ip_address": common::IP_ADDRESS,

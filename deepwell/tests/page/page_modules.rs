@@ -912,10 +912,18 @@ async fn nextpreviouspage_module_renders_live_selection_templates_and_runtime_up
         site_id,
         Reference::Slug(Cow::Borrowed(holder_slug)),
     );
+    let edit_lease_24 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(holder_slug),
+        ADMIN_USER_ID,
+    )
+    .await;
     let edited_holder = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_24,
             "site_id": site_id,
             "page": holder_slug,
             "last_revision_id": holder_revision,
@@ -967,10 +975,18 @@ async fn nextpreviouspage_module_renders_live_selection_templates_and_runtime_up
         site_id,
         Reference::Slug(Cow::Borrowed(delta_slug)),
     );
+    let edit_lease_25 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(delta_slug),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_25,
             "site_id": site_id,
             "page": delta_slug,
             "last_revision_id": delta_revision,
@@ -4105,10 +4121,18 @@ async fn backlinks_module_forgets_removed_links_and_collapses_duplicate_linkers(
         "both linkers should render before the unlink edit:\n{html}",
     );
 
+    let edit_lease_26 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!("fixture-backlinks-linker-echo"),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_26,
             "site_id": site_id,
             "page": "fixture-backlinks-linker-echo",
             "last_revision_id": echo_revision,

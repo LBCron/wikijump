@@ -49,6 +49,10 @@ mod page_move;
 mod page_query;
 
 use self::common::TestRunner;
+use deepwell::services::PageEditLockService;
+use deepwell::services::page_edit_lock::AcquirePageEditLock;
+use deepwell::types::PageEditLockMode;
+
 use cuid2::cuid;
 use deepwell::api::{
     ServerState, build_server_at, build_server_state, build_server_state_without_workers,
@@ -875,10 +879,18 @@ async fn component_css_edit_refreshes_only_the_recorded_dependent_page() {
         site_id,
         Reference::Id(component.page_id),
     );
+    let edit_lease_3 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(component.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_3,
             "site_id": site_id,
             "page": component.page_id,
             "last_revision_id": component.revision_id,
@@ -1101,10 +1113,18 @@ async fn component_css_include_visibility_and_lifecycle_matrix() {
         site.site_id,
         Reference::Id(private_component.page_id),
     );
+    let edit_lease_4 = common::acquire_page_edit_lease(
+        &runner,
+        site.site_id,
+        &serde_json::json!(private_component.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_4,
             "site_id": site.site_id,
             "page": private_component.page_id,
             "last_revision_id": private_component.revision_id,
@@ -1193,10 +1213,18 @@ async fn component_css_include_visibility_and_lifecycle_matrix() {
         cross_site.site_id,
         Reference::Id(cross_component.page_id),
     );
+    let edit_lease_5 = common::acquire_page_edit_lease(
+        &runner,
+        cross_site.site_id,
+        &serde_json::json!(cross_component.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_5,
             "site_id": cross_site.site_id,
             "page": cross_component.page_id,
             "last_revision_id": cross_component.revision_id,
@@ -1431,10 +1459,18 @@ async fn revision_diff_returns_typed_lines_without_exposing_hidden_source() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
+    let edit_lease_6 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(created.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     let edited = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_6,
             "site_id": site_id,
             "page": created.page_id,
             "last_revision_id": created.revision_id,
@@ -1547,10 +1583,18 @@ async fn page_revision_visibility_accepts_only_known_fields_and_fails_closed() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
+    let edit_lease_7 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(created.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_7,
             "site_id": site_id,
             "page": created.page_id,
             "last_revision_id": created.revision_id,
@@ -3003,10 +3047,18 @@ async fn basic_edit() {
     assert_eq!(page.revision_user_id, ADMIN_USER_ID);
     assert_eq!(page.page_category_slug, "_default");
 
+    let edit_lease_8 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(PAGE_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     let output = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_8,
             "site_id": site_id,
             "page": PAGE_SLUG,
             "last_revision_id": revision_id,
@@ -3044,10 +3096,18 @@ async fn basic_edit() {
     assert!(output.revision_id > revision_id);
     let revision_id = output.revision_id;
 
+    let edit_lease_9 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     let output = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_9,
             "site_id": site_id,
             "page": page_id,
             "last_revision_id": revision_id,
@@ -3144,10 +3204,18 @@ async fn page_editing_history_preserves_each_page_change_as_a_recoverable_revisi
         }),
     );
 
+    let edit_lease_10 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(created.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     let content_edit = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_10,
             "site_id": site_id,
             "page": created.page_id,
             "last_revision_id": created.revision_id,
@@ -3223,6 +3291,25 @@ async fn page_editing_history_preserves_each_page_change_as_a_recoverable_revisi
     assert_eq!(revisions[1]["title"], "Renamed history title");
     assert_eq!(revisions[2]["title"], "History fixture");
 
+    let stale_lease = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(created.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
+    PageEditLockService::force_acquire(
+        runner.context(),
+        AcquirePageEditLock {
+            site_id,
+            page: Reference::Id(created.page_id),
+            user_id: ADMIN_USER_ID,
+            mode: PageEditLockMode::Page,
+            section_index: None,
+        },
+    )
+    .await
+    .expect("force acquire should not error");
     let stale = run_endpoint_err!(
         runner,
         page_edit,
@@ -3234,6 +3321,7 @@ async fn page_editing_history_preserves_each_page_change_as_a_recoverable_revisi
             "user_id": ADMIN_USER_ID,
             "wikitext": "stale content",
             "ip_address": common::IP_ADDRESS,
+            "lease": stale_lease,
         }),
     );
     assert_contains_error!(stale, ErrorType::NotLatestRevisionId);
@@ -3615,10 +3703,18 @@ async fn rerender_uses_latest_navigation_page_revision() {
         site_id,
         Reference::Id(nav_top.page_id),
     );
+    let edit_lease_11 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(nav_top.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_11,
             "site_id": site_id,
             "page": nav_top.page_id,
             "last_revision_id": nav_top.revision_id,
@@ -4222,10 +4318,18 @@ async fn wikidot_fragment_only_double_hash_href_survives_preview_and_saved_page(
         site_id,
         Reference::Id(nav_side.page_id),
     );
+    let edit_lease_12 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(nav_side.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_12,
             "site_id": site_id,
             "page": nav_side.page_id,
             "last_revision_id": nav_side.revision_id,
@@ -17124,10 +17228,18 @@ async fn page_revision_range_returns_resolved_authors_and_hides_missing_identiti
             "ip_address": common::IP_ADDRESS,
         }),
     );
+    let edit_lease_13 = common::acquire_page_edit_lease(
+        &runner,
+        site.site_id,
+        &serde_json::json!(created.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     let edited = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_13,
             "site_id": site.site_id,
             "page": created.page_id,
             "last_revision_id": created.revision_id,

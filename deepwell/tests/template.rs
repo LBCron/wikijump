@@ -213,10 +213,18 @@ async fn template_edit_and_deletion_change_existing_page_on_rerender() {
     let page = create_page(&mut runner, site_id, PAGE, "UNCHANGED_BODY").await;
 
     set_page_actor(&mut runner, site_id, TEMPLATE);
+    let edit_lease_2 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(TEMPLATE),
+        ADMIN_USER_ID,
+    )
+    .await;
     let edited = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_2,
             "site_id": site_id,
             "page": TEMPLATE,
             "last_revision_id": template.revision_id,

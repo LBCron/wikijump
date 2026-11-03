@@ -58,6 +58,17 @@ impl Outcome {
         value.get("result")?.get("revision_id")?.as_i64()
     }
 
+    fn result(&self) -> Value {
+        let value: Value = serde_json::from_str(&self.body)
+            .unwrap_or_else(|_| panic!("response should be JSON: {}", self.describe()));
+        value
+            .get("result")
+            .unwrap_or_else(|| {
+                panic!("response should carry a result: {}", self.describe())
+            })
+            .clone()
+    }
+
     fn assert_typed_conflict(&self) {
         assert_eq!(
             self.status,
@@ -233,12 +244,51 @@ impl Fixture {
         )
     }
 
+    async fn acquire_lease(&self, id: usize, page_id: i64) -> Value {
+        let outcome = self
+            .call(
+                id,
+                &page_id.to_string(),
+                "page_edit_lock_acquire",
+                json!({
+                    "page": page_id,
+                    "mode": "page",
+                }),
+            )
+            .await;
+        let grant = outcome
+            .result()
+            .get("grant")
+            .unwrap_or_else(|| {
+                panic!("lease acquisition should grant: {}", outcome.describe())
+            })
+            .clone();
+        json!({
+            "lock_id": grant["lock_id"],
+            "lock_secret": grant["lock_secret"],
+            "mode": "page",
+        })
+    }
+
     async fn edit(
         &self,
         id: usize,
         page_id: i64,
         last_revision_id: i64,
         wikitext: &str,
+    ) -> Outcome {
+        let lease = self.acquire_lease(id, page_id).await;
+        self.leased_edit(id, page_id, last_revision_id, wikitext, &lease)
+            .await
+    }
+
+    async fn leased_edit(
+        &self,
+        id: usize,
+        page_id: i64,
+        last_revision_id: i64,
+        wikitext: &str,
+        lease: &Value,
     ) -> Outcome {
         self.call(
             id,
@@ -252,9 +302,23 @@ impl Fixture {
                 "user_id": ADMIN_USER_ID,
                 "wikitext": wikitext,
                 "ip_address": IP,
+                "lease": lease,
             }),
         )
         .await
+    }
+
+    async fn wait_for_row_lock_waiter(&self, timeout: Duration) {
+        let parked = self
+            .wait_for_activity(
+                "wait_event_type = 'Lock' AND query ILIKE '%FOR UPDATE%'",
+                timeout,
+            )
+            .await;
+        assert!(
+            parked.is_some(),
+            "a racing request should park on the page row lock"
+        );
     }
 
     async fn revision_chain(&self, page_id: i64) -> Vec<(i32, i64)> {
@@ -423,9 +487,11 @@ fn assert_one_winner_one_conflict(a: &Outcome, b: &Outcome) -> i64 {
 }
 
 #[tokio::test]
-async fn edit_racing_commit_before_latest_check_gets_typed_conflict() {
+async fn leased_edit_holding_row_lock_serializes_racing_move() {
     let fixture = setup().await;
     let (page_id, _rev0, rev1) = fixture.page_at_revision_one("rp1-edit").await;
+
+    let lease = fixture.acquire_lease(3, page_id).await;
 
     let gate = fixture
         .gate_lock("LOCK TABLE filter IN ACCESS EXCLUSIVE MODE")
@@ -452,6 +518,7 @@ async fn edit_racing_commit_before_latest_check_gets_typed_conflict() {
                 "user_id": ADMIN_USER_ID,
                 "wikitext": "victim content",
                 "ip_address": IP,
+                "lease": lease,
             }),
         )
         .await
@@ -469,13 +536,21 @@ async fn edit_racing_commit_before_latest_check_gets_typed_conflict() {
     );
 
     let new_slug = format!("race-rp1-edit-moved-{}", cuid());
-    let mover = fixture
-        .call(
-            4,
+    let move_client = fixture.client.clone();
+    let move_address = fixture.address;
+    let move_session = fixture.session.clone();
+    let move_site = fixture.site_id;
+    let mover = tokio::spawn(async move {
+        rpc(
+            &move_client,
+            move_address,
+            &move_session,
+            move_site,
             &page_id.to_string(),
+            4,
             "page_move",
             json!({
-                "site_id": fixture.site_id,
+                "site_id": move_site,
                 "page": page_id,
                 "new_slug": new_slug,
                 "last_revision_id": rev1,
@@ -484,15 +559,31 @@ async fn edit_racing_commit_before_latest_check_gets_typed_conflict() {
                 "ip_address": IP,
             }),
         )
+        .await
+    });
+
+    fixture
+        .wait_for_row_lock_waiter(Duration::from_secs(20))
         .await;
-    let mover_revision = mover
-        .result_revision_id()
-        .expect("racing move should commit");
 
     gate.commit().await.expect("filter gate should release");
     let victim_outcome = victim.await.expect("victim task should join");
-    victim_outcome.assert_typed_conflict();
+    let victim_revision = victim_outcome
+        .result_revision_id()
+        .expect("victim edit should commit once the gate releases");
+    let mover_outcome = mover.await.expect("move task should join");
+    let mover_revision = mover_outcome
+        .result_revision_id()
+        .expect("racing move should commit after the edit finishes");
 
+    let chain = fixture.revision_chain(page_id).await;
+    assert_eq!(
+        chain.iter().map(|(number, _)| *number).collect::<Vec<_>>(),
+        vec![0, 1, 2, 3],
+        "edit and move should serialize into a gapless chain"
+    );
+    assert_eq!(chain[2].1, victim_revision);
+    assert_eq!(chain[3].1, mover_revision);
     fixture
         .assert_gapless_chain_at_tip(page_id, mover_revision)
         .await;
@@ -503,11 +594,13 @@ async fn two_edits_passing_check_then_insert_race_loser_gets_typed_conflict() {
     let fixture = setup().await;
     let (page_id, _rev0, rev1) = fixture.page_at_revision_one("rp2-edit").await;
 
+    let lease = fixture.acquire_lease(3, page_id).await;
+
     let gate = fixture
         .gate_lock("LOCK TABLE page_revision IN SHARE MODE")
         .await;
 
-    let spawn_edit = |id: usize, label: &'static str| {
+    let spawn_edit = |id: usize, label: &'static str, lease: Value| {
         let client = fixture.client.clone();
         let address = fixture.address;
         let session = fixture.session.clone();
@@ -529,16 +622,20 @@ async fn two_edits_passing_check_then_insert_race_loser_gets_typed_conflict() {
                     "user_id": ADMIN_USER_ID,
                     "wikitext": format!("content from saver {label}"),
                     "ip_address": IP,
+                    "lease": lease,
                 }),
             )
             .await
         })
     };
-    let saver_a = spawn_edit(3, "alpha");
-    let saver_b = spawn_edit(4, "beta");
+    let saver_a = spawn_edit(3, "alpha", lease.clone());
+    let saver_b = spawn_edit(4, "beta", lease);
 
     fixture
-        .wait_for_parked_inserts(2, Duration::from_secs(30))
+        .wait_for_parked_inserts(1, Duration::from_secs(30))
+        .await;
+    fixture
+        .wait_for_row_lock_waiter(Duration::from_secs(30))
         .await;
 
     gate.commit()
@@ -556,8 +653,41 @@ async fn delete_racing_edit_at_insert_race_loser_gets_typed_conflict() {
     let fixture = setup().await;
     let (page_id, _rev0, rev1) = fixture.page_at_revision_one("rp2-delete").await;
 
+    let lease = fixture.acquire_lease(3, page_id).await;
+
     let gate = fixture
         .gate_lock("LOCK TABLE page_revision IN SHARE MODE")
+        .await;
+
+    let edit_client = fixture.client.clone();
+    let edit_address = fixture.address;
+    let edit_session = fixture.session.clone();
+    let edit_site = fixture.site_id;
+    let editor = tokio::spawn(async move {
+        rpc(
+            &edit_client,
+            edit_address,
+            &edit_session,
+            edit_site,
+            &page_id.to_string(),
+            3,
+            "page_edit",
+            json!({
+                "site_id": edit_site,
+                "page": page_id,
+                "last_revision_id": rev1,
+                "revision_comments": "racing edit",
+                "user_id": ADMIN_USER_ID,
+                "wikitext": "racing edit content",
+                "ip_address": IP,
+                "lease": lease,
+            }),
+        )
+        .await
+    });
+
+    fixture
+        .wait_for_parked_inserts(1, Duration::from_secs(30))
         .await;
 
     let delete_client = fixture.client.clone();
@@ -571,7 +701,7 @@ async fn delete_racing_edit_at_insert_race_loser_gets_typed_conflict() {
             &delete_session,
             delete_site,
             &page_id.to_string(),
-            3,
+            4,
             "page_delete",
             json!({
                 "site_id": delete_site,
@@ -584,6 +714,39 @@ async fn delete_racing_edit_at_insert_race_loser_gets_typed_conflict() {
         )
         .await
     });
+
+    fixture
+        .wait_for_row_lock_waiter(Duration::from_secs(30))
+        .await;
+
+    gate.commit()
+        .await
+        .expect("page_revision gate should release");
+    let delete_outcome = deleter.await.expect("delete task should join");
+    let edit_outcome = editor.await.expect("edit task should join");
+    let winner = assert_one_winner_one_conflict(&delete_outcome, &edit_outcome);
+    assert_eq!(
+        winner,
+        edit_outcome
+            .result_revision_id()
+            .expect("the leased edit should be the winner"),
+        "the edit holding the page row lock should win against the delete"
+    );
+
+    fixture.assert_gapless_chain_at_tip(page_id, winner).await;
+}
+
+#[tokio::test]
+async fn move_racing_leased_edit_both_commit_serialized() {
+    let fixture = setup().await;
+    let (page_id, _rev0, rev1) = fixture.page_at_revision_one("rp2-move").await;
+
+    let lease = fixture.acquire_lease(3, page_id).await;
+
+    let gate = fixture
+        .gate_lock("LOCK TABLE page_revision IN SHARE MODE")
+        .await;
+
     let edit_client = fixture.client.clone();
     let edit_address = fixture.address;
     let edit_session = fixture.session.clone();
@@ -595,7 +758,7 @@ async fn delete_racing_edit_at_insert_race_loser_gets_typed_conflict() {
             &edit_session,
             edit_site,
             &page_id.to_string(),
-            4,
+            3,
             "page_edit",
             json!({
                 "site_id": edit_site,
@@ -605,39 +768,21 @@ async fn delete_racing_edit_at_insert_race_loser_gets_typed_conflict() {
                 "user_id": ADMIN_USER_ID,
                 "wikitext": "racing edit content",
                 "ip_address": IP,
+                "lease": lease,
             }),
         )
         .await
     });
 
     fixture
-        .wait_for_parked_inserts(2, Duration::from_secs(30))
+        .wait_for_parked_inserts(1, Duration::from_secs(30))
         .await;
 
-    gate.commit()
-        .await
-        .expect("page_revision gate should release");
-    let delete_outcome = deleter.await.expect("delete task should join");
-    let edit_outcome = editor.await.expect("edit task should join");
-    let winner = assert_one_winner_one_conflict(&delete_outcome, &edit_outcome);
-
-    fixture.assert_gapless_chain_at_tip(page_id, winner).await;
-}
-
-#[tokio::test]
-async fn move_racing_edit_at_insert_race_loser_gets_typed_conflict() {
-    let fixture = setup().await;
-    let (page_id, _rev0, rev1) = fixture.page_at_revision_one("rp2-move").await;
-
-    let gate = fixture
-        .gate_lock("LOCK TABLE page_revision IN SHARE MODE")
-        .await;
-
+    let new_slug = format!("race-rp2-move-moved-{}", cuid());
     let move_client = fixture.client.clone();
     let move_address = fixture.address;
     let move_session = fixture.session.clone();
     let move_site = fixture.site_id;
-    let new_slug = format!("race-rp2-move-moved-{}", cuid());
     let mover = tokio::spawn(async move {
         rpc(
             &move_client,
@@ -645,7 +790,7 @@ async fn move_racing_edit_at_insert_race_loser_gets_typed_conflict() {
             &move_session,
             move_site,
             &page_id.to_string(),
-            3,
+            4,
             "page_move",
             json!({
                 "site_id": move_site,
@@ -659,6 +804,47 @@ async fn move_racing_edit_at_insert_race_loser_gets_typed_conflict() {
         )
         .await
     });
+
+    fixture
+        .wait_for_row_lock_waiter(Duration::from_secs(30))
+        .await;
+
+    gate.commit()
+        .await
+        .expect("page_revision gate should release");
+    let move_outcome = mover.await.expect("move task should join");
+    let edit_outcome = editor.await.expect("edit task should join");
+    let edit_revision = edit_outcome
+        .result_revision_id()
+        .expect("the leased edit should commit");
+    let move_revision = move_outcome
+        .result_revision_id()
+        .expect("the move should commit after the edit releases the page");
+
+    let chain = fixture.revision_chain(page_id).await;
+    assert_eq!(
+        chain.iter().map(|(number, _)| *number).collect::<Vec<_>>(),
+        vec![0, 1, 2, 3],
+        "edit and move should serialize into a gapless chain"
+    );
+    assert_eq!(chain[2].1, edit_revision);
+    assert_eq!(chain[3].1, move_revision);
+    fixture
+        .assert_gapless_chain_at_tip(page_id, move_revision)
+        .await;
+}
+
+#[tokio::test]
+async fn rollback_racing_edit_at_insert_race_loser_gets_typed_conflict() {
+    let fixture = setup().await;
+    let (page_id, _rev0, rev1) = fixture.page_at_revision_one("rp2-rollback").await;
+
+    let lease = fixture.acquire_lease(3, page_id).await;
+
+    let gate = fixture
+        .gate_lock("LOCK TABLE page_revision IN SHARE MODE")
+        .await;
+
     let edit_client = fixture.client.clone();
     let edit_address = fixture.address;
     let edit_session = fixture.session.clone();
@@ -670,7 +856,7 @@ async fn move_racing_edit_at_insert_race_loser_gets_typed_conflict() {
             &edit_session,
             edit_site,
             &page_id.to_string(),
-            4,
+            3,
             "page_edit",
             json!({
                 "site_id": edit_site,
@@ -680,32 +866,14 @@ async fn move_racing_edit_at_insert_race_loser_gets_typed_conflict() {
                 "user_id": ADMIN_USER_ID,
                 "wikitext": "racing edit content",
                 "ip_address": IP,
+                "lease": lease,
             }),
         )
         .await
     });
 
     fixture
-        .wait_for_parked_inserts(2, Duration::from_secs(30))
-        .await;
-
-    gate.commit()
-        .await
-        .expect("page_revision gate should release");
-    let move_outcome = mover.await.expect("move task should join");
-    let edit_outcome = editor.await.expect("edit task should join");
-    let winner = assert_one_winner_one_conflict(&move_outcome, &edit_outcome);
-
-    fixture.assert_gapless_chain_at_tip(page_id, winner).await;
-}
-
-#[tokio::test]
-async fn rollback_racing_edit_at_insert_race_loser_gets_typed_conflict() {
-    let fixture = setup().await;
-    let (page_id, _rev0, rev1) = fixture.page_at_revision_one("rp2-rollback").await;
-
-    let gate = fixture
-        .gate_lock("LOCK TABLE page_revision IN SHARE MODE")
+        .wait_for_parked_inserts(1, Duration::from_secs(30))
         .await;
 
     let rollback_client = fixture.client.clone();
@@ -719,7 +887,7 @@ async fn rollback_racing_edit_at_insert_race_loser_gets_typed_conflict() {
             &rollback_session,
             rollback_site,
             &page_id.to_string(),
-            3,
+            4,
             "page_rollback",
             json!({
                 "site_id": rollback_site,
@@ -733,34 +901,9 @@ async fn rollback_racing_edit_at_insert_race_loser_gets_typed_conflict() {
         )
         .await
     });
-    let edit_client = fixture.client.clone();
-    let edit_address = fixture.address;
-    let edit_session = fixture.session.clone();
-    let edit_site = fixture.site_id;
-    let editor = tokio::spawn(async move {
-        rpc(
-            &edit_client,
-            edit_address,
-            &edit_session,
-            edit_site,
-            &page_id.to_string(),
-            4,
-            "page_edit",
-            json!({
-                "site_id": edit_site,
-                "page": page_id,
-                "last_revision_id": rev1,
-                "revision_comments": "racing edit",
-                "user_id": ADMIN_USER_ID,
-                "wikitext": "racing edit content",
-                "ip_address": IP,
-            }),
-        )
-        .await
-    });
 
     fixture
-        .wait_for_parked_inserts(2, Duration::from_secs(30))
+        .wait_for_row_lock_waiter(Duration::from_secs(30))
         .await;
 
     gate.commit()
@@ -769,6 +912,13 @@ async fn rollback_racing_edit_at_insert_race_loser_gets_typed_conflict() {
     let rollback_outcome = rollbacker.await.expect("rollback task should join");
     let edit_outcome = editor.await.expect("edit task should join");
     let winner = assert_one_winner_one_conflict(&rollback_outcome, &edit_outcome);
+    assert_eq!(
+        winner,
+        edit_outcome
+            .result_revision_id()
+            .expect("the leased edit should be the winner"),
+        "the edit holding the page row lock should win against the rollback"
+    );
 
     fixture.assert_gapless_chain_at_tip(page_id, winner).await;
 }
@@ -776,9 +926,20 @@ async fn rollback_racing_edit_at_insert_race_loser_gets_typed_conflict() {
 #[tokio::test]
 async fn stale_save_without_race_is_typed_conflict() {
     let fixture = setup().await;
-    let (page_id, rev0, _rev1) = fixture.page_at_revision_one("rp0").await;
+    let (page_id, rev0, rev1) = fixture.page_at_revision_one("rp0").await;
 
-    let stale_edit = fixture.edit(3, page_id, rev0, "stale content").await;
+    let lease = fixture.acquire_lease(3, page_id).await;
+    let committed = fixture
+        .leased_edit(3, page_id, rev1, "fresh content", &lease)
+        .await;
+    let rev2 = committed
+        .result_revision_id()
+        .expect("leased save should commit");
+    fixture.assert_gapless_chain_at_tip(page_id, rev2).await;
+
+    let stale_edit = fixture
+        .leased_edit(3, page_id, rev0, "stale content", &lease)
+        .await;
     stale_edit.assert_typed_conflict();
 
     let stale_delete = fixture

@@ -40,7 +40,48 @@ pub use self::error::extract_error;
 #[allow(unused_imports)]
 pub use self::params::*;
 pub use self::runner::TestRunner;
+use deepwell::services::PageEditLockService;
+use deepwell::services::page_edit_lock::AcquirePageEditLock;
+use deepwell::types::{PageEditLockMode, Reference};
 use std::net::{IpAddr, Ipv4Addr};
+
+#[allow(dead_code)]
+pub async fn acquire_page_edit_lease(
+    runner: &TestRunner,
+    site_id: i64,
+    page: &serde_json::Value,
+    user_id: i64,
+) -> serde_json::Value {
+    let page = match page {
+        serde_json::Value::Number(number) => {
+            Reference::Id(number.as_i64().expect("page id should be an integer"))
+        }
+        serde_json::Value::String(slug) => {
+            Reference::Slug(std::borrow::Cow::Owned(slug.clone()))
+        }
+        _ => panic!("page reference should be an id or a slug: {page}"),
+    };
+    let output = PageEditLockService::acquire(
+        runner.context(),
+        AcquirePageEditLock {
+            site_id,
+            page,
+            user_id,
+            mode: PageEditLockMode::Page,
+            section_index: None,
+        },
+    )
+    .await
+    .expect("test edit lease acquisition should not error");
+    let grant = output
+        .grant
+        .expect("test edit lease acquisition should grant");
+    serde_json::json!({
+        "lock_id": grant.lock_id,
+        "lock_secret": grant.lock_secret,
+        "mode": "page",
+    })
+}
 
 #[allow(dead_code)]
 pub const IP_ADDRESS: IpAddr = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 10));

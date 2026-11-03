@@ -93,10 +93,18 @@ async fn edit_page(
     wikitext: String,
 ) -> (i64, i32) {
     set_request_context(runner, Some(ADMIN_USER_ID), site_id, Reference::Id(page_id));
+    let edit_lease_1 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     let edited = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_1,
             "site_id": site_id,
             "page": page_id,
             "last_revision_id": last_revision_id,

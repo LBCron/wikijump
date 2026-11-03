@@ -1019,10 +1019,18 @@ async fn listpages_link_to_dot_selects_links_to_the_current_page() {
         site_id,
         Reference::Slug(Cow::Borrowed(INDEX_SLUG)),
     );
+    let edit_lease_18 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(INDEX_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_18,
             "site_id": site_id,
             "page": INDEX_SLUG,
             "last_revision_id": index_revision,
@@ -1134,10 +1142,18 @@ async fn listpages_metadata_selectors_honor_target_view_permissions() {
         let source_revision = page
             .latest_revision_id
             .expect("ListPages metadata link source should have a revision");
+        let edit_lease_19 = common::acquire_page_edit_lease(
+            &runner,
+            site_id,
+            &serde_json::json!(source),
+            ADMIN_USER_ID,
+        )
+        .await;
         run_endpoint!(
             runner,
             page_edit,
             json!({
+                "lease": edit_lease_19,
                 "site_id": site_id,
                 "page": source,
                 "last_revision_id": source_revision,
@@ -2403,10 +2419,18 @@ async fn listpages_template_selectors_can_use_current_page_data_form_values() {
         site_id,
         Reference::Slug(Cow::Borrowed(HOLDER_SLUG)),
     );
+    let edit_lease_20 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(HOLDER_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_20,
             "site_id": site_id,
             "page": HOLDER_SLUG,
             "last_revision_id": holder_revision,
@@ -4135,10 +4159,18 @@ async fn current_page_listpages_created_by_uses_creation_revision() {
         site_id,
         Reference::Id(created.page_id),
     );
+    let edit_lease_21 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(created.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     let edited = run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_21,
             "site_id": site_id,
             "page": created.page_id,
             "last_revision_id": created.revision_id,

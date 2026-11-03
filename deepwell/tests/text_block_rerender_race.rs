@@ -3,11 +3,18 @@ use deepwell::config::{Config, Secrets};
 use deepwell::constants::ADMIN_USER_ID;
 use deepwell::models::page::Entity as PageEntity;
 use deepwell::models::site::{self, Entity as SiteEntity};
-use deepwell::services::page::{CreatePage, EditPage, EditPageBody, PageService};
+use deepwell::services::page::{
+    CreatePage, EditPage, EditPageBody, EditPageLease, PageService,
+};
+use deepwell::services::page_edit_lock::AcquirePageEditLock;
 use deepwell::services::page_revision::RerenderType;
 use deepwell::services::text_block::{MIME_HTML, TextBlock};
-use deepwell::services::{PageRevisionService, ServiceContext, TextBlockService};
-use deepwell::types::{Maybe, PageId, Reference, RerenderDepth, TextBlockType};
+use deepwell::services::{
+    PageEditLockService, PageRevisionService, ServiceContext, TextBlockService,
+};
+use deepwell::types::{
+    Maybe, PageEditLockMode, PageId, Reference, RerenderDepth, TextBlockType,
+};
 use ftml::layout::Layout;
 use sea_orm::{
     ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, Statement, TransactionTrait,
@@ -203,6 +210,29 @@ async fn older_rerender_does_not_overwrite_newer_blocks() {
 
     let job_started = std::time::Instant::now();
     sleep(Duration::from_millis(250)).await;
+    let lease = transact(&state, |ctx| {
+        let acquire = AcquirePageEditLock {
+            site_id: fixture.page_id.site_id,
+            page: Reference::Id(fixture.page_id.page_id),
+            user_id: ADMIN_USER_ID,
+            mode: PageEditLockMode::Page,
+            section_index: None,
+        };
+        Box::pin(async move {
+            let output = PageEditLockService::acquire(ctx, acquire)
+                .await
+                .map_err(err_string)?;
+            let grant = output.grant.expect("race save lease should grant");
+            Ok(EditPageLease {
+                lock_id: grant.lock_id,
+                lock_secret: grant.lock_secret,
+                mode: PageEditLockMode::Page,
+                section_index: None,
+            })
+        })
+    })
+    .await
+    .expect("race save lease acquisition should succeed");
     let edit_result = transact(&state, |ctx| {
         let edit = EditPage {
             site_id: fixture.page_id.site_id,
@@ -217,7 +247,8 @@ async fn older_rerender_does_not_overwrite_newer_blocks() {
                 ..Default::default()
             },
             ip_address: IP_ADDRESS,
-            lease: None,
+            lease: Some(lease),
+            system_writer: false,
         };
         Box::pin(async move { PageService::edit(ctx, edit).await.map_err(err_string) })
     })

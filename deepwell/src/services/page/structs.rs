@@ -180,6 +180,9 @@ pub struct EditPage<'a> {
 
     #[serde(default)]
     pub lease: Option<EditPageLease>,
+
+    #[serde(skip)]
+    pub system_writer: bool,
 }
 
 #[derive(Deserialize, Debug, Clone)]

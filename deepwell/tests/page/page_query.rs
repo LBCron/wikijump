@@ -293,10 +293,18 @@ async fn page_query_revision_order_keeps_unrequested_count_out_of_results() {
         site_id,
         Reference::Slug(Cow::Borrowed(HIGH_SLUG)),
     );
+    let edit_lease_22 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(HIGH_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_22,
             "site_id": site_id,
             "page": HIGH_SLUG,
             "last_revision_id": high_revision,

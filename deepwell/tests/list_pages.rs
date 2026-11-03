@@ -2642,10 +2642,18 @@ async fn imported_revision_count_current_page_only_adds_local_revisions() {
         page_reference: Some(Reference::Id(imported.page_id)),
         ..Default::default()
     });
+    let edit_lease_15 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(imported.page_id),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_15,
             "site_id": site_id,
             "page": imported.page_id,
             "last_revision_id": imported.revision_id,
@@ -2932,10 +2940,18 @@ async fn child_listpages_expands_site_domain_and_parent_fullname() {
         site_id: Some(site_id),
         page_reference: Some(Reference::Slug(PARENT_SLUG.into())),
     });
+    let edit_lease_16 = common::acquire_page_edit_lease(
+        &runner,
+        site_id,
+        &serde_json::json!(PARENT_SLUG),
+        ADMIN_USER_ID,
+    )
+    .await;
     run_endpoint!(
         runner,
         page_edit,
         json!({
+            "lease": edit_lease_16,
             "site_id": site_id,
             "page": PARENT_SLUG,
             "last_revision_id": parent.revision_id,

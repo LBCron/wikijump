@@ -11,7 +11,7 @@ export function toFragment(html: string) {
   return fragment
 }
 
-export function html(strings: TemplateStringsArray, ...subs: (string | string[])[]) {
+export function unsafeHtml(strings: TemplateStringsArray, ...subs: (string | string[])[]) {
   const src = strings.raw.reduce((prev, cur, idx) => {
     let sub = subs[idx - 1]
     if (Array.isArray(sub)) sub = sub.join("")
@@ -20,7 +20,7 @@ export function html(strings: TemplateStringsArray, ...subs: (string | string[])
   return toFragment(src)
 }
 
-export function css(strings: TemplateStringsArray, ...subs: (string | string[])[]) {
+export function unsafeCss(strings: TemplateStringsArray, ...subs: (string | string[])[]) {
   const src = strings.raw.reduce((prev, cur, idx) => {
     let sub = subs[idx - 1]
     if (Array.isArray(sub)) sub = sub.join("")

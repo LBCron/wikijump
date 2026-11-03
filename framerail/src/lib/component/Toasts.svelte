@@ -27,11 +27,11 @@
   }
 
   function outro(evt: Event) {
-    if (listToasts.length !== 0) {
-      const node = evt.currentTarget as HTMLElement
-      node.style.height = "0"
-      node.style.marginTop = "0"
-    }
+    const isLastToast = listToasts.length === 0
+    if (isLastToast) return
+    const node = evt.currentTarget as HTMLElement
+    node.style.height = "0"
+    node.style.marginTop = "0"
   }
 </script>
 

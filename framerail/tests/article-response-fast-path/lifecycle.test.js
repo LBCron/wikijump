@@ -6,8 +6,7 @@ import {
   createCountingStore,
   createFastPathFixtureStore,
   fastPathHeaders,
-  // eslint-disable-next-line no-redeclare
-  fetch,
+  fetch as rawFetch,
   seedFastPathStoreEntry,
   withServer
 } from "./helpers.js"
@@ -21,7 +20,7 @@ test("article response fast path local hot cache entries expire by TTL", async (
   await withServer(
     { responseStore, tokenStore },
     async ({ baseUrl, handlerCalls }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       assert.equal(
         await first.text(),
@@ -31,7 +30,7 @@ test("article response fast path local hot cache entries expire by TTL", async (
       assert.equal(responseStore.getCalls(), 1)
 
       now = 9
-      const stillFresh = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const stillFresh = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(stillFresh.status, 200)
       assert.equal(
         await stillFresh.text(),
@@ -42,7 +41,7 @@ test("article response fast path local hot cache entries expire by TTL", async (
       assert.equal(responseStore.getCalls(), 1)
 
       now = 11
-      const expired = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const expired = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(expired.status, 200)
       assert.equal(
         await expired.text(),
@@ -77,21 +76,21 @@ test("article response fast path local hot cache evicts least recently used entr
   await withServer(
     { responseStore, tokenStore },
     async ({ baseUrl }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       assert.equal(
         await first.text(),
         "<!doctype html><html><body>cached article</body></html>"
       )
 
-      const second = await fetch(`${baseUrl}/scp-174`, { headers: fastPathHeaders })
+      const second = await rawFetch(`${baseUrl}/scp-174`, { headers: fastPathHeaders })
       assert.equal(second.status, 200)
       assert.equal(
         await second.text(),
         "<!doctype html><html><body>cached article 174</body></html>"
       )
 
-      const third = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const third = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(third.status, 200)
       assert.equal(
         await third.text(),
@@ -100,14 +99,14 @@ test("article response fast path local hot cache evicts least recently used entr
       assert.equal(tokenStore.getCalls(), 2)
       assert.equal(responseStore.getCalls(), 2)
 
-      const fourth = await fetch(`${baseUrl}/scp-175`, { headers: fastPathHeaders })
+      const fourth = await rawFetch(`${baseUrl}/scp-175`, { headers: fastPathHeaders })
       assert.equal(fourth.status, 200)
       assert.equal(
         await fourth.text(),
         "<!doctype html><html><body>cached article 175</body></html>"
       )
 
-      const fifth = await fetch(`${baseUrl}/scp-174`, { headers: fastPathHeaders })
+      const fifth = await rawFetch(`${baseUrl}/scp-174`, { headers: fastPathHeaders })
       assert.equal(fifth.status, 200)
       assert.equal(
         await fifth.text(),
@@ -124,14 +123,14 @@ test("article response fast path local hot cache evicts least recently used entr
   await withServer(
     { responseStore: smallResponseStore, tokenStore: smallTokenStore },
     async ({ baseUrl }) => {
-      const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(first.status, 200)
       assert.equal(
         await first.text(),
         "<!doctype html><html><body>cached article</body></html>"
       )
 
-      const second = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+      const second = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
       assert.equal(second.status, 200)
       assert.equal(
         await second.text(),
@@ -150,14 +149,14 @@ test("article response fast path replays HEAD from local hot cache", async () =>
   const responseStore = createCountingStore(stores.responseStore)
 
   await withServer({ responseStore, tokenStore }, async ({ baseUrl, handlerCalls }) => {
-    const first = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const first = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
     assert.equal(first.status, 200)
     assert.equal(
       await first.text(),
       "<!doctype html><html><body>cached article</body></html>"
     )
 
-    const second = await fetch(`${baseUrl}/scp-173`, {
+    const second = await rawFetch(`${baseUrl}/scp-173`, {
       method: "HEAD",
       headers: fastPathHeaders
     })
@@ -180,7 +179,7 @@ test("article response fast path handlers keep stores isolated", async () => {
   })
 
   await withServer(firstStores, async ({ baseUrl, handlerCalls }) => {
-    const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const response = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
     assert.equal(response.status, 200)
     assert.equal(
       await response.text(),
@@ -190,7 +189,7 @@ test("article response fast path handlers keep stores isolated", async () => {
   })
 
   await withServer(secondStores, async ({ baseUrl, handlerCalls }) => {
-    const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const response = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
     assert.equal(response.status, 200)
     assert.equal(
       await response.text(),
@@ -205,7 +204,7 @@ test("article response fast path falls through when cache entries miss", async (
   const tokenStore = createMemoryArticleResponseCacheStore()
 
   await withServer({ responseStore, tokenStore }, async ({ baseUrl, handlerCalls }) => {
-    const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const response = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
 
     assert.equal(response.status, 209)
     assert.equal(await response.text(), "fallback handler")
@@ -220,7 +219,7 @@ test("article response fast path falls through for seeded non-article app routes
   })
 
   await withServer(stores, async ({ baseUrl, handlerCalls }) => {
-    const response = await fetch(`${baseUrl}/about`, { headers: fastPathHeaders })
+    const response = await rawFetch(`${baseUrl}/about`, { headers: fastPathHeaders })
 
     assert.equal(response.status, 209)
     assert.equal(await response.text(), "fallback handler")

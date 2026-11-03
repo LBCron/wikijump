@@ -186,6 +186,104 @@ const PAGE_DELETE_ACTION_FIELDS = new Set([
   "moduleName",
   "wikidot_token7"
 ])
+const PAGE_EDIT_MODULE = "edit/PageEditModule"
+const PAGE_EDIT_MODULE_JS_INCLUDE =
+  "https://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--modules/js/edit/PageEditModule.js"
+const PAGE_EDIT_OPEN_FIELDS = new Set([
+  "moduleName",
+  "page_id",
+  "wiki_page",
+  "mode",
+  "section",
+  "force_lock",
+  "wikidot_token7",
+  "callbackIndex"
+])
+const PAGE_EDIT_MODES = new Set(["page", "section", "append"])
+const PAGE_SAVE_EVENT = "savePage"
+const PAGE_SAVE_FIELDS = new Set([
+  "action",
+  "event",
+  "moduleName",
+  "wikidot_token7",
+  "callbackIndex",
+  "mode",
+  "lock_id",
+  "lock_secret",
+  "revision_id",
+  "wiki_page",
+  "page_id",
+  "title",
+  "source",
+  "comments",
+  "section"
+])
+const PAGE_RENAME_EVENT = "renamePage"
+const PAGE_RENAME_FIELDS = new Set([
+  "action",
+  "event",
+  "moduleName",
+  "wikidot_token7",
+  "callbackIndex",
+  "page_id",
+  "new_name"
+])
+const PAGE_EDIT_LOCKED_BODY = `<div class="owindow" style="width: 80%;">
+    <div class="title modal-header">
+        Page locked    </div>
+    <div class="content modal-body">
+        <h1>The page is being edited...</h1>
+        <p>
+            It seems that the page is currently being edited by another user(s):        </p>
+    </div>
+</div>`
+
+/** @param {string} value */
+const escapePageEditHtml = (value) =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+
+/**
+ * @param {{
+ *   userId: number
+ *   mode: string
+ *   sectionIndex?: number | null
+ *   secondsRemaining: number
+ * }[]} conflicts
+ */
+const pageEditConflictBody = (conflicts) => {
+  const entries = conflicts
+    .map(
+      (conflict) =>
+        `<p>
+            Locked by: user ${conflict.userId}<br/>
+            Lock mode: ${conflict.mode}<br/>
+            Lock will expire in: ${conflict.secondsRemaining} seconds (if user remains inactive)</br>
+        </p>`
+    )
+    .join("\n        ")
+  return `<div class="owindow" style="width: 80%;">
+    <div class="title modal-header">
+        Page locked    </div>
+    <div class="content modal-body">
+        <h1>Page lock conflict</h1>
+        <p>
+            The page is currently locked by another user. The details follow:        </p>
+        ${entries}
+    </div>
+</div>`
+}
+
+/** @param {string} source */
+const pageEditFormBody = (source) =>
+  `            <h1>Edit the page</h1>
+
+    <div>
+        <textarea id="edit-page-textarea" name="source" rows="20" cols="80">${escapePageEditHtml(source)}</textarea>
+    </div>`
 const EDIT_META_READ_FIELDS = new Set(["moduleName", "pageId", "wikidot_token7"])
 const EDIT_META_ACTION_FIELDS = new Set([
   "action",
@@ -351,6 +449,76 @@ const EDIT_META_ACTION_FIELDS = new Set([
  *     pageId?: number
  *     slug: string
  *   }) => Promise<void>
+ *   openPageEdit?: (input: {
+ *     siteId: number
+ *     pageId: number
+ *     slug: string
+ *     mode: string
+ *     sectionIndex?: number
+ *     force: boolean
+ *   }) => Promise<{
+ *     granted: boolean
+ *     sectionIndex?: number
+ *     rangeStart?: number
+ *     rangeEnd?: number
+ *     lockId?: number
+ *     lockSecret?: string
+ *     baseRevisionId?: number | null
+ *     timeLeft: number
+ *     source?: string
+ *     conflicts?: {
+ *       userId: number
+ *       mode: string
+ *       sectionIndex?: number | null
+ *       secondsRemaining: number
+ *     }[]
+ *   }>
+ *   savePage?: (input: {
+ *     siteId: number
+ *     pageId?: number
+ *     slug: string
+ *     mode: string
+ *     sectionIndex?: number
+ *     lockId?: number
+ *     lockSecret?: string
+ *     revisionId: string
+ *     title: string
+ *     wikitext: string
+ *     comments: string
+ *   }) => Promise<
+ *     | { outcome: "commit"; revisionId: number; lockRecreated: boolean }
+ *     | { outcome: "page_changed" }
+ *     | { outcome: "other_locks" }
+ *   >
+ *   renewPageEditLock?: (input: {
+ *     siteId: number
+ *     pageId?: number
+ *     slug: string
+ *     lockId: number
+ *     lockSecret: string
+ *     mode: string
+ *   }) => Promise<
+ *     | { timeLeft: number; lockRecreated: false }
+ *     | {
+ *         timeLeft: number
+ *         lockRecreated: true
+ *         lockId: number
+ *         lockSecret: string
+ *       }
+ *     | { noLockError: "other_locks" }
+ *   >
+ *   releasePageEditLock?: (input: {
+ *     siteId: number
+ *     pageId?: number
+ *     slug: string
+ *     lockId: number
+ *     lockSecret: string
+ *   }) => Promise<void>
+ *   renamePage?: (input: {
+ *     siteId: number
+ *     pageId: number
+ *     newName: string
+ *   }) => Promise<{ locks: boolean }>
  * }} AjaxModuleConnectorOptions
  */
 
@@ -389,7 +557,12 @@ export const handleAjaxModuleConnectorRequest = async (
     deletePage,
     savePageDraft,
     pageDraftExists,
-    removePageDraft
+    removePageDraft,
+    openPageEdit,
+    savePage,
+    renewPageEditLock,
+    releasePageEditLock,
+    renamePage
   }
 ) => {
   if (request.method !== "POST") {
@@ -577,6 +750,128 @@ export const handleAjaxModuleConnectorRequest = async (
     }
   }
 
+  if (
+    fields.get("action") === EDIT_META_ACTION &&
+    fields.get("event") === PAGE_SAVE_EVENT
+  ) {
+    const slug = fieldValue(fields, "wiki_page")
+    const mode = fields.get("mode")
+    const rawPageId = fields.get("page_id")
+    const pageId =
+      rawPageId === undefined
+        ? undefined
+        : isPositiveSafeDecimal(rawPageId)
+          ? Number.parseInt(rawPageId, 10)
+          : null
+    const sectionValue = fields.get("section")
+    const sectionIndex =
+      sectionValue === undefined
+        ? undefined
+        : isCanonicalNonNegativeDecimal(sectionValue)
+          ? Number.parseInt(sectionValue, 10)
+          : null
+    const hasLockId = fields.has("lock_id")
+    const hasLockSecret = fields.has("lock_secret")
+    const lockIdValue = fieldValue(fields, "lock_id")
+    const revisionId = fieldValue(fields, "revision_id")
+    const lockShapeSupported =
+      hasLockId === hasLockSecret &&
+      (!hasLockId ||
+        (isPositiveSafeDecimal(lockIdValue) &&
+          fieldValue(fields, "lock_secret").length > 0))
+    const shapeSupported =
+      moduleName === "Empty" &&
+      [...fields.keys()].every((field) => PAGE_SAVE_FIELDS.has(field)) &&
+      mode !== undefined &&
+      PAGE_EDIT_MODES.has(mode) &&
+      slug.length > 0 &&
+      !slug.includes("\0") &&
+      pageId !== null &&
+      sectionIndex !== null &&
+      (mode === "section" ? sectionIndex !== undefined : sectionIndex === undefined) &&
+      lockShapeSupported &&
+      (revisionId === "" || isPositiveSafeDecimal(revisionId)) &&
+      fields.has("source") &&
+      fields.has("title") &&
+      fields.has("comments")
+    if (!shapeSupported || !savePage) {
+      return jsonResponse({ status: "not_ok" })
+    }
+    try {
+      const outcome = await savePage({
+        siteId,
+        ...(pageId === undefined ? {} : { pageId }),
+        slug,
+        mode,
+        ...(sectionIndex === undefined ? {} : { sectionIndex }),
+        ...(hasLockId
+          ? {
+              lockId: Number.parseInt(lockIdValue, 10),
+              ["lockSecret"]: fieldValue(fields, "lock_secret")
+            }
+          : {}),
+        revisionId,
+        title: fieldValue(fields, "title"),
+        wikitext: fieldValue(fields, "source"),
+        comments: fieldValue(fields, "comments")
+      })
+      if (outcome.outcome === "page_changed") {
+        return jsonResponse({
+          status: "ok",
+          noLockError: "page_changed",
+          nonrecoverable: true
+        })
+      }
+      if (outcome.outcome === "other_locks") {
+        return jsonResponse({ status: "ok", noLockError: "other_locks" })
+      }
+      return jsonResponse({
+        status: "ok",
+        timeLeft: 900,
+        revisionId: outcome.revisionId,
+        ...(outcome.lockRecreated ? { lockRecreated: true } : {})
+      })
+    } catch (error) {
+      console.error("AJAX savePage action failed", error)
+      return jsonResponse({ status: "not_ok" })
+    }
+  }
+
+  if (
+    fields.get("action") === EDIT_META_ACTION &&
+    fields.get("event") === PAGE_RENAME_EVENT
+  ) {
+    const pageIdValue = fieldValue(fields, "page_id")
+    const newName = fieldValue(fields, "new_name")
+    const shapeSupported =
+      moduleName === "Empty" &&
+      [...fields.keys()].every((field) => PAGE_RENAME_FIELDS.has(field)) &&
+      isPositiveSafeDecimal(pageIdValue) &&
+      newName.length > 0 &&
+      !newName.includes("\0")
+    if (!shapeSupported || !renamePage) {
+      return jsonResponse({ status: "not_ok" })
+    }
+    try {
+      const outcome = await renamePage({
+        siteId,
+        pageId: Number.parseInt(pageIdValue, 10),
+        newName
+      })
+      if (outcome.locks) {
+        return jsonResponse({
+          status: "ok",
+          locks: true,
+          body: PAGE_EDIT_LOCKED_BODY
+        })
+      }
+      return jsonResponse({ status: "ok" })
+    } catch (error) {
+      console.error("AJAX renamePage action failed", error)
+      return jsonResponse({ status: "not_ok" })
+    }
+  }
+
   const pageDraftEvent = fields.get("event")
   if (
     fields.get("action") === EDIT_META_ACTION &&
@@ -631,7 +926,37 @@ export const handleAjaxModuleConnectorRequest = async (
           title: fieldValue(fields, "title"),
           wikitext: fieldValue(fields, "source")
         })
-        return jsonResponse({ status: "ok", savedDraft: true })
+        if (!renewPageEditLock) {
+          return jsonResponse({ status: "ok", savedDraft: true })
+        }
+        const renewed = await renewPageEditLock({
+          siteId,
+          ...(pageId === undefined ? {} : { pageId }),
+          slug,
+          lockId: Number.parseInt(lockId, 10),
+          ["lockSecret"]: fieldValue(fields, "lock_secret"),
+          mode: "page"
+        })
+        if (renewed.noLockError) {
+          return jsonResponse({
+            status: "ok",
+            noLockError: renewed.noLockError
+          })
+        }
+        if (renewed.lockRecreated) {
+          return jsonResponse({
+            status: "ok",
+            lockRecreated: true,
+            lockId: renewed.lockId,
+            ["lockSecret"]: renewed.lockSecret,
+            timeLeft: renewed.timeLeft
+          })
+        }
+        return jsonResponse({
+          status: "ok",
+          savedDraft: true,
+          timeLeft: renewed.timeLeft
+        })
       }
 
       if (pageDraftEvent === "checkDraftExists") {
@@ -659,6 +984,15 @@ export const handleAjaxModuleConnectorRequest = async (
           siteId,
           ...(pageId === undefined ? {} : { pageId }),
           slug
+        })
+      }
+      if (releasePageEditLock) {
+        await releasePageEditLock({
+          siteId,
+          ...(pageId === undefined ? {} : { pageId }),
+          slug,
+          lockId: Number.parseInt(lockId, 10),
+          ["lockSecret"]: fieldValue(fields, "lock_secret")
         })
       }
       return jsonResponse({ status: "ok" })
@@ -1287,6 +1621,99 @@ export const handleAjaxModuleConnectorRequest = async (
       })
     } catch (error) {
       console.error("AJAX page read module rendering failed", error)
+      return jsonResponse({
+        status: "not_ok",
+        body: "",
+        ...responseMetadata()
+      })
+    }
+  }
+
+  if (moduleName === PAGE_EDIT_MODULE) {
+    if (!openPageEdit) {
+      return jsonResponse({
+        status: "not_ok",
+        message: `Unsupported AJAX module: ${moduleName}`
+      })
+    }
+    const pageIdValue = fields.get("page_id")
+    const slug = fieldValue(fields, "wiki_page")
+    const mode = fields.get("mode")
+    const sectionValue = fields.get("section")
+    const sectionIndex =
+      sectionValue === undefined
+        ? undefined
+        : isCanonicalNonNegativeDecimal(sectionValue)
+          ? Number.parseInt(sectionValue, 10)
+          : null
+    const forceValue = fields.get("force_lock")
+    const callbackIndex = fields.has("callbackIndex")
+      ? fieldValue(fields, "callbackIndex")
+      : null
+    const shapeSupported =
+      ![...fields.keys()].some((field) => !PAGE_EDIT_OPEN_FIELDS.has(field)) &&
+      pageIdValue !== undefined &&
+      isPositiveSafeDecimal(pageIdValue) &&
+      slug.length > 0 &&
+      !slug.includes("\0") &&
+      mode !== undefined &&
+      PAGE_EDIT_MODES.has(mode) &&
+      sectionIndex !== null &&
+      (mode === "section" ? sectionIndex !== undefined : sectionIndex === undefined) &&
+      (forceValue === undefined || forceValue === "yes")
+    if (!shapeSupported) {
+      return jsonResponse({
+        status: "not_ok",
+        message: `Unsupported AJAX module shape: ${moduleName}`
+      })
+    }
+    const responseMetadata = () => ({
+      callbackIndex,
+      CURRENT_TIMESTAMP: Math.floor(Date.now() / 1000),
+      cssInclude: [],
+      jsInclude: [PAGE_EDIT_MODULE_JS_INCLUDE]
+    })
+    try {
+      const outcome = await openPageEdit({
+        siteId,
+        pageId: Number.parseInt(pageIdValue, 10),
+        slug,
+        mode,
+        ...(sectionIndex === undefined ? {} : { sectionIndex }),
+        force: forceValue === "yes"
+      })
+      const sectionFields =
+        mode === "section"
+          ? {
+              section: sectionIndex,
+              rangeStart: outcome.rangeStart,
+              rangeEnd: outcome.rangeEnd
+            }
+          : {}
+      if (!outcome.granted) {
+        return jsonResponse({
+          status: "ok",
+          mode,
+          ...sectionFields,
+          locked: true,
+          timeLeft: outcome.timeLeft,
+          body: pageEditConflictBody(outcome.conflicts ?? []),
+          ...responseMetadata()
+        })
+      }
+      return jsonResponse({
+        status: "ok",
+        mode,
+        ...sectionFields,
+        lock_id: outcome.lockId,
+        ["lock_secret"]: outcome.lockSecret,
+        page_revision_id: outcome.baseRevisionId ?? null,
+        timeLeft: outcome.timeLeft,
+        body: pageEditFormBody(outcome.source ?? ""),
+        ...responseMetadata()
+      })
+    } catch (error) {
+      console.error("AJAX PageEditModule rendering failed", error)
       return jsonResponse({
         status: "not_ok",
         body: "",

@@ -105,10 +105,18 @@ test("Framerail PageView names exactly Deepwell's GetPageViewOutput fields", () 
   const views = read(VIEWS_PATH)
 
   const interfaces = ["PageViewFound", "PageViewMissing", "PageViewPermissions"]
-  assert.deepEqual(unionMembers(views, "export type PageView ="), interfaces.slice().sort())
+  assert.deepEqual(
+    unionMembers(views, "export type PageView ="),
+    interfaces.slice().sort()
+  )
 
   const base = tsFields(block(views, "interface PageViewDataBase {"))
-  const { rust, byDiscriminant } = enumMirror(structs, "GetPageViewOutput", views, interfaces)
+  const { rust, byDiscriminant } = enumMirror(
+    structs,
+    "GetPageViewOutput",
+    views,
+    interfaces
+  )
 
   for (const [variant, fields] of Object.entries(rust)) {
     const data = block(byDiscriminant[variant], "data: PageViewDataBase & {")
@@ -121,7 +129,12 @@ test("Framerail admin view names exactly Deepwell's GetAdminViewOutput fields", 
   const views = read(VIEWS_PATH)
 
   const interfaces = ["AdminViewSiteFound", "AdminViewAdminPermissions"]
-  const { rust, byDiscriminant } = enumMirror(structs, "GetAdminViewOutput", views, interfaces)
+  const { rust, byDiscriminant } = enumMirror(
+    structs,
+    "GetAdminViewOutput",
+    views,
+    interfaces
+  )
 
   for (const [variant, fields] of Object.entries(rust)) {
     assert.deepEqual(tsFields(block(byDiscriminant[variant], "data: {")), fields, variant)
@@ -133,9 +146,17 @@ test("Framerail user view names exactly Deepwell's GetUserViewOutput fields", ()
   const user = read(USER_PATH)
 
   const interfaces = ["UserViewFound", "UserViewMissing"]
-  assert.deepEqual(unionMembers(user, "export type UserViewResult ="), interfaces.slice().sort())
+  assert.deepEqual(
+    unionMembers(user, "export type UserViewResult ="),
+    interfaces.slice().sort()
+  )
 
-  const { rust, byDiscriminant } = enumMirror(structs, "GetUserViewOutput", user, interfaces)
+  const { rust, byDiscriminant } = enumMirror(
+    structs,
+    "GetUserViewOutput",
+    user,
+    interfaces
+  )
 
   for (const [variant, fields] of Object.entries(rust)) {
     const body = byDiscriminant[variant]
@@ -156,10 +177,13 @@ test("Framerail article view names exactly Deepwell's article output fields", ()
     rustFields(block(structs, "pub struct Viewer {"))
   )
 
-  const rustArticle = rustFields(block(structs, "pub struct GetArticleViewOutput {")).filter(
-    (field) => field !== "viewer"
+  const rustArticle = rustFields(
+    block(structs, "pub struct GetArticleViewOutput {")
+  ).filter((field) => field !== "viewer")
+  assert.deepEqual(
+    tsFields(block(views, "export type ArticleView = Viewer & {")),
+    rustArticle
   )
-  assert.deepEqual(tsFields(block(views, "export type ArticleView = Viewer & {")), rustArticle)
 
   assert.deepEqual(
     tsFields(block(views, "interface ArticleViewCacheMetadata {")),

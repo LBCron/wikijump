@@ -1408,9 +1408,15 @@ test("Deepwell adapter applies state fixture pages and records disposable receip
       };
       pages.set(`${params.site_id}:${params.slug}`, page);
       result = {page_id: page.page_id, revision_id: page.revision_id};
-    } else if (method === "page_edit") {
+    } else if (method === "page_edit_lock_acquire") {
       const entry = [...pages.entries()].find(([, page]) => page.page_id === params.page);
       assert.ok(entry);
+      result = {grant: {lock_id: 4242, ["lock_secret"]: "fake-lease-secret", base_revision_id: entry[1].revision_id, expires_at: "2999-01-01T00:00:00Z"}, conflicts: []};
+    } else if (method === "page_edit_lock_release") result = true;
+    else if (method === "page_edit") {
+      const entry = [...pages.entries()].find(([, page]) => page.page_id === params.page);
+      assert.ok(entry);
+      assert.ok(params.lease, "page_edit must present an edit lease");
       entry[1].title = params.title;
       entry[1].wikitext = params.wikitext;
       entry[1].revision_id += 1;

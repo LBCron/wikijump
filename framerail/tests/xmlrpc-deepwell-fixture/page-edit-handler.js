@@ -1,13 +1,15 @@
 import { fixtureState, pageById, requestContextHeaders } from "./context.js"
 import { pages } from "./data.js"
+import { sendRpcError } from "./response.js"
 
 /**
  * @param {{
  *   rpcRequest: any
  *   request: import("node:http").IncomingMessage
+ *   response: import("node:http").ServerResponse
  * }} input
  */
-export const handlePageEditRpc = ({ rpcRequest, request }) => {
+export const handlePageEditRpc = ({ rpcRequest, request, response }) => {
   if (
     rpcRequest.method !== "page_edit" ||
     rpcRequest.params.site_id !== 6000005 ||
@@ -29,16 +31,36 @@ export const handlePageEditRpc = ({ rpcRequest, request }) => {
     return undefined
   }
 
-  const { counters, pageWriteRequests } = fixtureState
-  pageWriteRequests.pageEdit.push({
-    headers: requestContextHeaders(request),
-    params: rpcRequest.params
-  })
   const page =
     typeof rpcRequest.params.page === "string"
       ? pages[rpcRequest.params.page]
       : pageById(rpcRequest.params.page)
   if (!page) return undefined
+  if (typeof rpcRequest.params.wikitext === "string") {
+    const held = fixtureState.editLocks[page.slug]
+    const lease = rpcRequest.params.lease
+    if (
+      !held ||
+      lease?.lock_id !== held.lock_id ||
+      lease?.["lock_secret"] !== held.secret ||
+      lease?.mode !== held.mode
+    ) {
+      sendRpcError(
+        response,
+        rpcRequest.id,
+        4304,
+        "Fixture page edit requires a matching edit lease"
+      )
+      return { responded: true }
+    }
+    delete fixtureState.editLocks[page.slug]
+  }
+
+  const { counters, pageWriteRequests } = fixtureState
+  pageWriteRequests.pageEdit.push({
+    headers: requestContextHeaders(request),
+    params: rpcRequest.params
+  })
   if (typeof rpcRequest.params.wikitext === "string") {
     page.wikitext = rpcRequest.params.wikitext
     page.compiled_body_html = `<p>${rpcRequest.params.wikitext}</p>`

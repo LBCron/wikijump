@@ -2,6 +2,11 @@ import { Buffer } from "node:buffer"
 import { request as httpRequest } from "node:http"
 import { request as httpsRequest } from "node:https"
 
+import { client } from "$lib/server/deepwell"
+import {
+  isNotLatestRevisionIdError,
+  isPageEditLockConflictError
+} from "$lib/server/deepwell/public-error.js"
 import {
   getXmlRpcWriteContext,
   getXmlRpcWritePrincipal,
@@ -16,6 +21,7 @@ import {
   expectDeepwellFiles,
   expectDeepwellForumPosts,
   expectDeepwellPageCreateOutput,
+  expectDeepwellPageEditLockAcquireOutput,
   expectDeepwellPageMoveOutput,
   expectDeepwellStringArray,
   isDeepwellBlobUpload,
@@ -331,19 +337,23 @@ export async function savePageOne(
   }
 
   if (Object.keys(editBody).length > 0) {
-    await requestDeepwell(
-      "page_edit",
-      {
-        site_id: siteId,
-        page: page.slug,
-        last_revision_id: page.revision_id,
-        revision_comments: revisionComment,
-        user_id: writeContext.userId,
-        ip_address: writeContext.ipAddress,
-        ...editBody
-      },
-      { ...writeContext, page: page.slug }
-    )
+    const editParams: XmlRpcPageEditParams = {
+      site_id: siteId,
+      page: page.slug,
+      last_revision_id: page.revision_id,
+      revision_comments: revisionComment,
+      user_id: writeContext.userId,
+      ip_address: writeContext.ipAddress,
+      ...editBody
+    }
+    if (editBody.wikitext !== undefined) {
+      await saveXmlRpcPageEditWithLease(editParams, writeContext)
+    } else {
+      await requestDeepwell("page_edit", editParams, {
+        ...writeContext,
+        page: page.slug
+      })
+    }
     page = await requireDeepwellPage(siteId, page.slug, true)
   }
 
@@ -379,6 +389,127 @@ export async function savePageOne(
     writeContext,
     responseLifecycleIdentity
   )
+}
+
+interface XmlRpcPageEditParams {
+  site_id: number
+  page: string
+  last_revision_id: number
+  revision_comments: string
+  user_id: number
+  ip_address: string
+  wikitext?: string
+  title?: string
+  tags?: string[]
+}
+
+interface XmlRpcPageEditLease {
+  lockId: number
+  lockSecret: string
+}
+
+async function acquireXmlRpcPageEditLease(
+  slug: string,
+  writeContext: XmlRpcWriteContext
+): Promise<XmlRpcPageEditLease> {
+  const output = expectDeepwellPageEditLockAcquireOutput(
+    await requestDeepwell(
+      "page_edit_lock_acquire",
+      { page: slug, mode: "page" },
+      { ...writeContext, page: slug }
+    )
+  )
+  if (!output.grant) {
+    const conflicts = output.conflicts
+      .map(
+        (conflict) =>
+          `user_id ${conflict.user_id}, mode ${conflict.mode}${
+            conflict.section_index === null
+              ? ""
+              : `, section ${conflict.section_index}`
+          }, ${conflict.seconds_remaining} seconds remaining`
+      )
+      .join("; ")
+    throw new XmlRpcFault(
+      4304,
+      `pages.save_one cannot edit ${slug}: edit lock conflict (${conflicts})`
+    )
+  }
+  return {
+    lockId: output.grant.lock_id,
+    lockSecret: output.grant["lock_secret"]
+  }
+}
+
+async function releaseXmlRpcPageEditLease(
+  slug: string,
+  lease: XmlRpcPageEditLease,
+  writeContext: XmlRpcWriteContext
+): Promise<void> {
+  try {
+    await requestDeepwell(
+      "page_edit_lock_release",
+      {
+        page: slug,
+        lock_id: lease.lockId,
+        ["lock_secret"]: lease.lockSecret
+      },
+      { ...writeContext, page: slug }
+    )
+  } catch (error) {
+    console.error(
+      `Failed to release page edit lock ${lease.lockId} for ${slug}`,
+      error
+    )
+  }
+}
+
+async function saveXmlRpcPageEditWithLease(
+  editParams: XmlRpcPageEditParams,
+  writeContext: XmlRpcWriteContext
+): Promise<void> {
+  const lease = await acquireXmlRpcPageEditLease(editParams.page, writeContext)
+  try {
+    await requestXmlRpcLeasedPageEdit(editParams, lease, writeContext)
+  } finally {
+    await releaseXmlRpcPageEditLease(editParams.page, lease, writeContext)
+  }
+}
+
+async function requestXmlRpcLeasedPageEdit(
+  editParams: XmlRpcPageEditParams,
+  lease: XmlRpcPageEditLease,
+  writeContext: XmlRpcWriteContext
+): Promise<void> {
+  try {
+    await client.request(
+      "page_edit",
+      {
+        ...editParams,
+        lease: {
+          lock_id: lease.lockId,
+          ["lock_secret"]: lease.lockSecret,
+          mode: "page"
+        }
+      },
+      { ...writeContext, page: editParams.page }
+    )
+  } catch (error) {
+    if (isPageEditLockConflictError(error)) {
+      throw new XmlRpcFault(
+        4304,
+        "pages.save_one edit rejected: edit lock conflict (Deepwell 4304)"
+      )
+    }
+    if (isNotLatestRevisionIdError(error)) {
+      throw new XmlRpcFault(
+        4303,
+        "pages.save_one edit rejected: the page changed (Deepwell 4303)"
+      )
+    }
+    console.error("Unexpected Deepwell XML-RPC bridge error for page_edit", error)
+    throw new XmlRpcFault(-32603, "XML-RPC Deepwell request failed: page_edit")
+  }
 }
 
 export async function selectFiles(call: XmlRpcCall): Promise<string[]> {

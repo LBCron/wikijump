@@ -384,6 +384,18 @@ test("pages.save_one reuses preflight names after mutation", async (t) => {
     if (method === "user_get") {
       return { user_id: 123, name: "Actor Display", slug: "actor-account" }
     }
+    if (method === "page_edit_lock_acquire") {
+      return {
+        grant: {
+          lock_id: 7001,
+          ["lock_secret"]: "lifecycle-fixture-secret",
+          base_revision_id: page.revision_id,
+          expires_at: "2999-01-01T00:00:00Z"
+        },
+        conflicts: []
+      }
+    }
+    if (method === "page_edit_lock_release") return true
     if (method === "page_edit") return { revision_id: 9000174 }
     if (method === "parent_get_direct_metadata") return null
     if (method === "forum_post_page_summary") {
@@ -413,6 +425,8 @@ test("pages.save_one reuses preflight names after mutation", async (t) => {
   assert.equal(calls.filter((method) => method === "page_lifecycle_identity").length, 1)
   assert.ok(calls.indexOf("page_lifecycle_identity") < calls.indexOf("page_edit"))
   assert.ok(calls.indexOf("user_get") < calls.indexOf("page_edit"))
+  assert.ok(calls.indexOf("page_edit_lock_acquire") < calls.indexOf("page_edit"))
+  assert.ok(calls.indexOf("page_edit") < calls.indexOf("page_edit_lock_release"))
   assert.doesNotMatch(
     serializeMethodResponse(result),
     /<name>(?:created_by|updated_by)<\/name><value><string>\d+<\/string>/u

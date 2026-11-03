@@ -111,9 +111,16 @@ class FakePublicSession {
       this.pages.set(page.page_id, page);
       return structuredClone(page);
     }
+    if (method === "page_edit_lock_acquire") {
+      const page = this.pages.get(params.page);
+      assert.ok(page, "page_edit_lock_acquire must target an existing page");
+      return { grant: { lock_id: 4242, ["lock_secret"]: "fake-lease-secret", base_revision_id: page.revision_id, expires_at: "2999-01-01T00:00:00Z" }, conflicts: [] };
+    }
+    if (method === "page_edit_lock_release") return true;
     if (method === "page_edit") {
       const page = this.pages.get(params.page);
       assert.ok(page, "page_edit must target an existing page");
+      assert.ok(params.lease, "page_edit must present an edit lease");
       page.revision_id = this.nextRevisionId++;
       page.revision_number += 1;
       page.wikitext = params.wikitext;

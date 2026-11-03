@@ -22,6 +22,7 @@ import { OPEN43_B690_GEOMETRY_FIXTURE } from "./open43-browser-690-candidate-cas
 import { captureUrlsSha256 } from "../scripts/capture-framerail-route-action-temporal.mjs";
 import { defaultBrowserRoot, loadPlaywright } from "./browser-session.mjs";
 import { CANDIDATE_CASE_SETS } from "./candidate-case-command.mjs";
+import { leasedPageEdit } from "./page-edit-lease.mjs";
 import { readJsonObject, sealJsonNoReplace, sha256File } from "./standing-browser-parity-util.mjs";
 
 function clearCandidateRedisCache(cache) {
@@ -641,7 +642,10 @@ export async function prepareCompatibilityCandidateInputs(args) {
       }
       return created;
     };
-    const edit = async (pageValue, wikitext, comments) => await rpc("page_edit", { site_id: SITE_ID, page: pageValue.page_id, last_revision_id: pageValue.revision_id, revision_comments: comments, user_id: ACTOR_IDS.editor, wikitext, ip_address: "127.0.0.1" }, { token: tokens.editor.token, siteId: SITE_ID });
+    const edit = async (pageValue, wikitext, comments) => await leasedPageEdit(
+      (method, params) => rpc(method, params, { token: tokens.editor.token, siteId: SITE_ID }),
+      { site_id: SITE_ID, page: pageValue.page_id, last_revision_id: pageValue.revision_id, revision_comments: comments, user_id: ACTOR_IDS.editor, wikitext, ip_address: "127.0.0.1" },
+    );
 
     const defaultPage = await rpc("page_get", { site_id: SITE_ID, page: "boundary-check", details: { wikitext: false, compiled: false } }, { siteId: SITE_ID });
     const transitionPage = await rpc("page_get", { site_id: SITE_ID, page: "corpus:scp-9506-draft", details: { wikitext: false, compiled: false } }, { siteId: SITE_ID });

@@ -10,6 +10,7 @@ import {validateRuntimeIdentity} from './saved-page-runtime-differential.mjs';
 import {validateRuntimeStateFixtureInput} from './runtime-state-fixture.mjs';
 import {extractMarkedFragments} from '../scripts/verify-ftml-live-pages.mjs';
 import {deepwellRpcAuthorization} from './deepwell-rpc-auth.mjs';
+import {leasedPageEdit} from './page-edit-lease.mjs';
 
 export const REPORT_SCHEMA = 'wikijump_syntax_differential.generic_runtime_verdict.v1';
 export const CAPTURE_SCHEMA = 'wikijump_syntax_differential.wikidot_saved_page_capture.v1';
@@ -1131,8 +1132,8 @@ export class DeepwellRpcAdapter {
         const contentChanged = current.wikitext !== page.wikitext || current.title !== page.title;
         const layoutChanged = current.layout !== 'wikidot';
         if (contentChanged) {
-          await this.rpc(
-            'page_edit',
+          await leasedPageEdit(
+            (method, params) => this.rpc(method, params, this.context(page.slug, siteId)),
             {
               site_id: siteId,
               page: current.page_id,
@@ -1143,7 +1144,6 @@ export class DeepwellRpcAdapter {
               wikitext: page.wikitext,
               title: page.title,
             },
-            this.context(page.slug, siteId),
           );
         }
         if (layoutChanged) {

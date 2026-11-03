@@ -1,6 +1,7 @@
 import fs from "node:fs";
 
 import { Open43SettingsCandidateSession } from "./open43-settings-candidate-http.mjs";
+import { leasedPageEdit } from "./page-edit-lease.mjs";
 import { STANDING_BROWSER_EXECUTION_MODULES } from "./standing-browser-execution-identity.mjs";
 import { candidatePageOrigin } from "./standing-browser-parity-receipt.mjs";
 import { sha256Text, sha256Value } from "./standing-browser-parity-util.mjs";
@@ -41,6 +42,7 @@ const SOURCE_FILES = Object.freeze([...new Set([
   "install/local/wikidot-verification/src/comments-hideform-browser-candidate-case-set.mjs",
   "install/local/wikidot-verification/src/deepwell-rpc-auth.mjs",
   "install/local/wikidot-verification/src/open43-settings-candidate-http.mjs",
+  "install/local/wikidot-verification/src/page-edit-lease.mjs",
   CASE_FIXTURE_PATH,
   "install/local/wikidot-verification/package.json",
   "install/local/wikidot-verification/pnpm-lock.yaml",
@@ -136,7 +138,7 @@ class CommentsHideformRun {
     let page = await this.#page();
     if (!this.#matchesOwnedPage(page)) throw new Error("run-owned Comments page identity drifted");
     if (page.wikitext !== sourceCase.source) {
-      await this.#rpc("page_edit", {
+      await leasedPageEdit((method, params) => this.#rpc(method, params), {
         site_id: this.#siteId,
         page: page.page_id,
         last_revision_id: page.revision_id,

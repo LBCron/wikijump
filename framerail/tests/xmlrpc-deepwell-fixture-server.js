@@ -72,6 +72,28 @@ const handleDiagnosticRequest = (request, response) => {
     sendJson(response, { reset: true })
     return true
   }
+  if (request.method === "POST" && url.pathname === "/hold-page-edit-lock") {
+    const slug = url.searchParams.get("slug")
+    if (!slug || !pages[slug]) {
+      response.writeHead(400).end("Unknown page slug")
+      return true
+    }
+    const lockId = fixtureState.counters.nextEditLockId++
+    fixtureState.editLocks[slug] = {
+      lock_id: lockId,
+      secret: `fixture-edit-lock-secret-${lockId}`,
+      user_id: Number(url.searchParams.get("user_id") ?? "456"),
+      mode: "page",
+      section_index: null
+    }
+    sendJson(response, { held: true, lock_id: lockId })
+    return true
+  }
+  if (request.method === "POST" && url.pathname === "/clear-page-edit-locks") {
+    fixtureState.editLocks = {}
+    sendJson(response, { cleared: true })
+    return true
+  }
   if (request.method !== "GET") return false
   if (request.url === "/last-page-tags-request") {
     sendJson(response, fixtureState.lastPageTagsSelectRequest)

@@ -1918,6 +1918,8 @@ test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename
   expect(writeLog.sessionGet).toHaveLength(3)
   expect(writeLog.pageCreate).toHaveLength(1)
   expect(writeLog.pageEdit).toHaveLength(3)
+  expect(writeLog.pageEditLockAcquire).toHaveLength(2)
+  expect(writeLog.pageEditLockRelease).toHaveLength(2)
   expect(writeLog.parentGetAll).toHaveLength(3)
   expect(writeLog.parentUpdate).toHaveLength(3)
   expect(writeLog.pageMove).toHaveLength(1)
@@ -1941,11 +1943,98 @@ test("XML-RPC endpoint saves pages with actor context, parents, tags, and rename
     tags: ["verification", "xmlrpc-save"],
     user_id: 123
   })
+  expect(writeLog.pageEdit[0].params.lease).toBeUndefined()
+  expect(writeLog.pageEdit[1].params.lease).toMatchObject({ mode: "page" })
+  expect(writeLog.pageEdit[2].params.lease).toMatchObject({ mode: "page" })
+  expect(writeLog.pageEditLockAcquire[0].params).toMatchObject({
+    page: slug,
+    mode: "page"
+  })
+  expect(writeLog.pageEditLockRelease[0].params.lock_id).toBe(
+    writeLog.pageEdit[1].params.lease.lock_id
+  )
   expect(writeLog.pageMove[0].params).toMatchObject({
     new_slug: renamedSlug,
     page: slug,
     user_id: 123
   })
+})
+
+test("pages.save_one faults without saving when another editor holds the page edit lock", async ({
+  request
+}) => {
+  const slug = `fixture-xmlrpc-lock-${randomUUID()}`
+
+  const createResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesSaveOneRequest({
+      page: slug,
+      title: "XML-RPC Lock Proof",
+      content: "XML-RPC lock proof initial content.",
+      saveMode: "create",
+      revisionComment: "xmlrpc lock create proof"
+    }),
+    headers: xmlRpcHeaders
+  })
+  expect(createResponse.status()).toBe(200)
+
+  const resetWriteRequests = await request.get(
+    `${fixtureUrl}/last-page-write-requests`
+  )
+  expect(resetWriteRequests.status()).toBe(200)
+
+  const holdResponse = await request.post(
+    `${fixtureUrl}/hold-page-edit-lock?slug=${encodeURIComponent(slug)}&user_id=456`
+  )
+  expect(holdResponse.status()).toBe(200)
+
+  const conflictResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesSaveOneRequest({
+      page: slug,
+      content: "XML-RPC lock proof conflicting content.",
+      saveMode: "update",
+      revisionComment: "xmlrpc lock conflict proof"
+    }),
+    headers: xmlRpcHeaders
+  })
+  expect(conflictResponse.status()).toBe(200)
+  const conflictBody = await conflictResponse.text()
+  expect(conflictBody).toContain("<fault>")
+  expect(conflictBody).toContain(
+    "<name>faultCode</name><value><int>4304</int></value>"
+  )
+  expect(conflictBody).toContain("user_id 456")
+  expect(conflictBody).toContain("seconds remaining")
+
+  const writeRequests = await request.get(`${fixtureUrl}/last-page-write-requests`)
+  expect(writeRequests.status()).toBe(200)
+  const writeLog = await writeRequests.json()
+  expect(writeLog.pageEditLockAcquire).toHaveLength(1)
+  expect(writeLog.pageEdit).toHaveLength(0)
+
+  const oneResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesGetOneForPageRequest(slug),
+    headers: xmlRpcHeaders
+  })
+  expect(oneResponse.status()).toBe(200)
+  const oneBody = await oneResponse.text()
+  expect(oneBody).toContain("XML-RPC lock proof initial content.")
+  expect(oneBody).not.toContain("conflicting content")
+
+  const clearResponse = await request.post(`${fixtureUrl}/clear-page-edit-locks`)
+  expect(clearResponse.status()).toBe(200)
+
+  const updateResponse = await request.post("/xml-rpc-api.php", {
+    data: xmlRpcPagesSaveOneRequest({
+      page: slug,
+      content: "XML-RPC lock proof released content.",
+      saveMode: "update",
+      revisionComment: "xmlrpc lock released proof"
+    }),
+    headers: xmlRpcHeaders
+  })
+  expect(updateResponse.status()).toBe(200)
+  const updateBody = await updateResponse.text()
+  expect(updateBody).toContain("XML-RPC lock proof released content.")
 })
 
 test("pages.save_one rejects a non-boolean notify_watchers value without saving a page", async ({

@@ -1,4 +1,5 @@
 import { CandidateHttpSession } from "./candidate-case-http.mjs";
+import { leasedPageEdit } from "./page-edit-lease.mjs";
 import { STANDING_BROWSER_EXECUTION_MODULES } from "./standing-browser-execution-identity.mjs";
 import { STANDING_BROWSER_CAPTURE_SCHEMA } from "./standing-browser-parity-contract.mjs";
 import { candidatePageOrigin } from "./standing-browser-parity-receipt.mjs";
@@ -581,7 +582,7 @@ class Open43AuthoringHistoryRun {
 
     const initial = await this.#createPage(this.#slug, "Open43 history candidate", INITIAL_SOURCE);
     const before = requirePage(await this.#pageRead(), this.#slug);
-    const edited = await this.#rpc("page_edit", {
+    const edited = await leasedPageEdit((method, params) => this.#rpc(method, params), {
       site_id: this.#siteId,
       page: initial.page_id,
       last_revision_id: initial.revision_id,
@@ -593,7 +594,7 @@ class Open43AuthoringHistoryRun {
     if (!Number.isSafeInteger(edited?.revision_id) || !Number.isSafeInteger(edited.revision_number)) throw new Error("first page_edit returned an invalid revision identity");
     const middle = requirePage(await this.#pageRead(), this.#slug);
     if (middle.revision_id !== edited.revision_id || middle.revision_number !== edited.revision_number) throw new Error("first page_edit was not publicly readable");
-    const finalEdit = await this.#rpc("page_edit", {
+    const finalEdit = await leasedPageEdit((method, params) => this.#rpc(method, params), {
       site_id: this.#siteId,
       page: initial.page_id,
       last_revision_id: middle.revision_id,
@@ -868,6 +869,7 @@ export function createOpen43AuthoringHistoryCandidateCaseSet({ sessionFactory = 
     "install/local/wikidot-verification/src/candidate-source-execution-identity.mjs",
     "install/local/wikidot-verification/src/deepwell-rpc-auth.mjs",
     "install/local/wikidot-verification/src/open43-authoring-history-candidate-case-set.mjs",
+    "install/local/wikidot-verification/src/page-edit-lease.mjs",
     "install/local/wikidot-verification/src/standing-browser-parity-receipt.mjs",
     "install/local/wikidot-verification/src/standing-browser-parity-util.mjs",
     "install/local/wikidot-verification/src/standing-browser-runtime-identity.mjs",

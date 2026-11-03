@@ -1,4 +1,5 @@
 import { CandidateHttpSession } from "./candidate-case-http.mjs";
+import { leasedPageEdit } from "./page-edit-lease.mjs";
 import { STANDING_BROWSER_EXECUTION_MODULES } from "./standing-browser-execution-identity.mjs";
 import { STANDING_BROWSER_CAPTURE_SCHEMA } from "./standing-browser-parity-contract.mjs";
 import { candidatePageOrigin } from "./standing-browser-parity-receipt.mjs";
@@ -220,7 +221,7 @@ class Open43AuthoringRun {
       };
       await browserPage.evaluate(() => window.stop());
 
-      const editedComponent = await this.#rpc("page_edit", {
+      const editedComponent = await leasedPageEdit((method, params) => this.#rpc(method, params), {
         site_id: this.#siteId,
         page: component.page_id,
         last_revision_id: component.revision_id,
@@ -549,6 +550,7 @@ export function createOpen43AuthoringCandidateCaseSet({
     "install/local/wikidot-verification/src/candidate-case-runner.mjs",
     "install/local/wikidot-verification/src/deepwell-rpc-auth.mjs",
     "install/local/wikidot-verification/src/open43-authoring-candidate-case-set.mjs",
+    "install/local/wikidot-verification/src/page-edit-lease.mjs",
     "install/local/wikidot-verification/package.json",
     "install/local/wikidot-verification/pnpm-lock.yaml",
   ])]);

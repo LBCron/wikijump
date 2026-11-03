@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Upgrade a stopped PostgreSQL 17 data volume in place to the current server
-# image's major version. See install/standing/README.md for Standing.
+# Upgrade a stopped PostgreSQL data volume in place to the current server
+# image's catalog version. See install/standing/README.md for Standing.
 #
 #   scripts/upgrade-postgres-volume.sh <volume> [--check] [--rollback-volume <name>]
 #
@@ -28,6 +28,18 @@ docker volume inspect "${volume}" >/dev/null
 consumers="$(docker ps --filter "volume=${volume}" --format '{{.Names}}')"
 if [[ -n "${consumers}" ]]; then
   echo "stop the containers using ${volume} first: ${consumers}" >&2
+  exit 1
+fi
+# docker ps --filter volume does not match stopped containers, and a stopped
+# container with a restart policy comes back. Two consumers mean two stacks.
+stopped=()
+for container in $(docker ps -aq --filter status=exited --filter status=created --filter status=restarting --filter status=paused); do
+  if docker inspect "${container}" --format '{{range .Mounts}}{{.Name}}{{"\n"}}{{end}}' | grep -qxF "${volume}"; then
+    stopped+=("$(docker inspect "${container}" --format '{{.Name}}')")
+  fi
+done
+if ((${#stopped[@]} > 1)); then
+  echo "more than one container is attached to ${volume}: ${stopped[*]}" >&2
   exit 1
 fi
 

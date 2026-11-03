@@ -8,11 +8,12 @@ suffix="$$-${RANDOM}"
 volume="wikijump-pg-upgrade-test-${suffix}"
 rollback="${volume}-rollback"
 container="wikijump-pg-upgrade-test-${suffix}"
-old_image="$(sed -n 's/^COPY --from=\(postgres:[^ ]*\) .*/\1/p' "${ROOT}/install/common/postgres/upgrade/Dockerfile")"
+old_image="$(sed -n 's/^COPY --from=\(postgres:17[^ ]*\) .*/\1/p' "${ROOT}/install/common/postgres/upgrade/Dockerfile")"
 new_image="wikijump-pg-upgrade-test-server"
 
 cleanup() {
-  docker rm -fv "${container}" >/dev/null 2>&1 || true
+  docker rm -fv "${container}" "${container}-second" "${container}-a" "${container}-b" >/dev/null 2>&1 || true
+  rm -f "${container}-second.log"
   docker volume rm "${volume}" "${rollback}" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -67,6 +68,38 @@ major="$(docker run --rm --entrypoint sh "${new_image}" -c 'echo "${PG_MAJOR}"')
 [[ "$(sql "SELECT count(*) FROM upgrade_probe WHERE tags && ARRAY['tag3']")" == 500 ]]
 [[ "$(sql "SELECT count(*) FROM pg_stats WHERE tablename = 'upgrade_probe'")" != 0 ]]
 stop
+
+# A server that is already past its init scripts still holds the data directory
+# lock through the entrypoint's exec chain, so a second one refuses to start and
+# so does the upgrade tool.
+start "${new_image}"
+second="${container}-second"
+if docker run --name "${second}" --network none -e POSTGRES_PASSWORD=x \
+  --volume "${volume}:/var/lib/postgresql/data" "${new_image}" >/dev/null 2>"${second}.log"; then
+  echo "a second server started on one data directory" >&2
+  exit 1
+fi
+grep -q "another server holds" "${second}.log"
+rm -f "${second}.log"
+docker rm -v "${second}" >/dev/null
+[[ "$(sql "SELECT 1")" == 1 ]]
+stop
+
+# The lock goes with the server.
+start "${new_image}"
+stop
+
+# A volume already on the server's catalog version is left alone.
+"${ROOT}/scripts/upgrade-postgres-volume.sh" "${volume}" 2>&1 | grep -q "nothing to upgrade"
+
+# Two stopped containers attached to one volume are two stacks.
+docker create --name "${container}-a" --volume "${volume}:/x" "${new_image}" >/dev/null
+docker create --name "${container}-b" --volume "${volume}:/x" "${new_image}" >/dev/null
+if "${ROOT}/scripts/upgrade-postgres-volume.sh" "${volume}" --check >/dev/null 2>&1; then
+  echo "the upgrade tool accepted a volume attached to two stacks" >&2
+  exit 1
+fi
+docker rm -v "${container}-a" "${container}-b" >/dev/null
 
 # The rollback copy is still the old cluster.
 docker run --rm --network none --entrypoint sh --volume "${rollback}:/copy:ro" "${new_image}" \

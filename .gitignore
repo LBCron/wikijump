@@ -16,3 +16,6 @@ __pycache__/
 
 # Local desloppify state
 .desloppify/
+
+# Per-stack Compose settings, such as WIKIJUMP_LOCAL_VOLUME_NAMESPACE
+/install/local/.env

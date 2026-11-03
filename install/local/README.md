@@ -22,8 +22,8 @@ limitations are documented in `docs/deepwell-container-hot-reload.md`.
 The local Caddy container terminates HTTPS for `*.wikijump.dev.localhost` and `*.wjfiles.dev.localhost` on 127.0.0.1:18443 using Caddy's local certificate authority. These names identify the local development environment; the standing runtime serves `*.wikijump.localhost` on 443 (see `docs/development.md`). The Caddy data and config directories are stored in named Docker volumes:
 
 ```text
-local-caddy-data -> /data
-local-caddy-config -> /config
+<namespace>-dev-caddy-data -> /data
+<namespace>-dev-caddy-config -> /config
 ```
 
 These volumes preserve `/data/caddy/pki/authorities/local/root.crt`, so restarting or recreating the local Caddy container does not rotate the local root CA and invalidate a browser trust-store entry.

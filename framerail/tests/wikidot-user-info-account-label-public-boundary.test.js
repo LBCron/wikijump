@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -9,9 +8,13 @@ import { loadWikidotUserInfo } from "../src/lib/server/wikidot-user-info.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let userInfoPage
 
 before(async () => {
@@ -94,7 +97,7 @@ test("UserInfo SSR presents evidenced regular accounts as Wikidot free accounts 
       siteId: 7,
       locales: ["en"],
       target: user.slug,
-      userView: async () => ({ type: "user_found", data: { user } })
+      userView: async () => /** @type {any} */ ({ type: "user_found", data: { user } })
     })
     const body = render(userInfoPage, { props: { data } }).body
 
@@ -116,15 +119,17 @@ test("UserInfo SSR presents evidenced regular accounts as Wikidot free accounts 
 })
 
 test("UserInfo projects imported free accounts and the observed none/high karma labels", async () => {
-  for (const [user, karmaLabel] of importedTargets.map((user, index) => [
-    user,
-    ["none", "high"][index]
-  ])) {
+  for (const [user, karmaLabel] of importedTargets.map(
+    /** @param {any} user @param {any} index */ (user, index) => [
+      user,
+      ["none", "high"][index]
+    ]
+  )) {
     const data = await loadWikidotUserInfo({
       siteId: 7,
       locales: ["en"],
       target: user.slug,
-      userView: async () => ({ type: "user_found", data: { user } })
+      userView: async () => /** @type {any} */ ({ type: "user_found", data: { user } })
     })
     const body = render(userInfoPage, { props: { data } }).body
 
@@ -142,7 +147,7 @@ test("UserInfo keeps an imported Pro profile without inventing an account-type l
     siteId: 7,
     locales: ["en"],
     target: user.slug,
-    userView: async () => ({ type: "user_found", data: { user } })
+    userView: async () => /** @type {any} */ ({ type: "user_found", data: { user } })
   })
   const body = render(userInfoPage, { props: { data } }).body
 
@@ -160,7 +165,7 @@ test("UserInfo omits unobserved imported karma labels", async () => {
       siteId: 7,
       locales: ["en"],
       target: user.slug,
-      userView: async () => ({ type: "user_found", data: { user } })
+      userView: async () => /** @type {any} */ ({ type: "user_found", data: { user } })
     })
     const body = render(userInfoPage, { props: { data } }).body
 

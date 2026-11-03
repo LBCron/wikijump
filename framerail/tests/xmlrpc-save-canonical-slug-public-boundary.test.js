@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
@@ -7,9 +6,11 @@ import { createJiti } from "jiti"
 
 const libRoot = fileURLToPath(new URL("../src/lib/", import.meta.url))
 const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
+/** @type {any} */
 const { client } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/deepwell/index.ts", import.meta.url))
 )
+/** @type {any} */
 const { POST } = await jiti.import(
   fileURLToPath(new URL("../src/routes/xml-rpc-api.php/+server.ts", import.meta.url))
 )
@@ -132,11 +133,15 @@ for (const [description, output] of [
   })
 }
 
+/** @param {any} t @param {any} createOutput */
 const installCreateFixture = (t, createOutput) => {
   const fixture = installFixture(t)
   const page = fixturePage("canonical-created-page", "Created page")
 
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     fixture.calls.push(method)
     if (method === "site_get") return { site_id: 17 }
     if (method === "page_get") {
@@ -158,12 +163,16 @@ const installCreateFixture = (t, createOutput) => {
   return fixture
 }
 
+/** @param {any} t @param {any} moveOutput */
 const installMoveFixture = (t, moveOutput) => {
   const fixture = installFixture(t)
   const sourcePage = fixturePage("existing-page", "Existing page")
   const destinationPage = fixturePage("canonical-renamed-page", "Existing page")
 
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     fixture.calls.push(method)
     if (method === "site_get") return { site_id: 17 }
     if (method === "page_get") {
@@ -197,6 +206,7 @@ const installMoveFixture = (t, moveOutput) => {
   return fixture
 }
 
+/** @param {any} t */
 const installFixture = (t) => {
   const originalRequest = client.request
   const originalEnvironment = {
@@ -217,9 +227,15 @@ const installFixture = (t) => {
     }
   })
 
-  return { calls: [], mutations: 0, pageGetReferences: [], pageMoveParams: null }
+  return /** @type {any} */ ({
+    calls: [],
+    mutations: 0,
+    pageGetReferences: [],
+    pageMoveParams: null
+  })
 }
 
+/** @param {any} slug @param {any} title */
 const fixturePage = (slug, title) => ({
   page_id: 23,
   revision_id: 29,
@@ -237,6 +253,7 @@ const fixturePage = (slug, title) => ({
   compiled_body_styles: []
 })
 
+/** @param {any} method @param {any} params @param {any} page */
 const readFixtureResponse = (method, params, page) => {
   if (method === "page_view") {
     return { type: "found", data: { page: { slug: params.route.slug } } }
@@ -249,6 +266,7 @@ const readFixtureResponse = (method, params, page) => {
   throw new Error(`Unexpected Deepwell method ${method} for ${page.slug}`)
 }
 
+/** @param {any} input */
 const postSave = ({ page, renameAs, saveMode }) => {
   const renameMember =
     renameAs === undefined

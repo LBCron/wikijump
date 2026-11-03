@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -7,11 +6,17 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let pageComponent
+/** @type {any} */
 let PAGE_LAYOUT_CONTEXT_KEY
+/** @type {any} */
 let Layout
 
 before(async () => {
@@ -71,6 +76,7 @@ const foundPageData = {
   internationalization: {}
 }
 
+/** @param {any} data */
 const renderWikidotPage = (data) =>
   render(pageComponent, {
     props: { data },

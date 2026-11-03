@@ -1,57 +1,59 @@
-/**
- * @typedef {{
- *   type: "join" | "application" | "password" | "invitation"
- *   page_id: number
- *   revision_id: number
- *   index: number
- *   fingerprint: string
- * }} MembershipBrowserAction
- */
-/**
- * @typedef {{
- *   join?: (
- *     pageId: number,
- *     revisionId: number,
- *     index: number,
- *     fingerprint: string
- *   ) => unknown
- *   application?: (
- *     pageId: number,
- *     revisionId: number,
- *     index: number,
- *     fingerprint: string,
- *     comment: string
- *   ) => unknown
- *   password?: (
- *     pageId: number,
- *     revisionId: number,
- *     index: number,
- *     fingerprint: string,
- *     password: string
- *   ) => unknown
- *   invitation?: (
- *     pageId: number,
- *     revisionId: number,
- *     index: number,
- *     fingerprint: string
- *   ) => unknown
- *   reload?: () => unknown
- *   error?: (error: unknown) => unknown
- * }} MembershipActionRuntime
- */
+export type MembershipBrowserAction = {
+  type: "join" | "application" | "password" | "invitation"
+  page_id: number
+  revision_id: number
+  index: number
+  fingerprint: string
+}
+
+export type MembershipActionRuntime = {
+  join?: (
+    pageId: number,
+    revisionId: number,
+    index: number,
+    fingerprint: string
+  ) => unknown
+  application?: (
+    pageId: number,
+    revisionId: number,
+    index: number,
+    fingerprint: string,
+    comment: string
+  ) => unknown
+  password?: (
+    pageId: number,
+    revisionId: number,
+    index: number,
+    fingerprint: string,
+    password: string
+  ) => unknown
+  invitation?: (
+    pageId: number,
+    revisionId: number,
+    index: number,
+    fingerprint: string
+  ) => unknown
+  reload?: (result: unknown) => unknown
+  error?: (error: unknown) => unknown
+}
+
+type MembershipActionHandler = (
+  pageId: number,
+  revisionId: number,
+  index: number,
+  fingerprint: string,
+  extra?: string
+) => unknown
 
 const JOIN_SELECTOR = `div > a[href="javascript:;"][onclick="WIKIDOT.page.listeners.join(event, 'unified')"]`
 const APPLICATION_SELECTOR = `#membership-by-apply-form #mba-apply`
 const PASSWORD_SELECTOR = `#membership-by-password-form #mbp-apply`
 const INVITATION_SELECTOR = `#membership-email-invitation-box a[href="javascript:;"][onclick^="WIKIDOT.modules.MembershipEmailInvitationModule.listeners.accept"]`
 
-/** @type {WeakMap<HTMLElement, MembershipBrowserAction>} */
-const boundActions = new WeakMap()
-/** @type {WeakSet<HTMLElement>} */
-const busyActions = new WeakSet()
+const boundActions: WeakMap<HTMLElement, MembershipBrowserAction> = new WeakMap()
+const busyActions: WeakSet<HTMLElement> = new WeakSet()
 
-/** @param {MembershipBrowserAction} action */
-const validMembershipAction = (action) =>
+const validMembershipAction = (action: MembershipBrowserAction): boolean =>
   !!action &&
   ["join", "application", "password", "invitation"].includes(action.type) &&
   Number.isSafeInteger(action.page_id) &&
@@ -62,7 +64,7 @@ const validMembershipAction = (action) =>
   action.index >= 0 &&
   /^[0-9a-f]{32}$/u.test(action.fingerprint)
 
-const selectorForAction = (type) => {
+const selectorForAction = (type: string): string | undefined => {
   if (type === "join") return JOIN_SELECTOR
   if (type === "application") return APPLICATION_SELECTOR
   if (type === "password") return PASSWORD_SELECTOR
@@ -70,7 +72,7 @@ const selectorForAction = (type) => {
   return undefined
 }
 
-const escapeHtml = (value) =>
+const escapeHtml = (value: unknown): string =>
   String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -78,7 +80,10 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;")
 
-export const membershipEmailInvitationCongratulationsHtml = (siteName, siteSlug) => {
+export const membershipEmailInvitationCongratulationsHtml = (
+  siteName: unknown,
+  siteSlug: unknown
+): string => {
   const name = escapeHtml(siteName)
   const domain = escapeHtml(`${siteSlug}.wikidot.com`)
   return [
@@ -91,12 +96,11 @@ export const membershipEmailInvitationCongratulationsHtml = (siteName, siteSlug)
 /**
  * Zip exact renderer-owned Join controls to the closed sidecar. Any count,
  * descriptor, or DOM mismatch disables the complete surface.
- *
- * @param {HTMLElement[]} candidates
- * @param {MembershipBrowserAction[]} actions
- * @returns {[HTMLElement, MembershipBrowserAction][]}
  */
-export const planWikidotJoinActionBindings = (candidates, actions) => {
+export const planWikidotJoinActionBindings = (
+  candidates: HTMLElement[],
+  actions: MembershipBrowserAction[]
+): [HTMLElement, MembershipBrowserAction][] => {
   if (
     candidates.length !== actions.length ||
     actions.some((action) => !validMembershipAction(action) || action.type !== "join") ||
@@ -104,10 +108,17 @@ export const planWikidotJoinActionBindings = (candidates, actions) => {
   ) {
     return []
   }
-  return actions.map((action, index) => [candidates[index], action])
+  return actions.map(
+    (action, index) =>
+      [candidates[index], action] as [HTMLElement, MembershipBrowserAction]
+  )
 }
 
-const planTypedBindings = (candidates, actions, type) => {
+const planTypedBindings = (
+  candidates: HTMLElement[],
+  actions: MembershipBrowserAction[],
+  type: string
+): [HTMLElement, MembershipBrowserAction][] => {
   const selector = selectorForAction(type)
   if (
     !selector ||
@@ -117,30 +128,35 @@ const planTypedBindings = (candidates, actions, type) => {
   ) {
     return []
   }
-  return actions.map((action, index) => [candidates[index], action])
+  return actions.map(
+    (action, index) =>
+      [candidates[index], action] as [HTMLElement, MembershipBrowserAction]
+  )
 }
 
 /**
  * Execute a fixed membership action once and keep its visible busy state
  * until the server transition settles.
- *
- * @param {HTMLElement} element
- * @param {MembershipBrowserAction} action
- * @param {MembershipActionRuntime} runtime
  */
-export const performWikidotMembershipAction = async (element, action, runtime) => {
+export const performWikidotMembershipAction = async (
+  element: HTMLElement,
+  action: MembershipBrowserAction,
+  runtime: MembershipActionRuntime
+): Promise<boolean> => {
   if (busyActions.has(element) || !validMembershipAction(action)) return false
 
-  const handler = runtime[action.type]
+  const handler = runtime[action.type] as MembershipActionHandler | undefined
   if (!handler) return false
 
   busyActions.add(element)
   element.setAttribute("aria-busy", "true")
   try {
-    let result
+    let result: unknown
     if (action.type === "application") {
       const form = element.closest?.("#membership-by-apply-form")
-      const comment = form?.querySelector?.('[name="comment"]')?.value ?? ""
+      const comment =
+        form?.querySelector?.<HTMLInputElement | HTMLTextAreaElement>('[name="comment"]')
+          ?.value ?? ""
       result = await handler(
         action.page_id,
         action.revision_id,
@@ -154,7 +170,8 @@ export const performWikidotMembershipAction = async (element, action, runtime) =
       }
     } else if (action.type === "password") {
       const form = element.closest?.("#membership-by-password-form")
-      const password = form?.querySelector?.('[name="password"]')?.value ?? ""
+      const password =
+        form?.querySelector?.<HTMLInputElement>('[name="password"]')?.value ?? ""
       result = await handler(
         action.page_id,
         action.revision_id,
@@ -164,7 +181,7 @@ export const performWikidotMembershipAction = async (element, action, runtime) =
       )
       if (result === "wrong_password") {
         const box = element.closest?.("#membership-by-password-box")
-        const error = box?.querySelector?.("#mbp-error")
+        const error = box?.querySelector?.<HTMLElement>("#mbp-error")
         if (error?.style) error.style.display = ""
         return true
       }
@@ -175,17 +192,19 @@ export const performWikidotMembershipAction = async (element, action, runtime) =
         action.index,
         action.fingerprint
       )
-      if (result?.status === "accepted") {
+      const outcome = result as
+        { status?: string; site_name?: unknown; site_slug?: unknown } | null | undefined
+      if (outcome?.status === "accepted") {
         const box = element.closest?.("#membership-email-invitation-box")
         if (box) {
           box.innerHTML = membershipEmailInvitationCongratulationsHtml(
-            result.site_name,
-            result.site_slug
+            outcome.site_name,
+            outcome.site_slug
           )
         }
         return true
       }
-      if (result?.status === "already_member") {
+      if (outcome?.status === "already_member") {
         runtime.error?.(
           new Error(
             "It seems you already are a member of this site! Congratulations anyway ;-)"
@@ -193,7 +212,7 @@ export const performWikidotMembershipAction = async (element, action, runtime) =
         )
         return true
       }
-      if (result?.status === "unavailable") {
+      if (outcome?.status === "unavailable") {
         runtime.error?.(new Error("Sorry, no invitation can be found."))
         return true
       }
@@ -219,29 +238,26 @@ export const performWikidotMembershipAction = async (element, action, runtime) =
 /**
  * Install capture-phase behavior so the trusted legacy `onclick` remains
  * in served DOM for parity but is never evaluated by the browser.
- *
- * @param {HTMLElement} root
- * @param {{
- *   actions: MembershipBrowserAction[]
- *   runtime: MembershipActionRuntime
- * }} parameters
  */
-export const wikidotMembershipActions = (root, parameters) => {
-  /** @type {Set<HTMLElement>} */
-  const elements = new Set()
+export const wikidotMembershipActions = (
+  root: HTMLElement,
+  parameters: {
+    actions: MembershipBrowserAction[]
+    runtime: MembershipActionRuntime
+  }
+) => {
+  const elements: Set<HTMLElement> = new Set()
   let runtime = parameters.runtime
 
-  /** @param {MembershipBrowserAction[]} actions */
-  const refresh = (actions) => {
+  const refresh = (actions: MembershipBrowserAction[]) => {
     for (const element of elements) boundActions.delete(element)
     elements.clear()
     for (const type of ["join", "application", "password", "invitation"]) {
       const typedActions = actions.filter((action) => action?.type === type)
       if (typedActions.length === 0) continue
       const selector = selectorForAction(type)
-      const candidates = /** @type {HTMLElement[]} */ ([
-        ...root.querySelectorAll(selector)
-      ])
+      if (!selector) continue
+      const candidates = [...root.querySelectorAll(selector)] as HTMLElement[]
       for (const element of candidates) elements.add(element)
       const bindings =
         type === "join"
@@ -254,17 +270,15 @@ export const wikidotMembershipActions = (root, parameters) => {
   }
   refresh(parameters.actions)
 
-  /** @param {Event} event */
-  const actionElement = (event) => {
-    let element = /** @type {HTMLElement | null} */ (event.target)
+  const actionElement = (event: Event) => {
+    let element = event.target as HTMLElement | null
     while (element && element !== root) {
       if (elements.has(element)) return element
       element = element.parentElement
     }
     return undefined
   }
-  /** @param {Event} event */
-  const activate = (event) => {
+  const activate = (event: Event) => {
     const element = actionElement(event)
     if (!element) return
     const action = boundActions.get(element)
@@ -273,8 +287,7 @@ export const wikidotMembershipActions = (root, parameters) => {
     if (!action) return
     void performWikidotMembershipAction(element, action, runtime)
   }
-  /** @param {KeyboardEvent} event */
-  const keydown = (event) => {
+  const keydown = (event: KeyboardEvent) => {
     if (event.key === " " || event.key === "Enter") activate(event)
   }
 
@@ -286,13 +299,10 @@ export const wikidotMembershipActions = (root, parameters) => {
       root.removeEventListener("click", activate, true)
       root.removeEventListener("keydown", keydown, true)
     },
-    /**
-     * @param {{
-     *   actions: MembershipBrowserAction[]
-     *   runtime: MembershipActionRuntime
-     * }} next
-     */
-    update(next) {
+    update(next: {
+      actions: MembershipBrowserAction[]
+      runtime: MembershipActionRuntime
+    }) {
       runtime = next.runtime
       refresh(next.actions)
     }

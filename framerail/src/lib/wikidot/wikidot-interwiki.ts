@@ -20,26 +20,30 @@ import { localizeWikidotThemeUrl } from "./wikidot-styleframe-contract.js"
 const DEFAULT_ICON_URL = "//scp-wiki.wdfiles.com/local--files/nav:side/default.png"
 const WIKIDOT_BASE_STYLESHEET = "/wikidot/styles/wikidot-base-165bc434fd1d.css"
 
-/**
- * @typedef {{ label: string; heading: string; url: string }} WikidotInterwikiBranch
- *
- *
- * @typedef {Readonly<Record<string, WikidotInterwikiBranch>>} WikidotInterwikiCommunity
- *
- *
- * @typedef {Readonly<Record<string, WikidotInterwikiCommunity>>} WikidotInterwikiCommunities
- *
- *
- * @typedef {{
- *   code: string
- *   label: string
- *   href: string
- *   original: boolean
- * }} WikidotInterwikiLink
- */
+export type WikidotInterwikiBranch = { label: string; heading: string; url: string }
 
-/** @type {WikidotInterwikiCommunities} */
-export const WIKIDOT_INTERWIKI_BRANCHES = Object.freeze({
+export type WikidotInterwikiCommunity = Readonly<Record<string, WikidotInterwikiBranch>>
+
+export type WikidotInterwikiCommunities = Readonly<
+  Record<string, WikidotInterwikiCommunity>
+>
+
+export type WikidotInterwikiLink = {
+  code: string
+  label: string
+  href: string
+  original: boolean
+}
+
+export type WikidotInterwikiCromPage = {
+  translations?: { url?: string | null }[] | null
+  translationOf?: {
+    url?: string | null
+    translations?: { url?: string | null }[] | null
+  } | null
+}
+
+export const WIKIDOT_INTERWIKI_BRANCHES: WikidotInterwikiCommunities = Object.freeze({
   scp: Object.freeze({
     cn: Object.freeze({
       label: "中文",
@@ -171,11 +175,7 @@ export const WIKIDOT_INTERWIKI_BRANCHES = Object.freeze({
   })
 })
 
-/**
- * @param {string | null | undefined} value
- * @returns {string}
- */
-const escapeHtml = (value) => {
+const escapeHtml = (value: string | null | undefined): string => {
   return `${value ?? ""}`
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -183,17 +183,9 @@ const escapeHtml = (value) => {
     .replaceAll('"', "&quot;")
 }
 
-/**
- * @param {string} url
- * @returns {string}
- */
-const cromComparableUrl = (url) => url.replace(/^https:/i, "http:")
+const cromComparableUrl = (url: string): string => url.replace(/^https:/i, "http:")
 
-/**
- * @param {string} url
- * @returns {boolean}
- */
-const isAllowedCromUrl = (url) => {
+const isAllowedCromUrl = (url: string): boolean => {
   try {
     const hostname = new URL(url).hostname
     return hostname.endsWith(".wikidot.com") || hostname === "scpfoundation.net"
@@ -202,33 +194,18 @@ const isAllowedCromUrl = (url) => {
   }
 }
 
-/**
- * @param {string} sourcePath
- * @returns {string}
- */
-const normalizeSourcePath = (sourcePath) => {
+const normalizeSourcePath = (sourcePath: string): string => {
   return sourcePath.replace(/^_default:/, "").replace(/^\/+/, "")
 }
 
-/**
- * @param {string} community
- * @returns {WikidotInterwikiCommunity}
- */
-const branchesForCommunity = (community) => {
+const branchesForCommunity = (community: string): WikidotInterwikiCommunity => {
   return WIKIDOT_INTERWIKI_BRANCHES[community] ?? Object.freeze({})
 }
 
-/**
- * @param {WikidotInterwikiCommunity} branches
- * @param {string} url
- * @returns {{
- *   code: string
- *   label: string
- *   heading: string
- *   url: string
- * } | null}
- */
-const findBranchForUrl = (branches, url) => {
+const findBranchForUrl = (
+  branches: WikidotInterwikiCommunity,
+  url: string
+): { code: string; label: string; heading: string; url: string } | null => {
   const comparable = cromComparableUrl(url)
 
   for (const [code, branch] of Object.entries(branches)) {
@@ -240,28 +217,14 @@ const findBranchForUrl = (branches, url) => {
   return null
 }
 
-/**
- * @param {{ url?: string | null } | null | undefined} item
- * @returns {string | null}
- */
-const itemUrl = (item) => {
+const itemUrl = (item: { url?: string | null } | null | undefined): string | null => {
   return typeof item?.url === "string" ? item.url : null
 }
 
-/**
- * @param {{
- *       translations?: { url?: string | null }[] | null
- *       translationOf?: {
- *         url?: string | null
- *         translations?: { url?: string | null }[] | null
- *       } | null
- *     }
- *   | null
- *   | undefined} page
- * @returns {string[]}
- */
-const collectTranslationUrls = (page) => {
-  const urls = []
+const collectTranslationUrls = (
+  page: WikidotInterwikiCromPage | null | undefined
+): string[] => {
+  const urls: string[] = []
 
   for (const item of page?.translations ?? []) {
     const url = itemUrl(item)
@@ -279,11 +242,15 @@ const collectTranslationUrls = (page) => {
   return urls
 }
 
-/**
- * @param {{ community: string; lang: string; sourcePath: string }} input
- * @returns {string | null}
- */
-export const buildWikidotInterwikiSourceUrl = ({ community, lang, sourcePath }) => {
+export const buildWikidotInterwikiSourceUrl = ({
+  community,
+  lang,
+  sourcePath
+}: {
+  community: string
+  lang: string
+  sourcePath: string
+}): string | null => {
   const branch = branchesForCommunity(community)[lang]
   if (!branch) return null
 
@@ -292,21 +259,21 @@ export const buildWikidotInterwikiSourceUrl = ({ community, lang, sourcePath }) 
   return isAllowedCromUrl(url) ? url : null
 }
 
-/**
- * @param {{
- *   community: string
- *   lang: string
- *   sourcePath: string
- *   page?: Parameters<typeof collectTranslationUrls>[0]
- * }} input
- * @returns {WikidotInterwikiLink[]}
- */
-export const extractWikidotInterwikiLinks = ({ community, lang, sourcePath, page }) => {
+export const extractWikidotInterwikiLinks = ({
+  community,
+  lang,
+  sourcePath,
+  page
+}: {
+  community: string
+  lang: string
+  sourcePath: string
+  page?: WikidotInterwikiCromPage | null
+}): WikidotInterwikiLink[] => {
   const branches = branchesForCommunity(community)
   const currentUrl = buildWikidotInterwikiSourceUrl({ community, lang, sourcePath })
-  const seenCodes = new Set()
-  /** @type {WikidotInterwikiLink[]} */
-  const links = []
+  const seenCodes = new Set<string>()
+  const links: WikidotInterwikiLink[] = []
 
   if (!currentUrl) return links
 
@@ -332,23 +299,19 @@ export const extractWikidotInterwikiLinks = ({ community, lang, sourcePath, page
   )
 }
 
-/**
- * @param {{
- *   community: string
- *   lang: string
- *   pagename: string
- *   page?: Parameters<typeof collectTranslationUrls>[0] | null
- *   preventWikidotBaseStyle?: boolean
- * }} input
- * @returns {string}
- */
 export const buildWikidotInterwikiFrameHtml = ({
   community,
   lang,
   pagename,
   page,
   preventWikidotBaseStyle = false
-}) => {
+}: {
+  community: string
+  lang: string
+  pagename: string
+  page?: WikidotInterwikiCromPage | null
+  preventWikidotBaseStyle?: boolean
+}): string => {
   const branches = branchesForCommunity(community)
   const branch = branches[lang]
   const links = extractWikidotInterwikiLinks({
@@ -407,12 +370,10 @@ export const buildWikidotInterwikiFrameHtml = ({
 `
 }
 
-/**
- * @param {typeof fetch} fetchImpl
- * @param {string} sourceUrl
- * @returns {Promise<Parameters<typeof collectTranslationUrls>[0] | null>}
- */
-export const fetchCromInterwikiPage = async (fetchImpl, sourceUrl) => {
+export const fetchCromInterwikiPage = async (
+  fetchImpl: typeof fetch,
+  sourceUrl: string
+): Promise<WikidotInterwikiCromPage | null> => {
   if (!isAllowedCromUrl(sourceUrl)) return null
 
   const queryUrl = new URL("https://api.crom.avn.sh/graphql")

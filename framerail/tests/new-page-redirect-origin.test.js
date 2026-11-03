@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { installWikidotNewPageHelper } from "../src/lib/wikidot/wikidot-new-page-helper.js"
+import { installWikidotNewPageHelper } from "../src/lib/wikidot/wikidot-new-page-helper.ts"
 
 const makeRoot = () => ({
   location: {

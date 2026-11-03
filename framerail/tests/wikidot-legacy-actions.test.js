@@ -14,7 +14,7 @@ import {
   performWikidotMembershipAction,
   planWikidotJoinActionBindings,
   wikidotMembershipActions
-} from "../src/lib/wikidot/wikidot-membership-actions.js"
+} from "../src/lib/wikidot/wikidot-membership-actions.ts"
 
 /** @returns {any} */
 const actionElement = () => {

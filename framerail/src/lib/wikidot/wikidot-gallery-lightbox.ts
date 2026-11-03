@@ -7,32 +7,34 @@
  * navigation.
  */
 
-/**
- * @typedef {{
- *   index: number
- *   anchors: HTMLAnchorElement[]
- *   overlay: HTMLDivElement
- *   lightbox: HTMLDivElement
- *   image: HTMLImageElement
- *   imageBox: HTMLDivElement
- *   loading: HTMLDivElement
- *   nav: HTMLDivElement
- *   previous: HTMLAnchorElement
- *   next: HTMLAnchorElement
- *   dataBox: HTMLDivElement
- *   caption: HTMLSpanElement
- *   currentNumber: HTMLSpanElement
- *   loadSequence: number
- * }} GalleryLightboxState
- */
+type GalleryLightboxState = {
+  index: number
+  anchors: HTMLAnchorElement[]
+  overlay: HTMLDivElement
+  lightbox: HTMLDivElement
+  image: HTMLImageElement
+  imageBox: HTMLDivElement
+  loading: HTMLDivElement
+  nav: HTMLDivElement
+  previous: HTMLAnchorElement
+  next: HTMLAnchorElement
+  dataBox: HTMLDivElement
+  caption: HTMLSpanElement
+  currentNumber: HTMLSpanElement
+  loadSequence: number
+}
 
-const element = (document, tag, id) => {
+const element = <K extends keyof HTMLElementTagNameMap>(
+  document: Document,
+  tag: K,
+  id: string
+): HTMLElementTagNameMap[K] => {
   const value = document.createElement(tag)
   value.id = id
   return value
 }
 
-const galleryAnchors = (anchor) => {
+const galleryAnchors = (anchor: HTMLAnchorElement): HTMLAnchorElement[] => {
   const gallery = anchor.closest(".gallery-box")
   if (!gallery) return []
   return Array.from(gallery.querySelectorAll("a.with-lb")).filter(
@@ -40,7 +42,7 @@ const galleryAnchors = (anchor) => {
   )
 }
 
-const documentHeight = (document) =>
+const documentHeight = (document: Document) =>
   Math.max(
     document.body?.scrollHeight ?? 0,
     document.documentElement?.scrollHeight ?? 0,
@@ -48,9 +50,9 @@ const documentHeight = (document) =>
     document.documentElement?.offsetHeight ?? 0
   )
 
-const galleryViewerFlags = (wikitext) => {
+const galleryViewerFlags = (wikitext: string | null | undefined): boolean[] => {
   if (typeof wikitext !== "string" || wikitext === "") return []
-  const flags = []
+  const flags: boolean[] = []
   const opening = /^[\t ]*\[\[gallery(?:[\t ]+([^\]\r\n]*))?\]\][\t ]*$/gimu
   for (const match of wikitext.matchAll(opening)) {
     const argumentsText = match[1] ?? ""
@@ -63,7 +65,7 @@ const galleryViewerFlags = (wikitext) => {
   return flags
 }
 
-const galleryRequirementIndex = (gallery) => {
+const galleryRequirementIndex = (gallery: Element): number | null => {
   const match = /^gallery-box-(\d+)$/u.exec(gallery.id)
   if (!match) return null
   const index = Number(match[1]) - 1
@@ -78,18 +80,17 @@ const galleryRequirementIndex = (gallery) => {
  * `viewer="false"` boundary without changing the public rendered DOM:
  * Wikidot retains `a.with-lb` in that state but omits the LightBox
  * initializer.
- *
- * @param {HTMLElement} root
- * @param {string | null | undefined} initialWikitext
  */
-export const wikidotGalleryLightbox = (root, initialWikitext) => {
+export const wikidotGalleryLightbox = (
+  root: HTMLElement,
+  initialWikitext: string | null | undefined
+) => {
   const document = root.ownerDocument
   const window = document.defaultView
   if (!window) return {}
   let viewerFlags = galleryViewerFlags(initialWikitext)
 
-  /** @type {GalleryLightboxState | null} */
-  let state = null
+  let state: GalleryLightboxState | null = null
 
   const close = () => {
     if (!state) return
@@ -99,13 +100,13 @@ export const wikidotGalleryLightbox = (root, initialWikitext) => {
     state = null
   }
 
-  const preload = (href) => {
+  const preload = (href: string | undefined) => {
     if (!href) return
     const image = new window.Image()
     image.src = href
   }
 
-  const showIndex = (index) => {
+  const showIndex = (index: number) => {
     if (!state || index < 0 || index >= state.anchors.length) return
     state.index = index
     const sequence = ++state.loadSequence
@@ -122,112 +123,84 @@ export const wikidotGalleryLightbox = (root, initialWikitext) => {
     const loader = new window.Image()
     loader.addEventListener("load", () => {
       if (sequence !== state?.loadSequence) return
+      const active = state as GalleryLightboxState
       const width = loader.naturalWidth || loader.width
       const height = loader.naturalHeight || loader.height
-      state.image.src = anchor.href
-      state.image.alt = anchor.querySelector("img")?.getAttribute("alt") ?? ""
-      state.imageBox.style.width = `${width + 20}px`
-      state.imageBox.style.height = `${height + 20}px`
-      state.dataBox.style.width = `${width}px`
-      state.loading.style.display = "none"
-      state.image.style.display = "block"
-      state.nav.style.display = "block"
-      state.previous.style.display = index > 0 ? "block" : "none"
-      state.next.style.display = index + 1 < state.anchors.length ? "block" : "none"
-      state.caption.textContent = anchor.title || ""
-      if (state.anchors.length > 1) {
-        state.currentNumber.textContent = `image ${index + 1} of ${state.anchors.length}`
-        state.currentNumber.style.display = "block"
+      active.image.src = anchor.href
+      active.image.alt = anchor.querySelector("img")?.getAttribute("alt") ?? ""
+      active.imageBox.style.width = `${width + 20}px`
+      active.imageBox.style.height = `${height + 20}px`
+      active.dataBox.style.width = `${width}px`
+      active.loading.style.display = "none"
+      active.image.style.display = "block"
+      active.nav.style.display = "block"
+      active.previous.style.display = index > 0 ? "block" : "none"
+      active.next.style.display = index + 1 < active.anchors.length ? "block" : "none"
+      active.caption.textContent = anchor.title || ""
+      if (active.anchors.length > 1) {
+        active.currentNumber.textContent = `image ${index + 1} of ${active.anchors.length}`
+        active.currentNumber.style.display = "block"
       }
-      state.dataBox.style.display = "block"
+      active.dataBox.style.display = "block"
 
-      preload(state.anchors[index - 1]?.href)
-      preload(state.anchors[index + 1]?.href)
+      preload(active.anchors[index - 1]?.href)
+      preload(active.anchors[index + 1]?.href)
     })
     // Wikidot's lightbox has no image-error recovery callback.  Intentionally
     // leave the loading boundary visible when the selected image fails.
     loader.src = anchor.href
   }
 
-  /** @param {HTMLAnchorElement} anchor */
-  const open = (anchor) => {
+  const open = (anchor: HTMLAnchorElement) => {
     const anchors = galleryAnchors(anchor)
     const index = anchors.indexOf(anchor)
     if (index < 0 || anchors.length === 0) return
     close()
 
-    const overlay = /** @type {HTMLDivElement} */ (
-      element(document, "div", "jquery-overlay")
-    )
+    const overlay = element(document, "div", "jquery-overlay")
     overlay.style.display = "block"
     overlay.style.backgroundColor = "#000"
     overlay.style.opacity = "0.8"
     overlay.style.height = `${documentHeight(document)}px`
 
-    const lightbox = /** @type {HTMLDivElement} */ (
-      element(document, "div", "jquery-lightbox")
-    )
+    const lightbox = element(document, "div", "jquery-lightbox")
     lightbox.style.display = "block"
     lightbox.style.top = `${window.scrollY + 10}px`
 
-    const imageBox = /** @type {HTMLDivElement} */ (
-      element(document, "div", "lightbox-container-image-box")
-    )
-    const imageContainer = /** @type {HTMLDivElement} */ (
-      element(document, "div", "lightbox-container-image")
-    )
-    const image = /** @type {HTMLImageElement} */ (
-      element(document, "img", "lightbox-image")
-    )
+    const imageBox = element(document, "div", "lightbox-container-image-box")
+    const imageContainer = element(document, "div", "lightbox-container-image")
+    const image = element(document, "img", "lightbox-image")
     image.style.display = "none"
 
-    const loading = /** @type {HTMLDivElement} */ (
-      element(document, "div", "lightbox-loading")
-    )
-    const loadingLink = /** @type {HTMLAnchorElement} */ (
-      element(document, "a", "lightbox-loading-link")
-    )
+    const loading = element(document, "div", "lightbox-loading")
+    const loadingLink = element(document, "a", "lightbox-loading-link")
     loadingLink.href = "#"
     loading.append(loadingLink)
 
-    const nav = /** @type {HTMLDivElement} */ (element(document, "div", "lightbox-nav"))
+    const nav = element(document, "div", "lightbox-nav")
     nav.style.display = "none"
-    const previous = /** @type {HTMLAnchorElement} */ (
-      element(document, "a", "lightbox-nav-btnPrev")
-    )
+    const previous = element(document, "a", "lightbox-nav-btnPrev")
     previous.href = "#"
     previous.setAttribute("aria-label", "previous image")
-    const next = /** @type {HTMLAnchorElement} */ (
-      element(document, "a", "lightbox-nav-btnNext")
-    )
+    const next = element(document, "a", "lightbox-nav-btnNext")
     next.href = "#"
     next.setAttribute("aria-label", "next image")
     nav.append(previous, next)
     imageContainer.append(image, loading, nav)
     imageBox.append(imageContainer)
 
-    const dataBox = /** @type {HTMLDivElement} */ (
-      element(document, "div", "lightbox-container-image-data-box")
-    )
+    const dataBox = element(document, "div", "lightbox-container-image-data-box")
     dataBox.style.display = "none"
-    const data = /** @type {HTMLDivElement} */ (
-      element(document, "div", "lightbox-container-image-data")
+    const data = element(document, "div", "lightbox-container-image-data")
+    const details = element(document, "div", "lightbox-image-details")
+    const caption = element(document, "span", "lightbox-image-details-caption")
+    const currentNumber = element(
+      document,
+      "span",
+      "lightbox-image-details-currentNumber"
     )
-    const details = /** @type {HTMLDivElement} */ (
-      element(document, "div", "lightbox-image-details")
-    )
-    const caption = /** @type {HTMLSpanElement} */ (
-      element(document, "span", "lightbox-image-details-caption")
-    )
-    const currentNumber = /** @type {HTMLSpanElement} */ (
-      element(document, "span", "lightbox-image-details-currentNumber")
-    )
-    const secureNavigation = /** @type {HTMLDivElement} */ (
-      element(document, "div", "lightbox-secNav")
-    )
-    const closeButton = /** @type {HTMLAnchorElement} */ (
-      element(document, "a", "lightbox-secNav-btnClose")
-    )
+    const secureNavigation = element(document, "div", "lightbox-secNav")
+    const closeButton = element(document, "a", "lightbox-secNav-btnClose")
     closeButton.href = "#"
     closeButton.setAttribute("aria-label", "close image viewer")
     details.append(caption, currentNumber)
@@ -254,7 +227,7 @@ export const wikidotGalleryLightbox = (root, initialWikitext) => {
       loadSequence: 0
     }
 
-    const navigation = (delta) => (event) => {
+    const navigation = (delta: number) => (event: Event) => {
       event.preventDefault()
       if (state) showIndex(state.index + delta)
     }
@@ -272,7 +245,7 @@ export const wikidotGalleryLightbox = (root, initialWikitext) => {
     showIndex(index)
   }
 
-  const click = (event) => {
+  const click = (event: MouseEvent) => {
     const target =
       event.target instanceof Element ? event.target.closest("a.with-lb") : null
     if (!(target instanceof HTMLAnchorElement) || !root.contains(target)) return
@@ -285,7 +258,7 @@ export const wikidotGalleryLightbox = (root, initialWikitext) => {
     open(target)
   }
 
-  const keydown = (event) => {
+  const keydown = (event: KeyboardEvent) => {
     if (!state) return
     const key = event.key.toLowerCase()
     if (["escape", "c", "x"].includes(key)) {
@@ -304,7 +277,7 @@ export const wikidotGalleryLightbox = (root, initialWikitext) => {
   root.addEventListener("click", click)
   document.addEventListener("keydown", keydown)
   return {
-    update(wikitext) {
+    update(wikitext: string | null | undefined) {
       viewerFlags = galleryViewerFlags(wikitext)
       close()
     },

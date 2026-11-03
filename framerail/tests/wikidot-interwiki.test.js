@@ -4,7 +4,7 @@ import test from "node:test"
 import {
   buildWikidotInterwikiFrameHtml,
   extractWikidotInterwikiLinks
-} from "../src/lib/wikidot/wikidot-interwiki.js"
+} from "../src/lib/wikidot/wikidot-interwiki.ts"
 import { installWikidotInterwikiStyleRuntime } from "../src/lib/wikidot/wikidot-interwiki-style-runtime.js"
 import { localizeWikidotThemeUrl } from "../src/lib/wikidot/wikidot-styleframe-contract.js"
 import {

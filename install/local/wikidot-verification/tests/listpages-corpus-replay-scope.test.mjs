@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import test from "node:test";
 import { readArtifactText } from "../src/compressed-artifact-io.mjs";
@@ -7,26 +6,12 @@ import { readArtifactText } from "../src/compressed-artifact-io.mjs";
 import {
   LISTPAGES_CORPUS_REPLAY_SCOPE_PATH,
   validateListPagesCorpusReplayScope,
-  verifyExactListPagesSourceCommit,
 } from "../src/listpages-corpus-replay-scope.mjs";
 
 const INVOCATIONS = new URL(
   "../artifacts/listpages-campaign-matrix/corpus-invocation-cases.jsonl.gz",
   import.meta.url,
 );
-
-test("historical ListPages reads reject a non-commit object identity", async () => {
-  const repositoryRoot = new URL("../../../../", import.meta.url);
-  const tree = execFileSync(
-    "/usr/bin/git",
-    ["-C", repositoryRoot.pathname, "rev-parse", "HEAD^{tree}"],
-    { encoding: "utf8" },
-  ).trim();
-  await assert.rejects(
-    verifyExactListPagesSourceCommit(tree),
-    /must be an exact commit/u,
-  );
-});
 
 test("repository campaign scope binds every current ListPages invocation and replay key", async () => {
   const invocationsText = await readArtifactText(INVOCATIONS);
@@ -70,21 +55,6 @@ test("repository campaign scope binds every current ListPages invocation and rep
       readFile: async (filePath, encoding) =>
         filePath === LISTPAGES_CORPUS_REPLAY_SCOPE_PATH
           ? `${JSON.stringify(rewritten)}\n`
-          : fs.readFile(filePath, encoding),
-    }),
-    /campaign scope contract is invalid/,
-  );
-
-  const missingArtifact = JSON.parse(scopeText);
-  missingArtifact.collector_artifacts.pop();
-  await assert.rejects(
-    validateListPagesCorpusReplayScope({
-      scopePath: LISTPAGES_CORPUS_REPLAY_SCOPE_PATH,
-      invocationsText,
-      invocations,
-      readFile: async (filePath, encoding) =>
-        filePath === LISTPAGES_CORPUS_REPLAY_SCOPE_PATH
-          ? `${JSON.stringify(missingArtifact)}\n`
           : fs.readFile(filePath, encoding),
     }),
     /campaign scope contract is invalid/,

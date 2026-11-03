@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
@@ -7,12 +6,15 @@ import { createJiti } from "jiti"
 
 const libRoot = fileURLToPath(new URL("../src/lib/", import.meta.url))
 const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
+/** @type {any} */
 const { client } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/deepwell/index.ts", import.meta.url))
 )
+/** @type {any} */
 const { getPageOne, getPagesMeta, savePageOne } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/resource-methods.ts", import.meta.url))
 )
+/** @type {any} */
 const { serializeMethodResponse } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/protocol.ts", import.meta.url))
 )
@@ -43,22 +45,28 @@ test("pages.get_meta publishes authoritative display names only after view autho
     restoreEnvironment("XML_RPC_WRITE_PASSWORD", originalPassword)
   })
 
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "site_get") return { site_id: 6000005 }
-    if (method === "login") return { session_token: "fixture-session-token" }
-    if (method === "session_get") return { user_id: 123 }
-    if (method === "page_get") return page
-    if (method === "page_view") {
-      return { type: "found", data: { page: { slug: page.slug } } }
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "site_get") return { site_id: 6000005 }
+      if (method === "login") return { session_token: "fixture-session-token" }
+      if (method === "session_get") return { user_id: 123 }
+      if (method === "page_get") return page
+      if (method === "page_view") {
+        return { type: "found", data: { page: { slug: page.slug } } }
+      }
+      if (method === "page_lifecycle_identity") {
+        return { created_by: "Snapshot Creator", updated_by: "Native Updater" }
+      }
+      if (method === "parent_get_direct_metadata") return null
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "page_lifecycle_identity") {
-      return { created_by: "Snapshot Creator", updated_by: "Native Updater" }
-    }
-    if (method === "parent_get_direct_metadata") return null
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const result = await getPagesMeta(
     {
@@ -90,7 +98,10 @@ test("pages.get_meta faults the whole call when a required display name is unava
   })
 
   const secondPage = { ...page, page_id: 3000174, slug: "scp-174" }
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     if (method === "site_get") return { site_id: 6000005 }
     if (method === "login") return { session_token: "fixture-session-token" }
     if (method === "session_get") return { user_id: 123 }
@@ -117,7 +128,7 @@ test("pages.get_meta faults the whole call when a required display name is unava
       },
       "192.0.2.74"
     ),
-    (error) =>
+    /** @param {any} error */ (error) =>
       error.faultCode === -32603 &&
       error.faultString === "Page lifecycle identity unavailable"
   )
@@ -130,8 +141,9 @@ test("page lifecycle lookup is not attempted when view authorization fails", asy
     client.request = originalRequest
   })
 
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     calls.push(method)
     if (method === "site_get") return { site_id: 6000005 }
     if (method === "login") return { session_token: "fixture-session-token" }
@@ -159,7 +171,10 @@ test("pages.get_one serializes display names instead of lifecycle user IDs", asy
     client.request = originalRequest
   })
 
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     if (method === "site_get") return { site_id: 6000005 }
     if (method === "login") return { session_token: "fixture-session-token" }
     if (method === "session_get") return { user_id: 123 }
@@ -209,8 +224,12 @@ test("pages.save_one performs no write when lifecycle identity preflight is unav
     client.request = originalRequest
   })
 
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     calls.push(method)
     if (method === "site_get") return { site_id: 6000005 }
     if (method === "page_get") {
@@ -250,7 +269,7 @@ test("pages.save_one performs no write when lifecycle identity preflight is unav
       },
       "192.0.2.76"
     ),
-    (error) =>
+    /** @param {any} error */ (error) =>
       error.faultCode === -32603 &&
       error.faultString === "Page lifecycle identity unavailable"
   )
@@ -268,8 +287,9 @@ test("pages.save_one denies a view-only actor before lifecycle identity lookup",
     client.request = originalRequest
   })
 
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     calls.push(method)
     if (method === "site_get") return { site_id: 6000005 }
     if (method === "page_get") {
@@ -301,7 +321,7 @@ test("pages.save_one denies a view-only actor before lifecycle identity lookup",
       },
       "192.0.2.80"
     ),
-    (error) =>
+    /** @param {any} error */ (error) =>
       error.faultCode === 403 &&
       error.faultString === "XML-RPC user is not allowed to edit this page"
   )
@@ -317,8 +337,9 @@ test("pages.save_one preflights a new page actor before page creation", async (t
     client.request = originalRequest
   })
 
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     calls.push(method)
     if (method === "site_get") return { site_id: 6000005 }
     if (method === "page_get") return null
@@ -343,7 +364,7 @@ test("pages.save_one preflights a new page actor before page creation", async (t
       },
       "192.0.2.79"
     ),
-    (error) =>
+    /** @param {any} error */ (error) =>
       error.faultCode === -32603 &&
       error.faultString === "Page lifecycle identity unavailable"
   )
@@ -358,8 +379,12 @@ test("pages.save_one reuses preflight names after mutation", async (t) => {
     client.request = originalRequest
   })
 
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     calls.push(method)
     if (method === "site_get") return { site_id: 6000005 }
     if (method === "page_get") {
@@ -433,6 +458,7 @@ test("pages.save_one reuses preflight names after mutation", async (t) => {
   )
 })
 
+/** @param {any} t */
 const installWriteCredentials = (t) => {
   const originalUsername = process.env.XML_RPC_WRITE_USERNAME
   const originalPassword = process.env.XML_RPC_WRITE_PASSWORD
@@ -444,6 +470,7 @@ const installWriteCredentials = (t) => {
   })
 }
 
+/** @param {any} name @param {any} value */
 const restoreEnvironment = (name, value) => {
   if (value === undefined) delete process.env[name]
   else process.env[name] = value

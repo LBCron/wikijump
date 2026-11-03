@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { createServer as createHttpServer } from "node:http"
 import { fileURLToPath } from "node:url"
@@ -102,6 +101,7 @@ const permissionsPage = {
   data: { ...pageBase, banned: false }
 }
 
+/** @param {any} route */
 const articleView = (route) => {
   const slug = route?.slug
   const wikijumpLayout = [
@@ -136,6 +136,7 @@ const deepwellInfo = {
   compile_info: { rustc_version: "rustc fixture" }
 }
 
+/** @param {any} method @param {any} params */
 const rpcResult = (method, params) => {
   if (method === "article_view") return articleView(params.route)
   if (method === "article_view_cache_metadata") {
@@ -151,6 +152,7 @@ const rpcResult = (method, params) => {
   throw new Error(`Unexpected Deepwell method ${method}`)
 }
 
+/** @param {any} server */
 const listen = async (server) => {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
   const address = server.address()
@@ -158,12 +160,14 @@ const listen = async (server) => {
   return address.port
 }
 
+/** @param {any} request */
 const readBody = async (request) => {
   const chunks = []
   for await (const chunk of request) chunks.push(Buffer.from(chunk))
   return Buffer.concat(chunks).toString("utf8")
 }
 
+/** @param {any} request @param {any} response */
 const deepwellHandler = async (request, response) => {
   let rpcRequest
   try {
@@ -191,6 +195,7 @@ const deepwellHandler = async (request, response) => {
   }
 }
 
+/** @param {any} html @param {any} locale */
 const assertWikidotLanguageDocument = (html, locale) => {
   assert.match(
     html,
@@ -207,6 +212,7 @@ const assertWikidotLanguageDocument = (html, locale) => {
   )
 }
 
+/** @param {any} html @param {any} locale */
 const assertWikijumpLanguageDocument = (html, locale) => {
   assert.match(html, new RegExp(`<html lang="${locale}">`, "u"))
   assert.doesNotMatch(
@@ -215,11 +221,17 @@ const assertWikijumpLanguageDocument = (html, locale) => {
   )
 }
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let previousEnvironment
+/** @type {any} */
 let deepwellServer
+/** @type {any} */
 let vite
+/** @type {any} */
 let framerailServer
+/** @type {any} */
 let baseUrl
 
 before(async () => {

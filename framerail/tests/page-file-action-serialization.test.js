@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -7,10 +6,15 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let actions
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
 
 before(async () => {
@@ -100,8 +104,9 @@ test("anonymous file upload failures remain serializable action results", async 
 })
 
 test("blob upload failures before commit remain serializable action results", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") return { user_id: 29 }
     if (method === "page_edit_permission") return { can_edit: true }
@@ -123,13 +128,14 @@ test("blob upload failures before commit remain serializable action results", as
 
 test("public file upload cancels a pending blob when the PUT fails", async (t) => {
   const originalFetch = globalThis.fetch
+  /** @type {any[]} */
   const events = []
   t.after(() => {
     client.request = originalClientRequest
     globalThis.fetch = originalFetch
   })
 
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     events.push({ kind: "rpc", method, params, context })
     if (method === "session_get") return { user_id: 29 }
     if (method === "page_edit_permission") return { can_edit: true }
@@ -167,13 +173,14 @@ test("public file upload cancels a pending blob when the PUT fails", async (t) =
 
 test("public file upload commits the pending blob without returning the File object", async (t) => {
   const originalFetch = globalThis.fetch
+  /** @type {any[]} */
   const events = []
   t.after(() => {
     client.request = originalClientRequest
     globalThis.fetch = originalFetch
   })
 
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     events.push({ kind: "rpc", method, params, context })
     if (method === "session_get") return { user_id: 29 }
     if (method === "page_edit_permission") return { can_edit: true }

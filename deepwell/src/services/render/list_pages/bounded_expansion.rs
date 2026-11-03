@@ -24,7 +24,7 @@ use crate::services::ServiceContext;
 use crate::services::page_query::{
     AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields,
     IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
-    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    PageTypeSelector, PaginationSelector, TagCondition,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::score::ScoreValue;
@@ -663,7 +663,6 @@ async fn select_child_content_pages(
             score: &[],
             votes: &[],
             offset,
-            range: RangeSelector::Others,
             name: None,
             slug: None,
             slugs: &[],
@@ -677,7 +676,6 @@ async fn select_child_content_pages(
                     .expect("supported ListPages limit should fit in u8"),
                 reversed: false,
             },
-            variables: &[],
             fields: FoundPageFields {
                 page_category_id: true,
                 ..FoundPageFields::default()

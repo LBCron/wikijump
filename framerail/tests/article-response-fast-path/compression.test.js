@@ -6,8 +6,7 @@ import {
   createCountingStore,
   createFastPathFixtureStore,
   fastPathHeaders,
-  // eslint-disable-next-line no-redeclare
-  fetch,
+  fetch as rawFetch,
   gunzip,
   largeHtmlBody,
   requestRaw,
@@ -18,7 +17,7 @@ test("article response fast path serves a hot anonymous article hit without call
   const stores = await createFastPathFixtureStore()
 
   await withServer(stores, async ({ baseUrl, handlerCalls }) => {
-    const response = await fetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
+    const response = await rawFetch(`${baseUrl}/scp-173`, { headers: fastPathHeaders })
 
     assert.equal(response.status, 200)
     assert.equal(response.headers.get("content-type"), "text/html; charset=utf-8")

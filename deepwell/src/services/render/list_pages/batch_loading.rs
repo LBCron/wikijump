@@ -26,7 +26,7 @@ use crate::services::ServiceContext;
 use crate::services::page_query::{
     AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields, FoundPageRow,
     IncludedCategories, PageParentSelector, PageQuery, PageTypeSelector,
-    PaginationSelector, RangeSelector, TagCondition,
+    PaginationSelector, TagCondition,
 };
 use crate::services::render::runtime::RenderRuntime;
 use crate::services::render::service::{
@@ -91,7 +91,6 @@ impl RenderService {
             score: &[],
             votes: &[],
             offset: 0,
-            range: RangeSelector::Current,
             name: None,
             slug: None,
             slugs,
@@ -103,7 +102,6 @@ impl RenderService {
                 per_page: PaginationSelector::default().per_page,
                 reversed: false,
             },
-            variables: &[],
             fields,
         };
         let found = RenderRuntime::new(ctx)

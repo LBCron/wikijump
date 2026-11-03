@@ -133,7 +133,6 @@ async fn page_query_orders_by_page_slug_without_category_prefix() {
             score: &[],
             votes: &[],
             offset: 0,
-            range: RangeSelector::Current,
             name: None,
             slug: None,
             slugs: &[],
@@ -147,7 +146,6 @@ async fn page_query_orders_by_page_slug_without_category_prefix() {
                 limit: Some(10),
                 ..Default::default()
             },
-            variables: &[],
             fields: FoundPageFields {
                 slug: true,
                 ..Default::default()
@@ -218,7 +216,6 @@ async fn tag_page_queries_plan_with_their_values_and_leave_the_render_on_cached_
             score: &[],
             votes: &[],
             offset: 0,
-            range: RangeSelector::Current,
             name: None,
             slug: None,
             slugs: &[],
@@ -229,7 +226,6 @@ async fn tag_page_queries_plan_with_their_values_and_leave_the_render_on_cached_
                 limit: Some(10),
                 ..Default::default()
             },
-            variables: &[],
             fields: FoundPageFields {
                 slug: true,
                 ..Default::default()
@@ -344,7 +340,6 @@ async fn page_query_revision_order_keeps_unrequested_count_out_of_results() {
         score: &[],
         votes: &[],
         offset: 0,
-        range: RangeSelector::Current,
         name: None,
         slug: None,
         slugs: &fixture_slugs,
@@ -358,7 +353,6 @@ async fn page_query_revision_order_keeps_unrequested_count_out_of_results() {
             limit: Some(10),
             ..Default::default()
         },
-        variables: &[],
         fields: FoundPageFields {
             slug: true,
             revision_count: false,
@@ -486,7 +480,6 @@ async fn page_query_page_slug_ties_follow_wikidot_source_identity() {
         score: &[],
         votes: &[],
         offset: 0,
-        range: RangeSelector::Current,
         name: None,
         slug: None,
         slugs: &fixture_slugs,
@@ -500,7 +493,6 @@ async fn page_query_page_slug_ties_follow_wikidot_source_identity() {
             limit: Some(10),
             ..Default::default()
         },
-        variables: &[],
         fields: FoundPageFields {
             slug: true,
             ..Default::default()
@@ -634,7 +626,6 @@ async fn page_query_equal_sort_values_follow_wikidot_source_identity() {
         score: &[],
         votes: &[],
         offset: 0,
-        range: RangeSelector::Current,
         name: None,
         slug: None,
         slugs: &fixture_slugs,
@@ -648,7 +639,6 @@ async fn page_query_equal_sort_values_follow_wikidot_source_identity() {
             limit: Some(10),
             ..Default::default()
         },
-        variables: &[],
         fields: FoundPageFields {
             slug: true,
             ..Default::default()
@@ -790,7 +780,6 @@ async fn page_query_created_by_uses_earliest_available_revision() {
             score: &[],
             votes: &[],
             offset: 0,
-            range: RangeSelector::Current,
             name: None,
             slug: None,
             slugs: &[],
@@ -804,7 +793,6 @@ async fn page_query_created_by_uses_earliest_available_revision() {
                 limit: Some(10),
                 ..Default::default()
             },
-            variables: &[],
             fields: FoundPageFields {
                 slug: true,
                 created_by: true,
@@ -859,7 +847,6 @@ async fn page_query_created_by_uses_earliest_available_revision() {
             score: &[],
             votes: &[],
             offset: 0,
-            range: RangeSelector::Current,
             name: None,
             slug: None,
             slugs: &[],
@@ -873,7 +860,6 @@ async fn page_query_created_by_uses_earliest_available_revision() {
                 limit: Some(10),
                 ..Default::default()
             },
-            variables: &[],
             fields: FoundPageFields {
                 slug: true,
                 created_by: true,
@@ -961,7 +947,6 @@ async fn page_query_score_order_returns_results() {
         score: &[],
         votes: &[],
         offset: 0,
-        range: RangeSelector::Current,
         name: None,
         slug: None,
         slugs: &[],
@@ -972,7 +957,6 @@ async fn page_query_score_order_returns_results() {
         }),
         candidate_limit: None,
         pagination: PaginationSelector::default(),
-        variables: &[],
         fields: FoundPageFields {
             slug: true,
             score: true,
@@ -1198,7 +1182,6 @@ async fn page_query_vote_filter_and_order_use_imported_snapshot_vote_counts() {
         score: &[],
         votes: &[],
         offset: 0,
-        range: RangeSelector::Current,
         name: None,
         slug: None,
         slugs: &fixture_slugs,
@@ -1212,7 +1195,6 @@ async fn page_query_vote_filter_and_order_use_imported_snapshot_vote_counts() {
             limit: Some(20),
             ..Default::default()
         },
-        variables: &[],
         fields: FoundPageFields {
             slug: true,
             ..Default::default()
@@ -1438,7 +1420,6 @@ async fn page_query_data_form_field_ordering_uses_static_form_values() {
         score: &[],
         votes: &[],
         offset: 0,
-        range: RangeSelector::Current,
         name: None,
         slug: None,
         slugs: &[],
@@ -1455,7 +1436,6 @@ async fn page_query_data_form_field_ordering_uses_static_form_values() {
             limit: Some(20),
             ..Default::default()
         },
-        variables: &[],
         fields: FoundPageFields {
             slug: true,
             ..Default::default()
@@ -1688,7 +1668,6 @@ async fn page_query_score_filter_plans_preserve_imported_and_local_vote_semantic
         score: &[],
         votes: &[],
         offset: 0,
-        range: RangeSelector::Current,
         name: None,
         slug: None,
         slugs: &[],
@@ -1702,7 +1681,6 @@ async fn page_query_score_filter_plans_preserve_imported_and_local_vote_semantic
             limit: Some(1_000),
             ..PaginationSelector::default()
         },
-        variables: &[],
         fields: FoundPageFields {
             slug: true,
             ..FoundPageFields::default()
@@ -1906,7 +1884,6 @@ async fn page_query_find_with_metadata_marks_sql_limited_results() {
             score: &[],
             votes: &[],
             offset: 0,
-            range: RangeSelector::Current,
             name: None,
             slug: None,
             slugs: &[],
@@ -1920,7 +1897,6 @@ async fn page_query_find_with_metadata_marks_sql_limited_results() {
                 limit: Some(1),
                 ..Default::default()
             },
-            variables: &[],
             fields: FoundPageFields {
                 slug: true,
                 ..Default::default()
@@ -1992,7 +1968,6 @@ async fn page_query_find_with_metadata_marks_deferred_score_ordering() {
             score: &[],
             votes: &[],
             offset: 0,
-            range: RangeSelector::Current,
             name: None,
             slug: None,
             slugs: &[],
@@ -2006,7 +1981,6 @@ async fn page_query_find_with_metadata_marks_deferred_score_ordering() {
                 limit: Some(1),
                 ..Default::default()
             },
-            variables: &[],
             fields: FoundPageFields {
                 slug: true,
                 score: true,
@@ -2082,7 +2056,6 @@ async fn page_query_data_form_candidate_cap_marks_partial_result_incomplete() {
             score: &[],
             votes: &[],
             offset: 0,
-            range: RangeSelector::Current,
             name: None,
             slug: None,
             slugs: &[],
@@ -2096,7 +2069,6 @@ async fn page_query_data_form_candidate_cap_marks_partial_result_incomplete() {
                 limit: Some(20),
                 ..Default::default()
             },
-            variables: &[],
             fields: FoundPageFields {
                 slug: true,
                 ..Default::default()

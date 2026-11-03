@@ -597,9 +597,7 @@ mod tests {
             .expect("the first bounded scan should be complete");
         let second = cache
             .get_or_init_orphaned(|| async {
-                panic!("a cached orphaned-pages result must not query again");
-                #[allow(unreachable_code)]
-                Ok(Some(Vec::new()))
+                panic!("a cached orphaned-pages result must not query again")
             })
             .await
             .expect("the cached orphaned-pages load should succeed")

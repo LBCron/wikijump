@@ -30,7 +30,6 @@ use crate::services::{FilterService, SiteService, UserService};
 use crate::types::{AliasType, Reference};
 use crate::utils::normalize_slug_without_category_separator;
 use crate::utils::now;
-use paste::paste;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, DeleteResult, EntityTrait, QueryFilter, Set,
 };
@@ -274,16 +273,6 @@ impl AliasService {
             .or_raise(make_error)?;
 
         Ok(alias)
-    }
-
-    #[inline]
-    #[allow(dead_code)]
-    pub async fn get(
-        ctx: &ServiceContext<'_>,
-        alias_type: AliasType,
-        slug: &str,
-    ) -> Result<AliasModel> {
-        find_or_error!(Self::get_optional(ctx, alias_type, slug), "alias", Alias)
     }
 
     #[inline]

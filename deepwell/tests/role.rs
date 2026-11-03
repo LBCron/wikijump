@@ -530,7 +530,7 @@ async fn grant_role_management(runner: &TestRunner, site_id: i64, user_id: i64, 
     .expect("Failed to grant role manager role to user");
 }
 
-async fn create_role(
+async fn create_role_via_service_bypassing_endpoint_validation(
     runner: &TestRunner,
     site_id: i64,
     name: &str,
@@ -616,7 +616,10 @@ async fn role_create_and_list() {
 
     assert_contains_error!(err, ErrorType::RoleNotFound);
 
-    let root_role = create_role(&runner, f.site_id, "Root", None).await;
+    let root_role = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Root", None,
+    )
+    .await;
 
     let role = run_endpoint!(
         runner,
@@ -649,7 +652,10 @@ async fn role_update_info() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    let role = create_role(&runner, f.site_id, "OldName", None).await;
+    let role = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "OldName", None,
+    )
+    .await;
 
     let updated = run_endpoint!(
         runner,
@@ -673,10 +679,24 @@ async fn role_update_info() {
 async fn role_mutations_require_request_actor_with_role_edit_permission() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
-    let root_role = create_role(&runner, f.site_id, "Root", None).await;
-    let other_root = create_role(&runner, f.site_id, "OtherRoot", None).await;
-    let child_role =
-        create_role(&runner, f.site_id, "Child", Some(root_role.role_id)).await;
+    let root_role = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Root", None,
+    )
+    .await;
+    let other_root = create_role_via_service_bypassing_endpoint_validation(
+        &runner,
+        f.site_id,
+        "OtherRoot",
+        None,
+    )
+    .await;
+    let child_role = create_role_via_service_bypassing_endpoint_validation(
+        &runner,
+        f.site_id,
+        "Child",
+        Some(root_role.role_id),
+    )
+    .await;
 
     runner.set_request_context(RequestContext::default());
     let err = run_endpoint_err!(
@@ -774,10 +794,19 @@ async fn role_update_permissions_respect_hierarchy() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    let parent = create_role(&runner, f.site_id, "Parent", None).await;
+    let parent = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Parent", None,
+    )
+    .await;
     set_role_perms(&runner, f.site_id, parent.role_id, &["view", "edit"], false).await;
 
-    let child = create_role(&runner, f.site_id, "Child", Some(parent.role_id)).await;
+    let child = create_role_via_service_bypassing_endpoint_validation(
+        &runner,
+        f.site_id,
+        "Child",
+        Some(parent.role_id),
+    )
+    .await;
     set_role_perms(&runner, f.site_id, child.role_id, &["view"], false).await;
 
     let err = run_endpoint_err!(
@@ -839,9 +868,24 @@ async fn role_delete() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    let role_a = create_role(&runner, f.site_id, "Role A", None).await;
-    let role_b = create_role(&runner, f.site_id, "Role B", Some(role_a.role_id)).await;
-    let _role_c = create_role(&runner, f.site_id, "Role C", Some(role_b.role_id)).await;
+    let role_a = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Role A", None,
+    )
+    .await;
+    let role_b = create_role_via_service_bypassing_endpoint_validation(
+        &runner,
+        f.site_id,
+        "Role B",
+        Some(role_a.role_id),
+    )
+    .await;
+    let _role_c = create_role_via_service_bypassing_endpoint_validation(
+        &runner,
+        f.site_id,
+        "Role C",
+        Some(role_b.role_id),
+    )
+    .await;
 
     let err = run_endpoint_err!(
         runner,
@@ -914,7 +958,10 @@ async fn grant_and_revoke_role() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    let role = create_role(&runner, f.site_id, "Member", None).await;
+    let role = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Member", None,
+    )
+    .await;
 
     let user_role = run_endpoint!(
         runner,
@@ -980,7 +1027,10 @@ async fn grant_and_revoke_role() {
 async fn role_assignment_and_membership_require_role_assign() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
-    let role = create_role(&runner, f.site_id, "Member", None).await;
+    let role = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Member", None,
+    )
+    .await;
 
     let membership_metadata = json!({
         "accepted": {
@@ -1209,7 +1259,13 @@ async fn role_assignment_and_membership_require_role_assign() {
 async fn role_reparent_and_revoke_validate_role_site() {
     let mut runner = TestRunner::setup().await;
     let site_a = RoleFixture::setup(&mut runner).await;
-    let site_a_role = create_role(&runner, site_a.site_id, "Site A Role", None).await;
+    let site_a_role = create_role_via_service_bypassing_endpoint_validation(
+        &runner,
+        site_a.site_id,
+        "Site A Role",
+        None,
+    )
+    .await;
 
     let granted = run_endpoint!(
         runner,
@@ -1226,7 +1282,13 @@ async fn role_reparent_and_revoke_validate_role_site() {
     assert_eq!(granted.assigned_by, site_a.user_id);
 
     let site_b = RoleFixture::setup(&mut runner).await;
-    let site_b_parent = create_role(&runner, site_b.site_id, "Site B Parent", None).await;
+    let site_b_parent = create_role_via_service_bypassing_endpoint_validation(
+        &runner,
+        site_b.site_id,
+        "Site B Parent",
+        None,
+    )
+    .await;
 
     let err = run_endpoint_err!(
         runner,
@@ -1285,7 +1347,10 @@ async fn role_grant_expiration() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    let role = create_role(&runner, f.site_id, "Member", None).await;
+    let role = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Member", None,
+    )
+    .await;
 
     let expired = run_endpoint!(
         runner,
@@ -1325,10 +1390,16 @@ async fn role_reparent() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    let parent = create_role(&runner, f.site_id, "Parent", None).await;
+    let parent = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Parent", None,
+    )
+    .await;
     set_role_perms(&runner, f.site_id, parent.role_id, &["view", "edit"], false).await;
 
-    let child = create_role(&runner, f.site_id, "Child", None).await;
+    let child = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Child", None,
+    )
+    .await;
     set_role_perms(&runner, f.site_id, child.role_id, &["view"], false).await;
 
     reparent_role(&runner, f.site_id, child.role_id, parent.role_id).await;
@@ -1350,7 +1421,13 @@ async fn role_reparent_deleted_parent_rejected() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    let deleted_parent = create_role(&runner, f.site_id, "Deleted Parent", None).await;
+    let deleted_parent = create_role_via_service_bypassing_endpoint_validation(
+        &runner,
+        f.site_id,
+        "Deleted Parent",
+        None,
+    )
+    .await;
     set_role_perms(
         &runner,
         f.site_id,
@@ -1360,7 +1437,10 @@ async fn role_reparent_deleted_parent_rejected() {
     )
     .await;
 
-    let child = create_role(&runner, f.site_id, "Child", None).await;
+    let child = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Child", None,
+    )
+    .await;
     set_role_perms(&runner, f.site_id, child.role_id, &["view"], false).await;
 
     run_endpoint!(
@@ -1405,10 +1485,16 @@ async fn role_reparent_cycle_rejected() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    let role_a = create_role(&runner, f.site_id, "RoleA", None).await;
+    let role_a = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "RoleA", None,
+    )
+    .await;
     set_role_perms(&runner, f.site_id, role_a.role_id, &["view"], false).await;
 
-    let role_b = create_role(&runner, f.site_id, "RoleB", None).await;
+    let role_b = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "RoleB", None,
+    )
+    .await;
     set_role_perms(&runner, f.site_id, role_b.role_id, &["view"], false).await;
 
     reparent_role(&runner, f.site_id, role_a.role_id, role_b.role_id).await;
@@ -1447,10 +1533,16 @@ async fn role_reparent_subset_violation_rejected() {
     let mut runner = TestRunner::setup().await;
     let f = RoleFixture::setup(&mut runner).await;
 
-    let smaller = create_role(&runner, f.site_id, "Parent", None).await;
+    let smaller = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Parent", None,
+    )
+    .await;
     set_role_perms(&runner, f.site_id, smaller.role_id, &["view"], false).await;
 
-    let bigger = create_role(&runner, f.site_id, "Child", None).await;
+    let bigger = create_role_via_service_bypassing_endpoint_validation(
+        &runner, f.site_id, "Child", None,
+    )
+    .await;
     set_role_perms(&runner, f.site_id, bigger.role_id, &["view", "edit"], false).await;
 
     let err = run_endpoint_err!(

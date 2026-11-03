@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
@@ -15,12 +14,15 @@ import {
   requestMembershipPassword
 } from "../src/lib/wikidot/wikidot-membership-action-request.js"
 
+/** @param {any} res */
 const success = (res) => ({ type: "success", data: { res } })
 
+/** @param {any} [result] */
 const requestRecorder = (result = success(null)) => {
+  /** @type {any[]} */
   const requests = []
   return {
-    fetch: async (url, init) => {
+    fetch: /** @param {any} url @param {any} init */ async (url, init) => {
       requests.push({ url, init })
       return { text: async () => "serialized" }
     },
@@ -31,14 +33,17 @@ const requestRecorder = (result = success(null)) => {
 
 test("set-tags submits only the server registry index and revision binding", async () => {
   const recorder = requestRecorder(success({ revision_id: 91 }))
-  await requestLegacySetTags(recorder, {
-    pageId: 42,
-    lastRevisionId: 90,
-    actionIndex: 3,
-    actionFingerprint: "0123456789abcdef0123456789abcdef",
-    tags: ["forged"],
-    alterations: ["+forged"]
-  })
+  await requestLegacySetTags(
+    recorder,
+    /** @type {any} */ ({
+      pageId: 42,
+      lastRevisionId: 90,
+      actionIndex: 3,
+      actionFingerprint: "0123456789abcdef0123456789abcdef",
+      tags: ["forged"],
+      alterations: ["+forged"]
+    })
+  )
 
   assert.equal(recorder.requests.length, 1)
   const [{ url, init }] = recorder.requests
@@ -56,25 +61,31 @@ test("set-tags submits only the server registry index and revision binding", asy
 test("Rate requests submit only the server registry binding", async () => {
   const recorder = requestRecorder(success({ page_vote_id: 5 }))
   const fingerprint = "0123456789abcdef0123456789abcdef"
-  await requestLegacyRate(recorder, {
-    pageId: 42,
-    lastRevisionId: 90,
-    actionIndex: 3,
-    actionFingerprint: fingerprint,
-    value: -1,
-    score: 500,
-    count: 80,
-    revisionId: 90,
-    userId: 7,
-    siteId: 2
-  })
-  await requestLegacyRateCancel(recorder, {
-    pageId: 42,
-    lastRevisionId: 90,
-    actionIndex: 4,
-    actionFingerprint: fingerprint,
-    score: 500
-  })
+  await requestLegacyRate(
+    recorder,
+    /** @type {any} */ ({
+      pageId: 42,
+      lastRevisionId: 90,
+      actionIndex: 3,
+      actionFingerprint: fingerprint,
+      value: -1,
+      score: 500,
+      count: 80,
+      revisionId: 90,
+      userId: 7,
+      siteId: 2
+    })
+  )
+  await requestLegacyRateCancel(
+    recorder,
+    /** @type {any} */ ({
+      pageId: 42,
+      lastRevisionId: 90,
+      actionIndex: 4,
+      actionFingerprint: fingerprint,
+      score: 500
+    })
+  )
   await requestLegacyScore(recorder)
 
   const scoreRequest = recorder.requests.find(({ url }) => url === "?/score")
@@ -128,17 +139,20 @@ test("server action failures remain observable to the action state machine", asy
 test("Join submits only the server registry and revision binding", async () => {
   const recorder = requestRecorder(success({ outcome: "joined" }))
   const fingerprint = "0123456789abcdef0123456789abcdef"
-  await requestMembershipJoin(recorder, {
-    pageId: 42,
-    lastRevisionId: 90,
-    actionIndex: 3,
-    actionFingerprint: fingerprint,
-    userId: 91,
-    siteId: 42,
-    policy: "open",
-    policyRevision: 7,
-    invitationToken: "secret"
-  })
+  await requestMembershipJoin(
+    recorder,
+    /** @type {any} */ ({
+      pageId: 42,
+      lastRevisionId: 90,
+      actionIndex: 3,
+      actionFingerprint: fingerprint,
+      userId: 91,
+      siteId: 42,
+      policy: "open",
+      policyRevision: 7,
+      invitationToken: "secret"
+    })
+  )
 
   assert.deepEqual(
     recorder.requests.map(({ url, init }) => [url, init.method, JSON.parse(init.body)]),
@@ -207,13 +221,16 @@ test("membership email invitation keeps the opaque route hash out of the action 
   const recorder = requestRecorder(
     success({ status: "accepted", site_name: "Test Wiki", site_slug: "test" })
   )
-  const result = await requestMembershipEmailInvitation(recorder, {
-    pageId: 42,
-    lastRevisionId: 90,
-    actionIndex: 3,
-    actionFingerprint: fingerprint,
-    hash: "browser-must-not-forward-this"
-  })
+  const result = await requestMembershipEmailInvitation(
+    recorder,
+    /** @type {any} */ ({
+      pageId: 42,
+      lastRevisionId: 90,
+      actionIndex: 3,
+      actionFingerprint: fingerprint,
+      hash: "browser-must-not-forward-this"
+    })
+  )
 
   assert.deepEqual(result, {
     status: "accepted",
@@ -243,12 +260,12 @@ test("membership requests surface server action failures", async () => {
     actionIndex: 1,
     actionFingerprint: fingerprint
   }
-  for (const [request, input] of [
+  for (const [request, input] of /** @type {any[]} */ ([
     [requestMembershipJoin, base],
     [requestMembershipPassword, { ...base, password: "secret" }],
     [requestMembershipApplication, { ...base, comment: "hello" }],
     [requestMembershipEmailInvitation, base]
-  ]) {
+  ])) {
     await assert.rejects(request(requestRecorder(failure), input), /Membership denied\./u)
   }
 })

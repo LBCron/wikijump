@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { after, before, test } from "node:test"
 
@@ -12,8 +11,11 @@ const TRUSTED_CONTEXT = {
   sessionToken: SESSION_TOKEN
 }
 
+/** @type {any} */
 let client
+/** @type {any} */
 let actions
+/** @type {any} */
 let closeHarness
 
 before(async () => {
@@ -28,17 +30,20 @@ after(async () => {
 })
 
 const requestEvent = (overrides = {}) =>
-  pageActionEvent({
-    action: "deletedGet",
-    siteId: SITE_ID,
-    sessionToken: SESSION_TOKEN,
-    requestContext: { ...TRUSTED_CONTEXT },
-    ...overrides
-  })
+  pageActionEvent(
+    /** @type {any} */ ({
+      action: "deletedGet",
+      siteId: SITE_ID,
+      sessionToken: SESSION_TOKEN,
+      requestContext: { ...TRUSTED_CONTEXT },
+      ...overrides
+    })
+  )
 
 test("deleted-page actions use the authenticated route context", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") {
       return {

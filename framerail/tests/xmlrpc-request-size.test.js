@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import http from "node:http"
 import { fileURLToPath } from "node:url"
@@ -8,18 +7,22 @@ import { createJiti } from "jiti"
 
 const libRoot = fileURLToPath(new URL("../src/lib/", import.meta.url))
 const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
+/** @type {any} */
 const { client } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/deepwell/index.ts", import.meta.url))
 )
+/** @type {any} */
 const { MAX_XML_RPC_BODY_BYTES, handleXmlRpcRequest } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/index.ts", import.meta.url))
 )
+/** @type {any} */
 const { MAX_XML_RPC_FILE_BYTES, decodeXmlRpcBase64 } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/resource-methods.ts", import.meta.url))
 )
 
 const basicAuth = `Basic ${Buffer.from("size-app:size-key").toString("base64")}`
 
+/** @param {any} content */
 const xmlRpcFilesSaveOneRequest = (content) => `<?xml version="1.0"?>
 <methodCall>
   <methodName>files.save_one</methodName>
@@ -31,6 +34,7 @@ const xmlRpcFilesSaveOneRequest = (content) => `<?xml version="1.0"?>
   </struct></value></param></params>
 </methodCall>`
 
+/** @param {any} body */
 const xmlRpcRequest = (body) =>
   new Request("http://127.0.0.1/xml-rpc-api.php", {
     body,
@@ -46,7 +50,7 @@ test("files.save_one rejects decoded content over its configured limit", () => {
 
   assert.throws(
     () => decodeXmlRpcBase64(content, configuredLimit),
-    (error) =>
+    /** @param {any} error */ (error) =>
       error.faultCode === 413 &&
       error.httpStatus === 413 &&
       error.faultString === "files.save_one content is too large"
@@ -82,15 +86,18 @@ test("files.save_one fitting the configured XML envelope reaches its fixture", a
     })
     request.on("end", () => response.writeHead(200).end())
   })
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
+  await new Promise((resolve) =>
+    server.listen(0, "127.0.0.1", /** @type {any} */ (resolve))
+  )
   t.after(() => new Promise((resolve) => server.close(resolve)))
-  const address = server.address()
+  const address = /** @type {any} */ (server.address())
   assert.equal(typeof address, "object")
 
   const contentBytes = Buffer.alloc(2048, 0x61)
   let fileGetCount = 0
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     calls.push(method)
     if (method === "site_get") return { site_id: 17 }
     if (method === "page_get") {

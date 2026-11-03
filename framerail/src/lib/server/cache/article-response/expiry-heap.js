@@ -1,5 +1,8 @@
 /** @typedef {{ key: string; expiresAt: number; heapIndex: number }} ExpiryEntry */
 
+/** @param {ExpiryEntry} entry */
+const neverExpires = (entry) => Number.isNaN(entry.expiresAt)
+
 export class ExpiryHeap {
   /** @type {ExpiryEntry[]} */
   entries = []
@@ -45,7 +48,7 @@ export class ExpiryHeap {
 
   /** @param {ExpiryEntry} entry */
   insert(entry) {
-    if (Number.isNaN(entry.expiresAt)) return
+    if (neverExpires(entry)) return
     entry.heapIndex = this.entries.length
     this.entries.push(entry)
     this.up(entry.heapIndex)

@@ -782,9 +782,7 @@ mod tests {
             .expect("the pages should be present");
         let second = cache
             .get_or_init(PagesModuleArguments::default(), || async {
-                panic!("a different limit must reuse the full cached result");
-                #[allow(unreachable_code)]
-                Ok(Some(Arc::new(vec![page(3)])))
+                panic!("a different limit must reuse the full cached result")
             })
             .await
             .expect("the full result should render")
@@ -806,9 +804,7 @@ mod tests {
             .expect("the capped result should be representable");
         let second = cache
             .get_or_init(arguments, || async {
-                panic!("a cached capped result must not query again");
-                #[allow(unreachable_code)]
-                Ok(Some(Arc::new(vec![page(1)])))
+                panic!("a cached capped result must not query again")
             })
             .await
             .expect("the cached capped result should be reusable");

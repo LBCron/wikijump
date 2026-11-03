@@ -22,7 +22,7 @@ use super::PageQueryService;
 use super::structs::{
     AuthorSelector, CategoriesSelector, DateSelector, FoundPageFields,
     IncludedCategories, OrderBySelector, OrderProperty, PageParentSelector, PageQuery,
-    PageTypeSelector, PaginationSelector, RangeSelector, TagCondition,
+    PageTypeSelector, PaginationSelector, TagCondition,
 };
 use crate::error::prelude::{Error, ErrorType, OptionExt, Result, ResultExt};
 use crate::models::page::{self, Entity as Page};
@@ -304,7 +304,6 @@ impl PageQueryService {
                 score: &[],
                 votes: &[],
                 offset: 0,
-                range: RangeSelector::Current,
                 name: None,
                 slug: None,
                 slugs: &[],
@@ -312,7 +311,6 @@ impl PageQueryService {
                 order: Some(order),
                 candidate_limit: None,
                 pagination: PaginationSelector::default(),
-                variables: &[],
                 fields: FoundPageFields {
                     slug: true,
                     page_category_id: true,

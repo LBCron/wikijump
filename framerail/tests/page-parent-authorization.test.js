@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { after, before, test } from "node:test"
 
@@ -7,8 +6,11 @@ import { pageActionEvent, startPageActionHarness } from "./page-action-test-harn
 const SITE_ID = 17
 const TRUSTED_CONTEXT = { siteId: SITE_ID, page: "main" }
 
+/** @type {any} */
 let client
+/** @type {any} */
 let actions
+/** @type {any} */
 let closeHarness
 
 before(async () => {
@@ -23,16 +25,19 @@ after(async () => {
 })
 
 const requestEvent = (overrides = {}) =>
-  pageActionEvent({
-    action: "parentGet",
-    siteId: SITE_ID,
-    requestContext: { ...TRUSTED_CONTEXT },
-    ...overrides
-  })
+  pageActionEvent(
+    /** @type {any} */ ({
+      action: "parentGet",
+      siteId: SITE_ID,
+      requestContext: { ...TRUSTED_CONTEXT },
+      ...overrides
+    })
+  )
 
 test("parent lookup forwards only the trusted site and page selector", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "parent_get_all") return ["parent-page"]
     throw new Error(`Unexpected Deepwell method ${method}`)

@@ -44,7 +44,6 @@ pub enum RelationType {
     SiteUser,
     #[strum(to_string = "ban", serialize = "site-ban")]
     SiteBan,
-    #[allow(dead_code)]
     #[strum(to_string = "application", serialize = "site-application")]
     SiteApplication,
     #[strum(to_string = "member", serialize = "site-member")]
@@ -56,10 +55,8 @@ pub enum RelationType {
     PageAttribution,
     #[strum(to_string = "follow", serialize = "user-follow")]
     UserFollow,
-    #[allow(dead_code)]
     #[strum(to_string = "contact", serialize = "user-contact")]
     UserContact,
-    #[allow(dead_code)]
     #[strum(to_string = "contact-request", serialize = "user-contact-request")]
     UserContactRequest,
     #[strum(to_string = "block", serialize = "user-block")]

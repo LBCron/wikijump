@@ -160,7 +160,6 @@ impl RenderService {
             score: &score,
             votes: &votes,
             offset: 0,
-            range: RangeSelector::Current,
             name: name_pattern,
             slug,
             slugs: &[],
@@ -180,7 +179,6 @@ impl RenderService {
                 per_page: PaginationSelector::default().per_page,
                 reversed: false,
             },
-            variables: &[],
             fields: FoundPageFields {
                 page_category_id: true,
                 ..Default::default()

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { after, before, test } from "node:test"
 import { fileURLToPath } from "node:url"
@@ -7,10 +6,15 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let post
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
 
 const SITE_HEADERS = {
@@ -30,6 +34,7 @@ const voter = {
   value: 1
 }
 
+/** @param {any} pageId */
 const whoRatedForm = (pageId) => {
   const form = new URLSearchParams()
   form.set("moduleName", "pagerate/WhoRatedPageModule")
@@ -38,6 +43,7 @@ const whoRatedForm = (pageId) => {
   return form
 }
 
+/** @param {any} pageId */
 const postWhoRated = (pageId) =>
   post({
     request: new Request("https://scp-wiki.wikijump.test/ajax-module-connector.php", {
@@ -71,7 +77,7 @@ after(async () => {
 })
 
 test("imported page with a baseline but no local votes answers the honest unavailable roster", async () => {
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     if (method === "page_who_rated") return []
     if (method === "page_get_score") {
       return { page_id: 3000000026, score: 461 }
@@ -91,7 +97,7 @@ test("imported page with a baseline but no local votes answers the honest unavai
 })
 
 test("page with no score and no votes answers the pinned empty roster", async () => {
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     if (method === "page_who_rated") return []
     if (method === "page_get_score") {
       return { page_id: 3000000026, score: 0 }
@@ -108,7 +114,7 @@ test("page with no score and no votes answers the pinned empty roster", async ()
 })
 
 test("page with local votes answers the printuser roster", async () => {
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     if (method === "page_who_rated") return [voter]
     throw new Error(`Unexpected Deepwell method ${method}`)
   }

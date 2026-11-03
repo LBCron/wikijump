@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -7,12 +6,19 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let rootActions
+/** @type {any} */
 let slugActions
+/** @type {any} */
 let buildPageForms
 
 before(async () => {
@@ -37,6 +43,7 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
+/** @param {any} serializedPayload */
 const parentSetEvent = (serializedPayload) => {
   const data = new FormData()
   data.set("__superform_json", serializedPayload)
@@ -72,8 +79,9 @@ test("page form initialization gives ParentPane only its parents field", async (
 })
 
 test("root and slug parentSet actions accept the parent pane JSON payload", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (method, params, context) => {
+  client.request = /** @param {any} method @param {any} params @param {any} context */ async (method, params, context) => {
     calls.push({ method, params, context })
     if (method === "session_get") {
       return {
@@ -127,8 +135,9 @@ test("root and slug parentSet actions accept the parent pane JSON payload", asyn
 })
 
 test("parentSet rejects a missing siteId before calling Deepwell", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (...args) => {
+  client.request = /** @param {...any} args */ async (...args) => {
     calls.push(args)
     throw new Error("Deepwell must not be called for an invalid parent payload")
   }
@@ -142,8 +151,9 @@ test("parentSet rejects a missing siteId before calling Deepwell", async () => {
 })
 
 test("parentSet rejects a missing pageId before calling Deepwell", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (...args) => {
+  client.request = /** @param {...any} args */ async (...args) => {
     calls.push(args)
     throw new Error("Deepwell must not be called for an invalid parent payload")
   }
@@ -157,8 +167,9 @@ test("parentSet rejects a missing pageId before calling Deepwell", async () => {
 })
 
 test("parentSet rejects malformed parent arrays before calling Deepwell", async () => {
+  /** @type {any[]} */
   const calls = []
-  client.request = async (...args) => {
+  client.request = /** @param {...any} args */ async (...args) => {
     calls.push(args)
     throw new Error("Deepwell must not be called for an invalid parent payload")
   }

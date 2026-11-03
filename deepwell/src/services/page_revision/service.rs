@@ -1182,26 +1182,6 @@ impl PageRevisionService {
         .await
     }
 
-    #[allow(dead_code)]
-    pub(crate) async fn rerender_for_corpus_finalizer(
-        ctx: &ServiceContext<'_>,
-        id: PageId,
-        depth: RerenderDepth,
-        rerender_type: RerenderType,
-        outdate_dependents: bool,
-    ) -> Result<()> {
-        Self::rerender_inner(
-            ctx,
-            id,
-            depth,
-            rerender_type,
-            outdate_dependents,
-            RerenderIncludeCeiling::Corpus,
-            None,
-        )
-        .await
-    }
-
     pub(crate) async fn rerender_for_corpus_finalizer_traced(
         ctx: &ServiceContext<'_>,
         id: PageId,

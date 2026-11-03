@@ -6,6 +6,10 @@ basic-error-site-slug = <h1>No { -service-name } site exists with this address</
     </p>
 
     <p>
+      Would you like to create this site? If so, you can <a href="https://www.{ $main_domain }/new-site">create a new site</a> with the address <code>{ $slug }.{ $main_domain }</code>.
+    </p>
+
+    <p>
       Return to <a href="https://{ $main_domain }/">{ -service-name }</a>.
     </p>
 

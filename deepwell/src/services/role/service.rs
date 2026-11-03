@@ -46,7 +46,6 @@ use std::collections::HashMap;
 #[derive(Debug)]
 pub struct RoleService;
 
-#[allow(dead_code)]
 impl RoleService {
     pub async fn create(
         ctx: &ServiceContext<'_>,
@@ -710,18 +709,6 @@ impl RoleService {
             .or_raise(make_error)?;
 
         Ok(roles)
-    }
-
-    pub async fn get_virtual_roles_for_user(
-        ctx: &ServiceContext<'_>,
-        input: &GetUserRolesInput<'_>,
-    ) -> Result<Vec<RoleModel>> {
-        let make_error = || Error::new("failed to apply virtual roles", ErrorType::Role);
-        let is_banned = Self::site_ban_exists_for_input(ctx, input)
-            .await
-            .or_raise(make_error)?;
-
-        Self::get_virtual_roles_for_user_with_ban_state(ctx, input, is_banned).await
     }
 
     async fn site_ban_exists_for_input(

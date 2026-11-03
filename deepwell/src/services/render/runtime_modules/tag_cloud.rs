@@ -6,7 +6,7 @@ use super::{
     percent_encode_path_segment, wikidot_module_arguments,
 };
 
-const TAG_CLOUD_DEFAULT_LIMIT: usize = 50;
+const TAG_CLOUD_DEFAULT_LIMIT: usize = 20;
 /// PostgreSQL accepts at most 65,535 bind parameters per statement. Chunk the
 /// revision-tag lookup well below that so a large site cannot fail the whole
 /// render with a protocol-limit error.
@@ -580,7 +580,9 @@ impl RenderService {
 
 #[cfg(test)]
 mod tests {
-    use super::parse_tag_cloud_arguments;
+    use super::{
+        default_tag_cloud_arguments, displayed_tag_cloud_tags, parse_tag_cloud_arguments,
+    };
 
     #[test]
     fn tag_cloud_unparseable_font_size_uses_the_format_error() {
@@ -607,5 +609,28 @@ mod tests {
                 "Format for minFontSize and maxFontSize must be the same (px, em, pt or %)."
             ),
         );
+    }
+
+    #[test]
+    fn tag_cloud_default_limit_is_twenty() {
+        let arguments =
+            parse_tag_cloud_arguments(" category=\"_default\"").expect("arguments parse");
+        assert_eq!(arguments.limit, 20);
+    }
+
+    #[test]
+    fn tag_cloud_explicit_limit_is_kept() {
+        let arguments =
+            parse_tag_cloud_arguments(" limit=\"35\"").expect("arguments parse");
+        assert_eq!(arguments.limit, 35);
+    }
+
+    #[test]
+    fn tag_cloud_default_limit_truncates_tag_set_at_twenty() {
+        let tag_counts = (0..30)
+            .map(|index| (format!("tag-{index:02}"), 1))
+            .collect::<Vec<_>>();
+        let tags = displayed_tag_cloud_tags(&tag_counts, &default_tag_cloud_arguments());
+        assert_eq!(tags.len(), 20);
     }
 }

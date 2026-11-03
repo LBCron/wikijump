@@ -18,11 +18,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code)]
-
 use crate::models::forum_category::Model as ForumCategoryModel;
 use crate::models::forum_group::Model as ForumGroupModel;
-use crate::types::Maybe;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct CreateForumGroup {
@@ -35,32 +32,6 @@ pub struct CreateForumGroup {
     pub sort_index: Option<i32>,
     #[serde(default)]
     pub from_wikidot: bool,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct UpdateForumGroup {
-    pub forum_group_id: i64,
-    pub user_id: i64,
-
-    #[serde(flatten)]
-    pub body: UpdateForumGroupBody,
-}
-
-#[derive(Deserialize, Debug, Clone, Default)]
-#[serde(default)]
-pub struct UpdateForumGroupBody {
-    pub name: Maybe<String>,
-    pub description: Maybe<String>,
-    pub visible: Maybe<bool>,
-    pub sort_index: Maybe<i32>,
-}
-
-#[derive(Deserialize, Debug, Copy, Clone)]
-pub struct GetForumGroup {
-    pub site_id: i64,
-    pub forum_group_id: i64,
-    #[serde(default)]
-    pub include_deleted: bool,
 }
 
 #[derive(Deserialize, Debug, Copy, Clone)]
@@ -92,39 +63,10 @@ pub struct CreateForumCategory {
     pub from_wikidot: bool,
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub struct UpdateForumCategory {
-    pub forum_category_id: i64,
-    pub user_id: i64,
-
-    #[serde(flatten)]
-    pub body: UpdateForumCategoryBody,
-}
-
-#[derive(Deserialize, Debug, Clone, Default)]
-#[serde(default)]
-pub struct UpdateForumCategoryBody {
-    pub forum_group_id: Maybe<i64>,
-    pub name: Maybe<String>,
-    pub description: Maybe<String>,
-    pub sort_index: Maybe<i32>,
-    pub max_nest_level: Maybe<Option<i16>>,
-    pub per_page_discussion: Maybe<Option<bool>>,
-    pub layout: Maybe<Option<String>>,
-}
-
 #[derive(Deserialize, Debug, Copy, Clone)]
 pub struct GetForumCategory {
     pub site_id: i64,
     pub forum_category_id: i64,
-    #[serde(default)]
-    pub include_deleted: bool,
-}
-
-#[derive(Deserialize, Debug, Copy, Clone)]
-pub struct GetForumCategories {
-    pub site_id: i64,
-    pub forum_group_id: Option<i64>,
     #[serde(default)]
     pub include_deleted: bool,
 }

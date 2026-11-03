@@ -130,6 +130,43 @@ enum PendingDelayedListPagesSlotValue {
     RuntimeText(TextOrigin),
 }
 
+#[derive(Debug)]
+struct DelayedRowParserGates {
+    row_parser_fragments: Option<CompatTextFragments>,
+    generated_comment_gates: Option<(String, String, String)>,
+}
+
+fn protect_delayed_row_parser_gates(prepared_body: &mut String) -> DelayedRowParserGates {
+    DelayedRowParserGates {
+        row_parser_fragments: protect_row_variable_parser_functions(prepared_body),
+        generated_comment_gates: protect_generated_parser_function_comment_gates(
+            prepared_body,
+        ),
+    }
+}
+
+fn preprocess_delayed_row_body(prepared_body: &mut String) {
+    ftml::preprocess_for_layout(prepared_body, ftml::layout::Layout::Wikidot);
+    ftml::preproc::typography::substitute_wikidot(prepared_body);
+    substitute_literal_advanced_table_opener_typography(prepared_body);
+}
+
+fn restore_delayed_row_parser_gates(
+    mut prepared_body: String,
+    gates: DelayedRowParserGates,
+) -> String {
+    if let Some(fragments) = gates.row_parser_fragments {
+        prepared_body = fragments.restore(&prepared_body);
+    }
+    if let Some((opening, closing, standalone_closing)) = gates.generated_comment_gates {
+        prepared_body = prepared_body
+            .replace(&opening, "[!--")
+            .replace(&closing, "--]")
+            .replace(&standalone_closing, "[!-- --]");
+    }
+    prepared_body
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(in crate::services::render) fn prepare_delayed_list_pages_row(
     template: &ListPagesTemplatePlan,
@@ -176,21 +213,9 @@ pub(in crate::services::render) fn prepare_delayed_list_pages_row_with_budget(
     let mut runtime_text_ranges = Vec::new();
     let mut tracked_content_fragments = BTreeSet::new();
     let mut prepared_body = suppress_generated_list_pages_heading_toc(body).into_owned();
-    let row_parser_fragments = protect_row_variable_parser_functions(&mut prepared_body);
-    let generated_comment_gates =
-        protect_generated_parser_function_comment_gates(&mut prepared_body);
-    ftml::preprocess_for_layout(&mut prepared_body, ftml::layout::Layout::Wikidot);
-    ftml::preproc::typography::substitute_wikidot(&mut prepared_body);
-    substitute_literal_advanced_table_opener_typography(&mut prepared_body);
-    if let Some(fragments) = row_parser_fragments {
-        prepared_body = fragments.restore(&prepared_body);
-    }
-    if let Some((opening, closing, standalone_closing)) = generated_comment_gates {
-        prepared_body = prepared_body
-            .replace(&opening, "[!--")
-            .replace(&closing, "--]")
-            .replace(&standalone_closing, "[!-- --]");
-    }
+    let parser_gates = protect_delayed_row_parser_gates(&mut prepared_body);
+    preprocess_delayed_row_body(&mut prepared_body);
+    let mut prepared_body = restore_delayed_row_parser_gates(prepared_body, parser_gates);
     resolve_outermost_wikidot_iftags(&mut prepared_body, outer_page_tags, compat_text);
     neutralize_authored_markers(&mut prepared_body);
     let mut fragments = CompatHtmlFragments::new(&prepared_body);

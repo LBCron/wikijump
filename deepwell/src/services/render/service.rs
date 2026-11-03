@@ -284,6 +284,18 @@ struct ExpandedRenderWikitext {
     runtime_css_insertions: Vec<RuntimeCssInsertion>,
 }
 
+#[derive(Debug)]
+struct ArmedProtectionGuard;
+
+impl Drop for ArmedProtectionGuard {
+    fn drop(&mut self) {
+        if std::thread::panicking() {
+            return;
+        }
+        panic!("render protection bundle dropped before restoration");
+    }
+}
+
 #[must_use = "restore the Wikidot protection bundle before dropping it"]
 #[derive(Debug)]
 pub(super) struct RenderProtectionBundle {
@@ -293,8 +305,11 @@ pub(super) struct RenderProtectionBundle {
     wikidot_compat_html: CompatHtmlFragments,
     pub(in crate::services::render) wikidot_compat_text: CompatTextFragments,
     native_list_wikipedia_links: Vec<WikidotWikipediaLink>,
-    restored: bool,
+    armed: ArmedProtectionGuard,
 }
+
+#[derive(Debug)]
+pub(super) struct DefusedRenderProtection;
 
 #[derive(Debug)]
 struct RenderProtectionParts {
@@ -320,35 +335,37 @@ impl RenderProtectionBundle {
             wikidot_compat_html,
             wikidot_compat_text,
             native_list_wikipedia_links,
-            restored: false,
+            armed: ArmedProtectionGuard,
         }
     }
 
     fn restore<R>(mut self, restore: impl FnOnce(&mut Self) -> R) -> R {
         let result = restore(&mut self);
-        self.restored = true;
+        self.defuse();
         result
     }
 
-    fn defuse(&mut self) {
-        self.restored = true;
+    fn defuse(self) -> DefusedRenderProtection {
+        let Self { armed, .. } = self;
+        std::mem::forget(armed);
+        DefusedRenderProtection
     }
 
-    fn into_parts(mut self) -> RenderProtectionParts {
-        self.restored = true;
+    fn into_parts(self) -> RenderProtectionParts {
+        let Self {
+            wikidot_css_modules,
+            wikidot_compat_html,
+            wikidot_compat_text,
+            native_list_wikipedia_links,
+            armed,
+            ..
+        } = self;
+        std::mem::forget(armed);
         RenderProtectionParts {
-            wikidot_css_modules: std::mem::take(&mut self.wikidot_css_modules),
-            wikidot_compat_html: std::mem::replace(
-                &mut self.wikidot_compat_html,
-                CompatHtmlFragments::new(""),
-            ),
-            wikidot_compat_text: std::mem::replace(
-                &mut self.wikidot_compat_text,
-                CompatTextFragments::new(""),
-            ),
-            native_list_wikipedia_links: std::mem::take(
-                &mut self.native_list_wikipedia_links,
-            ),
+            wikidot_css_modules,
+            wikidot_compat_html,
+            wikidot_compat_text,
+            native_list_wikipedia_links,
         }
     }
 
@@ -374,15 +391,6 @@ impl RenderProtectionBundle {
 
     fn compat_text_mut(&mut self) -> &mut CompatTextFragments {
         &mut self.wikidot_compat_text
-    }
-}
-
-impl Drop for RenderProtectionBundle {
-    fn drop(&mut self) {
-        if self.restored || std::thread::panicking() {
-            return;
-        }
-        panic!("render protection bundle dropped before restoration");
     }
 }
 
@@ -1993,7 +2001,7 @@ impl RenderService {
                 wikitext,
                 included_pages,
                 url_offset_list_pages_content_bytes: _,
-                mut protection,
+                protection,
                 compatibility_fallback: _,
                 timings: _,
             } = outer;
@@ -2002,7 +2010,7 @@ impl RenderService {
                 if let (Some(site_id), Some(site)) =
                     (current_site_id, current_site.as_ref())
                 {
-                    Self::load_wikidot_compat_fallback_link_titles(
+                    match Self::load_wikidot_compat_fallback_link_titles(
                         ctx,
                         site_id,
                         &site.slug,
@@ -2011,7 +2019,13 @@ impl RenderService {
                     )
                     .await
                     .or_raise(make_error)
-                    .inspect_err(|_| protection.defuse())?
+                    {
+                        Ok(titles) => titles,
+                        Err(error) => {
+                            protection.defuse();
+                            return Err(error);
+                        }
+                    }
                 } else {
                     WikidotCompatLinkTitleMap::new()
                 }
@@ -2272,18 +2286,18 @@ impl RenderService {
                 &mut parsed.tree,
                 parsed.prepared.protection.compat_text(),
             );
-            if let Err(mut parsed) = parse_tx.send(parsed) {
+            if let Err(parsed) = parse_tx.send(parsed) {
                 parsed.prepared.protection.defuse();
             }
         });
         let parse_outcome = timeout(render_timeout, &mut parse_rx).await;
         if parse_outcome.is_err() {
             parse_rx.close();
-            if let Ok(mut late) = parse_rx.try_recv() {
+            if let Ok(late) = parse_rx.try_recv() {
                 late.prepared.protection.defuse();
             }
         }
-        let mut parsed = parse_outcome
+        let parsed = parse_outcome
             .or_raise(|| {
                 Error::new("failed to parse due to timeout", ErrorType::RenderTimeout)
             })?
@@ -2293,7 +2307,7 @@ impl RenderService {
         let user_references = parsed.tree.user_references();
         let page_existence = match current_site_id {
             Some(site_id) => Some(
-                LinkService::resolve_page_existence(
+                match LinkService::resolve_page_existence(
                     ctx,
                     site_id,
                     &render_page_info.site,
@@ -2302,15 +2316,33 @@ impl RenderService {
                 )
                 .await
                 .or_raise(make_error)
-                .inspect_err(|_| parsed.prepared.protection.defuse())?,
+                {
+                    Ok(existence) => existence,
+                    Err(error) => {
+                        parsed.prepared.protection.defuse();
+                        return Err(error);
+                    }
+                },
             ),
             None => None,
         };
         let user_info = match observed_user_info {
             Some(users) => UserInfoSnapshot::from_observed(users),
-            None => UserInfoSnapshot::load(ctx, &user_references, render_settings.layout)
+            None => {
+                match UserInfoSnapshot::load(
+                    ctx,
+                    &user_references,
+                    render_settings.layout,
+                )
                 .await
-                .inspect_err(|_| parsed.prepared.protection.defuse())?,
+                {
+                    Ok(user_info) => user_info,
+                    Err(error) => {
+                        parsed.prepared.protection.defuse();
+                        return Err(error);
+                    }
+                }
+            }
         };
         let render_queued_at = worker_trace.as_ref().map(|_| Instant::now());
         let render_task = task::spawn_blocking(move || {

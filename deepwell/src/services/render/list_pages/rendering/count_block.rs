@@ -310,21 +310,21 @@ impl RenderService {
                 IncludedCategories::List(&viewable_slugs);
         }
         let envelope = PageQueryService::count_with_metadata(ctx, query).await?;
-        let metadata = envelope.metadata;
-        let diagnostics = count_pages_exact_count_render_diagnostics(
-            metadata.clone(),
+        let evaluation = count_pages_exact_count_render_evaluation(
+            envelope.metadata,
             false,
             exclude_current_page,
             post_query_offset_applied,
             None,
             0,
         );
-        debug!("CountPages exact count eligibility diagnostics: {diagnostics:?}");
-        if diagnostics.allowed
-            && let Some(total) = metadata.candidate_count
-        {
+        debug!(
+            "CountPages exact count eligibility diagnostics: {:?}",
+            evaluation.diagnostics,
+        );
+        if let Some(total) = evaluation.exact_total {
             return Ok(CountPagesBlockRenderResult::Expanded(
-                substitute_count_pages_variables(body, total),
+                substitute_count_pages_variables(body, total.total()),
             ));
         }
         Ok(CountPagesBlockRenderResult::PreserveOriginal)

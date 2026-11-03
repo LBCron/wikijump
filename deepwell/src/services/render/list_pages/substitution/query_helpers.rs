@@ -1,10 +1,10 @@
 use super::{
     ComparisonOperation, CountPagesExactCountEligibilityDiagnostics,
-    CountPagesExactCountEligibilityInput, CountPagesRequiredTagBatchResult, Cow,
-    DateSelector, ListPagesArguments, LiteralRegionCursor,
-    MAX_LISTPAGES_RENDER_SCAN_ROWS, OrderBySelector, OrderProperty, PageParentSelector,
-    PageQueryResultMetadata, PageTypeSelector, ScoreSelector,
-    count_pages_exact_count_eligibility_diagnostics, ftml,
+    CountPagesExactCountEligibilityInput, CountPagesExactCountEvaluation,
+    CountPagesRequiredTagBatchResult, Cow, DateSelector, ListPagesArguments,
+    LiteralRegionCursor, MAX_LISTPAGES_RENDER_SCAN_ROWS, OrderBySelector, OrderProperty,
+    PageParentSelector, PageQueryResultMetadata, PageTypeSelector, ScoreSelector,
+    evaluate_count_pages_exact_count, ftml,
 };
 
 pub(super) fn list_pages_comparison_value(operator: &str, value: &str) -> String {
@@ -171,19 +171,36 @@ pub(in crate::services::render) fn count_pages_exact_count_render_diagnostics(
     count_pages_explicit_limit: Option<u64>,
     count_pages_query_limit: u64,
 ) -> CountPagesExactCountEligibilityDiagnostics {
+    count_pages_exact_count_render_evaluation(
+        metadata,
+        view_permission_filtering_applied,
+        post_query_exclusion_applied,
+        post_query_offset_applied,
+        count_pages_explicit_limit,
+        count_pages_query_limit,
+    )
+    .diagnostics
+}
+
+pub(in crate::services::render) fn count_pages_exact_count_render_evaluation(
+    metadata: PageQueryResultMetadata,
+    view_permission_filtering_applied: bool,
+    post_query_exclusion_applied: bool,
+    post_query_offset_applied: bool,
+    count_pages_explicit_limit: Option<u64>,
+    count_pages_query_limit: u64,
+) -> CountPagesExactCountEvaluation {
     let explicit_count_pages_bound_matches_sql_window =
         count_pages_explicit_limit.is_some_and(|limit| limit == count_pages_query_limit);
 
-    count_pages_exact_count_eligibility_diagnostics(
-        CountPagesExactCountEligibilityInput {
-            metadata,
-            view_permission_filtering_applied,
-            post_query_filtering_applied: false,
-            post_query_exclusion_applied,
-            post_query_offset_applied,
-            explicit_count_pages_bound_matches_sql_window,
-        },
-    )
+    evaluate_count_pages_exact_count(CountPagesExactCountEligibilityInput {
+        metadata,
+        view_permission_filtering_applied,
+        post_query_filtering_applied: false,
+        post_query_exclusion_applied,
+        post_query_offset_applied,
+        explicit_count_pages_bound_matches_sql_window,
+    })
 }
 
 pub(super) fn parse_list_pages_false_only_boolean_argument(value: &str) -> bool {

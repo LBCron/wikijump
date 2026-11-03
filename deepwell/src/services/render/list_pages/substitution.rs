@@ -45,7 +45,8 @@ pub(in crate::services::render) use self::body::{
 pub(in crate::services::render) use self::date_selectors::parse_list_pages_date_selector;
 pub(in crate::services::render) use self::query_helpers::{
     advance_literal_cursor_and_check_count_pages_capture_containment,
-    count_pages_exact_count_render_diagnostics, count_pages_required_tag_batch_result,
+    count_pages_exact_count_render_diagnostics,
+    count_pages_exact_count_render_evaluation, count_pages_required_tag_batch_result,
     count_pages_required_tag_batch_selector, count_pages_should_remain_literal,
     count_pages_unbounded_all_category_shape, is_current_page_tag_selector,
     is_no_tags_selector, parse_list_pages_comparison, parse_list_pages_order,
@@ -94,10 +95,10 @@ use super::template::{
 };
 use crate::services::page_query::{
     ComparisonOperation, CountPagesExactCountEligibilityDiagnostics,
-    CountPagesExactCountEligibilityInput, DataFormSelector, DateSelector, FoundPageRow,
-    MAX_PAGE_QUERY_SCORE_SELECTORS, OrderBySelector, OrderProperty, PageParentSelector,
-    PageQueryResultMetadata, PageTypeSelector, RangeSelector, ScoreSelector,
-    count_pages_exact_count_eligibility_diagnostics,
+    CountPagesExactCountEligibilityInput, CountPagesExactCountEvaluation,
+    DataFormSelector, DateSelector, FoundPageRow, MAX_PAGE_QUERY_SCORE_SELECTORS,
+    OrderBySelector, OrderProperty, PageParentSelector, PageQueryResultMetadata,
+    PageTypeSelector, RangeSelector, ScoreSelector, evaluate_count_pages_exact_count,
 };
 use crate::services::render::UrlArguments;
 use std::borrow::Cow;

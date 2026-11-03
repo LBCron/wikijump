@@ -80,17 +80,14 @@ export async function loadAdminPage(
     "error-api.GENERIC": {}
   }
 
-  let errorStatus = null
-
-  switch (response.type) {
-    case "site_found":
-      break
-    case "admin_permissions":
-      errorStatus = 401
-      break
-    default:
-      errorStatus = 500
+  const errorStatusByResponseType: Record<
+    Awaited<ReturnType<typeof adminView>>["type"],
+    number | null
+  > = {
+    site_found: null,
+    admin_permissions: 401
   }
+  const errorStatus = errorStatusByResponseType[response.type]
 
   if (errorStatus === null) {
     translateKeys = {

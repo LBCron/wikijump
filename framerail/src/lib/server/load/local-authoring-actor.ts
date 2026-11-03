@@ -3,6 +3,21 @@ import { parseDeploymentEnvironment } from "../deployment-environment.js"
 const LOCAL_ADMIN_USER_ID = -1
 const EDITABLE_LOCAL_SITE_SLUG = "scpaiueouiuiuiui"
 
+type EditableLocalSiteBinding = {
+  siteSlug: typeof EDITABLE_LOCAL_SITE_SLUG
+  requestSiteId: number
+}
+
+function bindEditableLocalSite(
+  deploymentEnvironment: ReturnType<typeof parseDeploymentEnvironment>,
+  siteSlug: string,
+  requestSiteId: number
+): EditableLocalSiteBinding | undefined {
+  if (deploymentEnvironment !== "local") return undefined
+  if (siteSlug !== EDITABLE_LOCAL_SITE_SLUG) return undefined
+  return { siteSlug: EDITABLE_LOCAL_SITE_SLUG, requestSiteId }
+}
+
 export function resolvePageMutationUserId(
   sessionUserId: number | undefined,
   siteSlug: string,
@@ -14,11 +29,8 @@ export function resolvePageMutationUserId(
     return sessionUserId
   }
 
-  if (
-    deploymentEnvironment === "local" &&
-    siteSlug === EDITABLE_LOCAL_SITE_SLUG &&
-    mutationSiteId === requestSiteId
-  ) {
+  const binding = bindEditableLocalSite(deploymentEnvironment, siteSlug, requestSiteId)
+  if (binding?.requestSiteId === mutationSiteId) {
     return LOCAL_ADMIN_USER_ID
   }
 

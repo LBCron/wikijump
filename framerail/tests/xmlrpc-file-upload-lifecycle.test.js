@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import http from "node:http"
 import { fileURLToPath } from "node:url"
@@ -8,9 +7,11 @@ import { createJiti } from "jiti"
 
 const libRoot = fileURLToPath(new URL("../src/lib/", import.meta.url))
 const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
+/** @type {any} */
 const { client } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/deepwell/index.ts", import.meta.url))
 )
+/** @type {any} */
 const { saveFileOne } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/resource-methods.ts", import.meta.url))
 )
@@ -47,35 +48,43 @@ test("XML-RPC file save preserves its commit fault when pending cleanup also fai
     request.resume()
     request.on("end", () => response.writeHead(200).end())
   })
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
+  await new Promise((resolve) =>
+    server.listen(0, "127.0.0.1", /** @type {any} */ (resolve))
+  )
   t.after(() => new Promise((resolve) => server.close(resolve)))
-  const address = server.address()
+  const address = /** @type {any} */ (server.address())
   assert.equal(typeof address, "object")
 
   const commitSentinel = new Error("file_create commit sentinel")
   const cancelSentinel = new Error("blob_cancel cleanup sentinel")
+  /** @type {any[]} */
   const calls = []
   let cancelCount = 0
-  client.request = async (method, params, context) => {
-    calls.push({ method, params, context })
-    if (method === "site_get") return { site_id: 17 }
-    if (method === "page_get") return page
-    if (method === "file_get") return null
-    if (method === "login") return { session_token: "xmlrpc-cleanup-session" }
-    if (method === "session_get") return { user_id: 37 }
-    if (method === "blob_upload") {
-      return {
-        pending_blob_id: "xmlrpc-cleanup-pending",
-        presign_url: `http://127.0.0.1:${address.port}/pending`
+  client.request =
+    /** @param {any} method @param {any} params @param {any} context */ async (
+      method,
+      params,
+      context
+    ) => {
+      calls.push({ method, params, context })
+      if (method === "site_get") return { site_id: 17 }
+      if (method === "page_get") return page
+      if (method === "file_get") return null
+      if (method === "login") return { session_token: "xmlrpc-cleanup-session" }
+      if (method === "session_get") return { user_id: 37 }
+      if (method === "blob_upload") {
+        return {
+          pending_blob_id: "xmlrpc-cleanup-pending",
+          presign_url: `http://127.0.0.1:${address.port}/pending`
+        }
       }
+      if (method === "file_create") throw commitSentinel
+      if (method === "blob_cancel") {
+        cancelCount += 1
+        throw cancelSentinel
+      }
+      throw new Error(`Unexpected Deepwell method ${method}`)
     }
-    if (method === "file_create") throw commitSentinel
-    if (method === "blob_cancel") {
-      cancelCount += 1
-      throw cancelSentinel
-    }
-    throw new Error(`Unexpected Deepwell method ${method}`)
-  }
 
   const content = Buffer.from("xmlrpc cleanup").toString("base64")
   await assert.rejects(
@@ -94,7 +103,7 @@ test("XML-RPC file save preserves its commit fault when pending cleanup also fai
       },
       "192.0.2.62"
     ),
-    (error) =>
+    /** @param {any} error */ (error) =>
       error.faultCode === -32603 &&
       error.faultString === "XML-RPC Deepwell request failed: file_create"
   )

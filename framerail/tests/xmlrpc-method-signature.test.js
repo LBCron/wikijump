@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
@@ -7,9 +6,11 @@ import { createJiti } from "jiti"
 
 const libRoot = fileURLToPath(new URL("../src/lib/", import.meta.url))
 const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
+/** @type {any} */
 const { dispatchXmlRpcCall } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/methods.ts", import.meta.url))
 )
+/** @type {any} */
 const { serializeMethodResponse } = await jiti.import(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/protocol.ts", import.meta.url))
 )

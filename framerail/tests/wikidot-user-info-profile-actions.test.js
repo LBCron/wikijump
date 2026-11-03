@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
@@ -11,9 +10,13 @@ import { showUserProfileActionAuthenticationGuard } from "../src/lib/user-profil
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let userInfoPage
 
 before(async () => {
@@ -55,12 +58,14 @@ const publicUser = {
   locales: ["en"]
 }
 
+/** @returns {Promise<any>} */
 const loadFoundProfile = () =>
   loadWikidotUserInfo({
     siteId: 7,
     locales: ["en"],
     target: "the-administrator",
-    userView: async () => ({ type: "user_found", data: { user: publicUser } })
+    userView: async () =>
+      /** @type {any} */ ({ type: "user_found", data: { user: publicUser } })
   })
 
 test("UserInfo projects the live action row as three evidenced controls", async () => {

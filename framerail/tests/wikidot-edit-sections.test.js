@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
@@ -9,8 +8,10 @@ import {
   toggleWikidotEditSections
 } from "../src/lib/wikidot/wikidot-edit-sections.js"
 
+/** @param {any} level @param {any} index @returns {any} */
 const heading = (level, index) => ({ id: `toc${index}`, tagName: `H${level}` })
 
+/** @param {any} directHeadings @param {any} [descendantHeadings] */
 const pageContent = (directHeadings, descendantHeadings = directHeadings) => ({
   children: directHeadings,
   querySelectorAll() {
@@ -61,7 +62,7 @@ test("Edit Sections handles large heading sequences without copying suffixes", (
 
   assert.equal(sections.length, 30000)
   assert.equal(sections[0].end, source.indexOf("\n") + 1)
-  assert.equal(sections.at(-1).end, source.length)
+  assert.equal(/** @type {any} */ (sections.at(-1)).end, source.length)
 })
 
 test("Edit Sections fails closed without a one-to-one direct heading match", () => {
@@ -86,17 +87,23 @@ test("Edit Sections fails closed without a one-to-one direct heading match", () 
 })
 
 test("Edit Sections inserts evidenced controls and toggles them off", () => {
+  /** @type {any[]} */
   const controls = []
+  /** @type {any[]} */
   const edits = []
   const headings = [heading(1, 0), heading(2, 1)]
   for (const renderedHeading of headings) {
-    renderedHeading.before = (control) => controls.push(control)
+    renderedHeading.before = /** @param {any} control */ (control) =>
+      controls.push(control)
   }
   const ownerDocument = {
     createElement() {
       const listeners = new Map()
       return {
-        addEventListener: (name, listener) => listeners.set(name, listener),
+        addEventListener: /** @param {any} name @param {any} listener */ (
+          name,
+          listener
+        ) => listeners.set(name, listener),
         click() {
           listeners.get("click")({ preventDefault() {} })
         },
@@ -109,14 +116,17 @@ test("Edit Sections inserts evidenced controls and toggles them off", () => {
   const root = {
     children: headings,
     ownerDocument,
+    /** @param {any} selector */
     querySelectorAll(selector) {
       return selector === ".edit-section-button" ? [...controls] : headings
     }
   }
 
   assert.equal(
-    toggleWikidotEditSections(root, "+ One\n\nBody\n\n++ Two\n\nBody", (section) =>
-      edits.push(section.index)
+    toggleWikidotEditSections(
+      /** @type {any} */ (root),
+      "+ One\n\nBody\n\n++ Two\n\nBody",
+      (section) => edits.push(section.index)
     ),
     true
   )
@@ -147,7 +157,7 @@ test("Edit Sections inserts evidenced controls and toggles them off", () => {
   controls[1].click()
   assert.deepEqual(edits, [1])
   assert.equal(
-    toggleWikidotEditSections(root, "ignored", () => {}),
+    toggleWikidotEditSections(/** @type {any} */ (root), "ignored", () => {}),
     false
   )
   assert.deepEqual(controls, [])

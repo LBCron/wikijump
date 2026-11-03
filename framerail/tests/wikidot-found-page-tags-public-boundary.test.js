@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -8,12 +7,19 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let pageComponent
+/** @type {any} */
 let pageTagsComponent
+/** @type {any} */
 let PAGE_LAYOUT_CONTEXT_KEY
+/** @type {any} */
 let Layout
 
 before(async () => {
@@ -73,12 +79,14 @@ const foundPageData = {
   internationalization: {}
 }
 
+/** @param {any} data */
 const renderFoundPage = (data) =>
   render(pageComponent, {
     props: { data },
     context: new Map([[PAGE_LAYOUT_CONTEXT_KEY, { current: Layout.WIKIDOT }]])
   }).body
 
+/** @param {any} body @param {any} tags @param {any} [hidden] */
 const assertTagTree = (body, tags, hidden = false) => {
   const tree = body.match(
     /<div class="page-tags(?: hidden)?"><span>[\s\S]*?<\/span><\/div>/u
@@ -89,30 +97,45 @@ const assertTagTree = (body, tags, hidden = false) => {
   assert.equal(root[0].type, "Element")
   assert.equal(root[0].name, "div")
   assert.equal(
-    root[0].attributes.find((attribute) => attribute.name === "class")?.value[0]?.data,
+    root[0].attributes.find(
+      /** @param {any} attribute */ (attribute) => attribute.name === "class"
+    )?.value[0]?.data,
     `page-tags${hidden ? " hidden" : ""}`
   )
 
-  const spans = root[0].children.filter((child) => child.type === "Element")
+  const spans = root[0].children.filter(
+    /** @param {any} child */ (child) => child.type === "Element"
+  )
   assert.equal(spans.length, 1)
   assert.equal(spans[0].name, "span")
   assert.ok(
     spans[0].children.every(
-      (child) => child.type === "Comment" || child.type === "Element"
+      /** @param {any} child */ (child) =>
+        child.type === "Comment" || child.type === "Element"
     )
   )
 
-  const links = spans[0].children.filter((child) => child.type === "Element")
+  const links = spans[0].children.filter(
+    /** @param {any} child */ (child) => child.type === "Element"
+  )
   assert.deepEqual(
-    links.map((link) => ({
-      href: link.attributes.find((attribute) => attribute.name === "href")?.value[0]
-        ?.data,
-      label: link.children
-        .filter((child) => child.type === "Text")
-        .map((child) => child.data)
-        .join("")
-    })),
-    tags.map((tag) => ({ href: `/system:page-tags/tag/${tag}#pages`, label: tag }))
+    links.map(
+      /** @param {any} link */ (link) => ({
+        href: link.attributes.find(
+          /** @param {any} attribute */ (attribute) => attribute.name === "href"
+        )?.value[0]?.data,
+        label: link.children
+          .filter(/** @param {any} child */ (child) => child.type === "Text")
+          .map(/** @param {any} child */ (child) => child.data)
+          .join("")
+      })
+    ),
+    tags.map(
+      /** @param {any} tag */ (tag) => ({
+        href: `/system:page-tags/tag/${tag}#pages`,
+        label: tag
+      })
+    )
   )
 }
 
@@ -150,13 +173,18 @@ test("editing found-page route SSR preserves the hidden page-tags state", () => 
   assertTagTree(body, foundPageData.page_revision.tags, true)
 })
 
+/** @param {any} html */
 const withoutMarkupNoise = (html) =>
   html
     .split("<!--")
-    .map((part, index) => (index === 0 ? part : part.slice(part.indexOf("-->") + 3)))
+    .map(
+      /** @param {any} part @param {any} index */ (part, index) =>
+        index === 0 ? part : part.slice(part.indexOf("-->") + 3)
+    )
     .join("")
     .trim()
 
+/** @param {any} body */
 const assertPageInfoBreakOrder = (body) => {
   const breakTag = '<div id="page-info-break"></div>'
   const breakIndex = body.indexOf(breakTag)

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
@@ -15,9 +14,13 @@ const retainedArtifact = new URL(
   import.meta.url
 )
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let userInfoPage
 
 before(async () => {
@@ -68,9 +71,11 @@ const loadFoundProfile = () =>
     siteId: 7,
     locales: ["en"],
     target: "the-administrator",
-    userView: async () => ({ type: "user_found", data: { user: publicUser } })
+    userView: async () =>
+      /** @type {any} */ ({ type: "user_found", data: { user: publicUser } })
   })
 
+/** @param {any} html */
 const normalize = (html) =>
   html
     .replace(/<!--[\s\S]*?-->/gu, "")
@@ -80,7 +85,9 @@ const normalize = (html) =>
 /** @param {string} case_id */
 const retainedBoundedBody = async (case_id) => {
   const artifact = JSON.parse(await readFile(retainedArtifact, "utf8"))
-  const observation = artifact.observations.find((item) => item.case_id === case_id)
+  const observation = artifact.observations.find(
+    /** @param {any} item */ (item) => item.case_id === case_id
+  )
   assert.ok(observation, `retained observation ${case_id} exists`)
   return normalize(observation.response.bounded_body)
 }

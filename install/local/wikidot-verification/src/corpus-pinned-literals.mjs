@@ -190,9 +190,9 @@ export function matchingContextAt(source, start) {
 }
 
 export const REFERENCE_SCHEMA = "wikijump_syntax_differential.wikidot_reference.v1";
-export const DEFAULT_MAX_PINNED_CASES = 8;
+export const DEFAULT_MAX_PINNED_CASES_FORTYFOLD_RARITY_GAP = 8;
 export const DEFAULT_MIN_LITERAL_LENGTH = 4;
-export const MIN_FINDING_LENGTH = 16;
+export const MIN_FINDING_LENGTH_SIXTEEN_CHARACTER_FLOOR = 16;
 
 export function buildCorpusIndex(records) {
   const cases = [];
@@ -211,7 +211,7 @@ export function buildCorpusIndex(records) {
   return cases;
 }
 
-export function locateInCorpus(value, corpus, {maxCases = DEFAULT_MAX_PINNED_CASES} = {}) {
+export function locateInCorpus(value, corpus, {maxCases = DEFAULT_MAX_PINNED_CASES_FORTYFOLD_RARITY_GAP} = {}) {
   const caseIds = [];
   let total = 0;
   for (const entry of corpus) {
@@ -248,7 +248,7 @@ function groupAdjacentLiterals(source, literals) {
 }
 
 export function analyzeRustSource({path, source}, corpus, options = {}) {
-  const maxCases = options.maxCases ?? DEFAULT_MAX_PINNED_CASES;
+  const maxCases = options.maxCases ?? DEFAULT_MAX_PINNED_CASES_FORTYFOLD_RARITY_GAP;
   const minLength = options.minLength ?? DEFAULT_MIN_LITERAL_LENGTH;
   const testRanges = testModuleRanges(source);
   const inTest = (offset) =>
@@ -271,7 +271,7 @@ export function analyzeRustSource({path, source}, corpus, options = {}) {
       literal_sha256: null,
       corpus_case_count: located.total,
       corpus_case_ids: located.caseIds,
-      severity: group.value.length >= (options.minFindingLength ?? MIN_FINDING_LENGTH)
+      severity: group.value.length >= (options.minFindingLength ?? MIN_FINDING_LENGTH_SIXTEEN_CHARACTER_FLOOR)
         ? "finding"
         : "notice",
     });

@@ -75,7 +75,11 @@ if ! {
 fi
 mapfile -d '' -t CHANGED_PATHS < "${CHANGED_PATHS_FILE}"
 
-if [[ ${#CHANGED_PATHS[@]} -eq 0 && -z "${ONLY_GROUPS}" && "${LIST}" != true ]]; then
+list_is_query() {
+  [[ ${#CHANGED_PATHS[@]} -eq 0 && -z "${ONLY_GROUPS}" && "${LIST}" != true ]]
+}
+
+if list_is_query; then
   echo "preflight: no changes against ${BASE}; nothing to check"
   exit 0
 fi

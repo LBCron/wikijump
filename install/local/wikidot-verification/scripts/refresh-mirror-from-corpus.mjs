@@ -165,7 +165,7 @@ export function planMirrorReconciliation(pages, corpus, scope = {}) {
   return {deletes, renames, creates, skipped};
 }
 
-export function localPagesSql(site, slugs) {
+export function localPagesExcludingForeignSnapshotsSql(site, slugs) {
   const filter = slugs.length ? ` AND p.slug IN (${slugs.map(sqlQuote).join(',')})` : '';
   return `SELECT json_build_object('slug', p.slug, 'sha', encode(sha256(convert_to(t.contents, 'UTF8')), 'hex'),
       'title', r.title, 'tags', r.tags,
@@ -269,7 +269,7 @@ export async function main(argv = process.argv.slice(2)) {
   const corpus = readCorpusEntities(args.corpusRoot, args.branch);
   const scope = parseMirrorScopeRow(await sql.runSql(mirrorScopeSql(args.siteId), {capture: true}));
   const fetchPages = async () => {
-    const output = await sql.runSql(localPagesSql(args.site, args.slugs), {capture: true});
+    const output = await sql.runSql(localPagesExcludingForeignSnapshotsSql(args.site, args.slugs), {capture: true});
     return output.split('\n').filter((line) => line.startsWith('{')).map((line) => {
       const row = JSON.parse(line);
       return {slug: row.slug, sourceSha256: row.sha, title: row.title ?? '', tags: row.tags ?? [], importOnly: row.importOnly === true, sourceEntityId: row.entityId ?? null};

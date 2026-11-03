@@ -6,8 +6,8 @@ import path from "node:path";
 
 import {runCliIfMain} from "../src/cli-entry.mjs";
 import {
-  DEFAULT_MAX_PINNED_CASES,
-  MIN_FINDING_LENGTH,
+  DEFAULT_MAX_PINNED_CASES_FORTYFOLD_RARITY_GAP,
+  MIN_FINDING_LENGTH_SIXTEEN_CHARACTER_FLOOR,
   buildCorpusIndex,
   checkCorpusPinnedLiterals,
 } from "../src/corpus-pinned-literals.mjs";
@@ -25,10 +25,10 @@ export function usage() {
     "",
     "Reports compatibility rules pinned to captured page content. A literal is",
     "reported when it appears verbatim in the captured corpus and appears in no",
-    `more than ${DEFAULT_MAX_PINNED_CASES} captured pages: genuine module syntax appears in hundreds,`,
+    `more than ${DEFAULT_MAX_PINNED_CASES_FORTYFOLD_RARITY_GAP} captured pages: genuine module syntax appears in hundreds,`,
     "so rarity is what marks a fragment lifted from one page.",
     "",
-    `Matches of ${MIN_FINDING_LENGTH} characters or more are findings; shorter ones are notices,`,
+    `Matches of ${MIN_FINDING_LENGTH_SIXTEEN_CHARACTER_FLOOR} characters or more are findings; shorter ones are notices,`,
     "because short markup vocabulary is rare in a ListPages corpus without being",
     "lifted from any page. --strict exits non-zero on findings.",
     "",
@@ -48,7 +48,7 @@ export function parseArgs(argv) {
   const args = {
     allowlist: DEFAULT_ALLOWLIST,
     corpus: [],
-    maxCases: DEFAULT_MAX_PINNED_CASES,
+    maxCases: DEFAULT_MAX_PINNED_CASES_FORTYFOLD_RARITY_GAP,
     strict: false,
     json: false,
     paths: [],

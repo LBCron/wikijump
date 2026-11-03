@@ -9,7 +9,7 @@ import {
   planWikidotStandaloneActionBindings,
   updateWikidotRateWidget,
   wikidotLegacyActions
-} from "../src/lib/wikidot/wikidot-legacy-actions.js"
+} from "../src/lib/wikidot/wikidot-legacy-actions.ts"
 import {
   performWikidotMembershipAction,
   planWikidotJoinActionBindings,

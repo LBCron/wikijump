@@ -519,7 +519,7 @@ impl RenderService {
 
             let caption = args
                 .get("caption")
-                .map_or("", |argument| argument.value.as_str());
+                .map_or("{$caption}", |argument| argument.value.as_str());
             let width = args
                 .get("width")
                 .map_or("300px", |argument| argument.value.as_str());

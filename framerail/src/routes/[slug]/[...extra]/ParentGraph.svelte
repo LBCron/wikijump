@@ -2,16 +2,15 @@
   import { deserialize } from "$app/forms"
   import { resolve } from "$app/paths"
   import { errorPopupState } from "$lib/layout/stores.svelte"
-  import { SvelteMap } from "svelte/reactivity"
+  import { SvelteMap, SvelteSet } from "svelte/reactivity"
   import IntervalTree from "@flatten-js/interval-tree"
 
   import type { PageProps } from "./$types"
 
   let { data }: PageProps = $props()
 
-  /* eslint-disable svelte/prefer-svelte-reactivity */
-  let childrenMap = $state(new Map<number, number[]>())
-  let parentMap = $state(new Map<number, number[]>())
+  const childrenMap = new SvelteMap<number, number[]>()
+  const parentMap = new SvelteMap<number, number[]>()
   let pageDetails = new SvelteMap<
     number,
     { slug: string; title: string; page_id: number; x?: number; y?: number }
@@ -123,18 +122,14 @@
         data: result.data.data
       }
     } else if (result.type === "success" && result.data?.res) {
-      childrenMap = new Map(
-        result.data?.res.children_map.map(([pageId, ...children]: number[]) => [
-          pageId,
-          children
-        ])
-      )
-      parentMap = new Map(
-        result.data?.res.parent_map.map(([pageId, ...parents]: number[]) => [
-          pageId,
-          parents
-        ])
-      )
+      childrenMap.clear()
+      for (const [pageId, ...children] of result.data.res.children_map) {
+        childrenMap.set(pageId, children)
+      }
+      parentMap.clear()
+      for (const [pageId, ...parents] of result.data.res.parent_map) {
+        parentMap.set(pageId, parents)
+      }
       pageDetails.clear()
       for (let i = 0; i < result.data?.res.details.length; i++) {
         const detail = $state(result.data?.res.details[i])
@@ -145,10 +140,9 @@
     }
   }
 
-  function buildParentGraph() {
-    maxY = 0
+  function sortPagesTopologically(): number[] {
     let unedged = rootParents.toSorted((a, b) => a - b)
-    let ordered = []
+    let ordered: number[] = []
     let parentMapClone: Map<number, number[]> = new Map(
       JSON.parse(JSON.stringify(Array.from(parentMap)))
     )
@@ -168,8 +162,11 @@
     for (let i = 0; i < ordered.length; i++) {
       pageDetails.get(ordered[i])!.x = i
     }
+    return ordered
+  }
 
-
+  function assignStraightRows(ordered: number[]) {
+    maxY = 0
     let activeRows: (number | null)[] = []
     let branchChildrenMap = new Map(
       [...childrenMap.entries()].map(([node, children]) => [
@@ -197,7 +194,7 @@
         for (let j = 0; j < children.length; j++) {
           if ((children[j]?.x ?? 0) > maxX) maxX = children[j]?.x ?? 0
         }
-        forbiddenRows = rowIntervals.search([i, maxX], (v, k) => v)
+        forbiddenRows = rowIntervals.search([i, maxX], (v) => v)
       }
 
       if (branchChildren.length) {
@@ -224,7 +221,9 @@
       pageDetails.get(ordered[i])!.y = idx
       if (maxY < activeRows.length) maxY = activeRows.length
     }
+  }
 
+  function assignCurveBranches(ordered: number[]) {
     curvedIntervals.clear()
 
     for (let i = 0; i < ordered.length; i++) {
@@ -311,7 +310,7 @@
               : v[2].yBranch < lowerY && v[2].yBranch > upperY)
         )
       let divisor = curveIntersect.length + 1
-      let occupiedRows = new Set(curveIntersect.map((v) => v[2].yBranch))
+      let occupiedRows = new SvelteSet(curveIntersect.map((v) => v[2].yBranch))
       occupiedRows.add(0)
       let yBranch = 0
       let fractional = 0
@@ -330,7 +329,9 @@
       }
       value.yBranch = yBranch
     }
+  }
 
+  function normalizeGraphRows() {
     let yValues = curvedIntervals.values.map((v) => v.yBranch)
     yValues.push(...Array(maxY).keys())
     yValues = [...new Set(yValues)].toSorted((a, b) => a - b)
@@ -352,6 +353,13 @@
     maxY = yValues.length
 
     graphSignal++
+  }
+
+  function buildParentGraph() {
+    const ordered = sortPagesTopologically()
+    assignStraightRows(ordered)
+    assignCurveBranches(ordered)
+    normalizeGraphRows()
   }
 
   $effect(() => {

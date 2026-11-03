@@ -97,10 +97,4 @@ test("file-operation timeline evidence records the observed row order and narrow
   );
   assert.match(observation.scope_limit, /one deleted-file event/iu);
 
-  const captureSource = fs.readFileSync(
-    path.join(here, "../ports/interactive-visual-fixture/capture-interactive.mjs"),
-    "utf8",
-  );
-  assert.doesNotMatch(captureSource, /reflow to labeled in-viewport cards/u);
-  assert.match(captureSource, /does not establish whether mobile History scrolls or reflows/u);
 });

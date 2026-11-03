@@ -1,21 +1,5 @@
 # SCP-JP 手動publication set
 
-## 固定candidateと最終acceptance
-
-- candidate set: `38722848ea1ef40e21014f1fca201bce97ac0248668be1fae763526ab1959c36`
-- frozen manifest: `install/local/theme-lab/publication/frozen-candidate-set.json` (whole-file SHA `4befa5ea869269099632792bce0259bba6eaf7f5f306ccf02793e3a9362314eb`)
-- current completion gate: **PASS**, failure 0。結果: [final-campaign-completion-20261007.json](evidence/final-campaign-completion-20261007.json)。
-- Sigma-9: **PASS**, 5,220 rows / 36 themes、145 states/theme。run contract SHA `d74f3e5715d08999740ed45ad5371355384d4f066803ff6b0c2a57bcd61825a9`。V/C/M=1260/2736/1224。直接review 2648 exact screenshots / 152 contact sheets。
-- Sigma-10: **PASS**, 5365 rows。run contract SHA `7c7fef86dcca136348c0628676c0835aa49e94b45ce07d85b1705ad8f49dfa22`。V/C/M=1295/2812/1258。直接review 3759 exact screenshots / 236 contact sheets。
-- 両run contractは同一candidate setとruntimeにbind。Framerail `d67899e66baa58c3504ec8d93fb81bfb31509c80eb8d4785b93fbb9974127caa`、Deepwell `33db6564f49af2ef3afb9769ce3bcbee1f8e2cb92efd710b7e6f50c3b1bc7a2e`。
-- 145-state policy: V=35は常時visual、C=76はstate assertion + risk-triggered visual、M=34はpass時machine-only。policy SHA `3f26c321e2c510d08dc7cf85b1367d882b8f52e5a7b5fe1bc30a9ade6415d1af`。
-
-## Freeze後のtarget visual supplement
-
-Al Slop navigation、Flopstyle Dark Sigma-10 credit/otherwise、Space navigationについて、freeze後に同じcandidate source/CSS identityでreal-Wikidot A/Bをcaptureし、各receiptの全screenshotを直接reviewしました。SpaceとAl SlopはChromium 320px/390pxで16枚ずつ、Flopstyle Darkは同幅で4枚です。receiptとreviewは各`ports/authority-evidence/*-20261007/`にあり、`final-manual-publication-set.json`の`post_freeze_target_visual_reviews`でcandidate set、source/CSS SHA、receipt SHA、review SHAへbindしています。maintained repositoryはcandidate/publication source、契約、identityとarchive locatorを追跡します。exact PNG、receipt、review manifest、measurement scriptsはsigned tag内の既存fileまたはdurable external evidence archiveに保存します。receipt内のper-state DOM SHAは保持しますが、validator/review integrityに不要な大容量の圧縮DOM payloadはarchive対象外です。[ACCEPTANCE-ARCHIVE.md](ACCEPTANCE-ARCHIVE.md)にstorage境界とclean-tag再検証手順を記録しています。frozen candidate setとSigma-9/Sigma-10 run contractsは変更していません。
-
-Candidate側のheaderと4種類の展開menuは両幅で確認でき、receipt上もdocument widthはviewportと一致し、overlap/control occlusionは0です。長いEN range menuの下部はviewport画像より先へ続くため、このreviewは一画面内の全項目表示や下部項目のscroll操作までは主張しません。
-
 ## 手動実行の前提
 
 この資料は転記用です。SCP-JPへの公開書き込みはまだ行っていません。updateでは実行時にlive revision/source SHAがcurrent targetと一致することを確認してください。変更されていた場合はそのページの作業を止め、provenanceを更新して再acceptanceしてください。Attachmentはsource pageより先に指定filenameでuploadします。
@@ -166,51 +150,3 @@ freeze graphの`status`欄はfreeze時点の状態です。最終acceptanceは�
 - BHL toggle-sidebar rev3は`reuse-existing`でupdate sourceなし。BHL dark-sidebarはrev2を基点にしたupdate。Collapsible optionはcomponent rev4とchild fragment rev5を使う別scenario。
 - Quand rev2は既存page updateでheader-logo.pngとbody_bg_grey.pngをupload。Dear Dictatorは新規source-only page。
 
-## BHL targeted option evidence
-
-### bhl-options-toggle-header-dark
-
-- 対象: `theme:black-highlighter-theme`
-- includes: `component:centered-header-bhl`, `component:toggle-sidebar-bhl`, `component:bhl-dark-sidebar`
-- states: toggle-rest, toggle-corner-button-open, toggle-hover-after-button-open, toggle-keyboard-focus-open, toggle-mobile-target-open, toggle-mobile-close-menu, toggle-narrow-target-open, normal/hover/focus/current dark-sidebar links, centered desktop/mobile/narrow composition
-- viewports: 1280x900, 390x844, 320x740
-- current authority SHA: `32390ce05b5d1d0bd1622eda6d03370e3e4f777377b908a35c2726343e6b52a5`
-- candidate source/CSS SHA: `c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427` / `08b5d9abd0af51ddfe535761e6b5c18484dab099672dfd08a2c39af4585cb98b`
-- visual review: `ports/black-highlighter-theme/option-scenarios/runs/visual-review.json` — `8ff2d95035a525a971dbe2e27bf413d61045cf4cbc39caa97d60425e0116f46b`
-- captures:
-  - `ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-chromium.json` — `be310c902b619a20b2330d5886cbca25c26537e35d66632c8942466d6b7ea3f1`
-  - `ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-firefox.json` — `f592ed931269b068a867f9054cd066899763a0ad98c02826fae44a10c988b2a2`
-  - `ports/black-highlighter-theme/option-scenarios/runs/combined-sigma9-webkit.json` — `2a54dbb29fe7433cdc3c56f9e345b3a02c8cf41344d8cbbadcef6d5e73238ed5`
-  - `ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-chromium.json` — `4b91bad5287c44e6ce92b38b89fba1c225e7ca1ac850943421bf1e3976700b47`
-  - `ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-firefox.json` — `779356860d63b5884471b234ef7d18d5679854cbaee5a13e729f2d6d195a8ba9`
-  - `ports/black-highlighter-theme/option-scenarios/runs/combined-sigma10-webkit.json` — `5d2f5df795355edfc25605b5be536162333079b83b2c4c241fb188fbc6221aec`
-
-### bhl-options-collapsible-sidebar
-
-- 対象: `theme:black-highlighter-theme`
-- includes: `component:collapsible-sidebar`
-- states: collapsible-rest, collapsible-hover-expanded, collapsible-keyboard-focus-expanded, collapsible-nested-entry, collapsible-closed, collapsible-mobile, collapsible-narrow-mobile
-- viewports: 1280x900, 390x844, 320x740
-- current authority SHA: `32390ce05b5d1d0bd1622eda6d03370e3e4f777377b908a35c2726343e6b52a5`
-- candidate source/CSS SHA: `c42238fa49ab82144ec93f30bf45d769e42019975946cfad3cee0b67a0a9a427` / `08b5d9abd0af51ddfe535761e6b5c18484dab099672dfd08a2c39af4585cb98b`
-- visual review: `ports/black-highlighter-theme/option-scenarios/runs/visual-review.json` — `8ff2d95035a525a971dbe2e27bf413d61045cf4cbc39caa97d60425e0116f46b`
-- captures:
-  - `ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma9-chromium.json` — `d903074c60bc4fef51fa14fc66b07ba4742263f452ccb1c47827c25fa7e6b057`
-  - `ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma9-firefox.json` — `2a207b2da20ac46a395db290a912e6238dd9b3e47fadb6fdb39813d241725f2b`
-  - `ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma9-webkit.json` — `1c68e0ecf89f1158252a2f0ad06f378213c8cb07fd087e1fc49c7d98d91e43de`
-  - `ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-chromium.json` — `ce23b58b24102b993463e1220001bad5f03ac2abfb5fe2b80375e153cc7dfc61`
-  - `ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-firefox.json` — `b128fd3cce22317074070781f3e05e3f503cb4505885c795c5c6fab85b4a7b6d`
-  - `ports/black-highlighter-theme/option-scenarios/runs/collapsible-sigma10-webkit.json` — `0b63722ae50b67990152fe9d16f6607920cf7710ee8f10e802b44750a9294dc3`
-
-## rich-body補助確認と限界
-
-別fixtureで36 themes × Chromium 320/390pxの72 capturesを同じcandidate setとcurrent Framerail/Deepwellへbindし、direct visual review済みです。見出しh1–h6、順序/入れ子list、引用、5列table、code、長いlink、image block/caption、footnote block、展開collapsibleを確認。
-
-- 再現用Wikidot source: `install/local/theme-lab/fixtures/theme-rich-body-probe.wikidot.txt` — SHA `23695e6bead7adb4ef79a6c70a6d8e4b4453eed60e7229e985b678cd8d72bf70`。capture receiptはこのpath/SHAと各rendered-body feature assertionを記録します。
-- Main acceptance fixtureの本文はこのrich-body集合を網羅していません。その欠落を145-state matrixのcoverageとして数えず、上記の別fixture/capturesで補っています。frozen run contractに結び付いたmain fixtureは変更していません。
-
-- review: `install/local/theme-lab/ports/current-acceptance/rich-body-probe-20261006/visual-review.json` — SHA `8dc29e12183a956f883d3282f3079f579fd991e278dcfd65206a596e167c6d0e`
-- capture receipt: `install/local/theme-lab/ports/current-acceptance/rich-body-probe-20261006/receipt.json` — SHA `0551b1ab358691d6336d53b367b98c45d47b35ae181dc01ee61949ec897ec646`
-- `[[bibliography]]`は未検証。current Deepwell previewがmacroをliteralのまま出力するので、themeのbibliography presentationを確認したものとは扱いません。
-- 128文字の改行なしlink label等synthetic stressではbaselineにもoverflowがあり、一部themeで幅が増加。通常URLの不具合とは断定せず、probeの既知varianceとして記録。
-- このsupplemental probeではmain fixture/run contractを変更していません。

@@ -1,8 +1,0 @@
-{
-  "schema": "theme_lab_candidate_fix_note.v1",
-  "defect": "S10B-1 (space): the creditRate bar overlaps the CC license badge in the credit view modal (Sigma-10 judgments rows 43/44, mobile Firefox/WebKit captures)",
-  "isolated_cause": "ports/space/candidate.css L490-495: :is(div,ul).creditRate {display:block; float:none; text-align:end; margin-right:0} is candidate-authored (absent from the frozen shared assets; the adjacent L496 div.creditRate .rateBox{display:contents} is verbatim). The block layout takes the modal bottom row for itself and overlaps the badge; the credit module layout is display:inline-flex with float:right, sharing the row with the badge.",
-  "correction": "[id*=u-credit] :is(div,ul).creditRate{display:inline-flex;float:right;text-align:start} restores the module layout inside the credit modals only; the page-level rate bar keeps the theme block layout.",
-  "measurement_status": "The Sigma-9 delta frame cannot host this defect: the acceptance fixture #u-credit-view modal contains no .creditRate, .creditBottomRate or .credit-license elements (probed 2026-10-28, Chromium, 320/390px, with the frozen credit-component sheet in the stack). The Sigma-10 modal DOM exists only in the runtime composition.",
-  "verification": "Deferred to the Sigma-10 recapture (waves W11/W15) per the triage disposition for the S10B rows; the fix lands pre-freeze on the isolated cause."
-}

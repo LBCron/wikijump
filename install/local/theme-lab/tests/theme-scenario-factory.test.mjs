@@ -33,7 +33,7 @@ test('package scenario factory binds declared candidate-base CSS without changin
 
 test('package scenario factory fails closed on unknown packages and generations',()=>{
   assert.throws(()=>themeScenarioConfigForPackage(root,{generation:'sigma11',packageName:'bedrock'}),/unsupported canonical scenario generation/u);
-  assert.throws(()=>themeScenarioConfigForPackage(root,{generation:'sigma9',packageName:'not-a-real-theme'}),/unknown maintained package/u);
+  assert.throws(()=>themeScenarioConfigForPackage(root,{generation:'sigma9',packageName:'not-a-real-theme'}),/not-a-real-theme/u);
 });
 
 

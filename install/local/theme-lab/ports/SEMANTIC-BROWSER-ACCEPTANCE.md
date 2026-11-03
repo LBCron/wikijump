@@ -1,8 +1,5 @@
 # Semantic browser acceptance
 
-Long-term continuous verification and independent evidence recovery criteria:
-[LONG-TERM-VALIDATION-OPERATIONS.md](LONG-TERM-VALIDATION-OPERATIONS.md).
-
 A correctly localized theme preserves the frozen upstream theme's intentional
 visual identity, structure, responsive behavior and interactions while making
 the documented language, site identity, glyph and evidenced JP contract

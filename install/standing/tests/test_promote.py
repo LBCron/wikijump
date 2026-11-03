@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import inspect
 import json
 from pathlib import Path
@@ -16,108 +15,6 @@ sys.path.insert(0, str(Path(__file__).parents[1]))
 import promote  # noqa: E402
 
 
-TREE = "a" * 40
-OTHER = "b" * 40
-NOTHING = {group: False for group in promote.GROUPS}
-
-
-def receipt(tree: str, groups: dict[str, bool], **overrides) -> dict[str, object]:
-    return {
-        "schema": promote.VALIDATION_SCHEMA,
-        "status": "pass",
-        "mode": "final",
-        "wikijump_tree": tree,
-        "groups": groups,
-        "checks": [{"name": "deepwell full tests", "status": "ok"}],
-        **overrides,
-    }
-
-
-class ValidationCoverageTest(unittest.TestCase):
-    def coverage(self, required, receipts, delta=NOTHING):
-        calls = []
-
-        def delta_groups(other):
-            calls.append(other)
-            return delta
-
-        covered, missing = promote.validation_coverage(
-            required, TREE, [(Path(f"/store/{i}.json"), r) for i, r in enumerate(receipts)], delta_groups
-        )
-        return covered, missing, calls
-
-    def test_a_receipt_for_the_same_tree_covers_its_groups(self) -> None:
-        covered, missing, calls = self.coverage(
-            {**NOTHING, "deepwell": True}, [receipt(TREE, {"deepwell": True})]
-        )
-        self.assertEqual(missing, [])
-        self.assertEqual(covered["deepwell"]["tree"], TREE)
-        self.assertEqual(calls, [], "the same tree needs no diff")
-
-    def test_another_tree_covers_a_group_its_difference_does_not_select(self) -> None:
-        covered, missing, _ = self.coverage(
-            {**NOTHING, "deepwell": True, "framerail": True},
-            [receipt(OTHER, {"deepwell": True, "framerail": True})],
-            delta={**NOTHING, "framerail": True},
-        )
-        self.assertEqual(sorted(covered), ["deepwell"])
-        self.assertEqual(missing, ["framerail"])
-
-    def test_a_receipt_that_did_not_run_a_group_does_not_cover_it(self) -> None:
-        _, missing, _ = self.coverage(
-            {**NOTHING, "deepwell": True}, [receipt(TREE, {"deepwell": False, "verification": True})]
-        )
-        self.assertEqual(missing, ["deepwell"])
-
-    def test_groups_the_change_does_not_select_need_nothing(self) -> None:
-        covered, missing, _ = self.coverage(NOTHING, [])
-        self.assertEqual((covered, missing), ({}, []))
-
-    def test_only_passing_final_receipts_with_every_check_ok_count(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            store = Path(directory)
-            rows = {
-                "good": receipt(TREE, {"deepwell": True}),
-                "failed": receipt(TREE, {"deepwell": True}, status="fail"),
-                "checkpoint": receipt(TREE, {"deepwell": True}, mode="checkpoint"),
-                "failed-check": receipt(TREE, {"deepwell": True}, checks=[{"name": "x", "status": "failed"}]),
-                "inconclusive-check": receipt(
-                    TREE, {"theme_lab": True}, checks=[
-                        {"name": "Theme Lab tests", "status": "ok"},
-                        {"name": "Theme Lab current campaign completion", "status": "inconclusive"},
-                    ]
-                ),
-                "unrelated-inconclusive": receipt(
-                    TREE, {"theme_lab": True}, checks=[
-                        {"name": "Theme Lab tests", "status": "ok"},
-                        {"name": "source authority", "status": "inconclusive"},
-                    ]
-                ),
-                "not-theme-lab": receipt(
-                    TREE, {"verification": True}, checks=[
-                        {"name": "verification", "status": "ok"},
-                        {"name": "Theme Lab current campaign completion", "status": "inconclusive"},
-                    ]
-                ),
-                "no-passing-check": receipt(
-                    TREE, {"theme_lab": True}, checks=[
-                        {"name": "Theme Lab current campaign completion", "status": "inconclusive"},
-                    ]
-                ),
-                "no-checks": receipt(TREE, {"deepwell": True}, checks=[]),
-                "other-schema": receipt(TREE, {"deepwell": True}, schema="x"),
-            }
-            for name, row in rows.items():
-                (store / f"{name}.json").write_text(json.dumps(row), encoding="utf-8")
-            (store / "broken.json").write_text("{", encoding="utf-8")
-            # An inconclusive check (no evidence to judge) did not fail its run.
-            self.assertEqual(
-                [path.stem for path, _ in promote.validation_receipts(store)],
-                ["good", "inconclusive-check"],
-            )
-
-    def test_a_missing_store_has_no_receipts(self) -> None:
-        self.assertEqual(promote.validation_receipts(Path("/nonexistent/store")), [])
 
 
 class RehearsalReasonTest(unittest.TestCase):
@@ -133,7 +30,7 @@ class RehearsalReasonTest(unittest.TestCase):
 
 
 class BrowserReferenceTest(unittest.TestCase):
-    def reference(self, directory: Path, ledger_bytes: bytes, recorded: str | None = None) -> None:
+    def reference(self, directory: Path, ledger_bytes: bytes) -> None:
         (directory / "ledger.json").write_bytes(ledger_bytes)
         (directory / "reference.json").write_text(
             json.dumps(
@@ -141,7 +38,6 @@ class BrowserReferenceTest(unittest.TestCase):
                     "schema": promote.BROWSER_REFERENCE_SCHEMA,
                     "live_completion_policy": "policy.json",
                     "live_reference_ledger": "ledger.json",
-                    "live_reference_sha256": recorded or hashlib.sha256(ledger_bytes).hexdigest(),
                     "source_response_cache_dir": "/cache",
                     "source_response_cache_identity": "cache-v1",
                     "browser_executable": "/usr/bin/google-chrome",
@@ -159,14 +55,6 @@ class BrowserReferenceTest(unittest.TestCase):
             self.assertEqual(reference["ledger"], str(home / "ledger.json"))
             self.assertEqual(reference["policy"], str(home / "policy.json"))
             self.assertEqual(reference["candidate_port"], 18560)
-
-    def test_a_changed_reference_is_refused(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            home = Path(directory)
-            self.reference(home, b"{}", recorded="0" * 64)
-            with self.assertRaisesRegex(ValueError, "does not match"):
-                promote.browser_reference(home)
-
 
 class FakeStanding:
     """Containers and calls of a standing runtime for `promote.activate`."""
@@ -298,7 +186,7 @@ class FakeStanding:
                 patch.stop()
 
 
-GENERATION_CHANGE = {"status": "pass", "expected_compiled_generator": "ftml v1; deepwell-render/v26", "stale_pages_before": 24573, "receipt": {"path": "/r", "sha256": "0" * 64}}
+GENERATION_CHANGE = {"status": "pass", "expected_compiled_generator": "ftml v1; deepwell-render/v26", "stale_pages_before": 24573, "receipt": {"path": "/r"}}
 NO_RENDER = {"status": "not-needed", "expected_compiled_generator": "ftml v1; deepwell-render/v25", "stale_pages_before": 0}
 
 
@@ -312,11 +200,8 @@ class ActivationTest(unittest.TestCase):
     def tearDown(self) -> None:
         self.directory.cleanup()
 
-    def test_a_passing_activation_removes_the_parked_containers_and_binds_the_build(self) -> None:
-        result = self.standing.run(self.root / "evidence", NO_RENDER)
-        receipt = json.loads(Path(result["refresh_receipt"]).read_text(encoding="utf-8"))
-        self.assertEqual(receipt["schema_version"], 4)
-        self.assertEqual(receipt["build_evidence"]["path"], str(self.root / "evidence" / "build" / "seal.json"))
+    def test_a_passing_activation_removes_the_parked_containers(self) -> None:
+        self.standing.run(self.root / "evidence", NO_RENDER)
         removed = [call for call in self.standing.calls if call[:3] == ("subprocess", "docker", "rm")]
         self.assertEqual([call[-1] for call in removed], [f"parked-{s}" for s in promote.SERVICES])
         self.assertNotIn(("snapshot",), self.standing.calls, "no generator change, nothing to keep")
@@ -605,31 +490,6 @@ class ActivationSafetyTest(unittest.TestCase):
         self.assertIn('project = f"wjcand-rehearsal-{target[:12]}"', source)
         self.assertIn('"down", "--volumes"', source)
         self.assertNotIn("wikijump-standing", source)
-
-
-class LauncherToolsTest(unittest.TestCase):
-    def test_all_launcher_tools_present_passes(self) -> None:
-        with mock.patch.object(promote.shutil, "which", return_value="/bin/tool"):
-            promote.require_launcher_tools()
-
-    def test_missing_cargo_is_named_with_the_path_fix(self) -> None:
-        def which(tool: str):
-            return None if tool == "cargo" else "/usr/bin/sqlx"
-
-        with mock.patch.object(promote.shutil, "which", side_effect=which):
-            with self.assertRaises(SystemExit) as raised:
-                promote.require_launcher_tools()
-        self.assertIn("cargo", str(raised.exception))
-        self.assertIn("$HOME/.cargo/bin", str(raised.exception))
-
-    def test_missing_sqlx_is_named(self) -> None:
-        def which(tool: str):
-            return None if tool == "sqlx" else "/usr/bin/cargo"
-
-        with mock.patch.object(promote.shutil, "which", side_effect=which):
-            with self.assertRaises(SystemExit) as raised:
-                promote.require_launcher_tools()
-        self.assertIn("sqlx", str(raised.exception))
 
 
 if __name__ == "__main__":

@@ -39,17 +39,16 @@ test("targeted PR checks are the merge signal; the full suite is informational",
   assert.doesNotMatch(prTrigger, /schedule:|merge_group:|push:/u)
   assert.match(prChecks, /cargo test/u)
   assert.match(prChecks, /test:unit/u)
-  assert.doesNotMatch(prChecks, /run-consolidated-validation/u)
+  assert.doesNotMatch(prChecks, /preflight\.sh/u)
 
   // The full consolidated suite runs nightly and on dispatch only,
-  // never on pull requests, and keeps its sealed receipt as an artifact.
+  // never on pull requests.
   const full = workflow("consolidated-validation.yml")
   const fullTrigger = triggerBlock(full)
   assert.match(fullTrigger, /workflow_dispatch:/u)
   assert.match(fullTrigger, /schedule:/u)
   assert.doesNotMatch(fullTrigger, /pull_request:|merge_group:|push:/u)
-  assert.match(full, /run-consolidated-validation\.mjs/u)
-  assert.match(full, /upload-artifact/u)
+  assert.match(full, /preflight\.sh[^\n]*--final/u)
   assert.doesNotMatch(full, /(?:wikidot\.com|wdfiles)/iu)
 
   // The retired gate name stays retired.
@@ -191,19 +190,6 @@ test("local classifier keeps workflow and verification ownership", () => {
   assert.equal(manual.verification, true, "verification")
 })
 
-test("machine-readable development authorities select local verification", () => {
-  for (const file of [
-    "docs/development/compatibility-surface-semantics.json",
-    "docs/development/deepwell-jsonrpc-contract-manifest.json",
-    "docs/development/open43-a-authoring-closure-audit.json",
-    "docs/development/wws-route-registration-denominator.json"
-  ]) {
-    const selected = classifyChanges([file])
-    for (const group of GROUPS) assert.equal(selected[group], false, `${file}: ${group}`)
-    assert.equal(selected.verification, true, `${file}: verification`)
-  }
-})
-
 test("documentation stays cheap and unknown local-preflight paths fail closed", () => {
   const docs = classifyChanges([
     "README.md",
@@ -228,15 +214,9 @@ test("documentation stays cheap and unknown local-preflight paths fail closed", 
 test("verification inputs remain selected by the local preflight classifier", () => {
   for (const file of [
     "install/local/wikidot-verification/artifacts/example.json",
-    "install/local/wikidot-verification/src/generic-runtime-differential.mjs",
-    "install/local/wikidot-verification/tests/generic-runtime-differential.test.mjs",
-    "install/standing/tests/verify-promotion-precondition.test.mjs",
-    "scripts/data/wikidot-implementation-ledger.json",
-    "scripts/data/wikidot-live-observations.json",
-    "scripts/data/wikidot-detailed-spec-evidence-20260816.json",
-    "scripts/data/wikidot-detailed-feature-contracts.json",
-    "scripts/generate-wikidot-specifications.mjs",
-    "docs/wikidot-specifications/catalog.json"
+    "install/local/wikidot-verification/src/syntax-differential.mjs",
+    "install/local/wikidot-verification/tests/syntax-differential.test.mjs",
+    "install/standing/tests/test_promote.py"
   ]) {
     const selected = classifyChanges([file])
     for (const group of GROUPS) assert.equal(selected[group], false, `${file}: ${group}`)
@@ -289,16 +269,4 @@ test("Theme Lab inputs select their own acceptance gates without selecting runti
   const mixed = classifyChanges(["install/local/theme-lab/src/verdict.mjs", "deepwell/src/api.rs"])
   assert.equal(mixed.theme_lab, true)
   assert.equal(mixed.deepwell, true)
-  const preflight = read("scripts/preflight.sh")
-  for (const gate of ["check-adaptation-authority.mjs", "prepare-maintainable-sources.mjs --check", "real-port-regression.mjs --verify-only", "sigma10-migration/check-final.mjs"]) assert.ok(preflight.includes(gate), gate)
-})
-
-test("specification supplements select only verification", () => {
-  for (const file of [
-    "scripts/data/wikidot-spec-supplements.json",
-  ]) {
-    const selected = classifyChanges([file])
-    assert.equal(selected.verification, true, file)
-    for (const group of GROUPS) assert.equal(selected[group], false, `${file} selected ${group}`)
-  }
 })

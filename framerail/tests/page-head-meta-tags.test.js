@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
@@ -9,9 +8,13 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let pageHeadComponent
 
 before(async () => {
@@ -30,8 +33,14 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
+/**
+ * @param {any} name
+ * @param {any} content
+ * @param {any} all_pages
+ */
 const row = (name, content, all_pages) => ({ name, content, all_pages })
 
+/** @param {any} metaTags */
 const renderHeadMetaTags = (metaTags) => {
   const { head } = render(pageHeadComponent, {
     props: { fontPreloadHrefs: [], compiledBodyStylesHead: "", metaTags }
@@ -72,7 +81,9 @@ test("the meta tag each key is unique for every stored row", async () => {
     new URL("../src/routes/[slug]/[...extra]/PageHead.svelte", import.meta.url),
     "utf8"
   )
+  /** @type {any[]} */
   const blocks = []
+  /** @param {any} node */
   const visit = (node) => {
     if (!node || typeof node !== "object") return
     if (node.type === "EachBlock") blocks.push(node)

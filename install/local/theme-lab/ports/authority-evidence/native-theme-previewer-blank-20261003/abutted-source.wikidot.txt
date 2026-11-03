@@ -1,2 +1,0 @@
-[[module themepreviewer noUi="true"theme_url=" "]]
-Theme preview boundary probe.

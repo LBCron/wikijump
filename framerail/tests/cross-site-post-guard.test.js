@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import test, { after, before } from "node:test"
 
@@ -11,6 +10,7 @@ const siteHeaders = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 
+/** @type {any} */
 const endpoints = {
   ajax: {
     path: "/ajax-module-connector.php",
@@ -26,8 +26,11 @@ const endpoints = {
   }
 }
 
+/** @type {any} */
 const loaded = {}
+/** @type {any} */
 let previousSwitch
+/** @type {any} */
 let vite
 
 before(async () => {
@@ -45,6 +48,7 @@ after(async () => {
   if (vite) await vite.close()
 })
 
+/** @param {any} value @param {any} run */
 const withSwitch = async (value, run) => {
   process.env.FRAMERAIL_CSRF_CHECK_ORIGIN = value
   try {
@@ -54,6 +58,7 @@ const withSwitch = async (value, run) => {
   }
 }
 
+/** @param {any} name @param {any} headers */
 const postTo = (name, headers = {}) => {
   const endpoint = endpoints[name]
   const request = new Request(`${OWN_ORIGIN}${endpoint.path}`, {
@@ -68,6 +73,7 @@ const postTo = (name, headers = {}) => {
   })
 }
 
+/** @param {any} response */
 const assertAllowed = async (response) => {
   assert.notEqual(response.status, 403)
   assert.notEqual(await response.text(), FORBIDDEN_MESSAGE)

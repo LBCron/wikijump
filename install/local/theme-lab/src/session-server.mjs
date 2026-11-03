@@ -66,7 +66,6 @@ import {stateCapturesFromSurfaceCaptures} from "./viewport-overflow-classificati
 import {annotateRuntimeSurfaceUsage, applyRuntimeSurfaceParityGate} from "./runtime-surface-parity.mjs";
 import {captureVisualPair} from "./visual-diff.mjs";
 import {bindVisualAcceptance} from "./visual-acceptance.mjs";
-import {TARGET_ACCEPTANCE_CONTRACT, TARGET_ACCEPTANCE_CONTRACT_SHA256} from "./target-acceptance-contract.mjs";
 import {measureTargetBaselineViewportOverflow} from "./target-baseline-viewport-probe.mjs";
 import {fullCheckInputBindings} from "./full-check-input-bindings.mjs";
 import {framerailSourceFingerprintSync} from "./framerail-source-fingerprint.mjs";
@@ -758,8 +757,6 @@ export function createSession({
         };
       }
       verdict.target_fixture_identity = Object.fromEntries(Object.entries({baseline:baselineCss,sidebar:sidebarHtml,interwiki:interwikiHtml,header:headerHtml,navigation:navigationHtml}).map(([name,bytes])=>[name,bytes===null?null:crypto.createHash("sha256").update(bytes).digest("hex")]));
-      verdict.target_acceptance_contract_sha256 = TARGET_ACCEPTANCE_CONTRACT_SHA256;
-      verdict.target_page_runtime_sha256 = TARGET_ACCEPTANCE_CONTRACT.static_inputs.target_page_runtime_sha256;
       verdict.full_check_input_bindings = fullCheckInputBindings({selectors,surfaceContract,sourceStructure,pageAssets,referenceUrl});
       if (loadedReference) {
         const manifest = await session.referenceAssets.load();

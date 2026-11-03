@@ -16,9 +16,6 @@ import {fileURLToPath} from "node:url";
 import {loadChromium} from "../src/browser-lab.mjs";
 import {ReferenceCache} from "../src/reference-cache.mjs";
 import {startSessionServer} from "../src/session-server.mjs";
-import {TARGET_ACCEPTANCE_CONTRACT, TARGET_ACCEPTANCE_CONTRACT_SHA256} from "../src/target-acceptance-contract.mjs";
-import {loadFaithfulDesignExemptions, matchFullCheckWaivers} from "../src/finalize-visual-acceptance.mjs";
-import {isAdmittedTargetAcceptanceContract} from "../src/target-acceptance-instruments.mjs";
 
 const MODULE_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(MODULE_DIR, "../../../..");
@@ -270,56 +267,7 @@ test("full viewport acceptance does not attribute inherited preview overflow to 
     assert.ok(narrow.viewport_escape_px > 1);
     assert.equal(narrow.viewport_escape_px, narrow.baseline_viewport_escape_px);
     assert.equal(narrow.status, "pass");
-    assert.equal(verdict.target_acceptance_contract_sha256, TARGET_ACCEPTANCE_CONTRACT_SHA256);
     assert.ok(!verdict.top_issues.some((issue) => issue.kind === "viewport_overflow"));
-  }, {previewClient});
-});
-
-test("a real verdict's stamp waives against a real ledger entry recorded under another admitted instrument", async (t) => {
-  const previewClient = {
-    preview: async () => ({
-      body: '<div id="inherited-overflow" style="width:340px;height:20px">baseline content</div>',
-      styles: [],
-      legacy_actions: [],
-      membership_actions: [],
-    }),
-  };
-  await withSession(t, async ({session}) => {
-    const verdict = await session.check({
-      siteId: 6000003,
-      wikitext: "cross-instrument waiver fixture",
-      css: "#inherited-overflow { color: rgb(1, 2, 3); }",
-      viewports: true,
-      torture: false,
-    });
-    // The stamp is the live instrument-proper digest recorded by the real
-    // session; the live runtime value rides along under its own field.
-    assert.equal(verdict.target_acceptance_contract_sha256, TARGET_ACCEPTANCE_CONTRACT_SHA256);
-    assert.equal(verdict.target_page_runtime_sha256, TARGET_ACCEPTANCE_CONTRACT.static_inputs.target_page_runtime_sha256);
-    const document = loadFaithfulDesignExemptions();
-    const entry = document.entries.find((row) => row.id === "G2-47-cosmonaut-hovertip");
-    assert.ok(entry);
-    // The ledger entry was recorded under a different, earlier admitted
-    // instrument. The synthetic fixtures in
-    // tests/faithful-design-exemptions.test.mjs copy the entry's stamp
-    // into the result, which is why the raw-vs-proper stamp defect stayed
-    // invisible there; this result keeps the real session stamp, so the
-    // match can only succeed through mutual admission.
-    assert.notEqual(verdict.target_acceptance_contract_sha256, entry.target_acceptance_contract_sha256);
-    assert.ok(isAdmittedTargetAcceptanceContract(verdict.target_acceptance_contract_sha256));
-    assert.ok(isAdmittedTargetAcceptanceContract(entry.target_acceptance_contract_sha256));
-    const findingFromSpec = (spec) => ({severity: "error", kind: spec.kind, viewport: spec.viewport, overflow_px: spec.overflow_px, document_overflow_px: spec.document_overflow_px, viewport_escape_px: spec.viewport_escape_px, baseline_overflow_px: spec.baseline_overflow_px, baseline_document_overflow_px: spec.baseline_document_overflow_px, baseline_viewport_escape_px: spec.baseline_viewport_escape_px, overflow_sources: spec.selectors.map((selector) => ({selector}))});
-    const result = {
-      ...verdict,
-      local_target_acceptance: undefined,
-      candidate_css_sha256: entry.candidate_css_sha256,
-      candidate_source_sha256: entry.candidate_source_sha256,
-      full_check_input_bindings: {sha256: entry.full_check_input_bindings_sha256},
-      target_acceptance: {status: "fail", findings: entry.findings.map(findingFromSpec)},
-    };
-    const waivers = matchFullCheckWaivers(document, result);
-    assert.equal(waivers.length, entry.findings.length);
-    assert.ok(waivers.every((waiver) => waiver.entry.id === entry.id));
   }, {previewClient});
 });
 

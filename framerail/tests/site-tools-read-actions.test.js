@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import test from "node:test"
@@ -11,6 +10,7 @@ import {
 } from "../src/lib/server/wikidot-site-tools.js"
 import { requestWikidotSiteToolsModule } from "../src/lib/wikidot/wikidot-site-tools.js"
 
+/** @param {any} form */
 const request = (form) =>
   new Request("http://scp-wiki.local/ajax-module-connector.php", {
     method: "POST",
@@ -19,7 +19,9 @@ const request = (form) =>
   })
 
 test("Site Tools AMC allows only the four observed read shapes", async () => {
+  /** @type {any[]} */
   const received = []
+  /** @type {any[]} */
   const shapes = [
     ["sitetools/SiteToolsModule", "1", {}],
     ["sitetools/WantedPagesModule", "2", {}],
@@ -87,7 +89,9 @@ test("Site Tools AMC rejects unobserved parameters before Deepwell", async () =>
 })
 
 test("Site Tools browser requests preserve exact module names and callback indices", async () => {
+  /** @type {any[]} */
   const calls = []
+  /** @param {any} url @param {any} init */
   const fetcher = async (url, init) => {
     calls.push({ url, init, form: Object.fromEntries(new URLSearchParams(init.body)) })
     return new Response(JSON.stringify({ status: "ok", body: "<div>ok</div>" }))

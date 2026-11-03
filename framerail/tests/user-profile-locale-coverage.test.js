@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import { readdirSync, readFileSync, existsSync } from "node:fs"
 import { fileURLToPath } from "node:url"
@@ -9,6 +8,7 @@ import { createTestViteServer } from "./vite-test-server.js"
 const root = fileURLToPath(new URL("..", import.meta.url))
 const fluentRoot = fileURLToPath(new URL("../../locales/fluent", import.meta.url))
 
+/** @param {any} source */
 const fluentSelectors = (source) => {
   const selectors = new Set()
   let message = null
@@ -27,6 +27,7 @@ const fluentSelectors = (source) => {
   return selectors
 }
 
+/** @param {any} locale */
 const localeSelectors = (locale) => {
   const selectors = new Set()
   for (const component of readdirSync(fluentRoot, { withFileTypes: true })) {
@@ -40,12 +41,17 @@ const localeSelectors = (locale) => {
   return selectors
 }
 
+/** @param {any} vite @param {any} client */
 const profileRouteTranslateKeys = async (vite, client) => {
   const { loadUser } = await vite.ssrLoadModule("/src/lib/server/load/user.ts")
   const originalRequest = client.request
+  /** @type {any} */
   let requestedKeys = null
 
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     if (method === "user_view") {
       return {
         type: "user_found",

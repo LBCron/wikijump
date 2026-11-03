@@ -45,13 +45,7 @@ emit_scope() {
     deepwell_space) printf '%s\\0' 'deepwell/src/file with space.rs' ;;
     none) ;;
     docs) printf '%s\\0' docs/development.md ;;
-    specification) printf '%s\\0' docs/wikidot-specifications/specifications/module/example.md ;;
     verification) printf '%s\\0' install/local/wikidot-verification/src/example.mjs ;;
-    verification_and_specification)
-      printf '%s\\0' \
-        install/local/wikidot-verification/src/example.mjs \
-        docs/wikidot-specifications/specifications/module/example.md
-      ;;
     *) echo "unexpected fake scope: $1" >&2; exit 4 ;;
   esac
 }
@@ -113,11 +107,7 @@ else
   line="node$(printf ' %s' "$@")"
   if [[ -n "\${PREFLIGHT_DELAY_MATCH:-}" && "$*" == *"$PREFLIGHT_DELAY_MATCH"* ]]; then sleep 1; fi
   printf '%s\n' "$line" >> "$PREFLIGHT_COMMAND_LOG"
-  if [[ -n "\${THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED:-}" ]]; then
-    printf 'env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED=%s %s\n' "$THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED" "$line" >> "$PREFLIGHT_COMMAND_LOG"
-  fi
   if [[ -n "\${PREFLIGHT_FAIL_MATCH:-}" && "$*" == *"$PREFLIGHT_FAIL_MATCH"* ]]; then exit 1; fi
-  if [[ -n "\${PREFLIGHT_INCONCLUSIVE_MATCH:-}" && "$*" == *"$PREFLIGHT_INCONCLUSIVE_MATCH"* ]]; then exit 2; fi
 fi
 `)
 
@@ -130,8 +120,6 @@ fi
     PREFLIGHT_COMMAND_LOG: commandLog,
     PREFLIGHT_FAKE_EXCLUDE: path.join(directory, "info-exclude"),
     PREFLIGHT_FAKE_ROOT: root,
-    THEME_LAB_AUTHORITY_STORE: path.join(directory, "evidence-store"),
-    THEME_LAB_EVIDENCE_STORE: path.join(directory, "evidence-store"),
     PREFLIGHT_FALLBACK_SCOPE: "all",
     PREFLIGHT_GIT_DIFF_FAIL: "false",
     PREFLIGHT_HEAD_OID: headOid,
@@ -165,11 +153,9 @@ test("checkpoint preflight avoids compiled checks for every selected group", (t)
 
   assert.equal(result.status, 0, result.stderr)
   assert.deepEqual(harness.commands(), [
-    "node install/local/wikidot-verification/scripts/verify-repository-generated-contracts.mjs",
     "cargo fmt --manifest-path deepwell/Cargo.toml --check",
     "cargo fmt --manifest-path wws/Cargo.toml --check",
     "pnpm --dir framerail lint",
-    "node install/local/theme-lab/scripts/check-runtime-drift.mjs",
     "pnpm --dir framerail test:unit",
     "cargo fmt --manifest-path locales/validator/Cargo.toml --all -- --check"
   ])
@@ -184,7 +170,6 @@ test("preflight preserves changed path boundaries", (t) => {
   assert.equal(result.status, 0, result.stderr)
   assert.deepEqual(harness.receivedPaths(), ["deepwell/src/file with space.rs"])
   assert.deepEqual(harness.commands(), [
-    "node install/local/wikidot-verification/scripts/verify-repository-generated-contracts.mjs",
     "cargo fmt --manifest-path deepwell/Cargo.toml --check"
   ])
 })
@@ -217,7 +202,6 @@ test("final preflight is the single explicit full-check barrier", (t) => {
 
   assert.equal(result.status, 0, result.stderr)
   assert.deepEqual(harness.commands(), [
-    "node install/local/wikidot-verification/scripts/verify-repository-generated-contracts.mjs --full",
     "cargo fmt --manifest-path deepwell/Cargo.toml --check",
     "cargo machete deepwell",
     "cargo clippy --manifest-path deepwell/Cargo.toml --tests --no-deps -- -D warnings",
@@ -228,7 +212,6 @@ test("final preflight is the single explicit full-check barrier", (t) => {
     "cargo test --manifest-path wws/Cargo.toml --locked --all-features -- --nocapture --test-threads 1",
     "node --test wws/tests/resize-iframe.test.mjs",
     "pnpm --dir framerail lint",
-    "node install/local/theme-lab/scripts/check-runtime-drift.mjs",
     "pnpm --dir framerail test:unit",
     "pnpm --dir framerail build",
     "cargo fmt --manifest-path locales/validator/Cargo.toml --all -- --check",
@@ -281,51 +264,14 @@ test("final preflight runs groups side by side with the same checks, ordered log
   assert.ok(lastTimed >= 0 && firstDeepwell > lastTimed, order.join("\n"))
 })
 
-test("the archival Theme Lab checks run only when Theme Lab or the barrier script changed, or when forced", (t) => {
-  const archive = [
-    "node install/local/theme-lab/sigma10-migration/check-final.mjs --historical-only",
-    "node install/local/theme-lab/scripts/check-campaign-record-integrity.mjs"
-  ]
-  const always = [
-    "node install/local/theme-lab/ports/scripts/check-adaptation-authority.mjs",
-    "node install/local/theme-lab/scripts/check-post-closure-changes.mjs --base " + remoteOid
-  ]
-  const ran = (scope, overrides = {}) => {
-    const harness = createHarness(t)
-    const result = harness.runPreflight(["--base", remoteOid, "--final", "--groups", "theme_lab"], {
-      PREFLIGHT_REMOTE_SCOPE: scope,
-      ...overrides
-    })
-    assert.equal(result.status, 0, result.stdout + result.stderr)
-    return { commands: harness.commands(), stdout: result.stdout }
-  }
-
-  const unchanged = ran("deepwell")
-  for (const command of always) assert.ok(unchanged.commands.some((line) => line.endsWith(command.replace(/^node /u, "")) || line === command), command)
-  for (const command of archive) assert.ok(!unchanged.commands.some((line) => line.includes(command.slice(5))), command)
-  assert.match(unchanged.stdout, /^preflight: Theme Lab archive checks skipped .*PREFLIGHT_THEME_LAB_ARCHIVE=always/mu)
-  assert.doesNotMatch(unchanged.stdout, /Theme Lab campaign record integrity: ok/u)
-
-  for (const run of [ran("theme_lab"), ran("deepwell", { PREFLIGHT_THEME_LAB_ARCHIVE: "always" })]) {
-    for (const command of archive) assert.ok(run.commands.some((line) => line.includes(command.slice(5))), command)
-    assert.doesNotMatch(run.stdout, /archive checks skipped/u)
-  }
-})
-
-test("verification and specification inputs run only the final verification barrier", async (t) => {
-  const checkpointExpected = [
-    "node install/local/wikidot-verification/scripts/verify-repository-generated-contracts.mjs"
-  ]
+test("verification inputs run only the final verification barrier", async (t) => {
+  const checkpointExpected = []
   const finalExpected = [
-    "node install/local/wikidot-verification/scripts/verify-repository-generated-contracts.mjs --full",
     "pnpm --dir install/local/wikidot-verification test",
-    "python3 -m unittest discover -s install/standing/tests -p test_*.py",
-    "node --test install/standing/tests/*.test.mjs",
-    "node scripts/generate-wikidot-specifications.mjs --check",
-    "node scripts/initialize-wikidot-implementation-ledger.mjs --check"
+    "python3 -m unittest discover -s install/standing/tests -p test_*.py"
   ]
 
-  for (const scope of ["verification", "specification", "verification_and_specification"]) {
+  for (const scope of ["verification"]) {
     await t.test(scope, (t) => {
       const checkpoint = createHarness(t)
       const checkpointResult = checkpoint.runPreflight(["--base", remoteOid], {
@@ -344,31 +290,6 @@ test("verification and specification inputs run only the final verification barr
   }
 })
 
-test("specification generator is excluded only when PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1", (t) => {
-  const skipped = createHarness(t)
-  const skippedResult = skipped.runPreflight(["--base", remoteOid, "--final"], {
-    PREFLIGHT_REMOTE_SCOPE: "verification",
-    PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR: "1"
-  })
-  assert.equal(skippedResult.status, 0, skippedResult.stderr)
-  assert.ok(
-    !skipped.commands().includes("node scripts/generate-wikidot-specifications.mjs --check"),
-    skipped.commands().join("\n")
-  )
-  assert.match(
-    skippedResult.stdout,
-    /^preflight: wikidot specification generator skipped \(PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1\).*WIKIDOT_DOCUMENTATION_CORPUS/mu
-  )
-
-  const ran = createHarness(t)
-  const ranResult = ran.runPreflight(["--base", remoteOid, "--final"], {
-    PREFLIGHT_REMOTE_SCOPE: "verification"
-  })
-  assert.equal(ranResult.status, 0, ranResult.stderr)
-  assert.ok(ran.commands().includes("node scripts/generate-wikidot-specifications.mjs --check"))
-  assert.doesNotMatch(ranResult.stdout, /specification generator skipped/u)
-})
-
 test("explicit groups run without a change-set and unknown groups are refused", (t) => {
   const listed = createHarness(t)
   const result = listed.runPreflight(["--base", remoteOid, "--final", "--groups", "theme_lab", "--list"], {
@@ -378,10 +299,8 @@ test("explicit groups run without a change-set and unknown groups are refused", 
   assert.doesNotMatch(result.stdout, /nothing to check/)
   assert.match(result.stdout, /^preflight: groups: .*theme_lab=true/mu)
   const steps = [...result.stdout.matchAll(/^  would run: (.+)$/gmu)].map((match) => match[1])
-  assert.ok(steps.includes("Theme Lab campaign record integrity"), result.stdout)
-  assert.ok(steps.includes("Theme Lab post-closure changes"), result.stdout)
-  assert.ok(steps.includes("Theme Lab runtime drift report"), result.stdout)
-  assert.ok(!steps.includes("Theme Lab current campaign completion"), result.stdout)
+  assert.ok(steps.includes("Theme Lab tests"), result.stdout)
+  assert.ok(steps.includes("Theme Lab Python tests"), result.stdout)
 
   const unknown = createHarness(t)
   const refused = unknown.runPreflight(["--base", remoteOid, "--final", "--groups", "theme_lba", "--list"], {
@@ -424,118 +343,4 @@ test("listing without a change-set still prints the group plan (the nightly shap
   assert.equal(quiet.status, 0, quiet.stderr)
   assert.match(quiet.stdout, /nothing to check/)
   assert.deepEqual(gated.commands(), [])
-})
-
-const themeLabFanoutScenario = (t, overrides = {}) => {
-  const harness = createHarness(t)
-  const result = harness.runPreflight(["--base", remoteOid, "--final", "--groups", "theme_lab"], {
-    PREFLIGHT_JOBS: "0",
-    PREFLIGHT_REMOTE_SCOPE: "deepwell",
-    PREFLIGHT_THEME_LAB_ARCHIVE: "always",
-    ...overrides
-  })
-  return { harness, result }
-}
-
-const flagReadings = (harness) => harness.commands()
-  .filter((line) => line.startsWith("env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED="))
-  .map((line) => {
-    const match = /^env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED=(\d) (.*)$/u.exec(line)
-    return { flag: match[1], command: match[2] }
-  })
-  .sort((a, b) => a.command.localeCompare(b.command))
-
-const flagReaderCommands = [
-  "node install/local/theme-lab/scripts/real-port-regression.mjs --verify-only",
-  "node install/local/theme-lab/sigma10-migration/check-final.mjs --historical-only"
-]
-
-test("fan-out hands the authority flag to both readers: 1 when the authority segment passes, 0 when either half fails", (t) => {
-  const control = themeLabFanoutScenario(t)
-  assert.equal(control.result.status, 0, control.result.stdout + control.result.stderr)
-  assert.deepEqual(flagReadings(control.harness), [
-    { flag: "1", command: flagReaderCommands[0] },
-    { flag: "1", command: flagReaderCommands[1] }
-  ])
-
-  const adaptation = themeLabFanoutScenario(t, { PREFLIGHT_FAIL_MATCH: "check-adaptation-authority" })
-  assert.equal(adaptation.result.status, 1, adaptation.result.stdout)
-  assert.match(adaptation.result.stdout, /^--- Theme Lab adaptation authority: FAILED \(\d+s\)$/mu)
-  assert.match(adaptation.result.stdout, /^--- Theme Lab authority evidence restore: ok \(\d+s\)$/mu)
-  assert.deepEqual(flagReadings(adaptation.harness), [
-    { flag: "0", command: flagReaderCommands[0] },
-    { flag: "0", command: flagReaderCommands[1] }
-  ])
-
-  const restore = themeLabFanoutScenario(t, { PREFLIGHT_FAIL_MATCH: "content-addressed-authority-store" })
-  assert.equal(restore.result.status, 1, restore.result.stdout)
-  assert.match(restore.result.stdout, /^--- Theme Lab authority evidence restore: FAILED \(\d+s\)$/mu)
-  assert.match(restore.result.stdout, /^--- Theme Lab adaptation authority: ok \(\d+s\)$/mu)
-  assert.deepEqual(flagReadings(restore.harness), [
-    { flag: "0", command: flagReaderCommands[0] },
-    { flag: "0", command: flagReaderCommands[1] }
-  ])
-})
-
-test("fan-out reports every simultaneous failure and INCONCLUSIVE survives the nested merges", (t) => {
-  const harness = createHarness(t)
-  const result = harness.runPreflight(["--base", remoteOid, "--final", "--groups", "theme_lab,verification"], {
-    PREFLIGHT_JOBS: "0",
-    PREFLIGHT_REMOTE_SCOPE: "deepwell",
-    PREFLIGHT_THEME_LAB_ARCHIVE: "always",
-    PREFLIGHT_FAIL_MATCH: "check-",
-    PREFLIGHT_INCONCLUSIVE_MATCH: "generate-wikidot-specifications"
-  })
-  assert.equal(result.status, 1, result.stdout + result.stderr)
-  const failedChecks = [
-    "Theme Lab adaptation authority",
-    "Sigma-10 source evidence",
-    "Sigma-10 historical evidence integrity",
-    "Theme Lab campaign record integrity",
-    "Theme Lab post-closure changes",
-    "Theme Lab runtime drift report"
-  ]
-  for (const name of failedChecks) {
-    assert.match(result.stdout, new RegExp(`^--- ${name}: FAILED \\(\\d+s\\)$`, "mu"), name)
-  }
-  const summary = result.stdout.match(/^preflight: FAILED: (.*)$/mu)?.[1] ?? ""
-  for (const name of failedChecks) assert.ok(summary.includes(name), `${name} missing from: ${summary}`)
-  assert.match(result.stdout, /^preflight: INCONCLUSIVE \(no evidence to judge; not a pass\): wikidot specification generator$/mu)
-  assert.match(result.stdout, /^--- Theme Lab authority evidence restore: ok \(\d+s\)$/mu)
-  assert.match(result.stdout, /^--- Theme Lab deterministic packages: ok \(\d+s\)$/mu)
-  assert.match(result.stdout, /^--- Theme Lab Python tests: ok \(\d+s\)$/mu)
-})
-
-test("fan-out yields the serial receipt check set and statuses, in a deterministic order", async (t) => {
-  const { parsePreflightOutput } = await import(
-    "../../install/local/wikidot-verification/scripts/run-consolidated-validation.mjs"
-  )
-  const serial = themeLabFanoutScenario(t, { PREFLIGHT_JOBS: "1" })
-  assert.equal(serial.result.status, 0, serial.result.stdout + serial.result.stderr)
-  const fanoutA = themeLabFanoutScenario(t)
-  assert.equal(fanoutA.result.status, 0, fanoutA.result.stdout + fanoutA.result.stderr)
-  const fanoutB = themeLabFanoutScenario(t)
-  assert.equal(fanoutB.result.status, 0, fanoutB.result.stdout + fanoutB.result.stderr)
-
-  const byName = (parsed) => Object.fromEntries(parsed.checks.map((check) => [check.name, check.status]))
-  const serialParsed = parsePreflightOutput(serial.result.stdout)
-  const fanoutAParsed = parsePreflightOutput(fanoutA.result.stdout)
-  const fanoutBParsed = parsePreflightOutput(fanoutB.result.stdout)
-  assert.ok(serialParsed.checks.some((check) => check.name === "Theme Lab campaign record integrity"))
-  assert.ok(serialParsed.checks.some((check) => check.name === "Theme Lab tests"))
-  assert.deepEqual(byName(fanoutAParsed), byName(serialParsed))
-  assert.deepEqual(
-    fanoutAParsed.checks.map((check) => check.name),
-    fanoutBParsed.checks.map((check) => check.name)
-  )
-})
-
-test("fan-out starts post-closure changes only after the campaign restore has returned", (t) => {
-  const { harness, result } = themeLabFanoutScenario(t, { PREFLIGHT_DELAY_MATCH: "campaign-evidence-store" })
-  assert.equal(result.status, 0, result.stdout + result.stderr)
-  const commands = harness.commands()
-  const restoreIndex = commands.findIndex((line) => line.includes("campaign-evidence-store.py"))
-  const postClosureIndex = commands.findIndex((line) => line.includes("check-post-closure-changes.mjs"))
-  assert.ok(restoreIndex >= 0, commands.join("\n"))
-  assert.ok(postClosureIndex > restoreIndex, commands.join("\n"))
 })

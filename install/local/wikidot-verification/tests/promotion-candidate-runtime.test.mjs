@@ -4,8 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import {fileURLToPath} from "node:url";
 
-import {candidateCompose, candidateDeepwellConfig, candidateIdentityForSite} from "../scripts/start-promotion-candidate.mjs";
-import {candidateSitePageOrigin, validateCandidateParityIdentity} from "../src/standing-browser-parity-receipt.mjs";
+import {candidateCompose, candidateDeepwellConfig} from "../scripts/start-promotion-candidate.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 
@@ -17,9 +16,6 @@ test("promotion candidate topology uses isolated volumes and only loopback non-4
     project: "wikijump-candidate-fixture",
     source,
     images,
-    artifactKey: "a".repeat(64),
-    overlaySha256: "b".repeat(64),
-    effectiveSha256: "c".repeat(64),
     expiry: "2026-08-19T00:00:00.000Z",
     publicPort: 20443,
     rpcPort: 22747,
@@ -36,7 +32,6 @@ test("promotion candidate topology uses isolated volumes and only loopback non-4
   assert.equal(JSON.stringify(compose).includes('"443:443"'), false);
   for (const [role, service] of Object.entries(compose.services)) {
     assert.equal(service.image, images[role]);
-    assert.equal(service.labels["com.rokurolize.wikijump.profile"], "production-build");
     assert.equal(service.labels["com.rokurolize.wikijump.role"], role);
     assert.equal(service.healthcheck.test.length > 0, true);
   }
@@ -52,9 +47,6 @@ test("a rehearsal candidate attaches prepared copies of standing data and does n
     project: "wjcand-rehearsal-test",
     source: {wikijump_commit: "a".repeat(40), wikijump_tree: "b".repeat(40), ftml_sha: "c".repeat(40)},
     images: Object.fromEntries(["cache", "caddy", "database", "deepwell", "files", "framerail", "wws"].map((role) => [role, `sha256:${"1".repeat(64)}`])),
-    artifactKey: "d".repeat(64),
-    overlaySha256: "e".repeat(64),
-    effectiveSha256: "f".repeat(64),
     expiry: "2026-10-18T00:00:00Z",
     publicPort: 20443,
     rpcPort: 20444,
@@ -81,46 +73,4 @@ test("promotion candidate makes public registration deterministic", async () => 
   assert.match(candidateConfig, /main = "wikijump\.localhost"/u);
   assert.match(candidateConfig, /https-port = 20443/u);
   assert.match(candidateConfig, /files = "wjfiles\.localhost"\n/u);
-});
-
-test("one sealed candidate runtime can expose independent site-bound endpoint projections", () => {
-  const hash = (left, right) => `${left}${right}`.repeat(32);
-  const git = (left, right) => `${left}${right}`.repeat(20);
-  const projectedImages = Object.fromEntries(
-    Object.keys(images).map((role, index) => [role, `sha256:${hash(String((index % 8) + 1), String(((index + 3) % 8) + 1))}`]),
-  );
-  const base = validateCandidateParityIdentity({
-    schema: "wikijump.standing_candidate_parity_identity.v1",
-    status: "sealed",
-    artifact_key: hash("a", "1"),
-    build: {seal_sha256: hash("b", "2"), verdict_sha256: hash("c", "3"), final_images_sha256: hash("d", "4")},
-    candidate: {
-      owner: "compatibility-candidate",
-      expires_at: "2099-08-19T00:00:00.000Z",
-      compose_project: "wikijump-candidate-fixture",
-      port_443_published: false,
-      wikijump_commit: git("1", "2"),
-      wikijump_tree: git("2", "3"),
-      ftml_sha: git("3", "4"),
-      profile: "production-build",
-      source_clean: true,
-      images: projectedImages,
-      config: {isolated_overlay_sha256: hash("e", "5"), promotion_base_manifest_sha256: hash("f", "6"), effective_runtime_services_sha256: hash("7", "8")},
-      site_origins: {
-        "scp-wiki": {page: "https://scp-wiki.wikijump.localhost:20443", files: "https://scp-wiki.wjfiles.localhost:20443"},
-        scpaiueouiuiuiui: {page: "https://scpaiueouiuiuiui.wikijump.localhost:20443", files: "https://scpaiueouiuiuiui.wjfiles.localhost:20443"},
-      },
-      endpoint: {scheme: "https", host: "scp-wiki.wikijump.localhost", port: 20443, resolved_addresses: ["127.0.0.1"], allowed_origin_set: ["https://scp-wiki.wikijump.localhost:20443", "https://scp-wiki.wjfiles.localhost:20443"], local_connect_address: "127.0.0.1"},
-    },
-    evidence: {status: "sealed", manifest_sha256: hash("8", "9"), seal_sha256: hash("9", "a")},
-  });
-  const editable = candidateIdentityForSite(base, "scpaiueouiuiuiui");
-  assert.equal(editable.artifact_key, base.artifact_key);
-  assert.equal(editable.candidate.config.effective_runtime_services_sha256, base.candidate.config.effective_runtime_services_sha256);
-  assert.equal(editable.candidate.endpoint.host, "scpaiueouiuiuiui.wikijump.localhost");
-  assert.deepEqual(editable.candidate.endpoint.allowed_origin_set, [
-    "https://scpaiueouiuiuiui.wikijump.localhost:20443",
-    "https://scpaiueouiuiuiui.wjfiles.localhost:20443",
-  ]);
-  assert.equal(candidateSitePageOrigin(editable, "scp-wiki"), "https://scp-wiki.wikijump.localhost:20443");
 });

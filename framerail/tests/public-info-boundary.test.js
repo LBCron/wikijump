@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -30,12 +29,19 @@ const rawInfo = {
   future_private_field: "PRIVATE_FUTURE_FIELD_SENTINEL"
 }
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let render
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let aboutPage
+/** @type {any} */
 let aboutRoute
 
 before(async () => {
@@ -59,7 +65,7 @@ after(async () => {
 })
 
 test("GET /-/about projects Deepwell info to its public fields", async () => {
-  client.request = async (method) => {
+  client.request = /** @param {any} method */ async (method) => {
     if (method === "info") return rawInfo
     if (method === "translate") return {}
     throw new Error(`Unexpected Deepwell method ${method}`)

@@ -20,12 +20,8 @@
   let {
     data,
     fileMap,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- FilePane still passes fileListLoading; this list does not read it
-    fileListLoading,
     fileListError,
     fileListLoaded,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- FilePane still passes requestedDeletedFiles; this list does not read it
-    requestedDeletedFiles,
     activeFileAction = $bindable(),
     fileEditId = $bindable(),
     wikidot,
@@ -35,10 +31,8 @@
   }: {
     data: PageProps["data"]
     fileMap: SvelteMap<number, PageFile>
-    fileListLoading: boolean
     fileListError: string | null
     fileListLoaded: boolean
-    requestedDeletedFiles: boolean
     activeFileAction: FileAction | null
     fileEditId: number
     wikidot: boolean

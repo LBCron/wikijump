@@ -10,7 +10,7 @@
 // semantic-browser-acceptance.mjs:26 [theme, engine, viewport, surface,
 // state] shape; entry comparison repeats the
 // matchFaithfulDesignContainment predicate
-// (finalize-visual-acceptance.mjs:136-140) narrowed to decision OD-T1;
+// narrowed to decision OD-T1;
 // finding hashes use canonicalJson (same canonicalization finalize uses).
 // One deliberate substitution, documented: the capture-row
 // dependencies_sha256 cannot be minted on the canonical path (there is no
@@ -18,7 +18,7 @@
 // exact candidate/source sha anchors plus the scenario sha recorded in
 // every waiver. Any drift re-fails the finding.
 import {ACCEPTANCE_VIEWPORTS} from './acceptance-viewports.mjs';
-import {canonicalJson,loadFaithfulDesignExemptions} from './finalize-visual-acceptance.mjs';
+import {canonicalJson,loadFaithfulDesignExemptions} from './faithful-design-exemptions.mjs';
 import {observationKey} from './semantic-browser-acceptance.mjs';
 import crypto from 'node:crypto';
 

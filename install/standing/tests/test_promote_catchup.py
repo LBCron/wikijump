@@ -103,7 +103,7 @@ class CatchUpActivationTest(unittest.TestCase):
         receipt.write_text(json.dumps({"link_reader_page_ids": [42]}), encoding="utf-8")
         render_ahead_arg = {
             **GENERATION_CHANGE,
-            "receipt": {"path": str(receipt), "sha256": "0" * 64},
+            "receipt": {"path": str(receipt)},
         }
         self.standing.stale_sequence = [3, 0, 0]
         self.standing.stale_page_ids = [11, 12, 13]

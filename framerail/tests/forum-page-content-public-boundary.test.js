@@ -1,4 +1,3 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { createServer as createHttpServer } from "node:http"
 import { fileURLToPath } from "node:url"
@@ -41,6 +40,7 @@ const viewer = {
   user_session: null
 }
 
+/** @type {any} */
 const forumBodies = {
   "forum/ForumStartModule": {
     status: "ok",
@@ -59,6 +59,7 @@ const forumBodies = {
   }
 }
 
+/** @param {any} html */
 const pageContentBody = (html) => {
   const opening = /<div\b[^>]*\bid="page-content"[^>]*>/gu.exec(html)
   assert.ok(opening)
@@ -75,13 +76,21 @@ const pageContentBody = (html) => {
   assert.fail("page-content div is not closed")
 }
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let previousDeepwellHost
+/** @type {any} */
 let previousDeepwellPort
+/** @type {any} */
 let previousDeepwellToken
+/** @type {any} */
 let vite
+/** @type {any} */
 let deepwellServer
+/** @type {any} */
 let server
+/** @type {any} */
 let baseUrl
 
 before(async () => {

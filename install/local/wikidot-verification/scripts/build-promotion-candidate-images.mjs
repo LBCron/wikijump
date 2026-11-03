@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import {execFile as execFileCallback} from "node:child_process";
-import {createHash} from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -12,7 +11,6 @@ import {runCliIfMain} from "../src/cli-entry.mjs";
 const execFile = promisify(execFileCallback);
 const DOCKER = "/usr/bin/docker";
 const GIT = "/usr/bin/git";
-const BUILD_MANIFEST_EXCLUSIONS = new Set(["evidence-manifest.sha256", "seal.json"]);
 const IMAGE_ID = /^sha256:[0-9a-f]{64}$/u;
 const GIT_OBJECT = /^[0-9a-f]{40}$/u;
 
@@ -46,29 +44,9 @@ function fail(message) {
   throw new Error(message);
 }
 
-function sha256(bytes) {
-  return createHash("sha256").update(bytes).digest("hex");
-}
-
 async function writeJson(filePath, value) {
   await fs.mkdir(path.dirname(filePath), {recursive: true});
   await fs.writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, {mode: 0o600});
-}
-
-async function fileSha256(filePath) {
-  return sha256(await fs.readFile(filePath));
-}
-
-async function listRegularFiles(root, relative = "") {
-  const entries = await fs.readdir(path.join(root, relative), {withFileTypes: true});
-  const files = [];
-  for (const entry of entries) {
-    const next = path.join(relative, entry.name);
-    if (entry.isDirectory()) files.push(...(await listRegularFiles(root, next)));
-    else if (entry.isFile()) files.push(next);
-    else fail(`build evidence contains unsupported path: ${next}`);
-  }
-  return files.sort((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)));
 }
 
 function ftmlRevision(lockContents) {
@@ -203,17 +181,6 @@ export async function buildApplicationImages(sourceRoot, {buildImage = dockerBui
   return Object.fromEntries(plan.map(({role}, index) => [role, images[index].image_id]));
 }
 
-async function writeEvidenceManifest(root) {
-  const files = (await listRegularFiles(root)).filter((relative) => !BUILD_MANIFEST_EXCLUSIONS.has(relative));
-  const lines = [];
-  for (const relative of files) {
-    lines.push(`${await fileSha256(path.join(root, relative))}  ./${relative}\n`);
-  }
-  const manifest = path.join(root, "evidence-manifest.sha256");
-  await fs.writeFile(manifest, lines.join(""), {mode: 0o600});
-  return fileSha256(manifest);
-}
-
 export async function buildPromotionCandidateImages({
   sourceRoot,
   outputDir,
@@ -243,63 +210,21 @@ export async function buildPromotionCandidateImages({
     }
     const results = await Promise.all(plan.map(async (entry) => {
       const reused = reuse[entry.role];
-      const [image, dockerfileSha256] = await Promise.all([
-        reused ? reuseImage(entry.role, reused) : buildImage(entry, sourceIdentity),
-        fileSha256(entry.dockerfile),
-      ]);
-      return {entry, image, dockerfileSha256, reused: Boolean(reused)};
+      const image = await (reused ? reuseImage(entry.role, reused) : buildImage(entry, sourceIdentity));
+      return {entry, image};
     }));
     const finalImages = [];
-    const contextRows = [];
-    for (const {entry, image, dockerfileSha256, reused} of results) {
+    for (const {entry, image} of results) {
       if (!IMAGE_ID.test(image.image_id) || image.os !== "linux" || image.architecture !== "amd64") {
         fail(`candidate ${entry.role} image result is invalid`);
       }
       finalImages.push({role: entry.role, image_id: image.image_id, os: image.os, architecture: image.architecture});
-      contextRows.push({
-        role: entry.role,
-        dockerfile: path.relative(sourceRoot, entry.dockerfile),
-        dockerfile_sha256: dockerfileSha256,
-        context: path.relative(sourceRoot, entry.context) || ".",
-        build_args: entry.build_args,
-        ...(reused ? {reused_from: "standing-runtime"} : {}),
-      });
     }
     if (new Set(finalImages.map(({image_id: imageId}) => imageId)).size !== finalImages.length) {
       fail("promotion build reuses an image ID across runtime roles");
     }
     const imageMap = Object.fromEntries(finalImages.map(({role, image_id: imageId}) => [role, {id: imageId}]));
     await writeJson(path.join(staging, "images", "final-images.json"), finalImages);
-    await writeJson(path.join(staging, "image-producer.json"), {
-      status: "pass",
-      wikijump_sha: sourceIdentity.wikijump_commit,
-      wikijump_tree: sourceIdentity.wikijump_tree,
-      ftml_sha: sourceIdentity.ftml_sha,
-      images: imageMap,
-    });
-    await writeJson(path.join(staging, "build", "context.json"), {run_id: runId, source: sourceIdentity, builds: contextRows});
-    const verdict = {
-      schema: "wikijump.standing_provenance_build.v1",
-      status: "pass",
-      promotion_eligible: true,
-      run_id: runId,
-      wikijump_commit: sourceIdentity.wikijump_commit,
-      wikijump_tree: sourceIdentity.wikijump_tree,
-      ftml_sha: sourceIdentity.ftml_sha,
-      final_images: "images/final-images.json",
-    };
-    const verdictPath = path.join(staging, "verdict.json");
-    await writeJson(verdictPath, verdict);
-    const evidenceManifestSha256 = await writeEvidenceManifest(staging);
-    await writeJson(path.join(staging, "seal.json"), {
-      schema: "wikijump.standing_provenance_build_seal.v1",
-      status: "sealed",
-      run_id: runId,
-      evidence_manifest_verified: true,
-      evidence_manifest_exclusions: ["evidence-manifest.sha256", "seal.json"],
-      evidence_manifest_sha256: evidenceManifestSha256,
-      verdict_sha256: await fileSha256(verdictPath),
-    });
     await fs.rename(staging, root);
     return Object.freeze({
       output_dir: root,

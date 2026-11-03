@@ -1,11 +1,9 @@
-// @ts-nocheck
 import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
 
 import { createTestViteServer } from "./vite-test-server.js"
-
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 const siteHeaders = {
@@ -23,10 +21,15 @@ const accountTemplates = [
   "src/routes/[x+2d]/admin/+error.svelte"
 ]
 
+/** @type {any} */
 let previousWorkingDirectory
+/** @type {any} */
 let vite
+/** @type {any} */
 let client
+/** @type {any} */
 let originalClientRequest
+/** @type {any} */
 let routes
 
 before(async () => {
@@ -49,6 +52,7 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
+/** @param {any} path */
 const pageRequest = (path) =>
   new Request(`https://wikijump.test${path}`, { headers: siteHeaders })
 
@@ -80,8 +84,12 @@ test("the inline email-validation message is localized in English and Japanese",
 })
 
 test("registration requests its inline validation and locale-label messages", async () => {
+  /** @type {any[]} */
   const translateCalls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     if (method === "translate") {
       translateCalls.push(params)
       return {}
@@ -100,8 +108,12 @@ test("registration requests its inline validation and locale-label messages", as
 })
 
 test("user error bodies carry localized generic-failure copy", async () => {
+  /** @type {any[]} */
   const translateCalls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     if (method === "translate") {
       translateCalls.push(params)
       return Object.fromEntries(
@@ -124,7 +136,7 @@ test("user error bodies carry localized generic-failure copy", async () => {
     })
     .then(
       () => assert.fail("missing-profile load must raise the error boundary"),
-      (error) => error
+      /** @param {any} error */ (error) => error
     )
 
   assert.equal(thrown.status, 404)
@@ -141,8 +153,12 @@ test("user error bodies carry localized generic-failure copy", async () => {
 })
 
 test("admin permission errors carry the localized denial copy", async () => {
+  /** @type {any[]} */
   const translateCalls = []
-  client.request = async (method, params) => {
+  client.request = /** @param {any} method @param {any} params */ async (
+    method,
+    params
+  ) => {
     if (method === "translate") {
       translateCalls.push(params)
       return Object.fromEntries(
@@ -181,7 +197,7 @@ test("admin permission errors carry the localized denial copy", async () => {
     })
     .then(
       () => assert.fail("denied admin load must raise the error boundary"),
-      (error) => error
+      /** @param {any} error */ (error) => error
     )
 
   assert.equal(thrown.status, 401)

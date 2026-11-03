@@ -1,1 +1,0 @@
-@supports(-webkit-hyphens:none){@media(min-width:360px) and (max-width:767px){#top-bar .mobile-top-bar > ul > li:last-child > ul{left:auto!important;right:0!important;}}}

@@ -22,7 +22,7 @@
     children?: Snippet<[typeof tip]>
   } = $props()
 
-  let singleton = createSingleton([])
+  let singleton: ReturnType<typeof createSingleton> | undefined = createSingleton([])
   const tips = new SvelteSet<Instance>()
 
   function update() {
@@ -60,8 +60,7 @@
   }
 
   onDestroy(() => {
-    singleton.destroy()
-    // @ts-ignore
+    singleton?.destroy()
     singleton = undefined
   })
 </script>

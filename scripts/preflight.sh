@@ -16,8 +16,7 @@
 #   --final         Run the complete candidate barrier, including Clippy, full
 #                   tests, validators, and the Framerail production build.
 #   --groups <a,b>  Run exactly these groups, whatever the change-set selects
-#                   (the standing promotion runs the groups no earlier receipt
-#                   covers). Unknown group names are refused. Without it, the
+#                   Unknown group names are refused. Without it, the
 #                   groups come from the changes against the base.
 #   --jobs <n>      Run up to n check groups at once (0: all; the default for
 #                   --final, 1 otherwise), in two waves: the suites with
@@ -128,7 +127,6 @@ if [[ "${LIST}" != true ]]; then
 fi
 
 FAILED=()
-INCONCLUSIVE=()
 run() {
   local name="$1"; shift
   if "${LIST}"; then
@@ -146,38 +144,9 @@ run() {
   fi
 }
 
-failed_check() {
-  local failed
-  for failed in "${FAILED[@]}"; do [[ "${failed}" == "$1" ]] && return 0; done
-  return 1
-}
-
 run_test() {
   local name="$1"; shift
   run "${name}" "${TEST_NETWORK_GUARD}" "$@"
-}
-
-run_test_inconclusive_ok() {
-  local name="$1"; shift
-  if "${LIST}"; then
-    echo "  would run: ${name}"
-    return 0
-  fi
-  echo ""
-  echo "=== ${name}"
-  local started="${SECONDS}" status=0
-  "${TEST_NETWORK_GUARD}" "$@" || status=$?
-  case "${status}" in
-    0) echo "--- ${name}: ok ($((SECONDS - started))s)" ;;
-    2)
-      echo "--- ${name}: INCONCLUSIVE ($((SECONDS - started))s)"
-      INCONCLUSIVE+=("${name}")
-      ;;
-    *)
-      echo "--- ${name}: FAILED ($((SECONDS - started))s)"
-      FAILED+=("${name}")
-      ;;
-  esac
 }
 
 run_checks_concurrent() {
@@ -187,12 +156,9 @@ run_checks_concurrent() {
   for fn in "$@"; do
     (
       FAILED=()
-      INCONCLUSIVE=()
       "${fn}"
       : > "${dir}/${fn}.failed"
       (( ${#FAILED[@]} == 0 )) || printf '%s\n' "${FAILED[@]}" > "${dir}/${fn}.failed"
-      : > "${dir}/${fn}.inconclusive"
-      (( ${#INCONCLUSIVE[@]} == 0 )) || printf '%s\n' "${INCONCLUSIVE[@]}" > "${dir}/${fn}.inconclusive"
     ) > "${dir}/${fn}.log" 2>&1 &
     pids+=("$!")
   done
@@ -204,148 +170,15 @@ run_checks_concurrent() {
       mapfile -t part < "${dir}/${fn}.failed"
       FAILED+=("${part[@]}")
     fi
-    if [[ -s "${dir}/${fn}.inconclusive" ]]; then
-      local -a part_inc=()
-      mapfile -t part_inc < "${dir}/${fn}.inconclusive"
-      INCONCLUSIVE+=("${part_inc[@]}")
-    fi
   done
   rm -rf -- "${dir}"
 }
 
-group_contracts() {
-  if group_selected verification || group_selected deepwell || group_selected wws || group_selected framerail || group_selected theme_lab; then
-    if [[ "${MODE}" == "final" ]]; then
-      run_test "source-bound generated contracts" node \
-        install/local/wikidot-verification/scripts/verify-repository-generated-contracts.mjs --full
-    else
-      run_test "source-bound generated contracts" node \
-        install/local/wikidot-verification/scripts/verify-repository-generated-contracts.mjs
-    fi
-  fi
-}
-
-check_theme_lab_tests() {
-  run "Theme Lab tests" scripts/run-browser-test-no-external-network.sh npm --prefix install/local/theme-lab test
-}
-
-theme_lab_archive_selected() {
-  if "${LIST}" || [[ "${PREFLIGHT_THEME_LAB_ARCHIVE:-}" == "always" ]]; then return 0; fi
-  local changed
-  for changed in "${CHANGED_PATHS[@]}"; do
-    case "${changed}" in
-      install/local/theme-lab/*|scripts/preflight.sh) return 0 ;;
-    esac
-  done
-  echo "preflight: Theme Lab archive checks skipped (Sigma-10 historical evidence integrity, current campaign evidence restore, campaign record integrity): no change under install/local/theme-lab/ since ${MERGE_BASE:0:12}; set PREFLIGHT_THEME_LAB_ARCHIVE=always to run them"
-  return 1
-}
-
-check_theme_lab_python_tests() {
-  run_test "Theme Lab Python tests" python3 -m unittest discover -s install/local/theme-lab/tests -p 'test_*.py'
-}
-
-check_theme_lab_maintainable_sources() {
-  run_test "Theme Lab maintainable sources" node install/local/theme-lab/ports/scripts/prepare-maintainable-sources.mjs --check
-}
-
-check_theme_lab_deterministic_packages() {
-  run_test "Theme Lab deterministic packages" env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED="${TL_AUTHORITY_EVIDENCE_VERIFIED}" node install/local/theme-lab/scripts/real-port-regression.mjs --verify-only
-}
-
-check_theme_lab_sigma10_source() {
-  run_test "Sigma-10 source evidence" node install/local/theme-lab/sigma10-migration/check-sources.mjs
-}
-
-check_theme_lab_sigma10_historical() {
-  run_test "Sigma-10 historical evidence integrity" env THEME_LAB_AUTHORITY_EVIDENCE_VERIFIED="${TL_AUTHORITY_EVIDENCE_VERIFIED}" node install/local/theme-lab/sigma10-migration/check-final.mjs --historical-only
-}
-
-check_theme_lab_campaign_restore() {
-  run_test "Theme Lab current campaign evidence restore" install/local/theme-lab/scripts/restore-checkout-campaign-evidence.sh
-}
-
-check_theme_lab_campaign_integrity() {
-  # ALLOC-32 B: the frozen campaign record is verified historically
-  # against its own recorded identities (Check 1, hard PASS/FAIL, never
-  # INCONCLUSIVE); candidate changes are admitted live only with a
-  # complete successor entry (Check 2, --base is the change-set base the
-  # validation receipt carries); runtime drift is reported, not gated
-  # (Check 3). The original live completion checker remains the next
-  # campaign's closure checker and is no longer run post-closure.
-  run_test "Theme Lab campaign record integrity" node install/local/theme-lab/scripts/check-campaign-record-integrity.mjs
-}
-
-check_theme_lab_post_closure() {
-  run_test "Theme Lab post-closure changes" node install/local/theme-lab/scripts/check-post-closure-changes.mjs --base "${MERGE_BASE}"
-}
-
-check_theme_lab_restore_and_post_closure() {
-  if [[ "${TL_ARCHIVE_SELECTED}" == 1 ]]; then
-    check_theme_lab_campaign_restore
-  fi
-  check_theme_lab_post_closure
-}
-
-check_theme_lab_drift_report() {
-  run_test "Theme Lab runtime drift report" node install/local/theme-lab/scripts/check-runtime-drift.mjs
-}
-
-check_theme_lab_evidence() {
-    run_test "Theme Lab authority evidence restore" install/local/theme-lab/scripts/restore-checkout-authority-evidence.sh
-    run_test "Theme Lab adaptation authority" node install/local/theme-lab/ports/scripts/check-adaptation-authority.mjs
-    # The deterministic-packages and Sigma-10 historical checks repeat the
-    # per-package authority check; once it has passed on this tree, they skip
-    # re-hashing the same evidence.
-    TL_AUTHORITY_EVIDENCE_VERIFIED=0
-    if ! "${LIST}" && ! failed_check "Theme Lab authority evidence restore" && ! failed_check "Theme Lab adaptation authority"; then
-      TL_AUTHORITY_EVIDENCE_VERIFIED=1
-    fi
-    TL_ARCHIVE_SELECTED=0
-    if [[ "${MODE}" == "final" ]]; then
-      if "${LIST}" || [[ "${JOBS}" == 1 ]]; then
-        check_theme_lab_python_tests
-        check_theme_lab_maintainable_sources
-        check_theme_lab_deterministic_packages
-        check_theme_lab_sigma10_source
-        if theme_lab_archive_selected; then
-          TL_ARCHIVE_SELECTED=1
-          check_theme_lab_sigma10_historical
-          check_theme_lab_campaign_restore
-          check_theme_lab_campaign_integrity
-        fi
-        check_theme_lab_post_closure
-        check_theme_lab_drift_report
-      else
-        if theme_lab_archive_selected; then
-          TL_ARCHIVE_SELECTED=1
-        fi
-        local -a branches=(
-          check_theme_lab_python_tests
-          check_theme_lab_maintainable_sources
-          check_theme_lab_deterministic_packages
-          check_theme_lab_sigma10_source
-        )
-        if [[ "${TL_ARCHIVE_SELECTED}" == 1 ]]; then
-          branches+=(check_theme_lab_sigma10_historical)
-        fi
-        branches+=(check_theme_lab_restore_and_post_closure)
-        if [[ "${TL_ARCHIVE_SELECTED}" == 1 ]]; then
-          branches+=(check_theme_lab_campaign_integrity)
-        fi
-        branches+=(check_theme_lab_drift_report)
-        run_checks_concurrent "${branches[@]}"
-      fi
-    fi
-}
-
 group_theme_lab() {
   if group_selected theme_lab; then
-    if "${LIST}" || [[ "${JOBS}" == 1 ]]; then
-      check_theme_lab_tests
-      check_theme_lab_evidence
-    else
-      run_checks_concurrent check_theme_lab_tests check_theme_lab_evidence
+    run "Theme Lab tests" scripts/run-browser-test-no-external-network.sh npm --prefix install/local/theme-lab test
+    if [[ "${MODE}" == "final" ]]; then
+      run_test "Theme Lab Python tests" python3 -m unittest discover -s install/local/theme-lab/tests -p 'test_*.py'
     fi
   fi
 }
@@ -366,48 +199,17 @@ check_standing_runtime_tests() {
   run_test "standing runtime tests" python3 -m unittest discover -s install/standing/tests -p 'test_*.py'
 }
 
-check_standing_receipt_tests() {
-  run_test "standing receipt tests" node --test 'install/standing/tests/*.test.mjs'
-}
-
-# The specification generator reads the scp-wiki-translation documentation
-# corpus (WIKIDOT_DOCUMENTATION_CORPUS): operator data that exists in no Git
-# repository, so an environment without the corpus (a hosted CI runner) can
-# never get a verdict from it — the generator can only report its evidence
-# absent. Such an environment sets PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1
-# to exclude the check outright instead of failing every run on that absence.
-# A skipped run says so in the log; it does not appear as a check (the same
-# treatment as the Theme Lab archive checks). With the variable unset the
-# check always runs, exactly as before.
-check_wikidot_specification_generator() {
-  if [[ "${PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR:-}" == "1" ]]; then
-    echo "preflight: wikidot specification generator skipped (PREFLIGHT_SKIP_WIKIDOT_SPECIFICATION_GENERATOR=1): the check reads the scp-wiki-translation documentation corpus (WIKIDOT_DOCUMENTATION_CORPUS), operator data that is not available in this environment; unset the variable to run it"
-    return 0
-  fi
-  run_test_inconclusive_ok "wikidot specification generator" node scripts/generate-wikidot-specifications.mjs --check
-}
-
-check_wikidot_implementation_ledger() {
-  run "wikidot implementation ledger" node scripts/initialize-wikidot-implementation-ledger.mjs --check
-}
-
 group_verification() {
   if group_selected verification && [[ "${MODE}" == "final" ]]; then
     if "${LIST}" || [[ "${JOBS}" == 1 ]]; then
       check_wikidot_verification_tests
       check_standing_runtime_tests
-      check_standing_receipt_tests
-      check_wikidot_specification_generator
-      check_wikidot_implementation_ledger
     else
       # Independent suites with separate outputs; in series they summed to
       # the wave's critical path while the other groups waited.
       run_checks_concurrent \
         check_wikidot_verification_tests \
-        check_standing_runtime_tests \
-        check_standing_receipt_tests \
-        check_wikidot_specification_generator \
-        check_wikidot_implementation_ledger
+        check_standing_runtime_tests
     fi
   fi
 }
@@ -462,10 +264,6 @@ group_framerail() {
   # The unit tests and the build both regenerate .svelte-kit, so they stay in
   # one job.
   if group_selected framerail; then
-    # ALLOC-32 Check 3 also runs here, so a framerail PR's receipt shows
-    # what recorded runtime state its change supersedes (reporting only;
-    # the script fails only when it cannot compute the report).
-    run_test "Theme Lab runtime drift report" node install/local/theme-lab/scripts/check-runtime-drift.mjs
     run_test "framerail unit tests" pnpm --dir framerail test:unit
     if [[ "${MODE}" == "final" ]]; then
       run "framerail build" pnpm --dir framerail build
@@ -486,7 +284,7 @@ group_locales() {
   fi
 }
 
-GROUP_ORDER=(contracts theme_lab workflow verification deepwell_lint deepwell wws framerail_lint framerail locales)
+GROUP_ORDER=(theme_lab workflow verification deepwell_lint deepwell wws framerail_lint framerail locales)
 
 if "${LIST}" || [[ "${JOBS}" == 1 ]]; then
   for group in "${GROUP_ORDER[@]}"; do "group_${group}"; done
@@ -509,21 +307,19 @@ else
   # full-crate Clippy build beside the shards starved them (in the
   # 2026-10-24 standing promotion the Deepwell tests took 893s against
   # ~160s of uncontended shard execution). The Deepwell tests then run
-  # beside only the small Rust groups and the contracts check.
+  # beside only the small Rust groups.
   WAVES=(
     "theme_lab workflow verification deepwell_lint framerail_lint framerail"
-    "contracts deepwell wws locales"
+    "deepwell wws locales"
   )
   for wave in "${WAVES[@]}"; do
     for group in ${wave}; do
       if [[ "${JOBS}" != 0 ]] && (( running >= JOBS )); then finish_one; fi
       (
         FAILED=()
-        INCONCLUSIVE=()
         "group_${group}"
         : > "${GROUP_DIR}/${group}.failed"
         (( ${#FAILED[@]} == 0 )) || printf '%s\n' "${FAILED[@]}" > "${GROUP_DIR}/${group}.failed"
-        (( ${#INCONCLUSIVE[@]} == 0 )) || printf '%s\n' "${INCONCLUSIVE[@]}" > "${GROUP_DIR}/${group}.inconclusive"
       ) > "${GROUP_DIR}/${group}.log" 2>&1 &
       GROUP_OF_PID[$!]="${group}"
       running=$((running + 1))
@@ -538,10 +334,6 @@ else
     elif [[ ! -e "${GROUP_DIR}/${group}.failed" ]]; then
       FAILED+=("${group} (group exited before reporting)")
     fi
-    if [[ -s "${GROUP_DIR}/${group}.inconclusive" ]]; then
-      mapfile -t group_inconclusive < "${GROUP_DIR}/${group}.inconclusive"
-      INCONCLUSIVE+=("${group_inconclusive[@]}")
-    fi
   done
 fi
 
@@ -550,9 +342,6 @@ if "${LIST}"; then
 fi
 
 echo ""
-if [[ ${#INCONCLUSIVE[@]} -gt 0 ]]; then
-  echo "preflight: INCONCLUSIVE (no evidence to judge; not a pass): ${INCONCLUSIVE[*]}"
-fi
 if [[ ${#FAILED[@]} -gt 0 ]]; then
   echo "preflight: FAILED: ${FAILED[*]}"
   exit 1

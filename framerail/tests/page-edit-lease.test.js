@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
@@ -31,15 +30,17 @@ const conflictOutput = () => ({
   ]
 })
 
+/** @param {any} [handlers] */
 const recordingTransport = (handlers = {}) => {
+  /** @type {any[]} */
   const calls = []
   return {
     calls,
-    acquire: async (request) => {
+    acquire: /** @param {any} request */ async (request) => {
       calls.push({ kind: "acquire", request })
       return handlers.acquire ? handlers.acquire(request) : grantOutput()
     },
-    renew: async (credentials) => {
+    renew: /** @param {any} credentials */ async (credentials) => {
       calls.push({ kind: "renew", credentials })
       return handlers.renew
         ? handlers.renew(credentials)
@@ -51,7 +52,7 @@ const recordingTransport = (handlers = {}) => {
             expires_at: new Date(Date.now() + 900_000).toISOString()
           }
     },
-    release: async (credentials) => {
+    release: /** @param {any} credentials */ async (credentials) => {
       calls.push({ kind: "release", credentials })
       return handlers.release ? handlers.release(credentials) : true
     }
@@ -116,7 +117,7 @@ test("section open passes the section index through to acquisition", async () =>
     mode: "section",
     sectionIndex: 3
   })
-  assert.equal(session.saveFields().sectionIndex, 3)
+  assert.equal(/** @type {any} */ (session.saveFields()).sectionIndex, 3)
 })
 
 test("save fields are a snapshot of the session state at submit time", async () => {
@@ -213,14 +214,18 @@ test("a successful save releases the lease; staying open re-acquires with the ne
   await session.open("page", undefined)
 
   const status = await session.afterSave(
-    { revision_id: 1547973350, revision_number: 12, lock_recreated: false },
+    /** @type {any} */ ({
+      revision_id: 1547973350,
+      revision_number: 12,
+      lock_recreated: false
+    }),
     true
   )
 
   assert.equal(status, "held")
   assert.equal(session.lockId, 85076400)
   assert.equal(session.baseRevisionId, 1547973350)
-  assert.equal(session.saveFields().lastRevisionId, 1547973350)
+  assert.equal(/** @type {any} */ (session.saveFields()).lastRevisionId, 1547973350)
   assert.equal(transport.calls.filter((call) => call.kind === "acquire").length, 2)
   assert.equal(transport.calls.filter((call) => call.kind === "release").length, 0)
 })
@@ -279,6 +284,7 @@ test("a save rejected as other_locks marks the session superseded", async () => 
 })
 
 test("transport posts to the lease actions with the held secret under its key", async () => {
+  /** @type {any[]} */
   const posts = []
   const transport = createEditLeaseTransport(async (action, payload) => {
     posts.push({ action, payload })
@@ -319,6 +325,7 @@ test("transport posts to the lease actions with the held secret under its key", 
 })
 
 test("transport force acquisition posts to the force action", async () => {
+  /** @type {any[]} */
   const posts = []
   const transport = createEditLeaseTransport(async (action, payload) => {
     posts.push({ action, payload })

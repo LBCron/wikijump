@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import {assertPublishablePackage, composeAuthoritySource} from "../../src/adaptation-authority.mjs";
+import {composeAuthoritySource} from "../../src/authority-source-composition.mjs";
 import {composeThemeCss} from "../../src/candidate-css-composition.mjs";
 
 import crypto from "node:crypto";
@@ -14,7 +14,6 @@ import {
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const refresh = process.argv.includes('--refresh');
-assertPublishablePackage(path.basename(here), {checkOutputs: !refresh});
 const output = process.argv[2];
 if (!output) {
   throw new Error("usage: node build.mjs /absolute/output.wikidot.txt");

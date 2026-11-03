@@ -1,8 +1,0 @@
-{
- "current_sha256": "230403bfd3c5355796b5c838e4cbce91db90a9367d10980a3b3041ab42e6ef0a",
- "toggled_sha256": "972181389ec000590cb54b5ab3ebd4325043c5f889d5ab1a4d0ef5583a4688a1",
- "replaced_block": "@media (min-width: 360px) and (max-width: 767px) {\n  #top-bar .mobile-top-bar > ul > li:last-child > ul { left: auto !important; right: 0 !important; }\n}\n",
- "replacement_block": "@supports(-webkit-hyphens:none){@media(min-width:360px) and (max-width:767px){#top-bar .mobile-top-bar > ul > li:last-child > ul{left:auto!important;right:0!important;}}}\n",
- "pin_line_sha256": "a9c2d8ed11b80a00c496f1e53f8122ac253b943aa96f4ef010d96bbc86c1ae75",
- "git_source": "worktree jp-corrections-2506: git show 1ec1cba28e^:install/local/theme-lab/ports/foxtrot/candidate.css line 2539"
-}

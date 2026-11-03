@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 export interface InputHandler {
   /**
    * The key to listen to. Must be in an exact format.
@@ -29,9 +28,6 @@ export class KeyObserver {
     if (!Array.isArray(handlers)) handlers = [handlers]
     this.handlers = handlers
 
-    this.keyHandler = this.keyHandler.bind(this)
-    this.clickHandler = this.clickHandler.bind(this)
-
     this.target.addEventListener("keydown", this.keyHandler)
     this.target.addEventListener("mousedown", this.clickHandler)
     this.target.addEventListener("click", this.clickHandler)
@@ -40,7 +36,7 @@ export class KeyObserver {
     this.target.addEventListener("contextmenu", this.clickHandler)
   }
 
-  private keyHandler(evt: KeyboardEvent) {
+  private keyHandler = (evt: KeyboardEvent) => {
     this.handlers.forEach((handler) => {
       if (evt.key === handler.key) {
         if (handler.preventDefault) evt.preventDefault()
@@ -49,7 +45,7 @@ export class KeyObserver {
     })
   }
 
-  private clickHandler(evt: MouseEvent) {
+  private clickHandler = (evt: MouseEvent) => {
     this.handlers.forEach((handler) => {
       let fire = false
 

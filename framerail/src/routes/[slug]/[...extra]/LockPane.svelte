@@ -70,18 +70,20 @@
     }
   }
 
+  function lockWasOverridden(lock: PageLockModel, newerLock: PageLockModel): boolean {
+    if (!lock.deleted_at) return false
+    const deletedAt = new Date(lock.deleted_at).getTime()
+    const newerCreatedAt = new Date(newerLock.created_at).getTime()
+    return Math.abs(newerCreatedAt - deletedAt) < 5000
+  }
+
   function getLockStatus(
     lock: PageLockModel,
     index: number
   ): keyof typeof data.internationalization {
     if (lock.deleted_at) {
-      if (index > 0) {
-        const newerLock = lockHistory[index - 1]
-        const deletedAt = new Date(lock.deleted_at).getTime()
-        const newerCreatedAt = new Date(newerLock.created_at).getTime()
-        if (Math.abs(newerCreatedAt - deletedAt) < 5000) {
-          return "wiki-page-lock.history-overridden"
-        }
+      if (index > 0 && lockWasOverridden(lock, lockHistory[index - 1])) {
+        return "wiki-page-lock.history-overridden"
       }
       return "wiki-page-lock.history-removed"
     }

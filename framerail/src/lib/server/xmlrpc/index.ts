@@ -124,6 +124,14 @@ function isAuthorizedBasicAuth(credentials: BasicAuthCredentials): boolean {
     return false
   }
 
+  return verifyCredentials(credentials, username, password)
+}
+
+function verifyCredentials(
+  credentials: BasicAuthCredentials,
+  username: string,
+  password: string
+): boolean {
   const usernameMatches = timingSafeStringEquals(credentials.username, username)
   const passwordMatches = timingSafeStringEquals(credentials.password, password)
   return usernameMatches && passwordMatches

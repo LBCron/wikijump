@@ -16,7 +16,7 @@ Retained `Vary: *` responses are historical, not exact replay: after first acqui
 
 CI and ordinary developer regression must never perform live compatibility acquisition. Repository-owned offline units, frozen fixtures, retained-artifact checks, syntax differential tests, and other hermetic replay are the normal regression path and may run in CI or local WSL. Live acquisition, authenticated probes, candidate parity against newly acquired evidence, and `live-reference` production are explicit discovery/refresh operations only. Once an external behavior is accepted, reduce it to a frozen fixture so later regression runs do not need Wikidot or another public provider.
 
-The SCP-9506 full-page oracle is the reference model for browser-facing regression: the final-zero-accepted Wikidot observation and accepted local golden are checked into `install/local/wikidot-verification/fixtures/offline-compatibility/`, public rendering dependencies are replayed from a repository-owned response fixture, and missing responses fail closed instead of falling back to the network. Non-browser offline suites use the process network guard. The browser oracle runs in a fresh user+network namespace with only loopback and reaches the host standing listener only through a Unix-domain-socket bridge fixed to `127.0.0.1:443`, so Chromium has no external IP route.
+The SCP-9506 full-page oracle is the reference model for browser-facing regression: the frozen Wikidot observation and accepted local golden are checked into `install/local/wikidot-verification/fixtures/offline-compatibility/`, public rendering dependencies are replayed from a repository-owned response fixture, and missing responses fail closed instead of falling back to the network. Non-browser offline suites use the process network guard. The browser oracle runs in a fresh user+network namespace with only loopback and reaches the host standing listener only through a Unix-domain-socket bridge fixed to `127.0.0.1:443`, so Chromium has no external IP route.
 
 Browser parity against a retained live reference binds executable identity as evidence. Use the same retained browser binary/SHA when exact identity is required; host Chrome updates can cause ORB, font, layout, and resource-policy differences unrelated to product.
 
@@ -32,7 +32,7 @@ Browser-visible compatibility covers intermediate paints/loading, focus, repeate
 
 ## Authenticated Wikidot probes
 
-Before authenticated work, use `wikidot-sandbox-access` and `wikidot-py-operations`. Keep credentials/session material in process memory or restrictive private task-owned files. Receipts record redacted request shape, actor role, site, result, cleanup, and artifact hashes—never secrets.
+Before authenticated work, use `wikidot-sandbox-access` and `wikidot-py-operations`. Keep credentials/session material in process memory or restrictive private task-owned files. Records carry the redacted request shape, actor role, site, result, and cleanup, never secrets.
 
 Keep real EN/JP Wikidot sites read-only. Writes require explicit user authorization and a run-owned sandbox; prefer disposable state; never mutate production/reference state.
 
@@ -55,7 +55,3 @@ Internal membership invitations and email invitation tokens are different contra
 When the current free Site Manager exposes only an Upgrade/Pro boundary with no paid test authority or retained paid observation, record that exact boundary. Static JavaScript may establish action names/fields for future acquisition, but cannot prove paid server behavior/mutation success or justify implementing a guessed path.
 
 For mail delivery, Flickr/other providers, private domains, or external capabilities without a controlled sink/account, prove the locally observable boundary, identify the smallest missing authority, and keep the row actionable—not PASS.
-
-## Evidence artifact completion
-
-An acceptance artifact is complete with source/fixture/runtime identity for attribution, relevant request/response or browser comparison result, mutation cleanup state, and the absolute path plus digest for every cited retained artifact. Preserve cited artifacts: a source commit can rebuild a binary, not an observation dependent on an external service or mutable runtime state.

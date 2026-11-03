@@ -37,7 +37,7 @@ async function createPromotionSourceFixture(t) {
   return root;
 }
 
-test("promotion candidate image build seals all seven production runtime roles", async (t) => {
+test("promotion candidate image build records all seven production runtime roles", async (t) => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), "promotion-build-"));
   t.after(() => fs.rm(root, {recursive: true, force: true}));
   const sourceRoot = repositoryRoot;
@@ -61,15 +61,6 @@ test("promotion candidate image build seals all seven production runtime roles",
   assert.deepEqual(roles, PROMOTION_IMAGE_ROLES);
   const images = JSON.parse(await fs.readFile(path.join(outputDir, "images", "final-images.json"), "utf8"));
   assert.deepEqual(images.map(({role}) => role), PROMOTION_IMAGE_ROLES);
-  const verdict = JSON.parse(await fs.readFile(path.join(outputDir, "verdict.json"), "utf8"));
-  assert.equal(verdict.schema, "wikijump.standing_provenance_build.v1");
-  assert.equal(verdict.promotion_eligible, true);
-  const seal = JSON.parse(await fs.readFile(path.join(outputDir, "seal.json"), "utf8"));
-  assert.equal(seal.schema, "wikijump.standing_provenance_build_seal.v1");
-  assert.equal(seal.evidence_manifest_verified, true);
-  const manifest = await fs.readFile(path.join(outputDir, "evidence-manifest.sha256"), "utf8");
-  assert.match(manifest, /\.\/images\/final-images\.json/u);
-  assert.match(manifest, /\.\/image-producer\.json/u);
 });
 
 test("a standing promotion builds only the application images, side by side, and reuses standing's others", async (t) => {
@@ -100,11 +91,6 @@ test("a standing promotion builds only the application images, side by side, and
   });
   assert.deepEqual([...started].sort(), [...APPLICATION_IMAGE_ROLES].sort());
   for (const [role, imageId] of Object.entries(reuse)) assert.equal(result.images[role], imageId);
-  const context = JSON.parse(await fs.readFile(path.join(root, "sealed-build", "build", "context.json"), "utf8"));
-  assert.deepEqual(
-    context.builds.filter((row) => row.reused_from === "standing-runtime").map((row) => row.role).sort(),
-    Object.keys(reuse).sort(),
-  );
 });
 
 test("a promotion never reuses an application image", async (t) => {

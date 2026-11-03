@@ -19,7 +19,7 @@
  */
 
 use crate::types::{PageEditLockMode, Reference};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
 #[derive(Debug, Clone)]
@@ -82,4 +82,29 @@ pub struct RenewPageEditLockOutput {
     pub lock_recreated: bool,
     #[serde(with = "time::serde::rfc3339")]
     pub expires_at: OffsetDateTime,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct AcquirePageEditLockInput {
+    pub page: Reference<'static>,
+    pub mode: PageEditLockMode,
+    #[serde(default)]
+    pub section_index: Option<i32>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct RenewPageEditLockInput {
+    pub page: Reference<'static>,
+    pub lock_id: i64,
+    pub lock_secret: String,
+    pub mode: PageEditLockMode,
+    #[serde(default)]
+    pub section_index: Option<i32>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct ReleasePageEditLockInput {
+    pub page: Reference<'static>,
+    pub lock_id: i64,
+    pub lock_secret: String,
 }

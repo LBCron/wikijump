@@ -1,6 +1,10 @@
 export const DEEPWELL_INVALID_AUTHENTICATION = 3000
 export const DEEPWELL_SESSION_INVALID = 3001
 export const DEEPWELL_PERMISSION_DENIED = 3106
+// Deepwell ErrorType::NotLatestRevisionId.
+export const DEEPWELL_NOT_LATEST_REVISION_ID = 4303
+// Deepwell ErrorType::PageEditLockConflict.
+export const DEEPWELL_PAGE_EDIT_LOCK_CONFLICT = 4304
 // Deepwell ErrorType::LocaleMessageMissing.
 export const DEEPWELL_LOCALE_MESSAGE_MISSING = 5002
 
@@ -8,6 +12,26 @@ export const DEEPWELL_LOCALE_MESSAGE_MISSING = 5002
  * @param {unknown} error
  * @returns {boolean}
  */
+/**
+ * @param {unknown} error
+ * @returns {boolean}
+ */
+export const isNotLatestRevisionIdError = (error) =>
+  error !== null &&
+  typeof error === "object" &&
+  "code" in error &&
+  error.code === DEEPWELL_NOT_LATEST_REVISION_ID
+
+/**
+ * @param {unknown} error
+ * @returns {boolean}
+ */
+export const isPageEditLockConflictError = (error) =>
+  error !== null &&
+  typeof error === "object" &&
+  "code" in error &&
+  error.code === DEEPWELL_PAGE_EDIT_LOCK_CONFLICT
+
 export const isMissingLocaleMessageError = (error) =>
   error !== null &&
   typeof error === "object" &&

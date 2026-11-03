@@ -15,6 +15,20 @@ import { client } from "$lib/server/deepwell"
 import { siteEducationalUpgrade } from "$lib/server/deepwell/admin"
 import { forumPostCreate, wikidotForumModule } from "$lib/server/deepwell/forum"
 import { mailFormSubmit } from "$lib/server/deepwell/mail-form"
+import {
+  pageEditLockAcquire,
+  pageEditLockForceAcquire,
+  pageEditLockRelease,
+  pageEditLockRenew,
+  pageSave,
+  secondsUntil,
+  wikidotSectionRange
+} from "$lib/server/deepwell/page-edit-lock"
+import type { PageEditLockMode } from "$lib/server/deepwell/page-edit-lock"
+import {
+  isNotLatestRevisionIdError,
+  isPageEditLockConflictError
+} from "$lib/server/deepwell/public-error.js"
 import { wikidotMembersListModule } from "$lib/server/deepwell/membership"
 import { adminView, preloadView } from "$lib/server/deepwell/views"
 import { pageFileList } from "$lib/server/deepwell/page-file"
@@ -29,6 +43,7 @@ import {
   pageMetaTagDelete,
   pageMetaTagSet,
   pageMetaTags,
+  pageMove,
   pageRevision,
   pageRevisionById,
   pageScore,
@@ -301,6 +316,289 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
         { siteId: requestSiteId, userId, pageId, slug },
         { ...requestContext, page: slug }
       )
+    },
+    openPageEdit: async ({
+      siteId: requestSiteId,
+      pageId,
+      slug,
+      mode,
+      sectionIndex,
+      force
+    }: {
+      siteId: number
+      pageId: number
+      slug: string
+      mode: string
+      sectionIndex?: number
+      force: boolean
+    }) => {
+      const userId = await resolveNewPageUserId()
+      if (userId === undefined) {
+        throw new Error("page edit requires a page mutation actor")
+      }
+      const context = { ...requestContext, page: pageId }
+      const input = {
+        pageId,
+        slug,
+        mode: mode as PageEditLockMode,
+        sectionIndex
+      }
+      const output = force
+        ? await pageEditLockForceAcquire(input, context)
+        : await pageEditLockAcquire(input, context)
+      let source = ""
+      let rangeStart: number | undefined
+      let rangeEnd: number | undefined
+      if (mode === "page" || mode === "section") {
+        const revision = await pageRevision(
+          requestSiteId,
+          pageId,
+          undefined,
+          false,
+          true,
+          context
+        )
+        const wikitext = revision?.wikitext ?? ""
+        if (mode === "page") {
+          source = wikitext
+        } else if (sectionIndex !== undefined) {
+          const range = wikidotSectionRange(wikitext, sectionIndex)
+          if (range) {
+            rangeStart = range.rangeStart
+            rangeEnd = range.rangeEnd
+            source = range.text
+          }
+        }
+      }
+      const sectionFields =
+        rangeStart !== undefined && rangeEnd !== undefined ? { rangeStart, rangeEnd } : {}
+      if (!output.grant) {
+        return {
+          granted: false,
+          ...sectionFields,
+          timeLeft:
+            output.conflicts.length > 0
+              ? Math.min(
+                  ...output.conflicts.map((conflict) => conflict.seconds_remaining)
+                )
+              : 0,
+          conflicts: output.conflicts.map((conflict) => ({
+            userId: conflict.user_id,
+            mode: conflict.mode,
+            sectionIndex: conflict.section_index,
+            secondsRemaining: conflict.seconds_remaining
+          }))
+        }
+      }
+      return {
+        granted: true,
+        ...sectionFields,
+        lockId: output.grant.lock_id,
+        ["lockSecret"]: output.grant.lock_secret,
+        baseRevisionId: output.grant.base_revision_id,
+        timeLeft: secondsUntil(output.grant.expires_at),
+        source
+      }
+    },
+    savePage: async ({
+      siteId: requestSiteId,
+      pageId,
+      slug,
+      mode,
+      sectionIndex,
+      lockId,
+      lockSecret,
+      revisionId,
+      title,
+      wikitext,
+      comments
+    }: {
+      siteId: number
+      pageId?: number
+      slug: string
+      mode: string
+      sectionIndex?: number
+      lockId?: number
+      lockSecret?: string
+      revisionId: string
+      title: string
+      wikitext: string
+      comments: string
+    }) => {
+      const userId = await resolveNewPageUserId()
+      if (userId === undefined) {
+        throw new Error("savePage requires a page mutation actor")
+      }
+      const context = { ...requestContext, page: slug }
+      try {
+        const saved = await pageSave(
+          {
+            siteId: requestSiteId,
+            pageId,
+            slug,
+            userId,
+            userIpAddr: getClientAddress(),
+            lastRevisionId: revisionId === "" ? 0 : Number.parseInt(revisionId, 10),
+            revisionComments: comments,
+            wikitext,
+            title,
+            lease:
+              lockId !== undefined && lockSecret !== undefined
+                ? {
+                    lockId,
+                    lockSecret,
+                    mode: mode as PageEditLockMode,
+                    sectionIndex
+                  }
+                : undefined
+          },
+          context
+        )
+        if (saved === null) {
+          const page = (await pageGet(requestSiteId, pageId ?? slug, context)) as {
+            revision_id?: number
+          } | null
+          const latestRevisionId = page?.revision_id
+          if (latestRevisionId === undefined || !Number.isSafeInteger(latestRevisionId)) {
+            throw new Error("savePage target is unavailable")
+          }
+          return {
+            outcome: "commit" as const,
+            revisionId: latestRevisionId,
+            lockRecreated: false
+          }
+        }
+        return {
+          outcome: "commit" as const,
+          revisionId: saved.revision_id,
+          lockRecreated: saved.lock_recreated
+        }
+      } catch (error) {
+        if (isNotLatestRevisionIdError(error)) {
+          return { outcome: "page_changed" as const }
+        }
+        if (isPageEditLockConflictError(error)) {
+          return { outcome: "other_locks" as const }
+        }
+        throw error
+      }
+    },
+    renewPageEditLock: async ({
+      siteId: requestSiteId,
+      pageId,
+      slug,
+      lockId,
+      lockSecret,
+      mode
+    }: {
+      siteId: number
+      pageId?: number
+      slug: string
+      lockId: number
+      lockSecret: string
+      mode: string
+    }) => {
+      if ((await resolveNewPageUserId()) === undefined) {
+        throw new Error("page edit lock renewal requires a page mutation actor")
+      }
+      try {
+        const renewed = await pageEditLockRenew(
+          {
+            pageId,
+            slug,
+            lockId,
+            lockSecret,
+            mode: mode as PageEditLockMode,
+            sectionIndex: undefined
+          },
+          { ...requestContext, page: slug }
+        )
+        const timeLeft = secondsUntil(renewed.expires_at)
+        if (renewed.lock_recreated) {
+          return {
+            timeLeft,
+            lockRecreated: true as const,
+            lockId: renewed.lock_id,
+            ["lockSecret"]: renewed.lock_secret
+          }
+        }
+        return { timeLeft, lockRecreated: false as const }
+      } catch (error) {
+        if (isPageEditLockConflictError(error)) {
+          return { noLockError: "other_locks" as const }
+        }
+        throw error
+      }
+    },
+    releasePageEditLock: async ({
+      pageId,
+      slug,
+      lockId,
+      lockSecret
+    }: {
+      siteId: number
+      pageId?: number
+      slug: string
+      lockId: number
+      lockSecret: string
+    }) => {
+      try {
+        await pageEditLockRelease(
+          { pageId, slug, lockId, lockSecret },
+          { ...requestContext, page: slug }
+        )
+      } catch (error) {
+        console.error("AJAX page edit lock release failed", error)
+      }
+    },
+    renamePage: async ({
+      siteId: requestSiteId,
+      pageId,
+      newName
+    }: {
+      siteId: number
+      pageId: number
+      newName: string
+    }) => {
+      const userId = await resolveNewPageUserId()
+      if (userId === undefined) {
+        throw new Error("renamePage requires a page mutation actor")
+      }
+      const context = { ...requestContext, page: pageId }
+      const page = (await pageGet(requestSiteId, pageId, context)) as {
+        slug?: string
+        revision_id?: number
+      } | null
+      const revisionId = page?.revision_id
+      if (
+        page === null ||
+        typeof page.slug !== "string" ||
+        revisionId === undefined ||
+        !Number.isSafeInteger(revisionId)
+      ) {
+        throw new Error("renamePage target is unavailable")
+      }
+      try {
+        await pageMove(
+          {
+            siteId: requestSiteId,
+            pageId,
+            userId,
+            userIpAddr: getClientAddress(),
+            slug: page.slug,
+            newSlug: newName,
+            lastRevisionId: revisionId,
+            revisionComments: ""
+          },
+          context
+        )
+        return { locks: false }
+      } catch (error) {
+        if (isPageEditLockConflictError(error)) {
+          return { locks: true }
+        }
+        throw error
+      }
     },
     renderListPages: ({
       siteId,

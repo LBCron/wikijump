@@ -26,6 +26,8 @@ pub(crate) use self::service::{
     append_wikitext, extract_section, is_live, modes_conflict, splice_section,
 };
 pub use self::structs::{
-    AcquirePageEditLock, AcquirePageEditLockOutput, PageEditLockConflictInfo,
-    PageEditLockGrant, ReleasePageEditLock, RenewPageEditLock, RenewPageEditLockOutput,
+    AcquirePageEditLock, AcquirePageEditLockInput, AcquirePageEditLockOutput,
+    PageEditLockConflictInfo, PageEditLockGrant, ReleasePageEditLock,
+    ReleasePageEditLockInput, RenewPageEditLock, RenewPageEditLockInput,
+    RenewPageEditLockOutput,
 };

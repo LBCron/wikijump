@@ -28,7 +28,8 @@ mod prelude {
     pub use crate::services::{
         AliasService, BlobService, CaddyService, CategoryService, DomainService,
         FileRevisionService, FileService, LinkService, MessageReportService,
-        MessageService, MfaService, PageLockService, PageRevisionService, PageService,
+        MessageService, MfaService, PageEditLockService, PageLockService,
+        PageRevisionService, PageService,
         ParentService, RelationService, RenderService, ScoreService, ServiceContext,
         SessionService, SettingsService, SiteService, TextBlockService, TextService,
         UserService, ViewService, VoteService,
@@ -59,6 +60,7 @@ pub mod all {
     pub use super::normalize::*;
     pub use super::page::*;
     pub use super::page_attribution::*;
+    pub use super::page_edit_lock::*;
     pub use super::page_lock::*;
     pub use super::page_meta_tag::*;
     pub use super::page_revision::*;
@@ -97,6 +99,7 @@ pub mod mirror_scope;
 pub mod normalize;
 pub mod page;
 pub mod page_attribution;
+pub mod page_edit_lock;
 pub mod page_lock;
 pub mod page_meta_tag;
 pub mod page_revision;

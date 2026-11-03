@@ -262,9 +262,7 @@ mod membership_by_password_tests {
             .expect("the first membership lookup should succeed");
         let second = cache
             .get_or_init(|| async {
-                panic!("a cached membership result must not query again");
-                #[allow(unreachable_code)]
-                Ok(None)
+                panic!("a cached membership result must not query again")
             })
             .await
             .expect("the cached membership result should succeed");

@@ -59,7 +59,8 @@ fn corpus_replay_worker_preparation_uses_production_protection_order() {
     let encoded = serde_json::to_string(&input).expect("serialize replay input");
     let decoded = serde_json::from_str(&encoded).expect("deserialize replay input");
 
-    let prepared = RenderService::prepare_corpus_replay_wikitext(decoded);
+    let prepared =
+        RenderService::prepare_corpus_replay_wikitext_with_observer(decoded, |_| {});
 
     assert!(!prepared.compatibility_fallback);
     assert!(prepared.preprocessed);
@@ -123,7 +124,8 @@ fn corpus_replay_worker_preprocesses_many_flat_collapsibles() {
         wikidot_compat_text: CompatTextFragments::new(""),
     };
 
-    let prepared = RenderService::prepare_corpus_replay_wikitext(input);
+    let prepared =
+        RenderService::prepare_corpus_replay_wikitext_with_observer(input, |_| {});
 
     assert!(!prepared.compatibility_fallback);
     assert!(prepared.preprocessed);
@@ -923,7 +925,8 @@ fn large_tabbed_page_with_collapsible_images_and_headings_stays_parse_eligible()
         wikidot_compat_text: CompatTextFragments::new(""),
     };
 
-    let prepared = RenderService::prepare_corpus_replay_wikitext(input);
+    let prepared =
+        RenderService::prepare_corpus_replay_wikitext_with_observer(input, |_| {});
 
     assert!(!prepared.compatibility_fallback);
     assert!(prepared.preprocessed);

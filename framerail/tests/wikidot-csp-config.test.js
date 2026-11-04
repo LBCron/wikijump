@@ -4,6 +4,8 @@ import test from "node:test"
 const previousFramerailEnvironment = process.env.FRAMERAIL_ENV
 process.env.FRAMERAIL_ENV = "local"
 const { default: config } = await import("../sveltekit-options.js")
+const { AUDITED_EXTERNAL_ASSET_ORIGINS } =
+  await import("../src/lib/server/audited-external-asset-origins.js")
 if (previousFramerailEnvironment === undefined) {
   delete process.env.FRAMERAIL_ENV
 } else {
@@ -102,9 +104,22 @@ test("allows captured Wikidot legacy asset origins in local CSP", () => {
   for (const origin of ["https://fonts.gstatic.com", "https://nu-scptheme.github.io"]) {
     assert(directives["font-src"]?.some((source) => source === origin))
   }
-  for (const origin of ["https://indestructibletype-fonthosting.github.io"]) {
-    assert(directives["style-src"]?.some((source) => source === origin))
-    assert(directives["font-src"]?.some((source) => source === origin))
+  const classifiedDecorationGrant = AUDITED_EXTERNAL_ASSET_ORIGINS.find(
+    (entry) => entry.origin === "https://indestructibletype-fonthosting.github.io"
+  )
+  assert(classifiedDecorationGrant, "classified-decoration origin is not audited")
+  assert.equal(classifiedDecorationGrant.styles, true)
+  assert.equal(classifiedDecorationGrant.fonts, true)
+  for (const [directive, granted] of [
+    ["style-src", classifiedDecorationGrant.styles],
+    ["font-src", classifiedDecorationGrant.fonts]
+  ]) {
+    assert.equal(
+      directives[directive]?.some(
+        (source) => source === classifiedDecorationGrant.origin
+      ),
+      granted
+    )
   }
   for (const sources of [
     directives["img-src"],

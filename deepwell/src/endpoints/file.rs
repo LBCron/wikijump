@@ -24,7 +24,7 @@ use crate::models::file_revision::Model as FileRevisionModel;
 use crate::services::file::{
     CreateFile, CreateFileOutput, DeleteFile, DeleteFileOutput, EditFile, EditFileOutput,
     GetFileDetails, GetFileOutput, MoveFile, MoveFileOutput, RestoreFile,
-    RestoreFileOutput, RollbackFile,
+    RestoreFileOutput, RollbackFile, is_fully_imported_page,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::services::{BlobService, FileRevisionService};
@@ -483,10 +483,6 @@ async fn ensure_page_not_fully_imported(
             )
         })?;
 
-    if !page.from_wikidot {
-        return Ok(());
-    }
-
     let site = SiteService::get(ctx, Reference::Id(site_id))
         .await
         .or_raise(|| {
@@ -496,7 +492,7 @@ async fn ensure_page_not_fully_imported(
             )
         })?;
 
-    if site.from_wikidot {
+    if is_fully_imported_page(page.from_wikidot, site.from_wikidot) {
         Err(Error::new(
             format!(
                 "cannot {action_name} on page ID {page_id} in site ID {site_id}: \

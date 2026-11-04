@@ -128,11 +128,53 @@ impl std::fmt::Debug for IssueEmailTokenOutcome {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LinkTokenPurpose {
+    VerifyEmail,
+    ResetPassword,
+    DeleteConfirm,
+}
+
+impl LinkTokenPurpose {
+    fn token_purpose(self) -> EmailTokenPurpose {
+        match self {
+            LinkTokenPurpose::VerifyEmail => EmailTokenPurpose::VerifyEmail,
+            LinkTokenPurpose::ResetPassword => EmailTokenPurpose::ResetPassword,
+            LinkTokenPurpose::DeleteConfirm => EmailTokenPurpose::DeleteConfirm,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GrantTokenPurpose {
+    ResetGrant,
+    DeleteGrant,
+}
+
+impl GrantTokenPurpose {
+    fn token_purpose(self) -> EmailTokenPurpose {
+        match self {
+            GrantTokenPurpose::ResetGrant => EmailTokenPurpose::ResetGrant,
+            GrantTokenPurpose::DeleteGrant => EmailTokenPurpose::DeleteGrant,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct LinkTokenAuthority;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct GrantTokenAuthority;
+
 #[derive(Debug, PartialEq, Eq)]
-pub struct RedeemedEmailToken {
+pub struct RedeemedEmailToken<A> {
     pub user_id: i64,
     pub email: String,
+    authority: std::marker::PhantomData<A>,
 }
+
+pub type RedeemedLinkToken = RedeemedEmailToken<LinkTokenAuthority>;
+pub type RedeemedGrantToken = RedeemedEmailToken<GrantTokenAuthority>;
 
 #[derive(Debug)]
 pub struct EmailTokenService;
@@ -191,18 +233,12 @@ impl EmailTokenService {
 
     pub async fn issue_grant(
         ctx: &ServiceContext<'_>,
-        user_id: i64,
-        email: String,
-        grant_purpose: EmailTokenPurpose,
+        link: &RedeemedLinkToken,
+        grant_purpose: GrantTokenPurpose,
         ip_address: IpAddr,
     ) -> Result<IssuedEmailToken> {
-        debug_assert!(
-            matches!(
-                grant_purpose,
-                EmailTokenPurpose::ResetGrant | EmailTokenPurpose::DeleteGrant,
-            ),
-            "issue_grant requires a grant purpose",
-        );
+        let grant_purpose = grant_purpose.token_purpose();
+        let user_id = link.user_id;
         let make_error = || {
             Error::new(
                 format!("failed to issue {} grant", grant_purpose.as_str()),
@@ -220,7 +256,8 @@ impl EmailTokenService {
             .await
             .or_raise(make_error)?;
 
-        Self::insert_token(ctx, user_id, email, grant_purpose, ip_address).await
+        Self::insert_token(ctx, user_id, link.email.clone(), grant_purpose, ip_address)
+            .await
     }
 
     pub async fn revoke_all_for_user(
@@ -241,11 +278,27 @@ impl EmailTokenService {
         Ok(())
     }
 
-    pub async fn redeem(
+    pub async fn redeem_link(
+        ctx: &ServiceContext<'_>,
+        token: &str,
+        purpose: LinkTokenPurpose,
+    ) -> Result<RedeemedLinkToken> {
+        Self::redeem_as(ctx, token, purpose.token_purpose()).await
+    }
+
+    pub async fn redeem_grant(
+        ctx: &ServiceContext<'_>,
+        token: &str,
+        purpose: GrantTokenPurpose,
+    ) -> Result<RedeemedGrantToken> {
+        Self::redeem_as(ctx, token, purpose.token_purpose()).await
+    }
+
+    async fn redeem_as<A>(
         ctx: &ServiceContext<'_>,
         token: &str,
         purpose: EmailTokenPurpose,
-    ) -> Result<RedeemedEmailToken> {
+    ) -> Result<RedeemedEmailToken<A>> {
         let make_error =
             || Error::new("failed to redeem email token", ErrorType::InvalidEmailToken);
         let transaction = ctx.transaction();
@@ -277,6 +330,7 @@ impl EmailTokenService {
         Ok(RedeemedEmailToken {
             user_id: model.user_id,
             email: model.email,
+            authority: std::marker::PhantomData,
         })
     }
 

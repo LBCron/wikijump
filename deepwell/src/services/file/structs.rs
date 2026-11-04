@@ -104,6 +104,10 @@ pub struct GetPageFiles {
     pub deleted: Maybe<bool>,
 }
 
+pub fn is_fully_imported_page(page_from_wikidot: bool, site_from_wikidot: bool) -> bool {
+    page_from_wikidot && site_from_wikidot
+}
+
 #[derive(Debug, Clone)]
 pub struct VisibleFileRow {
     pub file_id: i64,
@@ -216,4 +220,17 @@ pub struct RollbackFile<'a> {
     #[serde(default)]
     pub bypass_filter: bool,
     pub ip_address: IpAddr,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_fully_imported_page;
+
+    #[test]
+    fn fully_imported_page_requires_both_flags() {
+        assert!(is_fully_imported_page(true, true));
+        assert!(!is_fully_imported_page(true, false));
+        assert!(!is_fully_imported_page(false, true));
+        assert!(!is_fully_imported_page(false, false));
+    }
 }

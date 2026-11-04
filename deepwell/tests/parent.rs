@@ -28,6 +28,7 @@ use deepwell::models::page_parent::ActiveModel as PageParentActiveModel;
 use deepwell::models::page_parent::Entity as PageParentTable;
 use deepwell::services::category::CategoryService;
 use deepwell::services::job::JOB_QUEUE_NAME;
+use deepwell::services::parent::DirectParentMetadataResult;
 use deepwell::services::permission::PermissionService;
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
@@ -463,12 +464,13 @@ async fn direct_parent_metadata_tracks_one_current_relationship_and_rejects_ambi
 
     insert_parent_relationship(&runner, first_parent_id, child_id).await;
     runner.set_request_context(RequestContext::default());
-    let first = run_endpoint!(
+    let DirectParentMetadataResult::Visible(first) = run_endpoint!(
         runner,
         parent_get_direct_metadata,
         json!({"site_id": site_id, "page": CHILD_SLUG}),
-    )
-    .expect("one viewable direct parent should be projected");
+    ) else {
+        panic!("one viewable direct parent should be projected");
+    };
     assert_eq!(first.slug, FIRST_PARENT_SLUG);
     assert_eq!(first.title, FIRST_PARENT_SLUG);
 
@@ -477,23 +479,26 @@ async fn direct_parent_metadata_tracks_one_current_relationship_and_rejects_ambi
         .await
         .expect("first parent relationship should be replaced");
     insert_parent_relationship(&runner, second_parent_id, child_id).await;
-    let second = run_endpoint!(
+    let DirectParentMetadataResult::Visible(second) = run_endpoint!(
         runner,
         parent_get_direct_metadata,
         json!({"site_id": site_id, "page": child_id}),
-    )
-    .expect("the endpoint should resolve the current relationship");
+    ) else {
+        panic!("the endpoint should resolve the current relationship");
+    };
     assert_eq!(second.slug, SECOND_PARENT_SLUG);
     assert_eq!(second.title, SECOND_PARENT_SLUG);
 
     insert_parent_relationship(&runner, first_parent_id, child_id).await;
     assert!(
-        run_endpoint!(
-            runner,
-            parent_get_direct_metadata,
-            json!({"site_id": site_id, "page": CHILD_SLUG}),
-        )
-        .is_none(),
+        matches!(
+            run_endpoint!(
+                runner,
+                parent_get_direct_metadata,
+                json!({"site_id": site_id, "page": CHILD_SLUG}),
+            ),
+            DirectParentMetadataResult::Undisclosed
+        ),
         "ambiguous direct parents must fail closed",
     );
 }
@@ -523,21 +528,25 @@ async fn direct_parent_metadata_hides_an_unviewable_child_or_parent() {
 
     runner.set_request_context(RequestContext::default());
     assert!(
-        run_endpoint!(
-            runner,
-            parent_get_direct_metadata,
-            json!({"site_id": site_id, "page": PUBLIC_CHILD_SLUG}),
-        )
-        .is_none(),
+        matches!(
+            run_endpoint!(
+                runner,
+                parent_get_direct_metadata,
+                json!({"site_id": site_id, "page": PUBLIC_CHILD_SLUG}),
+            ),
+            DirectParentMetadataResult::Undisclosed
+        ),
         "a caller without Page:View must learn no parent metadata",
     );
     assert!(
-        run_endpoint!(
-            runner,
-            parent_get_direct_metadata,
-            json!({"site_id": site_id, "page": PRIVATE_CHILD_SLUG}),
-        )
-        .is_none(),
+        matches!(
+            run_endpoint!(
+                runner,
+                parent_get_direct_metadata,
+                json!({"site_id": site_id, "page": PRIVATE_CHILD_SLUG}),
+            ),
+            DirectParentMetadataResult::Undisclosed
+        ),
         "a caller without child Page:View must learn no relationship metadata",
     );
 }
@@ -559,14 +568,14 @@ async fn direct_parent_metadata_rejects_missing_deleted_and_cross_site_parents()
     let other_site_id = other_site.site.site_id;
 
     runner.set_request_context(RequestContext::default());
-    assert!(
+    assert!(matches!(
         run_endpoint!(
             runner,
             parent_get_direct_metadata,
             json!({"site_id": site_id, "page": MISSING_CHILD_SLUG}),
-        )
-        .is_none(),
-    );
+        ),
+        DirectParentMetadataResult::Undisclosed
+    ),);
 
     let deleted_child_id =
         create_parent_auth_page(&mut runner, site_id, DELETED_CHILD_SLUG).await;
@@ -599,12 +608,14 @@ async fn direct_parent_metadata_rejects_missing_deleted_and_cross_site_parents()
     insert_parent_relationship(&runner, deleted_parent_id, deleted_child_id).await;
     runner.set_request_context(RequestContext::default());
     assert!(
-        run_endpoint!(
-            runner,
-            parent_get_direct_metadata,
-            json!({"site_id": site_id, "page": DELETED_CHILD_SLUG}),
-        )
-        .is_none(),
+        matches!(
+            run_endpoint!(
+                runner,
+                parent_get_direct_metadata,
+                json!({"site_id": site_id, "page": DELETED_CHILD_SLUG}),
+            ),
+            DirectParentMetadataResult::Undisclosed
+        ),
         "a deleted parent must not be projected",
     );
 
@@ -615,12 +626,14 @@ async fn direct_parent_metadata_rejects_missing_deleted_and_cross_site_parents()
     insert_parent_relationship(&runner, cross_site_parent_id, cross_site_child_id).await;
     runner.set_request_context(RequestContext::default());
     assert!(
-        run_endpoint!(
-            runner,
-            parent_get_direct_metadata,
-            json!({"site_id": site_id, "page": CROSS_SITE_CHILD_SLUG}),
-        )
-        .is_none(),
+        matches!(
+            run_endpoint!(
+                runner,
+                parent_get_direct_metadata,
+                json!({"site_id": site_id, "page": CROSS_SITE_CHILD_SLUG}),
+            ),
+            DirectParentMetadataResult::Undisclosed
+        ),
         "a parent from another site must not be projected",
     );
 }

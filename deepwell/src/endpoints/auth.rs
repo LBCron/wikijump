@@ -21,7 +21,7 @@
 use super::prelude::*;
 use crate::models::session::Model as SessionModel;
 use crate::services::authentication::{
-    AuthenticateUserOutput, AuthenticationService, LoginUser, LoginUserMfa,
+    AuthenticateUserOutput, AuthenticationService, LoginOutcome, LoginUser, LoginUserMfa,
     LoginUserOutput, MultiFactorAuthenticateOutput, MultiFactorAuthenticateUser,
 };
 use crate::services::authorization_token::AuthorizationTokenService;
@@ -55,13 +55,12 @@ pub async fn auth_login(
 
     let result =
         AuthenticationService::auth_password(ctx, authenticate, ip_address).await;
-    let AuthenticateUserOutput { needs_mfa, user_id } = match result {
-        Ok(output) => output,
-        Err(error) => match error.error_type {
-            ErrorType::InvalidAuthentication => bail!(error),
-            _ => bail!(error.raise(make_error())),
-        },
-    };
+    let AuthenticateUserOutput { needs_mfa, user_id } =
+        match LoginOutcome::from_result(result) {
+            LoginOutcome::Authenticated(output) => output,
+            LoginOutcome::InvalidAuthentication(error) => bail!(error),
+            LoginOutcome::Failed(error) => bail!(error),
+        };
 
     let login_complete = !needs_mfa;
     info!(

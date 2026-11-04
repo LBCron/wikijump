@@ -107,7 +107,7 @@ pub struct BlobMetadata {
 }
 
 #[derive(Serialize, Debug, Clone)]
-pub struct GetBlobOutput {
+pub struct PublicBlobByHash {
     pub data: Vec<u8>,
     pub mime: String,
     pub size: i64,

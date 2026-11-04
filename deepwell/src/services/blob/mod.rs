@@ -29,6 +29,6 @@ pub use self::service::{
 };
 pub use self::structs::{
     BlobMetadata, CancelBlobUpload, ContentTypeDescriptor, FinalizeBlobUploadOutput,
-    GetBlobOutput, HardDelete, HardDeleteOutput, PendingBlobOwner, StartBlobUpload,
+    HardDelete, HardDeleteOutput, PendingBlobOwner, PublicBlobByHash, StartBlobUpload,
     StartBlobUploadOutput, StartBlobUploadScope,
 };

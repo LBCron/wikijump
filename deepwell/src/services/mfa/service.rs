@@ -85,14 +85,25 @@ impl MfaService {
         let recovery = RecoveryCodes::generate(ctx.config()).or_raise(make_error)?;
 
         debug!("Committing MFA secrets for user ID {}", user.user_id);
-        UserService::set_mfa_secrets(
+        let enrolled = UserService::set_mfa_secrets_if_unset(
             ctx,
             user.user_id,
-            ActiveValue::Set(Some(totp_secret.clone())),
-            ActiveValue::Set(Some(recovery.recovery_codes_hashed)),
+            Some(totp_secret.clone()),
+            Some(recovery.recovery_codes_hashed),
         )
         .await
         .or_raise(make_error)?;
+
+        if !enrolled {
+            error!("User already has MFA set up");
+            bail!(Error::new(
+                format!(
+                    "cannot setup MFA for user '{}' (ID {}) because it is already set up",
+                    user.slug, user.user_id
+                ),
+                ErrorType::UserMfaExists,
+            ));
+        }
 
         UserService::set_mfa_last_totp_step(ctx, user.user_id, ActiveValue::Set(None))
             .await

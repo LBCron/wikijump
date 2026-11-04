@@ -14,7 +14,7 @@ import {
   buildPageFileRestorePayload,
   buildPageFileRollbackPayload
 } from "$lib/server/deepwell/page-file-mutation-payloads"
-import { DEEPWELL_PERMISSION_DENIED } from "$lib/server/deepwell/public-error.js"
+import { DEEPWELL_PERMISSION_DENIED } from "$lib/server/deepwell/public-error"
 
 import type {
   FileRevisionModel,

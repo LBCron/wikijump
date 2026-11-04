@@ -6,14 +6,14 @@ import {
   createRedisCommandState,
   resetRedisCommandState,
   writeRedisCommand
-} from "../../src/lib/server/cache/redis-command-state.js"
-import { connectRedisSocket } from "../../src/lib/server/cache/redis-connection.js"
+} from "../../src/lib/server/cache/redis-command-state.ts"
+import { connectRedisSocket } from "../../src/lib/server/cache/redis-connection.ts"
 import {
   encodeRedisCommand,
   parseRedisResponse
-} from "../../src/lib/server/cache/redis-protocol.js"
-import { createRedisCacheStore } from "../../src/lib/server/cache/redis-store.js"
-import { RedisFenceInvalidationSubscriber } from "../../src/lib/server/cache/redis-subscriber.js"
+} from "../../src/lib/server/cache/redis-protocol.ts"
+import { createRedisCacheStore } from "../../src/lib/server/cache/redis-store.ts"
+import { RedisFenceInvalidationSubscriber } from "../../src/lib/server/cache/redis-subscriber.ts"
 
 const redisArray = (...values) => {
   let response = `*${values.length}\r\n`

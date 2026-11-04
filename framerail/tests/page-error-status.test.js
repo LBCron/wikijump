@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { pageErrorStatus } from "../src/lib/server/load/page/page-error-status.js"
+import { pageErrorStatus } from "../src/lib/server/load/page/page-error-status.ts"
 
 test("reserved admin permission views stay unauthorized across route aliases", () => {
   for (const slug of ["_admin", "_ADMIN", "/_admin", "//_ADMIN//"]) {

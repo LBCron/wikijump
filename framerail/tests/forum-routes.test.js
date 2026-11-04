@@ -8,7 +8,7 @@ import {
   loadForumCategoryRoute,
   loadForumStartRoute,
   loadForumThreadRoute
-} from "../src/lib/server/forum-routes.js"
+} from "../src/lib/server/forum-routes.ts"
 
 /** @param {Record<string, string | undefined>} params */
 const routeEvent = (params) => ({

@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { readUrlEncodedForm } from "../src/lib/server/ajax-module-connector/request.js"
+import { readUrlEncodedForm } from "../src/lib/server/ajax-module-connector/request.ts"
 
 test("AJAX form reader rejects unsupported content types and malformed lengths", async () => {
   await assert.rejects(

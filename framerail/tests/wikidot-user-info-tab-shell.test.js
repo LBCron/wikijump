@@ -5,7 +5,7 @@ import { after, before, test } from "node:test"
 
 import { createTestViteServer } from "./vite-test-server.js"
 
-import { loadWikidotUserInfo } from "../src/lib/server/wikidot-user-info.js"
+import { loadWikidotUserInfo } from "../src/lib/server/wikidot-user-info.ts"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 

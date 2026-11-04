@@ -4,7 +4,7 @@ import test from "node:test"
 import {
   containsCspNonce,
   renewCspNonce
-} from "../../src/lib/server/cache/article-response/entry.js"
+} from "../../src/lib/server/cache/article-response/entry.ts"
 import { renewArticleResponseFastPathNonce } from "../../article-response-fast-path.js"
 
 const STORED_NONCE = "QpQiIhnXH4Dlj6zeDbCNMg=="

@@ -2,8 +2,8 @@ import { strict as assert } from "node:assert"
 import { readFileSync } from "node:fs"
 import test from "node:test"
 
-import { buildPublicContentFenceKey } from "../src/lib/server/cache/article-response/index.js"
-import { getArticleResponseCacheStores } from "../src/lib/server/cache/article-response/runtime.js"
+import { buildPublicContentFenceKey } from "../src/lib/server/cache/article-response/index.ts"
+import { getArticleResponseCacheStores } from "../src/lib/server/cache/article-response/runtime.ts"
 import { createFramerailServerRuntime } from "../server.js"
 import {
   createFastPathFixtureStore,

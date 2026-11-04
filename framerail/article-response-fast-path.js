@@ -3,18 +3,18 @@ import {
   buildAnonymousArticleResponseTokenKey,
   readAnonymousArticleResponseCacheEntry,
   readAnonymousArticleResponseToken
-} from "./src/lib/server/cache/article-response/index.js"
+} from "./src/lib/server/cache/article-response/index.ts"
 import {
   buildAnonymousArticleResponseCacheFences,
   readAnonymousArticleResponseCacheFences
-} from "./src/lib/server/cache/article-response/fences.js"
-import { createLocalArticleResponseHotCache } from "./src/lib/server/cache/article-response/hot.js"
-import { hasSessionCookie } from "./src/lib/server/cache/article-response/shared.js"
+} from "./src/lib/server/cache/article-response/fences.ts"
+import { createLocalArticleResponseHotCache } from "./src/lib/server/cache/article-response/hot.ts"
+import { hasSessionCookie } from "./src/lib/server/cache/article-response/shared.ts"
 import {
   containsCspNonce,
   renewCspNonce
-} from "./src/lib/server/cache/article-response/entry.js"
-import { applyStaticSecurityHeadersToNodeResponse } from "./src/lib/server/security-headers.js"
+} from "./src/lib/server/cache/article-response/entry.ts"
+import { applyStaticSecurityHeadersToNodeResponse } from "./src/lib/server/security-headers.ts"
 import { parseAcceptLangHeader, withFallbackLocale } from "./src/lib/locales.ts"
 import { promisify } from "node:util"
 import zlib from "node:zlib"

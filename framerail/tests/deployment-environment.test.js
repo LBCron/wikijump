@@ -5,7 +5,7 @@ import {
   csrfTrustedOrigins,
   parseCsrfCheckOrigin,
   parseDeploymentEnvironment
-} from "../src/lib/server/deployment-environment.js"
+} from "../src/lib/server/deployment-environment.ts"
 
 test("parses explicit deployment environments", () => {
   for (const environment of ["local", "dev", "prod"]) {

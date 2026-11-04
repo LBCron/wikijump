@@ -11,7 +11,7 @@ import {
   requireActionSession,
   readActionJson
 } from "../src/lib/server/load/action-error.ts"
-import { redactAuthActionPayload } from "../src/lib/server/load/auth-form-redaction.js"
+import { redactAuthActionPayload } from "../src/lib/server/load/auth-form-redaction.ts"
 
 test("action errors preserve validated public Deepwell details", () => {
   assert.deepEqual(

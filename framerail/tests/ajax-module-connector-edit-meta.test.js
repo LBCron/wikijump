@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { handleAjaxModuleConnectorRequest } from "../src/lib/server/ajax-module-connector.js"
+import { handleAjaxModuleConnectorRequest } from "../src/lib/server/ajax-module-connector.ts"
 
 const request = (form) =>
   new Request("http://scp-wiki.local/ajax-module-connector.php", {

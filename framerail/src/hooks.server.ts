@@ -7,8 +7,8 @@ import {
   readAnonymousArticleResponseToken,
   writeAnonymousArticleResponseToken,
   writeAnonymousArticleResponseCache
-} from "$lib/server/cache/article-response/index.js"
-import { getArticleResponseCacheStores } from "$lib/server/cache/article-response/runtime.js"
+} from "$lib/server/cache/article-response/index"
+import { getArticleResponseCacheStores } from "$lib/server/cache/article-response/runtime"
 import {
   handleCachedRequest,
   readCachedResponseWithFallback

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { isTrustedProxyPeer, resolveClientIp } from "../src/lib/server/client-ip.js"
+import { isTrustedProxyPeer, resolveClientIp } from "../src/lib/server/client-ip.ts"
 
 const requestWith = (forwardedFor) =>
   new Request("https://wikijump.localhost/-/login", {

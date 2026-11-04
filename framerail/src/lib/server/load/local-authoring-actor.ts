@@ -1,4 +1,4 @@
-import { parseDeploymentEnvironment } from "../deployment-environment.js"
+import { parseDeploymentEnvironment } from "../deployment-environment.ts"
 
 const LOCAL_ADMIN_USER_ID = -1
 const EDITABLE_LOCAL_SITE_SLUG = "scpaiueouiuiuiui"

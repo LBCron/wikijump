@@ -76,7 +76,7 @@ test("the session cookie is never scoped to a files host", () => {
 
 test("no deployment puts its files domain under the cookie's main domain", async () => {
   const { platformDomains } = await vite.ssrLoadModule(
-    "/src/lib/server/platform-domains.js"
+    "/src/lib/server/platform-domains.ts"
   )
   for (const deploymentEnvironment of ["local", "dev", "prod"]) {
     const { main, files } = platformDomains({ deploymentEnvironment })

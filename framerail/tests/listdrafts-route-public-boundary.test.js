@@ -8,10 +8,10 @@ const read = (relativePath) =>
 test("the public AMC route wires ListDrafts to its persisted renderer", async () => {
   const [route, renderer, deepwellPage, connector, editLease] = await Promise.all([
     read("src/routes/ajax-module-connector.php/+server.ts"),
-    read("src/lib/server/wikidot-site-tools.js"),
+    read("src/lib/server/wikidot-site-tools.ts"),
     read("src/lib/server/deepwell/page.ts"),
-    read("src/lib/server/ajax-module-connector.js"),
-    read("src/lib/server/ajax-module-connector-edit-lease.js")
+    read("src/lib/server/ajax-module-connector.ts"),
+    read("src/lib/server/ajax-module-connector-edit-lease.ts")
   ])
 
   assert.match(route, /renderWikidotListDrafts/u)

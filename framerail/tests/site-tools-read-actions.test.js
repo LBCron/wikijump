@@ -2,12 +2,12 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import test from "node:test"
 
-import { handleAjaxModuleConnectorRequest } from "../src/lib/server/ajax-module-connector.js"
+import { handleAjaxModuleConnectorRequest } from "../src/lib/server/ajax-module-connector.ts"
 import {
   renderWikidotListDrafts,
   renderWikidotSiteTools,
   renderWikidotWantedPages
-} from "../src/lib/server/wikidot-site-tools.js"
+} from "../src/lib/server/wikidot-site-tools.ts"
 import { requestWikidotSiteToolsModule } from "../src/lib/wikidot/wikidot-site-tools.ts"
 
 /** @param {any} form */

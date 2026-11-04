@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { stripPrivateDeepwellErrorData } from "../src/lib/server/deepwell/public-error.js"
+import { stripPrivateDeepwellErrorData } from "../src/lib/server/deepwell/public-error.ts"
 import { publicErrorExtraMessage } from "../src/lib/popup/public-error-data.ts"
 
 test("structured Deepwell diagnostics are removed without mutating the response", () => {

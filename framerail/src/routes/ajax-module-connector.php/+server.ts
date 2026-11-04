@@ -1,4 +1,4 @@
-import { handleAjaxModuleConnectorRequest } from "$lib/server/ajax-module-connector.js"
+import { handleAjaxModuleConnectorRequest } from "$lib/server/ajax-module-connector"
 import {
   renderWikidotEditMeta,
   renderWikidotPageFiles,
@@ -8,7 +8,7 @@ import {
   renderWikidotWhoRated,
   renderWikidotWhoRatedUnavailable,
   renderWikidotViewSource
-} from "$lib/server/ajax-module-connector-page-reads.js"
+} from "$lib/server/ajax-module-connector-page-reads"
 import { authGetSession } from "$lib/server/auth/get-session"
 import { crossSitePostResponse } from "$lib/server/cross-site-post"
 import { client } from "$lib/server/deepwell"
@@ -28,7 +28,7 @@ import type { PageEditLockMode } from "$lib/server/deepwell/page-edit-lock"
 import {
   isNotLatestRevisionIdError,
   isPageEditLockConflictError
-} from "$lib/server/deepwell/public-error.js"
+} from "$lib/server/deepwell/public-error"
 import { wikidotMembersListModule } from "$lib/server/deepwell/membership"
 import { adminView, preloadView } from "$lib/server/deepwell/views"
 import { pageFileList } from "$lib/server/deepwell/page-file"
@@ -61,14 +61,14 @@ import {
   renderWikidotOrphanedPages,
   renderWikidotSiteTools,
   renderWikidotWantedPages
-} from "$lib/server/wikidot-site-tools.js"
+} from "$lib/server/wikidot-site-tools"
 import {
   getPreloadBackendLocales,
   getPreloadRequestLocales
 } from "$lib/server/load/preload"
 import { loadSiteInfo } from "$lib/server/load/site-info"
-import { renderWikidotManageSiteGeneral } from "$lib/server/wikidot-manage-site-general.js"
-import { renderWikidotManageSiteEducational } from "$lib/server/wikidot-manage-site-educational.js"
+import { renderWikidotManageSiteGeneral } from "$lib/server/wikidot-manage-site-general"
+import { renderWikidotManageSiteEducational } from "$lib/server/wikidot-manage-site-educational"
 
 import type { RequestHandler } from "./$types"
 
@@ -135,7 +135,7 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
       title: string
       wikitext: string
       tags: string[]
-      parentPage: string
+      parentPage: string | null
     }) => {
       const userId = await resolveNewPageUserId()
       if (userId === undefined) {

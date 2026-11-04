@@ -1,17 +1,17 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { createByteLimitedCache } from "../src/lib/server/cache/article-response/byte-limited-cache.js"
-import { RedisRequestQueue } from "../src/lib/server/cache/redis-request-queue.js"
-import { RedisResponseDecoder } from "../src/lib/server/cache/redis-response-decoder.js"
-import { parseRedisResponse } from "../src/lib/server/cache/redis-protocol.js"
-import { createRedisCacheStore } from "../src/lib/server/cache/redis-store.js"
-import { RedisFenceInvalidationSubscriber } from "../src/lib/server/cache/redis-subscriber.js"
+import { createByteLimitedCache } from "../src/lib/server/cache/article-response/byte-limited-cache.ts"
+import { RedisRequestQueue } from "../src/lib/server/cache/redis-request-queue.ts"
+import { RedisResponseDecoder } from "../src/lib/server/cache/redis-response-decoder.ts"
+import { parseRedisResponse } from "../src/lib/server/cache/redis-protocol.ts"
+import { createRedisCacheStore } from "../src/lib/server/cache/redis-store.ts"
+import { RedisFenceInvalidationSubscriber } from "../src/lib/server/cache/redis-subscriber.ts"
 import {
   createRedisCommandState,
   resetRedisCommandState,
   writeRedisCommand
-} from "../src/lib/server/cache/redis-command-state.js"
+} from "../src/lib/server/cache/redis-command-state.ts"
 
 test("indexed expiry matches full-scan FIFO/LRU under replacement, eviction and clock changes", () => {
   for (const touchOnRead of [false, true]) {

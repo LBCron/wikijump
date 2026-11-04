@@ -3,9 +3,9 @@ import { pathToFileURL } from "node:url"
 import { createStartupReadiness, probeStartupDeepwell } from "./startup-readiness.js"
 
 import { createArticleResponseFastPathHandler } from "./article-response-fast-path.js"
-import { createMemoryArticleResponseFenceCache } from "./src/lib/server/cache/article-response/index.js"
-import { configureArticleResponseCacheStores } from "./src/lib/server/cache/article-response/runtime.js"
-import { createArticleResponseCacheStores } from "./src/lib/server/cache/article-response/stores.js"
+import { createMemoryArticleResponseFenceCache } from "./src/lib/server/cache/article-response/index.ts"
+import { configureArticleResponseCacheStores } from "./src/lib/server/cache/article-response/runtime.ts"
+import { createArticleResponseCacheStores } from "./src/lib/server/cache/article-response/stores.ts"
 
 export const createFramerailHttpServer = ({
   fastPathHandler,

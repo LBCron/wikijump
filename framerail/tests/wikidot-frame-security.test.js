@@ -6,13 +6,13 @@ import {
   WIKIDOT_STYLE_FRAME_SCRIPT,
   buildWikidotStyleFrameHtml
 } from "../src/lib/wikidot/wikidot-styleframe.ts"
-import { auditedExternalAssetOrigins } from "../src/lib/server/audited-external-asset-origins.js"
+import { auditedExternalAssetOrigins } from "../src/lib/server/audited-external-asset-origins.ts"
 
 const {
   applyStaticSecurityHeaders,
   applyStaticSecurityHeadersToNodeResponse,
   materializeSiteCsp
-} = await import("../src/lib/server/security-headers.js")
+} = await import("../src/lib/server/security-headers.ts")
 
 test("permits only the two same-origin Wikidot compatibility frames", () => {
   for (const pathname of [

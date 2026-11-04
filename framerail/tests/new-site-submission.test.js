@@ -9,7 +9,7 @@ import {
   NEW_SITE_PLATFORM_SLUG,
   newSiteRedirectTarget,
   parseNewSiteSubmission
-} from "../src/lib/server/load/page/page-newsite-validation.js"
+} from "../src/lib/server/load/page/page-newsite-validation.ts"
 
 const validFields = () => ({
   name: "My Wiki",

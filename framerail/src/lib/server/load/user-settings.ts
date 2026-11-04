@@ -5,7 +5,7 @@ import {
   ACCOUNT_PASSWORD_TOO_SHORT,
   accountPasswordMeetsMinimum
 } from "$lib/account-password-policy.js"
-import { redactAuthActionPayload } from "$lib/server/load/auth-form-redaction.js"
+import { redactAuthActionPayload } from "$lib/server/load/auth-form-redaction"
 import {
   failForActionError,
   failForMissingSession,

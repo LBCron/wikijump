@@ -1,4 +1,4 @@
-import { isMissingLocaleMessageError } from "../deepwell/public-error.js"
+import { isMissingLocaleMessageError } from "../deepwell/public-error.ts"
 
 import type { TranslateKeys, TranslatedKeys } from "$lib/types"
 

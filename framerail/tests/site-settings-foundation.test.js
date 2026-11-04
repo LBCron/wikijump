@@ -4,7 +4,7 @@ import { describe, it } from "node:test"
 import {
   WIKIDOT_SITE_LANGUAGES,
   isWikidotSiteLanguage
-} from "../src/lib/admin/wikidot-site-languages.js"
+} from "../src/lib/admin/wikidot-site-languages.ts"
 import {
   googleAnalyticsQueueScript,
   googleAnalyticsHeadHtml,

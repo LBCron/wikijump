@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { createHash } from "node:crypto"
 import test from "node:test"
 
-import { renderWikidotManageSiteGeneral } from "../src/lib/server/wikidot-manage-site-general.js"
+import { renderWikidotManageSiteGeneral } from "../src/lib/server/wikidot-manage-site-general.ts"
 
 const capturedSite = {
   slug: "sandbox-for-codex",

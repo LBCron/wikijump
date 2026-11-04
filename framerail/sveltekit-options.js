@@ -7,13 +7,13 @@ import { fileURLToPath } from "url"
 import {
   csrfTrustedOrigins,
   parseDeploymentEnvironment
-} from "./src/lib/server/deployment-environment.js"
-import { auditedExternalAssetOrigins } from "./src/lib/server/audited-external-asset-origins.js"
+} from "./src/lib/server/deployment-environment.ts"
+import { auditedExternalAssetOrigins } from "./src/lib/server/audited-external-asset-origins.ts"
 import {
   LOCAL_MIRROR_FILE_ASSET_SITES,
   platformDomains,
   platformHttpsOrigin
-} from "./src/lib/server/platform-domains.js"
+} from "./src/lib/server/platform-domains.ts"
 
 // The former only works on node 20.11+
 const __dirname = import.meta.dirname ?? dirname(fileURLToPath(import.meta.url))

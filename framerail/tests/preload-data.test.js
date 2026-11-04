@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { buildPublicPreloadData } from "../src/lib/server/load/preload-data.js"
+import { buildPublicPreloadData } from "../src/lib/server/load/preload-data.ts"
 
 const assertBrowserSerializationIsPublic = (preloadData) => {
   const serialized = JSON.stringify(preloadData)

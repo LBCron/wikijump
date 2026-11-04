@@ -5,7 +5,7 @@ import {
   clearLoginPassword,
   clearRegisterPasswords,
   redactAuthActionPayload
-} from "../src/lib/server/load/auth-form-redaction.js"
+} from "../src/lib/server/load/auth-form-redaction.ts"
 
 test("login action forms do not serialize the submitted password", () => {
   const form = {

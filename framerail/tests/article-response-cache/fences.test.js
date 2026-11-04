@@ -1,24 +1,24 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { parseFenceInvalidationMessage } from "../../src/lib/server/cache/article-response/fence-message.js"
-import { applyFenceInvalidationToSites } from "../../src/lib/server/cache/article-response/fence-reducer.js"
-import { createArticleResponseFenceState } from "../../src/lib/server/cache/article-response/fence-state.js"
+import { parseFenceInvalidationMessage } from "../../src/lib/server/cache/article-response/fence-message.ts"
+import { applyFenceInvalidationToSites } from "../../src/lib/server/cache/article-response/fence-reducer.ts"
+import { createArticleResponseFenceState } from "../../src/lib/server/cache/article-response/fence-state.ts"
 import {
   normalizeFenceVersion,
   parsePermissionFence
-} from "../../src/lib/server/cache/article-response/fence-values.js"
+} from "../../src/lib/server/cache/article-response/fence-values.ts"
 import {
   buildAnonymousPermissionFenceKeys,
   buildPublicContentFenceKey,
   readAnonymousArticleResponseCacheFences
-} from "../../src/lib/server/cache/article-response/fences.js"
+} from "../../src/lib/server/cache/article-response/fences.ts"
 import {
   buildAnonymousArticleResponseCacheKey,
   buildAnonymousArticleResponseCacheMetadata,
   canConsiderAnonymousArticleResponseCache,
   createMemoryArticleResponseCacheStore
-} from "../../src/lib/server/cache/article-response/index.js"
+} from "../../src/lib/server/cache/article-response/index.ts"
 
 const REQUEST_HOST = "scp-wiki.example"
 

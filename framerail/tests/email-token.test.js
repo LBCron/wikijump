@@ -8,7 +8,7 @@ import {
   EMAIL_TOKEN_LENGTH,
   isEmailTokenWellFormed,
   normalizeLookupEmail
-} from "../src/lib/server/load/email-token-validation.js"
+} from "../src/lib/server/load/email-token-validation.ts"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 const siteHeaders = {

@@ -52,7 +52,7 @@ ANCHORS = [
     ("deepwell/src/services/page_draft/service.rs",
      "pub async fn save(",
      "drafts exist as the synchronize target, with save/exists/remove only: no lease is attached to a draft today"),
-    ("framerail/src/lib/server/ajax-module-connector.js",
+    ("framerail/src/lib/server/ajax-module-connector.ts",
      '"removePageEditLock"',
      "the Ajax connector knows the Wikidot draft events; removePageEditLock today only deletes the caller's own draft"),
     ("deepwell/src/models/page_edit_lock.rs",
@@ -61,7 +61,7 @@ ANCHORS = [
     ("deepwell/src/services/page/service.rs",
      "edit_with_lease",
      "the lease-aware save in Deepwell: acquire/force/renew/release with typed outcomes 4303/4304 (RULING-2 step 3, landed)"),
-    ("framerail/src/lib/server/ajax-module-connector.js",
+    ("framerail/src/lib/server/ajax-module-connector.ts",
      '"edit/PageEditModule"',
      "the Ajax edit-open surface issuing lock_id/lock_secret with the acquisition base (RULING-2 step 5, landed)"),
 ]

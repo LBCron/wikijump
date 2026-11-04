@@ -11,7 +11,7 @@ import {
   buildPublicContentFenceKey,
   createMemoryArticleResponseFenceCache,
   createMemoryArticleResponseCacheStore
-} from "../../src/lib/server/cache/article-response/index.js"
+} from "../../src/lib/server/cache/article-response/index.ts"
 import { createArticleResponseFastPathHandler } from "../../article-response-fast-path.js"
 
 export const SITE_ID = 6000005

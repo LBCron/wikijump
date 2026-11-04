@@ -7,7 +7,7 @@ import {
   createMemoryArticleResponseCacheStore,
   readAnonymousArticleResponseCache,
   writeAnonymousArticleResponseCache
-} from "../../src/lib/server/cache/article-response/index.js"
+} from "../../src/lib/server/cache/article-response/index.ts"
 
 const REQUEST_HOST = "scp-wiki.example"
 

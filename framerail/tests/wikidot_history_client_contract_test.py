@@ -13,7 +13,7 @@ from wikidot.module.site import Site
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 RENDERER = (
-    REPOSITORY_ROOT / "framerail/src/lib/server/ajax-module-connector-page-reads.js"
+    REPOSITORY_ROOT / "framerail/src/lib/server/ajax-module-connector-page-reads.ts"
 ).as_uri()
 REVISION = {
     "revision_id": 1000003,

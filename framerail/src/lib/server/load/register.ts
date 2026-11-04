@@ -9,9 +9,9 @@ import { userCreate } from "$lib/server/deepwell/user"
 import {
   clearRegisterPasswords,
   redactAuthActionPayload
-} from "$lib/server/load/auth-form-redaction.js"
+} from "$lib/server/load/auth-form-redaction"
 import { failForActionError } from "$lib/server/load/action-error"
-import { isRegistrationHoneypotTripped } from "$lib/server/load/register-honeypot.js"
+import { isRegistrationHoneypotTripped } from "$lib/server/load/register-honeypot"
 import { legalDestinations } from "$lib/server/legal-links"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail } from "@sveltejs/kit"

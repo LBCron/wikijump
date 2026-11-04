@@ -90,7 +90,6 @@ const navigateToSameOriginPath = (root: WikidotNewPageRoot, path: string): boole
   }
   if (target.origin !== root.location.origin) return false
 
-  // Assign the original path to preserve Wikidot's encoded route shape.
   root.location.href = path
   return true
 }

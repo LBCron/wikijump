@@ -24,10 +24,6 @@
   let metaContent = $state("")
   let error = $state("")
   let busy = $state(false)
-  // The meta-tag form is an edit-permission write surface like Append and
-  // Parent. The pane stays empty until the live permission answer arrives,
-  // so an anonymous actor receives the recorded Wikidot Permission error
-  // window (issue #2336) without any writable form ever mounting.
   let permissionState = $state<"checking" | "allowed" | "denied">("checking")
 
   async function reloadPane() {

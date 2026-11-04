@@ -4,18 +4,11 @@ export type HistoryCompareEntry = {
   page_revision_number: number | null
 }
 
-/**
- * A history entry is source-comparable only when it is a page-source
- * revision with a backing page revision number. File/attachment events are
- * timeline entries, not page source revisions, so the revision-diff
- * selector must never offer them as comparison endpoints. Refs #2143.
- */
 export const isComparableHistoryRevision = (entry: HistoryCompareEntry): boolean =>
   entry?.history_kind === "page" &&
   entry?.page_revision_number !== null &&
   entry?.page_revision_number !== undefined
 
-/** Timeline numbers the revision-diff selector may offer, oldest first. */
 export const comparableHistoryTimelineNumbers = (
   entries: HistoryCompareEntry[]
 ): number[] =>
@@ -24,12 +17,6 @@ export const comparableHistoryTimelineNumbers = (
     .map((entry) => entry.timeline_number)
     .sort((a, b) => a - b)
 
-/**
- * Choose the newest two distinct page-source revisions from a mixed
- * history timeline. File events remain visible in the timeline, but they
- * are not page source revisions and cannot be sent to the revision-diff
- * action directly. Returns the older and newer timeline numbers.
- */
 export const defaultHistoryComparePair = (
   entries: HistoryCompareEntry[]
 ): [number, number] | undefined => {

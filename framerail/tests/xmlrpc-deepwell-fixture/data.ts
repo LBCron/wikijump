@@ -892,10 +892,6 @@ export const backlinksByPage: Record<string, { slug: string; title: string }[]> 
   "scp-173": [{ slug: "scp-173-parent", title: "SCP Foundation" }]
 }
 
-/**
- * Populated watcher rosters by numeric page id, in Deepwell's public
- * identity shape. Pages without an entry read as an empty roster.
- */
 export const watchersByPageId: Record<
   number,
   {

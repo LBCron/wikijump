@@ -8,18 +8,6 @@ const UPDATE_LIST =
 
 export type ForumThreadParameters = { threadId: number | null | undefined }
 
-/**
- * Reproduce the read-only part of Wikidot's ForumViewThreadModule and
- * ForumViewThreadPostsModule scripts for a renderer-owned thread body
- * without executing its inline handlers:
- *
- * - Reveal `#thread-container-posts` once, as `initOnce` does;
- * - Fold and unfold one post or all posts (`.folded` on `div.post`);
- * - Toggle the thread options row and a post's options from its template;
- * - Page the posts in place through `forum/ForumViewThreadPostsModule`.
- *   Editing, posting, history and moderation handlers stay inert until
- *   their modules exist.
- */
 export const wikidotForumThread = (
   root: HTMLElement,
   parameters: ForumThreadParameters

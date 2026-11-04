@@ -16,23 +16,6 @@ import {
 import type { RequestContext } from "$lib/server/request-context"
 import type { RequestEvent } from "@sveltejs/kit"
 
-/**
- * Refs #2052. Handle the www/new-site special-page creation form
- * (`?/newSite`).
- *
- * The special-page scope is enforced server-side on the trusted
- * request-host site identity plus the page route: this action refuses to
- * create sites from any ordinary wiki page. Authentication is required
- * before any validation or mutation, and slug conflicts/reservations
- * remain Deepwell's atomic authority (`SiteService::check_conflicts`).
- *
- * On success the browser is sent to the new site's canonical origin and
- * default page, as Wikidot does (SCP-JP creation guide). The origin comes
- * from the deployment's own domain source of truth, never from
- * request-host surgery, and the session cookie already spans platform
- * subdomains, so the creator stays authenticated there. 303 is transport
- * mechanics for POST-to-GET, not an observed Wikidot status.
- */
 export function newSitePageAction(event: RequestEvent) {
   return (async () => {
     let outcome: NewSiteCreateOutcome | undefined
@@ -68,9 +51,6 @@ export function newSitePageAction(event: RequestEvent) {
 
     if (outcome === undefined) return result
 
-    // A redirect throw must escape executePageAction's catcher, so resolve
-    // the landing target separately; if origin resolution fails, fall back
-    // to the plain success payload instead of breaking creation.
     let target: string
     try {
       target = newSiteRedirectTarget(await siteOrigin(outcome.site_id, requestContext))

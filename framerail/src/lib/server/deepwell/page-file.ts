@@ -67,7 +67,6 @@ export async function pageFileGet(
   pageId: number,
   userId: number,
   fileId: number,
-  /** Also request the contents of the file */
   data: boolean
 ): Promise<Nullable<PageFile>> {
   return await client.request("file_get", {

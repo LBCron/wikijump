@@ -459,8 +459,6 @@ test("legacy printuser onclick is rebound without evaluating authored script", (
       getAttribute: (name: any) => attributes.get(name) ?? null
     }
   }
-  // Wikidot links users over https now; content it compiled before
-  // 2026-09-21 keeps http links. Both are renderer-owned printusers.
   const current = printuser("https://www.wikidot.com/user:info/r11-editor", 20000007)
   const legacy = printuser("http://www.wikidot.com/user:info/r11-author", 20000008)
   const root = {

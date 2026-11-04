@@ -33,11 +33,6 @@ export const isWikidotFragmentPage = (
   tags: readonly string[] | null | undefined
 ): boolean => tags?.includes("fragment") ?? false
 
-/**
- * Open the live Wikidot printer-friendly child window for the current page
- * path. The path already begins with `/`, so the route keeps Wikidot's
- * exact doubled slash (`/printer--friendly//<page>`).
- */
 export const openWikidotPrinterFriendly = (
   pagePath: string,
   browser: { open: (url: string, target: string) => unknown } = window
@@ -49,16 +44,6 @@ export const sourceShowsStandardWikidotPageActions = (
   return !WIKIDOT_SITES_WITHOUT_STANDARD_PAGE_ACTIONS.has(sourceSite ?? "")
 }
 
-/**
- * The server permission gate `openPagePane` checks before mounting a write
- * pane. Append, Parent and Lock write under the page `edit` permission;
- * Move writes under `rename` and Delete under `delete`, each matching the
- * authority the matching server mutation enforces. Read panes return null
- * and mount without a pre-check. Tags gates on `edit` through its own call
- * site (`openEditTagsPane`) and EditMeta inside its pane, so neither is
- * part of this mapping. Unknown panes return null and mount ungated,
- * exactly as before.
- */
 export const wikidotOpenPanePermissionKind = (
   pane: string
 ): "edit" | "move" | "delete" | null => {
@@ -83,7 +68,6 @@ export type WikidotPageDiscussionResponse = {
   thread_unix_title?: string
 }
 
-/** Request the page discussion using Wikidot's ForumAction envelope. */
 export const requestWikidotPageDiscussion = async (
   fetchImplementation: typeof fetch,
   pageId: number
@@ -122,14 +106,6 @@ export const wikidotPageDiscussionPath = (response: WikidotPageDiscussionRespons
   return `/forum/t-${threadId}/${response.thread_unix_title}`
 }
 
-/**
- * Wikidot links Discuss straight to an existing page discussion thread as
- * `/forum/t-<thread id>/<page unix name>` (for example
- * `/forum/t-102848/forum:start`), using the page name rather than the
- * thread title. Without a thread, or for a page name outside Wikidot's
- * unix-name alphabet, there is no link and the create-thread action
- * applies.
- */
 export const wikidotPageDiscussHref = ({
   discussionThreadId,
   pageSlug
@@ -169,15 +145,6 @@ export const wikidotPageActionVisibility = ({
   }
 }
 
-/**
- * Picks the rating shown on the page actions row.
- *
- * Every rating surface shows the same number: the live combined score
- * (imported baseline plus local votes) when one was fetched, otherwise the
- * imported baseline snapshot, otherwise nothing. A combined score of zero
- * is a real score and wins over the baseline; non-numeric values never
- * do.
- */
 export const selectWikidotPageRating = ({
   combinedRating = null,
   importedRating = null

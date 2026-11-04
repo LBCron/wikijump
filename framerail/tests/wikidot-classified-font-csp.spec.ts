@@ -6,10 +6,6 @@ const SITE_HEADERS = {
 }
 const APP_URL = `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 
-// The audited Renner origin. `component:classified-decoration-base` imports
-// its stylesheet and WOFF2 from here in both retained shared-corpus copies,
-// so the browser has to be allowed to fetch CSS and font bytes from it
-// (issue #2213).
 const AUDITED_FONT_ORIGIN = "https://indestructibletype-fonthosting.github.io"
 
 const cspDirectiveSources = (policy: string, directive: string): string[] => {

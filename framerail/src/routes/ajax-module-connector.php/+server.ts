@@ -772,12 +772,6 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
           page: pageId
         })
         if (votes.length === 0 && Number.isSafeInteger(pageId)) {
-          // An imported page can carry a rating baseline without any
-          // imported per-voter rows; the pinned empty roster would falsely
-          // claim nobody voted (issue #2205). The combined score is nonzero
-          // only through that baseline when no current vote rows exist, so
-          // declare the list unavailable instead. Any lookup failure falls
-          // through to the pinned empty body.
           try {
             const { score } = await pageScore({
               ...requestContext,

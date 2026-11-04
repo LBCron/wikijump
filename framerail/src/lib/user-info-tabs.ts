@@ -34,11 +34,6 @@ export const selectUserInfoTab = (
   }
 }
 
-/**
- * The class attribute of a tab item: `active` while selected, an empty
- * class once the item has lost a selection, and no attribute before its
- * first change.
- */
 export const userInfoTabClass = (
   state: UserInfoTabState,
   id: string

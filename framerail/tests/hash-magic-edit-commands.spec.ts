@@ -10,7 +10,6 @@ const AUTHENTICATED_HEADERS = {
 }
 const APP_URL = `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 const PAGE_PATH = "/scp-173"
-// Retained Wikidot anonymous edit-denial contract (issue #2336).
 const DENIAL_TITLE = "Permission error"
 const DENIAL_HEADING = "Please note:"
 const DENIAL_POLICY =

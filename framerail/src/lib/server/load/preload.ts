@@ -46,10 +46,6 @@ export function finalizePreloadData(response: Viewer, locales: string[]): Preloa
   const requiredLocales = [response?.site?.locale, defaults.fallbackLocale].filter(
     (locale): locale is string => Boolean(locale)
   )
-  // Explicit user preferences win. Otherwise the site's own language defines
-  // the page interface: current Wikidot serves e.g. scp-jp chrome in Japanese
-  // regardless of the visitor's Accept-Language, so the site locale outranks
-  // browser preferences, with the English fallback last.
   const resolvedLocales = limitLocalePreferences(
     [...userLocales, ...requiredLocales, ...acceptLocales],
     requiredLocales

@@ -16,7 +16,6 @@ const AUTHENTICATED_HEADERS = {
 }
 const FIXTURE_URL = `http://127.0.0.1:${process.env.PLAYWRIGHT_FIXTURE_PORT ?? "42747"}`
 
-// Wikidot's create-denial sentence, shown in the permission dialog.
 const CREATE_DENIED_MESSAGE =
   "Sorry, you can not create a new page in this category. Only members of this site, site administrators and perhaps selected moderators are allowed to do it."
 

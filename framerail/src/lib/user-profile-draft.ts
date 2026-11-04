@@ -1,9 +1,3 @@
-/**
- * Profile-editor state rules. The accepted snapshot is the last account
- * state the server confirmed. It is the baseline for partial patches and
- * the value the profile view shows. Rejected drafts never become part of
- * it.
- */
 export type ProfileFields = {
   name: string
   realName: string
@@ -48,10 +42,6 @@ export function acceptedSnapshot(
   }
 }
 
-/**
- * Build the partial patch: only fields that differ from the accepted
- * snapshot.
- */
 export function partialPatch(
   draft: Partial<ProfileFields>,
   accepted: Partial<ProfileFields>,

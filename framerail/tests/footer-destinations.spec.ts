@@ -170,10 +170,6 @@ test("imported Wikidot-layout footer reproduces the live Wikidot destinations", 
   const links = footer.locator("a")
   await expect(links).toHaveCount(6)
 
-  // Current live Wikidot footer: Help, Terms of Service and Privacy are
-  // absolute www.wikidot.com URLs; Report a bug and Flag as objectionable are
-  // inert anchors whose listeners open the in-page report modules, and the
-  // hidden consent entry holds the cookie-settings control.
   const expected = [
     "https://www.wikidot.com/doc",
     "https://www.wikidot.com/legal:terms-of-service",

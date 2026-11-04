@@ -11,8 +11,6 @@ import { SITE_ICON_CACHE_CONTROL } from "../src/lib/site-icons.ts"
 
 const importedSite = { slug: "scp-wiki", from_wikidot: true }
 
-// Retained live Wikidot bytes for scp-wiki's favicon route (HTTP 200,
-// image/gif, etag "e711917c63f9c9783d819cc402f3359d", captured 2026-10-12).
 const FAVICON_SHA256 = "5dfe8fdaa35561856164200c8619fefa2f22d0668393fb777788df0a00c2bd0e"
 
 const retainedFavicon = () =>

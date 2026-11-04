@@ -226,9 +226,6 @@ test("Edit Meta new-tag form stays bounded at 320px and sends no mutation on can
   const withForm = await measure(page)
   await expectFormBounded(page, before, withForm)
 
-  // Wikidot keeps both source actions as enabled, keyboard-focusable links
-  // even when the fields are empty. Do not activate them here: empty-submit
-  // behavior is not established, and this fixture must make no mutation.
   const addAllPages = page.getByRole("link", { name: "Add to All Pages" })
   const addThisPage = page.getByRole("link", { name: "Add to This Page" })
   await expect(addAllPages).toHaveAttribute("href", "javascript:;")

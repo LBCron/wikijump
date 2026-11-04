@@ -26,7 +26,6 @@ export interface ResetCompleteOutput {
   sessions_revoked: number
 }
 
-/** Request a verification link. Anonymous-safe: always 200, no oracle. */
 export async function emailVerifyIssue(
   input: EmailTokenIssueInput,
   context: RequestContext = {}
@@ -41,7 +40,6 @@ export async function emailVerifyIssue(
   )
 }
 
-/** Redeem a verification link. The token, not a session, is the authority. */
 export async function emailVerifyRedeem(
   input: EmailTokenRedeemInput,
   context: RequestContext = {}
@@ -56,7 +54,6 @@ export async function emailVerifyRedeem(
   )
 }
 
-/** Request a password-recovery link. Anonymous-safe: always 200, no oracle. */
 export async function passwordResetIssue(
   input: EmailTokenIssueInput,
   context: RequestContext = {}
@@ -71,7 +68,6 @@ export async function passwordResetIssue(
   )
 }
 
-/** Exchange a recovery link for a one-time password-set grant. */
 export async function passwordResetRedeem(
   input: EmailTokenRedeemInput,
   context: RequestContext = {}
@@ -86,7 +82,6 @@ export async function passwordResetRedeem(
   )
 }
 
-/** Set a new password on grant authority alone; revokes all sessions. */
 export async function passwordResetComplete(
   input: ResetCompleteInput,
   context: RequestContext = {}
@@ -125,7 +120,6 @@ export interface DeleteCompleteOutput {
   sessions_revoked: number
 }
 
-/** Request an account-deletion confirmation link for the signed-in account. */
 export async function accountDeleteIssue(
   input: AccountDeleteIssueInput,
   context: RequestContext = {}
@@ -139,7 +133,6 @@ export async function accountDeleteIssue(
   )
 }
 
-/** Exchange an account-deletion link for a one-time deletion grant. */
 export async function accountDeleteRedeem(
   input: AccountDeleteRedeemInput,
   context: RequestContext = {}
@@ -154,7 +147,6 @@ export async function accountDeleteRedeem(
   )
 }
 
-/** Delete the signed-in account on grant + password authority. */
 export async function accountDeleteComplete(
   input: AccountDeleteCompleteInput,
   context: RequestContext = {}

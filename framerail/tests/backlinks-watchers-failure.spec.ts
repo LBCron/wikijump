@@ -305,8 +305,6 @@ for (const pane of ["backlinks", "watchers"] as const) {
     await expect
       .poll(() => page.locator("#action-area").evaluate((area) => area.children.length))
       .toBe(0)
-    // Source Wikidot has no Close control before the first result arrives.
-    // Selecting another public action cancels the pending module instead.
     await page.locator("#history-button").click()
     await expect(page.locator(".page-revision-header")).toBeVisible()
     await expect

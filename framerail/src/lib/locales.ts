@@ -18,12 +18,6 @@ export const uniqueLocales = (locales: string[]): string[] => {
   return unique
 }
 
-/**
- * Returns a bounded, deduplicated locale preference list for request-time
- * translation and persisted user preferences. Locale syntax is still
- * validated by Deepwell; this guard prevents oversized valid lists from
- * amplifying work.
- */
 export const limitLocalePreferences = (
   locales: string[],
   requiredLocales: string[] = []

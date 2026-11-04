@@ -65,16 +65,6 @@ export const WIKIDOT_POWERED_BY = "Powered by Wikidot.com"
 
 export const WIKIDOT_FOOTER_STYLE = "display: block; visibility: visible;"
 
-/**
- * The body of the standard Wikidot `#footer`, as the server template emits
- * it: the same text nodes, `&nbsp;|` separators, the hidden cookie-consent
- * entry and the linked "Powered by" line. The retained EN and JP shells
- * (`scp-173`, 2026-09-29) and SCP-9506 (2026-10-12) are byte-identical
- * apart from the localized link labels. The template's inline script,
- * which toggles the consent entry for the nitroAds advertising stack, is
- * third-party ad code and is not reproduced; the consent entry stays
- * hidden, as it is whenever that stack is absent.
- */
 export const buildWikidotFooterHtml = (locale: string | null | undefined): string => {
   const links = buildWikidotFooterLinks(locale)
     .map(
@@ -97,11 +87,6 @@ export const WIKIDOT_FOOTER_ONCLICKS = Object.freeze([
   "window.__cmp('showModal');"
 ])
 
-/**
- * Bind the standard footer's inline handlers without compiling them:
- * assigning `onclick` replaces the attribute's handler, and the attribute
- * is only ever read as text.
- */
 export const wikidotFooterControls = (
   root: HTMLElement,
   parameters: { locale?: string | null; anonymous?: boolean } = {}
@@ -244,12 +229,6 @@ export const buildWikidotLicenseHtml = ({
   return `\n                    Unless otherwise stated, the content of this page is licensed under\n\n <a rel="license" href="${enUrl}">${name}</a>\n                `
 }
 
-/**
- * Wikidot links a Creative Commons license to its `http://` deed, and the
- * Japanese template to the Japanese deed: `http://creativecommons.org/
- * licenses/by-sa/3.0/` on scp-wiki and `…/by-sa/3.0/deed.ja` on scp-jp
- * (retained shells, 2026-09-29). Other license URLs are kept.
- */
 const wikidotLicenseUrl = (
   licenseUrl: string | null | undefined,
   language: "en" | "ja"

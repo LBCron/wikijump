@@ -1,31 +1,11 @@
 import { isJapaneseWikidotLocale } from "./wikidot-locale.ts"
 
-/**
- * Wikidot page-option and footer hovertips.
- *
- * Every Wikidot page ends its body with two hidden containers,
- * `#page-options-bottom-tips` and `#page-options-bottom-2-tips`, holding
- * one `<div id="<control>-hovertip">` per control. On DOM ready Wikidot
- * calls `OZONE.dialog.hovertip.dominit("html-body", {delay: 700, valign:
- * "center"})`, which moves each tip whose control exists into
- * `#odialog-hovertips` and shows it while the pointer is over the control.
- * The texts are the raw server HTML of scp-wiki and scp-jp `scp-173`
- * (captured 2026-09-29 and 2026-10-11); the behavior is a port of
- * `OZONE.dialog.hovertip` from the retained Wikidot `init.combined.js`.
- */
-
 export type WikidotHovertipTexts = readonly (readonly [
   string,
   string,
   readonly string[]
 ])[]
 
-/**
- * Text nodes the standard server template leaves around each tip text:
- * `[before, after]`. dominit() moves them into `div.content` unchanged and
- * a hidden tip's innerText exposes them, so they are part of the observed
- * DOM.
- */
 const PAGE_TIP = Object.freeze(["\n        ", "    "])
 const PARENT_TIP = Object.freeze(["  \n        ", "    "])
 const FOOTER_TIP = Object.freeze(["\n            ", "        "])
@@ -168,10 +148,6 @@ const tipsHtml = (tips: WikidotHovertipTexts) =>
     )
     .join("")
 
-/**
- * The two hidden tip containers Wikidot emits at the end of every page
- * body. Texts are trusted constants already in their HTML form.
- */
 export const buildWikidotHovertipContainersHtml = (locale: string | null | undefined) => {
   const { first, second } = wikidotHovertipTexts(locale)
   return (
@@ -180,15 +156,8 @@ export const buildWikidotHovertipContainersHtml = (locale: string | null | undef
   )
 }
 
-// OZONE.dialog.hovertip keeps tips 20px from the pointer and the viewport edge.
 const POINTER_GAP = 20
 
-/**
- * Port of `OZONE.dialog.hovertip._mousemove` for the `valign: "center"`
- * option that `dominit("html-body", ...)` uses: center the tip under the
- * pointer, flip it above the pointer near the viewport bottom, and keep it
- * inside the viewport horizontally.
- */
 export const positionWikidotHovertip = (
   pointer: { pageY: number; clientX: number; clientY: number },
   tip: { width: number; height: number },
@@ -210,7 +179,6 @@ export const positionWikidotHovertip = (
   return { left, top }
 }
 
-/** Port of `OZONE.dialog.hovertip.dominit(root)` plus its mouse handlers. */
 export const installWikidotHovertips = (document: Document): (() => void) => {
   const window = document.defaultView
   const body = document.body
@@ -257,8 +225,6 @@ export const installWikidotHovertips = (document: Document): (() => void) => {
           height: document.documentElement.clientHeight
         }
       )
-      // YAHOO.util.Dom.setXY places the tip at page coordinates relative to
-      // its positioned container.
       tip.style.left = `${left - (containerBox.left + window.scrollX)}px`
       tip.style.top = `${top - (containerBox.top + window.scrollY)}px`
     }

@@ -62,9 +62,6 @@ test("a late first Files result cannot replace History after the viewer switches
   await page.locator("#files-button").click()
   await expect.poll(() => heldActiveLists.length).toBe(1)
 
-  // Source Wikidot cannot expose Restore while its first Files list is
-  // pending. Switch to another public option instead; a late response must
-  // never reopen the abandoned pane.
   await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
   await expect
     .poll(() => page.locator("#action-area").evaluate((area) => area.children.length))
@@ -263,8 +260,6 @@ test("an initial file-list 503 shows no result area instead of a false empty inv
   await expect(page.locator(".file-list .file-list-message")).toHaveCount(0)
   await expect(page.getByRole("alert")).toHaveCount(0)
   await expect(page.getByRole("button", { name: "Retry", exact: true })).toHaveCount(0)
-  // Live Wikidot does not open the entire #action-area before an authoritative
-  // Files read succeeds; the original shows no Close, Upload or Restore.
   await expect(page.locator("#action-area")).toHaveClass(/hidden/u)
   await expect
     .poll(() => page.locator("#action-area").evaluate((area) => area.children.length))
@@ -427,10 +422,6 @@ test("failed file-list requests stay distinct from an empty inventory across fai
     }
   })
 
-  // Every failure mode must reproduce the same frozen source absence (issue
-  // #2273): the Wikidot action area stays hidden and empty, with no result
-  // area, no error dialog, no toast and no retry control, and the failure is
-  // never read as "no files".
   type FailureMode = "network" | "malformed" | "action-failure"
   let mode: FailureMode = "network"
   // The same predicate reference must be reused for unroute below:
@@ -493,9 +484,6 @@ test("a successfully parsed empty file list shows the empty inventory wording", 
   const pageErrors: string[] = []
   page.on("pageerror", (error) => pageErrors.push(error.message))
 
-  // Only an authoritative empty response may render the source-compatible
-  // empty wording (issue #2273). No file data is touched; the fixture server
-  // still holds its file, only this response claims the empty list.
   await page.route(
     (url) => url.search === "?/fileList",
     async (route) => {

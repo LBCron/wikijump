@@ -8,14 +8,6 @@ export const isEnglishWikidotLocale = (locale: string | null | undefined): boole
   return normalized === "en" || normalized.startsWith("en-")
 }
 
-/**
- * Retained live Wikidot evidence (anonymous Chromium on the real EN
- * article, issue #2336): Edit and Tags clicks yield the same `Permission
- * error` window with an `h1` of `Please note:`, one policy paragraph, and
- * an inline `#action:login` sign-in anchor. Only the English dialog is
- * evidenced here; every other locale returns null so callers keep their
- * existing localized denial instead of applying the EN text universally.
- */
 export const editPermissionDeniedDialog = (
   locale: string | null | undefined
 ): {
@@ -55,21 +47,9 @@ export const editPermissionDeniedMessage = (
   return "You don't have permission to edit this page."
 }
 
-/**
- * Wikidot's permission dialog for a viewer who may not start creating a
- * missing page. Only the English sentence is evidenced here; the dialog's
- * sign-in link is not rendered by the native error popup.
- */
 export const createPageDeniedMessage = (): string =>
   "Sorry, you can not create a new page in this category. Only members of this site, site administrators and perhaps selected moderators are allowed to do it."
 
-/**
- * Native-equivalent denials for the Move and Delete option-bar actions.
- * Wikidot answers both with a role-specific PERMISSION ERROR modal before
- * any form is shown; only the English denial category (move/delete
- * permission, not a writable form) is evidenced here, so non-English
- * locales receive the same English sentence until their copy is observed.
- */
 export const movePermissionDeniedMessage = (): string =>
   "You don't have permission to move this page."
 

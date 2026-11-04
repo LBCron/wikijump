@@ -36,7 +36,6 @@ const normalizeWikidotPyPerPage = (value: string | undefined): string | null => 
   return value !== undefined && /^[A-Za-z-]{1,64}$/u.test(value) ? value : null
 }
 
-/** Classify and normalize the two evidenced SiteChanges request families. */
 export const classifyWikidotSiteChangesRequest = (
   fields: Map<string, string>
 ): {

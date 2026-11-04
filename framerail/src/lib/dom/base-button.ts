@@ -24,7 +24,6 @@ export abstract class BaseButton extends HTMLElement {
 
   private baseKeydownHandler(evt: KeyboardEvent) {
     if (!this.disabled) {
-      // apparently, it's not "Space", it's " ". thank you javascript
       if (evt.key === "Enter" || evt.key === " ") {
         this.click()
         evt.preventDefault()

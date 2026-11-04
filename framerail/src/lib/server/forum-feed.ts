@@ -1,16 +1,6 @@
 export type WikidotForumFeedKind = "threads" | "posts"
 export type WikidotForumFeedScope = "site" | "category" | "thread"
 
-/**
- * A Wikidot forum feed is either the site-wide pair or one named forum
- * object.
- *
- * `ct-<id>` lists the new threads of a category, `cp-<id>` its new posts,
- * and `t-<id>` the posts of a single thread. The ID is the identifier
- * Wikidot exposes in the HTML forum routes; imported objects keep their
- * legacy Wikidot ID, so locally created objects resolve through the same
- * space.
- */
 export interface WikidotForumFeedTarget {
   kind: WikidotForumFeedKind
   categoryId?: number
@@ -161,14 +151,6 @@ function itemXml(
   ].join("\n")
 }
 
-/**
- * The channel Wikidot publishes for each feed scope.
- *
- * The site-wide pair is a frozen live observation. The scoped routes reuse
- * that observed grammar with the named scope appended, and the per-thread
- * title uses the observed `Comments for page "..."` spelling, where a page
- * discussion thread carries the page title.
- */
 function forumFeedChannel(
   origin: string,
   output: WikidotForumFeedOutput,

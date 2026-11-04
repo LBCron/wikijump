@@ -6,7 +6,6 @@
   import { scrollElement } from "$lib/dom/scrolling"
   import { createEventDispatcher, onMount, type Component, type Snippet } from "svelte"
 
-  // the additional methods are what it is in the spec and fulfilled by the polyfill
   let dialog:
     | HTMLDialogElement
     | (HTMLElement & { showModal: () => void; close: () => void; show: () => void })

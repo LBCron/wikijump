@@ -34,9 +34,6 @@ export const installWikidotSearchAll = (windowObject: Window): (() => void) => {
     windowObject.location.href = wikidotSearchAllPath(query, area)
   }
 
-  // SearchAll's rendered form is part of the legacy page body. Intercept in
-  // capture so page-level handlers cannot stop propagation before this route
-  // owner gets a chance to cancel the placeholder `dummy` action.
   windowObject.document.addEventListener("submit", submit, true)
   return () => windowObject.document.removeEventListener("submit", submit, true)
 }

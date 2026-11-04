@@ -622,11 +622,6 @@ const siteView = {
   user_session: null
 }
 
-/**
- * Fixture create decision: the authenticated fixture sessions may create,
- * and anonymous viewers (no session token) may not. Mirrors Deepwell's
- * missing view.
- */
 const fixtureCanCreatePage = (sessionToken: string | undefined | null) =>
   sessionToken === "fixture-session-token" ||
   sessionToken === "fixture-authenticated-session-token"

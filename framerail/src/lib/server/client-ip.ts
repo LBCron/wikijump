@@ -1,16 +1,5 @@
 import { isIP } from "node:net"
 
-/**
- * Resolve the real client IP for rate-limit buckets.
- *
- * Our reverse proxies (Caddy) append the client address to
- * `X-Forwarded-For`, but that header is only trustworthy when the socket
- * peer is our own proxy infrastructure (loopback or private ranges, as in
- * the docker/caddy topologies). A directly connected client can forge the
- * header to evade throttling, so for any other peer the socket address is
- * used unchanged. Without a parseable forwarded address we also fall back
- * to the socket peer, preserving current behavior.
- */
 export function resolveClientIp(request: Request, socketPeer: string): string {
   const forwardedFor = request.headers.get("x-forwarded-for")
   if (forwardedFor && isTrustedProxyPeer(socketPeer)) {
@@ -35,7 +24,6 @@ export function isTrustedProxyPeer(peer: string): boolean {
   if (kind === 6) {
     const lower = peer.toLowerCase()
     if (lower === "::1") return true
-    // Unique-local (fc00::/7) and link-local (fe80::/10) transports.
     return lower.startsWith("fc") || lower.startsWith("fd") || lower.startsWith("fe80:")
   }
   return false

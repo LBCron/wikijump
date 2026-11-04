@@ -1,18 +1,4 @@
 export interface InputHandler {
-  /**
-   * The key to listen to. Must be in an exact format.
-   *
-   * Supports some special values:
-   *
-   * - `left-click`: Left mouse click.
-   * - `right-click`: Right mouse click.
-   * - `click`: Listens for the `click` event.
-   * - `auxclick`: Listens for the `auxclick` event.
-   * - `dblclick`: Listens for the `dblclick` event.
-   * - `contextmenu`: Listens for the `contextmenu` event.
-   *
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
-   */
   key: string
   preventDefault?: boolean
   do?: () => unknown

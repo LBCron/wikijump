@@ -14,11 +14,6 @@ import { integer, minValue, number, object, pipe, string } from "valibot"
 
 import type { RequestEvent } from "@sveltejs/kit"
 
-/**
- * Join the request-host site as the verified session actor. The browser
- * sends no membership context, leaving site, actor, policy, and policy
- * freshness to the two server authorization boundaries.
- */
 const membershipJoinSchema = object({
   pageId: number(),
   lastRevisionId: number(),

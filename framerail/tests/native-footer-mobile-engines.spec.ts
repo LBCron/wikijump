@@ -51,10 +51,6 @@ test("native footer stays reachable across mobile widths and browser engines", a
           .filter((element) => element.right > document.documentElement.clientWidth + 1)
           .slice(0, 8)
       }))
-      // SearchAll's intrinsic input is independently tracked in #2258; WebKit
-      // measures it 51px beyond the viewport at 320px. Keep this issue's
-      // assertion on the footer bounds below rather than attributing that
-      // route-specific control overflow to the shared footer.
       if (path !== "/platform:search") {
         expect(
           dimensions.document,

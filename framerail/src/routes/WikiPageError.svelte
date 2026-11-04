@@ -116,13 +116,7 @@
   const missingPageTitle = $derived(
     missingPageName.charAt(0).toUpperCase() + missingPageName.slice(1)
   )
-  // Refs #2090: Restore is a recoverability signal, not a missing-page
-  // signal. The server sets restore_available only for a session holder
-  // whose slug has recoverable deleted pages; anything else (anonymous,
-  // never-existing, unauthorized) must not render the control. Fail closed.
   const canRestore = $derived(errorData.restore_available === true)
-  // The localized default message renders as one paragraph; Wikidot marks it
-  // `<p id="404-message">`.
   const defaultMissingMessage = $derived(
     errorData.compiled_body_html.replace(/^\s*<p>/, '<p id="404-message">')
   )

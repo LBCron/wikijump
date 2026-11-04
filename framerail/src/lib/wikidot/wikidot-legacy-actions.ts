@@ -63,8 +63,6 @@ const trustedRateHandlers: WeakMap<ActionControl, string> = new WeakMap()
 const USER_INFO_ONCLICK =
   /^WIKIDOT\.page\.listeners\.userInfo\((-?[0-9]+)\); return false;$/u
 const WIKIDOT_USER_INFO_HREF = /^https?:\/\/www\.wikidot\.com\/user:info\/([a-z0-9-]+)$/u
-// Wikidot links users over https since 2026-09-21; content it compiled
-// before then keeps http links.
 const WIKIDOT_PRINTUSER_LINKS = [
   '.printuser > a[href^="https://www.wikidot.com/user:info/"][onclick]',
   '.printuser > a[href^="http://www.wikidot.com/user:info/"][onclick]'
@@ -89,13 +87,6 @@ const installDefaultWikidotUserInfoListener = (): void => {
   }
 }
 
-/**
- * Rebind only the exact renderer-owned Wikidot printuser handler shape.
- * The legacy onclick attribute stays in served DOM for parity, while
- * CSP-safe trusted client code supplies the executable property without
- * eval. The attribute's own handler is never read: reading `onclick`
- * compiles the inline attribute, which the CSP reports as a violation.
- */
 const bindWikidotUserInfoHandlers = (root: HTMLElement): (() => void) => {
   installDefaultWikidotUserInfoListener()
   const elements: HTMLElement[] = []
@@ -183,10 +174,6 @@ const rateActionOnclick = (action: RateBrowserAction): string =>
 
 const RATE_ANCHOR_TAG = /<a\b(?:[^>"']|"[^"]*"|'[^']*')*>/giu
 
-/**
- * Read a quoted or unquoted attribute from one renderer-produced start
- * tag.
- */
 const readHtmlAttribute = (tag: string, name: string): string | null => {
   const match = new RegExp(
     `\\s${name}(?=\\s|=|>)(?:\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+)))?`,
@@ -195,10 +182,6 @@ const readHtmlAttribute = (tag: string, name: string): string | null => {
   return match ? (match[1] ?? match[2] ?? match[3] ?? "") : null
 }
 
-/**
- * Replace or append one attribute while leaving the rest of the start tag
- * byte-for-byte intact.
- */
 const setHtmlAttribute = (tag: string, name: string, value: string): string => {
   const attribute = new RegExp(
     `(\\s${name}(?=\\s|=|>)(?:\\s*=\\s*)(?:"[^"]*"|'[^']*'|[^\\s>]+))`,
@@ -216,13 +199,6 @@ const removeHtmlAttribute = (tag: string, name: string): string =>
     ""
   )
 
-/**
- * Materialize the trusted Rate descriptor pairing before HTML reaches the
- * browser parser. This keeps Firefox from reporting parse-time CSP
- * violations for the renderer's inline handlers. A shape or descriptor
- * mismatch leaves the original HTML untouched and therefore cannot create
- * new bindings.
- */
 export const materializeWikidotRateActionHtml = (
   html: string | null | undefined,
   actions: RateBrowserAction[]
@@ -273,11 +249,6 @@ export const materializeWikidotRateActionHtml = (
   })
 }
 
-/**
- * Execute one server-issued Wikidot action descriptor. The closed switch
- * is the browser authority boundary: authored attributes never select a
- * function, URL, vote value, or tag mutation payload.
- */
 export const performWikidotLegacyAction = async (
   element: ActionControl,
   action: BoundAction,
@@ -285,9 +256,6 @@ export const performWikidotLegacyAction = async (
 ): Promise<boolean> => {
   const busyKey =
     action.type === "rate" || action.type === "rate-cancel" ? runtime : element
-  // Print is a fixed synchronous navigation action on live Wikidot: the
-  // control never observes a busy state and every activation opens its own
-  // child window. Only long-running server actions serialize per element.
   const serialized = action.type !== "edit" && action.type !== "print"
   if (serialized && busyActions.has(busyKey)) return false
 
@@ -352,10 +320,6 @@ const bindStandaloneActions = (
   }
 }
 
-/**
- * Match exact legacy anchors to the out-of-band typed sidecar. Any extra,
- * missing, or unknown entry disables the whole standalone-action surface.
- */
 export const planWikidotStandaloneActionBindings = (
   candidates: ActionControl[],
   actions: LegacyBrowserAction[]
@@ -394,7 +358,6 @@ const wikidotPointRateControls = (root: HTMLElement): Element[] => [
   )
 ]
 
-/** Initialize the browser-only children present in live five-star widgets. */
 const initializeWikidotRateWidgets = (
   root: HTMLElement,
   elements: Set<ActionControl>
@@ -431,12 +394,6 @@ const initializeWikidotRateWidgets = (
   return groups
 }
 
-/**
- * Pair renderer-owned Rate controls with server-issued descriptors. Point
- * controls and star controls are mutually exclusive for one page category.
- * Any cardinality, shape, or value mismatch disables the whole Rate
- * surface.
- */
 export const planWikidotRateActionBindings = (
   pointControls: ActionControl[],
   starControlGroups: ActionControl[][],
@@ -487,7 +444,6 @@ export const planWikidotRateActionBindings = (
   ])
 }
 
-/** Apply only the score returned by Deepwell after a vote mutation. */
 export const updateWikidotRateWidget = (element: HTMLElement, score: unknown): void => {
   const widget = element.closest(".page-rate-widget-box, .page-rate-widget")
   const numericScore = Number(score)
@@ -506,11 +462,6 @@ export const updateWikidotRateWidget = (element: HTMLElement, score: unknown): v
   }
 }
 
-/**
- * Install delegated browser behavior for the fixed legacy action registry.
- * Dynamic rendered HTML remains inert unless the out-of-band Deepwell
- * sidecar matches its exact legacy control count.
- */
 export const wikidotLegacyActions = (
   root: HTMLElement,
   parameters: LegacyActionParameters
@@ -535,10 +486,6 @@ export const wikidotLegacyActions = (
       starControlGroups,
       parameters.rateActions ?? []
     )) {
-      // The exact legacy handlers above are only provenance markers. Once a
-      // trusted sidecar is paired with a renderer-owned control, remove the
-      // CSP-blocked inline JavaScript and leave a normal, inert anchor for the
-      // delegated click/keyboard handler below.
       if (pointControls.includes(element)) {
         element.removeAttribute("onclick")
         element.setAttribute("href", "#")
@@ -573,9 +520,6 @@ export const wikidotLegacyActions = (
     if (!element) return undefined
     const action = boundActions.get(element)
     const spaceActivatesRate = action?.type === "rate" || action?.type === "rate-cancel"
-    // Live Wikidot standalone actions are anchors: Enter activates them and
-    // Space scrolls without firing the handler. Rate controls retain their
-    // separately evidenced Space-key activation contract.
     if (
       event.key !== "Enter" &&
       !(spaceActivatesRate && [" ", "Spacebar", "Space"].includes(event.key))

@@ -134,13 +134,6 @@ export const renderWikidotWhoRated = (votes: WikidotWhoRatedVote[]) => {
   return `<h2>Users who rated:</h2>\n\n<div style="-moz-column-count:3">${rows}</div>`
 }
 
-/**
- * Explicit unavailable state for an imported page whose combined score is
- * nonzero while no per-voter rows exist locally. Returning the pinned
- * empty roster here would falsely claim nobody voted (issue #2205), and
- * inventing per-voter rows from the aggregate is forbidden. The dialog
- * keeps its Wikidot title but carries no roster markup at all.
- */
 export const renderWikidotWhoRatedUnavailable = () =>
   `<h2>Users who rated:</h2>\n\n<p class="who-rated-unavailable">The voter list for this imported page is unavailable because its historical votes were not imported.</p>`
 

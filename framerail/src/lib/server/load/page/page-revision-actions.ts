@@ -22,9 +22,6 @@ import {
 } from "$lib/wikidot-history-contract"
 import type { RequestEvent } from "@sveltejs/kit"
 
-// Upper bound for one history fetch. Filtering and paging need the whole
-// timeline in hand; revision windows stay capped here instead of growing
-// without bound on long histories. Refs #2070.
 const HISTORY_WINDOW_LIMIT = 1_000
 
 export async function pageHistoryAction(event: RequestEvent) {

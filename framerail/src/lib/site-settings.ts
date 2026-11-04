@@ -42,13 +42,6 @@ const BUILT_IN_THEME: ThemeSetting = { type: "built_in", id: 1 }
 const WIKIDOT_THEME_ASSET_ORIGIN =
   "http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme"
 
-/**
- * Ordered common--theme directories served for each persisted built-in
- * theme id, captured from the authenticated live appearance render. The
- * directory list is the authoritative asset set and ordering for the id.
- * Ids 8248876+ are site custom themes (bootstrap-base plus local--theme)
- * and are not built-in themes.
- */
 export const BUILT_IN_THEME_ASSET_DIRS: Readonly<Record<number, readonly string[]>> =
   Object.freeze({
     1: ["base"],
@@ -93,13 +86,6 @@ const EXTERNAL_THEME_HOSTS = new Set([
   "scp-wiki-cdn.nyc3.cdn.digitaloceanspaces.com"
 ])
 
-/**
- * Split a files authority (`host` or `host:port` — the form Deepwell's
- * DomainService::get_files_authority returns and the page view carries as
- * site_file_domain) into its hostname and port. Anything that is not
- * exactly that shape is not an authority and yields null, so the own-host
- * admission below fails closed.
- */
 const parseFilesAuthority = (
   filesAuthority: unknown
 ): { hostname: string; port: string } | null => {
@@ -121,13 +107,6 @@ const parseFilesAuthority = (
   return { hostname, port }
 }
 
-/**
- * Whether an external theme URL is served from the viewed site's OWN files
- * host. A site may run a base theme it serves itself — the SCP-JP Sigma-10
- * migration shape, where the ported theme's code pages are published on
- * the site's own files host. The URL may name the host with or without the
- * serving port; any other port stays rejected, as does any other host.
- */
 const isOwnFilesThemeUrl = (url: URL, ownFilesAuthority: unknown): boolean => {
   const authority = parseFilesAuthority(ownFilesAuthority)
   if (authority === null) return false
@@ -146,12 +125,6 @@ const isAllowedExternalThemeUrl = (url: URL, ownFilesAuthority: unknown = null) 
 type ThemeSettingInput =
   { type?: unknown; id?: unknown; url?: unknown; css?: unknown } | null | undefined
 
-/**
- * The optional own-files authority argument names the viewed site's own
- * files authority (host or host:port); an external theme URL served from
- * that host is admitted alongside the global allowlist. Callers without a
- * viewed site (the ThemePreviewer) omit it and keep the global policy.
- */
 export const normalizeThemeSetting = (
   theme: ThemeSettingInput,
   ownFilesAuthority: unknown = null
@@ -185,23 +158,11 @@ export const normalizeThemeSetting = (
   return { ...BUILT_IN_THEME }
 }
 
-/**
- * Normalize a browser-requested ThemePreviewer stylesheet with the global
- * stored-theme policy (no viewed site, so no own-files-host admission).
- * Invalid values fail closed so the browser keeps the stored site theme
- * and no server-side stylesheet fetch is needed.
- */
 export const normalizeThemePreviewUrl = (value: unknown): string | null => {
   const normalized = normalizeThemeSetting({ type: "external", url: value })
   return normalized.type === "external" ? normalized.url : null
 }
 
-/**
- * Resolve a browser-requested ThemePreviewer stylesheet only when
- * Deepwell's source-owned PageView sidecar recognizes an executable noUi
- * invocation. This boundary deliberately does not inspect wikitext or
- * compiled HTML.
- */
 export const resolveThemePreviewUrl = (
   themePreviewerNoUi: unknown,
   value: unknown
@@ -221,14 +182,6 @@ export const customThemeHeadHtml = (
   return `<style data-wikidot-site-theme>${css}</style>`
 }
 
-/**
- * Site carried by the page view, the first half of the local-existence
- * evidence the head may use: an imported site's own files live on its own
- * WDFiles host. The second half is a per-file presence check
- * (isLocalFile): site identity alone cannot tell a materialized attachment
- * from one the import never fetched, so a same-site URL without a positive
- * presence answer stays literal.
- */
 export type LocalSiteEvidence = {
   slug: unknown
   from_wikidot: unknown
@@ -236,7 +189,6 @@ export type LocalSiteEvidence = {
 
 export const SITE_FILE_PRESENCE_SEPARATOR = "\0"
 
-/** Join a referenced page and file name into its presence-set key. */
 export const siteFilePresenceKey = (page: unknown, name: unknown): string | null => {
   if (
     typeof page !== "string" ||
@@ -253,12 +205,6 @@ const WDFILES_HOST_SUFFIXES = [".wdfiles.com", ".wikidot.com"]
 const SITE_SLUG_PATTERN = /^[a-z0-9-]+$/u
 const WIKIDOT_WWW_HOSTS = new Set(["www.wikidot.com", "www.wdfiles.com"])
 
-/**
- * Split an absolute http(s) URL into its lowercased host and the untouched
- * remainder (path, query, fragment), preserving the original encoding
- * byte-for-byte. Protocol-relative URLs are read as https. Returns null
- * for anything that is not a plain same-shape candidate.
- */
 const splitAbsoluteHttpUrl = (rawUrl: unknown): { host: string; rest: string } | null => {
   if (typeof rawUrl !== "string") return null
   const trimmed = rawUrl.trim()
@@ -281,12 +227,6 @@ const splitAbsoluteHttpUrl = (rawUrl: unknown): { host: string; rest: string } |
   return { host, rest }
 }
 
-/**
- * The viewed site's own WDFiles slug, or null when the host does not name
- * a site file host. Mirrors the renderer's host-to-slug reading without
- * duplicating its cross-site and lab-mirror branches, which need
- * server-side import topology the page does not carry.
- */
 const wdfilesAttachmentSiteSlug = (host: string): string | null => {
   for (const suffix of WDFILES_HOST_SUFFIXES) {
     if (!host.endsWith(suffix)) continue
@@ -296,13 +236,6 @@ const wdfilesAttachmentSiteSlug = (host: string): string | null => {
   return null
 }
 
-/**
- * Whether the viewed imported site is the evidence that a WDFiles
- * attachment URL names a local file: same-site slugs only (G06 www hosts
- * never match). Corpus aliases, translated-branch sharing, and lab mirrors
- * need server-side import topology and stay literal until Deepwell attests
- * them per asset.
- */
 const isViewedSiteWdfilesSlug = (
   slug: string,
   site: LocalSiteEvidence | null | undefined
@@ -315,15 +248,6 @@ const isViewedSiteWdfilesSlug = (
   return site.slug.toLowerCase() === slug
 }
 
-/**
- * Split a same-site WDFiles attachment URL into the referenced page and
- * file name, or null when the URL does not name exactly one page file.
- *
- * The shape, host, and site checks mirror the rewrite rule below, so the
- * server can collect the same candidate references the head would rewrite
- * without duplicating the policy. A path that does not split into exactly
- * a page and a file is unresolvable and stays literal downstream.
- */
 export const parseSiteFileReference = (
   rawUrl: unknown,
   site: LocalSiteEvidence | null | undefined
@@ -339,15 +263,6 @@ export const parseSiteFileReference = (
   return { page: segments[0], name: segments[1], rest: split.rest }
 }
 
-/**
- * Rewrite one WDFiles attachment URL to the local files authority only
- * when the site names the file AND the per-file presence check confirms it
- * exists locally, else null (the caller keeps the source URL literal). A
- * missing, non-function, or non-true presence answer — absent, unknown, or
- * unresolvable — fails closed to literal, so a partially imported mirror
- * never turns a working hotlink into a local 404. Query, fragment, and
- * encoding are preserved; only the origin is swapped.
- */
 export const localizeSiteFileUrl = (
   rawUrl: unknown,
   site: LocalSiteEvidence | null | undefined,
@@ -379,12 +294,6 @@ export const localizeSiteFileUrl = (
 const CSS_URL_PATTERN = /url\(\s*(['"]?)([^'")]+?)\1\s*\)/giu
 const CSS_BARE_IMPORT_PATTERN = /@import\s+(?!url\()\s*(['"])([^'"]+?)\1/giu
 
-/**
- * Collect the distinct raw asset URLs inside stored custom CSS (`url(...)`
- * and bare `@import "..."`), in first-seen order. The server resolves
- * per-file presence for these candidates; the rewrite below consumes the
- * answers.
- */
 export const extractCssAssetUrls = (css: unknown): string[] => {
   if (typeof css !== "string") return []
   const urls = new Set<string>()
@@ -398,12 +307,6 @@ export const extractCssAssetUrls = (css: unknown): string[] => {
   return [...urls]
 }
 
-/**
- * Rewrite same-site WDFiles attachment URLs inside stored CSS (`url(...)`
- * and bare `@import "..."`), keeping every other byte literal. Only URLs
- * whose referenced file the presence check confirms are rewritten; every
- * absent, unknown, or unresolvable URL stays byte-identical.
- */
 export const localizeSiteFileUrlsInCss = (
   css: unknown,
   site: LocalSiteEvidence | null | undefined,
@@ -424,12 +327,6 @@ export const localizeSiteFileUrlsInCss = (
     .replace(CSS_BARE_IMPORT_PATTERN, (match, _quote, url) => rewriteMatch(match, url))
 }
 
-/**
- * Resolve the head `<link>` href for an external theme: the normalized
- * source URL, rewritten to the local files authority only when the viewed
- * site names the file AND the presence check confirms it exists locally.
- * Absent or unknown files keep the source URL literal.
- */
 export const resolveExternalThemeHref = (
   theme: ThemeSettingInput,
   site: LocalSiteEvidence | null | undefined,
@@ -453,24 +350,11 @@ export const builtInThemeAssetDirs = (theme: ThemeSettingInput): readonly string
   )
 }
 
-/**
- * Resolve the exact evidenced immutable stylesheet URLs for a built-in
- * theme id, in served order. Non-built-in themes resolve to no URLs; an
- * unmapped id resolves to Base. Missing-resource fallback was not observed
- * on live Wikidot, so unresolved ids keep the Base asset set rather than
- * inventing a substitute.
- */
 export const builtInThemeAssetUrls = (theme: ThemeSettingInput): string[] =>
   builtInThemeAssetDirs(theme).map(
     (dir) => `${WIKIDOT_THEME_ASSET_ORIGIN}/${dir}/css/style.css`
   )
 
-/**
- * Emit the live inline `@import` form for the theme directories beyond the
- * established local Base assets, in evidenced order. The local Wikidot
- * Base stylesheets already serve common--theme/base, so Base itself emits
- * nothing and id 1 stays byte-identical to the existing head.
- */
 export const builtInThemeHeadHtml = (theme: ThemeSettingInput): string => {
   const dirs = builtInThemeAssetDirs(theme).filter((dir) => dir !== "base")
   if (dirs.length === 0) return ""

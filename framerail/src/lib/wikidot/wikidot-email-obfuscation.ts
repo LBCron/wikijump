@@ -4,7 +4,6 @@ const reverse = (value: string): string => [...value].reverse().join("")
 
 const EMAIL_ADDRESS = /^[A-Z0-9._%+'-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/iu
 
-/** Decode the client-side format used for plain Wikidot email links. */
 export const decodeWikidotEmailObfuscation = (
   value: string
 ): { address: string; label: string } | null => {
@@ -25,10 +24,6 @@ export const decodeWikidotEmailObfuscation = (
   return { address, label }
 }
 
-/**
- * Replace recognized scrambled email spans with safe, visible mailto
- * anchors.
- */
 const restoreIn = (root: Element) => {
   const spans: HTMLElement[] = [
     ...(root.matches?.(".wiki-email") ? [root as HTMLElement] : []),
@@ -51,10 +46,6 @@ const restoreIn = (root: Element) => {
   }
 }
 
-/**
- * Restore email spans in the initial article and on subsequent client
- * updates.
- */
 export const observeWikidotEmailObfuscation = (root: Element): (() => void) => {
   restoreIn(root)
 

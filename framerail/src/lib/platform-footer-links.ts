@@ -32,12 +32,6 @@ const MAX_DESTINATION_LENGTH = 2048
 // eslint-disable-next-line no-control-regex
 const UNSAFE_CHARACTER = /[\u0000-\u0020\u007f\\]/u
 
-/**
- * Accept only a complete, safe web destination. A configured value that is
- * missing, non-https, relative, or carries credentials is rejected so the
- * caller can fall back to the documented default instead of emitting a
- * link the viewed wiki could influence.
- */
 export const normalizePlatformFooterDestination = (
   value: string | null | undefined
 ): string | null => {
@@ -57,10 +51,6 @@ export const normalizePlatformFooterDestination = (
   }
 }
 
-/**
- * Resolve the native footer's ordered destinations from instance-level
- * overrides keyed by the footer's internationalization key.
- */
 export const resolveNativeFooterLinks = (
   configured?: Record<string, string | null | undefined> | null
 ): readonly { key: string; href: string }[] =>
@@ -72,10 +62,6 @@ export const resolveNativeFooterLinks = (
       PLATFORM_FOOTER_ORIGIN
   }))
 
-/**
- * Read the native footer's instance-level overrides from the public
- * platform environment.
- */
 export const readNativeFooterDestinationOverrides = (
   environment?: Record<string, string | undefined> | null
 ): Record<string, string | undefined> => {

@@ -29,8 +29,6 @@ export const showWikidotReadonlyDialog = (
   template.innerHTML = html
   window.appendChild(template.content)
   container.replaceChildren(window)
-  // YUI setXY uses integer page coordinates, integer computed offsets, and
-  // one retry. Theme !important rules remain authoritative over inline offsets.
   const left = Math.max(
     (document.documentElement.clientWidth - window.offsetWidth) / 2,
     0
@@ -95,9 +93,6 @@ export const showWikidotReadonlyDialog = (
     dialogs.delete(document)
   }
   const close = () => {
-    // ErrorDialog.close runs jQuery 1.11 fadeOut(100): one synchronous tick,
-    // then 13 ms interval ticks with swing easing, hiding at completion.
-    // cleanAll hides the container at 200 ms.
     if (error && view) {
       const start = Date.now()
       const tick = () => {
@@ -118,8 +113,6 @@ export const showWikidotReadonlyDialog = (
     }
     timer = view?.setTimeout(hide, 200)
   }
-  // Capture before the source inline handler. No attribute or event-property
-  // read compiles authored JavaScript, including in Firefox under CSP.
   for (const link of window.querySelectorAll(".button-bar a")) {
     link.addEventListener(
       "click",
@@ -131,7 +124,6 @@ export const showWikidotReadonlyDialog = (
       true
     )
   }
-  // OZONE does not close these windows on Escape or an outside click.
   if (error) window.querySelector<HTMLElement>(".button-bar a")?.focus()
   dialogs.set(document, { replace: hide })
 }

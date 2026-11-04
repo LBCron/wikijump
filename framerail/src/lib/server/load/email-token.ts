@@ -56,8 +56,6 @@ function failForMalformedToken(token: unknown, buildBody: () => Record<string, u
   return null
 }
 
-// The backend trims surrounding whitespace before lookup, so the form
-// accepts a pasted padded address and normalizes it the same way.
 const emailSchema = object({
   email: pipe(
     string(),
@@ -122,8 +120,6 @@ export async function forgotAction({ request, getClientAddress }: RequestEvent) 
     return fail(400, { form })
   }
 
-  // The backend answers identically whether or not an account holds the
-  // address, so success here never signals account existence.
   try {
     await passwordResetIssue(
       { email: normalizeLookupEmail(form.data.email), ipAddress },
@@ -183,9 +179,6 @@ export async function loadVerifyTokenPage(
   return { ...copy, verifyTokenForm, verified: false }
 }
 
-// Redemption happens on POST (the visitor's click/tap/keypress), never on
-// page load: prefetchers and link scanners must not consume single-use
-// links, and the bundle's verify-link copy promises exactly this gate.
 export async function verifyRedeemAction({ request, getClientAddress }: RequestEvent) {
   const ipAddress: string = resolveClientIp(request, getClientAddress())
   const form = await superValidate(request, valibot(tokenSchema))
@@ -268,14 +261,6 @@ const clearDeletePasswords = <T extends { data: Record<string, string> }>(form: 
   return form
 }
 
-// --- Delete account (authenticated termination) ---
-//
-// Documented Wikidot flow (account-lifecycle spec P1/P3/P7): settings entry
-// requests a confirmation email, the link lands on a confirmation state, and
-// only the terminal password step deletes. The settings-page entry itself is
-// owned by the site-settings lane; these routes are the link target and the
-// confirmation screens, reachable once the entry links here.
-
 export async function loadDeleteAccountPage(
   request: Request,
   preloadData: PreloadDataAsync
@@ -296,8 +281,6 @@ export async function loadDeleteAccountPage(
   return { ...copy, deleteForm, sent: false }
 }
 
-// Request the confirmation email. The backend binds the link to the session
-// actor, so no account identity leaves framerail in this action.
 export async function deleteIssueAction({
   request,
   cookies,
@@ -317,9 +300,6 @@ export async function deleteIssueAction({
   }
 }
 
-// The link landing shows the confirmation state, never deletion controls.
-// Redemption happens on POST, never on page load, so prefetchers and link
-// scanners cannot consume the single-use link.
 export async function loadDeleteTokenPage(
   request: Request,
   preloadData: PreloadDataAsync,

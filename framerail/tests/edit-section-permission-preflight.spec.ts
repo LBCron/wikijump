@@ -5,7 +5,6 @@ const SITE_HEADERS = {
   "X-Wikijump-Site-Slug": "scp-wiki"
 }
 const PAGE_PATH = "/edit-section-permission-probe"
-// Retained Wikidot anonymous edit-denial contract (issue #2336).
 const DENIAL_TITLE = "Permission error"
 const DENIAL_HEADING = "Please note:"
 const DENIAL_POLICY =

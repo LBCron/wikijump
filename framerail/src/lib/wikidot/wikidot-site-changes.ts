@@ -5,11 +5,6 @@ export type SiteChangesActionParameters = { pageId: number | string }
 
 export type SiteChangesRoot = Window & typeof globalThis
 
-/**
- * Return only the request options whose browser meaning is already
- * established. The category-refresh slice does not infer the semantics of
- * checkbox mixtures.
- */
 const observedRevisionOptions = (box: ParentNode) => {
   const all = box.querySelector<HTMLInputElement>("#rev-type-all")
   const source = box.querySelector<HTMLInputElement>("#rev-type-source")
@@ -36,12 +31,6 @@ const observedRevisionOptions = (box: ParentNode) => {
   return null
 }
 
-/**
- * Bridge the renderer-owned SiteChanges Update list control to its
- * existing read-only module endpoint. Unsupported revision checkbox
- * combinations remain inert until their Wikidot semantics are
- * established.
- */
 export const wikidotSiteChanges = (
   root: HTMLElement,
   parameters: SiteChangesActionParameters

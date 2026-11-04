@@ -348,7 +348,6 @@ export const buildWikidotInterwikiFrameHtml = ({
           const frame = window.frameElement;
           if (frame) frame.style.height = document.documentElement.scrollHeight + "px";
         } catch {
-          /* Cross-origin embedding cannot use the local same-origin resize path. */
         }
       };
       addEventListener("DOMContentLoaded", resizeLocalInterwikiFrame);

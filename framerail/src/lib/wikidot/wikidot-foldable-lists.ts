@@ -1,5 +1,4 @@
 /* eslint-disable no-script-url -- Preserve the source-compatible foldable link value. */
-
 export function wikidotFoldableLists(node: HTMLElement): { destroy: () => void } {
   const controller = new AbortController()
   const containers = new WeakSet<Element>()

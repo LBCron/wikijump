@@ -16,10 +16,6 @@
   import type { PageFile, PageFileDelete } from "$lib/server/deepwell/page-file"
   import type { FileAction } from "./file-pane-state"
 
-  // Kept as an internal diagnostic marker only. Issue #2273 froze the source
-  // behavior for a failed attachment-list request: current Wikidot leaves the
-  // action area hidden and empty, with no visible error wording and no retry
-  // control, so nothing derived from this value may reach the Wikidot layout.
   const FILE_LIST_LOAD_ERROR = "Unable to load files."
 
   function reportFileListFailure(detail: unknown) {
@@ -272,12 +268,6 @@
     movePermissionKnown = true
   }
 
-  // Wikidot answers an anonymous File Move with a role-specific PERMISSION
-  // ERROR before any edit form (issue #2190). The move form above only renders
-  // for viewers who may edit, so without this an unauthorized Move click would
-  // silently do nothing. Once the permission answer is known, replace the
-  // unopenable form with the source-compatible denial. Any failure fails
-  // closed toward the denial.
   $effect(() => {
     if (activeFileAction === "move" && movePermissionKnown && !canMoveFile) {
       activeFileAction = null

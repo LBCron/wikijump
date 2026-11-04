@@ -63,9 +63,6 @@ export async function loadInfo(preloadData: PreloadDataAsync) {
       pnpm: serverInfo.pnpmVersion,
       git_commit: serverInfo.frontendGitCommit
     },
-    // The Wikijump project blog (WJ-1279). The historical
-    // blog.wikijump.org subdomain no longer resolves; the project
-    // site itself is the blog.
     blog_url: "https://www.wikijump.org"
   }
 

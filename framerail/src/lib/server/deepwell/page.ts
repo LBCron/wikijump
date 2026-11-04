@@ -283,7 +283,6 @@ export async function pageWatchers(
 
 export interface PageWhoRatedVote {
   user_id: number
-  /** Null when the voter's account is deleted on the source. */
   user: UserInfo | null
   value: number
 }

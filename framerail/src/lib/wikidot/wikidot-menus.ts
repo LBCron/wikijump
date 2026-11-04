@@ -1,20 +1,5 @@
 import type { Action } from "svelte/action"
 
-/**
- * Wikidot's page init (retained WIKIDOT.combined.js) runs
- * `WIKIDOT.page.fixers.fixMenuList("top-bar")`, then `fixMenu("top-bar")`
- * and `fixMenu("side-bar")`. Its server HTML leaves a top-bar item's text
- * bare (`<li>About <ul>…`); the script wraps every item's leading text
- * node in a `javascript:;` anchor, which theme CSS such as `#top-bar
- * .top-bar > ul > li > a` targets, and toggles `sfhover` on hovered
- * items.
- */
-
-/**
- * Wrap the first child of each list item in a `javascript:;` anchor when
- * that child is a text node, as fixMenuList does (whitespace-only text
- * included).
- */
 export const wrapWikidotMenuListText = (root: Element) => {
   for (const item of root.getElementsByTagName("li")) {
     const first = item.firstChild
@@ -41,10 +26,6 @@ const addMenuHover = (root: Element, hovered: WeakSet<Element>) => {
   }
 }
 
-/**
- * Apply Wikidot's menu fixers to `#top-bar` (`list: true`) or `#side-bar`,
- * and again whenever the bar's content is replaced.
- */
 export const wikidotMenu: Action<Element, { list?: boolean } | undefined> = (
   root,
   options

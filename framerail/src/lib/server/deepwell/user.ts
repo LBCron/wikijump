@@ -46,10 +46,6 @@ interface UserEditParams {
   password?: Optional<string>
   locales?: Optional<string[]>
   avatar?: Optional<File>
-  /**
-   * Explicit clear. Only a literal `true` removes the stored avatar
-   * association.
-   */
   removeAvatar?: boolean
   forumSignature?: Optional<Nullable<string>>
   realName?: Optional<Nullable<string>>
@@ -121,8 +117,6 @@ export async function userEdit(
     await uploadToPresignUrl(presign.presign_url, params.avatar)
     data.avatar_uploaded_blob_id = presign.pending_blob_id
   } else if (params.removeAvatar === true) {
-    // DEEPWELL reads an explicit null here as "clear the avatar association".
-    // An omitted or empty file never reaches this branch as a removal.
     data.avatar_uploaded_blob_id = null
   }
 

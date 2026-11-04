@@ -6,10 +6,6 @@ export interface WhileHeldOpts {
 export class HeldObserver {
   private held = false
 
-  /**
-   * @param target - The element to observe.
-   * @param opts - Options for the observer.
-   */
   constructor(
     private target: HTMLElement,
     private opts: WhileHeldOpts
@@ -31,11 +27,6 @@ export class HeldObserver {
     if (this.opts.released) this.opts.released(this.target)
   }
 
-  /**
-   * Updates the current observer configuration.
-   *
-   * @param opts - New options for the observer.
-   */
   update(opts: WhileHeldOpts) {
     this.opts = opts
   }

@@ -1,5 +1,3 @@
-<!-- //[...fallback] should not be a valid page, therefore redirects to corresponding page -->
-
 <script lang="ts">
   import { page } from "$app/state"
   import Redirect from "$lib/redirect.svelte"

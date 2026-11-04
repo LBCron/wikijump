@@ -14,15 +14,6 @@ export interface SiteFileReference {
   name: string
 }
 
-/**
- * Collect the distinct same-site file references named by a page theme's
- * asset URLs: the external theme href, or the raw URLs inside stored
- * custom CSS. Only references the head could rewrite are collected; every
- * other URL stays literal downstream without a lookup.
- *
- * @param theme The page view's theme setting, if any.
- * @param site The viewed site (`slug` and `from_wikidot`).
- */
 export function collectThemeSiteFileReferences(
   theme: unknown,
   site: { slug?: unknown; from_wikidot?: unknown } | null

@@ -1,8 +1,3 @@
-/**
- * Map Wikidot page-owned local files/code to the current local file host.
- * CDN theme URLs are intentionally preserved; offline mirroring is a later
- * policy slice, not hidden here.
- */
 export const localizeWikidotThemeUrl = (
   themeUrl: string,
   origin: string | null | undefined

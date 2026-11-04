@@ -33,10 +33,6 @@
     errorPopupState.current.extraMessage ??
       publicErrorExtraMessage(errorPopupState.current.data)
   )
-  // A Wikidot-evidenced denial (issue #2336) renders its sign-in anchor
-  // inline at the end of the policy paragraph, matching the retained source
-  // `<p>... <a href="#action:login">...</a></p>`. Every other denial keeps
-  // the established separate action-link paragraph.
   const popupActionLink = $derived(errorPopupState.current.actionLink ?? null)
   const inlineAction = $derived(
     errorPopupState.current.inlineActionLink === true &&

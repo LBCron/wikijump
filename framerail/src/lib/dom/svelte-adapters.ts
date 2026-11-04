@@ -10,17 +10,6 @@ import { KeyObserver, type InputHandler } from "./key-handling"
 import { SwipeObserver, type SwipeOpts } from "./swipe"
 import { UserLocaleObserver } from "./user-locale"
 
-/**
- * Starts an event listener that will recognize swipes on the specified
- * element. Works natively with Svelte elements, if used as an
- * `use:onSwipe` action. For basic usage, provide `direction` and
- * `callback` properties in the options object.
- *
- * @example
- *   ;```svelte
- *   ;<div use:onSwipe={{ callback: callback, direction: "up" }} />
- *   ```
- */
 export function onSwipe(target: HTMLElement, opts: Partial<SwipeOpts>) {
   const observer = new SwipeObserver(target, opts)
   return {

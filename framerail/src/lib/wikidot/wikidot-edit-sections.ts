@@ -9,10 +9,6 @@ export type WikidotEditSection = {
   end: number
 }
 
-/**
- * Match source-owned headings to the direct rendered Wikidot heading
- * sequence.
- */
 export const findWikidotEditSections = (
   source: string,
   pageContent: {
@@ -72,10 +68,6 @@ export const findWikidotEditSections = (
   })
 }
 
-/**
- * Insert or remove Wikidot's direct-child section edit controls. Returns
- * whether controls are visible after the toggle.
- */
 export const toggleWikidotEditSections = (
   pageContent: HTMLElement,
   source: string,
@@ -120,10 +112,6 @@ export const buildWikidotSectionEditSource = (
   replacement: string
 ): string => source.slice(0, section.start) + replacement + source.slice(section.end)
 
-/**
- * Build the existing edit action payload without allowing section editing
- * to change page metadata.
- */
 export const buildWikidotSectionEditSubmission = (
   form: Record<string, unknown>,
   revision: {

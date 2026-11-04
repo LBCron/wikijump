@@ -3,11 +3,6 @@ const escapeHtml = (value: string) =>
 
 export const WIKIDOT_PRINTER_FRIENDLY_PREFIX = "/printer--friendly/"
 
-/**
- * Build the live Wikidot printer-friendly child URL. The page path already
- * begins with `/`, which preserves Wikidot's exact doubled slash
- * (`/printer--friendly//<page>`).
- */
 export const buildWikidotPrinterFriendlyUrl = (pagePath: string): string =>
   `${WIKIDOT_PRINTER_FRIENDLY_PREFIX}${pagePath}`
 
@@ -106,15 +101,6 @@ const TOGGLE_SOURCE_INFO_ONCLICK = "WIKIDOT.printview.listeners.toggleSourceInfo
 
 const originalFontStyles = new WeakMap<HTMLElement, { value: string; priority: string }>()
 
-/**
- * Bind the printer-friendly child window's trusted behavior. Served markup
- * keeps Wikidot's exact inert `javascript:;` anchors and generated handler
- * attributes; this action supplies the executable property under CSP
- * without evaluating authored script. Handling is delegated on the
- * printer-friendly root so `{@html}` child insertion or hydration timing
- * cannot leave a generated control unbound; only the exact generated
- * handler shapes activate.
- */
 export const wikidotPrintView = (root: HTMLElement) => {
   const content = () => root.querySelector<HTMLElement>("#print-content")
   const sourceInfo = () => root.querySelector<HTMLElement>("#print-source-info")

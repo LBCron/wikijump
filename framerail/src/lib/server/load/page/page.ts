@@ -204,15 +204,6 @@ export async function loadPage(
   return loadData
 }
 
-/**
- * Missing-page create decision for the anonymous local-authoring seam.
- * Deepwell reports can_create=false for anonymous viewers; when this
- * request itself resolves to the local admin actor, ask Deepwell honestly
- * (marker-bound create permission for the same actor the save would use)
- * and adopt a grant. Anything else — including a Deepwell refusal or
- * failure — keeps the denial (fail closed). Template and data-form sources
- * below are then gated on the adopted decision like any other grant.
- */
 async function applyLocalAuthoringCreateGrant(
   articlePage: PageView,
   options: {
@@ -243,12 +234,6 @@ async function applyLocalAuthoringCreateGrant(
   }
 }
 
-/**
- * Template wikitext, data-form definitions, and template selections are
- * create source. They reach the browser only for a viewer Deepwell reports
- * may create the missing page. Fail closed: a missing or false
- * `can_create` strips them.
- */
 function gateMissingPageCreateSource(response: PageView): PageView {
   if (response.type !== "missing" || response.data.can_create === true) return response
   return {

@@ -169,9 +169,6 @@
       historyTotalPages = result.data.res.totalPages
       historyPage = result.data.res.page
       historyPerPage = result.data.res.perPage
-      // Live Wikidot replaces the revision list DOM on every Update/pager
-      // navigation, so no comparison selection survives it. Reset to the
-      // visible page's default pair instead of pointing at hidden rows.
       const visible = paginateHistoryEntries(
         [...revisionMap.values()].sort((a, b) => b.timeline_number - a.timeline_number),
         historyPage,

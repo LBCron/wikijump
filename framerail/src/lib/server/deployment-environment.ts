@@ -35,11 +35,6 @@ export const parseCsrfCheckOrigin = ({
   )
 }
 
-/**
- * Maps the legacy deployment/env switch onto SvelteKit's current CSRF API.
- * An empty trusted-origin list preserves same-origin checking; "*" is the
- * documented replacement for the former checkOrigin=false behavior.
- */
 export const csrfTrustedOrigins = (
   input?: Parameters<typeof parseCsrfCheckOrigin>[0]
 ): string[] => (parseCsrfCheckOrigin(input) ? [] : ["*"])

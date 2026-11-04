@@ -1,14 +1,5 @@
 import { mod } from "$lib/util"
 
-// https://zellwk.com/blog/keyboard-focusable-elements/
-/**
- * Returns a list of elements that can be reasonably expected as
- * programatically focusable directly under the given element.
- *
- * @param elem - The element to get the focusable descendants of.
- * @param anyIndex - Whether to include elements with `tabindex` set to
- *   `-1`.
- */
 export function getFoci(elem: Element, anyIndex = false) {
   const arr = Array.from(
     elem.querySelectorAll<HTMLElement>(
@@ -80,19 +71,9 @@ export interface FocusOpts {
   blur?: () => void
 }
 
-/**
- * Fires callbacks for `focusin` and `focusout` events, but treats the
- * entire element's tree as singularly focusable. That is, unfocusing a
- * child of the given element by focusing to another child of the element
- * will not fire any additional callbacks.
- */
 export class FocusObserver {
   private focused = false
 
-  /**
-   * @param target - The element to observe.
-   * @param opts - Options for the observer.
-   */
   constructor(
     private target: HTMLElement,
     private opts: FocusOpts
@@ -113,11 +94,6 @@ export class FocusObserver {
     if (this.opts.blur) this.opts.blur()
   }
 
-  /**
-   * Updates the observer configuration.
-   *
-   * @param opts - New options for the observer.
-   */
   update(opts: FocusOpts) {
     this.opts = opts
   }

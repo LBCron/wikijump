@@ -38,10 +38,6 @@ export class SwipeObserver {
 
   declare target: HTMLElement
 
-  /**
-   * @param target - The target element to track.
-   * @param opts - Swipe recognition configuration.
-   */
   constructor(target: HTMLElement, opts: Partial<SwipeOpts> = {}) {
     this.target = target
     this.opts = { ...SWIPE_DEFAULT_OPTS, ...opts }

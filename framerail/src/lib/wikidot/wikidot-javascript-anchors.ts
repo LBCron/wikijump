@@ -1,15 +1,5 @@
 const JAVASCRIPT_URL_ANCHOR = 'a[href="javascript:;"]'
 
-/**
- * Wikidot keeps `href="javascript:;"` on its inert control anchors.
- * Clicking one makes the browser try to execute the `javascript:` URL,
- * which the strict script-src CSP blocks and reports as a violation on
- * every click. The control's behavior comes from its own handler or from
- * the delegated legacy actions, so the only thing this guard cancels is
- * the default navigation to the URL.
- *
- * The `href` itself stays unchanged to preserve the Wikidot DOM contract.
- */
 export function installJavascriptAnchorGuard(
   root: Pick<EventTarget, "addEventListener" | "removeEventListener">
 ): () => void {

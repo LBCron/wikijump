@@ -1,11 +1,8 @@
 export const DEEPWELL_INVALID_AUTHENTICATION = 3000
 export const DEEPWELL_SESSION_INVALID = 3001
 export const DEEPWELL_PERMISSION_DENIED = 3106
-// Deepwell ErrorType::NotLatestRevisionId.
 export const DEEPWELL_NOT_LATEST_REVISION_ID = 4303
-// Deepwell ErrorType::PageEditLockConflict.
 export const DEEPWELL_PAGE_EDIT_LOCK_CONFLICT = 4304
-// Deepwell ErrorType::LocaleMessageMissing.
 export const DEEPWELL_LOCALE_MESSAGE_MISSING = 5002
 
 export const isNotLatestRevisionIdError = (error: unknown): boolean =>
@@ -38,11 +35,6 @@ export const isInvalidSessionTokenError = (error: unknown): boolean =>
   "code" in error &&
   error.code === DEEPWELL_SESSION_INVALID
 
-/**
- * Remove structured Deepwell diagnostics before a JSON-RPC error crosses
- * the Framerail public boundary. Plain string data is retained for
- * deliberately user-facing JSON-RPC errors.
- */
 export const stripPrivateDeepwellErrorData = <T>(response: T): T => {
   if (Array.isArray(response)) {
     return response.map(stripPrivateDeepwellErrorData) as T

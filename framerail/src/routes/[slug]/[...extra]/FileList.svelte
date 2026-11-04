@@ -41,8 +41,6 @@
     openFileHistory: (fileId: number) => void
   } = $props()
 
-  // Wikidot attachment-list state. Files sort case-insensitively by name
-  // like the frozen PageFilesModule output. Refs #2067.
   let optionsFileId = $state<number | undefined>(undefined)
   let infoFile = $state<PageFile | undefined>(undefined)
   let wikidotFiles = $derived(sortFilesWikidot([...fileMap.values()]))
@@ -100,10 +98,6 @@
     activeFileAction = "upload"
   }
 
-  // Wikidot denies anonymous attachment rename before rendering any editor
-  // (source scp-9506, issue #2324). The editable rename form is only
-  // reachable once a signed-in actor opens it; the server still authorizes
-  // every ?/fileEdit POST independently.
   function openFileRename(fileId: number) {
     if (wikidot && !data.user_session) {
       errorPopupState.current = wikidotRenameDeniedPopup()

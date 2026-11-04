@@ -77,13 +77,9 @@
   let revision = $state<Optional<PageRevisionModelFiltered>>(undefined)
   let revisionContext = $state<string | null>(null)
   let pagePaneState = $state<PagePane>(PagePane.None)
-  // Wikidot does not reveal its Files action area while the first file-list
-  // request is pending or has failed (source SCP-9506, issue #2273).
   let wikidotFilesListReady = $state(false)
   let wikidotFilesPrefetched = $state<PageFile[] | null>(null)
   let wikidotFilesRequestId = 0
-  // The source Backlinks/WhoWatches callback inserts the result and reveals
-  // #action-area only after success. Keep both pending and failed reads empty.
   let wikidotBacklinksReady = $state(false)
   let wikidotWatchersReady = $state(false)
   let auxPaneRequestId = $state(0)

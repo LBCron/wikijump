@@ -3,10 +3,6 @@ import { isReservedAdminAliasSlug } from "$lib/server/reserved-admin-alias"
 import { redirect } from "@sveltejs/kit"
 
 export async function load({ params, request, cookies, locals }) {
-  // This route is commonly requested with a second slash before the page
-  // slug, for example `/printer--friendly//_admin`. Treat only leading
-  // separators as route syntax so the resolved article slug matches the
-  // canonical page route and its server-side authorization decision.
   const segments = params.path.replace(/^\/+/, "").split("/")
   const slug = segments.shift()
   const extra = segments.join("/")

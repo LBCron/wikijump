@@ -9,21 +9,6 @@ export interface AnimOpts {
   css: (t: number, u: number) => string | string[]
 }
 
-/**
- * Svelte `transition`, `in`, or `out` function for creating CSS-based
- * animations.
- *
- * @example
- *   ```svelte
- *   <!-- Scales the element in and out -->
- *   <div
- *   transition:anim={{
- *   duration: 250,
- *   css: t => `transform: scale(${t})`
- *   }}
- *   />
- *   ```
- */
 export function anim(
   node: Element,
   { delay = 0, duration = 500, easing = "quintInOut", forceReduced, css }: AnimOpts

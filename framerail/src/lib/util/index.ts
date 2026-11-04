@@ -137,14 +137,6 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-/**
- * Creates and returns a promise that resolves when an invokation of
- * `requestAnimationFrame()` fires its callback.
- *
- * @param fn - An optional function to invoke and to resolve the promise
- *   with its return value. If the function returns a promise, that promise
- *   will be waited on as well.
- */
 export function animationFrame(): Promise<void>
 export function animationFrame<T>(fn: () => T): Promise<T>
 export function animationFrame(fn?: () => unknown): Promise<unknown> {
@@ -161,8 +153,6 @@ export function animationFrame(fn?: () => unknown): Promise<unknown> {
   )
 }
 
-// Credit: https://gist.github.com/beaucharman/e46b8e4d03ef30480d7f4db5a78498ca
-// Personally, I think this is one of the more elegant JS throttle functions.
 export function throttle<T extends AnyFunction>(
   fn: T,
   limitMS: number,
@@ -260,97 +250,34 @@ export function createAnimQueued<T extends AnyFunction>(fn: T) {
   }
 }
 
-/**
- * Performs a modulo operation. This differs from JavaScript's `%`
- * operator, which is more of a remainder operator.
- *
- * @param a - The dividend.
- * @param n - The divisor.
- */
 export function mod(a: number, n: number) {
   return ((a % n) + n) % n
 }
 
-/**
- * Replaces a range inside of a string with a substitute.
- *
- * @param str - The string which should have a range inside of it replaced.
- * @param from - The start of the replacement range.
- * @param to - The end of the replacement range.
- * @param sub - The replacement/substitute string.
- */
 export function replaceRange(str: string, from: number, to: number, sub: string) {
   return str.substring(0, from) + sub + str.substring(to)
 }
 
-/**
- * Uppercases a string.
- *
- * @param str - The string to uppercase.
- * @param locale - Uses a locale, or a list of locales, case mapping if
- *   provided. This usually won't be needed, as JS tries to account for
- *   non-ASCII/Latin text when handling casing.
- */
 export function uppercase(str: string, locale?: string | string[]) {
   return locale ? str.toLocaleUpperCase(locale) : str.toUpperCase()
 }
 
-/**
- * Lowercases a string.
- *
- * @param str - The string to lowercase.
- * @param locale - Uses a locale, or a list of locales, case mapping if
- *   provided. This usually won't be needed, as JS tries to account for
- *   non-ASCII/Latin text when handling casing.
- */
 export function lowercase(str: string, locale?: string | string[]) {
   return locale ? str.toLocaleLowerCase(locale) : str.toLowerCase()
 }
 
-/**
- * Titlecases a string.
- *
- * @param str - The string to titlecase.
- * @param locale - Uses a locale, or a list of locales, case mapping if
- *   provided. This usually won't be needed, as JS tries to account for
- *   non-ASCII/Latin text when handling casing.
- */
 export function titlecase(str: string, locale?: string | string[]) {
   return replaceRange(lowercase(str, locale), 0, 1, uppercase(str[0], locale))
 }
 
-/**
- * Determines if a string is titlecased.
- *
- * @param str - The string to check.
- * @param locale - Uses a locale, or a list of locales, case mapping if
- *   provided. This usually won't be needed, as JS tries to account for
- *   non-ASCII/Latin text when handling casing.
- */
 export function isTitlecased(str: string, locale?: string | string[]) {
   return titlecase(str, locale) === str
 }
 
-/**
- * Determines if a string is completely uppercased.
- *
- * @param str - The string to check.
- * @param locale - Uses a locale, or a list of locales, case mapping if
- *   provided. This usually won't be needed, as JS tries to account for
- *   non-ASCII/Latin text when handling casing.
- */
 export function isUppercased(str: string, locale?: string | string[]) {
   return uppercase(str, locale) === str
 }
 
-/**
- * Determines if a string is completely lowercased.
- *
- * @param str - The string to check.
- * @param locale - Uses a locale, or a list of locales, case mapping if
- *   provided. This usually won't be needed, as JS tries to account for
- *   non-ASCII/Latin text when handling casing.
- */
 export function isLowercased(str: string, locale?: string | string[]) {
   return lowercase(str, locale) === str
 }
@@ -359,12 +286,6 @@ export async function url(imp: Promise<{ default: string }>) {
   return new URL((await imp).default, import.meta.url).toString()
 }
 
-/**
- * Deduplicates an array. Does not mutate the original array.
- *
- * @param arr - The array to deduplicate.
- * @param insert - Additional values to insert into the array, if desired.
- */
 export function dedupe<T>(arr: T[], ...insert: T[]) {
   return [...new Set([...arr, ...insert])]
 }
@@ -372,10 +293,6 @@ export function dedupe<T>(arr: T[], ...insert: T[]) {
 export class LazySingleton<T> {
   private instance?: T
 
-  /**
-   * @param factory - The factory function to use to construct the
-   *   instance.
-   */
   constructor(private factory: () => T) {}
 
   get() {
@@ -387,17 +304,6 @@ export class LazySingleton<T> {
   }
 }
 
-// adapted from: https://stackoverflow.com/a/34920444
-// this, as far as I can tell, is basically the fastest way to do this.
-// there is a simpler method involving `TextEncoder`, but for large strings
-// that method is slower than this. It also has to allocate a new buffer
-// every time, which is a waste of memory.
-
-/**
- * Gets the byte length of a string.
- *
- * @param str - The string to get the byte length of.
- */
 export function byteLength(str: string) {
   let len = 0
 
@@ -425,11 +331,6 @@ export function byteLength(str: string) {
 const decoder = new TextDecoder()
 const encoder = new TextEncoder()
 
-/**
- * Convert a string or generic buffer into an `ArrayBuffer`.
- *
- * @param buffer - The string, `ArrayBuffer`, or typed array to convert.
- */
 export function encode(buffer: string | ArrayBufferLike | ArrayBufferView) {
   if (typeof buffer === "string") return encoder.encode(buffer).buffer
   if ("buffer" in buffer) return buffer.buffer
@@ -437,11 +338,6 @@ export function encode(buffer: string | ArrayBufferLike | ArrayBufferView) {
   throw new TypeError("Expected a string, ArrayBuffer, or typed array!")
 }
 
-/**
- * Decode an `ArrayBuffer` into a string.
- *
- * @param buffer - The `ArrayBuffer` to decode.
- */
 export function decode(buffer: ArrayBufferLike | ArrayBufferView) {
   return decoder.decode(buffer)
 }

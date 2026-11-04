@@ -1,9 +1,3 @@
-/**
- * Merge the separate Deepwell page and file revision streams into the
- * order Wikidot exposes in its page History module. Both streams are
- * newest first within their own tables; the shared list is ordered by
- * event timestamp.
- */
 export const mergeWikidotHistoryTimeline = (
   pageRevisions: Record<string, any>[],
   fileRevisions: Record<string, any>[],

@@ -41,7 +41,6 @@ test("anonymous viewers see the source rename denial without an editor or POST",
   await openFilesPane(page, SITE_HEADERS)
   await renameAction(page).click()
 
-  // Source scp-9506 permission text for Files Options Rename (issue #2324).
   const dialog = page.locator("#odialog-container .owindow.error")
   await expect(dialog.locator(".title")).toHaveText("PERMISSION ERROR")
   await expect(dialog.locator(".content")).toContainText(

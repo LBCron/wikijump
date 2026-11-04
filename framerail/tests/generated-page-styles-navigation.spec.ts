@@ -56,8 +56,6 @@ test("Wikidot page links use document navigation and keep styleFrame CSS out of 
   const destinationHtml = await destinationResponse.text()
   expect(destinationResponse.ok()).toBe(true)
   const head = destinationHtml.slice(0, destinationHtml.indexOf("</head>"))
-  // Wikidot styleFrames only restyle the interwiki frame; the page head carries
-  // neither their theme nor their inline CSS, only the page's generated CSS.
   expect(head).not.toContain("navigation-style-b-theme.css")
   expect(head).not.toContain("#page-title{display:none}")
   expect(head).toContain(".generated-style-b-one { color: blue; }")

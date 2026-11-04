@@ -3,11 +3,6 @@ export interface DisplayOpts {
   hidden?: () => void
 }
 
-/**
- * Observer that watches for if an element is being displayed in the DOM.
- * This isn't about the viewport, it's only about the DOM. This state is
- * effected by the `display` CSS property, among other things.
- */
 export class DisplayObserver {
   declare private opts: DisplayOpts
 
@@ -17,10 +12,6 @@ export class DisplayObserver {
 
   declare target: HTMLElement
 
-  /**
-   * @param target - The element to observe.
-   * @param opts - Options for the observer.
-   */
   constructor(target: HTMLElement, opts: DisplayOpts = {}) {
     this.target = target
     this.opts = opts
@@ -31,7 +22,6 @@ export class DisplayObserver {
   }
 
   get visible() {
-    // per the spec, this value is `null` if the element is not being displayed
     return this.target.offsetParent !== null
   }
 

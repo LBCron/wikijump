@@ -7,12 +7,6 @@ export interface GuardOpts<T> {
   ]
 }
 
-/**
- * Helper that allows you to use a `use` function with a guard condition.
- *
- * @param node - The element to use the guard on.
- * @param opts - Options for the guard.
- */
 export function guard<T>(node: HTMLElement, opts: GuardOpts<T>) {
   let applied: null | ReturnType<(typeof opts)["use"][0]> = null
 

@@ -1,11 +1,5 @@
 export type ScrollDirection = "vertical" | "horizontal" | "both"
 
-/**
- * Checks if an element scrolls vertically. Only checks if the element _is
- * scrolling_, not if it _can scroll_.
- *
- * @param element - The element to check.
- */
 export function scrollsVertically(element: HTMLElement) {
   // @ts-ignore - only works in Firefox
   if (element.scrollTopMax !== undefined) return element.scrollTopMax > 0
@@ -20,12 +14,6 @@ export function scrollsVertically(element: HTMLElement) {
   return false
 }
 
-/**
- * Checks if an element scrolls horizontally. Only checks if the element
- * _is scrolling_, not if it _can scroll_.
- *
- * @param element - The element to check.
- */
 export function scrollsHorizontally(element: HTMLElement) {
   // @ts-ignore - only works in Firefox
   if (element.scrollLeftMax !== undefined) return element.scrollLeftMax > 0
@@ -40,13 +28,6 @@ export function scrollsHorizontally(element: HTMLElement) {
   return false
 }
 
-/**
- * Checks if an element scrolls. Only checks if the element _is scrolling_,
- * not if it _can scroll_.
- *
- * @param element - The element to check.
- * @param dir - The direction to check. Defaults to `both`.
- */
 export function scrolls(element: HTMLElement, dir: ScrollDirection = "both") {
   // prettier-ignore
   switch (dir) {
@@ -56,15 +37,6 @@ export function scrolls(element: HTMLElement, dir: ScrollDirection = "both") {
   }
 }
 
-/**
- * Finds the first parent of the given element that is scrolling. If the
- * given element itself is scrolling, it will be returned. If no scrolling
- * element is found, `null` is returned.
- *
- * @param element - The element to find the scrolling element for.
- * @param dir - The direction to check for scrolling. Defaults to
- *   `"vertical"`.
- */
 export function scrollElement(element: HTMLElement, dir: ScrollDirection = "vertical") {
   let node: HTMLElement | null = element
   while (node) {

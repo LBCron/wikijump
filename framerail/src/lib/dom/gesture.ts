@@ -5,11 +5,6 @@ export type Direction = "up" | "down" | "left" | "right"
 export type Axis = "vertical" | "horizontal"
 export type GestureType = "start" | "move" | "end" | "cancel"
 
-/**
- * Represents the state of an in-progress gesture. This class is intended
- * as immutable, it only represents a gesture as it was during one point in
- * time.
- */
 export class Gesture {
   declare start: Point
 
@@ -25,11 +20,6 @@ export class Gesture {
 
   declare type: GestureType
 
-  /**
-   * @param start - The starting position.
-   * @param end - The end position.
-   * @param type - The {@link GestureType} for this gesture.
-   */
   constructor(start: Point, end: Point, type: GestureType = "move") {
     // prettier-ignore
     const x1 = start[0], y1 = start[1],
@@ -56,12 +46,6 @@ export class Gesture {
     return delta < 0 ? "right" : "left"
   }
 
-  /**
-   * Returns the angle of the direction in degrees. For reference, `0`
-   * faces right, with up (`90`), left (`180`), and down (`-90`) following
-   * in the counter-clockwise direction. Be aware of the sign flip that
-   * occurs when the angle passes 180 degrees.
-   */
   get angle() {
     // prettier-ignore
     const x1 = this.start[0], y1 = this.start[1],
@@ -75,11 +59,6 @@ export class Gesture {
       : "horizontal"
   }
 
-  /**
-   * The "sign" of the gesture, as in multiplying a pixel offset by this
-   * value will move an element in the direction of this gesture (assuming
-   * the axis is correct).
-   */
   get sign(): -1 | 1 {
     return this.direction === "up" || this.direction === "left" ? -1 : 1
   }
@@ -92,33 +71,17 @@ export class Gesture {
     return this.direction === "left" || this.direction === "right"
   }
 
-  /**
-   * Checks if a {@link Direction} is one of the directions given.
-   *
-   * @param other - The direction(s) to check against.
-   */
   same(other: Direction | Direction[]) {
     return typeof other === "string"
       ? other === this.direction
       : other.includes(this.direction)
   }
 
-  /**
-   * Checks if the distance of this gesture exceeds that of a given
-   * threshold.
-   *
-   * @param threshold - The threshold to check against.
-   */
   over(threshold?: number) {
     if (threshold === undefined) return false
     return this.dist > threshold
   }
 
-  /**
-   * Checks if this gesture's type is one of the types given.
-   *
-   * @param types - The type(s) to check against.
-   */
   is(...types: GestureType[]) {
     return types.includes(this.type)
   }
@@ -127,13 +90,6 @@ export class Gesture {
     return new Gesture(start || this.start, end || this.end, type || this.type)
   }
 
-  /**
-   * Returns an offset position based on the current direction and
-   * distance.
-   *
-   * @param clamp - Allows for clamping the offset between an optional
-   *   minimum and maximum.
-   */
   offset(clamp?: { min?: number; max?: number }) {
     let offset = this.sign * this.dist
     if (!clamp) return offset
@@ -148,10 +104,6 @@ export class GestureObserver {
 
   start: Point | null = null
 
-  /**
-   * @param target - The target element to observe.
-   * @param callback - The callback to fire.
-   */
   constructor(
     public target: HTMLElement,
     public callback: (gesture: Gesture) => void

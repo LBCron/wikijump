@@ -228,8 +228,6 @@
       }
     }
 
-    // #2074 honeypot: off-screen (never display:none, which some fillers
-    // skip) so people never see it while automated fillers still find it.
     .register-honeypot {
       position: absolute;
       top: auto;

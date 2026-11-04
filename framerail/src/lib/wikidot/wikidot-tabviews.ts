@@ -67,8 +67,6 @@ export function wikidotTabviews(node: HTMLElement) {
     ) {
       activateInitialTabviews()
       if (!observer) {
-        // Preview and client navigation can replace the rendered article while
-        // retaining this action. Native YUI initializes each new tabview too.
         observer = new MutationObserver(activateInitialTabviews)
         observer.observe(node, { childList: true, subtree: true })
       }

@@ -10,7 +10,6 @@ export interface SiteIconData {
   data: number[]
 }
 
-/** Fetch one site's stored icon bytes, or null when none are materialized. */
 export async function getSiteIcon(
   siteId: number,
   kind: string

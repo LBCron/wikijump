@@ -34,7 +34,6 @@ export type WikidotDataFormFieldPresentation = {
   display: "text" | "masked" | "wiki" | "url" | "date" | "pagepath"
 }
 
-/** Builds the editable values for a Wikidot data form. */
 export const buildWikidotDataFormState = (
   definition: WikidotDataFormDefinition,
   savedValues: Record<string, string>
@@ -58,7 +57,6 @@ export const buildWikidotDataFormState = (
   )
 }
 
-/** Returns the observed editor and display contract for a field. */
 export const getWikidotDataFormFieldPresentation = (
   field: WikidotDataFormField
 ): WikidotDataFormFieldPresentation => {
@@ -133,11 +131,6 @@ export const getWikidotDataFormFieldPresentation = (
 export const wikidotDataFormPagepathSelectorClass = (fullname: string): string =>
   `dataform-pagepath-select-children-of-${fullname.replaceAll(":", "---")}`
 
-/**
- * Builds the currently evidenced visible selector chain. A stored fullname
- * that is absent from the visible configured tree is retained by the
- * hidden scalar but does not fabricate a selected option.
- */
 export const buildWikidotDataFormPagepathLevels = (
   field: WikidotDataFormField,
   nodes: WikidotDataFormPagepathNode[],
@@ -253,7 +246,6 @@ const serializeWikidotDateScalar = (value: string): string => {
   return value
 }
 
-/** Serializes the currently evidenced data-form fields in template order. */
 export const serializeWikidotDataFormSource = (
   definition: WikidotDataFormDefinition,
   values: Record<string, string>

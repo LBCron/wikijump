@@ -55,11 +55,6 @@ const bodyOr = (result: ForumOutput, fallback: string) => ({
   body: result.status === "ok" ? result.body : fallback
 })
 
-/**
- * Preserve Wikidot's forumThreadId semantic without executing raw inline
- * HTML. SvelteKit owns the CSP nonce, so the trusted route ID is passed to
- * compiled client code and the exact legacy assignment is removed here.
- */
 const threadBody = (result: ForumOutput, fallback: string, thread: string) => {
   if (result.status !== "ok") return { body: fallback, forumThreadId: null }
   const threadId = Number(thread)

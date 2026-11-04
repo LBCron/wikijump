@@ -31,10 +31,6 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
-/*
- * Retained live case: userinfo-target-routes-live-20260810.json,
- * `userinfo-target-the-administrator-anonymous`.
- */
 const publicUser: Record<string, unknown> = {
   user_id: 169306,
   user_type: "regular",

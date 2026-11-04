@@ -173,14 +173,6 @@ const userFound = (profile: {
   }
 })
 
-/**
- * Public profile fixtures for the website-link contract. `guest` keeps the
- * historical blank-website profile; `website-frozen-probe` mirrors the
- * value frozen in issue #2150's live Wikidot evidence; `website-probe`
- * renders a generic schemeless domain; `website-unsafe-probe` renders an
- * unsafe scheme so the browser can observe both branches of
- * `normalizePublicWebsiteUrl`.
- */
 const PROFILE_FIXTURES: Record<
   string,
   {

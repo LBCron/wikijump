@@ -1,8 +1,3 @@
-/**
- * Project Deepwell viewer data onto the explicit browser-visible preload
- * DTO. New internal fields added to the backend response stay server-only
- * unless they are deliberately added here.
- */
 export const buildPublicPreloadData = <Site, SiteSettings, PromotedSites, UserSession>(
   response: {
     site: Site

@@ -5,10 +5,6 @@ export interface RequestNode<T> {
   active: boolean
 }
 
-/**
- * FIFO with constant-time removal by handle. Unlike an array, draining or
- * cancelling a pipeline never moves/scans the other pending requests.
- */
 export class RedisRequestQueue<T> {
   head: RequestNode<T> | null = null
   tail: RequestNode<T> | null = null

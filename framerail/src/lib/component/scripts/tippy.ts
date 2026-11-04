@@ -23,8 +23,6 @@ export function parseTipOpts(elem: Element, opts: Partial<Props> | string) {
     opts = { content: elem.getAttribute("aria-label") ?? "" }
   }
 
-  // special case: if the tip is inside a dialog, we need to use
-  // the dialog's element as the parent, and use fixed positioning
   if (!opts.appendTo) {
     const dialog = elem.closest("dialog")
     if (dialog) {
@@ -39,14 +37,6 @@ export function parseTipOpts(elem: Element, opts: Partial<Props> | string) {
   return { ...DEFAULT_TIPPY_OPTS, ...opts }
 }
 
-/**
- * Creates a Tippy.js tooltip instance for the element.
- *
- * The tooltip will derive its message from this list of sources, in order:
- *
- * - The value provided directly, if any
- * - The element's `aria-label` attribute, if it exists
- */
 export function tip(elem: Element, opts: Partial<Props> | string = "") {
   opts = parseTipOpts(elem, opts)
   const tp = tippy(elem, opts)

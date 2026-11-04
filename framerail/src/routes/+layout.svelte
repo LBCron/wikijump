@@ -136,8 +136,6 @@
     })
   )
   const isImportedWikidotLayout = $derived(isImportedWikidotView(viewData))
-  // Imported page tab titles follow the observed Wikidot `page - site` format.
-  // Resolve during SSR too, instead of displaying the site-only title until hydration.
   const documentTitle = $derived.by(() => {
     const siteName = viewData?.site?.name ?? ""
     const pageTitle = viewData?.page_revision?.title

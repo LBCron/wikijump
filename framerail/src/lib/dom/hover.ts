@@ -15,10 +15,6 @@ export class HoverObserver {
 
   private focused = false
 
-  /**
-   * @param target - The element to observe.
-   * @param opts - Options for the observer.
-   */
   constructor(
     private target: HTMLElement,
     private opts: HoverOpts
@@ -66,11 +62,6 @@ export class HoverObserver {
     return this.target.contains(evt.relatedTarget as HTMLElement)
   }
 
-  /**
-   * Update observer configuration.
-   *
-   * @param opts - New options for the observer.
-   */
   update(opts: HoverOpts) {
     this.opts = opts
   }

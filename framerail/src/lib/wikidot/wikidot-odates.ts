@@ -1,38 +1,3 @@
-/**
- * Viewer-local rendering for Wikidot `span.odate` timestamps (issue
- * #2638).
- *
- * Wikidot's model is two-phase: the server sends UTC text plus the unix
- * timestamp and the requested display format in the span class (`odate
- * time_<unix> format_<encoded>[|agohover]`), and the browser phase
- * rewrites the text into viewer-local time, showing a relative "nn
- * seconds/minutes/hours/days ago" hovering text when `|agohover` is set
- * (see
- * docs/wikidot-specifications/specifications/wiki-syntax/syntax-date.md).
- * Saved pages must therefore never pin a server-side timezone: the browser
- * phase below is what makes JST viewers see JST and UTC viewers see UTC.
- *
- * Grammar coverage is deliberately bounded: the numeric EN subset the
- * render path emits (`%d %e %m %Y %H %M %S %R %%`, padding modifiers
- * `_`/`-`/`0`), EN month/weekday names (`%b %B %a %A`), and the relative
- * modifier (`%O`). A span whose format uses anything else — including
- * `%Z`/`%z` (the spec documents usage but no retained capture shows the
- * rendered shape; a JST server would more likely read `JST` than `GMT+9`)
- * and `%c` — keeps its server text untouched: an unspecified format needs
- * oracle evidence, not a guess. Spans without an explicit `format_` class
- * are left alone for the same reason.
- *
- * Two more documented choices: future timestamps clamp to "0 seconds ago"
- * (the spec allows `%O` with future dates but defines no output shape),
- * and the hovering text uses proper English singular/plural (Wikidot's
- * exact pluralization needs a live oracle to confirm).
- *
- * Hover exactness gap: the spec ladder names only
- * seconds/minutes/hours/days, so the hovering text uses proper English
- * singular/plural here. Wikidot's exact pluralization needs a live oracle
- * to confirm; the mismatch surface is one tooltip string.
- */
-
 const MONTHS_SHORT = [
   "Jan",
   "Feb",
@@ -76,10 +41,6 @@ const TIME_TOKEN = /^time_(-?\d+)$/
 const FORMAT_PREFIX = "format_"
 const AGO_HOVER_SUFFIX = "|agohover"
 
-/**
- * Parse an odate span's class list. Returns null when the span carries no
- * usable timestamp or its format cannot be decoded.
- */
 export function parseOdateSpan(element: { className: string }) {
   const tokens = String(element?.className ?? "").split(/\s+/)
   let timestamp: number | null = null
@@ -121,7 +82,6 @@ export function agoText(deltaSeconds: number) {
 
 const pad2 = (value: number) => String(value).padStart(2, "0")
 
-/** Render viewer-local text for a timestamp under a format string. */
 export function formatOdateTimestamp(
   timestampSeconds: number,
   format: string,
@@ -182,10 +142,6 @@ export function formatOdateTimestamp(
   return output
 }
 
-/**
- * Rewrite one span's text into viewer-local time. Returns false when the
- * span is left untouched (unparseable, or unsupported format).
- */
 export function rewriteOdateSpan(
   element: HTMLElement,
   nowSeconds: number = Math.floor(Date.now() / 1000)
@@ -215,11 +171,6 @@ function sweepOdates(root: Document | HTMLElement, nowSeconds: number) {
   }
 }
 
-/**
- * Install the browser ODate phase on Wikidot-layout pages. Sweeps once,
- * then re-sweeps added nodes; hovering text refreshes on mouseenter so a
- * long-open page does not show a stale relative time.
- */
 export function installWikidotOdates(root: Document | HTMLElement): () => void {
   sweepOdates(root, Math.floor(Date.now() / 1000))
   const observer = new MutationObserver((changes) => {

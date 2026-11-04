@@ -77,13 +77,6 @@ const parameterBlockEnd = (lines: string[], start: number): number => {
   return -1
 }
 
-/**
- * Render the documented `[[include]]` target forms as links: same-site
- * page targets resolve locally, while `:site:page` targets resolve to the
- * absolute source URL live Wikidot renders. All other source remains
- * escaped text so the read-only source view cannot execute authored markup
- * or guess cross-site routing.
- */
 export const wikidotPageSourceHtml = (source: string): string => {
   let inComment = false
   let inCode = false
@@ -192,11 +185,6 @@ export const wikidotRevisionFlags = (
   ]
 }
 
-/**
- * Wikidot History filter keys, frozen from the live
- * `history/PageHistoryModule` controls (`rev-type-*` checkboxes). Refs
- * #2070.
- */
 export const HISTORY_FILTER_TYPES = ["source", "title", "move", "tags", "meta", "files"]
 
 export const HISTORY_PER_PAGE_OPTIONS = [20, 50, 100, 200]
@@ -255,14 +243,6 @@ export const paginateHistoryEntries = <T>(
 export type HistoryPagerSegment =
   { kind: "page"; page: number; current: boolean } | { kind: "dots" }
 
-/**
- * Pager segments replicating the live PageRevisionListModule chrome.
- * Frozen behavior: page 1 of a 2-page list reads "page 1 of 2" with no
- * dots, while page 1 of a 3-page list reads bare "page 1" with trailing
- * dots; pages past the first always read "page N of M". Numbers show every
- * page up to 7; larger sets show the first page, a ±2 window around the
- * current page, and the last page with dots marking undisplayed pages.
- */
 export const historyPagerModel = (
   page: number,
   totalPages: number,

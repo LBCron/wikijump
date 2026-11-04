@@ -31,10 +31,6 @@ export const isSupportedPageReadShape = (
   return isPositiveSafeDecimal(parameters.revision_id)
 }
 
-/**
- * Throws a TypeError or RangeError if the request is not a bounded, valid
- * URL-encoded UTF-8 form body.
- */
 export const readUrlEncodedForm = async (
   request: Request
 ): Promise<{ fields: Map<string, string>; duplicateFields: Set<string> }> => {

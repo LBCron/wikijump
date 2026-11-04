@@ -93,10 +93,6 @@ export const membershipEmailInvitationCongratulationsHtml = (
   ].join("")
 }
 
-/**
- * Zip exact renderer-owned Join controls to the closed sidecar. Any count,
- * descriptor, or DOM mismatch disables the complete surface.
- */
 export const planWikidotJoinActionBindings = (
   candidates: HTMLElement[],
   actions: MembershipBrowserAction[]
@@ -134,10 +130,6 @@ const planTypedBindings = (
   )
 }
 
-/**
- * Execute a fixed membership action once and keep its visible busy state
- * until the server transition settles.
- */
 export const performWikidotMembershipAction = async (
   element: HTMLElement,
   action: MembershipBrowserAction,
@@ -235,10 +227,6 @@ export const performWikidotMembershipAction = async (
   }
 }
 
-/**
- * Install capture-phase behavior so the trusted legacy `onclick` remains
- * in served DOM for parity but is never evaluated by the browser.
- */
 export const wikidotMembershipActions = (
   root: HTMLElement,
   parameters: {

@@ -1,8 +1,3 @@
-/**
- * Wikidot attachment-list contract helpers, frozen from the live
- * `files/PageFilesModule` output. Refs #2067.
- */
-
 const FILE_TYPE_DESCRIPTIONS = new Map([
   ["image/png", "PNG image data"],
   ["image/jpeg", "JPEG image data"],

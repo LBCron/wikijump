@@ -33,9 +33,6 @@
   let earliest = $state<Optional<FileRevisionModel>>(undefined)
   let historyFailed = $state(false)
 
-  // Upload date shape (including the comma in "21 Apr 2026, 06:01") lives
-  // in the shared contract so unit tests pin the frozen modal text.
-  // Refs #2067.
   const fileUploadDate = wikidotFileUploadDate
 
   onMount(async () => {

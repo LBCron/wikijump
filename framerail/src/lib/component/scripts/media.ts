@@ -141,15 +141,6 @@ class MediaQueryHandler {
     return mediaQuery.matches
   }
 
-  /**
-   * Evaluates a `include-media`-compatible breakpoint string and returns
-   * if it matches. Throws with incompatible queries.
-   *
-   * You can use this function directly - but if needed,
-   * {@link matchBreakpoint | you can use it reactively}.
-   *
-   * @see {@link matchBreakpoint}
-   */
   matchBreakpoint(query: BreakpointString) {
     let operator: Operator = "=="
 
@@ -198,34 +189,6 @@ Media.subscribe((store) => {
   lastBreakpoint = current
 })
 
-/**
- * Store that allows reactively listening for breakpoint changes, while
- * still maintaining the ability to use breakpoint queries/matchers.
- *
- * ```text
- * operators:
- *   "==" # default if none given
- *   "<"
- *   "<="
- *   ">"
- *   ">="
- *
- * breakpoints:
- *   "tiny"    # exceptionally narrow phones
- *   "narrow"  # approx. phones
- *   "small"   # approx. tablets, landscape phones, laptops
- *   "normal"  # approx. desktops
- *   "wide"    # approx. extra wide monitors
- * ```
- *
- * @example
- *   ;```svelte
- *   <!-- works even if the screen size changes -->
- *   {#if $matchBreakpoint("<=small")}
- *     <span>Displays only on small devices</span>
- *   {/if}
- *   ```
- */
 export const matchBreakpoint: Readable<MediaQueryHandler["matchBreakpoint"]> = {
   subscribe: matchBreakpointStore.subscribe
 }

@@ -5,12 +5,6 @@ const OBSERVER_CONFIG = {
   characterData: true
 }
 
-/**
- * Starts observing a target element using a `MutationObserver`.
- *
- * @param target - The target element to observe.
- * @param callback - The callback to call when the target element changes.
- */
 export function observe(
   target: HTMLElement,
   callback: (changes: MutationRecord[]) => void
@@ -20,10 +14,6 @@ export function observe(
   return observer
 }
 
-/**
- * Decorator that pauses an element's `MutationObserver` during a method
- * call. The observer needs to be in a public property named `observer`.
- */
 export function pauseObservation(
   target: HTMLElement & { observer: MutationObserver },
   _key: string,

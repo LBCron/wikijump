@@ -1,12 +1,3 @@
-/**
- * Minimal Wikidot Gallery lightbox compatibility.
- *
- * Wikidot keeps `a.with-lb` in the static Gallery DOM even when the viewer
- * is disabled. Keep activation scoped by the corresponding Gallery source
- * flag so custom links and viewer-disabled galleries retain normal
- * navigation.
- */
-
 type GalleryLightboxState = {
   index: number
   anchors: HTMLAnchorElement[]
@@ -72,15 +63,6 @@ const galleryRequirementIndex = (gallery: Element): number | null => {
   return Number.isSafeInteger(index) && index >= 0 ? index : null
 }
 
-/**
- * Page-scoped Svelte action for Wikidot Gallery LightBox behavior.
- *
- * Deepwell numbers `gallery-box-N` by FTML Gallery requirement order. The
- * matching source order is therefore sufficient to distinguish the live
- * `viewer="false"` boundary without changing the public rendered DOM:
- * Wikidot retains `a.with-lb` in that state but omits the LightBox
- * initializer.
- */
 export const wikidotGalleryLightbox = (
   root: HTMLElement,
   initialWikitext: string | null | undefined
@@ -146,8 +128,6 @@ export const wikidotGalleryLightbox = (
       preload(active.anchors[index - 1]?.href)
       preload(active.anchors[index + 1]?.href)
     })
-    // Wikidot's lightbox has no image-error recovery callback.  Intentionally
-    // leave the loading boundary visible when the selected image fails.
     loader.src = anchor.href
   }
 

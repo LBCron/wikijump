@@ -13,12 +13,6 @@
 
   let { data }: PageProps = $props()
 
-  /**
-   * The public tab strip. The retained observations pin this markup for
-   * both anonymous and account-A viewers, independent of imported
-   * relations. A click changes only the tab items' class attributes, in
-   * place.
-   */
   let tabState = $state(initialUserInfoTabState())
 </script>
 

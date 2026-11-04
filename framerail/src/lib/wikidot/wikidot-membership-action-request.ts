@@ -13,11 +13,6 @@ type MembershipActionInput = {
   actionFingerprint: string
 }
 
-/**
- * Submit the request-bound membership transition. Site, actor, policy, and
- * token state are deliberately absent; the server derives them from the
- * page action context and verified session.
- */
 export const requestMembershipJoin = async (
   runtime: MembershipRequestRuntime,
   input: MembershipActionInput
@@ -83,11 +78,6 @@ export const requestMembershipApplication = async (
   return result.data?.res
 }
 
-/**
- * Accept the invitation named by the current page route. The opaque hash
- * is deliberately absent from the browser payload; the server resolves it
- * from the request route before calling Deepwell.
- */
 export const requestMembershipEmailInvitation = async (
   runtime: MembershipRequestRuntime,
   input: MembershipActionInput

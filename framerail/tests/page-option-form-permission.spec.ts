@@ -11,9 +11,6 @@ const AUTHENTICATED_HEADERS = {
   cookie: "wikijump_token=fixture-session-token",
   origin: `http://localhost:${process.env.PLAYWRIGHT_APP_PORT ?? "4173"}`
 }
-// Retained Wikidot anonymous edit-denial contract (issue #2336): the EN
-// Permission error window with a Please note: heading, one policy
-// paragraph, and an inline #action:login sign-in anchor.
 const DENIAL_TITLE = "Permission error"
 const DENIAL_HEADING = "Please note:"
 const DENIAL_POLICY =

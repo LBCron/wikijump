@@ -19,10 +19,6 @@ const submit = async (runtime: LegacyRequestRuntime, action: string, body?: unkn
   return result.data?.res
 }
 
-/**
- * Submit a set-tags descriptor by server-issued ordinal, never by client
- * tags.
- */
 export const requestLegacySetTags = (
   runtime: LegacyRequestRuntime,
   input: {
@@ -40,10 +36,6 @@ export const requestLegacySetTags = (
   })
 }
 
-/**
- * Submit one server-issued Rate action without a client-selected vote
- * value.
- */
 export const requestLegacyRate = (
   runtime: LegacyRequestRuntime,
   input: {
@@ -61,7 +53,6 @@ export const requestLegacyRate = (
   }) as Promise<{ score: number } | undefined>
 }
 
-/** Submit one server-issued Rate cancellation descriptor. */
 export const requestLegacyRateCancel = (
   runtime: LegacyRequestRuntime,
   input: {

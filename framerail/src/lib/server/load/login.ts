@@ -55,8 +55,6 @@ export async function loadLoginPage(request: Request, preloadData: PreloadDataAs
 
 export async function loginAction({ request, getClientAddress, cookies }: RequestEvent) {
   const userAgent: string = request.headers.get("User-Agent") ?? ""
-  // Attribute the attempt to the real client, not the proxy socket peer, so
-  // each client gets its own login IP bucket (#2513).
   const ipAddress: string = resolveClientIp(request, getClientAddress())
   const formData = await request.formData()
   const mfaSessionToken = formData.get("mfaSessionToken")

@@ -13,13 +13,6 @@ export interface MailFormSubmitInput {
   values: Record<string, string>
 }
 
-/**
- * Deepwell's answer to a MailForm submission. `status` is Wikidot's
- * connector vocabulary: `form_errors` carries one message per failing
- * field; `ok` carries the reader-facing success fields. The remaining
- * fields are the internal no-delivery record (Wikijump sends no email) and
- * are not forwarded to the browser.
- */
 export interface MailFormSubmitOutput {
   status: string
   errors?: MailFormFieldError[]

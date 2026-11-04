@@ -905,8 +905,6 @@ const ratingSchema = object({
   ratingType: vEnum({ PLUS: "plus", PLUS_MINUS: "plus_minus", STARS: "stars" })
 })
 
-// Wikidot accepts a local upload or an existing URL per icon slot. This slice
-// records the source; an empty field clears the slot.
 const siteIconsSchema = object({
   siteId: number(),
   expectedSettingsRevision: pipe(number(), integer(), minValue(0)),

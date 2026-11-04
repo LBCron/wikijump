@@ -1,9 +1,5 @@
 const EDIT_META_MODULE = "edit/EditMetaModule"
 
-/**
- * Throws an error if the response does not carry the legacy `status: "ok"`
- * envelope.
- */
 const requireOkResponse = (value: unknown): { status: string; body?: unknown } => {
   if (
     !value ||
@@ -16,10 +12,6 @@ const requireOkResponse = (value: unknown): { status: string; body?: unknown } =
   return value as { status: string; body?: unknown }
 }
 
-/**
- * The legacy response is parsed in inert documents. Its inline handlers
- * are never inserted into the displayed page.
- */
 export const parseWikidotEditMetaRows = (
   body: string,
   Parser: typeof DOMParser = DOMParser

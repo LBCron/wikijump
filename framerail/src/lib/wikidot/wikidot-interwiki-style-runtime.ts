@@ -28,8 +28,6 @@ export const installWikidotInterwikiStyleRuntime = (
 ): void => {
   const frameDocument = frameWindow.document
 
-  // Wikidot reads the last occurrence of a parameter and decodes it with
-  // decodeURIComponent only ("+" stays literal).
   const queryParameter = (search: string, name: string): string => {
     const query = search.indexOf("?") === 0 ? search.substring(1) : search
     const parts = query.split("&").reverse()
@@ -84,8 +82,6 @@ export const installWikidotInterwikiStyleRuntime = (
     insertByPriority(priority, style)
   }
 
-  // Wikidot resolves a bare code-page name to its first code block, and
-  // `page/code/N` to block N of that page, on the community's own site.
   const resolveTheme = (theme: string): string => {
     if (theme.indexOf("http") === 0 || theme.indexOf("//") === 0) return theme
     if (!config.siteUrl) return ""

@@ -10,12 +10,6 @@ const hasUnsafeUrlCharacters = (value: string) => {
   return false
 }
 
-/**
- * Turn a public profile website value into a safe absolute web URL.
- * Wikidot accepts ordinary domains without a scheme and resolves them as
- * HTTPS. Invalid or non-web values stay displayable as text but are not
- * link targets.
- */
 export const normalizePublicWebsiteUrl = (
   value: string | null | undefined
 ): string | null => {

@@ -1,8 +1,3 @@
-// Wikidot attachment pane states left open by #2067's acceptance items:
-// the successful zero-attachment list, the no-pagination large list, and
-// the File Information modal's static fields. The modal's upload-date
-// comma is pinned by the contract unit test; SSR skips onMount, so the
-// uploader/date rows (which need ?/fileHistory) stay browser-covered.
 import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
@@ -22,7 +17,6 @@ let SvelteMap: any
 let fileListComponent: any
 let fileInfoModalComponent: any
 
-/** Size */
 const fileEntry = (fileId: any, name: any, mime: any, size: number) => [
   fileId,
   {
@@ -109,8 +103,6 @@ test("empty wikidot list honors a provided no-files message", () => {
 })
 
 test("large wikidot list renders every row with no pagination controls", () => {
-  // Source renders all attachment rows without paging (standing observed
-  // 764 rows on one page); the scroll container holds the overflow.
   const entries = []
   let bytes = 0
   for (let index = 0; index < 250; index += 1) {

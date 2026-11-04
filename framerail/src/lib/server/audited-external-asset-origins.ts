@@ -1,6 +1,4 @@
 export interface AuditedExternalAssetOrigin {
-  // Exact CSP host-source, always an `https://<host>` origin. Never a
-  // scheme-wide source such as `https:` and never a bare wildcard host.
   origin: string
   styles: boolean
   fonts: boolean

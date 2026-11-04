@@ -73,12 +73,6 @@ export interface PreloadData {
   license_html: Viewer["license_html"]
   user_session: Nullable<ClientUserSession>
   locales: string[]
-  /**
-   * Instance-level overrides for the native footer's platform
-   * destinations, keyed by the footer's internationalization key.
-   * Platform-global, so it is resolved once for the instance and never
-   * from the viewed wiki.
-   */
   native_footer_destinations?: Record<string, string | undefined>
 }
 
@@ -162,12 +156,7 @@ interface PageViewFound {
     legacy_actions: LegacyBrowserAction[]
     rate_actions: Nullable<RateBrowserActionRegistry>
     membership_actions: MembershipBrowserAction[]
-    /**
-     * Deepwell recognizes an executable, non-literal ThemePreviewer noUi
-     * path.
-     */
     theme_previewer_no_ui?: boolean
-    /** Source-owned blank ThemePreviewer selection on a saved page. */
     theme_previewer_blank?: boolean
     meta_tags: PageMetaTagView[]
   }
@@ -227,13 +216,7 @@ interface PageViewMissing {
     page_templates: PageTemplateSummary[]
     selected_template_page_id: Nullable<number>
     data_form: Nullable<DataFormEditor>
-    /**
-     * Deepwell's create decision for this viewer (the same authority
-     * page_create enforces). Template and data-form source is only present
-     * when this is true.
-     */
     can_create: boolean
-    /** The body is the site's own missing-page template (`_404`). */
     missing_template: boolean
   }
 }

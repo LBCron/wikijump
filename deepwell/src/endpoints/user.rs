@@ -240,14 +240,25 @@ pub async fn user_delete(
     )?;
 
     info!("Deleting user ID {}", target.user_id);
-    UserService::delete(
+    let deleted = UserService::delete(
         ctx,
         Reference::Id(target.user_id),
         deleting_user_id,
         ip_address,
     )
     .await
-    .or_raise(|| Error::new("failed to delete user", ErrorType::User))
+    .or_raise(|| Error::new("failed to delete user", ErrorType::User))?;
+
+    SessionService::invalidate_all(ctx, target.user_id)
+        .await
+        .or_raise(|| {
+            Error::new(
+                "failed to revoke sessions for deleted user",
+                ErrorType::Session,
+            )
+        })?;
+
+    Ok(deleted)
 }
 
 pub async fn user_add_name_change(

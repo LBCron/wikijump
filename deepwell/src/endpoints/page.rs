@@ -915,6 +915,21 @@ pub async fn page_get(
                 )
                 .into());
             }
+            let can_view = PermissionService::check_user_can_view_page(
+                ctx,
+                ctx.request().user_id,
+                &page,
+            )
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to check page view permission",
+                    ErrorType::Permission,
+                )
+            })?;
+            if !can_view {
+                return Ok(None);
+            }
             build_page_output(ctx, page, details)
                 .await
                 .or_raise(make_error)

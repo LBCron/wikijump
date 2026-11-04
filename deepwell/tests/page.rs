@@ -9806,6 +9806,15 @@ async fn wikidot_set_tags_denials_preserve_public_page_state() {
         "set-tags-editor",
     )
     .await;
+    make_page_mutation_test_category_for_user(
+        &runner,
+        site_id,
+        LOCKED_CATEGORY,
+        ADMIN_USER_ID,
+        &[Action::View],
+        "set-tags-admin-viewer",
+    )
+    .await;
     make_listpages_test_category_admin_only(&runner, site_id, PRIVATE_CATEGORY).await;
     set_listpages_test_category_slug(&runner, site_id, LOCKED_SLUG, LOCKED_CATEGORY)
         .await;

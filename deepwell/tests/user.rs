@@ -37,7 +37,8 @@ use deepwell::services::view::GetUserViewOutput;
 use deepwell::services::{BlobService, RequestContext};
 use deepwell::types::Reference;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, Set,
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, EntityTrait, PaginatorTrait,
+    QueryFilter, Set,
 };
 use serde_json::json;
 use time::macros::{date, datetime};
@@ -90,6 +91,16 @@ async fn force_user_email(runner: &TestRunner, user_id: i64, email: &str) {
     .update(runner.context().transaction())
     .await
     .expect("forced email fixture should update");
+}
+
+// Simulates pre-index legacy data for one test; the rollback restores the index.
+async fn drop_email_active_unique_index(runner: &TestRunner) {
+    runner
+        .context()
+        .transaction()
+        .execute_unprepared("DROP INDEX IF EXISTS user_email_active_unique_idx")
+        .await
+        .expect("email active unique index drop should succeed");
 }
 
 #[tokio::test]
@@ -993,6 +1004,7 @@ async fn preexisting_duplicate_email_verify_and_login_behavior() {
         }),
     );
     assert_ne!(first.user_id, second.user_id);
+    drop_email_active_unique_index(&runner).await;
     force_user_email(&runner, second.user_id, "shared-unverified@example.invalid").await;
 
     let error = run_endpoint_err!(
@@ -1114,6 +1126,7 @@ async fn verifying_email_displaces_other_pending_claims() {
         }),
     );
     assert_ne!(first.user_id, second.user_id);
+    drop_email_active_unique_index(&runner).await;
     force_user_email(&runner, second.user_id, "disputed-mailbox@example.invalid").await;
 
     let verified = run_endpoint!(

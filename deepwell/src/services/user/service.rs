@@ -59,6 +59,8 @@ use std::net::IpAddr;
 pub const DISABLED_PASSWORD_HASH: &str = "!";
 
 const VERIFIED_EMAIL_UNIQUE_INDEX: &str = "user_verified_email_active_unique_idx";
+const SLUG_UNIQUE_INDEX: &str = "user_slug_active_unique_idx";
+const EMAIL_UNIQUE_INDEX: &str = "user_email_active_unique_idx";
 
 #[derive(Debug, FromQueryResult)]
 struct NonAsciiUserSlug {
@@ -516,11 +518,31 @@ impl UserService {
             ..Default::default()
         };
 
-        let user_id = WikijumpUser::insert(user)
-            .exec(txn)
-            .await
-            .or_raise(make_error)?
-            .last_insert_id;
+        let user_id = match WikijumpUser::insert(user).exec(txn).await {
+            Ok(insert_result) => insert_result.last_insert_id,
+            Err(error) => match user_unique_violation(&error) {
+                Some(UserUniqueViolation::Slug) => {
+                    error!(
+                        "User with conflicting name or slug already exists, cannot create"
+                    );
+                    bail!(Error::new(
+                        format!(
+                            "cannot create user, another with a conflicting name or slug already exists. checked slug '{}'",
+                            slug,
+                        ),
+                        ErrorType::UserExists,
+                    ));
+                }
+                Some(UserUniqueViolation::Email | UserUniqueViolation::VerifiedEmail) => {
+                    error!("User with conflicting email already exists, cannot create");
+                    bail!(Error::new(
+                        "cannot create user, another with a conflicting email already exists",
+                        ErrorType::UserExists,
+                    ));
+                }
+                None => return Err(error).or_raise(make_error),
+            },
+        };
 
         AuditService::log(ctx, ip_address, AuditEvent::UserCreate { user_id })
             .await
@@ -1150,13 +1172,27 @@ impl UserService {
         model.updated_at = Set(Some(now()));
         let new_user = match model.update(txn).await {
             Ok(user) => user,
-            Err(error) if is_verified_email_unique_violation(&error) => {
-                bail!(Error::new(
-                    "cannot verify email, another active user already owns it",
-                    ErrorType::UserExists,
-                ));
-            }
-            Err(error) => return Err(error).or_raise(make_error),
+            Err(error) => match user_unique_violation(&error) {
+                Some(UserUniqueViolation::VerifiedEmail) => {
+                    bail!(Error::new(
+                        "cannot verify email, another active user already owns it",
+                        ErrorType::UserExists,
+                    ));
+                }
+                Some(UserUniqueViolation::Slug) => {
+                    bail!(Error::new(
+                        "cannot rename user, another user already has the slug",
+                        ErrorType::UserExists,
+                    ));
+                }
+                Some(UserUniqueViolation::Email) => {
+                    bail!(Error::new(
+                        "cannot change email, another active user already owns it",
+                        ErrorType::UserExists,
+                    ));
+                }
+                None => return Err(error).or_raise(make_error),
+            },
         };
         if avatar_changed {
             Self::invalidate_avatar_cache(ctx, new_user.user_id)
@@ -1552,6 +1588,39 @@ impl UserService {
         Ok(())
     }
 
+    pub async fn set_mfa_secrets_if_unset(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        multi_factor_secret: Option<String>,
+        multi_factor_recovery_codes: Option<Vec<String>>,
+    ) -> Result<bool> {
+        info!("Conditionally setting MFA secret fields for user ID {user_id}");
+
+        let txn = ctx.transaction();
+        let model = user::ActiveModel {
+            multi_factor_secret: Set(multi_factor_secret),
+            multi_factor_recovery_codes: Set(multi_factor_recovery_codes),
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+        let rows_affected = WikijumpUser::update_many()
+            .set(model)
+            .filter(user::Column::UserId.eq(user_id))
+            .filter(user::Column::MultiFactorSecret.is_null())
+            .filter(user::Column::MultiFactorRecoveryCodes.is_null())
+            .exec(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!("failed to set MFA secrets for user ID {}", user_id),
+                    ErrorType::UserMfa,
+                )
+            })?
+            .rows_affected;
+
+        Ok(rows_affected > 0)
+    }
+
     pub async fn set_mfa_last_totp_step(
         ctx: &ServiceContext<'_>,
         user_id: i64,
@@ -1815,12 +1884,28 @@ fn validate_forum_signature(signature: &str) -> Result<()> {
     Ok(())
 }
 
-fn is_verified_email_unique_violation(error: &DbErr) -> bool {
-    matches!(
-        error.sql_err(),
-        Some(SqlErr::UniqueConstraintViolation(message))
-            if message.contains(VERIFIED_EMAIL_UNIQUE_INDEX)
-    )
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum UserUniqueViolation {
+    Slug,
+    Email,
+    VerifiedEmail,
+}
+
+fn user_unique_violation(error: &DbErr) -> Option<UserUniqueViolation> {
+    let message = match error.sql_err() {
+        Some(SqlErr::UniqueConstraintViolation(message)) => message,
+        _ => return None,
+    };
+
+    if message.contains(VERIFIED_EMAIL_UNIQUE_INDEX) {
+        Some(UserUniqueViolation::VerifiedEmail)
+    } else if message.contains(SLUG_UNIQUE_INDEX) {
+        Some(UserUniqueViolation::Slug)
+    } else if message.contains(EMAIL_UNIQUE_INDEX) {
+        Some(UserUniqueViolation::Email)
+    } else {
+        None
+    }
 }
 
 fn get_user_slug(name: &str, user_type: UserType) -> String {

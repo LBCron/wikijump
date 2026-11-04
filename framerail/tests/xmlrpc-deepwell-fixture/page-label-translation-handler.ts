@@ -1,4 +1,4 @@
-import { handleSiteRpc } from "./site-handler.js"
+import { handleSiteRpc } from "./site-handler.ts"
 
 const pageLabels: Record<string, Record<string, string>> = {
   en: {

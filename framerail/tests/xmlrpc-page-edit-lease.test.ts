@@ -6,17 +6,11 @@ import { createJiti } from "jiti"
 
 const libRoot = fileURLToPath(new URL("../src/lib/", import.meta.url))
 const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
-const { client } = /** @type {any} */ (
-  await jiti.import(
-    fileURLToPath(new URL("../src/lib/server/deepwell/index.ts", import.meta.url))
-  )
+const { client } = await jiti.import<any>(
+  fileURLToPath(new URL("../src/lib/server/deepwell/index.ts", import.meta.url))
 )
-const { savePageOne } = /** @type {any} */ (
-  await jiti.import(
-    fileURLToPath(
-      new URL("../src/lib/server/xmlrpc/resource-methods.ts", import.meta.url)
-    )
-  )
+const { savePageOne } = await jiti.import<any>(
+  fileURLToPath(new URL("../src/lib/server/xmlrpc/resource-methods.ts", import.meta.url))
 )
 
 const page = {
@@ -33,8 +27,7 @@ const page = {
   rating: 173
 }
 
-/** @param {any} t */
-const installWriteCredentials = (t) => {
+const installWriteCredentials = (t: any) => {
   const originalUsername = process.env.XML_RPC_WRITE_USERNAME
   const originalPassword = process.env.XML_RPC_WRITE_PASSWORD
   process.env.XML_RPC_WRITE_USERNAME = "xmlrpc-lease-user"
@@ -47,23 +40,15 @@ const installWriteCredentials = (t) => {
   })
 }
 
-/**
- * @param {any} t
- * @param {any} [overrides]
- */
-const installStub = (t, overrides = {}) => {
+const installStub = (t: any, overrides: any = {}) => {
   installWriteCredentials(t)
   const originalRequest = client.request
   t.after(() => {
     client.request = originalRequest
   })
 
-  /** @type {any[]} */
-  const calls = []
-  client.request = /** @param {any} method @param {any} params */ async (
-    method,
-    params
-  ) => {
+  const calls: any[] = []
+  client.request = async (method: any, params: any) => {
     calls.push({ method, params })
     if (overrides[method]) return overrides[method](params)
     if (method === "site_get") return { site_id: 6000005 }
@@ -112,14 +97,12 @@ const installStub = (t, overrides = {}) => {
   return calls
 }
 
-/** @param {any} params */
-const saveCall = (params) => ({
+const saveCall = (params: any) => ({
   methodName: "pages.save_one",
   params: [{ site: "scp-wiki", page: page.slug, save_mode: "update", ...params }]
 })
 
-/** @param {any[]} calls */
-const methodsOf = (calls) => calls.map((call) => call.method)
+const methodsOf = (calls: any[]) => calls.map((call) => call.method)
 
 test("pages.save_one acquires, presents, and releases an edit lease for a content save", async (t) => {
   const calls = installStub(t)
@@ -162,7 +145,7 @@ test("pages.save_one faults with the conflict data and writes nothing when the l
 
   await assert.rejects(
     savePageOne(saveCall({ content: "must not be written" }), "192.0.2.91"),
-    /** @param {any} error */ (error) =>
+    (error: any) =>
       error.faultCode === 4304 &&
       error.faultString.includes("456") &&
       error.faultString.includes("812")
@@ -181,7 +164,7 @@ test("pages.save_one propagates a 4304 save rejection as a fault and still relea
 
   await assert.rejects(
     savePageOne(saveCall({ content: "updated body" }), "192.0.2.92"),
-    /** @param {any} error */ (error) => error.faultCode === 4304
+    (error: any) => error.faultCode === 4304
   )
   const methods = methodsOf(calls)
   assert.ok(methods.indexOf("page_edit") < methods.indexOf("page_edit_lock_release"))
@@ -196,7 +179,7 @@ test("pages.save_one propagates a 4303 save rejection as a fault and still relea
 
   await assert.rejects(
     savePageOne(saveCall({ content: "updated body" }), "192.0.2.93"),
-    /** @param {any} error */ (error) => error.faultCode === 4303
+    (error: any) => error.faultCode === 4303
   )
   assert.equal(methodsOf(calls).includes("page_edit_lock_release"), true)
 })

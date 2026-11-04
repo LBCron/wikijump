@@ -1,27 +1,17 @@
-import { fixtureState, isSignedI64String } from "./context.js"
-import { forumPostsByPage } from "./data.js"
-import { sendRpcError } from "./response.js"
+import type { ServerResponse } from "node:http"
 
-/**
- * @typedef {{
- *   content: string
- *   created_at: string
- *   created_by: string
- *   html: string
- *   id: number
- *   reply_to: number | null
- *   title: string
- * }} FixtureForumPost
- */
+import { fixtureState, isSignedI64String } from "./context.ts"
+import { forumPostsByPage } from "./data.ts"
+import type { FixtureForumPost } from "./data.ts"
+import { sendRpcError } from "./response.ts"
 
-/**
- * @param {{
- *   rpcRequest: any
- *   response: import("node:http").ServerResponse
- * }} input
- * @returns {{ result?: number[]; responded?: boolean } | undefined}
- */
-export const handleForumSelectRpc = ({ rpcRequest, response }) => {
+export const handleForumSelectRpc = ({
+  rpcRequest,
+  response
+}: {
+  rpcRequest: any
+  response: ServerResponse
+}): { result?: number[]; responded?: boolean } | undefined => {
   if (
     rpcRequest.method !== "forum_post_select" ||
     rpcRequest.params?.site_id !== 6000005 ||
@@ -56,24 +46,17 @@ export const handleForumSelectRpc = ({ rpcRequest, response }) => {
       ? Object.values(forumPostsByPage).flat()
       : (forumPostsByPage[rpcRequest.params.page] ?? [])
   const result = posts
+    .filter((post: FixtureForumPost) => {
+      if (rpcRequest.params.reply_to === undefined) return true
+      if (rpcRequest.params.reply_to === "-") return post.reply_to === null
+      return String(post.reply_to) === rpcRequest.params.reply_to
+    })
     .filter(
-      /** @param {FixtureForumPost} post */
-      (post) => {
-        if (rpcRequest.params.reply_to === undefined) return true
-        if (rpcRequest.params.reply_to === "-") return post.reply_to === null
-        return String(post.reply_to) === rpcRequest.params.reply_to
-      }
-    )
-    .filter(
-      /** @param {FixtureForumPost} post */
-      (post) =>
+      (post: FixtureForumPost) =>
         rpcRequest.params.created_by === undefined ||
         post.created_by === rpcRequest.params.created_by
     )
-    .map(
-      /** @param {FixtureForumPost} post */
-      (post) => post.id
-    )
+    .map((post: FixtureForumPost) => post.id)
 
   return { result }
 }

@@ -16,8 +16,8 @@ assert.equal(
 )
 
 const jiti = createJiti(import.meta.url)
-const baseline = await jiti.import(baselineFile)
-const current = await jiti.import(
+const baseline = await jiti.import<any>(baselineFile)
+const current = await jiti.import<any>(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/protocol.ts", import.meta.url))
 )
 
@@ -36,20 +36,20 @@ test("XML-RPC rejects repeatedly unterminated nested tag openers without excessi
   assert.ok(performance.now() - start < 2_000, "tag scanning must remain bounded")
 })
 
-const outcome = (fn, xml) => {
+const outcome = (fn: any, xml: string) => {
   try {
     return { ok: true, value: fn(xml) }
   } catch (error) {
     return {
       ok: false,
-      name: error?.constructor?.name ?? null,
-      code: error?.faultCode ?? null,
-      message: error?.faultString ?? String(error?.message ?? error)
+      name: (error as any)?.constructor?.name ?? null,
+      code: (error as any)?.faultCode ?? null,
+      message: (error as any)?.faultString ?? String((error as any)?.message ?? error)
     }
   }
 }
 
-const call = (methodName, paramsXml) =>
+const call = (methodName: string, paramsXml: string) =>
   `<?xml version="1.0"?><methodCall><methodName>${methodName}</methodName>` +
   `<params>${paramsXml}</params></methodCall>`
 
@@ -129,7 +129,7 @@ const VALUES = [
   "<struct><member><name>a</name><value><value><int>1</int></value></value></member></struct>"
 ]
 
-const nestedStruct = (depth, leaf = "x") => {
+const nestedStruct = (depth: number, leaf = "x") => {
   let body = `<member><name>leaf</name><value><string>${leaf}</string></value></member>`
   for (let level = 0; level < depth; level += 1) {
     body = `<member><name>l${level}</name><value><struct>${body}</struct></value></member>`
@@ -137,7 +137,7 @@ const nestedStruct = (depth, leaf = "x") => {
   return `<struct>${body}</struct>`
 }
 
-const nestedArray = (depth, leaf = "x") => {
+const nestedArray = (depth: number, leaf = "x") => {
   let body = `<value><string>${leaf}</string></value>`
   for (let level = 0; level < depth; level += 1) {
     body = `<value><array><data>${body}</data></array></value>`
@@ -145,7 +145,7 @@ const nestedArray = (depth, leaf = "x") => {
   return `<array><data>${body}</data></array>`
 }
 
-const flatStruct = (count) => {
+const flatStruct = (count: number) => {
   const members = Array.from(
     { length: count },
     (_, i) => `<member><name>m${i}</name><value><int>${i}</int></value></member>`
@@ -153,7 +153,7 @@ const flatStruct = (count) => {
   return `<struct>${members}</struct>`
 }
 
-const flatArray = (count) => {
+const flatArray = (count: number) => {
   const items = Array.from(
     { length: count },
     (_, i) => `<value><int>${i}</int></value>`
@@ -232,13 +232,13 @@ test("unknown tag names compile no tag patterns, so input cannot grow the cache"
   const RealRegExp = globalThis.RegExp
   let compiled = 0
   class CountingRegExp extends RealRegExp {
-    constructor(...args) {
+    constructor(pattern: string | RegExp, flags?: string) {
       compiled += 1
-      super(...args)
+      super(pattern, flags)
     }
   }
   Object.setPrototypeOf(CountingRegExp, RealRegExp)
-  globalThis.RegExp = CountingRegExp
+  globalThis.RegExp = CountingRegExp as unknown as RegExpConstructor
   try {
     for (let i = 0; i < 500; i += 1) {
       const tag = `hostile${i}`
@@ -262,13 +262,13 @@ test("repeated supported values reuse cached patterns instead of recompiling", (
   const RealRegExp = globalThis.RegExp
   let compiled = 0
   class CountingRegExp extends RealRegExp {
-    constructor(...args) {
+    constructor(pattern: string | RegExp, flags?: string) {
       compiled += 1
-      super(...args)
+      super(pattern, flags)
     }
   }
   Object.setPrototypeOf(CountingRegExp, RealRegExp)
-  globalThis.RegExp = CountingRegExp
+  globalThis.RegExp = CountingRegExp as unknown as RegExpConstructor
   try {
     for (let i = 0; i < 5; i += 1) {
       current.parseXmlRpcCall(

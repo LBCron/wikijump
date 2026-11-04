@@ -1,5 +1,7 @@
-import { fixtureState } from "./context.js"
-import { sendRpcError } from "./response.js"
+import type { IncomingMessage, ServerResponse } from "node:http"
+
+import { fixtureState } from "./context.ts"
+import { sendRpcError } from "./response.ts"
 
 const AVATAR_OWNER_SESSION_TOKEN = "fixture-authenticated-session-token"
 
@@ -13,14 +15,15 @@ const AVATAR_PNG = Buffer.from(
   "base64"
 )
 
-/**
- * @param {{
- *   rpcRequest: any
- *   request: import("node:http").IncomingMessage
- *   response: import("node:http").ServerResponse
- * }} input
- */
-export const handleProfileRpc = ({ rpcRequest, request, response }) => {
+export const handleProfileRpc = ({
+  rpcRequest,
+  request,
+  response
+}: {
+  rpcRequest: any
+  request: IncomingMessage
+  response: ServerResponse
+}) => {
   if (rpcRequest.method === "blob_get") {
     if (rpcRequest.params !== AVATAR_HASH_HEX) return undefined
     return {
@@ -60,8 +63,9 @@ export const handleProfileRpc = ({ rpcRequest, request, response }) => {
       "biography",
       "website",
       "user_page"
-    ]) {
-      if (Object.hasOwn(params, key)) fixtureState.authenticatedUser[key] = params[key]
+    ] as const) {
+      if (Object.hasOwn(params, key))
+        (fixtureState.authenticatedUser as Record<string, any>)[key] = params[key]
     }
     return { result: fixtureState.authenticatedUser }
   }
@@ -122,19 +126,16 @@ export const handleProfileRpc = ({ rpcRequest, request, response }) => {
   return userFound({ ...profile, slug: params.user })
 }
 
-/**
- * @param {{
- *   user_id: number
- *   name: string
- *   website: string | null
- *   slug: string
- *   avatar?: boolean
- *   email?: string
- *   birthday?: string | null
- *   biography?: string | null
- * }} profile
- */
-const userFound = (profile) => ({
+const userFound = (profile: {
+  user_id: number
+  name: string
+  website: string | null
+  slug: string
+  avatar?: boolean
+  email?: string
+  birthday?: string | null
+  biography?: string | null
+}) => ({
   result: {
     type: "user_found",
     data: {
@@ -179,20 +180,19 @@ const userFound = (profile) => ({
  * renders a generic schemeless domain; `website-unsafe-probe` renders an
  * unsafe scheme so the browser can observe both branches of
  * `normalizePublicWebsiteUrl`.
- *
- * @type {Record<
- *   string,
- *   {
- *     user_id: number
- *     name: string
- *     website: string | null
- *     email?: string
- *     birthday?: string | null
- *     biography?: string | null
- *   }
- * >}
  */
-const PROFILE_FIXTURES = {
+const PROFILE_FIXTURES: Record<
+  string,
+  {
+    user_id: number
+    name: string
+    website: string | null
+    avatar?: boolean
+    email?: string
+    birthday?: string | null
+    biography?: string | null
+  }
+> = {
   guest: {
     user_id: 987654,
     name: "Guest",

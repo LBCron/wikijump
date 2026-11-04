@@ -1,4 +1,4 @@
-import { fixtureState, hasExactKeys, pageById, requestContextHeaders } from "./context.js"
+import { fixtureState, hasExactKeys, pageById, requestContextHeaders } from "./context.ts"
 
 export const handlePageRevisionRpc = ({
   rpcRequest,

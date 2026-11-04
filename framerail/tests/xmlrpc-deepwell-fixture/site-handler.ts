@@ -1,7 +1,6 @@
-import { fixtureState, hasExactKeys, isFixtureSiteId } from "./context.js"
+import { fixtureState, hasExactKeys, isFixtureSiteId } from "./context.ts"
 
-/** @param {{ rpcRequest: any }} input */
-export const handleSiteRpc = ({ rpcRequest }) => {
+export const handleSiteRpc = ({ rpcRequest }: { rpcRequest: any }) => {
   let result
 
   if (
@@ -274,10 +273,10 @@ export const handleSiteRpc = ({ rpcRequest }) => {
     rpcRequest.params.messages !== null &&
     Array.isArray(rpcRequest.params.strip_message_keys)
   ) {
-    const isJapanese = rpcRequest.params.locales.some((locale) =>
+    const isJapanese = rpcRequest.params.locales.some((locale: any) =>
       `${locale}`.toLowerCase().startsWith("ja")
     )
-    const authLabels = isJapanese
+    const authLabels: Record<string, string> = isJapanese
       ? {
           "error-api.GENERIC": "Something went wrong with your request.",
           "error-form.password-mismatch": "パスワードが一致しません。",
@@ -305,7 +304,7 @@ export const handleSiteRpc = ({ rpcRequest }) => {
             "The profile image will be removed when you save.",
           "user-profile-info.keep-avatar": "Keep profile image"
         }
-    const basePageActionLabels = isJapanese
+    const basePageActionLabels: Record<string, string> = isJapanese
       ? {
           delete: "削除",
           edit: "編集",
@@ -326,7 +325,7 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           parents: "Parents",
           vote: "Vote"
         }
-    const pageActionLabels = isJapanese
+    const pageActionLabels: Record<string, string> = isJapanese
       ? {
           "wiki-page-view-source": "ページソース",
           "wiki-page-action-append": "追加",
@@ -347,7 +346,7 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           "wiki-page-action-lock": "Lock Page",
           "wiki-page-action-rename-move": "Move"
         }
-    const pageLabels = isJapanese
+    const pageLabels: Record<string, string> = isJapanese
       ? {
           "wiki-page-layout": "ページレイアウト",
           "wiki-page-meta-tag-name": "メタタグ名",
@@ -358,7 +357,7 @@ export const handleSiteRpc = ({ rpcRequest }) => {
           "wiki-page-meta-tag-name": "Meta tag name",
           "wiki-page-meta-tag-content": "Meta tag content"
         }
-    const voteLabels = isJapanese
+    const voteLabels: Record<string, string> = isJapanese
       ? {
           "wiki-page-vote": "ページの評価",
           "wiki-page-vote.description": "このページの内容を評価してみましょう。",

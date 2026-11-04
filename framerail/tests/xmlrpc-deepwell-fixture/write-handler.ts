@@ -1,15 +1,17 @@
-import { handlePageWriteRpc } from "./page-write-handler.ts"
-import { handleParentWriteRpc } from "./parent-write-handler.js"
-import { fixtureState, hasExactKeys } from "./context.js"
-import { sendRpcError } from "./response.js"
+import type { IncomingMessage, ServerResponse } from "node:http"
 
-/**
- * @param {{
- *   rpcRequest: any
- *   response: import("node:http").ServerResponse
- * }} input
- */
-const handleUserCreate = ({ rpcRequest, response }) => {
+import { handlePageWriteRpc } from "./page-write-handler.ts"
+import { handleParentWriteRpc } from "./parent-write-handler.ts"
+import { fixtureState, hasExactKeys } from "./context.ts"
+import { sendRpcError } from "./response.ts"
+
+const handleUserCreate = ({
+  rpcRequest,
+  response
+}: {
+  rpcRequest: any
+  response: ServerResponse
+}) => {
   const params = rpcRequest.params
   if (
     rpcRequest.method !== "user_create" ||
@@ -52,13 +54,11 @@ const handleUserCreate = ({ rpcRequest, response }) => {
   return { result: { user_id: 6000008, slug: "fixture-new-user" } }
 }
 
-/**
- * @param {{
- *   rpcRequest: any
- *   request: import("node:http").IncomingMessage
- * }} input
- */
-export const handleWriteRpc = (input) => {
+export const handleWriteRpc = (input: {
+  rpcRequest: any
+  request: IncomingMessage
+  response: ServerResponse
+}) => {
   return (
     handleUserCreate(input) ?? handlePageWriteRpc(input) ?? handleParentWriteRpc(input)
   )

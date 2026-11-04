@@ -1,12 +1,14 @@
-import { fixtureState, hasExactKeys, pageById, requestContextHeaders } from "./context.js"
+import type { IncomingMessage } from "node:http"
 
-/**
- * @param {{
- *   rpcRequest: any
- *   request: import("node:http").IncomingMessage
- * }} input
- */
-export const handleVoteReadRpc = ({ rpcRequest, request }) => {
+import { fixtureState, hasExactKeys, pageById, requestContextHeaders } from "./context.ts"
+
+export const handleVoteReadRpc = ({
+  rpcRequest,
+  request
+}: {
+  rpcRequest: any
+  request: IncomingMessage
+}) => {
   if (
     rpcRequest.method !== "vote_list" ||
     !hasExactKeys(rpcRequest.params, [

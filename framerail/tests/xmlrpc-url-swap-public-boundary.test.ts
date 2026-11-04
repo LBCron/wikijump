@@ -28,21 +28,20 @@ test("the standard Python XML-RPC client resolves the documented API through the
   })
 
   const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
-  /** @type {any} */
-  const { POST } = await jiti.import(routePath)
+  const { POST } = await jiti.import<any>(routePath)
   const server = http.createServer(async (incoming, outgoing) => {
     if (incoming.method !== "POST" || incoming.url !== "/xml-rpc-api.php") {
       outgoing.writeHead(404).end()
       return
     }
 
-    const chunks = []
+    const chunks: Buffer[] = []
     for await (const chunk of incoming) chunks.push(Buffer.from(chunk))
-    const address = /** @type {any} */ (server.address())
+    const address = server.address() as any
     assert.equal(typeof address, "object")
     const request = new Request(`http://127.0.0.1:${address.port}/xml-rpc-api.php`, {
       body: Buffer.concat(chunks),
-      headers: /** @type {any} */ (incoming.headers),
+      headers: incoming.headers as any,
       method: "POST"
     })
     const response = await POST({
@@ -52,11 +51,9 @@ test("the standard Python XML-RPC client resolves the documented API through the
     outgoing.writeHead(response.status, Object.fromEntries(response.headers))
     outgoing.end(Buffer.from(await response.arrayBuffer()))
   })
-  await new Promise((resolve) =>
-    server.listen(0, "127.0.0.1", /** @type {any} */ (resolve))
-  )
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve as any))
   t.after(() => new Promise((resolve) => server.close(resolve)))
-  const address = /** @type {any} */ (server.address())
+  const address = server.address() as any
   assert.equal(typeof address, "object")
 
   const result = await runPythonClient({
@@ -95,30 +92,30 @@ test("the standard Python XML-RPC client resolves the documented API through the
   })
 })
 
-/** @param {any} environment */
-const runPythonClient = (environment) => {
-  return new Promise((resolve, reject) => {
-    const child = spawn("python3", [clientPath], {
-      env: { ...process.env, ...environment },
-      stdio: ["ignore", "pipe", "pipe"]
-    })
-    let stdout = ""
-    let stderr = ""
-    child.stdout.setEncoding("utf8")
-    child.stderr.setEncoding("utf8")
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk
-    })
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk
-    })
-    child.on("error", reject)
-    child.on("close", (code) => resolve({ code, stderr, stdout }))
-  })
+const runPythonClient = (environment: any) => {
+  return new Promise<{ code: number | null; stderr: string; stdout: string }>(
+    (resolve, reject) => {
+      const child = spawn("python3", [clientPath], {
+        env: { ...process.env, ...environment },
+        stdio: ["ignore", "pipe", "pipe"]
+      })
+      let stdout = ""
+      let stderr = ""
+      child.stdout.setEncoding("utf8")
+      child.stderr.setEncoding("utf8")
+      child.stdout.on("data", (chunk) => {
+        stdout += chunk
+      })
+      child.stderr.on("data", (chunk) => {
+        stderr += chunk
+      })
+      child.on("error", reject)
+      child.on("close", (code) => resolve({ code, stderr, stdout }))
+    }
+  )
 }
 
-/** @param {any} name @param {any} value */
-const restoreEnvironment = (name, value) => {
+const restoreEnvironment = (name: any, value: any) => {
   if (value === undefined) delete process.env[name]
   else process.env[name] = value
 }

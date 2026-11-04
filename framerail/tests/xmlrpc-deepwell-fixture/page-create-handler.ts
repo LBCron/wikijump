@@ -1,5 +1,5 @@
-import { fixtureState, hasExactKeys, requestContextHeaders } from "./context.js"
-import { pages } from "./data.js"
+import { fixtureState, hasExactKeys, requestContextHeaders } from "./context.ts"
+import { pages } from "./data.ts"
 
 export const handlePageCreateRpc = ({
   rpcRequest,

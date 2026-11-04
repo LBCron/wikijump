@@ -1,28 +1,29 @@
-import { pages } from "./data.js"
+import type { IncomingMessage } from "node:http"
 
-/** @typedef {Record<string, any>} RpcParams */
-/**
- * @typedef {{
- *   content: Buffer
- *   file_created_at: string
- *   file_id: number
- *   file_updated_at: string | null
- *   mime: string
- *   name: string
- *   revision_comments: string
- *   revision_created_at: string
- *   revision_id: number
- *   revision_user_id: number
- *   size: number
- *   size_with_data?: number
- * }} FixtureFile
- */
-/**
- * @typedef {{
- *   headers: Record<string, string | string[] | undefined>
- *   params: unknown
- * }} RecordedRpcRequest
- */
+import { pages } from "./data.ts"
+
+export type RpcParams = Record<string, any>
+
+export type FixtureFile = {
+  content: Buffer
+  file_created_at: string
+  file_id: number
+  file_updated_at: string | null
+  mime: string
+  name: string
+  revision_comments: string
+  revision_created_at: string
+  revision_id: number
+  revision_type?: string
+  revision_user_id: number
+  size: number
+  size_with_data?: number
+}
+
+export type RecordedRpcRequest = {
+  headers: Record<string, string | string[] | undefined>
+  params: unknown
+}
 
 export const createAuthenticatedUser = () => ({
   user_id: 6000008,
@@ -57,11 +58,8 @@ export const createAuthenticatedUser = () => ({
 
 export const fixtureState = {
   authenticatedUser: createAuthenticatedUser(),
-  /** @type {RecordedRpcRequest | null} */
-  lastPageTagsSelectRequest: null,
-  /** @type {RpcParams | null} */
-  lastPageSelectParams: null,
-  /** @type {Record<string, unknown[]>} */
+  lastPageTagsSelectRequest: null as RecordedRpcRequest | null,
+  lastPageSelectParams: null as RpcParams | null,
   pageReadRequests: {
     backlinksView: [],
     watchersView: [],
@@ -81,22 +79,17 @@ export const fixtureState = {
     siteGet: [],
     voteList: [],
     pageGetScore: []
-  },
-  /**
-   * @type {{
-   *   headers: Record<string, string | string[] | undefined>
-   *   params: RpcParams
-   * }[]}
-   */
-  forumModuleRequests: [],
-  /** @type {null | ((outcome?: "success" | "failure") => void)} */
-  pendingPageRevisionDiffResponse: null,
-  /** @type {Record<string, unknown[]>} */
+  } as Record<string, unknown[]>,
+  forumModuleRequests: [] as {
+    headers: Record<string, string | string[] | undefined>
+    params: RpcParams
+  }[],
+  pendingPageRevisionDiffResponse: null as
+    null | ((outcome?: "success" | "failure") => void),
   articleReadRequests: {
     articleView: [],
     articleViewCacheMetadata: []
-  },
-  /** @type {Record<string, RecordedRpcRequest[]>} */
+  } as Record<string, unknown[]>,
   pageWriteRequests: {
     login: [],
     pageCreate: [],
@@ -112,14 +105,10 @@ export const fixtureState = {
     userEdit: [],
     voteSet: [],
     voteRemove: []
-  },
-  /** @type {Record<string, unknown>[]} */
-  userCreateRequests: [],
-  /** @type {Record<string, unknown>[]} */
-  siteCreateRequests: [],
-  /** @type {string | null} */
-  lastCreatedSiteSlug: null,
-  /** @type {Record<string, RecordedRpcRequest[]>} */
+  } as Record<string, (RecordedRpcRequest | { paramKeys: string[] })[]>,
+  userCreateRequests: [] as Record<string, unknown>[],
+  siteCreateRequests: [] as Record<string, unknown>[],
+  lastCreatedSiteSlug: null as string | null,
   fileRequests: {
     blobUpload: [],
     fileCreate: [],
@@ -127,12 +116,10 @@ export const fixtureState = {
     fileGet: [],
     fileRestore: [],
     pageGetFiles: []
-  },
-  /** @type {Record<string, Buffer>} */
-  pendingUploads: {},
-  /** @type {Record<number, Record<string, FixtureFile>>} */
-  filesByPageId: {},
-  deletedFilesByPageId: {},
+  } as Record<string, RecordedRpcRequest[]>,
+  pendingUploads: {} as Record<string, Buffer>,
+  filesByPageId: {} as Record<number, Record<string, FixtureFile>>,
+  deletedFilesByPageId: {} as Record<number, Record<string, FixtureFile>>,
   counters: {
     nextPageId: 4000000,
     nextRevisionId: 9100000,
@@ -140,44 +127,36 @@ export const fixtureState = {
     nextPendingBlobId: 1,
     nextEditLockId: 7000000
   },
-  /**
-   * @type {Record<
-   *   string,
-   *   {
-   *     lock_id: number
-   *     secret: string
-   *     user_id: number
-   *     mode: string
-   *     section_index: number | null
-   *   }
-   * >}
-   */
-  editLocks: {},
+  editLocks: {} as Record<
+    string,
+    {
+      lock_id: number
+      secret: string
+      user_id: number
+      mode: string
+      section_index: number | null
+    }
+  >,
   ratingScores: {
     3000341: 3,
     3000342: 0
-  },
-  /** @type {Record<number, number>} */
-  voteValues: {}
+  } as Record<number, number>,
+  voteValues: {} as Record<number, number>
 }
 
-export const isFixtureSiteId = (siteId) => siteId === 6000005 || siteId === 6000006
+export const isFixtureSiteId = (siteId: number) =>
+  siteId === 6000005 || siteId === 6000006
 
 const MIN_I64 = -(1n << 63n)
 const MAX_I64 = (1n << 63n) - 1n
 
-/** @type {(value: string) => boolean} */
-export const isSignedI64String = (value) => {
+export const isSignedI64String = (value: string): boolean => {
   if (!/^-?\d+$/.test(value)) return false
   const parsed = BigInt(value)
   return parsed >= MIN_I64 && parsed <= MAX_I64
 }
 
-/**
- * @param {unknown} value
- * @param {string[]} keys
- */
-export const hasExactKeys = (value, keys) => {
+export const hasExactKeys = (value: unknown, keys: string[]) => {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -186,20 +165,13 @@ export const hasExactKeys = (value, keys) => {
   )
 }
 
-/** @param {number} pageId */
-export const pageById = (pageId) =>
+export const pageById = (pageId: number) =>
   Object.values(pages).find((page) => page.page_id === pageId) ?? null
 
-/** @param {FixtureFile} file */
-export const toFileResultWithoutData = (file) => toFileResult(file, false)
+export const toFileResultWithoutData = (file: FixtureFile) => toFileResult(file, false)
 
-/**
- * @param {FixtureFile} file
- * @param {boolean} includeData
- */
-export const toFileResult = (file, includeData) => {
-  /** @type {Record<string, unknown>} */
-  const result = {
+export const toFileResult = (file: FixtureFile, includeData: boolean) => {
+  const result: Record<string, unknown> = {
     file_id: file.file_id,
     file_created_at: file.file_created_at,
     file_updated_at: file.file_updated_at,
@@ -217,15 +189,13 @@ export const toFileResult = (file, includeData) => {
   return result
 }
 
-/**
- * @param {string} name
- * @param {Buffer} content
- * @param {string} revisionComments
- * @param {number} userId
- * @param {boolean} updated
- * @returns {FixtureFile}
- */
-export const createFixtureFile = (name, content, revisionComments, userId, updated) => ({
+export const createFixtureFile = (
+  name: string,
+  content: Buffer,
+  revisionComments: string,
+  userId: number,
+  updated: boolean
+): FixtureFile => ({
   file_id: fixtureState.counters.nextFileId++,
   file_created_at: "2026-06-29T00:02:00Z",
   file_updated_at: updated ? "2026-06-29T00:03:00Z" : null,
@@ -239,13 +209,12 @@ export const createFixtureFile = (name, content, revisionComments, userId, updat
   revision_comments: revisionComments
 })
 
-/**
- * @param {FixtureFile} file
- * @param {Buffer} content
- * @param {string} revisionComments
- * @param {number} userId
- */
-export const updateFixtureFile = (file, content, revisionComments, userId) => {
+export const updateFixtureFile = (
+  file: FixtureFile,
+  content: Buffer,
+  revisionComments: string,
+  userId: number
+) => {
   file.content = content
   file.file_updated_at = "2026-06-29T00:03:00Z"
   file.revision_id = fixtureState.counters.nextRevisionId++
@@ -345,14 +314,12 @@ fixtureState.deletedFilesByPageId[3000340] = {
   }
 }
 
-/** @param {import("node:http").IncomingMessage} request */
-export const requestContextHeaders = (request) => ({
+export const requestContextHeaders = (request: IncomingMessage) => ({
   page: request.headers["x-deepwell-page"],
   sessionToken: request.headers["x-deepwell-session-token"],
   siteId: request.headers["x-deepwell-site-id"]
 })
 
-/** @param {Record<string, unknown[]>} requestGroups */
-export const resetRequestGroups = (requestGroups) => {
+export const resetRequestGroups = (requestGroups: Record<string, unknown[]>) => {
   for (const requests of Object.values(requestGroups)) requests.length = 0
 }

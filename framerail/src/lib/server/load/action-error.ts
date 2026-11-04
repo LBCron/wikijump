@@ -1,7 +1,9 @@
 import {
   DEEPWELL_PERMISSION_DENIED,
   isInvalidAuthenticationError,
-  isInvalidSessionTokenError
+  isInvalidSessionTokenError,
+  isPageEditLockConflictError,
+  isPageEditLockMissingError
 } from "../deepwell/public-error.ts"
 import type { JsonValue } from "$lib/types"
 import { fail } from "@sveltejs/kit"
@@ -110,7 +112,9 @@ export function failForActionError(
             ? 401
             : details.code === DEEPWELL_PERMISSION_DENIED
               ? 403
-              : fallbackStatus
+              : isPageEditLockConflictError(error) || isPageEditLockMissingError(error)
+                ? 409
+                : fallbackStatus
   return fail(
     status,
     sanitizePayload({

@@ -19,7 +19,7 @@
  */
 
 use super::prelude::*;
-use crate::hash::slice_to_blob_hash;
+use crate::hash::{BLOB_HASH_LENGTH, BlobHash, try_slice_to_blob_hash};
 use crate::services::MutationAuthorization;
 use crate::services::blob::{
     BlobMetadata, CancelBlobUpload, HardDelete, HardDeleteOutput, PendingBlobOwner,
@@ -27,6 +27,20 @@ use crate::services::blob::{
 };
 use crate::types::Action;
 use crate::types::Bytes;
+
+fn parse_s3_hash(bytes: &[u8]) -> Result<BlobHash> {
+    match try_slice_to_blob_hash(bytes) {
+        Some(hash) => Ok(hash),
+        None => Err(Error::new(
+            format!(
+                "blob hash must be {BLOB_HASH_LENGTH} bytes, but got {} bytes",
+                bytes.len(),
+            ),
+            ErrorType::BadRequest,
+        )
+        .into()),
+    }
+}
 
 pub async fn blob_get(
     ctx: &ServiceContext<'_>,
@@ -154,7 +168,7 @@ pub async fn blob_blacklist_add(
         || Error::new("failed to add a blob to the blacklist", ErrorType::Blob);
 
     let AddBlacklist { s3_hash } = params.parse().or_raise(make_error)?;
-    let s3_hash = slice_to_blob_hash(s3_hash.as_ref());
+    let s3_hash = parse_s3_hash(s3_hash.as_ref())?;
 
     BlobService::add_blacklist(ctx, s3_hash)
         .await
@@ -178,7 +192,7 @@ pub async fn blob_blacklist_remove(
     };
 
     let RemoveBlacklist { s3_hash } = params.parse().or_raise(make_error)?;
-    let s3_hash = slice_to_blob_hash(s3_hash.as_ref());
+    let s3_hash = parse_s3_hash(s3_hash.as_ref())?;
 
     BlobService::remove_blacklist(ctx, s3_hash)
         .await
@@ -195,7 +209,7 @@ pub async fn blob_blacklist_check(
     }
 
     let HasBlacklist { s3_hash } = parse!(params, Blob);
-    let s3_hash = slice_to_blob_hash(s3_hash.as_ref());
+    let s3_hash = parse_s3_hash(s3_hash.as_ref())?;
 
     BlobService::on_blacklist(ctx, s3_hash).await.or_raise(|| {
         Error::new(
@@ -232,4 +246,35 @@ pub async fn blob_hard_delete_confirm(
     BlobService::hard_delete_all(ctx, input)
         .await
         .or_raise(|| Error::new("failed to hard delete a blob", ErrorType::Blob))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_s3_hash;
+    use crate::error::ErrorType;
+
+    #[test]
+    fn s3_hash_accepts_128_hex_char_hash() {
+        let bytes = hex::decode("ab".repeat(64)).expect("valid hex");
+
+        assert!(parse_s3_hash(&bytes).is_ok());
+    }
+
+    #[test]
+    fn s3_hash_rejects_96_hex_char_hash() {
+        let bytes = hex::decode("ab".repeat(48)).expect("valid hex");
+        assert_eq!(bytes.len(), 48);
+
+        let error = parse_s3_hash(&bytes).expect_err("48-byte hash must fail");
+
+        assert_eq!(error.error_type, ErrorType::BadRequest);
+    }
+
+    #[test]
+    fn s3_hash_rejects_empty_and_odd_lengths() {
+        assert!(parse_s3_hash(&[]).is_err());
+        assert!(parse_s3_hash(&[0x5a; 63]).is_err());
+        assert!(parse_s3_hash(&[0x5a; 65]).is_err());
+        assert!(parse_s3_hash(&[0x5a; 1]).is_err());
+    }
 }

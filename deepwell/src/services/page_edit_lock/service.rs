@@ -493,6 +493,15 @@ pub(crate) fn is_live(row: &PageEditLockModel, now: OffsetDateTime) -> bool {
     row.expires_at > now
 }
 
+pub(crate) fn any_live_lock_from_other_user(
+    rows: &[PageEditLockModel],
+    user_id: i64,
+    now: OffsetDateTime,
+) -> bool {
+    rows.iter()
+        .any(|row| row.user_id != user_id && is_live(row, now))
+}
+
 pub(crate) fn modes_conflict(
     a_mode: PageEditLockMode,
     a_section: Option<i32>,
@@ -633,6 +642,51 @@ mod tests {
             Some("preamble\n+ One\nalpha\n+ Two\ngamma\ndelta\n"),
         );
         assert_eq!(splice_section(text, 5, "x"), None);
+    }
+
+    fn lock_row(user_id: i64, expires_at: OffsetDateTime) -> PageEditLockModel {
+        PageEditLockModel {
+            page_edit_lock_id: 1,
+            created_at: OffsetDateTime::UNIX_EPOCH,
+            updated_at: None,
+            expires_at,
+            lock_id: 1,
+            lock_secret: "secret".to_owned(),
+            mode: PageEditLockMode::Page,
+            section_index: None,
+            base_revision_id: None,
+            page_id: 1,
+            user_id,
+        }
+    }
+
+    #[test]
+    fn lease_absence_distinguishes_no_lock_from_foreign_lock() {
+        let now = OffsetDateTime::UNIX_EPOCH + Duration::hours(2);
+        let live = now + Duration::hours(1);
+        let expired = now - Duration::hours(1);
+
+        assert!(!any_live_lock_from_other_user(&[], 10, now));
+        assert!(!any_live_lock_from_other_user(
+            &[lock_row(10, live)],
+            10,
+            now,
+        ));
+        assert!(!any_live_lock_from_other_user(
+            &[lock_row(20, expired)],
+            10,
+            now,
+        ));
+        assert!(any_live_lock_from_other_user(
+            &[lock_row(20, live)],
+            10,
+            now,
+        ));
+        assert!(any_live_lock_from_other_user(
+            &[lock_row(10, live), lock_row(20, live)],
+            10,
+            now,
+        ));
     }
 
     #[test]

@@ -13,6 +13,7 @@
 use super::structs::{
     PageDraftIdentity, PageDraftPageType, PageDraftView, SavePageDraft,
 };
+use crate::constants::ADMIN_USER_ID;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page_draft::{self, Entity as PageDraft, Model as PageDraftModel};
 use crate::services::permission::{CheckPermissionContext, PermissionService};
@@ -37,6 +38,7 @@ pub struct PageDraftService;
 struct PageDraftCandidate {
     slug: String,
     title: String,
+    author_user_id: i64,
     draft_page_id: Option<i64>,
     active_page_id: Option<i64>,
     page_category_id: Option<i64>,
@@ -227,6 +229,7 @@ impl PageDraftService {
                 txn.get_database_backend(),
                 format!(
                     r#"SELECT d.slug, d.title,
+                              d.user_id AS author_user_id,
                               d.page_id AS draft_page_id,
                               p.page_id AS active_page_id,
                               p.page_category_id,
@@ -259,8 +262,27 @@ impl PageDraftService {
             .into());
         }
 
+        let viewer_privileged = match viewer_user_id {
+            Some(ADMIN_USER_ID) => true,
+            Some(_) => PermissionService::check_user_can_access_admin(
+                ctx,
+                viewer_user_id,
+                site_id,
+            )
+            .await
+            .or_raise(make_error)?,
+            None => false,
+        };
+
         let mut drafts = Vec::new();
         for candidate in candidates {
+            if !draft_visible_to_viewer(
+                candidate.author_user_id,
+                viewer_user_id,
+                viewer_privileged,
+            ) {
+                continue;
+            }
             let Some(active_page_id) = candidate.active_page_id else {
                 if candidate.draft_page_id.is_some() {
                     continue;
@@ -460,4 +482,30 @@ impl PageDraftService {
 fn normalize_draft_slug(mut slug: String) -> String {
     normalize(&mut slug);
     slug
+}
+
+fn draft_visible_to_viewer(
+    author_user_id: i64,
+    viewer_user_id: Option<i64>,
+    viewer_privileged: bool,
+) -> bool {
+    viewer_privileged || viewer_user_id == Some(author_user_id)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::draft_visible_to_viewer;
+
+    #[test]
+    fn draft_list_shows_only_own_drafts_to_unprivileged_viewers() {
+        assert!(draft_visible_to_viewer(10, Some(10), false));
+        assert!(!draft_visible_to_viewer(10, Some(20), false));
+        assert!(!draft_visible_to_viewer(10, None, false));
+    }
+
+    #[test]
+    fn draft_list_shows_all_drafts_to_privileged_viewers() {
+        assert!(draft_visible_to_viewer(10, Some(20), true));
+        assert!(draft_visible_to_viewer(10, Some(10), true));
+    }
 }

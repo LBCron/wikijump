@@ -152,3 +152,25 @@ test("action JSON fields are validated before use", async () => {
     return true
   })
 })
+
+test("edit lock failures are conflicts with truthful codes, not server errors", () => {
+  const conflict = failForActionError({
+    message: "The page is being edited under another user's edit lock",
+    code: 4304
+  })
+  assert.equal(conflict.status, 409)
+  assert.deepEqual(conflict.data, {
+    message: "The page is being edited under another user's edit lock",
+    code: 4304
+  })
+
+  const missing = failForActionError({
+    message: "The page edit was rejected because it does not carry an edit lease",
+    code: 4305
+  })
+  assert.equal(missing.status, 409)
+  assert.deepEqual(missing.data, {
+    message: "The page edit was rejected because it does not carry an edit lease",
+    code: 4305
+  })
+})

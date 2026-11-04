@@ -24,8 +24,8 @@ use super::structs::{
 };
 use crate::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use crate::error::prelude::{Error, ErrorType, OptionExt, Result, ResultExt};
-use crate::hash::slice_to_blob_hash;
-use crate::hash::{BlobHash, blob_hash_to_hex, sha512_hash};
+use crate::hash::{slice_to_blob_hash, try_slice_to_blob_hash};
+use crate::hash::{BLOB_HASH_LENGTH, BlobHash, blob_hash_to_hex, sha512_hash};
 use crate::models::blob_blacklist::{self, Entity as BlobBlacklist};
 use crate::models::blob_pending::{
     self, Entity as BlobPending, Model as BlobPendingModel,
@@ -693,7 +693,7 @@ impl BlobService {
         s3_hash: &[u8],
     ) -> Result<HardDeleteOutput> {
         Self::require_platform_staff(ctx, "preview blob hard deletion")?;
-        let s3_hash = slice_to_blob_hash(s3_hash);
+        let s3_hash = Self::checked_blob_hash(s3_hash)?;
 
         Self::hard_delete_inner(ctx, HardDeleteInner::DryRun { s3_hash })
             .await
@@ -705,7 +705,7 @@ impl BlobService {
         HardDelete { s3_hash }: HardDelete,
     ) -> Result<HardDeleteOutput> {
         let user_id = Self::require_platform_staff(ctx, "confirm blob hard deletion")?;
-        let s3_hash = slice_to_blob_hash(s3_hash.as_ref());
+        let s3_hash = Self::checked_blob_hash(s3_hash.as_ref())?;
 
         Self::hard_delete_inner(ctx, HardDeleteInner::Commit { s3_hash, user_id })
             .await
@@ -716,6 +716,20 @@ impl BlobService {
                 ),
                 ErrorType::Blob,
             ))
+    }
+
+    fn checked_blob_hash(slice: &[u8]) -> Result<BlobHash> {
+        match try_slice_to_blob_hash(slice) {
+            Some(hash) => Ok(hash),
+            None => Err(Error::new(
+                format!(
+                    "blob hash must be {BLOB_HASH_LENGTH} bytes, but got {} bytes",
+                    slice.len(),
+                ),
+                ErrorType::BadRequest,
+            )
+            .into()),
+        }
     }
 
     fn require_platform_staff(ctx: &ServiceContext<'_>, action: &str) -> Result<i64> {

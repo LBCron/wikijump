@@ -246,7 +246,7 @@ export interface AjaxModuleConnectorOptions {
   renderSiteToolsModule?: (input: ForumModuleRenderInput) => Promise<{
     status: string
     body: string
-  }>
+  } | null>
   createNewPage?: (input: NewPageCreateInput) => Promise<void>
   canCreateNewPage?: boolean | (() => boolean | Promise<boolean>)
   pageExists?: (slug: string) => boolean | Promise<boolean>
@@ -1191,6 +1191,9 @@ export const handleAjaxModuleConnectorRequest = async (
     })
     try {
       const output = await renderSiteToolsModule({ siteId, moduleName, parameters })
+      if (!output) {
+        return jsonResponse({ status: "not_ok", body: "", ...responseMetadata() })
+      }
       return jsonResponse({
         status: output.status,
         body: output.body,

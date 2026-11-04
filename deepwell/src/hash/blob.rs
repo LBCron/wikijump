@@ -42,6 +42,10 @@ pub fn slice_to_blob_hash(slice: &[u8]) -> BlobHash {
     hash
 }
 
+pub fn try_slice_to_blob_hash(slice: &[u8]) -> Option<BlobHash> {
+    slice.try_into().ok()
+}
+
 pub fn blob_hash_to_hex(hash: &[u8]) -> BlobHexHash {
     debug_assert_eq!(
         hash.len(),
@@ -79,4 +83,22 @@ fn slice_to_blob_hash_copies_exact_length_slice() {
 #[should_panic]
 fn slice_to_blob_hash_rejects_wrong_length_slice() {
     slice_to_blob_hash(&[0x5a; BLOB_HASH_LENGTH - 1]);
+}
+
+#[test]
+fn try_slice_to_blob_hash_accepts_exact_length_slice() {
+    let input = [0x5a; BLOB_HASH_LENGTH];
+
+    assert_eq!(try_slice_to_blob_hash(&input), Some(input));
+}
+
+#[test]
+fn try_slice_to_blob_hash_rejects_wrong_length_slices() {
+    let short = hex::decode("ab".repeat(48)).expect("valid hex");
+    assert_eq!(short.len(), 48);
+    assert_eq!(try_slice_to_blob_hash(&short), None);
+
+    assert_eq!(try_slice_to_blob_hash(&[]), None);
+    assert_eq!(try_slice_to_blob_hash(&[0x5a; BLOB_HASH_LENGTH - 1]), None);
+    assert_eq!(try_slice_to_blob_hash(&[0x5a; BLOB_HASH_LENGTH + 1]), None);
 }

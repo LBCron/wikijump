@@ -91,7 +91,7 @@ pub async fn site_custom_domain_remove(
         })?;
     require_custom_domain_permission(ctx, site.site_id, "remove a custom domain").await?;
 
-    DomainService::remove_custom(ctx, domain)
+    DomainService::remove_custom(ctx, site.site_id, domain)
         .await
         .or_raise(|| {
             Error::new("failed to remove a custom domain", ErrorType::SiteSettings)

@@ -22,8 +22,7 @@ use crate::cache::Cache;
 use crate::config::Secrets;
 use crate::deepwell::{Deepwell, FileData, PageData, UserData};
 use crate::error::{
-    BasicError, FallbackError, ResponseResult, Result, build_basic_error_response,
-    is_deepwell_permission_denied,
+    BasicError, FallbackError, ResponseResult, Result, is_deepwell_permission_denied,
 };
 use axum::http::HeaderMap;
 use axum::response::IntoResponse;
@@ -132,12 +131,12 @@ impl ServerStateInner {
                     page_slug = page_slug,
                     "Cannot complete request, no such page",
                 );
-                Err(build_basic_error_response(
-                    self,
-                    headers,
-                    BasicError::PageSlug { site_id, page_slug },
-                )
-                .await)
+                Err(self
+                    .build_basic_error_response(
+                        headers,
+                        BasicError::PageSlug { site_id, page_slug },
+                    )
+                    .await)
             }
             Err(error) => {
                 error!(
@@ -145,12 +144,12 @@ impl ServerStateInner {
                     page_slug = page_slug,
                     "Cannot freshly resolve page info: {error}",
                 );
-                Err(build_basic_error_response(
-                    self,
-                    headers,
-                    BasicError::PageFetch { site_id, page_slug },
-                )
-                .await)
+                Err(self
+                    .build_basic_error_response(
+                        headers,
+                        BasicError::PageFetch { site_id, page_slug },
+                    )
+                    .await)
             }
         }
     }
@@ -189,16 +188,16 @@ impl ServerStateInner {
                     "Cannot complete request, none with filename",
                 );
 
-                let response = build_basic_error_response(
-                    self,
-                    headers,
-                    BasicError::FileName {
-                        site_id,
-                        page_slug,
-                        filename,
-                    },
-                )
-                .await;
+                let response = self
+                    .build_basic_error_response(
+                        headers,
+                        BasicError::FileName {
+                            site_id,
+                            page_slug,
+                            filename,
+                        },
+                    )
+                    .await;
 
                 Err(response)
             }
@@ -223,8 +222,7 @@ impl ServerStateInner {
                         filename,
                     }
                 };
-                let response =
-                    build_basic_error_response(self, headers, error_kind).await;
+                let response = self.build_basic_error_response(headers, error_kind).await;
 
                 Err(response)
             }
@@ -261,24 +259,24 @@ impl ServerStateInner {
                     "Cannot complete request, no such user or no avatar set",
                 );
 
-                let response = build_basic_error_response(
-                    self,
-                    headers,
-                    BasicError::UserAvatar { user_id },
-                )
-                .await;
+                let response = self
+                    .build_basic_error_response(
+                        headers,
+                        BasicError::UserAvatar { user_id },
+                    )
+                    .await;
 
                 Err(response)
             }
             Err(error) => {
                 error!(user_id = user_id, "Cannot get user info: {error}");
 
-                let response = build_basic_error_response(
-                    self,
-                    headers,
-                    BasicError::UserFetch { user_id },
-                )
-                .await;
+                let response = self
+                    .build_basic_error_response(
+                        headers,
+                        BasicError::UserFetch { user_id },
+                    )
+                    .await;
 
                 Err(response)
             }

@@ -19,7 +19,7 @@
  */
 
 use crate::deepwell::FileData;
-use crate::error::{BasicError, ResponseResult, build_basic_error_response};
+use crate::error::{BasicError, Error, ResponseResult};
 use crate::handler::get_session_token;
 use crate::range::ByteRange;
 use crate::state::ServerState;
@@ -74,6 +74,44 @@ pub async fn fetch_file_info(
     }
 }
 
+fn missing_blob(file_info: &FileData) -> Error {
+    Error::MissingBlob {
+        s3_hash: file_info.s3_hash.clone(),
+    }
+}
+
+fn is_missing_blob_error(error: &s3::error::S3Error) -> bool {
+    match error {
+        s3::error::S3Error::HttpFailWithBody(status_code, _) => *status_code == 404,
+        s3::error::S3Error::Reqwest(error) => {
+            error.status().map(|status| status.as_u16()) == Some(404)
+        }
+        _ => false,
+    }
+}
+
+async fn fetch_blob_body(
+    state: &ServerState,
+    file_info: &FileData,
+) -> crate::error::Result<Body> {
+    match state
+        .s3_files_bucket
+        .get_object_stream(&file_info.s3_hash)
+        .await
+    {
+        Ok(ResponseDataStream { bytes, status_code }) => match status_code {
+            200 => Ok(Body::from_stream(bytes)),
+            404 => Err(missing_blob(file_info)),
+            _ => Err(Error::S3(s3::error::S3Error::HttpFailWithBody(
+                status_code,
+                format!("expected 200, got {status_code}"),
+            ))),
+        },
+        Err(error) if is_missing_blob_error(&error) => Err(missing_blob(file_info)),
+        Err(error) => Err(Error::S3(error)),
+    }
+}
+
 pub async fn fetch_full_body(
     state: &ServerState,
     headers: &HeaderMap,
@@ -82,38 +120,8 @@ pub async fn fetch_full_body(
     page_slug: &str,
     filename: &str,
 ) -> ResponseResult<Body> {
-    match state
-        .s3_files_bucket
-        .get_object_stream(&file_info.s3_hash)
-        .await
-    {
-        Ok(ResponseDataStream { bytes, status_code }) => {
-            if status_code != 200 {
-                error!(
-                    site_id = site_id,
-                    page_slug = page_slug,
-                    filename = filename,
-                    s3_hash = &file_info.s3_hash,
-                    status_code = status_code,
-                    "S3 get_object_stream returned unexpected status",
-                );
-
-                let response = build_basic_error_response(
-                    state,
-                    headers,
-                    BasicError::FileFetch {
-                        site_id,
-                        page_slug,
-                        filename,
-                    },
-                )
-                .await;
-
-                return Err(response);
-            }
-
-            Ok(Body::from_stream(bytes))
-        }
+    match fetch_blob_body(state, file_info).await {
+        Ok(body) => Ok(body),
         Err(error) => {
             error!(
                 site_id = site_id,
@@ -123,16 +131,20 @@ pub async fn fetch_full_body(
                 "Cannot get blob data: {error}",
             );
 
-            let response = build_basic_error_response(
-                state,
-                headers,
-                BasicError::FileFetch {
+            let basic_error = match error {
+                Error::MissingBlob { .. } => BasicError::MissingBlob {
                     site_id,
                     page_slug,
                     filename,
                 },
-            )
-            .await;
+                _ => BasicError::FileFetch {
+                    site_id,
+                    page_slug,
+                    filename,
+                },
+            };
+
+            let response = state.build_basic_error_response(headers, basic_error).await;
 
             Err(response)
         }
@@ -348,6 +360,42 @@ mod tests {
         let requests = server.requests();
         assert!(requests[0].starts_with("GET /files/sha512-hash "));
         server.join();
+    }
+
+    #[tokio::test]
+    async fn fetch_blob_body_names_a_missing_blob() {
+        let server = spawn_s3_server(vec![(404, b"")]);
+        let state = test_state(&server.endpoint).await;
+
+        let error = fetch_blob_body(&state, &file_data()).await.unwrap_err();
+
+        match error {
+            Error::MissingBlob { s3_hash } => assert_eq!(s3_hash, "sha512-hash"),
+            other => panic!("expected MissingBlob, got: {other}"),
+        }
+        server.join();
+    }
+
+    #[tokio::test]
+    async fn fetch_blob_body_keeps_other_error_statuses_as_s3_errors() {
+        let server = spawn_s3_server(vec![(500, b"")]);
+        let state = test_state(&server.endpoint).await;
+
+        let error = fetch_blob_body(&state, &file_data()).await.unwrap_err();
+
+        assert!(matches!(error, Error::S3(_)), "{error}");
+        server.join();
+    }
+
+    #[test]
+    fn missing_blob_detection_matches_s3_not_found_shapes() {
+        assert!(is_missing_blob_error(
+            &s3::error::S3Error::HttpFailWithBody(404, str!("not found"),)
+        ));
+        assert!(!is_missing_blob_error(
+            &s3::error::S3Error::HttpFailWithBody(500, str!("failure")),
+        ));
+        assert!(!is_missing_blob_error(&s3::error::S3Error::HttpFail));
     }
 
     #[tokio::test]

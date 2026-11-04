@@ -21,8 +21,7 @@
 use super::{get_session_token, get_site_id};
 use crate::deepwell::{TextBlockId, TextBlockIndex, TextBlockType};
 use crate::error::{
-    BasicError, FallbackError, TextBlockErrorReason, build_basic_error_response,
-    is_deepwell_permission_denied,
+    BasicError, FallbackError, TextBlockErrorReason, is_deepwell_permission_denied,
 };
 use crate::state::ServerState;
 use axum::body::Body;
@@ -72,17 +71,17 @@ pub async fn handle_html_terminal(
 ) -> Response {
     let site_id = get_site_id(&headers);
     let Some(sha1) = parse_wikidot_html_route_id(&id) else {
-        return build_basic_error_response(
-            &state,
-            &headers,
-            BasicError::TextBlock {
-                site_id,
-                index: &id,
-                block_type: TextBlockType::Html,
-                reason: TextBlockErrorReason::Invalid,
-            },
-        )
-        .await;
+        return state
+            .build_basic_error_response(
+                &headers,
+                BasicError::TextBlock {
+                    site_id,
+                    index: &id,
+                    block_type: TextBlockType::Html,
+                    reason: TextBlockErrorReason::Invalid,
+                },
+            )
+            .await;
     };
     let mut attempt = 0;
     loop {
@@ -94,33 +93,33 @@ pub async fn handle_html_terminal(
         {
             Ok(Some(block_info)) => block_info,
             Ok(None) => {
-                let mut response = build_basic_error_response(
-                    &state,
-                    &headers,
-                    BasicError::TextBlock {
-                        site_id,
-                        index: &id,
-                        block_type: TextBlockType::Html,
-                        reason: TextBlockErrorReason::Missing,
-                    },
-                )
-                .await;
+                let mut response = state
+                    .build_basic_error_response(
+                        &headers,
+                        BasicError::TextBlock {
+                            site_id,
+                            index: &id,
+                            block_type: TextBlockType::Html,
+                            reason: TextBlockErrorReason::Missing,
+                        },
+                    )
+                    .await;
                 *response.status_mut() = StatusCode::OK;
                 return response;
             }
             Err(error) => {
                 error!("Unable to retrieve hashed HTML text block: {error}");
-                return build_basic_error_response(
-                    &state,
-                    &headers,
-                    BasicError::TextBlock {
-                        site_id,
-                        index: &id,
-                        block_type: TextBlockType::Html,
-                        reason: TextBlockErrorReason::Fetch,
-                    },
-                )
-                .await;
+                return state
+                    .build_basic_error_response(
+                        &headers,
+                        BasicError::TextBlock {
+                            site_id,
+                            index: &id,
+                            block_type: TextBlockType::Html,
+                            reason: TextBlockErrorReason::Fetch,
+                        },
+                    )
+                    .await;
             }
         };
 
@@ -190,17 +189,17 @@ async fn handle_text_block(
                     block_type = block_type.value(),
                     "Invalid text block index",
                 );
-                return build_basic_error_response(
-                    state,
-                    headers,
-                    BasicError::TextBlock {
-                        site_id,
-                        index: value,
-                        block_type,
-                        reason: TextBlockErrorReason::Invalid,
-                    },
-                )
-                .await;
+                return state
+                    .build_basic_error_response(
+                        headers,
+                        BasicError::TextBlock {
+                            site_id,
+                            index: value,
+                            block_type,
+                            reason: TextBlockErrorReason::Invalid,
+                        },
+                    )
+                    .await;
             }
         },
         BlockId::Name(name) => (TextBlockId::Name(name.as_str()), name.as_str()),
@@ -231,17 +230,17 @@ async fn handle_text_block(
                     index = display_index,
                     "No text block found with given index or name",
                 );
-                return build_basic_error_response(
-                    state,
-                    headers,
-                    BasicError::TextBlock {
-                        site_id,
-                        index: display_index,
-                        block_type,
-                        reason: TextBlockErrorReason::Missing,
-                    },
-                )
-                .await;
+                return state
+                    .build_basic_error_response(
+                        headers,
+                        BasicError::TextBlock {
+                            site_id,
+                            index: display_index,
+                            block_type,
+                            reason: TextBlockErrorReason::Missing,
+                        },
+                    )
+                    .await;
             }
             Err(response) => return response,
         };
@@ -464,17 +463,17 @@ async fn serve_text_block(
                 "S3 text block bytes do not match requested SHA-1",
             );
             return TextBlockServeOutcome::Answered(
-                build_basic_error_response(
-                    state,
-                    headers,
-                    BasicError::TextBlock {
-                        site_id: get_site_id(headers),
-                        index: expected_sha1,
-                        block_type: TextBlockType::Html,
-                        reason: TextBlockErrorReason::Missing,
-                    },
-                )
-                .await,
+                state
+                    .build_basic_error_response(
+                        headers,
+                        BasicError::TextBlock {
+                            site_id: get_site_id(headers),
+                            index: expected_sha1,
+                            block_type: TextBlockType::Html,
+                            reason: TextBlockErrorReason::Missing,
+                        },
+                    )
+                    .await,
             );
         }
     }
@@ -585,17 +584,17 @@ async fn get_text_block_info(
                 block_type = block_type.value(),
                 "Unable to retrieve S3 filename for text block from DEEPWELL: {error}",
             );
-            Err(build_basic_error_response(
-                state,
-                headers,
-                BasicError::TextBlock {
-                    site_id,
-                    index: display_index,
-                    block_type,
-                    reason,
-                },
-            )
-            .await)
+            Err(state
+                .build_basic_error_response(
+                    headers,
+                    BasicError::TextBlock {
+                        site_id,
+                        index: display_index,
+                        block_type,
+                        reason,
+                    },
+                )
+                .await)
         }
     }
 }

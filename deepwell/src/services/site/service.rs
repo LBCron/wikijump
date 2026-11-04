@@ -633,6 +633,8 @@ impl SiteService {
             }
         }
 
+        let preferred_domain_changed = matches!(&input.preferred_domain, Maybe::Set(_));
+
         if let Maybe::Set(preferred_domain) = input.preferred_domain {
             if site.slug == DEFAULT_SITE_SLUG && preferred_domain.is_some() {
                 error!("Cannot set a preferred domain for the default site");
@@ -723,6 +725,12 @@ impl SiteService {
         model.updated_at = Set(Some(now()));
         model.settings_revision = Set(site.settings_revision + 1);
         let new_site = model.update(txn).await.or_raise(make_error)?;
+
+        if preferred_domain_changed || site.slug != new_site.slug {
+            DomainService::invalidate_site_domain_cache(ctx, site.site_id)
+                .await
+                .or_raise(make_error)?;
+        }
 
         OutdateService::outdate_changed_site_navigation(
             ctx,

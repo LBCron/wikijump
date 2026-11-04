@@ -12,7 +12,7 @@
 
 use super::get_site_id;
 use crate::deepwell::FileData;
-use crate::error::{BasicError, build_basic_error_response};
+use crate::error::BasicError;
 use crate::fetch::fetch_file_info;
 use crate::state::ServerState;
 use axum::body::Body;
@@ -385,16 +385,16 @@ async fn resized_not_found(
     page_slug: &str,
     filename: &str,
 ) -> Response {
-    build_basic_error_response(
-        state,
-        headers,
-        BasicError::FileName {
-            site_id,
-            page_slug,
-            filename,
-        },
-    )
-    .await
+    state
+        .build_basic_error_response(
+            headers,
+            BasicError::FileName {
+                site_id,
+                page_slug,
+                filename,
+            },
+        )
+        .await
 }
 
 async fn resized_file_fetch_error(
@@ -404,16 +404,16 @@ async fn resized_file_fetch_error(
     page_slug: &str,
     filename: &str,
 ) -> Response {
-    build_basic_error_response(
-        state,
-        headers,
-        BasicError::FileFetch {
-            site_id,
-            page_slug,
-            filename,
-        },
-    )
-    .await
+    state
+        .build_basic_error_response(
+            headers,
+            BasicError::FileFetch {
+                site_id,
+                page_slug,
+                filename,
+            },
+        )
+        .await
 }
 
 #[cfg(test)]

@@ -34,8 +34,16 @@ use tokio::sync::Semaphore;
 
 const JSONRPC_MAX_REQUEST: u32 = 16 * 1024;
 
-const JSONRPC_MAX_IN_FLIGHT: usize = 64;
-const JSONRPC_TIMEOUT: Duration = Duration::from_secs(2);
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+struct JsonRpcAdmissionConfig {
+    max_in_flight: usize,
+    timeout: Duration,
+}
+
+const JSONRPC_ADMISSION: JsonRpcAdmissionConfig = JsonRpcAdmissionConfig {
+    max_in_flight: 64,
+    timeout: Duration::from_secs(2),
+};
 
 macro_rules! rpc_object {
     ($($key:expr => $value:expr,)+) => { rpc_object!($($key => $value),+) };
@@ -73,13 +81,13 @@ impl Deepwell {
         );
         let client = HttpClient::builder()
             .max_request_size(JSONRPC_MAX_REQUEST)
-            .request_timeout(JSONRPC_TIMEOUT)
+            .request_timeout(JSONRPC_ADMISSION.timeout)
             .set_headers(headers)
             .build(deepwell_url)?;
 
         Ok(Deepwell {
             client,
-            in_flight: Semaphore::new(JSONRPC_MAX_IN_FLIGHT),
+            in_flight: Semaphore::new(JSONRPC_ADMISSION.max_in_flight),
         })
     }
 
@@ -569,8 +577,8 @@ mod tests {
 
     #[test]
     fn public_deepwell_requests_keep_a_bounded_timeout_and_concurrency() {
-        assert_eq!(JSONRPC_TIMEOUT, Duration::from_secs(2));
-        assert_eq!(JSONRPC_MAX_IN_FLIGHT, 64);
+        assert_eq!(JSONRPC_ADMISSION.timeout, Duration::from_secs(2));
+        assert_eq!(JSONRPC_ADMISSION.max_in_flight, 64);
     }
 
     async fn slow_page_rpc(body: Bytes) -> Response {
@@ -610,7 +618,7 @@ mod tests {
             Deepwell::connect(&url, &RpcToken::parse("0".repeat(64)).unwrap()).unwrap();
         let held = deepwell
             .in_flight
-            .acquire_many(JSONRPC_MAX_IN_FLIGHT as u32)
+            .acquire_many(JSONRPC_ADMISSION.max_in_flight as u32)
             .await
             .unwrap();
 

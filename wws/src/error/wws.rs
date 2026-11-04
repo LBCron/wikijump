@@ -46,6 +46,9 @@ pub enum Error {
     #[error("DEEPWELL API error: too many requests in flight")]
     DeepwellBusy,
 
+    #[error("blob missing from S3 for an existing file record: {s3_hash}")]
+    MissingBlob { s3_hash: String },
+
     #[error("Redis error: {0}")]
     Redis(#[from] redis::RedisError),
 

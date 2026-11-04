@@ -36,6 +36,7 @@ use deepwell::services::RequestContext;
 use deepwell::services::ServiceContext;
 use deepwell::services::alias::{AliasService, CreateAlias};
 use deepwell::services::category::CategoryService;
+use deepwell::services::domain::{CreateCustomDomain, DomainService};
 use deepwell::services::page::CreatePage;
 use deepwell::services::permission::{PermissionCache, PermissionService};
 use deepwell::services::role::{
@@ -2083,4 +2084,109 @@ async fn site_icon_endpoints_roundtrip_as_staff_and_anonymous() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
+}
+
+async fn seed_site_domain_cache(
+    redis: &mut redis::aio::MultiplexedConnection,
+    site_id: i64,
+) {
+    use redis::AsyncCommands;
+    let _: () = redis
+        .set(format!("site_domain:{site_id}"), "stale-domain")
+        .await
+        .expect("cache fixture should be stored");
+}
+
+async fn cached_site_domain(
+    redis: &mut redis::aio::MultiplexedConnection,
+    site_id: i64,
+) -> Option<String> {
+    use redis::AsyncCommands;
+    redis
+        .get(format!("site_domain:{site_id}"))
+        .await
+        .expect("cache read")
+}
+
+#[tokio::test]
+async fn site_domain_changes_invalidate_the_wws_site_domain_cache() {
+    use redis::AsyncCommands;
+
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let site_id = create_site(&runner, n).await;
+    let other_site_id = create_site(&runner, next_n()).await;
+    let domain = format!("site-domain-{n}.example.com");
+    let mut redis = runner.context().redis();
+
+    seed_site_domain_cache(&mut redis, site_id).await;
+    seed_site_domain_cache(&mut redis, other_site_id).await;
+    DomainService::create_custom(
+        runner.context(),
+        CreateCustomDomain {
+            domain: domain.clone(),
+            site_id,
+            www_redirect: false,
+        },
+    )
+    .await
+    .expect("failed to create custom domain");
+    assert_eq!(cached_site_domain(&mut redis, site_id).await, None);
+    assert_eq!(
+        cached_site_domain(&mut redis, other_site_id)
+            .await
+            .as_deref(),
+        Some("stale-domain"),
+    );
+
+    seed_site_domain_cache(&mut redis, site_id).await;
+    SiteService::update(
+        runner.context(),
+        Reference::Id(site_id),
+        UpdateSiteBody {
+            name: Maybe::Set(format!("Site domain rename {n}")),
+            ..Default::default()
+        },
+        None,
+        SYSTEM_USER_ID,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect("failed to rename site");
+    assert_eq!(
+        cached_site_domain(&mut redis, site_id).await.as_deref(),
+        Some("stale-domain"),
+    );
+
+    SiteService::update(
+        runner.context(),
+        Reference::Id(site_id),
+        UpdateSiteBody {
+            preferred_domain: Maybe::Set(Some(domain.clone())),
+            ..Default::default()
+        },
+        None,
+        SYSTEM_USER_ID,
+        common::IP_ADDRESS,
+    )
+    .await
+    .expect("failed to set preferred domain");
+    assert_eq!(cached_site_domain(&mut redis, site_id).await, None);
+
+    seed_site_domain_cache(&mut redis, site_id).await;
+    DomainService::remove_custom(runner.context(), site_id, domain)
+        .await
+        .expect("failed to remove custom domain");
+    assert_eq!(cached_site_domain(&mut redis, site_id).await, None);
+    assert_eq!(
+        cached_site_domain(&mut redis, other_site_id)
+            .await
+            .as_deref(),
+        Some("stale-domain"),
+    );
+
+    let _: usize = redis
+        .del(format!("site_domain:{other_site_id}"))
+        .await
+        .expect("cache cleanup");
 }

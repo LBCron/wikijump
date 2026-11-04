@@ -56,6 +56,11 @@ pub enum BasicError<'a> {
         page_slug: &'a str,
         filename: &'a str,
     },
+    MissingBlob {
+        site_id: i64,
+        page_slug: &'a str,
+        filename: &'a str,
+    },
     BlobFetch {
         s3_hash: &'a str,
     },
@@ -127,14 +132,15 @@ impl TextBlockErrorReason {
     }
 }
 
-pub async fn build_basic_error_response(
-    state: &ServerStateInner,
-    headers: &HeaderMap,
-    basic_error: BasicError<'_>,
-) -> Response {
-    let locales = parse_accept_language(headers);
+impl ServerStateInner {
+    pub async fn build_basic_error_response(
+        &self,
+        headers: &HeaderMap,
+        basic_error: BasicError<'_>,
+    ) -> Response {
+        let locales = parse_accept_language(headers);
 
-    macro_rules! deepwell_fetch {
+        macro_rules! deepwell_fetch {
         ($method:ident => $status_code:ident $(,)?) => {
             deepwell_fetch!($method, => $status_code)
         };
@@ -143,7 +149,7 @@ pub async fn build_basic_error_response(
         };
         ($method:ident, $($arg:expr),* ; $status_code:expr $(,)?) => {{
             paste! {
-                let result = state.deepwell.[<basic_error_ $method>](&locales, $($arg),*).await;
+                let result = self.deepwell.[<basic_error_ $method>](&locales, $($arg),*).await;
             }
 
             match result {
@@ -162,62 +168,70 @@ pub async fn build_basic_error_response(
         }};
     }
 
-    let output = match basic_error {
-        BasicError::SiteSlug { site_slug } => {
-            deepwell_fetch!(missing_site_slug, site_slug => NOT_FOUND)
-        }
-        BasicError::SiteCustom { host } => {
-            deepwell_fetch!(missing_custom_domain, host => NOT_FOUND)
-        }
-        BasicError::PageSlug { site_id, page_slug } => {
-            deepwell_fetch!(missing_page_slug, site_id, page_slug => NOT_FOUND)
-        }
-        BasicError::PageFetch { site_id, page_slug } => {
-            deepwell_fetch!(page_fetch, site_id, page_slug => INTERNAL_SERVER_ERROR)
-        }
-        BasicError::FileName {
-            site_id,
-            page_slug,
-            filename,
-        } => {
-            deepwell_fetch!(missing_file_name, site_id, page_slug, filename => NOT_FOUND)
-        }
-        BasicError::FileFetch {
-            site_id,
-            page_slug,
-            filename,
-        } => {
-            deepwell_fetch!(file_fetch, site_id, page_slug, filename => INTERNAL_SERVER_ERROR)
-        }
-        BasicError::BlobFetch { s3_hash } => {
-            deepwell_fetch!(blob_fetch, s3_hash => NOT_FOUND)
-        }
-        BasicError::UserFetch { user_id } => {
-            deepwell_fetch!(user_fetch, user_id => NOT_FOUND)
-        }
-        BasicError::UserAvatar { user_id } => {
-            deepwell_fetch!(user_avatar, user_id => NOT_FOUND)
-        }
-        BasicError::TextBlock {
-            site_id,
-            index,
-            block_type,
-            reason,
-        } => {
-            let status_code = match reason {
-                TextBlockErrorReason::Missing => StatusCode::NOT_FOUND,
-                TextBlockErrorReason::Invalid => StatusCode::BAD_REQUEST,
-                TextBlockErrorReason::Fetch => StatusCode::INTERNAL_SERVER_ERROR,
-            };
+        let output = match basic_error {
+            BasicError::SiteSlug { site_slug } => {
+                deepwell_fetch!(missing_site_slug, site_slug => NOT_FOUND)
+            }
+            BasicError::SiteCustom { host } => {
+                deepwell_fetch!(missing_custom_domain, host => NOT_FOUND)
+            }
+            BasicError::PageSlug { site_id, page_slug } => {
+                deepwell_fetch!(missing_page_slug, site_id, page_slug => NOT_FOUND)
+            }
+            BasicError::PageFetch { site_id, page_slug } => {
+                deepwell_fetch!(page_fetch, site_id, page_slug => INTERNAL_SERVER_ERROR)
+            }
+            BasicError::FileName {
+                site_id,
+                page_slug,
+                filename,
+            } => {
+                deepwell_fetch!(missing_file_name, site_id, page_slug, filename => NOT_FOUND)
+            }
+            BasicError::FileFetch {
+                site_id,
+                page_slug,
+                filename,
+            } => {
+                deepwell_fetch!(file_fetch, site_id, page_slug, filename => INTERNAL_SERVER_ERROR)
+            }
+            BasicError::MissingBlob {
+                site_id,
+                page_slug,
+                filename,
+            } => {
+                deepwell_fetch!(file_fetch, site_id, page_slug, filename => INTERNAL_SERVER_ERROR)
+            }
+            BasicError::BlobFetch { s3_hash } => {
+                deepwell_fetch!(blob_fetch, s3_hash => NOT_FOUND)
+            }
+            BasicError::UserFetch { user_id } => {
+                deepwell_fetch!(user_fetch, user_id => NOT_FOUND)
+            }
+            BasicError::UserAvatar { user_id } => {
+                deepwell_fetch!(user_avatar, user_id => NOT_FOUND)
+            }
+            BasicError::TextBlock {
+                site_id,
+                index,
+                block_type,
+                reason,
+            } => {
+                let status_code = match reason {
+                    TextBlockErrorReason::Missing => StatusCode::NOT_FOUND,
+                    TextBlockErrorReason::Invalid => StatusCode::BAD_REQUEST,
+                    TextBlockErrorReason::Fetch => StatusCode::INTERNAL_SERVER_ERROR,
+                };
 
-            deepwell_fetch!(text_block, site_id, index, block_type, reason; status_code)
-        }
-        BasicError::FileRoot => {
-            deepwell_fetch!(file_root => BAD_REQUEST)
-        }
-    };
+                deepwell_fetch!(text_block, site_id, index, block_type, reason; status_code)
+            }
+            BasicError::FileRoot => {
+                deepwell_fetch!(file_root => BAD_REQUEST)
+            }
+        };
 
-    output.into_response()
+        output.into_response()
+    }
 }
 
 #[cfg(test)]
@@ -375,85 +389,85 @@ mod tests {
         headers.insert(ACCEPT_LANGUAGE, "ja, en;q=0.5".parse().unwrap());
 
         assert_basic_response(
-            build_basic_error_response(
-                &state,
-                &headers,
-                BasicError::SiteSlug {
-                    site_slug: "scp-wiki",
-                },
-            )
-            .await,
+            state
+                .build_basic_error_response(
+                    &headers,
+                    BasicError::SiteSlug {
+                        site_slug: "scp-wiki",
+                    },
+                )
+                .await,
             StatusCode::NOT_FOUND,
             "basic_error_missing_site_slug",
         )
         .await;
         assert_basic_response(
-            build_basic_error_response(
-                &state,
-                &headers,
-                BasicError::SiteCustom {
-                    host: "example.com",
-                },
-            )
-            .await,
+            state
+                .build_basic_error_response(
+                    &headers,
+                    BasicError::SiteCustom {
+                        host: "example.com",
+                    },
+                )
+                .await,
             StatusCode::NOT_FOUND,
             "basic_error_missing_custom_domain",
         )
         .await;
         assert_basic_response(
-            build_basic_error_response(
-                &state,
-                &headers,
-                BasicError::PageSlug {
-                    site_id: 42,
-                    page_slug: "scp-173",
-                },
-            )
-            .await,
+            state
+                .build_basic_error_response(
+                    &headers,
+                    BasicError::PageSlug {
+                        site_id: 42,
+                        page_slug: "scp-173",
+                    },
+                )
+                .await,
             StatusCode::NOT_FOUND,
             "basic_error_missing_page_slug",
         )
         .await;
         assert_basic_response(
-            build_basic_error_response(
-                &state,
-                &headers,
-                BasicError::PageFetch {
-                    site_id: 42,
-                    page_slug: "scp-173",
-                },
-            )
-            .await,
+            state
+                .build_basic_error_response(
+                    &headers,
+                    BasicError::PageFetch {
+                        site_id: 42,
+                        page_slug: "scp-173",
+                    },
+                )
+                .await,
             StatusCode::INTERNAL_SERVER_ERROR,
             "basic_error_page_fetch",
         )
         .await;
         assert_basic_response(
-            build_basic_error_response(
-                &state,
-                &headers,
-                BasicError::FileName {
-                    site_id: 42,
-                    page_slug: "scp-173",
-                    filename: "image.png",
-                },
-            )
-            .await,
+            state
+                .build_basic_error_response(
+                    &headers,
+                    BasicError::FileName {
+                        site_id: 42,
+                        page_slug: "scp-173",
+                        filename: "image.png",
+                    },
+                )
+                .await,
             StatusCode::NOT_FOUND,
             "basic_error_missing_file_name",
         )
         .await;
         assert_basic_response(
-            build_basic_error_response(
-                &state,
-                &headers,
-                BasicError::FileFetch {
-                    site_id: 42,
-                    page_slug: "scp-173",
-                    filename: "image.png",
-                },
-            )
-            .await,
+            state
+                .build_basic_error_response(
+                    &headers,
+                    BasicError::FileFetch {
+                        site_id: 42,
+                        page_slug: "scp-173",
+                        filename: "image.png",
+                    },
+                )
+                .await,
             StatusCode::INTERNAL_SERVER_ERROR,
             "basic_error_file_fetch",
         )
@@ -467,24 +481,26 @@ mod tests {
             ),
         ] {
             assert_basic_response(
-                build_basic_error_response(
-                    &state,
-                    &headers,
-                    BasicError::TextBlock {
-                        site_id: 42,
-                        index: "2",
-                        block_type: TextBlockType::Html,
-                        reason,
-                    },
-                )
-                .await,
+                state
+                    .build_basic_error_response(
+                        &headers,
+                        BasicError::TextBlock {
+                            site_id: 42,
+                            index: "2",
+                            block_type: TextBlockType::Html,
+                            reason,
+                        },
+                    )
+                    .await,
                 status,
                 "basic_error_text_block",
             )
             .await;
         }
         assert_basic_response(
-            build_basic_error_response(&state, &headers, BasicError::FileRoot).await,
+            state
+                .build_basic_error_response(&headers, BasicError::FileRoot)
+                .await,
             StatusCode::BAD_REQUEST,
             "basic_error_file_root",
         )
@@ -509,9 +525,9 @@ mod tests {
     async fn build_basic_error_response_falls_back_when_deepwell_errors() {
         let (url, _requests) = spawn_rpc_server(true).await;
         let state = test_state(&url);
-        let response =
-            build_basic_error_response(&state, &HeaderMap::new(), BasicError::FileRoot)
-                .await;
+        let response = state
+            .build_basic_error_response(&HeaderMap::new(), BasicError::FileRoot)
+            .await;
 
         assert_eq!(response.status(), StatusCode::GATEWAY_TIMEOUT);
         let body = body::to_bytes(response.into_body(), usize::MAX)

@@ -1,5 +1,3 @@
-import "$lib/vendor/request-idle-callback-polyfill.js"
-
 export * from "./html"
 export * from "./pref"
 export * from "./timeout"
@@ -258,37 +256,6 @@ export function createAnimQueued<T extends AnyFunction>(fn: T) {
         if (useArgs !== null) await fn(...useArgs)
         queued = false
       })
-    }
-  }
-}
-
-export function idleCallback<T>(fn: () => T, timeout?: number): Promise<T> {
-  return new Promise<T>((resolve) => {
-    requestIdleCallback(
-      () => {
-        const result = fn()
-        if (result instanceof Promise) result.then(resolve)
-        else resolve(result)
-      },
-      { timeout }
-    )
-  })
-}
-
-export function createIdleQueued<T extends AnyFunction>(fn: T, timeout = 100) {
-  let queued: boolean
-  let useArgs: Parameters<T> | null = null
-  return (...args: Parameters<T>): void => {
-    useArgs = args
-    if (queued !== true) {
-      queued = true
-      requestIdleCallback(
-        async () => {
-          if (useArgs !== null) await fn(...useArgs)
-          queued = false
-        },
-        { timeout }
-      )
     }
   }
 }

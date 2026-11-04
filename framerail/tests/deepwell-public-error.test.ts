@@ -1,7 +1,11 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { stripPrivateDeepwellErrorData } from "../src/lib/server/deepwell/public-error.ts"
+import {
+  DEEPWELL_USER_EXISTS,
+  isUserExistsError,
+  stripPrivateDeepwellErrorData
+} from "../src/lib/server/deepwell/public-error.ts"
 import { publicErrorExtraMessage } from "../src/lib/popup/public-error-data.ts"
 
 test("structured Deepwell diagnostics are removed without mutating the response", () => {
@@ -99,4 +103,14 @@ test("non-object responses and popup details expose only public strings", () => 
   for (const privateData of [null, { call_trace: "secret" }, ["secret"], 7, false]) {
     assert.equal(publicErrorExtraMessage(privateData), null)
   }
+})
+
+test("user-exists errors are recognized by their Deepwell code", () => {
+  assert.equal(isUserExistsError({ code: 2100, message: "user exists" }), true)
+  assert.equal(isUserExistsError({ code: 2101 }), false)
+  assert.equal(isUserExistsError({ code: "2100" }), false)
+  assert.equal(isUserExistsError(new Error("boom")), false)
+  assert.equal(isUserExistsError(null), false)
+  assert.equal(isUserExistsError("2100"), false)
+  assert.equal(DEEPWELL_USER_EXISTS, 2100)
 })

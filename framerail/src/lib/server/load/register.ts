@@ -4,13 +4,14 @@ import {
   accountPasswordMeetsMinimum
 } from "$lib/account-password-policy.js"
 
+import { isUserExistsError } from "$lib/server/deepwell/public-error"
 import { translate } from "$lib/server/deepwell/translate"
 import { userCreate } from "$lib/server/deepwell/user"
 import {
   clearRegisterPasswords,
   redactAuthActionPayload
 } from "$lib/server/load/auth-form-redaction"
-import { failForActionError } from "$lib/server/load/action-error"
+import { failForActionError, normalizeActionError } from "$lib/server/load/action-error"
 import { isRegistrationHoneypotTripped } from "$lib/server/load/register-honeypot"
 import { legalDestinations } from "$lib/server/legal-links"
 import { loadSiteInfo } from "$lib/server/load/site-info"
@@ -127,6 +128,16 @@ export async function registerAction({ request, getClientAddress }: RequestEvent
       submittedPasswords
     )
   } catch (error) {
+    if (isUserExistsError(error)) {
+      return fail(
+        400,
+        redactAuthActionPayload(
+          { form: clearRegisterPasswords(form), ...normalizeActionError(error) },
+          submittedPasswords
+        )
+      )
+    }
+
     return failForActionError(
       error,
       { form: clearRegisterPasswords(form) },

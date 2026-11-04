@@ -85,7 +85,7 @@ pub async fn membership_application_list(
 ) -> Result<Vec<MembershipApplicationView>> {
     let input: ListMembershipApplications = parse!(params, SiteMembership);
     require_role_assign_permission(ctx, input.site_id).await?;
-    MembershipService::pending_applications(ctx, input.site_id).await
+    MembershipService::list_applications(ctx, input.site_id).await
 }
 
 pub async fn membership_email_invitation_accept(

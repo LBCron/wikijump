@@ -8,11 +8,12 @@ use super::{
     MEMBERSHIP_BY_PASSWORD_DISABLED_HTML, MEMBERSHIP_BY_PASSWORD_FORM_HTML,
     MEMBERSHIP_BY_PASSWORD_MEMBER_HTML, MEMBERSHIP_EMAIL_INVITATION_MISSING_HTML,
     MEMBERSHIPAPPLY_MODULE_REGEX, MEMBERSHIPBYPASSWORD_MODULE_REGEX,
-    MembershipByPasswordResultCache, MembershipService, Reference, RelationObject,
-    RelationReference, RelationService, RelationType, RenderService, Result,
-    STATIC_ACCOUNT_MODULE_REGEX, ServiceContext, SiteService, UrlArguments, UserService,
-    WikitextSettings, render_membership_email_invitation_valid,
+    MembershipByPasswordResultCache, MembershipService, Reference, RelationService,
+    RenderService, Result, STATIC_ACCOUNT_MODULE_REGEX, ServiceContext, SiteService,
+    UrlArguments, UserService, WikitextSettings,
+    render_membership_email_invitation_valid,
 };
+use crate::services::membership::MembershipApplicationStatus;
 
 impl RenderService {
     pub(super) async fn expand_membership_apply_modules(
@@ -42,16 +43,14 @@ impl RenderService {
             .await?
             {
                 MEMBERSHIP_APPLY_MEMBER_HTML
-            } else if RelationService::exists(
-                ctx,
-                RelationReference::Relationship {
-                    relation_type: RelationType::SiteApplication,
-                    dest: RelationObject::Site(site_id),
-                    from: RelationObject::User(user_id),
-                },
-            )
-            .await?
-            {
+            } else if matches!(
+                MembershipService::current_application_status(ctx, site_id, user_id)
+                    .await?,
+                Some(
+                    MembershipApplicationStatus::Pending
+                        | MembershipApplicationStatus::Accepted,
+                )
+            ) {
                 MEMBERSHIP_APPLY_ALREADY_APPLIED_HTML
             } else {
                 MEMBERSHIP_APPLY_FORM_HTML

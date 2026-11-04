@@ -16,6 +16,7 @@ export type MembershipApplicationStatus = "pending" | "accepted" | "declined"
 export interface MembershipApplicationView {
   user_id: number
   user_name: string
+  status: MembershipApplicationStatus
   comment: string
 }
 

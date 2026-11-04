@@ -89,6 +89,7 @@ pub enum MembershipApplicationStatus {
 pub struct MembershipApplicationView {
     pub user_id: i64,
     pub user_name: String,
+    pub status: MembershipApplicationStatus,
     pub comment: String,
 }
 

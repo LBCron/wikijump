@@ -106,26 +106,36 @@
                 <td>{application.comment}</td>
               </tr>
             {/if}
-            <tr>
-              <td>Options:</td>
-              <td class="application-actions">
-                <form action="?/membershipReview" method="POST">
-                  <input name="siteId" type="hidden" value={data.site.site_id} />
-                  <input name="userId" type="hidden" value={application.user_id} />
-                  <input name="reply" type="hidden" value="" />
-                  <button name="decision" class="link-button" type="submit" value="accept"
-                    >accept</button
-                  >
-                  <span> or </span>
-                  <button
-                    name="decision"
-                    class="link-button"
-                    type="submit"
-                    value="decline">decline</button
-                  >
-                </form>
-              </td>
-            </tr>
+            {#if application.status === "pending"}
+              <tr>
+                <td>Options:</td>
+                <td class="application-actions">
+                  <form action="?/membershipReview" method="POST">
+                    <input name="siteId" type="hidden" value={data.site.site_id} />
+                    <input name="userId" type="hidden" value={application.user_id} />
+                    <input name="reply" type="hidden" value="" />
+                    <button
+                      name="decision"
+                      class="link-button"
+                      type="submit"
+                      value="accept">accept</button
+                    >
+                    <span> or </span>
+                    <button
+                      name="decision"
+                      class="link-button"
+                      type="submit"
+                      value="decline">decline</button
+                    >
+                  </form>
+                </td>
+              </tr>
+            {:else}
+              <tr>
+                <td>Status:</td>
+                <td>{application.status}</td>
+              </tr>
+            {/if}
           </tbody>
         </table>
       {/each}

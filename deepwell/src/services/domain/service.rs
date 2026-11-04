@@ -25,6 +25,7 @@ use crate::models::site::{self, Entity as Site, Model as SiteModel};
 use crate::models::site_domain::{self, Entity as SiteDomain, Model as SiteDomainModel};
 use crate::services::ServiceContext;
 use crate::utils::now;
+use redis::AsyncCommands;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, DeleteResult, EntityTrait, JoinType, QueryFilter,
     QuerySelect, RelationTrait, Set,
@@ -91,10 +92,37 @@ impl DomainService {
             www_redirect: Set(www_redirect),
         };
         model.insert(txn).await.or_raise(make_error)?;
+        Self::invalidate_site_domain_cache(ctx, site_id)
+            .await
+            .or_raise(make_error)?;
         Ok(())
     }
 
-    pub async fn remove_custom(ctx: &ServiceContext<'_>, domain: String) -> Result<()> {
+    pub async fn invalidate_site_domain_cache(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+    ) -> Result<()> {
+        let mut redis = ctx.redis();
+        let _: usize =
+            redis
+                .del(format!("site_domain:{site_id}"))
+                .await
+                .or_raise(|| {
+                    Error::new(
+                        format!(
+                            "failed to invalidate cached site domain for site {site_id}"
+                        ),
+                        ErrorType::RedisQuery,
+                    )
+                })?;
+        Ok(())
+    }
+
+    pub async fn remove_custom(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        domain: String,
+    ) -> Result<()> {
         info!("Deleting custom domain '{domain}'");
 
         let make_error = || {
@@ -112,6 +140,9 @@ impl DomainService {
             .or_raise(make_error)?;
 
         if rows_affected == 1 {
+            Self::invalidate_site_domain_cache(ctx, site_id)
+                .await
+                .or_raise(make_error)?;
             Ok(())
         } else {
             bail!(Error::new(

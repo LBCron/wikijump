@@ -22,7 +22,7 @@ use super::{
     HEADER_BASIC_ERROR, HEADER_FILENAME, HEADER_PAGE_SLUG, get_header, get_site_id,
     get_site_slug,
 };
-use crate::error::{BasicError, FallbackError, build_basic_error_response};
+use crate::error::{BasicError, FallbackError};
 use crate::state::ServerState;
 use axum::extract::{Path, State};
 use axum::http::header::HeaderMap;
@@ -118,7 +118,7 @@ pub async fn handle_basic_error(
             Err(error) => return error.into_response(),
         };
 
-    build_basic_error_response(&state, &headers, input).await
+    state.build_basic_error_response(&headers, input).await
 }
 
 #[cfg(test)]

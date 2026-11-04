@@ -20,7 +20,7 @@
 
 use crate::{
     deepwell::BlobData,
-    error::{BasicError, ResponseResult, build_basic_error_response},
+    error::{BasicError, ResponseResult},
     state::ServerState,
 };
 use axum::{
@@ -49,12 +49,9 @@ async fn fetch_blob(
         Err(error) => {
             error!(s3_hash = s3_hash, "Cannot get blob metadata: {error}");
 
-            let response = build_basic_error_response(
-                state,
-                headers,
-                BasicError::BlobFetch { s3_hash },
-            )
-            .await;
+            let response = state
+                .build_basic_error_response(headers, BasicError::BlobFetch { s3_hash })
+                .await;
 
             return Err(response);
         }
@@ -72,12 +69,9 @@ async fn fetch_blob(
         Err(error) => {
             error!(s3_hash = s3_hash, "Cannot get blob data: {error}",);
 
-            let response = build_basic_error_response(
-                state,
-                headers,
-                BasicError::BlobFetch { s3_hash },
-            )
-            .await;
+            let response = state
+                .build_basic_error_response(headers, BasicError::BlobFetch { s3_hash })
+                .await;
 
             return Err(response);
         }

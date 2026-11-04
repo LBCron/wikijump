@@ -1,7 +1,7 @@
-import { handleArticleRpc } from "./article-handler.js"
+import { handleArticleRpc } from "./article-handler.ts"
 import { handleAuthRpc } from "./auth-handler.js"
 import { handleForumRpc } from "./forum-handler.js"
-import { handlePageReadRpc } from "./page-read-handler.js"
+import { handlePageReadRpc } from "./page-read-handler.ts"
 import { handleVoteReadRpc } from "./vote-read-handler.js"
 
 /**

@@ -17,7 +17,7 @@ export interface FenceSubscription {
 }
 
 export interface FenceSubscriber {
-  subscribe: (callbacks: {
+  subscribe?: (callbacks: {
     channel: string
     onSubscribed: () => void
     onMessage: (payload: string) => void

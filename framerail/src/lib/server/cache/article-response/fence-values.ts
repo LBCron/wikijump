@@ -62,8 +62,8 @@ export const buildAnonymousArticleResponseCacheFences = ({
   route?: { slug?: string; extra?: string } | null
   requestLocales: string[]
   backendLocales: string[]
-  publicContentFence: string
-  permissionFence: string
+  publicContentFence?: string
+  permissionFence?: string
 }) => {
   if (
     !hasValidArticleResponseCacheIdentity({

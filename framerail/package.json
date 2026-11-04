@@ -20,7 +20,7 @@
     "test:unit": "../scripts/run-framerail-unit-tests.sh",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint": "prettier --check . && eslint . && stylelint ./src/**/*.{css,scss,svelte}",
+    "lint": "prettier --check . && eslint . && stylelint ./src/**/*.{css,scss,svelte} && tsc -p tsconfig.node-runtime.json",
     "lint:fix": "prettier --write . && eslint . --fix && stylelint ./src/**/*.{css,scss,svelte} --fix",
     "format": "prettier --write ."
   },

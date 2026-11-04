@@ -4,7 +4,7 @@ import test from "node:test"
 
 import { buildPublicContentFenceKey } from "../src/lib/server/cache/article-response/index.ts"
 import { getArticleResponseCacheStores } from "../src/lib/server/cache/article-response/runtime.ts"
-import { createFramerailServerRuntime } from "../server.js"
+import { createFramerailServerRuntime } from "../server.ts"
 import {
   createFastPathFixtureStore,
   createFenceSubscriber,
@@ -18,13 +18,13 @@ const readDockerfile = (tier) =>
     "utf8"
   )
 
-test("Framerail container entrypoints run server.js and retain runtime sources", () => {
+test("Framerail container entrypoints run server.ts and retain runtime sources", () => {
   for (const tier of ["prod", "dev"]) {
     const dockerfile = readDockerfile(tier)
 
     assert.match(
       dockerfile,
-      /^CMD \["\/usr\/local\/bin\/node", "server\.js"\]$/m,
+      /^CMD \["\/usr\/local\/bin\/node", "server\.ts"\]$/m,
       `${tier} image must start the cache-owning server`
     )
     assert.doesNotMatch(

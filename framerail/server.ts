@@ -1,8 +1,14 @@
 import http from "node:http"
 import { pathToFileURL } from "node:url"
-import { createStartupReadiness, probeStartupDeepwell } from "./startup-readiness.js"
+import { createStartupReadiness, probeStartupDeepwell } from "./startup-readiness.ts"
+import type { StartupReadiness } from "./startup-readiness.ts"
 
-import { createArticleResponseFastPathHandler } from "./article-response-fast-path.js"
+import { createArticleResponseFastPathHandler } from "./article-response-fast-path.ts"
+import type {
+  ArticleResponseFastPathHandler,
+  FastPathFallbackHandler
+} from "./article-response-fast-path.ts"
+import type { ArticleResponseCacheStores } from "./src/lib/server/cache/article-response/stores.ts"
 import { createMemoryArticleResponseFenceCache } from "./src/lib/server/cache/article-response/index.ts"
 import { configureArticleResponseCacheStores } from "./src/lib/server/cache/article-response/runtime.ts"
 import { createArticleResponseCacheStores } from "./src/lib/server/cache/article-response/stores.ts"
@@ -12,6 +18,11 @@ export const createFramerailHttpServer = ({
   fenceCache,
   closeResources = () => {},
   readiness
+}: {
+  fastPathHandler: ArticleResponseFastPathHandler
+  fenceCache: { close: () => void }
+  closeResources?: () => void
+  readiness?: StartupReadiness
 }) => {
   const server = http.createServer((request, response) => {
     if (readiness && (!readiness.isReady() || request.url === "/-/startup-ready")) {
@@ -41,6 +52,10 @@ export const createFramerailServerRuntime = ({
   handler,
   cacheStores = createArticleResponseCacheStores(),
   readiness
+}: {
+  handler: FastPathFallbackHandler
+  cacheStores?: ArticleResponseCacheStores
+  readiness?: StartupReadiness
 }) => {
   const { responseStore, tokenStore } = cacheStores
   const resetRuntimeStores = configureArticleResponseCacheStores(cacheStores)
@@ -68,7 +83,10 @@ export const createFramerailServerRuntime = ({
 }
 
 export const startFramerailServer = async () => {
-  const { handler } = await import("./build/handler.js")
+  const handlerSpecifier: string = "./build/handler.js"
+  const { handler } = (await import(handlerSpecifier)) as {
+    handler: FastPathFallbackHandler
+  }
   const path = process.env.SOCKET_PATH
   const host = process.env.HOST ?? "0.0.0.0"
   const port = process.env.PORT ?? "3000"
@@ -78,7 +96,7 @@ export const startFramerailServer = async () => {
       : undefined
   const lifecycle = createFramerailServerRuntime({ handler, readiness })
 
-  lifecycle.server.listen(path ? { path } : { host, port }, () => {
+  lifecycle.server.listen(path ? { path } : { host, port: Number(port) }, () => {
     console.log(`Listening on ${path || `http://${host}:${port}`}`)
     void readiness?.start()
   })

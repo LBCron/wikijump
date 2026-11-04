@@ -16,9 +16,56 @@ import {
 } from "./src/lib/server/cache/article-response/entry.ts"
 import { applyStaticSecurityHeadersToNodeResponse } from "./src/lib/server/security-headers.ts"
 import { parseAcceptLangHeader, withFallbackLocale } from "./src/lib/locales.ts"
+import type { IncomingHttpHeaders, IncomingMessage, ServerResponse } from "node:http"
 import { promisify } from "node:util"
 import zlib from "node:zlib"
 import { randomBytes } from "node:crypto"
+import type { createMemoryArticleResponseFenceCache } from "./src/lib/server/cache/article-response/fences.ts"
+import type { ArticleResponseFencePair } from "./src/lib/server/cache/article-response/fence-values.ts"
+import type {
+  CachedArticleResponseEntry,
+  HeaderPair
+} from "./src/lib/server/cache/article-response/entry.ts"
+import type { ArticleResponseCacheStore } from "./src/lib/server/cache/article-response/storage.ts"
+import type { ArticleResponseTokenStore } from "./src/lib/server/cache/article-response/stores.ts"
+import type { ReplayInput } from "./src/lib/server/cache/article-response/replay.ts"
+
+export type FastPathFallbackHandler = (
+  request: IncomingMessage,
+  response: ServerResponse
+) => Promise<void> | void
+
+export type ArticleResponseFastPathHandler = (
+  request: IncomingMessage,
+  response: ServerResponse
+) => Promise<void>
+
+export interface FastPathRequest {
+  route: { slug: string; extra: string } | null
+  pathname: string
+  siteId: number
+  siteSlug: string
+  requestHost: string
+  requestLocales: string[]
+  backendLocales: string[]
+  method: string | undefined
+}
+
+interface FastPathVariant {
+  headers: readonly Readonly<HeaderPair>[]
+  bodyBuffer?: Buffer
+  nodeRawHeaders?: readonly string[]
+}
+
+interface FastPathEntry extends FastPathVariant {
+  status: number
+  body?: string
+  variants?: { br?: FastPathVariant; gzip?: FastPathVariant }
+  finalHeaders?: boolean
+}
+
+type FastPathFenceCache = ReturnType<typeof createMemoryArticleResponseFenceCache>
+type FastPathLocalHotCache = ReturnType<typeof createLocalArticleResponseHotCache>
 
 const FALLBACK_LOCALE = "en"
 const SITE_ID_HEADER = "x-wikijump-site-id"
@@ -33,14 +80,14 @@ const STATIC_APP_ROUTE_SLUGS = new Set([
   "forum",
   "xml-rpc-api.php"
 ])
-const singleHeaderValue = (headers, name) => {
+const singleHeaderValue = (headers: IncomingHttpHeaders, name: string): string | null => {
   const value = headers[name]
   if (typeof value === "string") return value
   if (Array.isArray(value) && value.length === 1) return value[0]
   return null
 }
 
-const toFetchHeaders = (headers) => {
+const toFetchHeaders = (headers: IncomingHttpHeaders): Headers => {
   const fetchHeaders = new Headers()
   for (const [name, value] of Object.entries(headers)) {
     if (typeof value === "string") {
@@ -52,7 +99,9 @@ const toFetchHeaders = (headers) => {
   return fetchHeaders
 }
 
-const articleRouteFromPathname = (pathname) => {
+const articleRouteFromPathname = (
+  pathname: string
+): { slug: string; extra: string } | null | undefined => {
   if (pathname === "/") return null
   if (!pathname.startsWith("/") || pathname.endsWith("/")) return undefined
 
@@ -69,14 +118,27 @@ const articleRouteFromPathname = (pathname) => {
   }
 }
 
-const fencesMatch = (currentFences, capturedFences) => {
+const fencesMatch = (
+  currentFences: ArticleResponseFencePair | null | undefined,
+  capturedFences: ArticleResponseFencePair | null | undefined
+): boolean => {
   return (
     currentFences?.publicContentFence === capturedFences?.publicContentFence &&
     currentFences?.permissionFence === capturedFences?.permissionFence
   )
 }
 
-const revalidateCapturedFences = async ({ store, fenceCache, siteId, fences }) => {
+const revalidateCapturedFences = async ({
+  store,
+  fenceCache,
+  siteId,
+  fences
+}: {
+  store: ArticleResponseTokenStore | null
+  fenceCache: FastPathFenceCache | null
+  siteId: number
+  fences: ArticleResponseFencePair | null | undefined
+}): Promise<boolean> => {
   if (!fences) return false
 
   const localValidation = fenceCache?.areFencesCurrent?.({
@@ -97,7 +159,9 @@ const revalidateCapturedFences = async ({ store, fenceCache, siteId, fences }) =
   )
 }
 
-export const getArticleResponseFastPathRequest = (request) => {
+export const getArticleResponseFastPathRequest = (
+  request: IncomingMessage
+): FastPathRequest | null => {
   if (request.method !== "GET" && request.method !== "HEAD") return null
   if (hasSessionCookie(singleHeaderValue(request.headers, "cookie"))) return null
 
@@ -121,7 +185,7 @@ export const getArticleResponseFastPathRequest = (request) => {
   if (!siteSlug || !requestHost || !Number.isInteger(siteId) || siteId <= 0) return null
 
   const fetchHeaders = toFetchHeaders(request.headers)
-  const requestLocales = parseAcceptLangHeader({ headers: fetchHeaders })
+  const requestLocales = parseAcceptLangHeader({ headers: fetchHeaders } as Request)
   const backendLocales = withFallbackLocale(requestLocales, FALLBACK_LOCALE)
 
   return {
@@ -136,15 +200,18 @@ export const getArticleResponseFastPathRequest = (request) => {
   }
 }
 
-const finalArticleResponseFastPathHeaders = (entry, pathname) => {
-  const headers = new Map(
-    entry.headers.map(([name, value]) => [name.toLowerCase(), value])
+const finalArticleResponseFastPathHeaders = (
+  entry: { headers: readonly HeaderPair[] },
+  pathname: string
+): HeaderPair[] => {
+  const headers = new Map<string, string>(
+    entry.headers.map(([name, value]): HeaderPair => [name.toLowerCase(), value])
   )
   const headerTarget = {
-    setHeader(name, value) {
+    setHeader(name: string, value: string) {
       headers.set(name.toLowerCase(), String(value))
     },
-    removeHeader(name) {
+    removeHeader(name: string) {
       headers.delete(name.toLowerCase())
     }
   }
@@ -153,14 +220,22 @@ const finalArticleResponseFastPathHeaders = (entry, pathname) => {
   return [...headers.entries()].sort(([left], [right]) => left.localeCompare(right))
 }
 
-const mergeVaryAcceptEncoding = (value) => {
+const mergeVaryAcceptEncoding = (value: string | undefined): string => {
   if (!value) return "Accept-Encoding"
   const parts = value.split(",").map((part) => part.trim())
   if (parts.some((part) => part.toLowerCase() === "accept-encoding")) return value
   return `${value}, Accept-Encoding`
 }
 
-const shouldPrepareCompressedReplayVariants = ({ status, headers, bodyBuffer }) => {
+const shouldPrepareCompressedReplayVariants = ({
+  status,
+  headers,
+  bodyBuffer
+}: {
+  status: number
+  headers: readonly HeaderPair[]
+  bodyBuffer: Buffer
+}): boolean => {
   if (status !== 200) return false
   if (bodyBuffer.byteLength < MIN_COMPRESSED_REPLAY_BODY_BYTES) return false
 
@@ -178,7 +253,11 @@ const shouldPrepareCompressedReplayVariants = ({ status, headers, bodyBuffer }) 
   return headerMap.get("content-type")?.toLowerCase().startsWith("text/html") === true
 }
 
-const compressedVariantHeaders = (headers, encoding, bodyBuffer) => {
+const compressedVariantHeaders = (
+  headers: readonly HeaderPair[],
+  encoding: string,
+  bodyBuffer: Buffer
+): HeaderPair[] => {
   const mapped = new Map(headers)
   mapped.set("content-encoding", encoding)
   mapped.set("content-length", String(bodyBuffer.byteLength))
@@ -193,7 +272,10 @@ const compressedVariantHeaders = (headers, encoding, bodyBuffer) => {
   return [...mapped.entries()].sort(([left], [right]) => left.localeCompare(right))
 }
 
-const prepareCompressedReplayVariants = async (headers, bodyBuffer) => {
+const prepareCompressedReplayVariants = async (
+  headers: readonly HeaderPair[],
+  bodyBuffer: Buffer
+) => {
   const [brBodyBuffer, gzipBodyBuffer] = await Promise.all([
     brotliCompress(bodyBuffer, {
       params: {
@@ -217,7 +299,10 @@ const prepareCompressedReplayVariants = async (headers, bodyBuffer) => {
   }
 }
 
-const prepareArticleResponseFastPathReplay = async (entry, pathname) => {
+const prepareArticleResponseFastPathReplay = async (
+  entry: CachedArticleResponseEntry,
+  pathname: string
+): Promise<FastPathEntry> => {
   const headers = finalArticleResponseFastPathHeaders(entry, pathname)
   const bodyBuffer = Buffer.isBuffer(entry.bodyBuffer)
     ? entry.bodyBuffer
@@ -231,11 +316,13 @@ const prepareArticleResponseFastPathReplay = async (entry, pathname) => {
     : undefined
   const replayHeaders = variants
     ? headers
-        .map(([name, value]) =>
+        .map(([name, value]): HeaderPair =>
           name === "vary" ? [name, mergeVaryAcceptEncoding(value)] : [name, value]
         )
         .concat(
-          headers.some(([name]) => name === "vary") ? [] : [["vary", "Accept-Encoding"]]
+          headers.some(([name]) => name === "vary")
+            ? []
+            : ([["vary", "Accept-Encoding"]] as HeaderPair[])
         )
         .sort(([left], [right]) => left.localeCompare(right))
     : headers
@@ -252,7 +339,7 @@ const prepareArticleResponseFastPathReplay = async (entry, pathname) => {
   }
 }
 
-const parseEncodingQuality = (value) => {
+const parseEncodingQuality = (value: string): number => {
   const quality = Number.parseFloat(value)
   if (!Number.isFinite(quality)) return 0
   if (quality < 0) return 0
@@ -260,8 +347,20 @@ const parseEncodingQuality = (value) => {
   return quality
 }
 
-const parseAcceptEncoding = (header) => {
-  const accepted = { br: null, gzip: null, identity: null, wildcard: null }
+const parseAcceptEncoding = (
+  header: string | null
+): {
+  br: number | null
+  gzip: number | null
+  identity: number | null
+  wildcard: number | null
+} => {
+  const accepted: {
+    br: number | null
+    gzip: number | null
+    identity: number | null
+    wildcard: number | null
+  } = { br: null, gzip: null, identity: null, wildcard: null }
   if (!header) return accepted
 
   for (const part of header.split(",")) {
@@ -285,7 +384,10 @@ const parseAcceptEncoding = (header) => {
   return accepted
 }
 
-const selectReplayVariant = (request, entry) => {
+const selectReplayVariant = (
+  request: IncomingMessage,
+  entry: FastPathEntry
+): FastPathEntry => {
   const variants = entry.variants
   if (!variants?.br && !variants?.gzip) return entry
 
@@ -293,7 +395,7 @@ const selectReplayVariant = (request, entry) => {
   if (!acceptEncoding) return entry
 
   const accepted = parseAcceptEncoding(acceptEncoding)
-  const quality = (encoding) => {
+  const quality = (encoding: "br" | "gzip" | "identity"): number => {
     if (accepted[encoding] !== null) return accepted[encoding]
     if (accepted.wildcard !== null && encoding !== "identity") return accepted.wildcard
     return encoding === "identity" ? 1 : 0
@@ -302,7 +404,11 @@ const selectReplayVariant = (request, entry) => {
     variants.br ? { encoding: "br", variant: variants.br, priority: 3 } : null,
     variants.gzip ? { encoding: "gzip", variant: variants.gzip, priority: 2 } : null,
     { encoding: "identity", variant: entry, priority: 1 }
-  ].filter(Boolean)
+  ].filter(Boolean) as {
+    encoding: "br" | "gzip" | "identity"
+    variant: FastPathVariant
+    priority: number
+  }[]
 
   candidates.sort((left, right) => {
     const qualityDelta = quality(right.encoding) - quality(left.encoding)
@@ -328,7 +434,12 @@ export const readArticleResponseFastPathEntry = async ({
   request,
   localHotCache,
   fenceCache = null
-}) => {
+}: {
+  store: (ArticleResponseCacheStore & ArticleResponseTokenStore) | null | undefined
+  request: IncomingMessage
+  localHotCache?: FastPathLocalHotCache | null
+  fenceCache?: FastPathFenceCache | null
+}): Promise<FastPathEntry | null> => {
   return readArticleResponseFastPathEntryFromStores({
     responseStore: store,
     tokenStore: store,
@@ -344,7 +455,13 @@ export const readArticleResponseFastPathEntryFromStores = async ({
   request,
   localHotCache,
   fenceCache = null
-}) => {
+}: {
+  responseStore?: ArticleResponseCacheStore | null
+  tokenStore?: ArticleResponseTokenStore | null
+  request: IncomingMessage
+  localHotCache?: FastPathLocalHotCache | null
+  fenceCache?: FastPathFenceCache | null
+}): Promise<FastPathEntry | null> => {
   if (!responseStore || !tokenStore || !request) return null
 
   try {
@@ -426,14 +543,20 @@ export const readArticleResponseFastPathEntryFromStores = async ({
       cachedEntry,
       candidate.pathname
     )
-    localHotCache?.store(tokenKey, cachedEntry, { replay })
+    localHotCache?.store(tokenKey, cachedEntry, {
+      replay: replay as ReplayInput
+    })
     return replay
   } catch {
     return null
   }
 }
 
-export const writeArticleResponseFastPathHit = (request, response, entry) => {
+export const writeArticleResponseFastPathHit = (
+  request: IncomingMessage,
+  response: ServerResponse,
+  entry: FastPathEntry
+): void => {
   entry = selectReplayVariant(request, entry)
   if (entry.finalHeaders === true && Array.isArray(entry.nodeRawHeaders)) {
     response.writeHead(entry.status, entry.nodeRawHeaders)
@@ -462,7 +585,10 @@ export const writeArticleResponseFastPathHit = (request, response, entry) => {
  * Renew the nonce for every serve, and rebuild the replay so compressed
  * variants match the renewed body.
  */
-export const renewArticleResponseFastPathNonce = async (request, entry) => {
+export const renewArticleResponseFastPathNonce = async (
+  request: IncomingMessage,
+  entry: FastPathEntry | null | undefined
+): Promise<FastPathEntry | null | undefined> => {
   if (!entry || typeof entry.status !== "number" || !Array.isArray(entry.headers)) {
     return entry
   }
@@ -471,7 +597,7 @@ export const renewArticleResponseFastPathNonce = async (request, entry) => {
     : Buffer.from(entry.body ?? "", "utf8")
   const view = {
     status: entry.status,
-    headers: entry.headers,
+    headers: entry.headers as HeaderPair[],
     body: bodyBuffer.toString("utf8")
   }
   if (!containsCspNonce(view)) return entry
@@ -489,7 +615,15 @@ export const createArticleResponseFastPathHandler = ({
   localHotCache,
   localHotCacheOptions,
   fenceCache
-}) => {
+}: {
+  responseStore?: ArticleResponseCacheStore | null
+  tokenStore?: ArticleResponseTokenStore | null
+  store?: (ArticleResponseCacheStore & ArticleResponseTokenStore) | null
+  handler: FastPathFallbackHandler
+  localHotCache?: FastPathLocalHotCache | null
+  localHotCacheOptions?: Parameters<typeof createLocalArticleResponseHotCache>[0]
+  fenceCache?: FastPathFenceCache | null
+}): ArticleResponseFastPathHandler => {
   const resolvedResponseStore = responseStore ?? store
   const resolvedTokenStore = tokenStore ?? store
   const hotCache =
@@ -508,11 +642,8 @@ export const createArticleResponseFastPathHandler = ({
       fenceCache
     })
     if (cachedEntry) {
-      writeArticleResponseFastPathHit(
-        request,
-        response,
-        await renewArticleResponseFastPathNonce(request, cachedEntry)
-      )
+      const renewedEntry = await renewArticleResponseFastPathNonce(request, cachedEntry)
+      writeArticleResponseFastPathHit(request, response, renewedEntry ?? cachedEntry)
       return
     }
 

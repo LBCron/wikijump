@@ -12,7 +12,7 @@ function fixture(){
   fs.mkdirSync(path.join(root,'framerail/static'),{recursive:true});
   fs.writeFileSync(path.join(root,'framerail/src/app.js'),'export const app=true;\n');
   fs.writeFileSync(path.join(root,'framerail/static/site.txt'),'static\n');
-  for(const file of ['package.json','server.js','sveltekit-options.js','tsconfig.json','vite.config.ts'])fs.writeFileSync(path.join(root,'framerail',file),file+'\n');
+  for(const file of ['package.json','server.ts','sveltekit-options.ts','tsconfig.json','vite.config.ts'])fs.writeFileSync(path.join(root,'framerail',file),file+'\n');
   fs.writeFileSync(path.join(root,'pnpm-lock.yaml'),'lockfileVersion: 9\n');
   return root;
 }

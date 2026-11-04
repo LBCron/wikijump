@@ -79,12 +79,12 @@ It did if the diff touches any of these:
 - `deepwell/src/services/public_cache.rs`
 - `deepwell/src/services/context.rs`: `defer_public_content_cache_invalidate_site`, `run_post_commit_actions_with_rerender_trust`
 - `deepwell/src/api.rs`: the `register!` macro and `rpc_transaction_isolation`
-- `framerail/src/lib/server/load/page/page.ts`, `framerail/src/hooks.server.ts`, `framerail/src/lib/server/cache/article-response/`, `framerail/article-response-fast-path.js`
+- `framerail/src/lib/server/load/page/page.ts`, `framerail/src/hooks.server.ts`, `framerail/src/lib/server/cache/article-response/`, `framerail/article-response-fast-path.ts`
 
 To list the covered files changed since the last sync:
 
 ```bash
-git diff --stat "$(git log -1 --format=%h -- .claude/skills/verify-article-cache-fence/SKILL.md)" -- deepwell/src/services/view/service.rs deepwell/src/services/view/article_cache.rs deepwell/src/services/public_cache.rs deepwell/src/services/context.rs deepwell/src/api.rs framerail/src/lib/server/load/page/page.ts framerail/src/hooks.server.ts framerail/src/lib/server/cache/article-response framerail/article-response-fast-path.js
+git diff --stat "$(git log -1 --format=%h -- .claude/skills/verify-article-cache-fence/SKILL.md)" -- deepwell/src/services/view/service.rs deepwell/src/services/view/article_cache.rs deepwell/src/services/public_cache.rs deepwell/src/services/context.rs deepwell/src/api.rs framerail/src/lib/server/load/page/page.ts framerail/src/hooks.server.ts framerail/src/lib/server/cache/article-response framerail/article-response-fast-path.ts
 ```
 
 If this lists anything, run the check.

@@ -52,7 +52,7 @@ export interface UserInfoMissing {
  * sign-in surface (live Wikidot links to `/account/messages#/new/<id>`,
  * which asks an anonymous visitor to sign in), while `Add to contacts` and
  * `flag user as abusive` open the same-page permission error recorded in
- * `user-profile-action-auth-guard.js`.
+ * `user-profile-action-auth-guard.ts`.
  *
  * The authenticated compose/contact/report lifecycles are not implemented,
  * so the controls are only rendered for viewers without a session instead

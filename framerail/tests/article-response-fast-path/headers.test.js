@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { writeArticleResponseFastPathHit } from "../../article-response-fast-path.js"
+import { writeArticleResponseFastPathHit } from "../../article-response-fast-path.ts"
 import { createRecordingResponse } from "./helpers.js"
 
 test("article response fast path writes raw Node headers without per-header setHeader", () => {

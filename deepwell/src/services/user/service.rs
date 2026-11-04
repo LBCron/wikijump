@@ -1556,6 +1556,67 @@ impl UserService {
         Ok(())
     }
 
+    pub async fn set_mfa_last_totp_step(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        multi_factor_last_totp_step: ActiveValue<Option<i64>>,
+    ) -> Result<()> {
+        info!("Setting MFA last TOTP step for user ID {user_id}");
+
+        let txn = ctx.transaction();
+        let model = user::ActiveModel {
+            user_id: Set(user_id),
+            multi_factor_last_totp_step,
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+        model.update(txn).await.or_raise(|| {
+            Error::new(
+                format!("failed to set MFA last TOTP step for user ID {}", user_id),
+                ErrorType::UserMfa,
+            )
+        })?;
+
+        Ok(())
+    }
+
+    pub async fn advance_mfa_last_totp_step(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        step: i64,
+    ) -> Result<bool> {
+        info!("Advancing MFA last TOTP step for user ID {user_id}");
+
+        let txn = ctx.transaction();
+        let model = user::ActiveModel {
+            multi_factor_last_totp_step: Set(Some(step)),
+            updated_at: Set(Some(now())),
+            ..Default::default()
+        };
+        let rows_affected = WikijumpUser::update_many()
+            .set(model)
+            .filter(user::Column::UserId.eq(user_id))
+            .filter(
+                Condition::any()
+                    .add(user::Column::MultiFactorLastTotpStep.is_null())
+                    .add(user::Column::MultiFactorLastTotpStep.lt(step)),
+            )
+            .exec(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to advance MFA last TOTP step for user ID {}",
+                        user_id
+                    ),
+                    ErrorType::UserMfa,
+                )
+            })?
+            .rows_affected;
+
+        Ok(rows_affected > 0)
+    }
+
     pub async fn remove_recovery_code(
         ctx: &ServiceContext<'_>,
         user: &WikijumpUserModel,

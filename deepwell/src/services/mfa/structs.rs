@@ -95,6 +95,14 @@ pub struct MultiFactorConfigure {
     pub session_token: String,
     pub ip_address: IpAddr,
 }
+#[derive(Deserialize, Debug, Clone)]
+pub struct MultiFactorDisable {
+    pub user_id: i64,
+    pub session_token: String,
+    pub ip_address: IpAddr,
+    pub password: String,
+    pub totp_or_code: String,
+}
 
 #[derive(Serialize, Debug, Clone)]
 pub struct MultiFactorSetupOutput {

@@ -25,7 +25,7 @@ use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::user::Model as UserModel;
 use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, AuditService, UpdateMfaOperation};
-use crate::services::{PasswordService, UserService};
+use crate::services::{AuthenticationAttemptService, PasswordService, UserService};
 use crate::types::UserType;
 use data_encoding::BASE32_NOPAD;
 use rust_otp::{Algorithm as TotpAlgorithm, TOTP};
@@ -93,6 +93,10 @@ impl MfaService {
         )
         .await
         .or_raise(make_error)?;
+
+        UserService::set_mfa_last_totp_step(ctx, user.user_id, ActiveValue::Set(None))
+            .await
+            .or_raise(make_error)?;
 
         AuditService::log(
             ctx,
@@ -172,32 +176,66 @@ impl MfaService {
 
     pub async fn disable(
         ctx: &ServiceContext<'_>,
-        user_id: i64,
+        user: &UserModel,
+        password: &str,
+        totp_or_code: &str,
         ip_address: IpAddr,
     ) -> Result<()> {
-        info!("Tearing down MFA for user ID {user_id}");
+        info!("Tearing down MFA for user ID {}", user.user_id);
 
         let make_error = || {
             Error::new(
-                format!("failed to disable MFA for user ID {}", user_id,),
+                format!("failed to disable MFA for user ID {}", user.user_id),
                 ErrorType::UserMfa,
             )
         };
 
+        PasswordService::verify_sleep(ctx, password, &user.password, false).await?;
+
+        if user.multi_factor_secret.is_some() {
+            let mfa_bucket = AuthenticationAttemptService::mfa_user_bucket(user.user_id);
+            if !AuthenticationAttemptService::reserve(ctx, &mfa_bucket, 5, 600)
+                .await
+                .or_raise(make_error)?
+            {
+                bail!(Error::new(
+                    format!(
+                        "cannot disable MFA for user '{}' (ID {}) because too many MFA attempts have been made",
+                        user.slug, user.user_id,
+                    ),
+                    ErrorType::InvalidAuthentication,
+                ));
+            }
+
+            let verification = match totp_or_code.parse() {
+                Ok(totp) => Self::verify(ctx, user, totp).await,
+                Err(_) => Self::verify_recovery(ctx, user, totp_or_code).await,
+            };
+            verification?;
+
+            AuthenticationAttemptService::clear(ctx, &[mfa_bucket])
+                .await
+                .or_raise(make_error)?;
+        }
+
         UserService::set_mfa_secrets(
             ctx,
-            user_id,
+            user.user_id,
             ActiveValue::Set(None),
             ActiveValue::Set(None),
         )
         .await
         .or_raise(make_error)?;
 
+        UserService::set_mfa_last_totp_step(ctx, user.user_id, ActiveValue::Set(None))
+            .await
+            .or_raise(make_error)?;
+
         AuditService::log(
             ctx,
             ip_address,
             AuditEvent::UserUpdateMfa {
-                user_id,
+                user_id: user.user_id,
                 operation: UpdateMfaOperation::Disable,
             },
         )
@@ -263,7 +301,20 @@ impl MfaService {
         );
 
         if code_verified {
-            return Ok(());
+            let step =
+                accepted_totp_step(now, config.totp_time_skew, config.totp_time_step);
+            let advanced = match step {
+                Some(step) => {
+                    UserService::advance_mfa_last_totp_step(ctx, user.user_id, step)
+                        .await
+                        .or_raise(make_error)?
+                }
+                None => false,
+            };
+
+            if advanced {
+                return Ok(());
+            }
         }
 
         bail!(Error::new(
@@ -357,6 +408,15 @@ fn verify_totp_at_with_seconds_offset(
     totp.verify_at(code, adjusted_timestamp, 0)
 }
 
+fn accepted_totp_step(
+    timestamp: u64,
+    time_offset_seconds: i64,
+    time_step: u64,
+) -> Option<i64> {
+    let adjusted_timestamp = timestamp.checked_add_signed(time_offset_seconds)?;
+    i64::try_from(adjusted_timestamp / time_step).ok()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -369,6 +429,15 @@ mod tests {
             .time_step(30)
             .build()
             .expect("test TOTP should build")
+    }
+    #[test]
+    fn accepted_totp_step_uses_the_adjusted_timestamp() {
+        assert_eq!(accepted_totp_step(900, 0, 30), Some(30));
+        assert_eq!(accepted_totp_step(929, 0, 30), Some(30));
+        assert_eq!(accepted_totp_step(930, 0, 30), Some(31));
+        assert_eq!(accepted_totp_step(899, 1, 30), Some(30));
+        assert_eq!(accepted_totp_step(u64::MAX, 1, 30), None);
+        assert_eq!(accepted_totp_step(0, -1, 30), None);
     }
 
     #[test]

@@ -23,5 +23,6 @@ mod structs;
 
 pub use self::service::MfaService;
 pub use self::structs::{
-    MultiFactorConfigure, MultiFactorResetOutput, MultiFactorSetupOutput,
+    MultiFactorConfigure, MultiFactorDisable, MultiFactorResetOutput,
+    MultiFactorSetupOutput,
 };

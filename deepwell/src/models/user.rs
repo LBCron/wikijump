@@ -35,6 +35,7 @@ pub struct Model {
     #[sea_orm(column_type = "Text", nullable)]
     pub multi_factor_secret: Option<String>,
     pub multi_factor_recovery_codes: Option<Vec<String>>,
+    pub multi_factor_last_totp_step: Option<i64>,
     pub locales: Vec<String>,
     #[sea_orm(column_type = "VarBinary(StringLen::None)", nullable)]
     pub avatar_s3_hash: Option<Vec<u8>>,

@@ -46,13 +46,13 @@ test("the published style and font allowlists are exactly the audited origins", 
   const fontOrigins = auditedExternalAssetOrigins("fonts")
   for (const origin of styleOrigins) {
     assert.ok(
-      directives["style-src"]?.includes(origin),
+      (directives["style-src"] as readonly string[] | undefined)?.includes(origin),
       `style-src is missing the audited origin ${origin}`
     )
   }
   for (const origin of fontOrigins) {
     assert.ok(
-      directives["font-src"]?.includes(origin),
+      (directives["font-src"] as readonly string[] | undefined)?.includes(origin),
       `font-src is missing the audited origin ${origin}`
     )
   }
@@ -68,9 +68,9 @@ test("no audited asset origin is allowlisted outside style-src and font-src", ()
       "manifest-src",
       "form-action",
       "base-uri"
-    ]) {
+    ] as const) {
       assert.ok(
-        !(directives[directive] ?? []).includes(entry.origin),
+        !((directives[directive] ?? []) as readonly string[]).includes(entry.origin),
         `audited asset origin ${entry.origin} must not be allowlisted in ${directive}`
       )
     }
@@ -82,10 +82,10 @@ test("an untrusted external origin cannot reach the audited allowlist", () => {
     "https://example.invalid",
     "https://attacker-controlled-font-hosting.example.com"
   ]
-  for (const directive of ["style-src", "font-src", "script-src"]) {
+  for (const directive of ["style-src", "font-src", "script-src"] as const) {
     for (const origin of untrustedOrigins) {
       assert.ok(
-        !(directives[directive] ?? []).includes(origin),
+        !((directives[directive] ?? []) as readonly string[]).includes(origin),
         `${origin} must not be allowlisted in ${directive}`
       )
     }
@@ -93,7 +93,7 @@ test("an untrusted external origin cannot reach the audited allowlist", () => {
 })
 
 test("no directive falls back to a scheme-wide external source", () => {
-  for (const directive of ["style-src", "font-src"]) {
+  for (const directive of ["style-src", "font-src"] as const) {
     for (const source of directives[directive] ?? []) {
       assert.notEqual(source, "https:", `${directive} must not allow every https origin`)
       assert.notEqual(source, "http:", `${directive} must not allow every http origin`)

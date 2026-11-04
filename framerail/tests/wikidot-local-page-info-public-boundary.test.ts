@@ -6,20 +6,13 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
-/** @type {any} */
-let previousWorkingDirectory
-/** @type {any} */
-let vite
-/** @type {any} */
-let render
-/** @type {any} */
-let pageComponent
-/** @type {any} */
-let buildWikidotPagePresentation
-/** @type {any} */
-let PAGE_LAYOUT_CONTEXT_KEY
-/** @type {any} */
-let Layout
+let previousWorkingDirectory: any
+let vite: any
+let render: any
+let pageComponent: any
+let buildWikidotPagePresentation: any
+let PAGE_LAYOUT_CONTEXT_KEY: any
+let Layout: any
 
 before(async () => {
   previousWorkingDirectory = process.cwd()

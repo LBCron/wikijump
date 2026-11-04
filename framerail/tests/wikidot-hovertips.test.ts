@@ -44,11 +44,11 @@ test("uses the live English and Japanese tip texts", () => {
   const english = new Map([
     ...wikidotHovertipTexts("en").first,
     ...wikidotHovertipTexts("en").second
-  ])
+  ] as unknown as [string, string][])
   const japanese = new Map([
     ...wikidotHovertipTexts("ja").first,
     ...wikidotHovertipTexts("ja").second
-  ])
+  ] as unknown as [string, string][])
   assert.equal(english.get("edit-button"), "Click here to edit contents of this page.")
   assert.equal(
     english.get("edit-sections-button"),

@@ -27,14 +27,14 @@ test("Wikidot top search intercepts the legacy dummy form action", () => {
     {
       currentTarget: {
         elements: {
-          namedItem: (name) => (name === "query" ? { value: "  a/b? c  " } : null)
+          namedItem: (name: string) => (name === "query" ? { value: "  a/b? c  " } : null)
         }
       },
       preventDefault() {
         prevented = true
       }
-    },
-    window
+    } as unknown as SubmitEvent,
+    window as unknown as Window
   )
 
   assert.equal(handled, true)
@@ -53,12 +53,13 @@ test("Wikidot SearchAll preserves its area and path-encodes the submitted query"
 })
 
 test("Wikidot SearchAll submit listener navigates rendered module forms", () => {
-  const listeners = new Map()
+  type SearchListener = (event: { target: unknown; preventDefault: () => void }) => void
+  const listeners = new Map<string, { listener: SearchListener; capture: unknown }>()
   const document = {
-    addEventListener(type, listener, capture) {
+    addEventListener(type: string, listener: SearchListener, capture: unknown) {
       listeners.set(type, { listener, capture })
     },
-    removeEventListener(type, listener, capture) {
+    removeEventListener(type: string, listener: SearchListener, capture: unknown) {
       const registration = listeners.get(type)
       if (registration?.listener === listener && registration.capture === capture) {
         listeners.delete(type)
@@ -72,12 +73,12 @@ test("Wikidot SearchAll submit listener navigates rendered module forms", () => 
   ])
   const form = {
     id: "search-form-all",
-    elements: { namedItem: (name) => controls.get(name) ?? null }
+    elements: { namedItem: (name: string) => controls.get(name) ?? null }
   }
   let prevented = false
 
-  const dispose = installWikidotSearchAll(window)
-  const registration = listeners.get("submit")
+  const dispose = installWikidotSearchAll(window as unknown as Window)
+  const registration = listeners.get("submit")!
   assert.equal(registration.capture, true)
   registration.listener({
     target: form,

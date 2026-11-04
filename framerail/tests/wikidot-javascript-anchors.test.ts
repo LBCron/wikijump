@@ -3,26 +3,34 @@ import test from "node:test"
 
 import { installJavascriptAnchorGuard } from "../src/lib/wikidot/wikidot-javascript-anchors.ts"
 
+type FakeClickEvent = {
+  target: unknown
+  defaultPrevented: boolean
+  preventDefault: () => void
+}
 const fakeRoot = () => {
-  const listeners = new Set()
+  const listeners = new Set<EventListener>()
   return {
-    addEventListener: (type, listener) => {
+    addEventListener: (type: string, listener: EventListener) => {
       assert.equal(type, "click")
       listeners.add(listener)
     },
-    removeEventListener: (type, listener) => {
+    removeEventListener: (type: string, listener: EventListener) => {
       assert.equal(type, "click")
       listeners.delete(listener)
     },
-    dispatch(target, { defaultPrevented = false } = {}) {
-      const event = {
+    dispatch(
+      target: unknown,
+      { defaultPrevented = false }: { defaultPrevented?: boolean } = {}
+    ) {
+      const event: FakeClickEvent = {
         target,
         defaultPrevented,
-        preventDefault() {
+        preventDefault(this: FakeClickEvent) {
           this.defaultPrevented = true
         }
       }
-      for (const listener of listeners) listener(event)
+      for (const listener of listeners) listener(event as unknown as Event)
       return event
     },
     get listenerCount() {
@@ -31,8 +39,8 @@ const fakeRoot = () => {
   }
 }
 
-const elementFor = (matchingSelector) => ({
-  closest: (selector) => (selector === matchingSelector ? {} : null)
+const elementFor = (matchingSelector: string) => ({
+  closest: (selector: string) => (selector === matchingSelector ? {} : null)
 })
 
 test("click on a Wikidot javascript:; control cancels the URL navigation", () => {

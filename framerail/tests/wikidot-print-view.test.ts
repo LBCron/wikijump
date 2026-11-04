@@ -25,7 +25,7 @@ test("printer-friendly loader preserves the required empty route suffix", async 
     new URL("../src/routes/printer--friendly/[...path]/+page.server.ts", import.meta.url),
     "utf8"
   )
-  const calls = []
+  const calls: unknown[][] = []
   const load = new Function(
     "loadPage",
     "isReservedAdminAliasSlug",
@@ -36,9 +36,9 @@ test("printer-friendly loader preserves the required empty route suffix", async 
       .join("\n")
       .replace("export async function", "async function")}\nreturn load`
   )(
-    (...args) => calls.push(args),
-    (slug) => slug?.replace(/^\/+|\/+$/gu, "").toLowerCase() === "_admin",
-    (status, location) => {
+    (...args: unknown[]) => calls.push(args),
+    (slug: string) => slug?.replace(/^\/+|\/+$/gu, "").toLowerCase() === "_admin",
+    (status: number, location: string) => {
       throw Object.assign(new Error("redirect"), { status, location })
     }
   )
@@ -126,71 +126,90 @@ test("print view delegates activation for generated handlers only", () => {
       removeProperty() {}
     }
   }
-  const listeners = new Map()
+  type FakePrintElement = {
+    onclick?: string | null
+    href?: string
+    getAttribute?: (name: string) => string | null
+  }
+  type FakeClickListener = (event: {
+    target: { closest: (selector: string) => unknown }
+    preventDefault: () => void
+  }) => void
+  const listeners = new Map<string, FakeClickListener>()
   const root = {
-    querySelector: (selector) => (selector === "#print-content" ? content : null),
-    addEventListener(type, listener) {
+    querySelector: (selector: string) => (selector === "#print-content" ? content : null),
+    addEventListener(type: string, listener: FakeClickListener) {
       listeners.set(type, listener)
     },
-    removeEventListener(type) {
+    removeEventListener(type: string) {
       listeners.delete(type)
     },
-    hasListener(type) {
+    hasListener(type: string) {
       return listeners.has(type)
     },
-    dispatch(element) {
+    dispatch(element: FakePrintElement) {
       const preventDefault = () => {}
       listeners.get("click")?.({
         target: {
-          closest: (selector) =>
-            ({
-              'a[onclick="window.print()"]':
-                element.onclick === "window.print()" ? element : null,
-              'a[onclick^="WIKIDOT.printview.listeners.changeFontSize"]':
-                element.onclick?.startsWith("WIKIDOT.printview.listeners.changeFontSize")
-                  ? element
-                  : null,
-              '#print-options a[href="javascript:;"]:not([onclick])':
-                // eslint-disable-next-line no-script-url -- Wikidot's observed control contract uses this exact inert href.
-                element.href === "javascript:;" && !element.onclick ? element : null
-            })[selector] ?? null
+          closest: (selector: string) =>
+            (
+              ({
+                'a[onclick="window.print()"]':
+                  element.onclick === "window.print()" ? element : null,
+                'a[onclick^="WIKIDOT.printview.listeners.changeFontSize"]':
+                  element.onclick?.startsWith(
+                    "WIKIDOT.printview.listeners.changeFontSize"
+                  )
+                    ? element
+                    : null,
+                '#print-options a[href="javascript:;"]:not([onclick])':
+                  // eslint-disable-next-line no-script-url -- Wikidot's observed control contract uses this exact inert href.
+                  element.href === "javascript:;" && !element.onclick ? element : null
+              }) as Record<string, FakePrintElement | null>
+            )[selector] ?? null
         },
         preventDefault
       })
     }
   }
 
-  const printed = []
-  const closed = []
+  const printed: boolean[] = []
+  const closed: boolean[] = []
   const previousPrint = globalThis.print
   const previousClose = globalThis.close
   globalThis.print = () => printed.push(true)
   globalThis.close = () => closed.push(true)
   try {
-    const action = wikidotPrintView(root)
+    const action = wikidotPrintView(root as unknown as HTMLElement)
     assert.equal(root.hasListener("click"), true)
 
     const mountedPrint = { onclick: "window.print()" }
     const latePrint = { onclick: "window.print()" }
     const mountedChange = {
-      getAttribute: (name) =>
-        ({ onclick: "WIKIDOT.printview.listeners.changeFontSize(event, '12pt')" })[
-          name
-        ] ?? null,
+      getAttribute: (name: string) =>
+        (
+          ({
+            onclick: "WIKIDOT.printview.listeners.changeFontSize(event, '12pt')"
+          }) as Record<string, string>
+        )[name] ?? null,
       onclick: "WIKIDOT.printview.listeners.changeFontSize(event, '12pt')"
     }
     const lateChange = {
-      getAttribute: (name) =>
-        ({ onclick: "WIKIDOT.printview.listeners.changeFontSize(event, '14pt')" })[
-          name
-        ] ?? null,
+      getAttribute: (name: string) =>
+        (
+          ({
+            onclick: "WIKIDOT.printview.listeners.changeFontSize(event, '14pt')"
+          }) as Record<string, string>
+        )[name] ?? null,
       onclick: "WIKIDOT.printview.listeners.changeFontSize(event, '14pt')"
     }
     const unknownChange = {
-      getAttribute: (name) =>
-        ({ onclick: "WIKIDOT.printview.listeners.changeFontSize(document, '12pt')" })[
-          name
-        ] ?? null,
+      getAttribute: (name: string) =>
+        (
+          ({
+            onclick: "WIKIDOT.printview.listeners.changeFontSize(document, '12pt')"
+          }) as Record<string, string>
+        )[name] ?? null,
       onclick: "WIKIDOT.printview.listeners.changeFontSize(document, '12pt')"
     }
     const close = {

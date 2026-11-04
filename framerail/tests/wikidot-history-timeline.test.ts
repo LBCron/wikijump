@@ -2,7 +2,10 @@ import assert from "node:assert/strict"
 import test from "node:test"
 
 import { mergeWikidotHistoryTimeline } from "../src/lib/server/wikidot-history-timeline.ts"
-import { renderWikidotPageRevisionList } from "../src/lib/server/ajax-module-connector-page-reads.ts"
+import {
+  renderWikidotPageRevisionList,
+  type WikidotHistoryRevision
+} from "../src/lib/server/ajax-module-connector-page-reads.ts"
 
 const author = {
   "user-id": 52,
@@ -129,7 +132,7 @@ test("renders a file event as the observed seven-cell F row without page rollbac
       changes: ["files"],
       comments: 'File "image.png" deleted'
     }
-  ])
+  ] as unknown as WikidotHistoryRevision[])
 
   const row = /<tr id="revision-row-100">([\s\S]*?)<\/tr>/u.exec(body)?.[1]
   assert.ok(row)

@@ -7,20 +7,13 @@ import { createTestViteServer } from "./vite-test-server.js"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
-/** @type {any} */
-let previousWorkingDirectory
-/** @type {any} */
-let vite
-/** @type {any} */
-let render
-/** @type {any} */
-let pageComponent
-/** @type {any} */
-let pageTagsComponent
-/** @type {any} */
-let PAGE_LAYOUT_CONTEXT_KEY
-/** @type {any} */
-let Layout
+let previousWorkingDirectory: any
+let vite: any
+let render: any
+let pageComponent: any
+let pageTagsComponent: any
+let PAGE_LAYOUT_CONTEXT_KEY: any
+let Layout: any
 
 before(async () => {
   previousWorkingDirectory = process.cwd()
@@ -79,63 +72,50 @@ const foundPageData = {
   internationalization: {}
 }
 
-/** @param {any} data */
-const renderFoundPage = (data) =>
+const renderFoundPage = (data: any) =>
   render(pageComponent, {
     props: { data },
     context: new Map([[PAGE_LAYOUT_CONTEXT_KEY, { current: Layout.WIKIDOT }]])
   }).body
 
-/** @param {any} body @param {any} tags @param {any} [hidden] */
-const assertTagTree = (body, tags, hidden = false) => {
+const assertTagTree = (body: any, tags: any, hidden: any = false) => {
   const tree = body.match(
     /<div class="page-tags(?: hidden)?"><span>[\s\S]*?<\/span><\/div>/u
   )
   assert.ok(tree, "tag links must retain their native div/span wrappers")
-  const root = parse(tree[0]).html.children
+  const root = parse(tree[0]).html.children as any[]
   assert.equal(root.length, 1)
   assert.equal(root[0].type, "Element")
   assert.equal(root[0].name, "div")
   assert.equal(
-    root[0].attributes.find(
-      /** @param {any} attribute */ (attribute) => attribute.name === "class"
-    )?.value[0]?.data,
+    root[0].attributes.find((attribute: any) => attribute.name === "class")?.value[0]
+      ?.data,
     `page-tags${hidden ? " hidden" : ""}`
   )
 
-  const spans = root[0].children.filter(
-    /** @param {any} child */ (child) => child.type === "Element"
-  )
+  const spans = root[0].children.filter((child: any) => child.type === "Element")
   assert.equal(spans.length, 1)
   assert.equal(spans[0].name, "span")
   assert.ok(
     spans[0].children.every(
-      /** @param {any} child */ (child) =>
-        child.type === "Comment" || child.type === "Element"
+      (child: any) => child.type === "Comment" || child.type === "Element"
     )
   )
 
-  const links = spans[0].children.filter(
-    /** @param {any} child */ (child) => child.type === "Element"
-  )
+  const links = spans[0].children.filter((child: any) => child.type === "Element")
   assert.deepEqual(
-    links.map(
-      /** @param {any} link */ (link) => ({
-        href: link.attributes.find(
-          /** @param {any} attribute */ (attribute) => attribute.name === "href"
-        )?.value[0]?.data,
-        label: link.children
-          .filter(/** @param {any} child */ (child) => child.type === "Text")
-          .map(/** @param {any} child */ (child) => child.data)
-          .join("")
-      })
-    ),
-    tags.map(
-      /** @param {any} tag */ (tag) => ({
-        href: `/system:page-tags/tag/${tag}#pages`,
-        label: tag
-      })
-    )
+    links.map((link: any) => ({
+      href: link.attributes.find((attribute: any) => attribute.name === "href")?.value[0]
+        ?.data,
+      label: link.children
+        .filter((child: any) => child.type === "Text")
+        .map((child: any) => child.data)
+        .join("")
+    })),
+    tags.map((tag: any) => ({
+      href: `/system:page-tags/tag/${tag}#pages`,
+      label: tag
+    }))
   )
 }
 
@@ -173,19 +153,16 @@ test("editing found-page route SSR preserves the hidden page-tags state", () => 
   assertTagTree(body, foundPageData.page_revision.tags, true)
 })
 
-/** @param {any} html */
-const withoutMarkupNoise = (html) =>
+const withoutMarkupNoise = (html: any) =>
   html
     .split("<!--")
-    .map(
-      /** @param {any} part @param {any} index */ (part, index) =>
-        index === 0 ? part : part.slice(part.indexOf("-->") + 3)
+    .map((part: any, index: any) =>
+      index === 0 ? part : part.slice(part.indexOf("-->") + 3)
     )
     .join("")
     .trim()
 
-/** @param {any} body */
-const assertPageInfoBreakOrder = (body) => {
+const assertPageInfoBreakOrder = (body: any) => {
   const breakTag = '<div id="page-info-break"></div>'
   const breakIndex = body.indexOf(breakTag)
   assert.notEqual(breakIndex, -1, "found pages must render Wikidot's #page-info-break")

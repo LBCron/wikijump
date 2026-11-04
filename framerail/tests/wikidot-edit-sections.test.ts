@@ -8,11 +8,12 @@ import {
   toggleWikidotEditSections
 } from "../src/lib/wikidot/wikidot-edit-sections.ts"
 
-/** @param {any} level @param {any} index @returns {any} */
-const heading = (level, index) => ({ id: `toc${index}`, tagName: `H${level}` })
+const heading = (level: any, index: any): any => ({
+  id: `toc${index}`,
+  tagName: `H${level}`
+})
 
-/** @param {any} directHeadings @param {any} [descendantHeadings] */
-const pageContent = (directHeadings, descendantHeadings = directHeadings) => ({
+const pageContent = (directHeadings: any, descendantHeadings: any = directHeadings) => ({
   children: directHeadings,
   querySelectorAll() {
     return descendantHeadings
@@ -62,7 +63,7 @@ test("Edit Sections handles large heading sequences without copying suffixes", (
 
   assert.equal(sections.length, 30000)
   assert.equal(sections[0].end, source.indexOf("\n") + 1)
-  assert.equal(/** @type {any} */ (sections.at(-1)).end, source.length)
+  assert.equal((sections.at(-1) as any).end, source.length)
 })
 
 test("Edit Sections fails closed without a one-to-one direct heading match", () => {
@@ -87,23 +88,17 @@ test("Edit Sections fails closed without a one-to-one direct heading match", () 
 })
 
 test("Edit Sections inserts evidenced controls and toggles them off", () => {
-  /** @type {any[]} */
-  const controls = []
-  /** @type {any[]} */
-  const edits = []
+  const controls: any[] = []
+  const edits: any[] = []
   const headings = [heading(1, 0), heading(2, 1)]
   for (const renderedHeading of headings) {
-    renderedHeading.before = /** @param {any} control */ (control) =>
-      controls.push(control)
+    renderedHeading.before = (control: any) => controls.push(control)
   }
   const ownerDocument = {
     createElement() {
       const listeners = new Map()
       return {
-        addEventListener: /** @param {any} name @param {any} listener */ (
-          name,
-          listener
-        ) => listeners.set(name, listener),
+        addEventListener: (name: any, listener: any) => listeners.set(name, listener),
         click() {
           listeners.get("click")({ preventDefault() {} })
         },
@@ -116,17 +111,14 @@ test("Edit Sections inserts evidenced controls and toggles them off", () => {
   const root = {
     children: headings,
     ownerDocument,
-    /** @param {any} selector */
-    querySelectorAll(selector) {
+    querySelectorAll(selector: any) {
       return selector === ".edit-section-button" ? [...controls] : headings
     }
   }
 
   assert.equal(
-    toggleWikidotEditSections(
-      /** @type {any} */ (root),
-      "+ One\n\nBody\n\n++ Two\n\nBody",
-      (section) => edits.push(section.index)
+    toggleWikidotEditSections(root as any, "+ One\n\nBody\n\n++ Two\n\nBody", (section) =>
+      edits.push(section.index)
     ),
     true
   )
@@ -157,7 +149,7 @@ test("Edit Sections inserts evidenced controls and toggles them off", () => {
   controls[1].click()
   assert.deepEqual(edits, [1])
   assert.equal(
-    toggleWikidotEditSections(/** @type {any} */ (root), "ignored", () => {}),
+    toggleWikidotEditSections(root as any, "ignored", () => {}),
     false
   )
   assert.deepEqual(controls, [])

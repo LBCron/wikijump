@@ -168,7 +168,7 @@ test("carries Wikidot's footer control ids for their hovertips", () => {
   )
 })
 
-const retainedShell = (directory) =>
+const retainedShell = (directory: string) =>
   readFileSync(
     new URL(
       `../../install/local/theme-lab/evidence/wikidot-runtime-surface-20260929.normal/${directory}/live.dom.html`,
@@ -176,7 +176,7 @@ const retainedShell = (directory) =>
     ),
     "utf8"
   )
-const innerHtml = (html, open, close) => {
+const innerHtml = (html: string, open: string, close: string) => {
   const start = html.indexOf(open) + open.length
   return html.slice(start, html.indexOf(close, start))
 }
@@ -212,29 +212,29 @@ for (const [locale, directory] of [
 
 test("binds the footer's inline handler names without compiling them", () => {
   let handlerReads = 0
-  const control = (onclick) => {
-    let handler = null
+  const control = (onclick: string) => {
+    let handler: (() => boolean) | null = null
     return {
       get onclick() {
         handlerReads += 1
         return handler
       },
-      set onclick(value) {
+      set onclick(value: (() => boolean) | null) {
         handler = value
       },
-      getAttribute: (name) => (name === "onclick" ? onclick : null)
+      getAttribute: (name: string) => (name === "onclick" ? onclick : null)
     }
   }
   const report = control("WIKIDOT.page.listeners.pageBugReport(event)")
   const consent = control("window.__cmp('showModal');")
   const authored = control("alert(1)")
   const action = wikidotFooterControls({
-    querySelectorAll: (selector) =>
+    querySelectorAll: (selector: string) =>
       selector === "a[onclick]" ? [report, consent, authored] : []
-  })
+  } as unknown as HTMLElement)
   assert.equal(handlerReads, 0)
-  assert.equal(report.onclick(), false)
-  assert.equal(consent.onclick(), false)
+  assert.equal(report.onclick!(), false)
+  assert.equal(consent.onclick!(), false)
   assert.equal(authored.onclick, null)
   action.destroy()
   assert.equal(report.onclick, null)

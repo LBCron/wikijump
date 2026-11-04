@@ -101,8 +101,7 @@ const permissionsPage = {
   data: { ...pageBase, banned: false }
 }
 
-/** @param {any} route */
-const articleView = (route) => {
+const articleView = (route: any) => {
   const slug = route?.slug
   const wikijumpLayout = [
     "wikijump-document",
@@ -136,8 +135,7 @@ const deepwellInfo = {
   compile_info: { rustc_version: "rustc fixture" }
 }
 
-/** @param {any} method @param {any} params */
-const rpcResult = (method, params) => {
+const rpcResult = (method: any, params: any) => {
   if (method === "article_view") return articleView(params.route)
   if (method === "article_view_cache_metadata") {
     return {
@@ -152,24 +150,21 @@ const rpcResult = (method, params) => {
   throw new Error(`Unexpected Deepwell method ${method}`)
 }
 
-/** @param {any} server */
-const listen = async (server) => {
+const listen = async (server: any) => {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))
   const address = server.address()
   assert.equal(typeof address, "object")
   return address.port
 }
 
-/** @param {any} request */
-const readBody = async (request) => {
-  const chunks = []
+const readBody = async (request: any) => {
+  const chunks: Buffer[] = []
   for await (const chunk of request) chunks.push(Buffer.from(chunk))
   return Buffer.concat(chunks).toString("utf8")
 }
 
-/** @param {any} request @param {any} response */
-const deepwellHandler = async (request, response) => {
-  let rpcRequest
+const deepwellHandler = async (request: any, response: any) => {
+  let rpcRequest: any
   try {
     assert.equal(request.method, "POST")
     assert.equal(request.url, "/jsonrpc")
@@ -195,8 +190,7 @@ const deepwellHandler = async (request, response) => {
   }
 }
 
-/** @param {any} html @param {any} locale */
-const assertWikidotLanguageDocument = (html, locale) => {
+const assertWikidotLanguageDocument = (html: any, locale: any) => {
   assert.match(
     html,
     new RegExp(
@@ -212,8 +206,7 @@ const assertWikidotLanguageDocument = (html, locale) => {
   )
 }
 
-/** @param {any} html @param {any} locale */
-const assertWikijumpLanguageDocument = (html, locale) => {
+const assertWikijumpLanguageDocument = (html: any, locale: any) => {
   assert.match(html, new RegExp(`<html lang="${locale}">`, "u"))
   assert.doesNotMatch(
     html,
@@ -221,18 +214,12 @@ const assertWikijumpLanguageDocument = (html, locale) => {
   )
 }
 
-/** @type {any} */
-let previousWorkingDirectory
-/** @type {any} */
-let previousEnvironment
-/** @type {any} */
-let deepwellServer
-/** @type {any} */
-let vite
-/** @type {any} */
-let framerailServer
-/** @type {any} */
-let baseUrl
+let previousWorkingDirectory: any
+let previousEnvironment: any
+let deepwellServer: any
+let vite: any
+let framerailServer: any
+let baseUrl: any
 
 before(async () => {
   previousWorkingDirectory = process.cwd()
@@ -275,7 +262,7 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
   for (const [name, value] of Object.entries(previousEnvironment ?? {})) {
     if (value === undefined) delete process.env[name]
-    else process.env[name] = value
+    else process.env[name] = value as string
   }
 })
 

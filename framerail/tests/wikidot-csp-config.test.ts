@@ -18,11 +18,11 @@ test("local included components can load styles and fonts from the reviewed mirr
   for (const origin of [
     "https://scp-wiki.wjfiles.localhost",
     "https://scp-jp.wjfiles.localhost"
-  ]) {
-    for (const directive of ["style-src", "font-src"]) {
+  ] as const) {
+    for (const directive of ["style-src", "font-src"] as const) {
       assert(directives[directive]?.includes(origin), `${directive} needs ${origin}`)
     }
-    for (const directive of ["script-src", "connect-src", "frame-src"]) {
+    for (const directive of ["script-src", "connect-src", "frame-src"] as const) {
       assert(!directives[directive]?.includes(origin), `${directive} excludes ${origin}`)
     }
   }
@@ -36,9 +36,9 @@ test("local mirror style and font grants do not reach other deployments", async 
       const { default: other } = await import(
         `../sveltekit-options.ts?mirror-assets=${environment}`
       )
-      for (const directive of ["style-src", "font-src"]) {
+      for (const directive of ["style-src", "font-src"] as const) {
         const sources = other.csp.directives[directive]
-        assert(!sources.some((source) => source.includes(".wjfiles.localhost")))
+        assert(!sources.some((source: string) => source.includes(".wjfiles.localhost")))
       }
     }
   } finally {
@@ -113,7 +113,7 @@ test("allows captured Wikidot legacy asset origins in local CSP", () => {
   for (const [directive, granted] of [
     ["style-src", classifiedDecorationGrant.styles],
     ["font-src", classifiedDecorationGrant.fonts]
-  ]) {
+  ] as const) {
     assert.equal(
       directives[directive]?.some(
         (source) => source === classifiedDecorationGrant.origin

@@ -58,7 +58,7 @@ test("interwiki frame uses only the audited external style and font origins", ()
     "https://scp-wiki.wikijump.localhost"
   )
   const policy = interwiki.headers.get("content-security-policy") ?? ""
-  const directiveSources = (name) => {
+  const directiveSources = (name: string) => {
     const directive = policy
       .split(";")
       .map((value) => value.trim())
@@ -298,12 +298,10 @@ test("replaces only an exact CSP source token", () => {
 test("node compatibility responses receive the same local frame policy", () => {
   const headers = new Map()
   const response = {
-    /** @param {string} name @param {string} value */
-    setHeader(name, value) {
+    setHeader(name: string, value: string) {
       headers.set(name, value)
     },
-    /** @param {string} name */
-    removeHeader(name) {
+    removeHeader(name: string) {
       headers.delete(name)
     }
   }
@@ -313,7 +311,7 @@ test("node compatibility responses receive the same local frame policy", () => {
     "local"
   )
   assert.equal(headers.get("x-frame-options"), "SAMEORIGIN")
-  assert.match(headers.get("content-security-policy"), /frame-ancestors 'self'/u)
+  assert.match(headers.get("content-security-policy")!, /frame-ancestors 'self'/u)
 })
 
 test("reads the frame-policy environment at call time", () => {
@@ -356,7 +354,7 @@ test("interwiki frame admits both local mirror file origins on the default port"
     "https://scp-jp.wikijump.localhost"
   )
   const policy = interwiki.headers.get("content-security-policy") ?? ""
-  const directiveSources = (name) => {
+  const directiveSources = (name: string) => {
     const directive = policy
       .split(";")
       .map((value) => value.trim())
@@ -386,7 +384,7 @@ test("interwiki frame carries both mirror forms at the stafflab port", () => {
     "https://scp-jp.wikijump.localhost:28443"
   )
   const policy = interwiki.headers.get("content-security-policy") ?? ""
-  const directiveSources = (name) => {
+  const directiveSources = (name: string) => {
     const directive = policy
       .split(";")
       .map((value) => value.trim())
@@ -448,7 +446,7 @@ test("keeps the interwiki frame policy unchanged outside local deployments", () 
     `font-src 'self' data: https://wikijump-current-site.invalid ${fontSources}; ` +
     `img-src 'self' data: https://wikijump-current-site.invalid https://*.wdfiles.com https://cdn.scpwiki.com https://d3g0gp89917ko0.cloudfront.net https://scp-jp.github.io; ` +
     `frame-ancestors 'self'`
-  for (const deploymentEnvironment of ["dev", "prod"]) {
+  for (const deploymentEnvironment of ["dev", "prod"] as const) {
     const interwiki = new Response("")
     applyStaticSecurityHeaders(
       interwiki,

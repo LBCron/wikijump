@@ -13,12 +13,12 @@ const evidence = "framerail/tests/fixtures/native-revision-source"
 
 test("frozen revision source proves the div and explicit escaped line-boundary contract", () => {
   const observation = JSON.parse(
-    fs.readFileSync(path.join(root, `${evidence}/observation.json`))
+    fs.readFileSync(path.join(root, `${evidence}/observation.json`)) as unknown as string
   )
   for (const site of observation.sites) {
     const binding = site.requests[0]
     const bytes = fs.readFileSync(path.join(root, evidence, binding.response_file))
-    const response = JSON.parse(bytes)
+    const response = JSON.parse(bytes as unknown as string)
     assert.equal(response.status, "ok")
     assert.match(response.body, /<div class="page-source">/u)
     assert.match(response.body, /<br \/>/u)

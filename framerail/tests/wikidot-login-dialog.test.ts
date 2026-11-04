@@ -76,13 +76,26 @@ test("in-place sign-in labels are defined for the surface", () => {
   }
 })
 
-const installLoginActionHarness = ({ available = true } = {}) => {
-  let listener = null
+type FakeClickEvent = {
+  button: number
+  metaKey: boolean
+  ctrlKey: boolean
+  shiftKey: boolean
+  altKey: boolean
+  defaultPrevented: boolean
+  preventDefault: () => void
+  target: unknown
+}
+
+const installLoginActionHarness = ({
+  available = true
+}: { available?: boolean } = {}) => {
+  let listener: { type: string; handler: EventListener } | null = null
   const root = {
-    addEventListener: (type, handler) => {
+    addEventListener: (type: string, handler: EventListener) => {
       listener = { type, handler }
     },
-    removeEventListener: (type, handler) => {
+    removeEventListener: (type: string, handler: EventListener) => {
       if (listener?.type === type && listener?.handler === handler) listener = null
     }
   }
@@ -93,14 +106,14 @@ const installLoginActionHarness = ({ available = true } = {}) => {
       opened += 1
     }
   })
-  const anchor = (href) => ({
-    closest: (selector) =>
+  const anchor = (href: string) => ({
+    closest: (selector: string) =>
       selector === `a[href="${href}"]` && href === WIKIDOT_LOGIN_ACTION_HREF
         ? { href }
         : null
   })
-  const click = (target, overrides = {}) => {
-    const event = {
+  const click = (target: unknown, overrides: Partial<FakeClickEvent> = {}) => {
+    const event: FakeClickEvent = {
       button: 0,
       metaKey: false,
       ctrlKey: false,
@@ -113,7 +126,7 @@ const installLoginActionHarness = ({ available = true } = {}) => {
       target,
       ...overrides
     }
-    listener?.handler(event)
+    listener?.handler(event as unknown as Event)
     return event
   }
   return {

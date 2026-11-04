@@ -53,9 +53,11 @@ export const handlePageRevisionRpc = ({
     const previousValue = fixtureState.voteValues[pageId] ?? 0
     fixtureState.voteValues[pageId] = rpcRequest.params.value
     if (pageById(pageId)?.slug === "page-workflow-star-probe") {
-      (fixtureState.ratingScores as Record<number, number>)[pageId] = rpcRequest.params.value
+      ;(fixtureState.ratingScores as Record<number, number>)[pageId] =
+        rpcRequest.params.value
     } else if (pageId === 3000342) {
-      (fixtureState.ratingScores as Record<number, number>)[pageId] += rpcRequest.params.value - previousValue
+      ;(fixtureState.ratingScores as Record<number, number>)[pageId] +=
+        rpcRequest.params.value - previousValue
     }
     result = {
       page_vote_id: 7000001,
@@ -79,9 +81,9 @@ export const handlePageRevisionRpc = ({
     const previousValue = fixtureState.voteValues[pageId] ?? 0
     delete fixtureState.voteValues[pageId]
     if (pageById(pageId)?.slug === "page-workflow-star-probe") {
-      (fixtureState.ratingScores as Record<number, number>)[pageId] = 3
+      ;(fixtureState.ratingScores as Record<number, number>)[pageId] = 3
     } else if (pageId === 3000342) {
-      (fixtureState.ratingScores as Record<number, number>)[pageId] -= previousValue
+      ;(fixtureState.ratingScores as Record<number, number>)[pageId] -= previousValue
     }
     result = {
       page_vote_id: 7000001,

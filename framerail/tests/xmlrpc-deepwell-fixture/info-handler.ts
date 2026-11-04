@@ -1,10 +1,8 @@
 /**
  * Backend diagnostics for the native /-/about page. The values are long on
  * purpose: the page must wrap them inside a phone-width viewport.
- *
- * @param {{ rpcRequest: any }} input
  */
-export const handleInfoRpc = ({ rpcRequest }) => {
+export const handleInfoRpc = ({ rpcRequest }: { rpcRequest: any }) => {
   if (rpcRequest.method !== "info") return undefined
 
   return {

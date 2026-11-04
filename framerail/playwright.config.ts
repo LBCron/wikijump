@@ -25,7 +25,7 @@ const config: PlaywrightTestConfig = {
   workers: 1,
   use: {},
   webServer: {
-    command: `sh -c 'node tests/xmlrpc-deepwell-fixture-server.js & fixture=$!; trap "kill $fixture" EXIT INT TERM; DEEPWELL_HOST=127.0.0.1 DEEPWELL_PORT=${fixturePort} DEEPWELL_RPC_TOKEN=${deepwellRpcToken} ./node_modules/.bin/vite dev --host 127.0.0.1 --port ${appPort}'`,
+    command: `sh -c 'node tests/xmlrpc-deepwell-fixture-server.ts & fixture=$!; trap "kill $fixture" EXIT INT TERM; DEEPWELL_HOST=127.0.0.1 DEEPWELL_PORT=${fixturePort} DEEPWELL_RPC_TOKEN=${deepwellRpcToken} ./node_modules/.bin/vite dev --host 127.0.0.1 --port ${appPort}'`,
     env: {
       PLAYWRIGHT_FIXTURE_PORT: String(fixturePort),
       FRAMERAIL_VITE_TEST_CACHE: "1",

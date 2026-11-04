@@ -1,20 +1,23 @@
+import type { IncomingMessage } from "node:http"
+
 import {
   fixtureState,
   hasExactKeys,
   requestContextHeaders,
   toFileResult,
   toFileResultWithoutData
-} from "./context.js"
-import { pages } from "./data.js"
+} from "./context.ts"
+import { pages } from "./data.ts"
 
-/**
- * @param {{
- *   rpcRequest: any
- *   request: import("node:http").IncomingMessage
- *   port: number
- * }} input
- */
-export const handleFileReadRpc = ({ rpcRequest, request, port }) => {
+export const handleFileReadRpc = ({
+  rpcRequest,
+  request,
+  port
+}: {
+  rpcRequest: any
+  request: IncomingMessage
+  port: number
+}) => {
   const { counters, fileRequests, filesByPageId } = fixtureState
   let result
 

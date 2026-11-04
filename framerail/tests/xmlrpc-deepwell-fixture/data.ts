@@ -1,50 +1,48 @@
-/**
- * @typedef {{
- *   compiled_html?: boolean
- *   wikitext?: boolean
- * }} PageDetails
- *
- *
- * @typedef {{
- *   compiled_body_html: string
- *   compiled_body_styles?: string[]
- *   creator_user_id: number
- *   from_wikidot?: boolean
- *   page_created_at: string
- *   page_id: number
- *   page_revision_count: number
- *   page_updated_at: string | null
- *   rating: number
- *   revision_created_at: string
- *   revision_id: number
- *   revision_user_id: number
- *   slug: string
- *   tags: string[]
- *   title: string
- *   wikitext: string
- *   wikidot_snapshot?: {
- *     source_site: string
- *     source_revision_count: number
- *     source_updated_at: string
- *     imported_rating: number
- *     comments: number
- *   }
- * }} FixturePage
- *
- *
- * @typedef {{
- *   content: string
- *   created_at: string
- *   created_by: string
- *   html: string
- *   id: number
- *   reply_to: number | null
- *   title: string
- * }} FixtureForumPost
- */
+export type PageDetails = {
+  compiled_html?: boolean
+  wikitext?: boolean
+}
 
-/** @type {Record<string, FixturePage>} */
-export const pages = {
+export type FixturePage = {
+  compiled_body_html: string
+  compiled_body_styles?: string[]
+  creator_display_name?: string | null
+  creator_user_id: number
+  from_wikidot?: boolean
+  page_created_at: string
+  page_id: number
+  page_revision_count: number
+  page_updated_at: string | null
+  rating?: number
+  redirect_page?: string | null
+  revision_created_at: string
+  revision_id: number
+  revision_user_id: number
+  slug: string
+  tags: string[]
+  title: string
+  updater_display_name?: string | null
+  wikitext: string
+  wikidot_snapshot?: {
+    source_site: string
+    source_revision_count: number
+    source_updated_at: string
+    imported_rating: number
+    comments: number
+  }
+}
+
+export type FixtureForumPost = {
+  content: string
+  created_at: string
+  created_by: string
+  html: string
+  id: number
+  reply_to: number | null
+  title: string
+}
+
+export const pages: Record<string, FixturePage> = {
   main: {
     page_id: 3000001,
     revision_id: 9000001,
@@ -750,8 +748,7 @@ x^2 + y^2 = z^2
   }
 }
 
-/** @param {FixturePage} page */
-export const toArticleViewResult = (page, siteId = 6000005) => ({
+export const toArticleViewResult = (page: FixturePage, siteId = 6000005) => ({
   site: {
     site_id: siteId,
     created_at: "2026-01-01T00:00:00Z",
@@ -860,8 +857,7 @@ export const toArticleViewResult = (page, siteId = 6000005) => ({
   }
 })
 
-/** @type {Record<string, FixtureForumPost[]>} */
-export const forumPostsByPage = {
+export const forumPostsByPage: Record<string, FixtureForumPost[]> = {
   "xmlrpc-integer-post-page": [
     {
       id: 7000301,
@@ -886,35 +882,31 @@ export const forumPostsByPage = {
   ]
 }
 
-/** @type {Record<string, string | string[]>} */
-export const parentBySlug = {
+export const parentBySlug: Record<string, string | string[]> = {
   "scp-173": "scp-173-parent",
   "public-child-private-parent": "private-page",
   "ambiguous-parent-child": ["main", "scp-173-parent"]
 }
 
-/** @type {Record<string, { slug: string; title: string }[]>} */
-export const backlinksByPage = {
+export const backlinksByPage: Record<string, { slug: string; title: string }[]> = {
   "scp-173": [{ slug: "scp-173-parent", title: "SCP Foundation" }]
 }
 
 /**
  * Populated watcher rosters by numeric page id, in Deepwell's public
  * identity shape. Pages without an entry read as an empty roster.
- *
- * @type {Record<
- *   number,
- *   {
- *     "user-id": number
- *     "user-slug": string
- *     "user-name": string
- *     "user-karma": number
- *     "user-avatar-data": string
- *     "user-profile-url": string
- *   }[]
- * >}
  */
-export const watchersByPageId = {
+export const watchersByPageId: Record<
+  number,
+  {
+    "user-id": number
+    "user-slug": string
+    "user-name": string
+    "user-karma": number
+    "user-avatar-data": string
+    "user-profile-url": string
+  }[]
+> = {
   3000340: [
     {
       "user-id": 19_000_001,
@@ -935,16 +927,13 @@ export const watchersByPageId = {
   ]
 }
 
-/**
- * @param {FixturePage | null} page
- * @param {PageDetails} details
- * @returns {Record<string, unknown> | null}
- */
-export const toPageResult = (page, details) => {
+export const toPageResult = (
+  page: FixturePage | null,
+  details: PageDetails
+): Record<string, unknown> | null => {
   if (!page) return null
 
-  /** @type {Record<string, unknown>} */
-  const result = {
+  const result: Record<string, unknown> = {
     page_created_at: page.page_created_at,
     page_id: page.page_id,
     page_updated_at: page.page_updated_at,

@@ -1,6 +1,6 @@
 import { handlePageLookupRpc } from "./page-lookup-handler.ts"
 import { handlePageRelationshipRpc } from "./page-relationship-handler.ts"
-import { hasExactKeys } from "./context.js"
+import { hasExactKeys } from "./context.ts"
 
 export const handlePageDetailRpc = (input: {
   rpcRequest: any

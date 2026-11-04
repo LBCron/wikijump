@@ -1,13 +1,15 @@
-import { fixtureState, hasExactKeys, requestContextHeaders } from "./context.js"
-import { pages, parentBySlug } from "./data.js"
+import type { IncomingMessage } from "node:http"
 
-/**
- * @param {{
- *   rpcRequest: any
- *   request: import("node:http").IncomingMessage
- * }} input
- */
-export const handleParentWriteRpc = ({ rpcRequest, request }) => {
+import { fixtureState, hasExactKeys, requestContextHeaders } from "./context.ts"
+import { pages, parentBySlug } from "./data.ts"
+
+export const handleParentWriteRpc = ({
+  rpcRequest,
+  request
+}: {
+  rpcRequest: any
+  request: IncomingMessage
+}) => {
   const { counters, pageWriteRequests } = fixtureState
   let result
   const parentGetPageReference = rpcRequest.params?.page

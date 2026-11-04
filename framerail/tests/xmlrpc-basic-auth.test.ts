@@ -6,14 +6,14 @@ import { createJiti } from "jiti"
 
 const libRoot = fileURLToPath(new URL("../src/lib/", import.meta.url))
 const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
-const { handleXmlRpcRequest } = await jiti.import(
+const { handleXmlRpcRequest } = await jiti.import<any>(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/index.ts", import.meta.url))
 )
 
 const methodListBody = `<?xml version="1.0"?>
 <methodCall><methodName>system.listMethods</methodName><params /></methodCall>`
 
-const requestWithBasicAuth = (username, password) =>
+const requestWithBasicAuth = (username: string, password: string) =>
   new Request("http://127.0.0.1/xml-rpc-api.php", {
     body: methodListBody,
     headers: {

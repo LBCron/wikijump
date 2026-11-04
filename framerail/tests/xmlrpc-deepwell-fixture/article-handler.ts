@@ -3,8 +3,8 @@ import {
   hasExactKeys,
   isFixtureSiteId,
   requestContextHeaders
-} from "./context.js"
-import { pages, toArticleViewResult } from "./data.js"
+} from "./context.ts"
+import { pages, toArticleViewResult } from "./data.ts"
 
 const LISTPAGES_NAVIGATION_EXTRA = /^p\/[1-9][0-9]*$/u
 const SEARCH_SITE_EXTRA = /^q\/.+$/u

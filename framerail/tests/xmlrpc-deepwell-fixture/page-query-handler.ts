@@ -1,5 +1,5 @@
-import { fixtureState, hasExactKeys, requestContextHeaders } from "./context.js"
-import { sendRpcError } from "./response.js"
+import { fixtureState, hasExactKeys, requestContextHeaders } from "./context.ts"
+import { sendRpcError } from "./response.ts"
 
 export const handlePageQueryRpc = ({
   rpcRequest,

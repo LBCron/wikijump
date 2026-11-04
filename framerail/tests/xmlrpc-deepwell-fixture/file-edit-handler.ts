@@ -1,20 +1,23 @@
+import type { IncomingMessage, ServerResponse } from "node:http"
+
 import {
   fixtureState,
   hasExactKeys,
   pageById,
   requestContextHeaders,
   updateFixtureFile
-} from "./context.js"
-import { sendRpcError } from "./response.js"
+} from "./context.ts"
+import { sendRpcError } from "./response.ts"
 
-/**
- * @param {{
- *   rpcRequest: any
- *   request: import("node:http").IncomingMessage
- *   response: import("node:http").ServerResponse
- * }} input
- */
-export const handleFileEditRpc = ({ rpcRequest, request, response }) => {
+export const handleFileEditRpc = ({
+  rpcRequest,
+  request,
+  response
+}: {
+  rpcRequest: any
+  request: IncomingMessage
+  response: ServerResponse
+}) => {
   const { counters, fileRequests, filesByPageId, pendingUploads } = fixtureState
 
   if (

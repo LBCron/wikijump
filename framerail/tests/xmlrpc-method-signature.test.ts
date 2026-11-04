@@ -6,12 +6,10 @@ import { createJiti } from "jiti"
 
 const libRoot = fileURLToPath(new URL("../src/lib/", import.meta.url))
 const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
-/** @type {any} */
-const { dispatchXmlRpcCall } = await jiti.import(
+const { dispatchXmlRpcCall } = await jiti.import<any>(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/methods.ts", import.meta.url))
 )
-/** @type {any} */
-const { serializeMethodResponse } = await jiti.import(
+const { serializeMethodResponse } = await jiti.import<any>(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/protocol.ts", import.meta.url))
 )
 

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { handleAuthRpc } from "./xmlrpc-deepwell-fixture/auth-handler.js"
+import { handleAuthRpc } from "./xmlrpc-deepwell-fixture/auth-handler.ts"
 
 const translate = (locales: string[], keys: string[]) =>
   handleAuthRpc({

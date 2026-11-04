@@ -1,20 +1,24 @@
-import { handleFileRpc } from "./file-handler.js"
-import { handleInfoRpc } from "./info-handler.js"
-import { handleReadRpc } from "./read-handler.js"
-import { handleProfileRpc } from "./profile-handler.js"
-import { sendRpcError, sendRpcResult } from "./response.js"
-import { handleWriteRpc } from "./write-handler.js"
-import { fixtureState } from "./context.js"
+import type { IncomingMessage, ServerResponse } from "node:http"
 
-/**
- * @param {{
- *   rpcRequest: any
- *   request: import("node:http").IncomingMessage
- *   response: import("node:http").ServerResponse
- *   port: number
- * }} input
- */
-export const dispatchFixtureRpc = ({ rpcRequest, request, response, port }) => {
+import { handleFileRpc } from "./file-handler.ts"
+import { handleInfoRpc } from "./info-handler.ts"
+import { handleReadRpc } from "./read-handler.ts"
+import { handleProfileRpc } from "./profile-handler.ts"
+import { sendRpcError, sendRpcResult } from "./response.ts"
+import { handleWriteRpc } from "./write-handler.ts"
+import { fixtureState } from "./context.ts"
+
+export const dispatchFixtureRpc = ({
+  rpcRequest,
+  request,
+  response,
+  port
+}: {
+  rpcRequest: any
+  request: IncomingMessage
+  response: ServerResponse
+  port: number
+}) => {
   const input = { rpcRequest, request, response, fixtureState }
   const outcome =
     handleInfoRpc(input) ??

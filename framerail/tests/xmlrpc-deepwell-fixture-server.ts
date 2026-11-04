@@ -1,13 +1,14 @@
 import { createServer } from "node:http"
+import type { IncomingMessage, ServerResponse } from "node:http"
 
 import {
   createAuthenticatedUser,
   fixtureState,
   resetRequestGroups
-} from "./xmlrpc-deepwell-fixture/context.js"
-import { pages } from "./xmlrpc-deepwell-fixture/data.js"
-import { dispatchFixtureRpc } from "./xmlrpc-deepwell-fixture/dispatch.js"
-import { sendRpcError } from "./xmlrpc-deepwell-fixture/response.js"
+} from "./xmlrpc-deepwell-fixture/context.ts"
+import { pages } from "./xmlrpc-deepwell-fixture/data.ts"
+import { dispatchFixtureRpc } from "./xmlrpc-deepwell-fixture/dispatch.ts"
+import { sendRpcError } from "./xmlrpc-deepwell-fixture/response.ts"
 
 const PORT = Number(process.env.PLAYWRIGHT_FIXTURE_PORT ?? "42747")
 const initialPageWorkflowProbe = structuredClone(pages["page-workflow-probe"])
@@ -18,25 +19,17 @@ const initialPageWorkflowFiles = Object.fromEntries(
   ])
 )
 
-/**
- * @param {import("node:http").ServerResponse} response
- * @param {unknown} value
- */
-const sendJson = (response, value) => {
+const sendJson = (response: ServerResponse, value: unknown) => {
   response
     .writeHead(200, { "content-type": "application/json" })
     .end(JSON.stringify(value))
 }
 
-/**
- * @param {import("node:http").IncomingMessage} request
- * @param {import("node:http").ServerResponse} response
- */
-const handleUpload = (request, response) => {
+const handleUpload = (request: IncomingMessage, response: ServerResponse) => {
   if (request.method !== "PUT" || !request.url?.startsWith("/upload/")) return false
 
   const pendingBlobId = decodeURIComponent(request.url.slice("/upload/".length))
-  const chunks = []
+  const chunks: Buffer[] = []
   request.on("data", (chunk) => chunks.push(Buffer.from(chunk)))
   request.on("end", () => {
     if (request.headers.host !== `127.0.0.1:${PORT}`) {
@@ -49,11 +42,7 @@ const handleUpload = (request, response) => {
   return true
 }
 
-/**
- * @param {import("node:http").IncomingMessage} request
- * @param {import("node:http").ServerResponse} response
- */
-const handleDiagnosticRequest = (request, response) => {
+const handleDiagnosticRequest = (request: IncomingMessage, response: ServerResponse) => {
   const url = new URL(request.url ?? "/", `http://127.0.0.1:${PORT}`)
 
   if (request.method === "POST" && url.pathname === "/reset-authenticated-profile") {
@@ -160,11 +149,7 @@ const handleDiagnosticRequest = (request, response) => {
   return false
 }
 
-/**
- * @param {import("node:http").IncomingMessage} request
- * @param {import("node:http").ServerResponse} response
- */
-const handleJsonRpc = (request, response) => {
+const handleJsonRpc = (request: IncomingMessage, response: ServerResponse) => {
   if (request.method !== "POST" || request.url !== "/jsonrpc") return false
 
   let body = ""

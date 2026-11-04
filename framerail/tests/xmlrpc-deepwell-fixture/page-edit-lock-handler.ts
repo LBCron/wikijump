@@ -1,5 +1,5 @@
-import { fixtureState, pageById, requestContextHeaders } from "./context.js"
-import { pages } from "./data.js"
+import { fixtureState, pageById, requestContextHeaders } from "./context.ts"
+import { pages } from "./data.ts"
 
 const resolvePage = (reference: any): any =>
   typeof reference === "string" ? pages[reference] : pageById(reference)

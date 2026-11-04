@@ -1,6 +1,6 @@
-import { fixtureState, pageById, requestContextHeaders } from "./context.js"
-import { pages } from "./data.js"
-import { sendRpcError } from "./response.js"
+import { fixtureState, pageById, requestContextHeaders } from "./context.ts"
+import { pages } from "./data.ts"
+import { sendRpcError } from "./response.ts"
 
 export const handlePageEditRpc = ({
   rpcRequest,

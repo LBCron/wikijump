@@ -1,6 +1,6 @@
-import { fixtureState, hasExactKeys, isFixtureSiteId, pageById } from "./context.js"
-import { pages, toPageResult } from "./data.js"
-import { sendRpcError, sendRpcResult } from "./response.js"
+import { fixtureState, hasExactKeys, isFixtureSiteId, pageById } from "./context.ts"
+import { pages, toPageResult } from "./data.ts"
+import { sendRpcError, sendRpcResult } from "./response.ts"
 
 const HISTORY_WORKFLOW_PAGE_ID = 3000345
 const HISTORY_NAVIGATION_PAGE_ID = 3000173

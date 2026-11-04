@@ -7,23 +7,19 @@ import { createJiti } from "jiti"
 
 const libRoot = fileURLToPath(new URL("../src/lib/", import.meta.url))
 const jiti = createJiti(import.meta.url, { alias: { $lib: libRoot } })
-/** @type {any} */
-const { client } = await jiti.import(
+const { client } = await jiti.import<any>(
   fileURLToPath(new URL("../src/lib/server/deepwell/index.ts", import.meta.url))
 )
-/** @type {any} */
-const { MAX_XML_RPC_BODY_BYTES, handleXmlRpcRequest } = await jiti.import(
+const { MAX_XML_RPC_BODY_BYTES, handleXmlRpcRequest } = await jiti.import<any>(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/index.ts", import.meta.url))
 )
-/** @type {any} */
-const { MAX_XML_RPC_FILE_BYTES, decodeXmlRpcBase64 } = await jiti.import(
+const { MAX_XML_RPC_FILE_BYTES, decodeXmlRpcBase64 } = await jiti.import<any>(
   fileURLToPath(new URL("../src/lib/server/xmlrpc/resource-methods.ts", import.meta.url))
 )
 
 const basicAuth = `Basic ${Buffer.from("size-app:size-key").toString("base64")}`
 
-/** @param {any} content */
-const xmlRpcFilesSaveOneRequest = (content) => `<?xml version="1.0"?>
+const xmlRpcFilesSaveOneRequest = (content: any) => `<?xml version="1.0"?>
 <methodCall>
   <methodName>files.save_one</methodName>
   <params><param><value><struct>
@@ -34,8 +30,7 @@ const xmlRpcFilesSaveOneRequest = (content) => `<?xml version="1.0"?>
   </struct></value></param></params>
 </methodCall>`
 
-/** @param {any} body */
-const xmlRpcRequest = (body) =>
+const xmlRpcRequest = (body: any) =>
   new Request("http://127.0.0.1/xml-rpc-api.php", {
     body,
     headers: { authorization: basicAuth, "content-type": "text/xml" },
@@ -50,7 +45,7 @@ test("files.save_one rejects decoded content over its configured limit", () => {
 
   assert.throws(
     () => decodeXmlRpcBase64(content, configuredLimit),
-    /** @param {any} error */ (error) =>
+    (error: any) =>
       error.faultCode === 413 &&
       error.httpStatus === 413 &&
       error.faultString === "files.save_one content is too large"
@@ -86,18 +81,15 @@ test("files.save_one fitting the configured XML envelope reaches its fixture", a
     })
     request.on("end", () => response.writeHead(200).end())
   })
-  await new Promise((resolve) =>
-    server.listen(0, "127.0.0.1", /** @type {any} */ (resolve))
-  )
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve as any))
   t.after(() => new Promise((resolve) => server.close(resolve)))
-  const address = /** @type {any} */ (server.address())
+  const address = server.address() as any
   assert.equal(typeof address, "object")
 
   const contentBytes = Buffer.alloc(2048, 0x61)
   let fileGetCount = 0
-  /** @type {any[]} */
-  const calls = []
-  client.request = /** @param {any} method */ async (method) => {
+  const calls: any[] = []
+  client.request = async (method: any) => {
     calls.push(method)
     if (method === "site_get") return { site_id: 17 }
     if (method === "page_get") {

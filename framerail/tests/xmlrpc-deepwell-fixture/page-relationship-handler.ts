@@ -1,11 +1,11 @@
-import { fixtureState, hasExactKeys, isFixtureSiteId } from "./context.js"
+import { fixtureState, hasExactKeys, isFixtureSiteId } from "./context.ts"
 import {
   backlinksByPage,
   forumPostsByPage,
   pages,
   parentBySlug,
   watchersByPageId
-} from "./data.js"
+} from "./data.ts"
 
 export const handlePageRelationshipRpc = ({
   rpcRequest,

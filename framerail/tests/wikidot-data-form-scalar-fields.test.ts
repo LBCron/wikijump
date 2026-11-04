@@ -11,7 +11,11 @@ import {
   wikidotDataFormUrlDisplay
 } from "../src/lib/wikidot/wikidot-data-form.ts"
 
-const field = (name, fieldType, configuredValue = null) => ({
+const field = (
+  name: string,
+  fieldType: string,
+  configuredValue: string | null = null
+) => ({
   name,
   label: `${name} label`,
   hint: "",

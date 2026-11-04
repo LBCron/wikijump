@@ -4,18 +4,17 @@ import { after, before, test } from "node:test"
 
 import { createTestViteServer } from "./vite-test-server.js"
 
-import { loadWikidotUserInfo } from "../src/lib/server/wikidot-user-info.ts"
+import {
+  loadWikidotUserInfo,
+  type UserInfoFound
+} from "../src/lib/server/wikidot-user-info.ts"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
-/** @type {any} */
-let previousWorkingDirectory
-/** @type {any} */
-let vite
-/** @type {any} */
-let render
-/** @type {any} */
-let userInfoPage
+let previousWorkingDirectory: any
+let vite: any
+let render: any
+let userInfoPage: any
 
 before(async () => {
   previousWorkingDirectory = process.cwd()
@@ -97,7 +96,7 @@ test("UserInfo SSR presents evidenced regular accounts as Wikidot free accounts 
       siteId: 7,
       locales: ["en"],
       target: user.slug,
-      userView: async () => /** @type {any} */ ({ type: "user_found", data: { user } })
+      userView: async () => ({ type: "user_found", data: { user } }) as any
     })
     const body = render(userInfoPage, { props: { data } }).body
 
@@ -119,18 +118,16 @@ test("UserInfo SSR presents evidenced regular accounts as Wikidot free accounts 
 })
 
 test("UserInfo projects imported free accounts and the observed none/high karma labels", async () => {
-  for (const [user, karmaLabel] of importedTargets.map(
-    /** @param {any} user @param {any} index */ (user, index) => [
-      user,
-      ["none", "high"][index]
-    ]
-  )) {
-    const data = await loadWikidotUserInfo({
+  for (const [user, karmaLabel] of importedTargets.map((user: any, index: any) => [
+    user,
+    ["none", "high"][index]
+  ])) {
+    const data = (await loadWikidotUserInfo({
       siteId: 7,
       locales: ["en"],
       target: user.slug,
-      userView: async () => /** @type {any} */ ({ type: "user_found", data: { user } })
-    })
+      userView: async () => ({ type: "user_found", data: { user } }) as any
+    })) as UserInfoFound
     const body = render(userInfoPage, { props: { data } }).body
 
     assert.equal(data.view, "user_found")
@@ -143,12 +140,12 @@ test("UserInfo projects imported free accounts and the observed none/high karma 
 
 test("UserInfo keeps an imported Pro profile without inventing an account-type label", async () => {
   const user = { ...importedTargets[1], is_pro: true }
-  const data = await loadWikidotUserInfo({
+  const data = (await loadWikidotUserInfo({
     siteId: 7,
     locales: ["en"],
     target: user.slug,
-    userView: async () => /** @type {any} */ ({ type: "user_found", data: { user } })
-  })
+    userView: async () => ({ type: "user_found", data: { user } }) as any
+  })) as UserInfoFound
   const body = render(userInfoPage, { props: { data } }).body
 
   assert.equal(data.view, "user_found")
@@ -161,12 +158,12 @@ test("UserInfo keeps an imported Pro profile without inventing an account-type l
 test("UserInfo omits unobserved imported karma labels", async () => {
   for (const karma of [1, 2, 4, 5]) {
     const user = { ...importedTargets[0], karma }
-    const data = await loadWikidotUserInfo({
+    const data = (await loadWikidotUserInfo({
       siteId: 7,
       locales: ["en"],
       target: user.slug,
-      userView: async () => /** @type {any} */ ({ type: "user_found", data: { user } })
-    })
+      userView: async () => ({ type: "user_found", data: { user } }) as any
+    })) as UserInfoFound
     const body = render(userInfoPage, { props: { data } }).body
 
     assert.equal(data.view, "user_found")

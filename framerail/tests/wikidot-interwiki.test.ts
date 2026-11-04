@@ -13,12 +13,20 @@ import {
 } from "../src/lib/wikidot/wikidot-styleframe.ts"
 
 class FakeElement {
-  constructor(tagName) {
+  tagName: string
+  attributes: Map<string, string>
+  textContent: string
+  dataset: Record<string, string>
+  classList: { add: (name: string) => void }
+  listeners?: Map<string, (() => void)[]>
+  sheet?: unknown
+
+  constructor(tagName: string) {
     this.tagName = tagName.toUpperCase()
     this.attributes = new Map()
     this.textContent = ""
     const attributes = this.attributes
-    this.dataset = new Proxy(
+    this.dataset = new Proxy<Record<string, string>>(
       {},
       {
         get: (_target, key) => attributes.get(`data-${String(key)}`),
@@ -29,7 +37,7 @@ class FakeElement {
       }
     )
     this.classList = {
-      add: (name) => {
+      add: (name: string) => {
         const names = new Set((attributes.get("class") ?? "").split(" ").filter(Boolean))
         names.add(name)
         attributes.set("class", [...names].join(" "))
@@ -37,38 +45,40 @@ class FakeElement {
     }
   }
 
-  getAttribute(name) {
+  getAttribute(name: string) {
     return this.attributes.has(name) ? this.attributes.get(name) : null
   }
 
-  setAttribute(name, value) {
+  setAttribute(name: string, value: string) {
     this.attributes.set(name, String(value))
   }
 
-  set rel(value) {
+  set rel(value: string) {
     this.setAttribute("rel", value)
   }
 
-  set href(value) {
+  set href(value: string) {
     this.setAttribute("href", value)
   }
 
-  addEventListener(type, listener) {
+  addEventListener(type: string, listener: () => void) {
     this.listeners = this.listeners ?? new Map()
     this.listeners.set(type, [...(this.listeners.get(type) ?? []), listener])
   }
 
-  fire(type) {
+  fire(type: string) {
     for (const listener of this.listeners?.get(type) ?? []) listener()
   }
 }
 
 class FakeHead {
-  constructor(children = []) {
+  children: FakeElement[]
+
+  constructor(children: FakeElement[] = []) {
     this.children = children
   }
 
-  querySelectorAll(selectors) {
+  querySelectorAll(selectors: string) {
     const matchers = selectors.split(",").map((selector) => {
       const [tagName, className] = selector.trim().split(".")
       return { tagName: tagName.toUpperCase(), className }
@@ -77,18 +87,36 @@ class FakeHead {
       matchers.some(
         ({ tagName, className }) =>
           element.tagName === tagName &&
-          (element.getAttribute("class") ?? "").split(" ").includes(className)
+          (element.getAttribute("class") ?? "").split(" ").includes(className as string)
       )
     )
   }
 
-  insertBefore(element, reference) {
+  insertBefore(element: FakeElement, reference: FakeElement) {
     this.children.splice(this.children.indexOf(reference), 0, element)
   }
 
-  appendChild(element) {
+  appendChild(element: FakeElement) {
     this.children.push(element)
   }
+}
+
+type FakeFrameWindow = {
+  document: {
+    readyState: string
+    head: FakeHead
+    createElement: (tagName: string) => FakeElement
+  }
+  location: { origin: string }
+  parent: Record<string, unknown>
+  DOMException: typeof DOMException
+  addEventListener: (type: string, listener: () => void) => void
+  dispatch: (type: string) => void
+  requestStyleChange: (search: string) => void
+  isInterwikiFrame?: boolean
+  dispatchEvent?: (event: { type: string }) => unknown
+  Event?: unknown
+  setTimeout?: (callback: () => void) => unknown
 }
 
 const baseStylesheet = () => {
@@ -100,39 +128,51 @@ const baseStylesheet = () => {
   return link
 }
 
-const styleFrame = (search) => ({ isStyleFrame: true, location: { search } })
+const styleFrame = (search: string) => ({ isStyleFrame: true, location: { search } })
 
-const fakeFrameWindow = ({ siblings = [], readyState = "loading" } = {}) => {
-  const listeners = new Map()
-  const parent = new Proxy(
-    { length: siblings.length, ...siblings },
-    {
-      get: (target, key) => {
-        if (key === "document") {
-          throw new Error("the parent document must not be accessed")
-        }
-        return target[key]
+const fakeFrameWindow = ({
+  siblings = [],
+  readyState = "loading"
+}: { siblings?: unknown[]; readyState?: string } = {}): FakeFrameWindow => {
+  const listeners = new Map<string, () => void>()
+  const parentTarget: Record<string, unknown> = { length: siblings.length }
+  siblings.forEach((sibling, index) => {
+    parentTarget[index] = sibling
+  })
+  const parent = new Proxy(parentTarget, {
+    get: (target, key) => {
+      if (key === "document") {
+        throw new Error("the parent document must not be accessed")
       }
+      return Reflect.get(target, key)
     }
-  )
+  })
   return {
     document: {
       readyState,
       head: new FakeHead([baseStylesheet()]),
-      createElement: (tagName) => new FakeElement(tagName)
+      createElement: (tagName: string) => new FakeElement(tagName)
     },
     location: { origin: "https://scp-wiki.wikijump.localhost" },
     parent,
     DOMException,
-    addEventListener: (type, listener) => listeners.set(type, listener),
-    dispatch: (type) => listeners.get(type)?.()
-  }
+    addEventListener: (type: string, listener: () => void) =>
+      listeners.set(type, listener),
+    dispatch: (type: string) => listeners.get(type)?.()
+  } as unknown as FakeFrameWindow
 }
 
-const install = (frameWindow, siteUrl = "https://scp-wiki.wikidot.com") =>
-  installWikidotInterwikiStyleRuntime(frameWindow, { siteUrl }, localizeWikidotThemeUrl)
+const install = (
+  frameWindow: FakeFrameWindow,
+  siteUrl = "https://scp-wiki.wikidot.com"
+) =>
+  installWikidotInterwikiStyleRuntime(
+    frameWindow as unknown as Parameters<typeof installWikidotInterwikiStyleRuntime>[0],
+    { siteUrl },
+    localizeWikidotThemeUrl
+  )
 
-const headShape = (frameWindow) =>
+const headShape = (frameWindow: FakeFrameWindow) =>
   frameWindow.document.head.children
     .filter((element) => !element.dataset.wikijumpThemePending)
     .map((element) => [
@@ -154,10 +194,10 @@ test("serves Wikidot's static styleFrame document without echoing its query", ()
 })
 
 test("styleFrame pushes its query only to initialized sibling interwiki frames", () => {
-  const received = []
+  const received: string[] = []
   const interwiki = {
     isInterwikiFrame: true,
-    requestStyleChange: (search) => received.push(search)
+    requestStyleChange: (search: string) => received.push(search)
   }
   const crossOrigin = {
     get isInterwikiFrame() {
@@ -170,7 +210,7 @@ test("styleFrame pushes its query only to initialized sibling interwiki frames",
     1: { isInterwikiFrame: false },
     2: interwiki
   }
-  const frameWindow = { parent }
+  const frameWindow: { parent: typeof parent; isStyleFrame?: boolean } = { parent }
   new Function(
     "window",
     "parent",
@@ -418,9 +458,9 @@ test("holds the side block until pulled themes load, then releases it once", () 
   const frameWindow = fakeFrameWindow({
     siblings: [styleFrame("?priority=2&theme=https://cdn.scpwiki.com/theme.css")]
   })
-  const events = []
-  frameWindow.dispatchEvent = (event) => events.push(event.type)
-  frameWindow.Event = function Event(type) {
+  const events: string[] = []
+  frameWindow.dispatchEvent = (event: { type: string }) => events.push(event.type)
+  frameWindow.Event = function Event(this: { type: string }, type: string) {
     this.type = type
   }
   frameWindow.document.head.children[0].sheet = {}
@@ -429,12 +469,12 @@ test("holds the side block until pulled themes load, then releases it once", () 
 
   const pending = frameWindow.document.head.children.find(
     (element) => element.dataset.wikijumpThemePending
-  )
+  )!
   const theme = frameWindow.document.head.children.find(
     (element) =>
       element.tagName === "LINK" &&
       element.getAttribute("href") === "https://cdn.scpwiki.com/theme.css"
-  )
+  )!
   assert.equal(pending.textContent, ".side-block{display:none}")
   assert.deepEqual(events, [])
 
@@ -448,9 +488,9 @@ test("releases the side block at once when no theme was pulled", () => {
   const frameWindow = fakeFrameWindow({
     siblings: [styleFrame("?priority=2&css=.late{}")]
   })
-  const events = []
-  frameWindow.dispatchEvent = (event) => events.push(event.type)
-  frameWindow.Event = function Event(type) {
+  const events: string[] = []
+  frameWindow.dispatchEvent = (event: { type: string }) => events.push(event.type)
+  frameWindow.Event = function Event(this: { type: string }, type: string) {
     this.type = type
   }
   frameWindow.document.head.children[0].sheet = {}
@@ -459,7 +499,7 @@ test("releases the side block at once when no theme was pulled", () => {
 
   const pending = frameWindow.document.head.children.find(
     (element) => element.dataset.wikijumpThemePending
-  )
+  )!
   assert.equal(pending.textContent, "")
   assert.deepEqual(events, ["wikijump-themes-settled"])
 })
@@ -468,10 +508,10 @@ test("releases a stalled theme after a timeout instead of hiding the frame forev
   const frameWindow = fakeFrameWindow({
     siblings: [styleFrame("?priority=3&theme=https://cdn.scpwiki.com/stalled.css")]
   })
-  const timers = []
-  frameWindow.setTimeout = (callback) => timers.push(callback)
+  const timers: (() => void)[] = []
+  frameWindow.setTimeout = (callback: () => void) => timers.push(callback)
   frameWindow.dispatchEvent = () => {}
-  frameWindow.Event = function Event(type) {
+  frameWindow.Event = function Event(this: { type: string }, type: string) {
     this.type = type
   }
   frameWindow.document.head.children[0].sheet = {}
@@ -480,7 +520,7 @@ test("releases a stalled theme after a timeout instead of hiding the frame forev
 
   const pending = frameWindow.document.head.children.find(
     (element) => element.dataset.wikijumpThemePending
-  )
+  )!
   assert.equal(pending.textContent, ".side-block{display:none}")
   assert.equal(timers.length, 1)
 

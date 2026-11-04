@@ -10,14 +10,10 @@ import { showUserProfileActionAuthenticationGuard } from "../src/lib/user-profil
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 
-/** @type {any} */
-let previousWorkingDirectory
-/** @type {any} */
-let vite
-/** @type {any} */
-let render
-/** @type {any} */
-let userInfoPage
+let previousWorkingDirectory: any
+let vite: any
+let render: any
+let userInfoPage: any
 
 before(async () => {
   previousWorkingDirectory = process.cwd()
@@ -35,13 +31,11 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
-/**
+/*
  * Retained live case: userinfo-target-routes-live-20260810.json,
  * `userinfo-target-the-administrator-anonymous`.
- *
- * @type {Record<string, unknown>}
  */
-const publicUser = {
+const publicUser: Record<string, unknown> = {
   user_id: 169306,
   user_type: "regular",
   created_at: "2008-07-19T21:26:10Z",
@@ -58,14 +52,12 @@ const publicUser = {
   locales: ["en"]
 }
 
-/** @returns {Promise<any>} */
-const loadFoundProfile = () =>
+const loadFoundProfile = (): Promise<any> =>
   loadWikidotUserInfo({
     siteId: 7,
     locales: ["en"],
     target: "the-administrator",
-    userView: async () =>
-      /** @type {any} */ ({ type: "user_found", data: { user: publicUser } })
+    userView: async () => ({ type: "user_found", data: { user: publicUser } }) as any
   })
 
 test("UserInfo projects the live action row as three evidenced controls", async () => {

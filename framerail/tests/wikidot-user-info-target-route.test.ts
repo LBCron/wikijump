@@ -4,36 +4,35 @@ import { test } from "node:test"
 
 import {
   WIKIDOT_USER_INFO_MISSING,
-  loadWikidotUserInfo
+  loadWikidotUserInfo,
+  type UserInfoFound,
+  type UserView
 } from "../src/lib/server/wikidot-user-info.ts"
 import { showUserProfileActionAuthenticationGuard } from "../src/lib/user-profile-action-auth-guard.ts"
 
-/**
- * @typedef {{
- *   user_id: number
- *   user_type: "regular" | "system" | "site" | "bot"
- *   created_at: string
- *   updated_at: string | null
- *   deleted_at: string | null
- *   name: string
- *   slug: string
- *   avatar_s3_hash: number[] | null
- *   email: string
- *   email_verified_at: string | null
- *   password: string
- *   real_name: string | null
- *   biography: string | null
- *   locales: string[]
- * }} UserViewUser
- *
- *
- * @typedef {(
- *   siteId: number,
- *   locales: string[],
- *   sessionToken: undefined,
- *   target: string
- * ) => Promise<{ type: "user_found"; data: { user: UserViewUser } }>} FoundUserView
- */
+type UserViewUser = {
+  user_id: number
+  user_type: "regular" | "system" | "site" | "bot"
+  created_at: string
+  updated_at: string | null
+  deleted_at: string | null
+  name: string
+  slug: string
+  avatar_s3_hash: number[] | null
+  email: string
+  email_verified_at: string | null
+  password: string
+  real_name: string | null
+  biography: string | null
+  locales: string[]
+}
+
+type FoundUserView = (
+  siteId: number,
+  locales: string[],
+  sessionToken: undefined,
+  target: string
+) => Promise<{ type: "user_found"; data: { user: UserViewUser } }>
 
 const routeFiles = [
   "../src/routes/user[x+3a]info/[target]/+page.server.ts",
@@ -46,8 +45,7 @@ test("GET /user:info/<target> has an encoded public route", async () => {
   }
 })
 
-/** @type {UserViewUser} */
-const publicUser = {
+const publicUser: UserViewUser = {
   user_id: 169306,
   user_type: "regular",
   created_at: "2008-07-19T21:26:10Z",
@@ -65,10 +63,8 @@ const publicUser = {
 }
 
 test("UserInfo calls the typed user view with the route target and no session", async () => {
-  /** @type {[number, string[], undefined, string][]} */
-  const calls = []
-  /** @type {FoundUserView} */
-  const userView = async (...args) => {
+  const calls: [number, string[], undefined, string][] = []
+  const userView: FoundUserView = async (...args) => {
     calls.push(args)
     return { type: "user_found", data: { user: publicUser } }
   }
@@ -77,7 +73,7 @@ test("UserInfo calls the typed user view with the route target and no session", 
     siteId: 7,
     locales: ["en"],
     target: "the-administrator",
-    userView
+    userView: userView as unknown as UserView
   })
 
   assert.deepEqual(calls, [[7, ["en"], undefined, "the-administrator"]])
@@ -89,7 +85,7 @@ test("UserInfo rejects unsupported user-view response variants", async () => {
       siteId: 7,
       locales: ["en"],
       target: "the-administrator",
-      userView: async () => ({ type: "unexpected", data: undefined })
+      userView: async () => ({ type: "unexpected", data: undefined }) as any
     }),
     /Unexpected user view response 'unexpected'/u
   )
@@ -100,7 +96,7 @@ test("UserInfo projects only evidenced public identity fields", async () => {
     siteId: 7,
     locales: ["en"],
     target: "the-administrator",
-    userView: async () => ({ type: "user_found", data: { user: publicUser } })
+    userView: async () => ({ type: "user_found", data: { user: publicUser } }) as any
   })
 
   assert.deepEqual(result, {
@@ -124,20 +120,18 @@ test("UserInfo projects only evidenced public identity fields", async () => {
 })
 
 test("UserInfo exposes an avatar only through the existing trusted file seam", async () => {
-  /** @type {number[][]} */
-  const hashes = []
-  /** @param {number[]} hash */
-  const loadAvatar = async (hash) => {
+  const hashes: number[][] = []
+  const loadAvatar = async (hash: number[]) => {
     hashes.push(hash)
     return "data:image/png;base64,public-avatar"
   }
-  const result = await loadWikidotUserInfo({
+  const result = (await loadWikidotUserInfo({
     siteId: 7,
     locales: ["en"],
     target: "the-administrator",
-    userView: async () => ({ type: "user_found", data: { user: publicUser } }),
+    userView: async () => ({ type: "user_found", data: { user: publicUser } }) as any,
     loadAvatar
-  })
+  })) as UserInfoFound
 
   assert.deepEqual(hashes, [[1, 2, 3]])
   assert.equal(result.view, "user_found")
@@ -146,13 +140,15 @@ test("UserInfo exposes an avatar only through the existing trusted file seam", a
 })
 
 test("UserInfo route data is actor invariant", async () => {
-  /** @type {FoundUserView} */
-  const userView = async () => ({ type: "user_found", data: { user: publicUser } })
+  const userView: FoundUserView = async () => ({
+    type: "user_found",
+    data: { user: publicUser }
+  })
   const common = {
     siteId: 7,
     locales: ["en"],
     target: "the-administrator",
-    userView
+    userView: userView as unknown as UserView
   }
 
   const anonymousActor = await loadWikidotUserInfo(common)

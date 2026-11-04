@@ -27,7 +27,7 @@ test("odate span parsing extracts timestamp, format and hover flag", () => {
   assert.equal(parseOdateSpan({ className: "odate format_%25Y" }), null)
   assert.equal(parseOdateSpan({ className: "odate time_nan format_%25Y" }), null)
   assert.equal(parseOdateSpan({ className: "odate time_42 format_%E0%A4%A" }), null)
-  assert.equal(parseOdateSpan({}), null)
+  assert.equal(parseOdateSpan({} as { className: string }), null)
 })
 
 test("UTC viewer sees the live server wall clock", () => {
@@ -98,7 +98,7 @@ test("hover text follows the seconds/minutes/hours/days ladder", () => {
 test("span rewrite wires parsed values into text and hover title", () => {
   const element = { className: ENCODED_CLASS, textContent: "server", title: "" }
   const now = TIMESTAMP + 3725
-  assert.equal(rewriteOdateSpan(element, now), true)
+  assert.equal(rewriteOdateSpan(element as unknown as HTMLElement, now), true)
   const offset = -new Date(TIMESTAMP * 1000).getTimezoneOffset()
   assert.equal(element.textContent, formatOdateTimestamp(TIMESTAMP, FORMAT, now, offset))
   assert.equal(element.title, "1 hour ago")
@@ -110,10 +110,10 @@ test("span rewrite leaves unsupported spans untouched", () => {
     textContent: "server",
     title: ""
   }
-  assert.equal(rewriteOdateSpan(unsupported, 42), false)
+  assert.equal(rewriteOdateSpan(unsupported as unknown as HTMLElement, 42), false)
   assert.equal(unsupported.textContent, "server")
   assert.equal(unsupported.title, "")
   const classless = { className: "odate time_42", textContent: "server", title: "" }
-  assert.equal(rewriteOdateSpan(classless, 42), false)
+  assert.equal(rewriteOdateSpan(classless as unknown as HTMLElement, 42), false)
   assert.equal(classless.textContent, "server")
 })

@@ -76,9 +76,11 @@ test("serializes the exact raw statements consumed by wikidot.py", () => {
   assert.match(script, /WIKIREQUEST\.info\.siteUnixName = "scp-wiki";/u)
   assert.match(script, /WIKIREQUEST\.info\.pageId = 3000011662;/u)
 
-  const context = {}
+  const context: {
+    WIKIREQUEST?: { info: ReturnType<typeof buildWikidotRequestInfo> }
+  } = {}
   vm.runInNewContext(script, context)
-  assert.deepEqual({ ...context.WIKIREQUEST.info }, buildWikidotRequestInfo(input))
+  assert.deepEqual({ ...context.WIKIREQUEST!.info }, buildWikidotRequestInfo(input))
 })
 
 test("escapes inline script terminators and rejects malformed identities", () => {

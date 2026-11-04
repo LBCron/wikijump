@@ -16,38 +16,41 @@ import {
 } from "../src/lib/wikidot/wikidot-page-actions.ts"
 
 test("Print opens the live printer-friendly child window without printing the opener", () => {
-  const calls = []
+  const calls: [string, string][] = []
   let printed = 0
   openWikidotPrinterFriendly("/doc-wiki-syntax:buttons", {
-    open: (url, target) => calls.push([url, target]),
+    open: (url: string, target: string) => calls.push([url, target]),
     print: () => (printed += 1)
-  })
+  } as unknown as Parameters<typeof openWikidotPrinterFriendly>[1])
   assert.deepEqual(calls, [["/printer--friendly//doc-wiki-syntax:buttons", "_blank"]])
   assert.equal(printed, 0)
 })
 
 test("page discussion requests use the frozen Wikidot ForumAction form", async () => {
-  const calls = []
-  const result = await requestWikidotPageDiscussion(async (url, options) => {
-    calls.push({ url, options })
-    return {
-      json: async () => ({
-        status: "ok",
-        thread_id: 18232631,
-        thread_unix_title: "lane-4-discussion"
-      })
-    }
-  }, 1469071756)
+  const calls: { url: string; options: RequestInit }[] = []
+  const result = await requestWikidotPageDiscussion(
+    (async (url: string, options: RequestInit) => {
+      calls.push({ url, options })
+      return {
+        json: async () => ({
+          status: "ok",
+          thread_id: 18232631,
+          thread_unix_title: "lane-4-discussion"
+        })
+      }
+    }) as unknown as typeof fetch,
+    1469071756
+  )
 
   assert.equal(calls[0].url, "/ajax-module-connector.php")
   assert.equal(calls[0].options.method, "POST")
   assert.equal(calls[0].options.credentials, "same-origin")
   assert.equal(
-    calls[0].options.headers["content-type"],
+    (calls[0].options.headers as Record<string, string>)["content-type"],
     "application/x-www-form-urlencoded"
   )
   assert.deepEqual(
-    new URLSearchParams(calls[0].options.body),
+    new URLSearchParams(calls[0].options.body as string),
     new URLSearchParams({
       moduleName: "Empty",
       page_id: "1469071756",
@@ -321,18 +324,33 @@ test("the actions rating rejects non-numeric scores instead of displaying them",
     { combinedRating: Infinity, importedRating: 461 },
     { combinedRating: "462", importedRating: 461 }
   ]) {
-    assert.equal(selectWikidotPageRating(input), 461, JSON.stringify(input))
+    assert.equal(
+      selectWikidotPageRating(
+        input as unknown as Parameters<typeof selectWikidotPageRating>[0]
+      ),
+      461,
+      JSON.stringify(input)
+    )
   }
   assert.equal(
-    selectWikidotPageRating({ combinedRating: "462", importedRating: "461" }),
+    selectWikidotPageRating({
+      combinedRating: "462",
+      importedRating: "461"
+    } as unknown as Parameters<typeof selectWikidotPageRating>[0]),
     null
   )
   assert.equal(
-    selectWikidotPageRating({ combinedRating: 462, importedRating: "461" }),
+    selectWikidotPageRating({
+      combinedRating: 462,
+      importedRating: "461"
+    } as unknown as Parameters<typeof selectWikidotPageRating>[0]),
     462
   )
   assert.equal(
-    selectWikidotPageRating({ combinedRating: "462", importedRating: null }),
+    selectWikidotPageRating({
+      combinedRating: "462",
+      importedRating: null
+    } as unknown as Parameters<typeof selectWikidotPageRating>[0]),
     null
   )
 })
@@ -364,7 +382,7 @@ test("panes outside openPagePane return no pre-check kind", () => {
     "",
     undefined
   ]) {
-    assert.equal(wikidotOpenPanePermissionKind(pane), null)
+    assert.equal(wikidotOpenPanePermissionKind(pane as string), null)
   }
 })
 

@@ -16,43 +16,34 @@ import {
   wikidotMembershipActions
 } from "../src/lib/wikidot/wikidot-membership-actions.ts"
 
-/** @returns {any} */
-const actionElement = () => {
+const actionElement = (): any => {
   const attributes = new Map()
   return {
-    /** @param {any} name */
-    getAttribute(name) {
+    getAttribute(name: any) {
       return attributes.get(name) ?? null
     },
-    /** @param {any} name */
-    removeAttribute(name) {
+    removeAttribute(name: any) {
       attributes.delete(name)
     },
-    /** @param {any} name @param {any} value */
-    setAttribute(name, value) {
+    setAttribute(name: any, value: any) {
       attributes.set(name, value)
     }
   }
 }
 
 test("typed standalone actions call only their fixed browser behavior", async () => {
-  /** @type {any[]} */
-  const calls = []
+  const calls: any[] = []
   const runtime = {
     edit: () => calls.push(["edit"]),
     history: () => calls.push(["history"]),
     source: () => calls.push(["source"]),
     print: () => calls.push(["print"]),
-    setTags: /** @param {any} index @param {any} fingerprint */ (index, fingerprint) =>
+    setTags: (index: any, fingerprint: any) =>
       calls.push(["set-tags", index, fingerprint])
   }
 
   for (const type of ["edit", "history", "source", "print"]) {
-    await performWikidotLegacyAction(
-      actionElement(),
-      /** @type {any} */ ({ type }),
-      runtime
-    )
+    await performWikidotLegacyAction(actionElement(), { type } as any, runtime)
   }
   await performWikidotLegacyAction(
     actionElement(),
@@ -78,16 +69,14 @@ test("custom-class standalone print controls use the typed browser action", asyn
   const print = actionElement()
   const listeners = new Map()
   const root = {
-    addEventListener: /** @param {any} name @param {any} listener */ (name, listener) =>
-      listeners.set(name, listener),
+    addEventListener: (name: any, listener: any) => listeners.set(name, listener),
     removeEventListener: () => {},
-    querySelectorAll: /** @param {any} query */ (query) =>
-      query === selector ? [print] : []
+    querySelectorAll: (query: any) => (query === selector ? [print] : [])
   }
   print.parentElement = root
   let printCalls = 0
 
-  wikidotLegacyActions(/** @type {any} */ (root), {
+  wikidotLegacyActions(root as any, {
     actions: [{ type: "print" }],
     runtime: { print: () => (printCalls += 1) }
   })
@@ -108,16 +97,14 @@ test("standalone actions activate from Enter without Space activation", async ()
   const action = actionElement()
   const listeners = new Map()
   const root = {
-    addEventListener: /** @param {any} name @param {any} listener */ (name, listener) =>
-      listeners.set(name, listener),
+    addEventListener: (name: any, listener: any) => listeners.set(name, listener),
     removeEventListener: () => {},
-    querySelectorAll: /** @param {any} query */ (query) =>
-      query === selector ? [action] : []
+    querySelectorAll: (query: any) => (query === selector ? [action] : [])
   }
   action.parentElement = root
   let calls = 0
 
-  wikidotLegacyActions(/** @type {any} */ (root), {
+  wikidotLegacyActions(root as any, {
     actions: [{ type: "source" }],
     runtime: { source: () => (calls += 1) }
   })
@@ -150,10 +137,9 @@ test("Rate controls preserve Space keyboard activation", async () => {
   )
   const listeners = new Map()
   const root = {
-    addEventListener: /** @param {any} name @param {any} listener */ (name, listener) =>
-      listeners.set(name, listener),
+    addEventListener: (name: any, listener: any) => listeners.set(name, listener),
     removeEventListener: () => {},
-    querySelectorAll: /** @param {any} selector */ (selector) => {
+    querySelectorAll: (selector: any) => {
       if (selector.includes(".rateup")) return [rate]
       return []
     }
@@ -162,7 +148,7 @@ test("Rate controls preserve Space keyboard activation", async () => {
   let votes = 0
   const fingerprint = "0123456789abcdef0123456789abcdef"
 
-  wikidotLegacyActions(/** @type {any} */ (root), {
+  wikidotLegacyActions(root as any, {
     actions: [],
     rateActions: [{ type: "rate", index: 0, fingerprint, value: 1 }],
     runtime: { rate: () => (votes += 1) }
@@ -182,16 +168,14 @@ test("standalone edit clicks use the exact control set and fail closed on extras
   const exact = actionElement()
   const listeners = new Map()
   const root = {
-    addEventListener: /** @param {any} name @param {any} listener */ (name, listener) =>
-      listeners.set(name, listener),
+    addEventListener: (name: any, listener: any) => listeners.set(name, listener),
     removeEventListener: () => {},
-    querySelectorAll: /** @param {any} query */ (query) =>
-      query === selector ? [exact] : []
+    querySelectorAll: (query: any) => (query === selector ? [exact] : [])
   }
   exact.parentElement = root
   let editCalls = 0
 
-  wikidotLegacyActions(/** @type {any} */ (root), {
+  wikidotLegacyActions(root as any, {
     actions: [{ type: "edit" }],
     runtime: { edit: () => (editCalls += 1) }
   })
@@ -213,14 +197,12 @@ test("standalone edit clicks use the exact control set and fail closed on extras
   const mismatch = actionElement()
   const mismatchListeners = new Map()
   const mismatchRoot = {
-    addEventListener: /** @param {any} name @param {any} listener */ (name, listener) =>
-      mismatchListeners.set(name, listener),
+    addEventListener: (name: any, listener: any) => mismatchListeners.set(name, listener),
     removeEventListener: () => {},
-    querySelectorAll: /** @param {any} query */ (query) =>
-      query === selector ? [mismatch, extra] : []
+    querySelectorAll: (query: any) => (query === selector ? [mismatch, extra] : [])
   }
   mismatch.parentElement = mismatchRoot
-  wikidotLegacyActions(/** @type {any} */ (mismatchRoot), {
+  wikidotLegacyActions(mismatchRoot as any, {
     actions: [{ type: "edit" }],
     runtime: { edit: () => (editCalls += 1) }
   })
@@ -240,15 +222,11 @@ test("standalone edit clicks use the exact control set and fail closed on extras
 })
 
 test("Rate actions pass only registry-owned vote values", async () => {
-  /** @type {any[]} */
-  const calls = []
+  const calls: any[] = []
   const runtime = {
-    rate: /** @param {any} index @param {any} fingerprint @param {any} value */ (
-      index,
-      fingerprint,
-      value
-    ) => calls.push(["rate", index, fingerprint, value]),
-    cancelRate: /** @param {any} index @param {any} fingerprint */ (index, fingerprint) =>
+    rate: (index: any, fingerprint: any, value: any) =>
+      calls.push(["rate", index, fingerprint, value]),
+    cancelRate: (index: any, fingerprint: any) =>
       calls.push(["cancel-rate", index, fingerprint])
   }
   const element = actionElement()
@@ -260,7 +238,7 @@ test("Rate actions pass only registry-owned vote values", async () => {
     { type: "rate", index: 2, fingerprint, value: 4 },
     { type: "rate-cancel", index: 3, fingerprint }
   ]) {
-    await performWikidotLegacyAction(element, /** @type {any} */ (action), runtime)
+    await performWikidotLegacyAction(element, action as any, runtime)
   }
 
   assert.deepEqual(calls, [
@@ -292,39 +270,25 @@ test("Rate sidecars bind only the exact renderer-owned control sequence", () => 
     "WIKIDOT.modules.PageRateWidgetModule.listeners.cancelVote(event)"
   )
 
+  assert.deepEqual(planWikidotRateActionBindings(controls, [], actions as any), [
+    [controls[0], actions[0]],
+    [controls[1], actions[1]],
+    [controls[2], actions[2]]
+  ])
   assert.deepEqual(
-    planWikidotRateActionBindings(controls, [], /** @type {any} */ (actions)),
-    [
-      [controls[0], actions[0]],
-      [controls[1], actions[1]],
-      [controls[2], actions[2]]
-    ]
-  )
-  assert.deepEqual(
-    planWikidotRateActionBindings(
-      [...controls, actionElement()],
-      [],
-      /** @type {any} */ (actions)
-    ),
+    planWikidotRateActionBindings([...controls, actionElement()], [], actions as any),
     []
   )
   assert.deepEqual(
-    planWikidotRateActionBindings(
-      controls,
-      [],
-      /** @type {any} */ ([
-        actions[0],
-        { type: "rate", index: 1, fingerprint, value: 0 },
-        actions[2]
-      ])
-    ),
+    planWikidotRateActionBindings(controls, [], [
+      actions[0],
+      { type: "rate", index: 1, fingerprint, value: 0 },
+      actions[2]
+    ] as any),
     []
   )
   controls[1].setAttribute("onclick", "alert(1)")
-  assert.deepEqual(
-    planWikidotRateActionBindings(controls, [], /** @type {any} */ (actions)),
-    []
-  )
+  assert.deepEqual(planWikidotRateActionBindings(controls, [], actions as any), [])
 
   const starControls = Array.from({ length: 5 }, actionElement)
   const starActions = Array.from({ length: 5 }, (_, index) => ({
@@ -334,15 +298,11 @@ test("Rate sidecars bind only the exact renderer-owned control sequence", () => 
     value: index + 1
   }))
   assert.deepEqual(
-    planWikidotRateActionBindings([], [starControls], /** @type {any} */ (starActions)),
+    planWikidotRateActionBindings([], [starControls], starActions as any),
     starControls.map((control, index) => [control, starActions[index]])
   )
   assert.deepEqual(
-    planWikidotRateActionBindings(
-      [],
-      [starControls, starControls],
-      /** @type {any} */ (starActions)
-    ),
+    planWikidotRateActionBindings([], [starControls, starControls], starActions as any),
     []
   )
 })
@@ -356,22 +316,19 @@ test("trusted inline Rate bindings remove CSP-blocked handlers and JavaScript UR
   )
   const listeners = new Map()
   const root = {
-    addEventListener: /** @param {any} name @param {any} listener */ (name, listener) =>
-      listeners.set(name, listener),
+    addEventListener: (name: any, listener: any) => listeners.set(name, listener),
     removeEventListener: () => {},
-    querySelectorAll: /** @param {any} selector */ (selector) =>
-      selector.includes(".rateup") ? [rate] : []
+    querySelectorAll: (selector: any) => (selector.includes(".rateup") ? [rate] : [])
   }
   rate.parentElement = root
   let votes = 0
   const fingerprint = "0123456789abcdef0123456789abcdef"
-  /** @type {any} */
-  const parameters = {
+  const parameters: any = {
     actions: [],
     rateActions: [{ type: "rate", index: 0, fingerprint, value: 1 }],
     runtime: { rate: () => (votes += 1) }
   }
-  const legacyActions = wikidotLegacyActions(/** @type {any} */ (root), parameters)
+  const legacyActions = wikidotLegacyActions(root as any, parameters)
 
   assert.equal(rate.getAttribute("onclick"), null)
   assert.equal(rate.getAttribute("href"), "#")
@@ -407,9 +364,7 @@ test("renderer removes exact Rate inline handlers before the browser parses HTML
     '<a href="javascript:;" onclick="keepThisUnrelatedHandler()">unrelated javascript link</a>'
   ].join("")
 
-  const servedHtml = /** @type {any} */ (
-    materializeWikidotRateActionHtml(html, /** @type {any} */ (actions))
-  )
+  const servedHtml = materializeWikidotRateActionHtml(html, actions as any) as any
   assert.equal((servedHtml.match(/onclick=/gu) ?? []).length, 2)
   assert.ok(
     servedHtml.includes('<a href="javascript:;" onclick="keepThisUnrelatedHandler()">')
@@ -428,7 +383,7 @@ test("renderer removes exact Rate inline handlers before the browser parses HTML
     ["0", "1", "2"]
   )
   assert.equal(
-    materializeWikidotRateActionHtml(html, /** @type {any} */ (actions.slice(0, 2))),
+    materializeWikidotRateActionHtml(html, actions.slice(0, 2) as any),
     html,
     "a descriptor/control mismatch leaves source HTML untouched"
   )
@@ -440,14 +395,14 @@ test("renderer removes exact Rate inline handlers before the browser parses HTML
     return control
   })
   assert.deepEqual(
-    planWikidotRateActionBindings(controls, [], /** @type {any} */ (actions)),
+    planWikidotRateActionBindings(controls, [], actions as any),
     actions.map((action, index) => [controls[index], action])
   )
   assert.deepEqual(
     planWikidotRateActionBindings(
       [controls[1], controls[0], controls[2]],
       [],
-      /** @type {any} */ (actions)
+      actions as any
     ),
     [],
     "the server marker must retain its matching descriptor position"
@@ -455,8 +410,7 @@ test("renderer removes exact Rate inline handlers before the browser parses HTML
 })
 
 test("initialized Rate stars preserve the live hidden score value", () => {
-  /** @type {any[]} */
-  const created = []
+  const created: any[] = []
   const widget = {
     dataset: { rating: "4" },
     ownerDocument: {
@@ -475,11 +429,11 @@ test("initialized Rate stars preserve the live hidden score value", () => {
   const root = {
     addEventListener: () => {},
     removeEventListener: () => {},
-    querySelectorAll: /** @param {any} selector */ (selector) =>
+    querySelectorAll: (selector: any) =>
       selector === ".page-rate-widget-start" ? [widget] : []
   }
 
-  wikidotLegacyActions(/** @type {any} */ (root), { actions: [], runtime: {} })
+  wikidotLegacyActions(root as any, { actions: [], runtime: {} })
 
   assert.equal(created.at(-1).name, "score")
   assert.equal(created.at(-1).type, "hidden")
@@ -488,24 +442,21 @@ test("initialized Rate stars preserve the live hidden score value", () => {
 
 test("legacy printuser onclick is rebound without evaluating authored script", () => {
   let handlerReads = 0
-  /** @param {any} href @param {any} userId @returns {any} */
-  const printuser = (href, userId) => {
+  const printuser = (href: any, userId: any): any => {
     const attributes = new Map([
       ["href", href],
       ["onclick", `WIKIDOT.page.listeners.userInfo(${userId}); return false;`]
     ])
-    /** @type {any} */
-    let handler = null
+    let handler: any = null
     return {
       get onclick() {
         handlerReads += 1
         return handler
       },
-      /** @param {any} value */
-      set onclick(value) {
+      set onclick(value: any) {
         handler = value
       },
-      getAttribute: /** @param {any} name */ (name) => attributes.get(name) ?? null
+      getAttribute: (name: any) => attributes.get(name) ?? null
     }
   }
   // Wikidot links users over https now; content it compiled before
@@ -515,24 +466,22 @@ test("legacy printuser onclick is rebound without evaluating authored script", (
   const root = {
     addEventListener: () => {},
     removeEventListener: () => {},
-    querySelectorAll: /** @param {any} selector */ (selector) =>
+    querySelectorAll: (selector: any) =>
       selector ===
       '.printuser > a[href^="https://www.wikidot.com/user:info/"][onclick], .printuser > a[href^="http://www.wikidot.com/user:info/"][onclick]'
         ? [current, legacy]
         : []
   }
-  /** @type {any[]} */
-  const calls = []
-  /** @type {any} */
-  const globalRef = globalThis
+  const calls: any[] = []
+  const globalRef: any = globalThis
   const prior = globalRef.WIKIDOT
   globalRef.WIKIDOT = {
     page: {
-      listeners: { userInfo: /** @param {any} userId */ (userId) => calls.push(userId) }
+      listeners: { userInfo: (userId: any) => calls.push(userId) }
     }
   }
   try {
-    const action = wikidotLegacyActions(/** @type {any} */ (root), {
+    const action = wikidotLegacyActions(root as any, {
       actions: [],
       runtime: {}
     })
@@ -553,8 +502,7 @@ test("legacy printuser onclick is rebound without evaluating authored script", (
 })
 
 test("legacy printuser binding installs the missing Wikidot userInfo runtime", () => {
-  /** @type {any} */
-  const globalRef = globalThis
+  const globalRef: any = globalThis
   const prior = globalRef.WIKIDOT
   globalRef.WIKIDOT = { modules: {} }
   const root = {
@@ -563,7 +511,7 @@ test("legacy printuser binding installs the missing Wikidot userInfo runtime", (
     querySelectorAll: () => []
   }
   try {
-    wikidotLegacyActions(/** @type {any} */ (root), { actions: [], runtime: {} })
+    wikidotLegacyActions(root as any, { actions: [], runtime: {} })
     assert.equal(typeof globalRef.WIKIDOT.page.listeners.userInfo, "function")
     assert.equal(globalRef.WIKIDOT.page.listeners.userInfo(20000013), false)
   } finally {
@@ -575,17 +523,16 @@ test("a Rate action updates the live hidden star score after the server response
   const score = { value: "0" }
   const stars = {
     dataset: { rating: "0" },
-    querySelector: /** @param {any} selector */ (selector) =>
-      selector === 'input[name="score"]' ? score : null,
+    querySelector: (selector: any) => (selector === 'input[name="score"]' ? score : null),
     querySelectorAll: () => []
   }
   const widget = {
-    querySelector: /** @param {any} selector */ (selector) =>
+    querySelector: (selector: any) =>
       selector === ".page-rate-widget-start" ? stars : null
   }
   const element = { closest: () => widget }
 
-  updateWikidotRateWidget(/** @type {any} */ (element), 4)
+  updateWikidotRateWidget(element as any, 4)
 
   assert.equal(score.value, "4")
 })
@@ -594,12 +541,12 @@ test("unsupported sidecar actions fail closed without calling authored names", a
   let called = false
   const handled = await performWikidotLegacyAction(
     actionElement(),
-    /** @type {any} */ ({ type: "author-script", onclick: "alert(1)" }),
-    /** @type {any} */ ({
+    { type: "author-script", onclick: "alert(1)" } as any,
+    {
       authorScript: () => {
         called = true
       }
-    })
+    } as any
   )
 
   assert.equal(handled, false)
@@ -607,8 +554,7 @@ test("unsupported sidecar actions fail closed without calling authored names", a
 })
 
 test("edit stays visibly busy while overlapping Wikidot activations settle", async () => {
-  /** @type {any[]} */
-  const releases = []
+  const releases: any[] = []
   let calls = 0
   const element = actionElement()
   const runtime = {
@@ -633,8 +579,7 @@ test("edit stays visibly busy while overlapping Wikidot activations settle", asy
 })
 
 test("non-edit standalone actions remain serialized while busy", async () => {
-  /** @type {any} */
-  let release
+  let release: any
   let calls = 0
   const operation = new Promise((resolve) => {
     release = resolve
@@ -681,12 +626,10 @@ test("Rate controls share one busy boundary across the page runtime", async () =
   const first = actionElement()
   const second = actionElement()
   const fingerprint = "0123456789abcdef0123456789abcdef"
-  /** @type {any} */
-  let release
-  /** @type {any[]} */
-  const calls = []
+  let release: any
+  const calls: any[] = []
   const runtime = {
-    rate: /** @param {any} index */ (index) => {
+    rate: (index: any) => {
       calls.push(index)
       return new Promise((resolve) => (release = resolve))
     }
@@ -723,7 +666,7 @@ test("sidecar binding preserves exact DOM and fails closed on a count mismatch",
   ]
 
   assert.deepEqual(
-    planWikidotStandaloneActionBindings(exactDomControls, /** @type {any} */ (actions)),
+    planWikidotStandaloneActionBindings(exactDomControls, actions as any),
     [
       [exactDomControls[0], actions[0]],
       [exactDomControls[1], actions[1]]
@@ -732,25 +675,22 @@ test("sidecar binding preserves exact DOM and fails closed on a count mismatch",
   assert.deepEqual(
     planWikidotStandaloneActionBindings(
       [...exactDomControls, actionElement()],
-      /** @type {any} */ (actions)
+      actions as any
     ),
     []
   )
   assert.deepEqual(
-    planWikidotStandaloneActionBindings(
-      exactDomControls,
-      /** @type {any} */ ([actions[0], { type: "author-script", onclick: "alert(1)" }])
-    ),
+    planWikidotStandaloneActionBindings(exactDomControls, [
+      actions[0],
+      { type: "author-script", onclick: "alert(1)" }
+    ] as any),
     []
   )
   assert.deepEqual(
-    planWikidotStandaloneActionBindings(
-      exactDomControls,
-      /** @type {any} */ ([
-        actions[0],
-        { type: "set-tags", index: 1, fingerprint: "forged" }
-      ])
-    ),
+    planWikidotStandaloneActionBindings(exactDomControls, [
+      actions[0],
+      { type: "set-tags", index: 1, fingerprint: "forged" }
+    ] as any),
     []
   )
   for (const control of exactDomControls) {
@@ -761,7 +701,7 @@ test("sidecar binding preserves exact DOM and fails closed on a count mismatch",
 
 test("standalone action binding fails closed on a malformed present sidecar", () => {
   assert.deepEqual(
-    planWikidotStandaloneActionBindings([actionElement()], /** @type {any} */ ([null])),
+    planWikidotStandaloneActionBindings([actionElement()], [null] as any),
     []
   )
 })
@@ -770,15 +710,13 @@ test("Rate DOM is intercepted but remains inert without a typed sidecar", () => 
   const rate = actionElement()
   const listeners = new Map()
   const root = {
-    addEventListener: /** @param {any} name @param {any} listener */ (name, listener) =>
-      listeners.set(name, listener),
+    addEventListener: (name: any, listener: any) => listeners.set(name, listener),
     removeEventListener: () => {},
-    querySelectorAll: /** @param {any} selector */ (selector) =>
-      selector.includes(".rateup") ? [rate] : []
+    querySelectorAll: (selector: any) => (selector.includes(".rateup") ? [rate] : [])
   }
   rate.parentElement = root
   let votes = 0
-  wikidotLegacyActions(/** @type {any} */ (root), {
+  wikidotLegacyActions(root as any, {
     actions: [],
     runtime: { rate: () => (votes += 1) }
   })
@@ -798,7 +736,7 @@ test("Rate DOM is intercepted but remains inert without a typed sidecar", () => 
 
 test("Join binds exact renderer DOM out of band and remains busy through reload", async () => {
   const exact = actionElement()
-  exact.matches = /** @param {any} selector */ (selector) =>
+  exact.matches = (selector: any) =>
     selector ===
     `div > a[href="javascript:;"][onclick="WIKIDOT.page.listeners.join(event, 'unified')"]`
   const custom = actionElement()
@@ -814,36 +752,27 @@ test("Join binds exact renderer DOM out of band and remains busy through reload"
     }
   ]
 
-  assert.deepEqual(planWikidotJoinActionBindings([exact], /** @type {any} */ (actions)), [
+  assert.deepEqual(planWikidotJoinActionBindings([exact], actions as any), [
     [exact, actions[0]]
   ])
-  assert.deepEqual(
-    planWikidotJoinActionBindings([exact, custom], /** @type {any} */ (actions)),
-    []
-  )
+  assert.deepEqual(planWikidotJoinActionBindings([exact, custom], actions as any), [])
   assert.equal(exact.getAttribute("data-wikijump-membership-action"), null)
 
-  /** @type {any} */
-  let release
+  let release: any
   let reloads = 0
-  /** @type {any[]} */
-  const calls = []
-  const joining = performWikidotMembershipAction(exact, /** @type {any} */ (actions[0]), {
-    join:
-      /**
-       * @param {any} pageId @param {any} revisionId @param {any} index
-       * @param {any} selectedFingerprint
-       */ (pageId, revisionId, index, selectedFingerprint) => {
-        calls.push([pageId, revisionId, index, selectedFingerprint])
-        return new Promise((resolve) => (release = resolve))
-      },
+  const calls: any[] = []
+  const joining = performWikidotMembershipAction(exact, actions[0] as any, {
+    join: (pageId: any, revisionId: any, index: any, selectedFingerprint: any) => {
+      calls.push([pageId, revisionId, index, selectedFingerprint])
+      return new Promise((resolve) => (release = resolve))
+    },
     reload: () => {
       reloads += 1
     }
   })
   assert.equal(exact.getAttribute("aria-busy"), "true")
   assert.equal(
-    await performWikidotMembershipAction(exact, /** @type {any} */ (actions[0]), {
+    await performWikidotMembershipAction(exact, actions[0] as any, {
       join: () => {
         throw new Error("repeated Join must not execute")
       }
@@ -859,16 +788,15 @@ test("Join binds exact renderer DOM out of band and remains busy through reload"
 
 test("MembershipApply submits the current comment and reloads only after a server transition", async () => {
   const control = actionElement()
-  control.closest = /** @param {any} selector */ (selector) =>
+  control.closest = (selector: any) =>
     selector === "#membership-by-apply-form"
       ? {
-          querySelector: /** @param {any} query */ (query) =>
+          querySelector: (query: any) =>
             query === '[name="comment"]' ? { value: "apply me" } : null
         }
       : null
   const fingerprint = "0123456789abcdef0123456789abcdef"
-  /** @type {any[]} */
-  const calls = []
+  const calls: any[] = []
   let reloads = 0
   let errors = 0
 
@@ -877,7 +805,7 @@ test("MembershipApply submits the current comment and reloads only after a serve
       control,
       { type: "application", page_id: 42, revision_id: 90, index: 1, fingerprint },
       {
-        application: /** @param {...any} args */ (...args) => {
+        application: (...args: any[]) => {
           calls.push(args)
           return "submitted"
         },
@@ -899,7 +827,7 @@ test("MembershipApply submits the current comment and reloads only after a serve
       {
         application: () => "no_text",
         reload: () => (reloads += 1),
-        error: /** @param {any} error */ (error) => {
+        error: (error: any) => {
           errors += 1
           assert.match(error.message, /write something/u)
         }
@@ -915,29 +843,27 @@ test("MembershipByPassword exposes the live inline wrong-password state without 
   const control = actionElement()
   const error = { style: { display: "none" } }
   const form = {
-    querySelector: /** @param {any} query */ (query) =>
+    querySelector: (query: any) =>
       query === '[name="password"]' ? { value: "wrong" } : null
   }
   const box = {
-    querySelector: /** @param {any} query */ (query) =>
-      query === "#mbp-error" ? error : null
+    querySelector: (query: any) => (query === "#mbp-error" ? error : null)
   }
-  control.closest = /** @param {any} selector */ (selector) => {
+  control.closest = (selector: any) => {
     if (selector === "#membership-by-password-form") return form
     if (selector === "#membership-by-password-box") return box
     return null
   }
   const fingerprint = "0123456789abcdef0123456789abcdef"
   let reloads = 0
-  /** @type {any[]} */
-  const calls = []
+  const calls: any[] = []
 
   assert.equal(
     await performWikidotMembershipAction(
       control,
       { type: "password", page_id: 42, revision_id: 90, index: 2, fingerprint },
       {
-        password: /** @param {...any} args */ (...args) => {
+        password: (...args: any[]) => {
           calls.push(args)
           return "wrong_password"
         },
@@ -954,11 +880,10 @@ test("MembershipByPassword exposes the live inline wrong-password state without 
 test("MembershipEmailInvitation replaces only the live box after accepted token consumption", async () => {
   const control = actionElement()
   const box = { innerHTML: "before" }
-  control.closest = /** @param {any} selector */ (selector) =>
+  control.closest = (selector: any) =>
     selector === "#membership-email-invitation-box" ? box : null
   const fingerprint = "0123456789abcdef0123456789abcdef"
-  /** @type {any[]} */
-  const calls = []
+  const calls: any[] = []
   let reloads = 0
   let errors = 0
 
@@ -967,7 +892,7 @@ test("MembershipEmailInvitation replaces only the live box after accepted token 
       control,
       { type: "invitation", page_id: 42, revision_id: 90, index: 3, fingerprint },
       {
-        invitation: /** @param {...any} args */ (...args) => {
+        invitation: (...args: any[]) => {
           calls.push(args)
           return { status: "accepted", site_name: "Test <Wiki>", site_slug: "test&site" }
         },
@@ -988,8 +913,7 @@ test("MembershipEmailInvitation replaces only the live box after accepted token 
 test("MembershipEmailInvitation maps used, canceled, and missing tokens to one visible unavailable error", async () => {
   const control = actionElement()
   const fingerprint = "0123456789abcdef0123456789abcdef"
-  /** @type {any[]} */
-  const errors = []
+  const errors: any[] = []
   let reloads = 0
 
   assert.equal(
@@ -999,7 +923,7 @@ test("MembershipEmailInvitation maps used, canceled, and missing tokens to one v
       {
         invitation: () => ({ status: "unavailable" }),
         reload: () => (reloads += 1),
-        error: /** @param {any} error */ (error) => errors.push(error.message)
+        error: (error: any) => errors.push(error.message)
       }
     ),
     true
@@ -1046,7 +970,7 @@ test("unsupported membership descriptors and authored lookalikes fail closed", a
   assert.equal(
     await performWikidotMembershipAction(
       lookalike,
-      /** @type {any} */ ({ type: "author-script", onclick: "alert(1)" }),
+      { type: "author-script", onclick: "alert(1)" } as any,
       { join: () => (joined = true) }
     ),
     false
@@ -1057,10 +981,7 @@ test("unsupported membership descriptors and authored lookalikes fail closed", a
 test("Join binding fails closed on a malformed present sidecar", () => {
   const control = actionElement()
   control.matches = () => true
-  assert.deepEqual(
-    planWikidotJoinActionBindings([control], /** @type {any} */ ([null])),
-    []
-  )
+  assert.deepEqual(planWikidotJoinActionBindings([control], [null] as any), [])
 })
 
 test("a sidecar mismatch intercepts the exact legacy onclick without joining", () => {
@@ -1070,15 +991,14 @@ test("a sidecar mismatch intercepts the exact legacy onclick without joining", (
   second.matches = () => true
   const listeners = new Map()
   const root = {
-    addEventListener: /** @param {any} name @param {any} listener */ (name, listener) =>
-      listeners.set(name, listener),
+    addEventListener: (name: any, listener: any) => listeners.set(name, listener),
     removeEventListener: () => {},
     querySelectorAll: () => [first, second]
   }
   first.parentElement = root
   second.parentElement = root
   let joined = false
-  wikidotMembershipActions(/** @type {any} */ (root), {
+  wikidotMembershipActions(root as any, {
     actions: [
       {
         type: "join",

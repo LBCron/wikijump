@@ -14,14 +14,10 @@ const retainedArtifact = new URL(
   import.meta.url
 )
 
-/** @type {any} */
-let previousWorkingDirectory
-/** @type {any} */
-let vite
-/** @type {any} */
-let render
-/** @type {any} */
-let userInfoPage
+let previousWorkingDirectory: any
+let vite: any
+let render: any
+let userInfoPage: any
 
 before(async () => {
   previousWorkingDirectory = process.cwd()
@@ -39,8 +35,7 @@ after(async () => {
   if (previousWorkingDirectory) process.chdir(previousWorkingDirectory)
 })
 
-/** @type {Record<string, unknown>} */
-const publicUser = {
+const publicUser: Record<string, unknown> = {
   user_id: 169306,
   user_type: "regular",
   created_at: "2008-07-19T21:26:10Z",
@@ -71,23 +66,18 @@ const loadFoundProfile = () =>
     siteId: 7,
     locales: ["en"],
     target: "the-administrator",
-    userView: async () =>
-      /** @type {any} */ ({ type: "user_found", data: { user: publicUser } })
+    userView: async () => ({ type: "user_found", data: { user: publicUser } }) as any
   })
 
-/** @param {any} html */
-const normalize = (html) =>
+const normalize = (html: any) =>
   html
     .replace(/<!--[\s\S]*?-->/gu, "")
     .replace(/>\s+</gu, "><")
     .trim()
 
-/** @param {string} case_id */
-const retainedBoundedBody = async (case_id) => {
+const retainedBoundedBody = async (case_id: string) => {
   const artifact = JSON.parse(await readFile(retainedArtifact, "utf8"))
-  const observation = artifact.observations.find(
-    /** @param {any} item */ (item) => item.case_id === case_id
-  )
+  const observation = artifact.observations.find((item: any) => item.case_id === case_id)
   assert.ok(observation, `retained observation ${case_id} exists`)
   return normalize(observation.response.bounded_body)
 }

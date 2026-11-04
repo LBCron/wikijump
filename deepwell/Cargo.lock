@@ -108,7 +108,7 @@ version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40c48f72fd53cd289104fc64099abca73db4166ad86ea0b4341abe65af83dadc"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -119,7 +119,7 @@ checksum = "291e6a250ff86cd4a820112fb8898808a366d8f9f58ce16d1f538353ad55747d"
 dependencies = [
  "anstyle",
  "once_cell_polyfill",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -1577,13 +1577,11 @@ dependencies = [
 
 [[package]]
 name = "ftml"
-version = "1.42.1+roku.20261104.3"
-source = "git+https://github.com/Rokurolize/ftml?rev=a0bac18a5e2491701f90507509333a2868410569#a0bac18a5e2491701f90507509333a2868410569"
+version = "1.42.1+roku.20261105.4"
+source = "git+https://github.com/Rokurolize/ftml?rev=d5e75cbf8b443df22f9f0666087d8a579d05d927#d5e75cbf8b443df22f9f0666087d8a579d05d927"
 dependencies = [
  "built",
  "cfg-if",
- "cssparser",
- "cssparser-color",
  "entities",
  "enum-map",
  "getrandom 0.3.4",
@@ -4596,7 +4594,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3d1e2c7f27f8d4cb10542a02c49005dbd6e93095799d6f3be745fae9f8fedd4"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -4818,7 +4816,7 @@ dependencies = [
  "cfg-if",
  "libc",
  "psm",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]

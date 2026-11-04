@@ -33,7 +33,7 @@ use deepwell::services::membership::{
     CreateMembershipEmailInvitation, MembershipBrowserAction,
     MembershipEmailInvitationOutcome,
 };
-use deepwell::services::relation::{CreateSiteBan, SiteBanData};
+use deepwell::services::relation::{CreateSiteBan, RemoveSiteBan, SiteBanData};
 use deepwell::services::user::CreateUser;
 use deepwell::types::UserType;
 use sea_orm::FromQueryResult;
@@ -518,13 +518,12 @@ async fn membership_application_and_password_mutations_match_disposable_live_con
         deepwell::services::membership::MembershipApplicationOutcome::AlreadyApplied
     );
 
-    let pending =
-        deepwell::services::membership::MembershipService::pending_applications(
-            runner.context(),
-            site_id,
-        )
-        .await
-        .expect("pending applications should resolve");
+    let pending = deepwell::services::membership::MembershipService::list_applications(
+        runner.context(),
+        site_id,
+    )
+    .await
+    .expect("pending applications should resolve");
     assert!(
         pending.iter().any(|application| {
             application.user_id == accept_user_id
@@ -607,7 +606,7 @@ async fn membership_application_and_password_mutations_match_disposable_live_con
         "password join should remove an existing application like Wikidot",
     );
     let pending_after =
-        deepwell::services::membership::MembershipService::pending_applications(
+        deepwell::services::membership::MembershipService::list_applications(
             runner.context(),
             site_id,
         )
@@ -743,10 +742,35 @@ async fn membership_application_and_password_mutations_match_disposable_live_con
         ),
         deepwell::services::membership::MembershipApplicationStatus::Declined,
     );
+    let declined_list =
+        deepwell::services::membership::MembershipService::list_applications(
+            runner.context(),
+            site_id,
+        )
+        .await
+        .expect("application list should resolve after a decline");
+    assert!(
+        declined_list.iter().any(|application| {
+            application.user_id == decline_user_id
+                && application.status
+                    == deepwell::services::membership::MembershipApplicationStatus::Declined
+                && application.comment == "A1033 declined application"
+        }),
+        "a declined application must stay visible to reviewers with its status: {declined_list:?}",
+    );
+
+    let (reapply_body, reapply_actions) =
+        membership_actions_for_actor(&mut runner, site_id, &page_slug, decline_user_id)
+            .await;
+    assert!(
+        reapply_body.contains(r#"id="membership-by-apply-form""#),
+        "a declined applicant must be offered the apply form again:\n{reapply_body}",
+    );
+    let reapply_application = application_binding(&reapply_actions);
     runner.set_request_context(RequestContext {
         user_id: Some(decline_user_id),
         site_id: Some(site_id),
-        page_reference: Some(Reference::Slug(page_slug.into())),
+        page_reference: Some(Reference::Slug(page_slug.clone().into())),
         ..Default::default()
     });
     assert_eq!(
@@ -754,14 +778,76 @@ async fn membership_application_and_password_mutations_match_disposable_live_con
             runner,
             membership_application_submit,
             json!({
-                "page_id": decline_application.0,
-                "last_revision_id": decline_application.1,
-                "action_index": decline_application.2,
-                "action_fingerprint": decline_application.3,
-                "comment": "still already applied",
+                "page_id": reapply_application.0,
+                "last_revision_id": reapply_application.1,
+                "action_index": reapply_application.2,
+                "action_fingerprint": reapply_application.3,
+                "comment": "A1033 reapply after decline",
+            }),
+        ),
+        deepwell::services::membership::MembershipApplicationOutcome::Submitted,
+    );
+    assert_eq!(
+        run_endpoint!(
+            runner,
+            membership_application_submit,
+            json!({
+                "page_id": reapply_application.0,
+                "last_revision_id": reapply_application.1,
+                "action_index": reapply_application.2,
+                "action_fingerprint": reapply_application.3,
+                "comment": "duplicate while pending again",
             }),
         ),
         deepwell::services::membership::MembershipApplicationOutcome::AlreadyApplied,
+    );
+
+    let relisted = deepwell::services::membership::MembershipService::list_applications(
+        runner.context(),
+        site_id,
+    )
+    .await
+    .expect("application list should resolve after re-applying");
+    assert!(
+        relisted.iter().any(|application| {
+            application.user_id == decline_user_id
+                && application.status
+                    == deepwell::services::membership::MembershipApplicationStatus::Pending
+                && application.comment == "A1033 reapply after decline"
+        }),
+        "the fresh application must supersede the declined one as pending: {relisted:?}",
+    );
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(reviewer_user_id),
+        site_id: Some(site_id),
+        ..Default::default()
+    });
+    assert_eq!(
+        run_endpoint!(
+            runner,
+            membership_application_review,
+            json!({
+                "site_id": site_id,
+                "user_id": decline_user_id,
+                "decision": "accept",
+                "reply": "accepted after reapply",
+                "ip_address": common::IP_ADDRESS,
+            }),
+        ),
+        deepwell::services::membership::MembershipApplicationStatus::Accepted,
+    );
+    assert!(
+        RelationService::site_member_exists(
+            runner.context(),
+            deepwell::services::relation::GetSiteMember {
+                site_id,
+                user_id: decline_user_id,
+            },
+        )
+        .await
+        .expect("re-applied membership lookup should succeed"),
+        "a declined applicant who re-applies and is accepted must become a member",
     );
 }
 
@@ -798,14 +884,15 @@ async fn membership_email_invitation_matches_hash_one_use_and_cancel_contract() 
     .await
     .expect("invitation page should be created");
 
-    let actor = UserService::create(
+    let recipient_email = format!("a1033-recipient-{}@example.invalid", cuid());
+    let recipient = UserService::create(
         runner.context(),
         CreateUser {
             user_type: UserType::Regular,
-            name: format!("A1033 invitation actor {}", cuid()),
-            email: format!("a1033-invitation-{}@example.invalid", cuid()),
+            name: format!("A1033 invitation recipient {}", cuid()),
+            email: recipient_email.clone(),
             locales: vec!["en".to_owned()],
-            password: format!("membership-fixture-{}", cuid()),
+            password: "A1033 invitation fixture password!".to_owned(),
             bypass_filter: true,
             bypass_email_verification: true,
             override_user_id: None,
@@ -813,7 +900,84 @@ async fn membership_email_invitation_matches_hash_one_use_and_cancel_contract() 
         },
     )
     .await
-    .expect("invitation actor should be created");
+    .expect("invitation recipient should be created");
+
+    let stranger = UserService::create(
+        runner.context(),
+        CreateUser {
+            user_type: UserType::Regular,
+            name: format!("A1033 invitation stranger {}", cuid()),
+            email: format!("a1033-stranger-{}@example.invalid", cuid()),
+            locales: vec!["en".to_owned()],
+            password: "A1033 invitation fixture password!".to_owned(),
+            bypass_filter: true,
+            bypass_email_verification: true,
+            override_user_id: None,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("invitation stranger should be created");
+
+    async fn invitation_binding_for(
+        runner: &mut TestRunner,
+        site_id: i64,
+        page_slug: &str,
+        user_id: i64,
+        token: &str,
+    ) -> (String, (i64, i64, usize, String)) {
+        let session_token = SessionService::create(
+            runner.context(),
+            CreateSession {
+                user_id,
+                ip_address: common::IP_ADDRESS,
+                user_agent: "A1033 invitation fixture".to_owned(),
+                restricted: false,
+            },
+        )
+        .await
+        .expect("invitation fixture session should be created");
+        runner.set_request_context(RequestContext {
+            user_id: Some(user_id),
+            site_id: Some(site_id),
+            page_reference: Some(Reference::Slug(page_slug.to_owned().into())),
+            ..Default::default()
+        });
+        let view = run_endpoint!(
+            runner,
+            page_view,
+            json!({
+                "site_id": site_id,
+                "session_token": session_token,
+                "route": {"slug": page_slug, "extra": format!("/hash/{token}")},
+                "locales": ["en-US", "en"],
+            }),
+        );
+        match view {
+            GetPageViewOutput::Found {
+                compiled_body_html,
+                membership_actions,
+                ..
+            } => {
+                let action = membership_actions
+                    .iter()
+                    .find_map(|action| match action {
+                        MembershipBrowserAction::Invitation {
+                            page_id,
+                            revision_id,
+                            index,
+                            fingerprint,
+                        } => Some((*page_id, *revision_id, *index, fingerprint.clone())),
+                        _ => None,
+                    })
+                    .expect(
+                        "authenticated invitation viewer should receive one typed action",
+                    );
+                (compiled_body_html, action)
+            }
+            other => panic!("expected invitation page view, got {other:?}"),
+        }
+    }
 
     // An invitation must carry both a recipient email and a recipient name.
     for (email, recipient_name) in [
@@ -843,7 +1007,7 @@ async fn membership_email_invitation_matches_hash_one_use_and_cancel_contract() 
             CreateMembershipEmailInvitation {
                 site_id,
                 sender_user_id: ADMIN_USER_ID,
-                email: "intended-recipient@example.invalid",
+                email: recipient_email.as_str(),
                 recipient_name: "Intended Recipient",
                 message: "A1033 invitation fixture",
                 to_contacts: false,
@@ -935,100 +1099,177 @@ async fn membership_email_invitation_matches_hash_one_use_and_cancel_contract() 
     assert!(anonymous_body.contains("Please create an account (or log in)"));
     assert!(!anonymous_body.contains("accept invitation"));
 
-    let session_token = SessionService::create(
-        runner.context(),
-        CreateSession {
-            user_id: actor.user_id,
-            ip_address: common::IP_ADDRESS,
-            user_agent: "A1033 invitation fixture".to_owned(),
-            restricted: false,
-        },
+    // An account that is not the invited recipient cannot accept, and the
+    // attempt must not consume the invitation.
+    let (stranger_body, stranger_action) = invitation_binding_for(
+        &mut runner,
+        site_id,
+        &page_slug,
+        stranger.user_id,
+        &token,
     )
-    .await
-    .expect("invitation actor session should be created");
+    .await;
+    assert!(stranger_body.contains("accept invitation"));
+    runner.set_request_context(RequestContext {
+        user_id: Some(stranger.user_id),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(page_slug.clone().into())),
+        ..Default::default()
+    });
+    let stranger_outcome = run_endpoint!(
+        runner,
+        membership_email_invitation_accept,
+        json!({
+            "page_id": stranger_action.0,
+            "last_revision_id": stranger_action.1,
+            "action_index": stranger_action.2,
+            "action_fingerprint": stranger_action.3,
+            "hash": token,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(
+        stranger_outcome,
+        MembershipEmailInvitationOutcome::Unavailable,
+    );
+    assert!(
+        !RelationService::site_member_exists(
+            runner.context(),
+            deepwell::services::relation::GetSiteMember {
+                site_id,
+                user_id: stranger.user_id,
+            },
+        )
+        .await
+        .expect("stranger membership lookup should succeed"),
+        "a non-recipient must not gain membership from an invitation",
+    );
+    assert!(
+        deepwell::services::membership::MembershipService::resolve_email_invitation(
+            runner.context(),
+            &token,
+        )
+        .await
+        .expect("invitation lookup after wrong-recipient attempt should succeed")
+        .is_some(),
+        "a wrong-recipient attempt must not consume the invitation",
+    );
+
+    // A banned recipient is refused at acceptance like on every other
+    // membership path, and the invitation survives the refusal.
     RelationService::create_site_ban(
         runner.context(),
         CreateSiteBan {
             site_id,
-            user_id: actor.user_id,
+            user_id: recipient.user_id,
             created_by: ADMIN_USER_ID,
             metadata: SiteBanData {
                 banned_until: None,
-                reason: "A1033 invitation authority fixture".to_owned(),
+                reason: "A1033 invitation ban fixture".to_owned(),
             },
         },
         common::IP_ADDRESS,
     )
     .await
-    .expect(
-        "invitation actor should be banned for the Wikidot permission-boundary fixture",
-    );
+    .expect("invitation recipient should be banned for the ban-gate fixture");
     assert!(
         RelationService::active_site_ban_exists(
             runner.context(),
             deepwell::services::relation::GetSiteBan {
                 site_id,
-                user_id: actor.user_id,
+                user_id: recipient.user_id,
             },
         )
         .await
-        .expect("invitation actor ban lookup should succeed"),
-        "fixture must prove the invitation accept path is distinct from Wikidot's become_member gate",
+        .expect("invitation recipient ban lookup should succeed"),
+        "fixture must prove the recipient is banned before acceptance",
     );
+    let (recipient_body, recipient_action) = invitation_binding_for(
+        &mut runner,
+        site_id,
+        &page_slug,
+        recipient.user_id,
+        &token,
+    )
+    .await;
+    assert!(recipient_body.contains("accept invitation"));
+    assert!(recipient_body.contains(&token));
+    assert!(
+        !recipient_body.contains(&recipient_email),
+        "recipient email must not be reflected by the module",
+    );
+    assert_eq!(recipient_action.0, page.page_id);
+
     runner.set_request_context(RequestContext {
-        user_id: Some(actor.user_id),
+        user_id: Some(recipient.user_id),
         site_id: Some(site_id),
         page_reference: Some(Reference::Slug(page_slug.clone().into())),
         ..Default::default()
     });
-    let actor_view = run_endpoint!(
+    let ban_error = run_endpoint_err!(
         runner,
-        page_view,
+        membership_email_invitation_accept,
         json!({
-            "site_id": site_id,
-            "session_token": session_token,
-            "route": {"slug": page_slug, "extra": format!("/hash/{token}")},
-            "locales": ["en-US", "en"],
+            "page_id": recipient_action.0,
+            "last_revision_id": recipient_action.1,
+            "action_index": recipient_action.2,
+            "action_fingerprint": recipient_action.3,
+            "hash": token,
+            "ip_address": common::IP_ADDRESS,
         }),
     );
-    let (actor_body, invitation_action) = match actor_view {
-        GetPageViewOutput::Found {
-            compiled_body_html,
-            membership_actions,
-            ..
-        } => {
-            let action = membership_actions
-                .iter()
-                .find_map(|action| match action {
-                    MembershipBrowserAction::Invitation {
-                        page_id,
-                        revision_id,
-                        index,
-                        fingerprint,
-                    } => Some((*page_id, *revision_id, *index, fingerprint.clone())),
-                    _ => None,
-                })
-                .expect("valid authenticated invitation should expose one typed action");
-            (compiled_body_html, action)
-        }
-        other => panic!("expected authenticated invitation page, got {other:?}"),
-    };
-    assert!(actor_body.contains("accept invitation"));
-    assert!(actor_body.contains(&token));
+    assert_contains_error!(ban_error, ErrorType::SiteBannedUser);
     assert!(
-        !actor_body.contains("intended-recipient@example.invalid"),
-        "recipient email must not be reflected by the module",
+        !RelationService::site_member_exists(
+            runner.context(),
+            deepwell::services::relation::GetSiteMember {
+                site_id,
+                user_id: recipient.user_id,
+            },
+        )
+        .await
+        .expect("banned recipient membership lookup should succeed"),
+        "a banned recipient must not become a member via an invitation",
     );
-    assert_eq!(invitation_action.0, page.page_id);
+    assert!(
+        deepwell::services::membership::MembershipService::resolve_email_invitation(
+            runner.context(),
+            &token,
+        )
+        .await
+        .expect("invitation lookup after banned attempt should succeed")
+        .is_some(),
+        "a banned acceptance attempt must not consume the invitation",
+    );
 
+    RelationService::remove_site_ban(
+        runner.context(),
+        RemoveSiteBan {
+            site_id,
+            user_id: recipient.user_id,
+            removed_by: ADMIN_USER_ID,
+        },
+        common::IP_ADDRESS,
+        "A1033 invitation ban fixture lifted",
+    )
+    .await
+    .expect("invitation recipient ban should be removable");
+
+    // Once the ban is lifted, the invited recipient can still accept.
+    runner.set_request_context(RequestContext {
+        user_id: Some(recipient.user_id),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(page_slug.clone().into())),
+        ..Default::default()
+    });
     let accepted = run_endpoint!(
         runner,
         membership_email_invitation_accept,
         json!({
-            "page_id": invitation_action.0,
-            "last_revision_id": invitation_action.1,
-            "action_index": invitation_action.2,
-            "action_fingerprint": invitation_action.3,
+            "page_id": recipient_action.0,
+            "last_revision_id": recipient_action.1,
+            "action_index": recipient_action.2,
+            "action_fingerprint": recipient_action.3,
             "hash": token,
             "ip_address": common::IP_ADDRESS,
         }),
@@ -1039,14 +1280,13 @@ async fn membership_email_invitation_matches_hash_one_use_and_cancel_contract() 
             site_name: site.name.clone(),
             site_slug: site.slug.clone(),
         },
-        "Wikidot binds possession of the invitation hash, not recipient identity",
     );
     assert!(
         RelationService::site_member_exists(
             runner.context(),
             deepwell::services::relation::GetSiteMember {
                 site_id,
-                user_id: actor.user_id,
+                user_id: recipient.user_id,
             },
         )
         .await

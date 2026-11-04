@@ -74,7 +74,7 @@ use crate::services::page_query::{
     TagCondition,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
-use crate::services::relation::{GetSiteMember, RelationObject, RelationReference};
+use crate::services::relation::GetSiteMember;
 use crate::services::score::ScoreValue;
 use crate::services::settings::PageRatingType;
 use crate::services::user::User;
@@ -84,7 +84,7 @@ use crate::services::{
     ServiceContext, SiteService, UserService,
 };
 use crate::types::Reference;
-use crate::types::{Action, Permission, RelationType, Resource};
+use crate::types::{Action, Permission, Resource};
 use crate::utils::now;
 use ftml::data::PageInfo;
 use ftml::settings::WikitextSettings;

@@ -25,12 +25,12 @@ use crate::models::site::{Entity as Site, Model as SiteModel};
 use crate::services::action_throttle::{
     MEMBERSHIP_PASSWORD_THROTTLE, MEMBERSHIP_SELF_JOIN_THROTTLE,
 };
-use crate::services::audit::{AuditEvent, AuditService};
 use crate::services::relation::{
     CreateSiteMember, GetSiteBan, GetSiteMember, RelationDirection, RelationObject,
     RelationReference, SiteMemberAccepted, SiteMemberData,
 };
 use crate::services::render::{MembershipActionKind, MembershipActionRegistry};
+use crate::services::user::User;
 use crate::services::{
     ActionThrottleService, MutationAuthorization, PageRevisionService, PageService,
     PasswordService, RelationService, ServiceContext, TextService, UserService,
@@ -51,6 +51,7 @@ struct EmailInvitationRow {
     site_id: i64,
     sender_user_id: i64,
     recipient_name: String,
+    email: String,
 }
 
 #[derive(Debug, FromQueryResult)]
@@ -143,13 +144,13 @@ RETURNING invitation_id
         let transaction = ctx.transaction();
         let sql = if lock {
             concat!(
-                "SELECT invitation_id, site_id, sender_user_id, recipient_name ",
+                "SELECT invitation_id, site_id, sender_user_id, recipient_name, email ",
                 "FROM membership_email_invitation ",
                 "WHERE token_digest = $1 AND accepted = FALSE FOR UPDATE",
             )
         } else {
             concat!(
-                "SELECT invitation_id, site_id, sender_user_id, recipient_name ",
+                "SELECT invitation_id, site_id, sender_user_id, recipient_name, email ",
                 "FROM membership_email_invitation ",
                 "WHERE token_digest = $1 AND accepted = FALSE",
             )
@@ -225,6 +226,17 @@ RETURNING invitation_id
         else {
             return Ok(MembershipEmailInvitationOutcome::Unavailable);
         };
+        let actor = UserService::get(ctx, Reference::Id(actor_user_id)).await?;
+        let recipient_matches = match &actor {
+            User::Wikijump(user) => user
+                .email
+                .trim()
+                .eq_ignore_ascii_case(invitation.email.trim()),
+            User::Wikidot(_) => false,
+        };
+        if !recipient_matches {
+            return Ok(MembershipEmailInvitationOutcome::Unavailable);
+        }
         if RelationService::site_member_exists(
             ctx,
             GetSiteMember {
@@ -236,33 +248,19 @@ RETURNING invitation_id
         {
             return Ok(MembershipEmailInvitationOutcome::AlreadyMember);
         }
-        // Wikidot's email-invitation acceptance path does not call the
-        // `become_member` permission gate used by Join, MembershipApply, and
-        // MembershipByPassword. Possession of one current invitation hash is
-        // the membership authority, so do not add a site-ban check here.
-        RelationService::create(
+        RelationService::create_site_member(
             ctx,
-            RelationType::SiteMember,
-            RelationObject::Site(invitation.site_id),
-            RelationObject::User(actor_user_id),
-            invitation.sender_user_id,
-            &SiteMemberData {
-                accepted: SiteMemberAccepted::Invitation(invitation.sender_user_id),
-            },
-        )
-        .await
-        .or_raise(Self::denied)?;
-        AuditService::log(
-            ctx,
-            input.ip_address,
-            AuditEvent::JoinSiteMember {
-                user_id: actor_user_id,
+            CreateSiteMember {
                 site_id: invitation.site_id,
-                joining_user_id: invitation.sender_user_id,
+                user_id: actor_user_id,
+                metadata: SiteMemberData {
+                    accepted: SiteMemberAccepted::Invitation(invitation.sender_user_id),
+                },
+                created_by: invitation.sender_user_id,
             },
+            input.ip_address,
         )
-        .await
-        .or_raise(Self::denied)?;
+        .await?;
 
         let invitation_site = Site::find_by_id(invitation.site_id)
             .one(ctx.transaction())
@@ -425,6 +423,29 @@ WHERE invitation_id = $1 AND accepted = FALSE
         }
     }
 
+    pub async fn current_application_status(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        user_id: i64,
+    ) -> Result<Option<MembershipApplicationStatus>> {
+        let Some(relation) = RelationService::get_optional(
+            ctx,
+            RelationReference::Relationship {
+                relation_type: RelationType::SiteApplication,
+                dest: RelationObject::Site(site_id),
+                from: RelationObject::User(user_id),
+            },
+        )
+        .await?
+        else {
+            return Ok(None);
+        };
+        let status =
+            serde_json::from_value::<MembershipApplicationData>(relation.metadata)
+                .map_or(MembershipApplicationStatus::Pending, |data| data.status);
+        Ok(Some(status))
+    }
+
     pub async fn actor_state(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -446,19 +467,14 @@ WHERE invitation_id = $1 AND accepted = FALSE
         {
             return Ok(JoinActorState::Member);
         }
-        let pending = RelationService::exists(
-            ctx,
-            crate::services::relation::RelationReference::Relationship {
-                relation_type: RelationType::SiteApplication,
-                dest: crate::services::relation::RelationObject::Site(site_id),
-                from: crate::services::relation::RelationObject::User(user_id),
-            },
-        )
-        .await?;
-        Ok(if pending {
-            JoinActorState::Pending
-        } else {
-            JoinActorState::Eligible
+        let application_status =
+            Self::current_application_status(ctx, site_id, user_id).await?;
+        Ok(match application_status {
+            Some(MembershipApplicationStatus::Pending)
+            | Some(MembershipApplicationStatus::Accepted) => JoinActorState::Pending,
+            Some(MembershipApplicationStatus::Declined) | None => {
+                JoinActorState::Eligible
+            }
         })
     }
 
@@ -651,13 +667,12 @@ WHERE invitation_id = $1 AND accepted = FALSE
         if comment.is_empty() {
             return Ok(MembershipApplicationOutcome::NoText);
         }
-        let application = RelationReference::Relationship {
-            relation_type: RelationType::SiteApplication,
-            dest: RelationObject::Site(site_id),
-            from: RelationObject::User(actor_user_id),
-        };
-        if RelationService::exists(ctx, application).await? {
-            return Ok(MembershipApplicationOutcome::AlreadyApplied);
+        match Self::current_application_status(ctx, site_id, actor_user_id).await? {
+            Some(MembershipApplicationStatus::Pending)
+            | Some(MembershipApplicationStatus::Accepted) => {
+                return Ok(MembershipApplicationOutcome::AlreadyApplied);
+            }
+            Some(MembershipApplicationStatus::Declined) | None => {}
         }
         RelationService::create(
             ctx,
@@ -753,7 +768,7 @@ WHERE invitation_id = $1 AND accepted = FALSE
         Ok(status)
     }
 
-    pub async fn pending_applications(
+    pub async fn list_applications(
         ctx: &ServiceContext<'_>,
         site_id: i64,
     ) -> Result<Vec<MembershipApplicationView>> {
@@ -764,7 +779,7 @@ WHERE invitation_id = $1 AND accepted = FALSE
             RelationDirection::Dest,
         )
         .await?;
-        let mut pending = Vec::new();
+        let mut listed = Vec::new();
         let mut applicant_ids = std::collections::BTreeSet::new();
         for relation in relations {
             let metadata: MembershipApplicationData =
@@ -774,16 +789,16 @@ WHERE invitation_id = $1 AND accepted = FALSE
                         ErrorType::SiteMembership,
                     )
                 })?;
-            if metadata.status != MembershipApplicationStatus::Pending {
+            if metadata.status == MembershipApplicationStatus::Accepted {
                 continue;
             }
             applicant_ids.insert(relation.from_id);
-            pending.push((relation.from_id, metadata.comment));
+            listed.push((relation.from_id, metadata.status, metadata.comment));
         }
 
         let identities = UserService::get_public_identities(ctx, &applicant_ids).await?;
-        let mut applications = Vec::with_capacity(pending.len());
-        for (user_id, comment) in pending {
+        let mut applications = Vec::with_capacity(listed.len());
+        for (user_id, status, comment) in listed {
             let identity = identities.get(&user_id).ok_or_raise(|| {
                 Error::new(
                     "membership application user is unavailable",
@@ -793,6 +808,7 @@ WHERE invitation_id = $1 AND accepted = FALSE
             applications.push(MembershipApplicationView {
                 user_id,
                 user_name: identity.user_name.to_string(),
+                status,
                 comment,
             });
         }

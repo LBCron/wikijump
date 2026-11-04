@@ -1,5 +1,5 @@
 import { handleIdentityRpc } from "./identity-handler.js"
-import { handlePageLabelTranslationRpc } from "./page-label-translation-handler.js"
+import { handlePageLabelTranslationRpc } from "./page-label-translation-handler.ts"
 import { handleSiteRpc } from "./site-handler.js"
 
 /**

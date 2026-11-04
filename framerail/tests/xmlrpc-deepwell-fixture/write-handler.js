@@ -1,4 +1,4 @@
-import { handlePageWriteRpc } from "./page-write-handler.js"
+import { handlePageWriteRpc } from "./page-write-handler.ts"
 import { handleParentWriteRpc } from "./parent-write-handler.js"
 import { fixtureState, hasExactKeys } from "./context.js"
 import { sendRpcError } from "./response.js"

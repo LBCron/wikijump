@@ -24,8 +24,10 @@ If links continue to change after the bounded rounds, the run fails closed:
 even a nondeterministic reader can leave another reader with stale output.
 Pages that miss the serving render deadline under concurrent load are retried
 alone and then once with a longer one-shot deadline
-(docs/agents/compatibility/execution.md); any other failure stops the run. A
-final dry run checks the whole site.
+(docs/agents/compatibility/execution.md). A text-block store request that
+crosses the bucket's per-request timeout under the same load is retried the
+same way: alone, the write pressure that starved it is gone. Any other
+failure stops the run. A final dry run checks the whole site.
 
 Each run renders every stale page itself: rows left by an earlier run are not
 reused, because only this run's own passes know which pages read links.
@@ -110,6 +112,12 @@ IDEMPOTENT_STATEMENT = re.compile(
 SUMMARY_SCHEMA = "wikijump.render_ahead_summary.v1"
 RENDER_TIMEOUT = re.compile(r"^render-timeout-ms\s*=\s*[0-9]+\s*$", re.MULTILINE)
 DEADLINE_MARKERS = ("deadline has elapsed", "due to timeout")
+# The bucket request timeout (deepwell's BUCKET_REQUEST_TIMEOUT) surfaces as
+# a reqwest "operation timed out" on the text-block PUT. It is a load
+# latency tail, not a property of the page: the same page renders once the
+# concurrent write pressure is gone, so it belongs to the tail-retry class.
+STORAGE_TIMEOUT_MARKERS = ("operation timed out",)
+TAIL_RETRY_MARKERS = DEADLINE_MARKERS + STORAGE_TIMEOUT_MARKERS
 # A link reader's own links can be read by another reader, so each level of
 # that chain needs one more round of reader renders.
 MAX_READER_ROUNDS = 4
@@ -192,13 +200,23 @@ def render_ahead_settings(
     return settings
 
 
-def deadline_only(summary: dict[str, object]) -> bool:
-    """Whether every failure of a pass is the renderer deadline."""
+def failures_only(summary: dict[str, object], markers: tuple[str, ...]) -> bool:
     failures = summary["failures"]
     return len(failures) == summary["failed"] and all(
-        any(marker in failure["error"] for marker in DEADLINE_MARKERS)
+        any(marker in failure["error"] for marker in markers)
         for failure in failures
     )
+
+
+def deadline_only(summary: dict[str, object]) -> bool:
+    """Whether every failure of a pass is the renderer deadline."""
+    return failures_only(summary, DEADLINE_MARKERS)
+
+
+def tail_retryable_only(summary: dict[str, object]) -> bool:
+    """Whether every failure of a pass is the renderer deadline or a
+    transient storage timeout: the two classes the tail retries exist for."""
+    return failures_only(summary, TAIL_RETRY_MARKERS)
 
 
 def config_with_render_timeout(config: str, timeout_ms: int) -> str:
@@ -423,9 +441,10 @@ def link_readers(summary: dict[str, object]) -> set[int]:
 
 
 def render_with_deadline_tail(render, name, cutoff, pages=None):
-    """Render, then retry pages that only missed the serving deadline: alone,
-    then once with the extended deadline. Returns how many pages the first
-    pass selected and every pass's link readers."""
+    """Render, then retry pages that only missed the serving deadline or hit
+    a transient storage timeout: alone, then once with the extended deadline.
+    Returns how many pages the first pass selected and every pass's link
+    readers."""
     summary = render(name, cutoff, pages)
     selected = summary["candidates"]
     readers = link_readers(summary)
@@ -433,8 +452,11 @@ def render_with_deadline_tail(render, name, cutoff, pages=None):
         failed = summary["failed_page_ids"]
         if not failed:
             break
-        if not deadline_only(summary):
-            raise RuntimeError(f"{name} has failures other than the render deadline")
+        if not tail_retryable_only(summary):
+            raise RuntimeError(
+                f"{name} has failures other than the render deadline "
+                "or a transient storage timeout"
+            )
         # Alone, a page must meet the serving deadline; with the extended
         # deadline nothing is racing it, so those renders run side by side.
         summary = render(f"{name}-{tail}", cutoff, failed, serial=not extended, extended=extended)

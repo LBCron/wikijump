@@ -20,15 +20,18 @@
 
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::hash::{TEXT_HASH_LENGTH, TextHash, k12_hash};
-use crate::models::forum_post_revision::{self, Entity as ForumPostRevision};
-use crate::models::message_draft::{self, Entity as MessageDraft};
-use crate::models::message_record::{self, Entity as MessageRecord};
-use crate::models::page_revision::{self, Entity as PageRevision};
+use crate::models::forum_post_revision::Entity as ForumPostRevision;
+use crate::models::message_draft::Entity as MessageDraft;
+use crate::models::message_record::Entity as MessageRecord;
+use crate::models::page_revision::Entity as PageRevision;
 use crate::models::text::{self, Entity as Text};
 use crate::services::ServiceContext;
 use paste::paste;
-use sea_orm::sea_query::OnConflict;
-use sea_orm::{ColumnTrait, Condition, DeleteResult, EntityTrait, QueryFilter, Set};
+use sea_orm::sea_query::{DynIden, IntoIden, OnConflict, TableRef};
+use sea_orm::{
+    ColumnTrait, Condition, DeleteResult, EntityName, EntityTrait, Identity, Iterable,
+    QueryFilter, RelationTrait, Set,
+};
 use sea_query::Query;
 
 #[derive(Debug)]
@@ -152,60 +155,48 @@ impl TextService {
         Ok(hash)
     }
 
-    pub async fn prune(ctx: &ServiceContext<'_>) -> Result<()> {
-        macro_rules! not_in_column {
-            ($table:expr, $column:expr $(,)?) => {
-                text::Column::Hash.not_in_subquery(
-                    Query::select().column($column).from($table).to_owned(),
-                )
-            };
+    fn text_references() -> Vec<(TableRef, DynIden)> {
+        fn collect<E>(references: &mut Vec<(TableRef, DynIden)>)
+        where
+            E: EntityTrait,
+            E::Relation: RelationTrait,
+        {
+            let text_table = Text.table_ref();
+            let text_hash = Identity::Unary(text::Column::Hash.into_iden());
+            for relation in E::Relation::iter() {
+                let definition = relation.def();
+                if definition.to_tbl == text_table
+                    && definition.to_col == text_hash
+                    && let Identity::Unary(column) = definition.from_col
+                {
+                    references.push((definition.from_tbl, column));
+                }
+            }
         }
 
+        let mut references = Vec::new();
+        collect::<PageRevision>(&mut references);
+        collect::<MessageDraft>(&mut references);
+        collect::<MessageRecord>(&mut references);
+        collect::<ForumPostRevision>(&mut references);
+        references
+    }
+
+    fn prune_condition() -> Condition {
+        Self::text_references().into_iter().fold(
+            Condition::all(),
+            |condition, (table, column)| {
+                condition.add(text::Column::Hash.not_in_subquery(
+                    Query::select().column(column).from(table).to_owned(),
+                ))
+            },
+        )
+    }
+
+    pub async fn prune(ctx: &ServiceContext<'_>) -> Result<()> {
         let txn = ctx.transaction();
         let DeleteResult { rows_affected, .. } = Text::delete_many()
-            .filter(
-                Condition::all()
-                    .add(not_in_column!(
-                        PageRevision,
-                        page_revision::Column::WikitextHash,
-                    ))
-                    .add(not_in_column!(
-                        PageRevision,
-                        page_revision::Column::CompiledBodyHtmlHash,
-                    ))
-                    .add(not_in_column!(
-                        PageRevision,
-                        page_revision::Column::CompiledTopBarHtmlHash,
-                    ))
-                    .add(not_in_column!(
-                        PageRevision,
-                        page_revision::Column::CompiledSideBarHtmlHash,
-                    ))
-                    .add(not_in_column!(
-                        MessageDraft,
-                        message_draft::Column::WikitextHash,
-                    ))
-                    .add(not_in_column!(
-                        MessageDraft,
-                        message_draft::Column::CompiledHash,
-                    ))
-                    .add(not_in_column!(
-                        MessageRecord,
-                        message_record::Column::WikitextHash,
-                    ))
-                    .add(not_in_column!(
-                        MessageRecord,
-                        message_record::Column::CompiledHash,
-                    ))
-                    .add(not_in_column!(
-                        ForumPostRevision,
-                        forum_post_revision::Column::WikitextHash,
-                    ))
-                    .add(not_in_column!(
-                        ForumPostRevision,
-                        forum_post_revision::Column::CompiledHtmlHash,
-                    )),
-            )
+            .filter(Self::prune_condition())
             .exec(txn)
             .await
             .or_raise(|| {
@@ -214,5 +205,76 @@ impl TextService {
 
         debug!("Pruned {rows_affected} unused text rows");
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use sea_orm::{DbBackend, QueryTrait};
+
+    #[test]
+    fn text_references_derive_every_schema_foreign_key_to_text() {
+        let mut references: Vec<(String, String)> = TextService::text_references()
+            .into_iter()
+            .map(|(table, column)| {
+                (table.sea_orm_table().to_string(), column.to_string())
+            })
+            .collect();
+        references.sort();
+        assert_eq!(
+            references,
+            vec![
+                (
+                    "forum_post_revision".to_string(),
+                    "compiled_html_hash".to_string()
+                ),
+                (
+                    "forum_post_revision".to_string(),
+                    "wikitext_hash".to_string()
+                ),
+                ("message_draft".to_string(), "compiled_hash".to_string()),
+                ("message_draft".to_string(), "wikitext_hash".to_string()),
+                ("message_record".to_string(), "compiled_hash".to_string()),
+                ("message_record".to_string(), "wikitext_hash".to_string()),
+                (
+                    "page_revision".to_string(),
+                    "compiled_body_html_hash".to_string()
+                ),
+                (
+                    "page_revision".to_string(),
+                    "compiled_body_styles_hash".to_string()
+                ),
+                (
+                    "page_revision".to_string(),
+                    "compiled_side_bar_html_hash".to_string()
+                ),
+                (
+                    "page_revision".to_string(),
+                    "compiled_top_bar_html_hash".to_string()
+                ),
+                ("page_revision".to_string(), "wikitext_hash".to_string()),
+            ],
+        );
+    }
+
+    #[test]
+    fn prune_condition_excludes_every_text_reference() {
+        let statement = Text::delete_many()
+            .filter(TextService::prune_condition())
+            .build(DbBackend::Postgres)
+            .to_string();
+        for column in [
+            "wikitext_hash",
+            "compiled_body_html_hash",
+            "compiled_body_styles_hash",
+            "compiled_top_bar_html_hash",
+            "compiled_side_bar_html_hash",
+            "compiled_hash",
+            "compiled_html_hash",
+        ] {
+            assert!(statement.contains(column), "missing {column}: {statement}");
+        }
+        assert_eq!(statement.matches("NOT IN").count(), 11);
     }
 }

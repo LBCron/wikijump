@@ -315,6 +315,14 @@ impl MirrorScopeService {
         })
     }
 
+    fn hash_evidence(expected_hex: &str, s3_hash: &[u8]) -> Option<bool> {
+        let expected = hex::decode(expected_hex.trim()).ok()?;
+        if expected.len() != s3_hash.len() {
+            return None;
+        }
+        Some(expected != s3_hash)
+    }
+
     fn bytes_differ(
         expectation: &SourceFileExpectation,
         s3_hash: &[u8],
@@ -325,14 +333,12 @@ impl MirrorScopeService {
         {
             return true;
         }
-        if let Some(expected_hex) = &expectation.s3_hash_hex
-            && let Ok(expected) = hex::decode(expected_hex.trim())
-            && expected.len() == s3_hash.len()
-            && expected != s3_hash
-        {
-            return true;
+        match &expectation.s3_hash_hex {
+            Some(expected_hex) => {
+                Self::hash_evidence(expected_hex, s3_hash) == Some(true)
+            }
+            None => false,
         }
-        false
     }
 
     fn to_output(row: mirror_scope::Model) -> MirrorScope {
@@ -529,6 +535,37 @@ mod tests {
             ]),
             vec!["nav:top".to_string(), "scp-9506".to_string()],
         );
+    }
+
+    #[test]
+    fn undecodable_hash_is_not_evidence() {
+        use super::SourceFileExpectation;
+
+        assert_eq!(MirrorScopeService::hash_evidence("zz", &[1, 2]), None);
+        assert_eq!(MirrorScopeService::hash_evidence("010", &[1, 2]), None);
+        assert_eq!(MirrorScopeService::hash_evidence("0102", &[1]), None);
+        assert_eq!(
+            MirrorScopeService::hash_evidence("0102", &[1, 2]),
+            Some(false),
+        );
+        assert_eq!(
+            MirrorScopeService::hash_evidence(" 0103 ", &[1, 2]),
+            Some(true),
+        );
+
+        let undecodable = SourceFileExpectation {
+            name: String::from("file.txt"),
+            s3_hash_hex: Some(String::from("zz")),
+            size: Some(2),
+        };
+        assert!(!MirrorScopeService::bytes_differ(&undecodable, &[1, 2], 2));
+        assert!(MirrorScopeService::bytes_differ(&undecodable, &[1, 2], 3));
+
+        let differing = SourceFileExpectation {
+            s3_hash_hex: Some(String::from("0103")),
+            ..undecodable.clone()
+        };
+        assert!(MirrorScopeService::bytes_differ(&differing, &[1, 2], 2));
     }
 
     #[test]

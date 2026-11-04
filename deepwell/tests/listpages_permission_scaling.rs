@@ -254,67 +254,96 @@ async fn time_batched(
     elapsed
 }
 
+struct ScalingMeasurement {
+    rows: usize,
+    reference: Duration,
+    batched: Duration,
+}
+
+impl ScalingMeasurement {
+    fn speedup(&self) -> f64 {
+        self.reference.as_secs_f64() / self.batched.as_secs_f64().max(f64::MIN_POSITIVE)
+    }
+}
+
+async fn measure_at_row_count(row_count: usize) -> ScalingMeasurement {
+    const CATEGORIES: usize = 4;
+
+    let runner = TestRunner::setup().await;
+    let ctx = runner.context();
+    let (_site_id, viewer, pages) =
+        create_scaling_site(&runner, CATEGORIES, row_count).await;
+
+    let mut warm_cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
+    time_batched(
+        ctx,
+        Some(viewer),
+        &pages[..row_count.min(8)],
+        &mut warm_cache,
+    )
+    .await;
+
+    let reference = time_reference(ctx, Some(viewer), &pages).await;
+
+    let mut cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
+    let batched = time_batched(ctx, Some(viewer), &pages, &mut cache).await;
+
+    let expected = reference_decisions(ctx, Some(viewer), &pages).await;
+    let actual = view_decisions_for_scanned_pages(ctx, Some(viewer), &pages, &mut cache)
+        .await
+        .expect("verification pass should resolve");
+    assert_eq!(expected, actual, "paths disagree at R={row_count}");
+
+    ScalingMeasurement {
+        rows: row_count,
+        reference,
+        batched,
+    }
+}
+
 #[tokio::test]
 async fn view_permission_scaling_is_flat_in_row_count() {
-    const CATEGORIES: usize = 4;
-    let series = [10usize, 20, 40, 80, 160];
+    const ROW_COUNTS: [usize; 5] = [10, 20, 40, 80, 160];
+    const MAX_BATCHED_GROWTH: f64 = 6.0;
 
-    let mut rows: Vec<(usize, Duration, Duration)> = Vec::new();
-
-    for &r in &series {
-        let runner = TestRunner::setup().await;
-        let ctx = runner.context();
-        let (_site_id, viewer, pages) = create_scaling_site(&runner, CATEGORIES, r).await;
-
-        let mut warm_cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
-        time_batched(ctx, Some(viewer), &pages[..r.min(8)], &mut warm_cache).await;
-
-        let reference = time_reference(ctx, Some(viewer), &pages).await;
-
-        let mut cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
-        let batched = time_batched(ctx, Some(viewer), &pages, &mut cache).await;
-
-        let expected = reference_decisions(ctx, Some(viewer), &pages).await;
-        let actual =
-            view_decisions_for_scanned_pages(ctx, Some(viewer), &pages, &mut cache)
-                .await
-                .expect("verification pass should resolve");
-        assert_eq!(expected, actual, "paths disagree at R={r}");
-
-        rows.push((r, reference, batched));
+    let mut measurements = Vec::with_capacity(ROW_COUNTS.len());
+    for row_count in ROW_COUNTS {
+        measurements.push(measure_at_row_count(row_count).await);
     }
 
     let mut report = String::new();
     report.push_str("\nR      reference(ms)  batched(ms)  speedup\n");
-    for (r, reference, batched) in &rows {
+    for measurement in &measurements {
         report.push_str(&format!(
-            "{r:<6} {:>13.2}  {:>11.2}  {:>6.1}x\n",
-            reference.as_secs_f64() * 1000.0,
-            batched.as_secs_f64() * 1000.0,
-            reference.as_secs_f64() / batched.as_secs_f64().max(f64::MIN_POSITIVE),
+            "{:<6} {:>13.2}  {:>11.2}  {:>6.1}x\n",
+            measurement.rows,
+            measurement.reference.as_secs_f64() * 1000.0,
+            measurement.batched.as_secs_f64() * 1000.0,
+            measurement.speedup(),
         ));
     }
     eprintln!("{report}");
 
-    let (r_small, _, batched_small) = rows[0];
-    let (r_large, _, batched_large) = *rows.last().expect("series should not be empty");
-    assert_eq!(r_large, r_small * 16, "series should span 16x");
+    let smallest = &measurements[0];
+    let largest = measurements.last().expect("series should not be empty");
+    let row_growth = largest.rows / smallest.rows;
+    assert_eq!(row_growth, 16, "series should span 16x");
 
-    let growth =
-        batched_large.as_secs_f64() / batched_small.as_secs_f64().max(f64::MIN_POSITIVE);
+    let batched_growth = largest.batched.as_secs_f64()
+        / smallest.batched.as_secs_f64().max(f64::MIN_POSITIVE);
     eprintln!(
-        "batched growth over {r_small}->{r_large} rows: {growth:.2}x \
-         (a per-row path would be near 16x)"
+        "batched growth over {}->{} rows: {batched_growth:.2}x \
+         (a per-row path would be near {row_growth}x)",
+        smallest.rows, largest.rows,
     );
     assert!(
-        growth < 6.0,
-        "batched path scaled {growth:.1}x while rows grew 16x, so it is not flat"
+        batched_growth < MAX_BATCHED_GROWTH,
+        "batched path scaled {batched_growth:.1}x while rows grew {row_growth}x, so it is not flat"
     );
 
-    let (_, reference_large, batched_large) =
-        *rows.last().expect("series should not be empty");
     assert!(
-        reference_large > batched_large * 2,
-        "expected the per-row path to cost several times more at R={r_large}"
+        largest.reference > largest.batched * 2,
+        "expected the per-row path to cost several times more at R={}",
+        largest.rows
     );
 }

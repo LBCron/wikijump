@@ -28,9 +28,41 @@ use sea_orm::{DatabaseTransaction, TransactionTrait};
 use self_cell::self_cell;
 
 #[derive(Debug)]
+pub struct RollbackOnDropTransaction {
+    transaction: Option<DatabaseTransaction>,
+}
+
+impl RollbackOnDropTransaction {
+    fn new(transaction: DatabaseTransaction) -> Self {
+        Self {
+            transaction: Some(transaction),
+        }
+    }
+
+    fn get(&self) -> &DatabaseTransaction {
+        self.transaction.as_ref().expect("Should never be None")
+    }
+
+    pub async fn rollback(mut self) {
+        if let Some(transaction) = self.transaction.take() {
+            transaction
+                .rollback()
+                .await
+                .expect("Unable to roll back transaction");
+        }
+    }
+}
+
+impl Drop for RollbackOnDropTransaction {
+    fn drop(&mut self) {
+        self.transaction.take();
+    }
+}
+
+#[derive(Debug)]
 pub struct TestRunnerRequestContext {
     state: ServerState,
-    transaction: Option<DatabaseTransaction>,
+    transaction: RollbackOnDropTransaction,
     request_ctx: RequestContext,
 }
 
@@ -54,7 +86,7 @@ impl TestRunnerRequestContext {
 
         TestRunnerRequestContext {
             state,
-            transaction: Some(txn),
+            transaction: RollbackOnDropTransaction::new(txn),
             request_ctx: RequestContext::default(),
         }
     }
@@ -75,25 +107,19 @@ impl TestRunnerRequestContext {
 
         TestRunnerRequestContext {
             state,
-            transaction: Some(txn),
+            transaction: RollbackOnDropTransaction::new(txn),
             request_ctx: RequestContext::default(),
         }
     }
 
     fn transaction(&self) -> &DatabaseTransaction {
-        self.transaction.as_ref().expect("Should never be None")
+        self.transaction.get()
     }
 
     #[inline]
     fn build_service_context<'txn>(&'txn self) -> ServiceContext<'txn> {
         ServiceContext::new(&self.state, self.transaction())
             .with_request(self.request_ctx.clone())
-    }
-}
-
-impl Drop for TestRunnerRequestContext {
-    fn drop(&mut self) {
-        self.transaction.take();
     }
 }
 
@@ -156,12 +182,6 @@ impl TestRunner {
 
     #[allow(unused)]
     pub async fn teardown(self) {
-        let mut owner = self.into_owner();
-        if let Some(transaction) = owner.transaction.take() {
-            transaction
-                .rollback()
-                .await
-                .expect("Unable to roll back transaction");
-        }
+        self.into_owner().transaction.rollback().await;
     }
 }

@@ -30,7 +30,6 @@ pub fn empty_params() -> Params<'static> {
 
 #[inline]
 pub fn make_params(value: JsonValue) -> Params<'static> {
-    let json = serde_json::to_string(&value).expect("Unable to emit JSON");
-    let params = Params::new(Some(&json));
-    params.into_owned()
+    let raw = serde_json::value::to_raw_value(&value).expect("Unable to emit JSON");
+    Params::new(Some(raw.get())).into_owned()
 }

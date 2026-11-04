@@ -539,13 +539,15 @@ async fn pending_empty_blob(
     pending_blob_id
 }
 
-async fn pending_data_blob(
+struct CommittedPoolPendingBlobId(String);
+
+async fn committed_pool_pending_data_blob(
     runner: &TestRunner,
     site_id: i64,
     page_id: i64,
     label: &str,
     data: &[u8],
-) -> String {
+) -> CommittedPoolPendingBlobId {
     let pending_blob_id = cuid();
     let s3_path = format!("uploads/parity-{label}-{pending_blob_id}");
     runner
@@ -571,7 +573,7 @@ async fn pending_data_blob(
     .insert(&runner.state().database)
     .await
     .expect("data blob fixture should insert");
-    pending_blob_id
+    CommittedPoolPendingBlobId(pending_blob_id)
 }
 
 #[tokio::test]
@@ -627,7 +629,7 @@ async fn native_file_mutations_still_succeed() {
         "native file edit must succeed through the guarded endpoint",
     );
 
-    let second_blob = pending_data_blob(
+    let second_blob = committed_pool_pending_data_blob(
         &runner,
         site.site_id,
         page.page_id,
@@ -645,7 +647,7 @@ async fn native_file_mutations_still_succeed() {
             "user_id": ADMIN_USER_ID,
             "last_revision_id": renamed.file_revision_id,
             "revision_comments": "native replacement",
-            "uploaded_blob_id": second_blob,
+            "uploaded_blob_id": second_blob.0,
             "ip_address": common::IP_ADDRESS,
         }),
     );

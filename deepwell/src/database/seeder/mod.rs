@@ -696,17 +696,20 @@ async fn restart_sequence_with(
         "New sequence start value {new_start_value} is not positive",
     );
 
-    run_query(
-        txn,
-        format!("ALTER SEQUENCE {sequence_name} RESTART WITH {new_start_value}"),
-    )
-    .await
-    .or_raise(|| {
+    let statement = Statement::from_sql_and_values(
+        DatabaseBackend::Postgres,
+        "SELECT setval($1::regclass, $2, false)",
+        [sequence_name.into(), new_start_value.into()],
+    );
+
+    txn.query_one_raw(statement).await.or_raise(|| {
         Error::new(
             format!("failed to set new start for ID sequence '{sequence_name}' to {new_start_value}"),
             ErrorType::DatabaseSeeder,
         )
-    })
+    })?;
+
+    Ok(())
 }
 
 fn loopback_parent(main_domain: &str) -> Option<&str> {
@@ -746,19 +749,4 @@ fn seeded_loopback_domains_follow_the_platform_domain() {
         rebase("scpwiki.com", "wikijump.dev.localhost"),
         "scpwiki.com"
     );
-}
-
-async fn run_query(txn: &DatabaseTransaction, sql: String) -> Result<()> {
-    let sql2 = sql.clone();
-
-    txn.query_one_raw(Statement::from_string(DatabaseBackend::Postgres, sql))
-        .await
-        .or_raise(|| {
-            Error::new(
-                format!("failed to run query: {sql2}"),
-                ErrorType::DatabaseSeeder,
-            )
-        })?;
-
-    Ok(())
 }

@@ -75,6 +75,27 @@ struct Fixture {
     revision_id: i64,
 }
 
+const FIXTURE_CREATION_ATTEMPTS: usize = 3;
+
+async fn create_fixture_page_retrying_transient_failures(
+    state: &ServerState,
+    wikitext: String,
+) -> Fixture {
+    let mut fixture = None;
+    for attempt in 1..=FIXTURE_CREATION_ATTEMPTS {
+        match create_fixture_page_outcome(state, wikitext.clone()).await {
+            Ok(created) => {
+                fixture = Some(created);
+                break;
+            }
+            Err(error) => {
+                eprintln!("fixture creation attempt {attempt} failed: {error}")
+            }
+        }
+    }
+    fixture.expect("fixture page should eventually be created")
+}
+
 async fn create_fixture_page(state: &ServerState, wikitext: String) -> Fixture {
     create_fixture_page_outcome(state, wikitext)
         .await
@@ -158,17 +179,7 @@ async fn older_rerender_does_not_overwrite_newer_blocks() {
     for _ in 0..4_000 {
         wikitext.push_str("[[html]]filler[[/html]]\n");
     }
-    let mut fixture = None;
-    for attempt in 1..=3 {
-        match create_fixture_page_outcome(&state, wikitext.clone()).await {
-            Ok(created) => {
-                fixture = Some(created);
-                break;
-            }
-            Err(error) => eprintln!("fixture creation attempt {attempt} failed: {error}"),
-        }
-    }
-    let fixture = fixture.expect("fixture page should eventually be created");
+    let fixture = create_fixture_page_retrying_transient_failures(&state, wikitext).await;
     let initial_block = stored_html_block(&state, fixture.page_id.page_id).await;
     if initial_block.as_deref() != Some("OLDER-BLOCK-CONTENT") {
         let rows: i64 = state

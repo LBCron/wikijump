@@ -94,12 +94,14 @@ async fn reference_view_decisions(
     decisions
 }
 
+type CategoryPermissions = BTreeMap<(i64, Option<i64>), bool>;
+
 async fn batched_view_decisions(
     ctx: &ServiceContext<'_>,
     viewer_user_id: Option<i64>,
     site_id: i64,
     pages: &[ScannedPage],
-    category_scoped_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
+    category_permissions: &mut CategoryPermissions,
 ) -> Vec<bool> {
     let scanned = pages
         .iter()
@@ -110,9 +112,39 @@ async fn batched_view_decisions(
         })
         .collect::<Vec<_>>();
 
-    view_decisions_for_scanned_pages(ctx, viewer_user_id, &scanned, category_scoped_cache)
+    view_decisions_for_scanned_pages(ctx, viewer_user_id, &scanned, category_permissions)
         .await
         .expect("batched view decisions should resolve")
+}
+
+async fn assert_batched_matches_reference(
+    ctx: &ServiceContext<'_>,
+    label: &str,
+    viewer_user_id: Option<i64>,
+    site_id: i64,
+    pages: &[ScannedPage],
+    category_permissions: &mut CategoryPermissions,
+) -> Vec<bool> {
+    let reference = reference_view_decisions(ctx, viewer_user_id, site_id, pages).await;
+    let batched =
+        batched_view_decisions(ctx, viewer_user_id, site_id, pages, category_permissions)
+            .await;
+
+    assert_eq!(
+        reference.len(),
+        batched.len(),
+        "{label}: decision count differs"
+    );
+
+    for ((page, expected), actual) in pages.iter().zip(&reference).zip(&batched) {
+        assert_eq!(
+            expected, actual,
+            "{label}: view decision differs for page {} in category {:?}",
+            page.page_id, page.category_id
+        );
+    }
+
+    reference
 }
 
 struct Fixture {
@@ -396,32 +428,18 @@ async fn batched_view_decisions_match_the_page_scoped_reference() {
     let f = Fixture::setup(&runner).await;
     let ctx = runner.context();
 
-    let mut category_scoped_cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
+    let mut category_permissions = CategoryPermissions::new();
 
     for (label, viewer) in f.viewers() {
-        let reference = reference_view_decisions(ctx, viewer, f.site_id, &f.pages).await;
-        let batched = batched_view_decisions(
+        assert_batched_matches_reference(
             ctx,
+            label,
             viewer,
             f.site_id,
             &f.pages,
-            &mut category_scoped_cache,
+            &mut category_permissions,
         )
         .await;
-
-        assert_eq!(
-            reference.len(),
-            batched.len(),
-            "{label}: decision count differs"
-        );
-
-        for ((page, expected), actual) in f.pages.iter().zip(&reference).zip(&batched) {
-            assert_eq!(
-                expected, actual,
-                "{label}: view decision differs for page {} in category {:?}",
-                page.page_id, page.category_id
-            );
-        }
     }
 }
 
@@ -431,7 +449,7 @@ async fn a_warm_category_cache_never_changes_a_decision() {
     let f = Fixture::setup(&runner).await;
     let ctx = runner.context();
 
-    let mut category_scoped_cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
+    let mut category_permissions = CategoryPermissions::new();
     let viewer = Some(f.user_with_view);
     let expected = reference_view_decisions(ctx, viewer, f.site_id, &f.pages).await;
 
@@ -441,7 +459,7 @@ async fn a_warm_category_cache_never_changes_a_decision() {
             viewer,
             f.site_id,
             &f.pages,
-            &mut category_scoped_cache,
+            &mut category_permissions,
         )
         .await;
         assert_eq!(
@@ -458,13 +476,13 @@ async fn an_authored_page_is_visible_without_leaking_to_its_category_siblings() 
     let ctx = runner.context();
 
     let viewer = Some(f.user_without_view);
-    let mut category_scoped_cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
+    let mut category_permissions = CategoryPermissions::new();
     let decisions = batched_view_decisions(
         ctx,
         viewer,
         f.site_id,
         &f.pages,
-        &mut category_scoped_cache,
+        &mut category_permissions,
     )
     .await;
 
@@ -509,26 +527,20 @@ async fn category_scoped_view_permissions_gate_the_batched_path() {
     grant_role(ctx, f.site_id, f.user_no_roles, scoped_role).await;
 
     let viewer = Some(f.user_no_roles);
-    let mut category_scoped_cache: BTreeMap<(i64, Option<i64>), bool> = BTreeMap::new();
+    let mut category_permissions = CategoryPermissions::new();
 
-    let reference = reference_view_decisions(ctx, viewer, f.site_id, &f.pages).await;
-    let batched = batched_view_decisions(
+    let reference = assert_batched_matches_reference(
         ctx,
+        "scoped viewer",
         viewer,
         f.site_id,
         &f.pages,
-        &mut category_scoped_cache,
+        &mut category_permissions,
     )
     .await;
 
     let mut granted = 0;
-    for ((page, expected), actual) in f.pages.iter().zip(&reference).zip(&batched) {
-        assert_eq!(
-            expected, actual,
-            "decision differs for page {}",
-            page.page_id
-        );
-
+    for (page, expected) in f.pages.iter().zip(&reference) {
         if page.category_id == Some(f.category_id) {
             assert!(*expected, "scoped view role should grant its own category");
             granted += 1;

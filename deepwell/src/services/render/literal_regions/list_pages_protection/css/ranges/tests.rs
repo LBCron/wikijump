@@ -203,7 +203,7 @@ fn wikidot_unclosed_css_yields_across_a_css_comment_and_malformed_head() {
 }
 
 #[test]
-fn wikidot_inline_css_keeps_nested_list_pages_markers_raw() {
+fn wikidot_inline_css_span_is_literal_under_physical_line_ownership() {
     let source = "[[module CSS]][[module ListPages name=\"=\"]]%%title%%[[/module]]";
     let list_pages = source.find("[[module ListPages").unwrap();
 
@@ -213,6 +213,22 @@ fn wikidot_inline_css_keeps_nested_list_pages_markers_raw() {
     );
     assert!(collect_wikidot_unclosed_css_yield_openers(source).is_empty());
     assert!(LiteralRegionIndex::new_list_pages_syntax(source).contains(list_pages));
+}
+
+#[test]
+fn wikidot_inline_css_span_ends_at_its_close_and_later_root_list_pages_stays_live() {
+    let head = MISSING_LIST_PAGES;
+    let source = format!("[[module CSS]]{head}[[/module]]\n{head}\nTWO\n[[/module]]");
+    let first_close_end = source.find("[[/module]]").unwrap() + "[[/module]]".len();
+    let index = LiteralRegionIndex::new_list_pages_syntax(&source);
+
+    assert_eq!(
+        collect_downstream_css_module_ranges(&source),
+        vec![0..first_close_end],
+    );
+    assert!(collect_wikidot_unclosed_css_yield_openers(&source).is_empty());
+    assert!(index.contains(source.find(head).unwrap()));
+    assert!(!index.contains(source.rfind(head).unwrap()));
 }
 
 #[test]

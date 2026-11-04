@@ -23,14 +23,29 @@ mod common;
 
 use self::common::TestRunner;
 use cuid2::cuid;
-use deepwell::constants::ADMIN_USER_ID;
+use deepwell::constants::{ADMIN_USER_ID, SYSTEM_USER_ID};
 use deepwell::error::prelude::*;
 use deepwell::hash::{BlobHash, blob_hash_to_hex, sha512_hash};
+use deepwell::license::License;
 use deepwell::models::blob_blacklist::{self, Entity as BlobBlacklistTable};
 use deepwell::models::blob_pending::{self, Entity as BlobPendingTable};
+use deepwell::models::file;
+use deepwell::models::file_revision;
+use deepwell::models::user;
+use deepwell::services::page::{CreatePage, DeletePage, PageService};
+use deepwell::services::permission::PermissionService;
+use deepwell::services::role::{
+    GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
+};
+use deepwell::services::site::{CreateSite, SiteService};
+use deepwell::services::user::{CreateUser, UserService};
 use deepwell::services::{BlobService, RequestContext};
+use deepwell::types::{
+    Action, FileRevisionType, Permission, Reference, Resource, UserType,
+};
 use sea_orm::{ActiveModelTrait, ActiveValue::Set, EntityTrait};
 use serde_json::json;
+use str_macro::str;
 
 const TEST_BLOB_HASH: &str = "11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
 const SECURITY_600_DATA: &[u8] = b"issue 600 blacklisted upload fixture";
@@ -237,6 +252,404 @@ async fn blob_blacklist_uses_admin_request_actor() {
         .await
         .expect("blob blacklist lookup should succeed");
     assert!(removed.is_none());
+}
+
+async fn create_user(runner: &TestRunner, label: &str) -> i64 {
+    UserService::create(
+        runner.context(),
+        CreateUser {
+            user_type: UserType::Regular,
+            name: format!("Blob Authz {label} {}", cuid()),
+            email: format!("blob-authz-{label}-{}@email.com", cuid()),
+            locales: vec![str!("en")],
+            password: String::from("password-fixture"),
+            bypass_filter: true,
+            bypass_email_verification: true,
+            override_user_id: None,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("failed to create blob authz test user")
+    .user_id
+}
+
+async fn grant_page_view(runner: &TestRunner, site_id: i64, user_id: i64) {
+    let ctx = runner.context();
+    let role_id = RoleService::create(
+        ctx,
+        InternalCreateRoleInput {
+            site_id,
+            name: format!("Blob Authz Viewer {}", cuid()),
+            description: None,
+            is_virtual: false,
+            parent_role_id: None,
+            creating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("failed to create blob authz role")
+    .role_id;
+
+    PermissionService::update_permissions_for_role(
+        ctx,
+        UpdateRolePermissionsInput {
+            site_id,
+            role_reference: Reference::Id(role_id),
+            new_permissions: vec![Permission {
+                resource_type: Resource::Page,
+                resource_category: None,
+                action: Action::View,
+            }],
+            cascade_removals: false,
+            updating_user_id: SYSTEM_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("failed to set blob authz role permissions");
+
+    RoleService::grant_role_to_user(
+        ctx,
+        GrantUserRoleInput {
+            site_id,
+            user_id,
+            role_id,
+            assigning_user_id: SYSTEM_USER_ID,
+            expires_at: None,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("failed to grant blob authz role");
+}
+
+fn set_actor(runner: &mut TestRunner, user_id: Option<i64>) {
+    runner.set_request_context(RequestContext {
+        user_id,
+        ..Default::default()
+    });
+}
+
+async fn put_blob(runner: &TestRunner, hash_hex: &str, data: &[u8], mime: &str) {
+    let response = runner
+        .state()
+        .s3_files_bucket
+        .put_object_with_content_type(hash_hex, data, mime)
+        .await
+        .expect("blob fixture upload should succeed");
+    assert_eq!(response.status_code(), 200);
+}
+
+async fn delete_blob_object(runner: &TestRunner, hash_hex: &str) {
+    let response = runner
+        .state()
+        .s3_files_bucket
+        .delete_object(hash_hex)
+        .await
+        .expect("blob fixture cleanup should succeed");
+    assert_eq!(response.status_code(), 204);
+}
+
+async fn insert_file_with_blob(
+    runner: &TestRunner,
+    site_id: i64,
+    page_id: i64,
+    user_id: i64,
+    name: &str,
+    hash: BlobHash,
+    size: i64,
+) -> i64 {
+    let txn = runner.context().transaction();
+    let file = file::ActiveModel {
+        name: Set(name.to_owned()),
+        page_id: Set(page_id),
+        site_id: Set(site_id),
+        ..Default::default()
+    }
+    .insert(txn)
+    .await
+    .expect("file fixture row should insert");
+
+    file_revision::ActiveModel {
+        revision_type: Set(FileRevisionType::Create),
+        revision_number: Set(0),
+        file_id: Set(file.file_id),
+        page_id: Set(page_id),
+        site_id: Set(site_id),
+        user_id: Set(user_id),
+        name: Set(name.to_owned()),
+        s3_hash: Set(hash.to_vec()),
+        mime: Set(String::from("text/plain")),
+        size: Set(size),
+        content_type_label: Set(None),
+        content_type_description: Set(None),
+        changes: Set(vec![
+            String::from("page"),
+            String::from("name"),
+            String::from("blob"),
+            String::from("mime"),
+        ]),
+        comments: Set(String::new()),
+        hidden: Set(Vec::new()),
+        ..Default::default()
+    }
+    .insert(txn)
+    .await
+    .expect("file revision fixture row should insert");
+
+    file.file_id
+}
+
+#[tokio::test]
+async fn blob_get_requires_read_access_to_owning_content() {
+    let mut runner = TestRunner::setup().await;
+
+    let viewer = create_user(&runner, "viewer").await;
+    let outsider = create_user(&runner, "outsider").await;
+    let avatar_user = create_user(&runner, "avatar").await;
+
+    let site_id = {
+        let site = SiteService::create(
+            runner.context(),
+            CreateSite {
+                slug: format!("blob-authz-{}", cuid()),
+                name: String::from("Blob Authz Site"),
+                tagline: String::new(),
+                description: String::from("blob get authorization fixture"),
+                default_page: None,
+                layout: None,
+                license: License::CcBySa40,
+                locale: String::from("en"),
+                ip_address: common::IP_ADDRESS,
+            },
+            None,
+        )
+        .await
+        .expect("failed to create blob authz site");
+        site.site_id
+    };
+    let foreign_site_id = {
+        let site = SiteService::create(
+            runner.context(),
+            CreateSite {
+                slug: format!("blob-authz-foreign-{}", cuid()),
+                name: String::from("Blob Authz Foreign Site"),
+                tagline: String::new(),
+                description: String::from("blob get authorization foreign fixture"),
+                default_page: None,
+                layout: None,
+                license: License::CcBySa40,
+                locale: String::from("en"),
+                ip_address: common::IP_ADDRESS,
+            },
+            None,
+        )
+        .await
+        .expect("failed to create blob authz foreign site");
+        site.site_id
+    };
+
+    grant_page_view(&runner, site_id, viewer).await;
+
+    async fn create_page(
+        runner: &TestRunner,
+        site_id: i64,
+    ) -> deepwell::services::page::CreatePageOutput {
+        PageService::create(
+            runner.context(),
+            CreatePage {
+                site_id,
+                wikitext: String::from("blob authz page"),
+                title: String::from("Blob Authz Page"),
+                alt_title: None,
+                tags: Vec::new(),
+                slug: format!("blob-authz-{}", cuid()),
+                layout: None,
+                revision_comments: String::new(),
+                user_id: SYSTEM_USER_ID,
+                bypass_filter: true,
+                ip_address: common::IP_ADDRESS,
+            },
+        )
+        .await
+        .expect("failed to create blob authz page")
+    }
+
+    const FILE_DATA: &[u8] = b"blob get authorization fixture file";
+    let file_hash = sha512_hash(FILE_DATA);
+    let file_hex = blob_hash_to_hex(&file_hash).to_string();
+    put_blob(&runner, &file_hex, FILE_DATA, "text/plain").await;
+
+    let page = create_page(&runner, site_id).await;
+    insert_file_with_blob(
+        &runner,
+        site_id,
+        page.page_id,
+        viewer,
+        "authz.txt",
+        file_hash,
+        FILE_DATA.len().try_into().expect("fixture length fits"),
+    )
+    .await;
+
+    set_actor(&mut runner, Some(viewer));
+    let blob = run_endpoint!(runner, blob_get, json!(file_hex));
+    assert_eq!(blob.data.as_slice(), FILE_DATA);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(viewer),
+        site_id: Some(foreign_site_id),
+        ..Default::default()
+    });
+    let blob = run_endpoint!(runner, blob_get, json!(file_hex));
+    assert_eq!(blob.data.as_slice(), FILE_DATA);
+
+    set_actor(&mut runner, None);
+    let error = run_endpoint_err!(runner, blob_get, json!(file_hex));
+    assert_contains_error!(error, ErrorType::BlobNotFound);
+
+    set_actor(&mut runner, Some(outsider));
+    let error = run_endpoint_err!(runner, blob_get, json!(file_hex));
+    assert_contains_error!(error, ErrorType::BlobNotFound);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(outsider),
+        site_id: Some(foreign_site_id),
+        ..Default::default()
+    });
+    let error = run_endpoint_err!(runner, blob_get, json!(file_hex));
+    assert_contains_error!(error, ErrorType::BlobNotFound);
+
+    const DELETED_FILE_DATA: &[u8] = b"blob get authorization deleted file";
+    let deleted_file_hash = sha512_hash(DELETED_FILE_DATA);
+    let deleted_file_hex = blob_hash_to_hex(&deleted_file_hash).to_string();
+    put_blob(&runner, &deleted_file_hex, DELETED_FILE_DATA, "text/plain").await;
+
+    let second_page = create_page(&runner, site_id).await;
+    let deleted_file_id = insert_file_with_blob(
+        &runner,
+        site_id,
+        second_page.page_id,
+        viewer,
+        "authz-deleted.txt",
+        deleted_file_hash,
+        DELETED_FILE_DATA
+            .len()
+            .try_into()
+            .expect("fixture length fits"),
+    )
+    .await;
+
+    set_actor(&mut runner, Some(viewer));
+    let blob = run_endpoint!(runner, blob_get, json!(deleted_file_hex));
+    assert_eq!(blob.data.as_slice(), DELETED_FILE_DATA);
+
+    file::ActiveModel {
+        file_id: Set(deleted_file_id),
+        deleted_at: Set(Some(time::OffsetDateTime::now_utc())),
+        ..Default::default()
+    }
+    .update(runner.context().transaction())
+    .await
+    .expect("file fixture soft delete should succeed");
+
+    let error = run_endpoint_err!(runner, blob_get, json!(deleted_file_hex));
+    assert_contains_error!(error, ErrorType::BlobNotFound);
+
+    PageService::delete(
+        runner.context(),
+        DeletePage {
+            site_id,
+            page: Reference::Id(page.page_id),
+            last_revision_id: page.revision_id,
+            revision_comments: String::new(),
+            user_id: viewer,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("blob authz page delete should succeed");
+
+    set_actor(&mut runner, Some(viewer));
+    let error = run_endpoint_err!(runner, blob_get, json!(file_hex));
+    assert_contains_error!(error, ErrorType::BlobNotFound);
+
+    set_actor(&mut runner, None);
+    let error = run_endpoint_err!(runner, blob_get, json!(file_hex));
+    assert_contains_error!(error, ErrorType::BlobNotFound);
+
+    set_actor(&mut runner, Some(ADMIN_USER_ID));
+    let blob = run_endpoint!(runner, blob_get, json!(file_hex));
+    assert_eq!(blob.data.as_slice(), FILE_DATA);
+
+    const AVATAR_DATA: &[u8] = b"blob get authorization avatar";
+    let avatar_hash = sha512_hash(AVATAR_DATA);
+    let avatar_hex = blob_hash_to_hex(&avatar_hash).to_string();
+    put_blob(&runner, &avatar_hex, AVATAR_DATA, "image/png").await;
+
+    user::ActiveModel {
+        user_id: Set(avatar_user),
+        avatar_s3_hash: Set(Some(avatar_hash.to_vec())),
+        ..Default::default()
+    }
+    .update(runner.context().transaction())
+    .await
+    .expect("avatar fixture update should succeed");
+
+    set_actor(&mut runner, None);
+    let blob = run_endpoint!(runner, blob_get, json!(avatar_hex));
+    assert_eq!(blob.data.as_slice(), AVATAR_DATA);
+
+    set_actor(&mut runner, Some(outsider));
+    let blob = run_endpoint!(runner, blob_get, json!(avatar_hex));
+    assert_eq!(blob.data.as_slice(), AVATAR_DATA);
+
+    user::ActiveModel {
+        user_id: Set(avatar_user),
+        deleted_at: Set(Some(time::OffsetDateTime::now_utc())),
+        ..Default::default()
+    }
+    .update(runner.context().transaction())
+    .await
+    .expect("avatar user soft delete should succeed");
+
+    set_actor(&mut runner, None);
+    let error = run_endpoint_err!(runner, blob_get, json!(avatar_hex));
+    assert_contains_error!(error, ErrorType::BlobNotFound);
+
+    set_actor(&mut runner, Some(ADMIN_USER_ID));
+    let blob = run_endpoint!(runner, blob_get, json!(avatar_hex));
+    assert_eq!(blob.data.as_slice(), AVATAR_DATA);
+
+    const ORPHAN_DATA: &[u8] = b"blob get authorization orphan";
+    let orphan_hash = sha512_hash(ORPHAN_DATA);
+    let orphan_hex = blob_hash_to_hex(&orphan_hash).to_string();
+    put_blob(
+        &runner,
+        &orphan_hex,
+        ORPHAN_DATA,
+        "application/octet-stream",
+    )
+    .await;
+
+    set_actor(&mut runner, Some(viewer));
+    let error = run_endpoint_err!(runner, blob_get, json!(orphan_hex));
+    assert_contains_error!(error, ErrorType::BlobNotFound);
+
+    set_actor(&mut runner, None);
+    let error = run_endpoint_err!(runner, blob_get, json!(orphan_hex));
+    assert_contains_error!(error, ErrorType::BlobNotFound);
+
+    set_actor(&mut runner, Some(ADMIN_USER_ID));
+    let blob = run_endpoint!(runner, blob_get, json!(orphan_hex));
+    assert_eq!(blob.data.as_slice(), ORPHAN_DATA);
+
+    delete_blob_object(&runner, &file_hex).await;
+    delete_blob_object(&runner, &deleted_file_hex).await;
+    delete_blob_object(&runner, &avatar_hex).await;
+    delete_blob_object(&runner, &orphan_hex).await;
 }
 
 #[tokio::test]

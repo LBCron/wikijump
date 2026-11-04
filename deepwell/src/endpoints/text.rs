@@ -47,7 +47,21 @@ pub async fn text_get(
 ) -> Result<String> {
     let hash: Bytes = parse_one!(params, Text);
 
-    TextService::get(ctx, hash.as_ref())
+    let make_error = || Error::new("failed to get text entry", ErrorType::Text);
+
+    let contents = TextService::get_optional(ctx, hash.as_ref())
         .await
-        .or_raise(|| Error::new("failed to get text entry", ErrorType::Text))
+        .or_raise(make_error)?;
+
+    let authorized = match contents {
+        Some(_) => TextService::can_read(ctx, hash.as_ref())
+            .await
+            .or_raise(make_error)?,
+        None => false,
+    };
+
+    match contents {
+        Some(contents) if authorized => Ok(contents),
+        _ => Err(Error::new("text entry does not exist", ErrorType::TextNotFound).into()),
+    }
 }

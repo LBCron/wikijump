@@ -18,21 +18,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::constants::ADMIN_USER_ID;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::hash::{TEXT_HASH_LENGTH, TextHash, k12_hash};
-use crate::models::forum_post_revision::Entity as ForumPostRevision;
-use crate::models::message_draft::Entity as MessageDraft;
-use crate::models::message_record::Entity as MessageRecord;
-use crate::models::page_revision::Entity as PageRevision;
+use crate::models::forum_post::{self, Entity as ForumPost};
+use crate::models::forum_post_revision::{self, Entity as ForumPostRevision};
+use crate::models::forum_thread::{self, Entity as ForumThread};
+use crate::models::message::{self, Entity as Message};
+use crate::models::message_draft::{self, Entity as MessageDraft};
+use crate::models::message_record::{self, Entity as MessageRecord};
+use crate::models::page::{self, Entity as Page};
+use crate::models::page_revision::{self, Entity as PageRevision};
 use crate::models::text::{self, Entity as Text};
 use crate::services::ServiceContext;
+use crate::services::permission::PermissionService;
 use paste::paste;
 use sea_orm::sea_query::{DynIden, IntoIden, OnConflict, TableRef};
 use sea_orm::{
     ColumnTrait, Condition, DeleteResult, EntityName, EntityTrait, Identity, Iterable,
-    QueryFilter, RelationTrait, Set,
+    JoinType, QueryFilter, QuerySelect, RelationTrait, Set,
 };
 use sea_query::Query;
+use std::collections::HashSet;
 
 #[derive(Debug)]
 pub struct TextService;
@@ -124,6 +131,160 @@ impl TextService {
             Self::get_option(ctx, hash).await
         } else {
             Ok(None)
+        }
+    }
+
+    pub async fn can_read(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
+        let make_error =
+            || Error::new("failed to check text read access", ErrorType::Text);
+
+        if ctx.request().user_id == Some(ADMIN_USER_ID) {
+            return Ok(true);
+        }
+
+        let txn = ctx.transaction();
+
+        let page_owners: Vec<(i64, i64)> = PageRevision::find()
+            .select_only()
+            .column(page_revision::Column::SiteId)
+            .column(page_revision::Column::PageId)
+            .join(JoinType::InnerJoin, page_revision::Relation::Page.def())
+            .filter(page::Column::DeletedAt.is_null())
+            .filter(
+                Condition::any()
+                    .add(page_revision::Column::WikitextHash.eq(hash))
+                    .add(page_revision::Column::CompiledBodyHtmlHash.eq(hash))
+                    .add(page_revision::Column::CompiledBodyStylesHash.eq(hash))
+                    .add(page_revision::Column::CompiledTopBarHtmlHash.eq(hash))
+                    .add(page_revision::Column::CompiledSideBarHtmlHash.eq(hash)),
+            )
+            .into_tuple()
+            .all(txn)
+            .await
+            .or_raise(make_error)?;
+
+        let mut checked_pages = HashSet::new();
+        for (site_id, page_id) in page_owners {
+            if !checked_pages.insert((site_id, page_id)) {
+                continue;
+            }
+            if Self::can_view_page(ctx, site_id, page_id)
+                .await
+                .or_raise(make_error)?
+            {
+                return Ok(true);
+            }
+        }
+
+        if let Some(user_id) = ctx.request().user_id {
+            let own_draft = MessageDraft::find()
+                .filter(message_draft::Column::UserId.eq(user_id))
+                .filter(
+                    Condition::any()
+                        .add(message_draft::Column::WikitextHash.eq(hash))
+                        .add(message_draft::Column::CompiledHash.eq(hash)),
+                )
+                .one(txn)
+                .await
+                .or_raise(make_error)?;
+            if own_draft.is_some() {
+                return Ok(true);
+            }
+
+            let records = MessageRecord::find()
+                .filter(
+                    Condition::any()
+                        .add(message_record::Column::WikitextHash.eq(hash))
+                        .add(message_record::Column::CompiledHash.eq(hash)),
+                )
+                .all(txn)
+                .await
+                .or_raise(make_error)?;
+
+            for record in records {
+                if record.sender_id == user_id {
+                    return Ok(true);
+                }
+                if record.retracted_at.is_some() {
+                    continue;
+                }
+                let held = Message::find()
+                    .filter(message::Column::RecordId.eq(record.external_id))
+                    .filter(message::Column::UserId.eq(user_id))
+                    .one(txn)
+                    .await
+                    .or_raise(make_error)?;
+                if held.is_some() {
+                    return Ok(true);
+                }
+            }
+        }
+
+        let forum_revisions = ForumPostRevision::find()
+            .filter(
+                Condition::any()
+                    .add(forum_post_revision::Column::WikitextHash.eq(hash))
+                    .add(forum_post_revision::Column::CompiledHtmlHash.eq(hash)),
+            )
+            .all(txn)
+            .await
+            .or_raise(make_error)?;
+
+        for revision in forum_revisions {
+            let post = ForumPost::find_by_id(revision.forum_post_id)
+                .filter(forum_post::Column::DeletedAt.is_null())
+                .one(txn)
+                .await
+                .or_raise(make_error)?;
+            if post.is_none() {
+                continue;
+            }
+
+            let thread = ForumThread::find_by_id(revision.forum_thread_id)
+                .filter(forum_thread::Column::SiteId.eq(revision.site_id))
+                .filter(forum_thread::Column::DeletedAt.is_null())
+                .one(txn)
+                .await
+                .or_raise(make_error)?;
+            let Some(page_id) = thread.and_then(|thread| thread.page_id) else {
+                continue;
+            };
+
+            if Self::can_view_page(ctx, revision.site_id, page_id)
+                .await
+                .or_raise(make_error)?
+            {
+                return Ok(true);
+            }
+        }
+
+        Ok(false)
+    }
+
+    async fn can_view_page(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_id: i64,
+    ) -> Result<bool> {
+        let make_error =
+            || Error::new("failed to check text read access", ErrorType::Text);
+
+        let page = Page::find_by_id(page_id)
+            .filter(page::Column::SiteId.eq(site_id))
+            .filter(page::Column::DeletedAt.is_null())
+            .one(ctx.transaction())
+            .await
+            .or_raise(make_error)?;
+
+        match page {
+            None => Ok(false),
+            Some(page) => PermissionService::check_user_can_view_page(
+                ctx,
+                ctx.request().user_id,
+                &page,
+            )
+            .await
+            .or_raise(make_error),
         }
     }
 

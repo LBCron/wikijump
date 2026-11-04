@@ -50,9 +50,23 @@ pub async fn blob_get(
 
     let make_error = || Error::new("failed to get blob data", ErrorType::Blob);
 
-    let data = BlobService::get(ctx, hash.as_ref())
+    let data = BlobService::get_optional(ctx, hash.as_ref())
         .await
         .or_raise(make_error)?;
+
+    let authorized = match data {
+        Some(_) => BlobService::can_read(ctx, hash.as_ref())
+            .await
+            .or_raise(make_error)?,
+        None => false,
+    };
+
+    let data = match data {
+        Some(data) if authorized => data,
+        _ => {
+            return Err(Error::new("blob does not exist", ErrorType::BlobNotFound).into());
+        }
+    };
 
     let BlobMetadata {
         mime,

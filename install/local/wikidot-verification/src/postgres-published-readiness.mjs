@@ -1,7 +1,7 @@
 import net from "node:net";
 
 const POSTGRES_SSL_REQUEST = Buffer.from([0x00, 0x00, 0x00, 0x08, 0x04, 0xd2, 0x16, 0x2f]);
-const POSTGRES_PROTOCOL_VERSION = 196608; // 3.0
+const POSTGRES_PROTOCOL_VERSION = 196608;
 const POSTGRES_STARTUP_PARAMS = "user\0wikijump\0database\0wikijump\0\0";
 
 // The postmaster answers SSLRequest before recovery has finished, and only

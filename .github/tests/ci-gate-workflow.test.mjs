@@ -236,7 +236,7 @@ test("Framerail unit and browser scripts remain available for local validation",
   assert.doesNotMatch(pkg.scripts["test:unit"], /\.spec\.(?:js|ts)/u)
   assert.equal(
     pkg.scripts.test,
-    "../scripts/run-browser-test-no-external-network.sh node tests/playwright-runner.js"
+    "../scripts/run-browser-test-no-external-network.sh node tests/playwright-runner.ts"
   )
   assert.doesNotMatch(pkg.scripts.test, /test:unit/u)
   assert.doesNotMatch(playwright, /\.test\.(?:js|ts)/u)

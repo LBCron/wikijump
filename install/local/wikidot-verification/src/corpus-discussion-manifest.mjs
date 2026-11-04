@@ -66,9 +66,6 @@ export function serializeDiscussionContent(node) {
   return serialize(node).trim();
 }
 
-// XML-RPC retains URL_AVATARS in authored starred-user images. Resolve only
-// the two observed user image attributes, using the corresponding live image
-// authority. Text, links, other tokens, user IDs and timestamps remain exact.
 export function resolveObservedAvatarTemplates(corpusHtml, liveContent) {
   const saved = parseFragment(corpusHtml);
   const savedImages = all(saved, (node) => node.tagName === "img");

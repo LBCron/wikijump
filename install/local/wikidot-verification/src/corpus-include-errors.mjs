@@ -33,15 +33,6 @@ export function hasIncludeError(rendered) {
   );
 }
 
-/**
- * SQL discovering every live page on a site whose latest compiled body
- * carries at least one exact include error. Postgres `~` regex replaces
- * the loose `LIKE '%does not exist%'`, which also matches story prose.
- * `[^<>]*` keeps the match on the message line without crossing markup.
- * No cast on the body column: `text.contents` is type text (verified
- * live via `pg_typeof` plus EXPLAIN of this exact statement), so
- * `convert_from` would fail and the bare `~` is correct.
- */
 export function buildIncludeErrorRootsQuery(siteId) {
   if (!Number.isInteger(siteId)) {
     throw new Error("siteId must be an integer");

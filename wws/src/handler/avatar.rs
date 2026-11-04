@@ -111,7 +111,7 @@ pub async fn handle_user_avatar(
     let mut builder = Response::builder()
         .header(header::CONTENT_LENGTH, file_info.size)
         .header(header::CONTENT_TYPE, &file_info.mime)
-        .header(header::ETAG, format!("\"{}\"", avatar_s3_hash)) // E-Tags have to be surrounded in double quotes
+        .header(header::ETAG, format!("\"{}\"", avatar_s3_hash))
         .header(header::X_CONTENT_TYPE_OPTIONS, "nosniff");
 
     if super::file::is_active_content_type(&file_info.mime) {

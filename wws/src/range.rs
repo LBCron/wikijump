@@ -47,8 +47,6 @@ pub enum ParsedRange {
     NotSatisfiable,
 }
 
-// Range request format reference:
-// https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Range_requests#multipart_ranges
 pub fn parse_range_header(value: &str, file_size: u64) -> ParsedRange {
     let spec = match value.trim().strip_prefix("bytes=") {
         Some(s) => s,

@@ -27,11 +27,6 @@ export no_proxy="${NO_PROXY}"
 
 printf -v COMMAND_Q '%q ' "$@"
 
-# Prefer an unprivileged user+network namespace. Some hosted Linux runners
-# disable uid_map writes for unprivileged namespaces even though their sudo
-# policy permits a root-created network namespace. In that environment create
-# only the network namespace with sudo, configure loopback while privileged,
-# then drop back to the invoking uid/gid before executing any test process.
 if unshare -Urn sh -ceu 'ip link set lo up' >/dev/null 2>&1; then
   exec unshare -Urn sh -ceu "
     ip link set lo up

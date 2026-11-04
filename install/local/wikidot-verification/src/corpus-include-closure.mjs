@@ -1,14 +1,5 @@
 import { sha256Hex } from './canonical-json.mjs';
 
-// A mirrored page renders through every page it includes (themes,
-// components, info blocks), so importing a page without its transitive
-// include dependencies leaves "does not exist" error blocks in otherwise
-// healthy articles (Refs #2093). This module walks that closure over corpus
-// sources so the manifest builder can materialize it. The same-site include
-// contract matches the drift reporter (scripts/report-mirror-include-drift.mjs):
-// includes inside @@...@@ spans and [!-- --] comments are display-only
-// documentation, variable-dependent targets ({{...}}) cannot be resolved
-// statically, and cross-site targets name another site's page.
 
 export const INCLUDE_PATTERN = /\[\[\s*include\s+([^\s\]|]+)/giu;
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9:_-]*$/u;

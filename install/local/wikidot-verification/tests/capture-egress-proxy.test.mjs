@@ -228,7 +228,6 @@ test("a timed-out partial upstream response closes without crashing the proxy", 
     requestTimeoutMs: 25,
   });
   try {
-    // The timeout can fire before or after the response headers reach the proxy.
     const partial = await proxyRequest(
       proxy.url,
       `http://fixture.test:${upstream.port}/partial`,

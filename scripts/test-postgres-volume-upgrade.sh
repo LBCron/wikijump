@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Upgrades a throwaway PostgreSQL 17 volume with scripts/upgrade-postgres-volume.sh
-# and proves the current server image starts on the result with the data intact.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -69,9 +67,6 @@ major="$(docker run --rm --entrypoint sh "${new_image}" -c 'echo "${PG_MAJOR}"')
 [[ "$(sql "SELECT count(*) FROM pg_stats WHERE tablename = 'upgrade_probe'")" != 0 ]]
 stop
 
-# A server that is already past its init scripts still holds the data directory
-# lock through the entrypoint's exec chain, so a second one refuses to start and
-# so does the upgrade tool.
 start "${new_image}"
 second="${container}-second"
 if docker run --name "${second}" --network none -e POSTGRES_PASSWORD=x \
@@ -85,14 +80,11 @@ docker rm -v "${second}" >/dev/null
 [[ "$(sql "SELECT 1")" == 1 ]]
 stop
 
-# The lock goes with the server.
 start "${new_image}"
 stop
 
-# A volume already on the server's catalog version is left alone.
 "${ROOT}/scripts/upgrade-postgres-volume.sh" "${volume}" 2>&1 | grep -q "nothing to upgrade"
 
-# Two stopped containers attached to one volume are two stacks.
 docker create --name "${container}-a" --volume "${volume}:/x" "${new_image}" >/dev/null
 docker create --name "${container}-b" --volume "${volume}:/x" "${new_image}" >/dev/null
 if "${ROOT}/scripts/upgrade-postgres-volume.sh" "${volume}" --check >/dev/null 2>&1; then
@@ -101,7 +93,6 @@ if "${ROOT}/scripts/upgrade-postgres-volume.sh" "${volume}" --check >/dev/null 2
 fi
 docker rm -v "${container}-a" "${container}-b" >/dev/null
 
-# The rollback copy is still the old cluster.
 docker run --rm --network none --entrypoint sh --volume "${rollback}:/copy:ro" "${new_image}" \
   -c '[ "$(cat /copy/PG_VERSION)" = 17 ] && [ -f /copy/global/pg_control ]'
 

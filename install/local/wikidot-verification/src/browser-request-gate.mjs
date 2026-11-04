@@ -65,22 +65,6 @@ function isWikidotAvatarImageRequest(url, resourceType) {
   return resourceType === "image" && WIKIDOT_AVATAR_PHP_URL.test(url);
 }
 
-/**
- * A cache-only replay request for a Wikidot avatar image whose response the
- * retained evidence does not hold.
- *
- * Avatar responses are the one public response class the evidence capture
- * cannot guarantee to retain: the URL is volatile (see
- * canonicalAvatarResponseCacheKey), and avatar.php answers with responses
- * the capture must bypass instead of retaining whenever they carry
- * Set-Cookie or a request-dependent Vary, so a sealed reference can
- * legitimately hold no response for a user a local render asks about. The
- * request gate converts this error into an attributed blockedbyclient abort,
- * accounted like every other gate abort, instead of failing the whole replay
- * closed; a miss for any other request remains a replay-integrity failure.
- * The parity comparison still judges the rendered page, avatar included,
- * against the live reference.
- */
 export class UnretainedAvatarResponseError extends Error {
   constructor(url) {
     super(`candidate response cache miss: ${url}`);
@@ -825,9 +809,6 @@ export function localBrowserCaptureOrigins(value) {
   return [url.origin, `https://${site}.wjfiles.localhost${port}`];
 }
 
-// The interwiki widget resolves a page's translations through this GraphQL lookup.
-// Only the read-only GET for a Wikidot page URL is public; every other crom request
-// stays blocked.
 const INTERWIKI_TRANSLATION_HOST = "api.crom.avn.sh";
 
 export function isInterwikiTranslationLookup(value, resourceType, method) {
@@ -1389,19 +1370,6 @@ async function fulfillRetainedEntry(route, { gate, responseCache, request, entry
   await route.fulfill({ response: resolved.response });
 }
 
-/**
- * The scheme of an insecure request that the same origin also answers over HTTPS.
- *
- * A page may reference a subresource with an absolute `http://` URL on a Wikidot-family
- * origin. The retained evidence for such a resource is the origin's HTTPS representation:
- * the acquiring engine rewrites an insecure subresource URL to HTTPS before requesting it,
- * and the retained snapshots record that rewritten URL as `currentSrc` for every one of
- * those images. Resolving the request to that entry replays exactly the retained bytes,
- * status, and headers; it never invents a response, and a request whose HTTPS variant is
- * also unretained still fails closed.
- *
- * Returns `null` for every other request, including any URL that is not plain `http:`.
- */
 function evidenceReplaySchemeVariant(value) {
   let parsed;
   try {
@@ -1564,10 +1532,6 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
         return;
       }
       const request = route.request();
-      // A cache-only replay must obtain every public response from retained evidence. The
-      // browser can still issue a request that route interception never sees (Firefox's
-      // internal mixed-content redirect is one such path), so record which request this
-      // installation served and let the response listener detect anything else.
       const replayIdentity = cacheOnly ? requestIdentity(request) : null;
       if (replayIdentity !== null) {
         gateServedRequests.set(replayIdentity, (gateServedRequests.get(replayIdentity) ?? 0) + 1);
@@ -1588,12 +1552,6 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
           else gateServedRequests.delete(replayIdentity);
         }
         if (error instanceof UnretainedAvatarResponseError) {
-          // The retained evidence legitimately holds no response for this
-          // avatar (see UnretainedAvatarResponseError), so the request is
-          // blocked and accounted like any other gate abort instead of
-          // failing the replay closed. The decision string is validated
-          // against REQUEST_GATE_ABORT_DECISIONS in
-          // standing-browser-parity-contract.mjs.
           gate.recordUnsupportedRequestBlocked(url.hostname);
           await abortWithAttribution(route, "unretained_avatar_image");
           return;
@@ -1616,9 +1574,6 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
     if (!new Set(["http:", "https:"]).has(url.protocol) || exempt.has(url.origin)) return;
     if (cacheOnly && typeof responseCache?.hasRetainedEntry === "function" && hasRetainedReplayEvidence(responseCache, url.href)) {
       if (!gateServedThisRequest(typeof response.request === "function" ? response.request() : response)) {
-        // Retained evidence exists for this URL, so a cache-only replay was required to serve
-        // it. The browser obtained these bytes anywhere else, which means a request escaped
-        // route interception and the replay is no longer the sealed replay it claims to be.
         gate.failClosed(new Error(`cache-only replay response escaped the request-gate evidence replay: ${url.href}`));
         return;
       }
@@ -1632,9 +1587,6 @@ export async function installBrowserRequestGate(context, {gate, exemptOrigins = 
       gate.failClosed(new Error("browser response headers cannot be inspected for request-gate enforcement"));
       return;
     }
-    // Retry-After is a retry demand only on 429/503. Wikidot HTML pages also
-    // send it on 200 responses as a cache hint; treating that as a retry
-    // demand would stall every browser capture for the hinted interval.
     if (status !== 429 && status !== 503) return;
     if (retryAfter !== undefined) void gate.deferForRetryAfter(retryAfter).catch((error) => gate.failClosed(error));
   });

@@ -62,8 +62,6 @@ test("Rust TLS root bundles and verifiers are pinned to emSign-safe versions", (
       const deps = [...block.matchAll(/^ "([^"]+)",?$/gm)].map((match) => match[1]);
       return { name, version, deps };
     });
-    // webpki-roots must never resolve below 1.0.10. webpki-root-certs 0.26.x is a
-    // shim whose only dependency must be the fixed 1.x data crate.
     for (const pkg of packages.filter((entry) => entry.name === "webpki-roots")) {
       assert.ok(atLeast(pkg.version, "1.0.10"), `${relative}: webpki-roots ${pkg.version} still contains the removed root`);
     }

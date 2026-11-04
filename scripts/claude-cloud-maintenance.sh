@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-# Wikijump per-session maintenance for Claude Code. Wired as a
-# SessionStart hook in .claude/settings.json. In cloud sessions the
-# environment snapshot restores files but not processes, so each
-# session re-activates the pinned toolchains, refreshes dependency
-# prefetches, and starts the local services. Outside the cloud
-# (CLAUDE_CODE_REMOTE != true) this is a no-op, so the user's own
-# machines are never touched.
 set -Eeuo pipefail
 
 if [[ "${CLAUDE_CODE_REMOTE:-}" != "true" ]]; then

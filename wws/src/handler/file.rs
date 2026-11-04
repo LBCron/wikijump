@@ -452,15 +452,6 @@ fn response_content_type<'a>(filename: &str, mime: &'a str) -> &'a str {
     }
 }
 
-/// Reports whether a stored file MIME type can carry active script content
-/// when navigated to directly in a browser.
-///
-/// HTML, XHTML, SVG, and other XML types execute script (or XSLT-driven
-/// behavior) in the files origin, so the inline file routes must serve them
-/// as downloads rather than inline documents. The match is on the MIME
-/// essence only (parameters such as `charset` are ignored) and covers the
-/// whole `+xml` suffix family instead of enumerating individual types.
-/// See issue #2554.
 pub(super) fn is_active_content_type(mime: &str) -> bool {
     let essence = mime
         .split(';')

@@ -94,10 +94,6 @@ impl BasicErrorOutput {
             status,
         } = self;
 
-        // SAFETY: Both string fields here come from DEEPWELL,
-        //         which in turn come from Fluent translation lines.
-        //         As such, they can be trusted to not contain malicious HTML.
-
         const HTML_START: &str = r#"<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>"#;
         const HTML_MIDDLE: &str = "</title></head><body><article>";
         const HTML_END: &str = "</article></body></html>\n";

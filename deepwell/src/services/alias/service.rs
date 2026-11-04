@@ -29,10 +29,7 @@ use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{FilterService, SiteService, UserService};
 use crate::types::{AliasType, Reference};
 use crate::utils::normalize_slug_without_category_separator;
-use crate::utils::now;
-use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, DeleteResult, EntityTrait, QueryFilter, Set,
-};
+use sea_orm::{ColumnTrait, Condition, DeleteResult, EntityTrait, QueryFilter, Set};
 use std::net::IpAddr;
 
 #[derive(Debug)]
@@ -81,7 +78,6 @@ impl AliasService {
         }: CreateAlias,
         conflict_verification: AliasConflictVerification,
     ) -> Result<CreateAliasOutput> {
-        let txn = ctx.transaction();
         let slug = normalize_slug_without_category_separator(slug);
 
         info!("Creating {alias_type:?} alias with slug '{slug}'");
@@ -225,6 +221,38 @@ impl AliasService {
             }
         }
 
+        let output =
+            Self::insert_alias(ctx, alias_type, slug.clone(), target_id, created_by)
+                .await
+                .or_raise(make_error)?;
+
+        if conflict_verification == AliasConflictVerification::Immediate {
+            Self::verify(ctx, alias_type, &output.slug)
+                .await
+                .or_raise(make_error)?;
+        }
+
+        Ok(output)
+    }
+
+    async fn insert_alias(
+        ctx: &ServiceContext<'_>,
+        alias_type: AliasType,
+        slug: String,
+        target_id: i64,
+        created_by: i64,
+    ) -> Result<CreateAliasOutput> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to create {:?} alias '{}' to target ID {}, created by user ID {}",
+                    alias_type, slug, target_id, created_by,
+                ),
+                ErrorType::Alias,
+            )
+        };
+
+        let txn = ctx.transaction();
         let alias = alias::ActiveModel {
             alias_type: Set(alias_type),
             created_by: Set(created_by),
@@ -238,12 +266,6 @@ impl AliasService {
             .await
             .or_raise(make_error)?
             .last_insert_id;
-
-        if conflict_verification == AliasConflictVerification::Immediate {
-            Self::verify(ctx, alias_type, &slug)
-                .await
-                .or_raise(make_error)?;
-        }
 
         Ok(CreateAliasOutput { alias_id, slug })
     }
@@ -319,30 +341,41 @@ impl AliasService {
 
     pub async fn swap(
         ctx: &ServiceContext<'_>,
-        alias_id: i64,
+        alias: AliasModel,
         new_slug: &str,
+        created_by: i64,
     ) -> Result<()> {
-        info!("Swapping alias ID {alias_id} to use new slug '{new_slug}'");
+        info!(
+            "Swapping alias ID {} to use new slug '{}'",
+            alias.alias_id, new_slug,
+        );
 
         let make_error = || {
             Error::new(
                 format!(
                     "failed to swap alias ID {} with new slug '{}'",
-                    alias_id, new_slug,
+                    alias.alias_id, new_slug,
                 ),
                 ErrorType::Alias,
             )
         };
 
         let txn = ctx.transaction();
-        let model = alias::ActiveModel {
-            created_at: Set(now()),
-            alias_id: Set(alias_id),
-            slug: Set(str!(new_slug)),
-            ..Default::default()
-        };
+        Alias::delete_by_id(alias.alias_id)
+            .exec(txn)
+            .await
+            .or_raise(make_error)?;
 
-        model.update(txn).await.or_raise(make_error)?;
+        Self::insert_alias(
+            ctx,
+            alias.alias_type,
+            normalize_slug_without_category_separator(new_slug),
+            alias.target_id,
+            created_by,
+        )
+        .await
+        .or_raise(make_error)?;
+
         Ok(())
     }
 

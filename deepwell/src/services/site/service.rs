@@ -801,7 +801,7 @@ impl SiteService {
 
             Some(alias) => {
                 debug!("Swapping slug between site and alias");
-                AliasService::swap(ctx, alias.alias_id, old_slug)
+                AliasService::swap(ctx, alias, old_slug, user_id)
                     .await
                     .or_raise(make_error)?;
             }

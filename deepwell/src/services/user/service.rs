@@ -1254,7 +1254,7 @@ impl UserService {
         {
             debug!("User slug is a past alias, rename is free");
 
-            AliasService::swap(ctx, alias.alias_id, old_slug)
+            AliasService::swap(ctx, alias, old_slug, user.user_id)
                 .await
                 .or_raise(make_error)?;
 

@@ -1,5 +1,0 @@
-import "./article-response-cache/fences.test.js"
-import "./article-response-cache/hot.test.js"
-import "./article-response-cache/primitives.test.js"
-import "./article-response-cache/redis.test.js"
-import "./article-response-cache/storage.test.js"

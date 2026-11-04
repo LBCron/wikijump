@@ -1,0 +1,5 @@
+import "./article-response-cache/fences.test.ts"
+import "./article-response-cache/hot.test.ts"
+import "./article-response-cache/primitives.test.ts"
+import "./article-response-cache/redis.test.ts"
+import "./article-response-cache/storage.test.ts"

@@ -71,7 +71,7 @@ pnpm build
 Node unit tests run through `../scripts/run-framerail-unit-tests.sh`. The runner
 performs one SvelteKit sync before starting Node test workers and keeps external
 network access blocked. Tests that need a Vite SSR server must use
-`tests/vite-test-server.js` rather than creating their own server configuration:
+`tests/vite-test-server.ts` rather than creating their own server configuration:
 the helper disables file watching because unit-test source is immutable during a
 run and avoids passing a redundant Vite `root` after the test has already
 changed into the Framerail directory. Keep SvelteKit's generated `outDir` and

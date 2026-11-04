@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
 
-import { createTestViteServer } from "./vite-test-server.js"
+import { createTestViteServer } from "./vite-test-server.ts"
 
 import { loadWikidotUserInfo } from "../src/lib/server/wikidot-user-info.ts"
 import { showUserProfileActionAuthenticationGuard } from "../src/lib/user-profile-action-auth-guard.ts"

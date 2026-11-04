@@ -28,9 +28,9 @@ use super::super::list_pages::scanner::{
 use super::super::list_pages::template::ListPagesTemplatePlan;
 use super::super::list_pages::{
     AJAX_MODULE_LITERAL_MARKER_PREFIX, ListPagesBatchDisplayRequirements,
-    ListPagesExpansionBudget, ListPagesOffsetOrigin, ListPagesPagerRoute,
-    ListPagesParentDisplay, ListPagesRuntimeDisplay, ListPagesSnapshotDisplay,
-    ListPagesSubstitutionContext, WikidotUserDisplay,
+    ListPagesExpansionBudget, ListPagesOffsetOrigin, ListPagesPagerArgs,
+    ListPagesPagerRoute, ListPagesParentDisplay, ListPagesRuntimeDisplay,
+    ListPagesSnapshotDisplay, ListPagesSubstitutionContext, WikidotUserDisplay,
     advance_literal_cursor_and_check_count_pages_capture_containment,
     build_wikidot_list_pages_module_request, build_wikidot_list_pages_module_source,
     count_pages_exact_count_render_diagnostics, count_pages_required_tag_batch_result,

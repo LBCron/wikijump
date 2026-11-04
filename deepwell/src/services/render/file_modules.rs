@@ -62,17 +62,30 @@ enum FilesModuleState {
     Unsupported,
 }
 
-#[allow(clippy::too_many_arguments)]
+pub(super) struct ExpandFileModulesArgs<'a, 'b, 'c> {
+    pub(super) ctx: &'a ServiceContext<'b>,
+    pub(super) wikitext: String,
+    pub(super) page_info: &'a PageInfo<'c>,
+    pub(super) settings: &'a WikitextSettings,
+    pub(super) current_site_id: Option<i64>,
+    pub(super) current_page_id: Option<i64>,
+    pub(super) viewer_user_id: Option<i64>,
+    pub(super) compat_html: &'a mut CompatHtmlFragments,
+}
+
 pub(super) async fn expand_file_modules(
-    ctx: &ServiceContext<'_>,
-    wikitext: String,
-    page_info: &PageInfo<'_>,
-    settings: &WikitextSettings,
-    current_site_id: Option<i64>,
-    current_page_id: Option<i64>,
-    viewer_user_id: Option<i64>,
-    compat_html: &mut CompatHtmlFragments,
+    args: ExpandFileModulesArgs<'_, '_, '_>,
 ) -> Result<String> {
+    let ExpandFileModulesArgs {
+        ctx,
+        wikitext,
+        page_info,
+        settings,
+        current_site_id,
+        current_page_id,
+        viewer_user_id,
+        compat_html,
+    } = args;
     let wikitext = expand_files_modules(
         ctx,
         wikitext,

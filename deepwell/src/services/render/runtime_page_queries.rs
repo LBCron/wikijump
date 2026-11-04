@@ -103,16 +103,16 @@ pub(in crate::services::render) async fn find_viewable_list_pages_rows(
     permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
     score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
 ) -> Result<ViewableListPagesRows> {
-    let found = find_viewable_render_page_rows(
+    let found = find_viewable_render_page_rows(FindViewableRenderPageRowsArgs {
         ctx,
         viewer_user_id,
         query,
         target_count,
         permission_cache,
         score_filter_cache,
-        MAX_LISTPAGES_RENDER_LIMIT,
-        true,
-    )
+        batch_floor: MAX_LISTPAGES_RENDER_LIMIT,
+        retain_score_filter_session: true,
+    })
     .await?;
     Ok(ViewableListPagesRows {
         pages: found.sample.into_pages(),
@@ -130,7 +130,7 @@ pub(in crate::services::render) async fn find_viewable_list_pages_rows_with_batc
     score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
     batch_floor: u64,
 ) -> Result<ViewableListPagesRows> {
-    let found = find_viewable_render_page_rows(
+    let found = find_viewable_render_page_rows(FindViewableRenderPageRowsArgs {
         ctx,
         viewer_user_id,
         query,
@@ -138,8 +138,8 @@ pub(in crate::services::render) async fn find_viewable_list_pages_rows_with_batc
         permission_cache,
         score_filter_cache,
         batch_floor,
-        true,
-    )
+        retain_score_filter_session: true,
+    })
     .await?;
     Ok(ViewableListPagesRows {
         pages: found.sample.into_pages(),
@@ -155,30 +155,43 @@ pub(in crate::services::render) async fn find_viewable_count_pages_rows(
     target_count: usize,
     permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
 ) -> Result<ViewableCountPagesRows> {
-    find_viewable_render_page_rows(
+    find_viewable_render_page_rows(FindViewableRenderPageRowsArgs {
         ctx,
         viewer_user_id,
         query,
         target_count,
         permission_cache,
-        None,
-        MAX_LISTPAGES_RENDER_LIMIT,
-        false,
-    )
+        score_filter_cache: None,
+        batch_floor: MAX_LISTPAGES_RENDER_LIMIT,
+        retain_score_filter_session: false,
+    })
     .await
 }
 
-#[allow(clippy::too_many_arguments)]
-async fn find_viewable_render_page_rows(
-    ctx: &ServiceContext<'_>,
+struct FindViewableRenderPageRowsArgs<'a, 'b, 'c> {
+    ctx: &'a ServiceContext<'b>,
     viewer_user_id: Option<i64>,
-    query: PageQuery<'_>,
+    query: PageQuery<'c>,
     target_count: usize,
-    permission_cache: &mut BTreeMap<(i64, Option<i64>), bool>,
-    mut score_filter_cache: Option<&mut PageQueryScoreFilterCache>,
+    permission_cache: &'a mut BTreeMap<(i64, Option<i64>), bool>,
+    score_filter_cache: Option<&'a mut PageQueryScoreFilterCache>,
     batch_floor: u64,
     retain_score_filter_session: bool,
+}
+
+async fn find_viewable_render_page_rows(
+    args: FindViewableRenderPageRowsArgs<'_, '_, '_>,
 ) -> Result<ViewableCountPagesRows> {
+    let FindViewableRenderPageRowsArgs {
+        ctx,
+        viewer_user_id,
+        query,
+        target_count,
+        permission_cache,
+        mut score_filter_cache,
+        batch_floor,
+        retain_score_filter_session,
+    } = args;
     let mut score_filter_session = PageQueryScoreFilterSession::default();
     if target_count > 0 && render_page_query_uses_single_scan(query.order.clone()) {
         let mut query = query;

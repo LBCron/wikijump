@@ -44,7 +44,7 @@ use deepwell::services::role::{
     UpdateRolePermissionsInput,
 };
 use deepwell::services::session::{CreateSession, SessionService};
-use deepwell::services::site::{CreateSite, SiteService, UpdateSiteBody};
+use deepwell::services::site::{CreateSite, SetSiteIcon, SiteService, UpdateSiteBody};
 use deepwell::services::user::{CreateUser, UserService};
 use deepwell::types::{
     Action, AliasType, Maybe, Permission, Reference, Resource, UserType,
@@ -1827,13 +1827,15 @@ async fn site_icon_import_roundtrip_serves_retained_wikidot_bytes() {
 
     let set = SiteService::set_site_icon(
         runner.context(),
-        Reference::Id(site_id),
-        "favicon",
-        Some(Some(source.to_string())),
-        Some(String::from("image/gif")),
-        Some(Some(SITE_ICON_FIXTURE.to_vec())),
+        SetSiteIcon {
+            site: Reference::Id(site_id),
+            kind: String::from("favicon"),
+            ip_address: common::IP_ADDRESS,
+            source: Some(Some(source.to_string())),
+            mime: Some(String::from("image/gif")),
+            data: Some(Some(SITE_ICON_FIXTURE.to_vec())),
+        },
         actor,
-        common::IP_ADDRESS,
     )
     .await
     .expect("setting the imported favicon should succeed");
@@ -1878,13 +1880,15 @@ async fn site_icon_refresh_updates_and_removal_clears_state() {
 
     SiteService::set_site_icon(
         runner.context(),
-        Reference::Id(site_id),
-        "favicon",
-        Some(Some(source.to_string())),
-        Some(String::from("image/gif")),
-        Some(Some(SITE_ICON_FIXTURE.to_vec())),
+        SetSiteIcon {
+            site: Reference::Id(site_id),
+            kind: String::from("favicon"),
+            ip_address: common::IP_ADDRESS,
+            source: Some(Some(source.to_string())),
+            mime: Some(String::from("image/gif")),
+            data: Some(Some(SITE_ICON_FIXTURE.to_vec())),
+        },
         actor,
-        common::IP_ADDRESS,
     )
     .await
     .expect("initial icon import should succeed");
@@ -1892,13 +1896,15 @@ async fn site_icon_refresh_updates_and_removal_clears_state() {
     let refreshed = vec![0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00];
     let set = SiteService::set_site_icon(
         runner.context(),
-        Reference::Id(site_id),
-        "favicon",
-        None,
-        Some(String::from("image/gif")),
-        Some(Some(refreshed.clone())),
+        SetSiteIcon {
+            site: Reference::Id(site_id),
+            kind: String::from("favicon"),
+            ip_address: common::IP_ADDRESS,
+            source: None,
+            mime: Some(String::from("image/gif")),
+            data: Some(Some(refreshed.clone())),
+        },
         actor,
-        common::IP_ADDRESS,
     )
     .await
     .expect("icon refresh should succeed");
@@ -1917,13 +1923,15 @@ async fn site_icon_refresh_updates_and_removal_clears_state() {
 
     SiteService::set_site_icon(
         runner.context(),
-        Reference::Id(site_id),
-        "favicon",
-        Some(None),
-        None,
-        Some(None),
+        SetSiteIcon {
+            site: Reference::Id(site_id),
+            kind: String::from("favicon"),
+            ip_address: common::IP_ADDRESS,
+            source: Some(None),
+            mime: None,
+            data: Some(None),
+        },
         actor,
-        common::IP_ADDRESS,
     )
     .await
     .expect("icon removal should succeed");
@@ -1951,13 +1959,15 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
     assert!(
         SiteService::set_site_icon(
             ctx,
-            Reference::Id(site_id),
-            "touch",
-            Some(Some(String::from("/local--files/site/x.gif"))),
-            None,
-            None,
+            SetSiteIcon {
+                site: Reference::Id(site_id),
+                kind: String::from("touch"),
+                ip_address: common::IP_ADDRESS,
+                source: Some(Some(String::from("/local--files/site/x.gif"))),
+                mime: None,
+                data: None,
+            },
             actor,
-            common::IP_ADDRESS,
         )
         .await
         .is_err(),
@@ -1971,13 +1981,15 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
     assert!(
         SiteService::set_site_icon(
             ctx,
-            Reference::Id(site_id),
-            "favicon",
-            None,
-            Some(String::from("image/gif")),
-            Some(Some(SITE_ICON_FIXTURE.to_vec())),
+            SetSiteIcon {
+                site: Reference::Id(site_id),
+                kind: String::from("favicon"),
+                ip_address: common::IP_ADDRESS,
+                source: None,
+                mime: Some(String::from("image/gif")),
+                data: Some(Some(SITE_ICON_FIXTURE.to_vec())),
+            },
             actor,
-            common::IP_ADDRESS,
         )
         .await
         .is_err(),
@@ -1986,13 +1998,15 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
     assert!(
         SiteService::set_site_icon(
             ctx,
-            Reference::Id(site_id),
-            "favicon",
-            Some(Some(String::from("/local--files/site/favicon.gif"))),
-            None,
-            Some(Some(SITE_ICON_FIXTURE.to_vec())),
+            SetSiteIcon {
+                site: Reference::Id(site_id),
+                kind: String::from("favicon"),
+                ip_address: common::IP_ADDRESS,
+                source: Some(Some(String::from("/local--files/site/favicon.gif"))),
+                mime: None,
+                data: Some(Some(SITE_ICON_FIXTURE.to_vec())),
+            },
             actor,
-            common::IP_ADDRESS,
         )
         .await
         .is_err(),
@@ -2001,13 +2015,15 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
     assert!(
         SiteService::set_site_icon(
             ctx,
-            Reference::Id(site_id),
-            "favicon",
-            Some(Some(String::from("/local--files/site/favicon.gif"))),
-            Some(String::from("image/gif")),
-            Some(Some(b"not an image".to_vec())),
+            SetSiteIcon {
+                site: Reference::Id(site_id),
+                kind: String::from("favicon"),
+                ip_address: common::IP_ADDRESS,
+                source: Some(Some(String::from("/local--files/site/favicon.gif"))),
+                mime: Some(String::from("image/gif")),
+                data: Some(Some(b"not an image".to_vec())),
+            },
             actor,
-            common::IP_ADDRESS,
         )
         .await
         .is_err(),
@@ -2016,13 +2032,15 @@ async fn site_icon_rejects_inconsistent_and_foreign_state() {
     assert!(
         SiteService::set_site_icon(
             ctx,
-            Reference::Id(site_id),
-            "favicon",
-            Some(Some(String::from("https://evil.example/favicon.gif"))),
-            None,
-            None,
+            SetSiteIcon {
+                site: Reference::Id(site_id),
+                kind: String::from("favicon"),
+                ip_address: common::IP_ADDRESS,
+                source: Some(Some(String::from("https://evil.example/favicon.gif"))),
+                mime: None,
+                data: None,
+            },
             actor,
-            common::IP_ADDRESS,
         )
         .await
         .is_err(),

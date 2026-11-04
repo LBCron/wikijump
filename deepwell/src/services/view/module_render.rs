@@ -38,17 +38,30 @@ use exn::Exn;
 use ftml::data::PageInfo;
 use ref_map::OptionRefMap;
 
-#[allow(clippy::too_many_arguments)]
+pub(super) struct RenderBodyForModuleArgumentsInput<'a, 'txn> {
+    pub ctx: &'a ServiceContext<'txn>,
+    pub module_arguments: &'a PageModuleArguments,
+    pub wikitext: &'a str,
+    pub page: &'a PageModel,
+    pub page_revision: &'a PageRevisionModel,
+    pub site: &'a SiteModel,
+    pub viewer_user_id: Option<i64>,
+    pub stored_body_html: String,
+}
+
 pub(super) async fn render_body_for_module_arguments(
-    ctx: &ServiceContext<'_>,
-    module_arguments: &PageModuleArguments,
-    wikitext: &str,
-    page: &PageModel,
-    page_revision: &PageRevisionModel,
-    site: &SiteModel,
-    viewer_user_id: Option<i64>,
-    stored_body_html: String,
+    input: RenderBodyForModuleArgumentsInput<'_, '_>,
 ) -> Result<String> {
+    let RenderBodyForModuleArgumentsInput {
+        ctx,
+        module_arguments,
+        wikitext,
+        page,
+        page_revision,
+        site,
+        viewer_user_id,
+        stored_body_html,
+    } = input;
     let (category_slug, page_slug) = split_category(&page_revision.slug);
     let wikitext = BlueprintPageService::apply_page_template(
         ctx,

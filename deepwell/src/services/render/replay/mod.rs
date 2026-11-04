@@ -127,9 +127,9 @@ impl RenderReplayService {
                 + protocol_errors,
             candidate_count,
         );
-        let gate_failures = gate_failures(
+        let gate_failures = gate_failures(GateFailuresArgs {
             import_run_id,
-            candidate_count,
+            candidates: candidate_count,
             passed,
             compatibility_fallback,
             parser_errors,
@@ -138,7 +138,7 @@ impl RenderReplayService {
             preparation_errors,
             protocol_errors,
             unverified_minimizations,
-        );
+        });
         let gate_passed = gate_failures.is_empty();
         let summary = RenderReplaySummary {
             schema: REPLAY_SCHEMA,
@@ -167,8 +167,7 @@ impl RenderReplayService {
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-fn gate_failures(
+struct GateFailuresArgs {
     import_run_id: Option<i64>,
     candidates: usize,
     passed: usize,
@@ -179,7 +178,21 @@ fn gate_failures(
     preparation_errors: usize,
     protocol_errors: usize,
     unverified_minimizations: usize,
-) -> Vec<&'static str> {
+}
+
+fn gate_failures(args: GateFailuresArgs) -> Vec<&'static str> {
+    let GateFailuresArgs {
+        import_run_id,
+        candidates,
+        passed,
+        compatibility_fallback,
+        parser_errors,
+        timed_out,
+        crashed,
+        preparation_errors,
+        protocol_errors,
+        unverified_minimizations,
+    } = args;
     let mut failures = Vec::new();
     if import_run_id.is_none() {
         failures.push("missing_import_run");
@@ -596,18 +609,54 @@ mod tests {
     #[test]
     fn replay_gate_fails_closed_for_empty_failure_and_unverified_runs() {
         assert_eq!(
-            gate_failures(None, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            gate_failures(GateFailuresArgs {
+                import_run_id: None,
+                candidates: 0,
+                passed: 0,
+                compatibility_fallback: 0,
+                parser_errors: 0,
+                timed_out: 0,
+                crashed: 0,
+                preparation_errors: 0,
+                protocol_errors: 0,
+                unverified_minimizations: 0,
+            }),
             vec!["missing_import_run", "empty_selection"],
         );
         assert_eq!(
-            gate_failures(Some(217), 1, 0, 0, 0, 1, 0, 0, 0, 1),
+            gate_failures(GateFailuresArgs {
+                import_run_id: Some(217),
+                candidates: 1,
+                passed: 0,
+                compatibility_fallback: 0,
+                parser_errors: 0,
+                timed_out: 1,
+                crashed: 0,
+                preparation_errors: 0,
+                protocol_errors: 0,
+                unverified_minimizations: 1,
+            }),
             vec![
                 "not_all_candidates_passed",
                 "timed_out",
                 "unverified_minimizations",
             ],
         );
-        assert!(gate_failures(Some(217), 1, 1, 0, 0, 0, 0, 0, 0, 0).is_empty(),);
+        assert!(
+            gate_failures(GateFailuresArgs {
+                import_run_id: Some(217),
+                candidates: 1,
+                passed: 1,
+                compatibility_fallback: 0,
+                parser_errors: 0,
+                timed_out: 0,
+                crashed: 0,
+                preparation_errors: 0,
+                protocol_errors: 0,
+                unverified_minimizations: 0,
+            })
+            .is_empty(),
+        );
     }
 
     #[test]

@@ -158,30 +158,17 @@ pub async fn site_icon_set(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<SetSiteIconOutput> {
-    let SetSiteIcon {
-        site,
-        kind,
-        ip_address,
-        source,
-        mime,
-        data,
-    } = parse!(params, Site);
+    let input: SetSiteIcon = parse!(params, Site);
     let actor_user_id =
         MutationAuthorization::require_platform_staff(ctx, "set site icon data")?;
 
-    info!("Setting '{kind}' icon for site reference '{site:?}'");
-    SiteService::set_site_icon(
-        ctx,
-        site,
-        &kind,
-        source,
-        mime,
-        data,
-        actor_user_id,
-        ip_address,
-    )
-    .await
-    .or_raise(|| Error::new("failed to set site icon", ErrorType::Site))
+    info!(
+        "Setting '{}' icon for site reference '{:?}'",
+        input.kind, input.site,
+    );
+    SiteService::set_site_icon(ctx, input, actor_user_id)
+        .await
+        .or_raise(|| Error::new("failed to set site icon", ErrorType::Site))
 }
 
 pub async fn site_icon_get(

@@ -102,16 +102,16 @@ impl HeadContext {
         }
         let next_argument_quote =
             next_marked_on_physical_line(bytes, &quote_flags, ARGUMENT_CLOSE_QUOTE);
-        let map_head_end = map_head_ends(
+        let map_head_end = map_head_ends(MapHeadEndsArgs {
             bytes,
-            &map_spacing_end,
-            &inline_space_end,
-            &key_end,
-            &right_flags,
-            &quote_flags,
-            &next_argument_quote,
-            &text_owned,
-        );
+            whitespace_end: &map_spacing_end,
+            inline_space_end: &inline_space_end,
+            key_end: &key_end,
+            right_flags: &right_flags,
+            quote_flags: &quote_flags,
+            next_argument_quote: &next_argument_quote,
+            text_owned: &text_owned,
+        });
         drop(map_spacing_end);
         drop(inline_space_end);
         drop(key_end);
@@ -291,17 +291,28 @@ fn quote_ends_argument(
     bytes.get(equals) == Some(&b'=') && !text_owned[equals]
 }
 
-#[allow(clippy::too_many_arguments)]
-fn map_head_ends(
-    bytes: &[u8],
-    whitespace_end: &[u32],
-    inline_space_end: &[u32],
-    key_end: &[u32],
-    right_flags: &[u8],
-    quote_flags: &[u8],
-    next_argument_quote: &[u32],
-    text_owned: &[bool],
-) -> Vec<u32> {
+struct MapHeadEndsArgs<'a> {
+    bytes: &'a [u8],
+    whitespace_end: &'a [u32],
+    inline_space_end: &'a [u32],
+    key_end: &'a [u32],
+    right_flags: &'a [u8],
+    quote_flags: &'a [u8],
+    next_argument_quote: &'a [u32],
+    text_owned: &'a [bool],
+}
+
+fn map_head_ends(args: MapHeadEndsArgs<'_>) -> Vec<u32> {
+    let MapHeadEndsArgs {
+        bytes,
+        whitespace_end,
+        inline_space_end,
+        key_end,
+        right_flags,
+        quote_flags,
+        next_argument_quote,
+        text_owned,
+    } = args;
     let mut ends = vec![NO_OFFSET; bytes.len() + 1];
     for start in (0..bytes.len()).rev() {
         let cursor = expanded_offset(whitespace_end[start]);

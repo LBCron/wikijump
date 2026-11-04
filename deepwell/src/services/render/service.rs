@@ -121,7 +121,7 @@ use super::legacy_actions::LegacyActionRegistry;
 #[cfg(test)]
 use super::list_pages::ResolvedListPagesAuthors;
 use super::list_pages::{
-    ListPagesExpansion, ListPagesExpansionOptions,
+    ListPagesExpansion, ListPagesExpansionArgs, ListPagesExpansionOptions,
     build_wikidot_list_pages_module_request, protect_ajax_module_literal_markers,
     protect_generated_parser_function_comment_gates,
     replace_recursive_list_pages_with_error,
@@ -133,8 +133,10 @@ use super::metacomponent::{
     select_root_metacomponent_documentation,
 };
 use super::module_arguments::wikidot_module_argument;
-use super::next_previous_page::NextPreviousPageExpansion;
-use super::pages::expand_page_index_modules;
+use super::next_previous_page::{
+    ExpandNextPreviousPageModulesArgs, NextPreviousPageExpansion,
+};
+use super::pages::{ExpandPageIndexModulesArgs, expand_page_index_modules};
 use super::percent_encoding::percent_encode_path_segment;
 use super::render_budget::RenderCostBudget;
 use super::render_options::{
@@ -283,6 +285,27 @@ struct ExpandedRenderWikitext {
     wikidot_compat_html: CompatHtmlFragments,
     wikidot_compat_text: CompatTextFragments,
     runtime_css_insertions: Vec<RuntimeCssInsertion>,
+}
+
+struct RenderInnerExpandedArgs<'a, 'b, 'c> {
+    ctx: &'a ServiceContext<'b>,
+    expanded: ExpandedRenderWikitext,
+    page_info: &'a PageInfo<'c>,
+    settings: &'a WikitextSettings,
+    current_site_id: Option<i64>,
+    current_page_id: Option<i64>,
+    viewer_user_id: Option<i64>,
+    text_block_page_id: Option<i64>,
+    html_block_owner_slug: Option<String>,
+    hosted_code_source: Option<Vec<CompatCodeBlock>>,
+    allow_wikidot_styleframe: bool,
+    page_preview: bool,
+    current_site: Option<SiteModel>,
+    trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
+    persist_compiled_text: bool,
+    trusted_corpus_render: bool,
+    observed_user_info: Option<Vec<ftml::data::UserInfo<'static>>>,
+    defer_residual_marker_cleanup: bool,
 }
 
 #[derive(Debug)]
@@ -1438,15 +1461,15 @@ impl RenderService {
             let _stage = StageGuard::new(trace, CorpusRenderStage::ListPages);
             let protected_css =
                 protect_css_modules_before_first_list_pages(&mut wikitext, settings);
-            let mut expansion = Self::expand_list_pages(
+            let mut expansion = Self::expand_list_pages(ListPagesExpansionArgs {
                 ctx,
                 wikitext,
                 page_info,
                 settings,
-                &mut wikidot_compat_html,
-                &mut include_source_cache,
-                &mut wikidot_compat_text,
-                ListPagesExpansionOptions {
+                compat_html: &mut wikidot_compat_html,
+                include_source_cache: &mut include_source_cache,
+                compat_text: &mut wikidot_compat_text,
+                options: ListPagesExpansionOptions {
                     current_site_id,
                     current_page_id,
                     current_page_data_form_values,
@@ -1457,7 +1480,7 @@ impl RenderService {
                     url,
                     pager_route: list_pages_pager_route,
                 },
-            )
+            })
             .await
             .or_raise(make_error)?;
             if let Some(protected_css) = protected_css {
@@ -1538,25 +1561,25 @@ impl RenderService {
             included_pages: next_previous_included_pages,
         } = {
             let _stage = StageGuard::new(trace, CorpusRenderStage::NextPreviousPage);
-            Self::expand_next_previous_page_modules(
+            Self::expand_next_previous_page_modules(ExpandNextPreviousPageModulesArgs {
                 ctx,
                 wikitext,
                 page_info,
                 settings,
                 current_site_id,
-                next_previous_page_id,
-                &mut include_budget,
-                &render_cost_budget,
+                current_page_id: next_previous_page_id,
+                include_budget: &mut include_budget,
+                render_cost_budget: &render_cost_budget,
                 url,
-                &mut wikidot_compat_html,
-                &mut wikidot_compat_text,
-            )
+                compat_html: &mut wikidot_compat_html,
+                compat_text: &mut wikidot_compat_text,
+            })
             .await
             .or_raise(make_error)?
         };
         wikitext = expanded_wikitext;
         included_pages.extend(next_previous_included_pages);
-        wikitext = expand_page_index_modules(
+        wikitext = expand_page_index_modules(ExpandPageIndexModulesArgs {
             ctx,
             wikitext,
             page_info,
@@ -1564,8 +1587,8 @@ impl RenderService {
             current_site_id,
             url,
             trace,
-            &mut wikidot_compat_html,
-        )
+            compat_html: &mut wikidot_compat_html,
+        })
         .await
         .or_raise(make_error)?;
         {
@@ -1873,26 +1896,26 @@ impl RenderService {
         let render_current_page_id = (lifecycle != RenderLifecycle::PagePreview)
             .then_some(current_page_id)
             .flatten();
-        Box::pin(Self::render_inner_expanded(
+        Box::pin(Self::render_inner_expanded(RenderInnerExpandedArgs {
             ctx,
             expanded,
             page_info,
             settings,
             current_site_id,
-            render_current_page_id,
+            current_page_id: render_current_page_id,
             viewer_user_id,
             text_block_page_id,
             html_block_owner_slug,
             hosted_code_source,
             allow_wikidot_styleframe,
-            lifecycle == RenderLifecycle::PagePreview,
+            page_preview: lifecycle == RenderLifecycle::PagePreview,
             current_site,
             trace,
             persist_compiled_text,
             trusted_corpus_render,
             observed_user_info,
-            suppress_nested_list_pages,
-        ))
+            defer_residual_marker_cleanup: suppress_nested_list_pages,
+        }))
         .await
     }
 
@@ -1908,9 +1931,9 @@ impl RenderService {
         if settings.layout.legacy() {
             Self::trim_wikidot_document_leading_whitespace(&mut wikitext);
         }
-        Self::render_inner_expanded(
+        Self::render_inner_expanded(RenderInnerExpandedArgs {
             ctx,
-            ExpandedRenderWikitext {
+            expanded: ExpandedRenderWikitext {
                 theme_previewer_blank: false,
                 wikidot_compat_html: CompatHtmlFragments::new(&wikitext),
                 wikidot_compat_text: CompatTextFragments::new(&wikitext),
@@ -1922,45 +1945,47 @@ impl RenderService {
             },
             page_info,
             settings,
-            Some(current_site_id),
-            None,
+            current_site_id: Some(current_site_id),
+            current_page_id: None,
             viewer_user_id,
-            None,
-            None,
-            None,
-            true,
-            true,
-            Some(current_site),
-            None,
-            false,
-            false,
-            None,
-            false,
-        )
+            text_block_page_id: None,
+            html_block_owner_slug: None,
+            hosted_code_source: None,
+            allow_wikidot_styleframe: true,
+            page_preview: true,
+            current_site: Some(current_site),
+            trace: None,
+            persist_compiled_text: false,
+            trusted_corpus_render: false,
+            observed_user_info: None,
+            defer_residual_marker_cleanup: false,
+        })
         .await
     }
 
-    #[allow(clippy::too_many_arguments)]
     async fn render_inner_expanded(
-        ctx: &ServiceContext<'_>,
-        expanded: ExpandedRenderWikitext,
-        page_info: &PageInfo<'_>,
-        settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        current_page_id: Option<i64>,
-        viewer_user_id: Option<i64>,
-        text_block_page_id: Option<i64>,
-        html_block_owner_slug: Option<String>,
-        hosted_code_source: Option<Vec<CompatCodeBlock>>,
-        allow_wikidot_styleframe: bool,
-        page_preview: bool,
-        current_site: Option<SiteModel>,
-        trace: Option<(&CorpusRenderTrace, CorpusRenderScope)>,
-        persist_compiled_text: bool,
-        trusted_corpus_render: bool,
-        observed_user_info: Option<Vec<ftml::data::UserInfo<'static>>>,
-        defer_residual_marker_cleanup: bool,
+        args: RenderInnerExpandedArgs<'_, '_, '_>,
     ) -> Result<RenderInnerOutput> {
+        let RenderInnerExpandedArgs {
+            ctx,
+            expanded,
+            page_info,
+            settings,
+            current_site_id,
+            current_page_id,
+            viewer_user_id,
+            text_block_page_id,
+            html_block_owner_slug,
+            hosted_code_source,
+            allow_wikidot_styleframe,
+            page_preview,
+            current_site,
+            trace,
+            persist_compiled_text,
+            trusted_corpus_render,
+            observed_user_info,
+            defer_residual_marker_cleanup,
+        } = args;
         let config = ctx.config();
         let strip_residual = move |html: &str| {
             Self::strip_residual_markers_if_nested(html, defer_residual_marker_cleanup)

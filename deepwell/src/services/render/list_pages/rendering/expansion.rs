@@ -1,14 +1,16 @@
+use super::super::rendering_support::{
+    ListPagesBlockRenderArgs, ListPagesExpansionArgs, ListPagesGeneratedIncludesArgs,
+    ListPagesNestedExpansionArgs,
+};
 use super::{
     AuthorizedPageSelector, BTreeMap, BTreeSet, CategoryService, CompatHtmlFragments,
-    CompatTextFragments, Cow, FoundPageFields, FoundPages, IncludeExpansion,
-    IncludeSourceCache, ListPagesArgumentError, ListPagesBatchDisplayRequirements,
-    ListPagesBlock, ListPagesBlockPlan, ListPagesBlockRenderResult,
-    ListPagesContentCache, ListPagesExpansion, ListPagesExpansionBudget,
+    Cow, FoundPageFields, FoundPages, IncludeExpansion, ListPagesArgumentError,
+    ListPagesBatchDisplayRequirements, ListPagesBlock, ListPagesBlockPlan,
+    ListPagesBlockRenderResult, ListPagesContentCache, ListPagesExpansion,
     ListPagesExpansionOptions, ListPagesPageContext, ListPagesTemplatePlan,
     MAX_LISTPAGES_RENDER_LIMIT, MAX_NESTED_LISTPAGES_DEPTH,
-    MAX_NESTED_LISTPAGES_MODULES_PER_PASS, OrderProperty, PageInfo,
-    PageQueryScoreFilterCache, PendingDelayedListPagesOutput, Reference, RenderService,
-    Result, ServiceContext, TextHash, WikitextSettings,
+    MAX_NESTED_LISTPAGES_MODULES_PER_PASS, OrderProperty, PageQueryScoreFilterCache,
+    PendingDelayedListPagesOutput, Reference, RenderService, Result,
     collect_list_pages_css_yield_openers, current_data_form_list_pages_head,
     escape_html_text, exact_name_list_pages_batch_key,
     expand_list_pages_generated_includes,
@@ -32,20 +34,25 @@ use super::{
 };
 
 impl RenderService {
-    #[allow(clippy::too_many_arguments)]
     pub(in crate::services::render) async fn expand_list_pages_nested(
-        ctx: &ServiceContext<'_>,
-        wikitext: String,
-        page_info: &PageInfo<'_>,
-        settings: &WikitextSettings,
-        compat_html: &mut CompatHtmlFragments,
-        include_source_cache: &mut IncludeSourceCache,
-        compat_text: &mut CompatTextFragments,
-        options: ListPagesExpansionOptions<'_>,
-        expansion_budget: &mut ListPagesExpansionBudget,
-        seen: &mut BTreeSet<TextHash>,
-        depth: usize,
+        args: ListPagesNestedExpansionArgs<'_, '_, '_, '_>,
     ) -> Result<ListPagesExpansion> {
+        let ListPagesNestedExpansionArgs {
+            call,
+            expansion_budget,
+            seen,
+            depth,
+        } = args;
+        let ListPagesExpansionArgs {
+            ctx,
+            wikitext,
+            page_info,
+            settings,
+            compat_html,
+            include_source_cache,
+            compat_text,
+            options,
+        } = call;
         tokio::task::yield_now().await;
         let ListPagesExpansionOptions {
             current_site_id,
@@ -597,30 +604,32 @@ impl RenderService {
                             pages: prefetched.get(&slug).cloned().unwrap_or_default(),
                         });
                     let rendered = Box::pin(Self::render_list_pages_block(
-                        ctx,
-                        ListPagesPageContext {
-                            site_id: current_site_id,
-                            page_id: requested_current_page_id,
-                            url,
+                        ListPagesBlockRenderArgs {
+                            ctx,
+                            page_context: ListPagesPageContext {
+                                site_id: current_site_id,
+                                page_id: requested_current_page_id,
+                                url,
+                            },
+                            pager_route,
+                            compat_html,
+                            viewer_user_id,
+                            page_info,
+                            page_preview,
+                            settings,
+                            arguments,
+                            template: &template,
+                            include_budget: &mut include_budget,
+                            render_cost_budget: &render_cost_budget,
+                            prefetched_pages,
+                            prefetched_displays: prefetched_displays.as_ref(),
+                            content_cache: &mut content_cache,
+                            expansion_budget,
+                            permission_cache: &mut permission_cache,
+                            score_filter_cache: &mut score_filter_cache,
+                            author_resolution_cache: &mut author_resolution_cache,
+                            compat_text,
                         },
-                        pager_route,
-                        compat_html,
-                        viewer_user_id,
-                        page_info,
-                        page_preview,
-                        settings,
-                        arguments,
-                        &template,
-                        &mut include_budget,
-                        &render_cost_budget,
-                        prefetched_pages,
-                        prefetched_displays.as_ref(),
-                        &mut content_cache,
-                        expansion_budget,
-                        &mut permission_cache,
-                        &mut score_filter_cache,
-                        &mut author_resolution_cache,
-                        compat_text,
                     ))
                     .await?;
                     match rendered {
@@ -711,30 +720,32 @@ impl RenderService {
                     let offset_origin = arguments.offset_origin;
                     let uses_content = template.uses_content();
                     let rendered = Box::pin(Self::render_list_pages_block(
-                        ctx,
-                        ListPagesPageContext {
-                            site_id: current_site_id,
-                            page_id: requested_current_page_id,
-                            url,
+                        ListPagesBlockRenderArgs {
+                            ctx,
+                            page_context: ListPagesPageContext {
+                                site_id: current_site_id,
+                                page_id: requested_current_page_id,
+                                url,
+                            },
+                            pager_route,
+                            compat_html,
+                            viewer_user_id,
+                            page_info,
+                            page_preview,
+                            settings,
+                            arguments,
+                            template: &template,
+                            include_budget: &mut include_budget,
+                            render_cost_budget: &render_cost_budget,
+                            prefetched_pages: None,
+                            prefetched_displays: None,
+                            content_cache: &mut content_cache,
+                            expansion_budget,
+                            permission_cache: &mut permission_cache,
+                            score_filter_cache: &mut score_filter_cache,
+                            author_resolution_cache: &mut author_resolution_cache,
+                            compat_text,
                         },
-                        pager_route,
-                        compat_html,
-                        viewer_user_id,
-                        page_info,
-                        page_preview,
-                        settings,
-                        arguments,
-                        &template,
-                        &mut include_budget,
-                        &render_cost_budget,
-                        None,
-                        None,
-                        &mut content_cache,
-                        expansion_budget,
-                        &mut permission_cache,
-                        &mut score_filter_cache,
-                        &mut author_resolution_cache,
-                        compat_text,
                     ))
                     .await?;
                     match rendered {
@@ -810,19 +821,19 @@ impl RenderService {
             url_offset_content_bytes,
             runtime_css_insertions,
         };
-        expand_list_pages_generated_includes(
+        expand_list_pages_generated_includes(ListPagesGeneratedIncludesArgs {
             ctx,
-            &mut expansion,
+            expansion: &mut expansion,
             page_info,
             settings,
             current_site_id,
             page_preview,
             include_source_cache,
             compat_text,
-            &mut include_budget,
-            &render_cost_budget,
+            include_budget: &mut include_budget,
+            render_cost_budget: &render_cost_budget,
             initial_remaining_include_expansions,
-        )
+        })
         .await?;
         let nested_source = restore_pending_nested_list_pages(
             &expansion.wikitext,
@@ -832,27 +843,32 @@ impl RenderService {
             && has_list_pages_module_opening_candidate(&nested_source)
         {
             let nested = Box::pin(Self::expand_list_pages_nested(
-                ctx,
-                nested_source,
-                page_info,
-                settings,
-                compat_html,
-                include_source_cache,
-                compat_text,
-                ListPagesExpansionOptions {
-                    current_site_id: Some(current_site_id),
-                    current_page_id: requested_current_page_id,
-                    current_page_data_form_values: current_page_data_form_values.clone(),
-                    page_preview,
-                    viewer_user_id,
-                    include_budget,
-                    render_cost_budget: render_cost_budget.clone(),
-                    url,
-                    pager_route,
+                ListPagesNestedExpansionArgs {
+                    call: ListPagesExpansionArgs {
+                        ctx,
+                        wikitext: nested_source,
+                        page_info,
+                        settings,
+                        compat_html,
+                        include_source_cache,
+                        compat_text,
+                        options: ListPagesExpansionOptions {
+                            current_site_id: Some(current_site_id),
+                            current_page_id: requested_current_page_id,
+                            current_page_data_form_values: current_page_data_form_values
+                                .clone(),
+                            page_preview,
+                            viewer_user_id,
+                            include_budget,
+                            render_cost_budget: render_cost_budget.clone(),
+                            url,
+                            pager_route,
+                        },
+                    },
+                    expansion_budget,
+                    seen,
+                    depth: depth + 1,
                 },
-                expansion_budget,
-                seen,
-                depth + 1,
             ))
             .await?;
             expansion.wikitext = nested.wikitext;

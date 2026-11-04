@@ -25246,14 +25246,16 @@ async fn render_listpages_test_fixture_with_targets(
     targets: &[(&str, &str, &str)],
 ) -> String {
     render_page_module_test_fixture_with_targets(
-        runner,
-        site_id,
-        slug_prefix,
-        tag,
-        "ListPages",
-        module_head,
-        body,
-        targets,
+        RenderPageModuleTestFixtureWithTargetsInput {
+            runner,
+            site_id,
+            slug_prefix,
+            tag,
+            module_name: "ListPages",
+            module_head,
+            body,
+            targets,
+        },
     )
     .await
 }
@@ -25268,29 +25270,44 @@ async fn render_countpages_test_fixture_with_targets(
     targets: &[(&str, &str, &str)],
 ) -> String {
     render_page_module_test_fixture_with_targets(
-        runner,
-        site_id,
-        slug_prefix,
-        tag,
-        "CountPages",
-        module_head,
-        body,
-        targets,
+        RenderPageModuleTestFixtureWithTargetsInput {
+            runner,
+            site_id,
+            slug_prefix,
+            tag,
+            module_name: "CountPages",
+            module_head,
+            body,
+            targets,
+        },
     )
     .await
 }
 
-#[allow(clippy::too_many_arguments)]
-async fn render_page_module_test_fixture_with_targets(
-    runner: &mut TestRunner,
+struct RenderPageModuleTestFixtureWithTargetsInput<'a> {
+    runner: &'a mut TestRunner,
     site_id: i64,
-    slug_prefix: &str,
-    tag: &str,
-    module_name: &str,
-    module_head: &str,
-    body: &str,
-    targets: &[(&str, &str, &str)],
+    slug_prefix: &'a str,
+    tag: &'a str,
+    module_name: &'a str,
+    module_head: &'a str,
+    body: &'a str,
+    targets: &'a [(&'a str, &'a str, &'a str)],
+}
+
+async fn render_page_module_test_fixture_with_targets(
+    input: RenderPageModuleTestFixtureWithTargetsInput<'_>,
 ) -> String {
+    let RenderPageModuleTestFixtureWithTargetsInput {
+        runner,
+        site_id,
+        slug_prefix,
+        tag,
+        module_name,
+        module_head,
+        body,
+        targets,
+    } = input;
     let parent_slug = format!("{slug_prefix}-parent-root");
     let excluded_slug = format!("{slug_prefix}-excluded");
     let index_slug = format!("{slug_prefix}-index");

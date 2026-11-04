@@ -138,17 +138,30 @@ fn pages_module_scan_exceeded(row_count: usize) -> bool {
     row_count > MAX_PAGES_MODULE_SCAN_ROWS
 }
 
-#[allow(clippy::too_many_arguments)]
+pub(super) struct ExpandPageIndexModulesArgs<'a, 'b, 'c, 'd> {
+    pub(super) ctx: &'a ServiceContext<'b>,
+    pub(super) wikitext: String,
+    pub(super) page_info: &'a PageInfo<'c>,
+    pub(super) settings: &'a WikitextSettings,
+    pub(super) current_site_id: Option<i64>,
+    pub(super) url: UrlArguments<'d>,
+    pub(super) trace: Option<(&'a CorpusRenderTrace, CorpusRenderScope)>,
+    pub(super) compat_html: &'a mut CompatHtmlFragments,
+}
+
 pub(super) async fn expand_page_index_modules(
-    ctx: &ServiceContext<'_>,
-    wikitext: String,
-    page_info: &PageInfo<'_>,
-    settings: &WikitextSettings,
-    current_site_id: Option<i64>,
-    url: UrlArguments<'_>,
-    trace: Option<(&CorpusRenderTrace, CorpusRenderScope)>,
-    compat_html: &mut CompatHtmlFragments,
+    args: ExpandPageIndexModulesArgs<'_, '_, '_, '_>,
 ) -> Result<String> {
+    let ExpandPageIndexModulesArgs {
+        ctx,
+        wikitext,
+        page_info,
+        settings,
+        current_site_id,
+        url,
+        trace,
+        compat_html,
+    } = args;
     let wikitext = {
         let _stage = StageGuard::new(trace, CorpusRenderStage::Pages);
         expand_pages_modules(

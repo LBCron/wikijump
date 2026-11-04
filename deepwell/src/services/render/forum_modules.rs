@@ -968,18 +968,31 @@ fn missing_context_html(kind: ForumModuleKind) -> Option<&'static str> {
     }
 }
 
+pub(super) struct ExpandForumModulesArgs<'a, 'b, 'c> {
+    pub(super) ctx: &'a ServiceContext<'b>,
+    pub(super) wikitext: String,
+    pub(super) settings: &'a WikitextSettings,
+    pub(super) current_site_id: Option<i64>,
+    pub(super) current_page_id: Option<i64>,
+    pub(super) viewer_user_id: Option<i64>,
+    pub(super) url: UrlArguments<'c>,
+    pub(super) compat_html: &'a mut CompatHtmlFragments,
+}
+
 impl RenderService {
-    #[allow(clippy::too_many_arguments)]
     pub(super) async fn expand_forum_modules(
-        ctx: &ServiceContext<'_>,
-        wikitext: String,
-        settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        current_page_id: Option<i64>,
-        viewer_user_id: Option<i64>,
-        url: UrlArguments<'_>,
-        compat_html: &mut CompatHtmlFragments,
+        args: ExpandForumModulesArgs<'_, '_, '_>,
     ) -> Result<String> {
+        let ExpandForumModulesArgs {
+            ctx,
+            wikitext,
+            settings,
+            current_site_id,
+            current_page_id,
+            viewer_user_id,
+            url,
+            compat_html,
+        } = args;
         if !settings.enable_page_syntax || !FORUM_MODULE_REGEX.is_match(&wikitext) {
             return Ok(wikitext);
         }

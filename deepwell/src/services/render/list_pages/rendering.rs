@@ -25,20 +25,17 @@ use super::super::compat::text_fragments::{CompatTextFragments, escape_html_text
 use super::super::literal_regions::{
     ListPagesSourceProjection, LiteralRegionIndex, collect_list_pages_css_yield_openers,
 };
-use super::super::render_budget::{
-    MAX_SELECTED_CONTENT_RENDER_DEPTH, SharedRenderCostBudget,
-};
+use super::super::render_budget::MAX_SELECTED_CONTENT_RENDER_DEPTH;
 use super::super::render_options::{RenderContext, RenderInnerOptions};
-use super::super::runtime::{IncludeSourceCache, RenderRuntime};
+use super::super::runtime::RenderRuntime;
 use super::super::runtime_page_queries::{
     CountPagesSample, render_page_query_uses_single_scan,
 };
 use super::super::service::{
     COUNTPAGES_MODULE_REGEX, CountPagesRequiredTagBatchResult,
-    DEFAULT_LISTPAGES_PER_PAGE, IncludeExpansion, IncludeExpansionBudget,
-    MAX_LISTPAGES_RENDER_LIMIT, MAX_LISTPAGES_RENDER_SCAN_ROWS, RenderService,
-    escape_list_pages_html_attr, has_include_opening_candidate,
-    native_numbered_list_content,
+    DEFAULT_LISTPAGES_PER_PAGE, IncludeExpansion, MAX_LISTPAGES_RENDER_LIMIT,
+    MAX_LISTPAGES_RENDER_SCAN_ROWS, RenderService, escape_list_pages_html_attr,
+    has_include_opening_candidate, native_numbered_list_content,
 };
 use super::super::url_arguments::UrlArguments;
 use super::content_sections::wikidot_content_section;
@@ -59,13 +56,13 @@ use super::scanner::{
 use super::template::{ListPagesOutputShape, ListPagesTemplatePlan};
 use super::{
     CountPagesBlockRenderResult, CountPagesExpansionOptions, CountPagesRequiredTagSource,
-    CountPagesRequiredTagTotal, ListPagesArgumentError, ListPagesArguments,
-    ListPagesAuthorCacheKey, ListPagesBatchDisplayRequirements, ListPagesBatchDisplays,
+    CountPagesRequiredTagTotal, FinishOrDeferListPagesDelayedOutputParams,
+    ListPagesArgumentError, ListPagesArguments, ListPagesBatchDisplayRequirements,
     ListPagesBlockRenderResult, ListPagesContentCache, ListPagesExpansion,
-    ListPagesExpansionBudget, ListPagesExpansionOptions, ListPagesPageContext,
-    ListPagesPagerRoute, ListPagesRenderedBlock, ListPagesSubstitutionContext,
-    MAX_NESTED_LISTPAGES_DEPTH, MAX_NESTED_LISTPAGES_MODULES_PER_PASS,
-    PendingDelayedListPagesOutput, ResolvedListPagesAuthors,
+    ListPagesExpansionOptions, ListPagesPageContext, ListPagesRenderedBlock,
+    ListPagesSubstitutionContext, MAX_NESTED_LISTPAGES_DEPTH,
+    MAX_NESTED_LISTPAGES_MODULES_PER_PASS, PendingDelayedListPagesOutput,
+    PrepareDelayedListPagesRowParams, ResolvedListPagesAuthors,
     advance_literal_cursor_and_check_count_pages_capture_containment,
     append_list_pages_delayed_occurrences, append_list_pages_runtime_text_ranges,
     count_pages_exact_count_render_diagnostics,
@@ -102,7 +99,7 @@ use super::{
     unsupported_list_pages_replacement, url_offset_list_pages_content_bytes,
 };
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
-use crate::hash::{TextHash, k12_hash};
+use crate::hash::k12_hash;
 use crate::models::page_category::{self, Entity as PageCategory};
 use crate::services::ServiceContext;
 use crate::services::page_query::{

@@ -12,10 +12,12 @@
 
 use super::{
     CompatHtmlFragments, CompatTextFragments, DelayedInput, Error, ErrorType,
-    GeneratedValue, InputSegment, ListPagesRuntimeTextRange, PageExistenceSnapshot,
-    PageInfo, PendingDelayedListPagesOutput, PendingDelayedListPagesSlot,
-    PendingDelayedListPagesSlotValue, Range, RenderService, Result,
-    SharedRenderCostBudget, SlotBindings, TextOrigin, WikitextMode, WikitextSettings,
+    FinishOrDeferListPagesDelayedOutputParams, GeneratedValue, InputSegment,
+    ListPagesRuntimeTextRange, PageInfo, PendingDelayedListPagesOutput,
+    PendingDelayedListPagesSlot, PendingDelayedListPagesSlotValue,
+    ProtectListPagesDelayedOutputParams, Range, RenderService, Result,
+    SealListPagesDelayedOutputParams, SharedRenderCostBudget, SlotBindings, TextOrigin,
+    WikitextMode, WikitextSettings,
     find_list_pages_module_matches_with_delayed_links_budgeted, parse_delayed_list,
     register_generated_list_pages_html, seal_list_pages_delayed_output_with_modes,
 };
@@ -152,29 +154,31 @@ pub(in crate::services::render) fn protect_list_pages_delayed_output_with_mode(
     compat_text: &mut CompatTextFragments,
     block_output: bool,
 ) -> Result<(String, Option<PendingDelayedListPagesOutput>)> {
-    protect_list_pages_delayed_output_with_modes(
+    protect_list_pages_delayed_output_with_modes(ProtectListPagesDelayedOutputParams {
         output,
         delayed_occurrences,
         runtime_text_ranges,
         delayed_html_fragments,
         compat_text,
         block_output,
-        false,
-        None,
-    )
+        list_pages_inline: false,
+        page_existence: None,
+    })
 }
 
-#[allow(clippy::too_many_arguments)]
 fn protect_list_pages_delayed_output_with_modes(
-    output: String,
-    delayed_occurrences: Vec<(Range<usize>, GeneratedValue<'static>)>,
-    runtime_text_ranges: Vec<ListPagesRuntimeTextRange>,
-    delayed_html_fragments: Vec<CompatHtmlFragments>,
-    compat_text: &mut CompatTextFragments,
-    block_output: bool,
-    list_pages_inline: bool,
-    page_existence: Option<PageExistenceSnapshot>,
+    params: ProtectListPagesDelayedOutputParams<'_>,
 ) -> Result<(String, Option<PendingDelayedListPagesOutput>)> {
+    let ProtectListPagesDelayedOutputParams {
+        output,
+        delayed_occurrences,
+        runtime_text_ranges,
+        delayed_html_fragments,
+        compat_text,
+        block_output,
+        list_pages_inline,
+        page_existence,
+    } = params;
     let mut occurrences = delayed_occurrences
         .into_iter()
         .map(|(range, value)| (range, PendingDelayedListPagesSlotValue::Generated(value)))
@@ -230,46 +234,25 @@ fn protect_list_pages_delayed_output_with_modes(
     ))
 }
 
-#[allow(clippy::too_many_arguments)]
 pub(in crate::services::render) fn finish_or_defer_list_pages_delayed_output(
-    output: String,
-    delayed_occurrences: Vec<(Range<usize>, GeneratedValue<'static>)>,
-    runtime_text_ranges: Vec<ListPagesRuntimeTextRange>,
-    delayed_html_fragments: Vec<CompatHtmlFragments>,
-    defer_for_include_expansion: bool,
-    page_info: &PageInfo<'_>,
-    settings: &WikitextSettings,
-    compat_html: &mut CompatHtmlFragments,
-    compat_text: &mut CompatTextFragments,
+    mut params: FinishOrDeferListPagesDelayedOutputParams<'_>,
 ) -> Result<(String, Option<PendingDelayedListPagesOutput>)> {
-    finish_or_defer_list_pages_delayed_output_with_mode(
-        output,
-        delayed_occurrences,
-        runtime_text_ranges,
-        delayed_html_fragments,
-        defer_for_include_expansion,
-        page_info,
-        settings,
-        compat_html,
-        compat_text,
-        true,
-    )
+    params.block_output = true;
+    finish_or_defer_list_pages_delayed_output_with_mode(params)
 }
 
-#[allow(clippy::too_many_arguments)]
 pub(in crate::services::render) fn finish_or_defer_list_pages_delayed_output_with_mode(
-    output: String,
-    delayed_occurrences: Vec<(Range<usize>, GeneratedValue<'static>)>,
-    runtime_text_ranges: Vec<ListPagesRuntimeTextRange>,
-    delayed_html_fragments: Vec<CompatHtmlFragments>,
-    defer_for_include_expansion: bool,
-    page_info: &PageInfo<'_>,
-    settings: &WikitextSettings,
-    compat_html: &mut CompatHtmlFragments,
-    compat_text: &mut CompatTextFragments,
-    block_output: bool,
+    mut params: FinishOrDeferListPagesDelayedOutputParams<'_>,
 ) -> Result<(String, Option<PendingDelayedListPagesOutput>)> {
-    finish_or_defer_list_pages_delayed_output_with_modes(
+    params.list_pages_inline = false;
+    params.page_existence = None;
+    finish_or_defer_list_pages_delayed_output_with_modes(params)
+}
+
+pub(in crate::services::render) fn finish_or_defer_list_pages_delayed_output_with_modes(
+    params: FinishOrDeferListPagesDelayedOutputParams<'_>,
+) -> Result<(String, Option<PendingDelayedListPagesOutput>)> {
+    let FinishOrDeferListPagesDelayedOutputParams {
         output,
         delayed_occurrences,
         runtime_text_ranges,
@@ -280,36 +263,21 @@ pub(in crate::services::render) fn finish_or_defer_list_pages_delayed_output_wit
         compat_html,
         compat_text,
         block_output,
-        false,
-        None,
-    )
-}
-
-#[allow(clippy::too_many_arguments)]
-pub(in crate::services::render) fn finish_or_defer_list_pages_delayed_output_with_modes(
-    output: String,
-    delayed_occurrences: Vec<(Range<usize>, GeneratedValue<'static>)>,
-    runtime_text_ranges: Vec<ListPagesRuntimeTextRange>,
-    delayed_html_fragments: Vec<CompatHtmlFragments>,
-    defer_for_include_expansion: bool,
-    page_info: &PageInfo<'_>,
-    settings: &WikitextSettings,
-    compat_html: &mut CompatHtmlFragments,
-    compat_text: &mut CompatTextFragments,
-    block_output: bool,
-    list_pages_inline: bool,
-    page_existence: Option<&PageExistenceSnapshot>,
-) -> Result<(String, Option<PendingDelayedListPagesOutput>)> {
+        list_pages_inline,
+        page_existence,
+    } = params;
     if defer_for_include_expansion {
         let (protected, pending) = protect_list_pages_delayed_output_with_modes(
-            output,
-            delayed_occurrences,
-            runtime_text_ranges,
-            delayed_html_fragments,
-            compat_text,
-            block_output,
-            list_pages_inline,
-            page_existence.cloned(),
+            ProtectListPagesDelayedOutputParams {
+                output,
+                delayed_occurrences,
+                runtime_text_ranges,
+                delayed_html_fragments,
+                compat_text,
+                block_output,
+                list_pages_inline,
+                page_existence: page_existence.cloned(),
+            },
         )?;
         Ok((
             register_generated_list_pages_html(protected, compat_html),
@@ -318,16 +286,18 @@ pub(in crate::services::render) fn finish_or_defer_list_pages_delayed_output_wit
     } else {
         Ok((
             seal_list_pages_delayed_output_with_modes(
-                output,
-                delayed_occurrences,
-                runtime_text_ranges,
-                delayed_html_fragments,
-                page_info,
-                settings,
-                compat_html,
-                block_output,
-                list_pages_inline,
-                page_existence,
+                SealListPagesDelayedOutputParams {
+                    output,
+                    delayed_occurrences,
+                    runtime_text_ranges,
+                    delayed_html_fragments,
+                    page_info,
+                    settings,
+                    compat_html,
+                    block_output,
+                    list_pages_inline,
+                    page_existence,
+                },
             )?,
             None,
         ))

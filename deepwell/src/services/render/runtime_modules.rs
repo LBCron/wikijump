@@ -31,7 +31,8 @@ use super::compat::text_fragments::CompatTextFragments;
 use super::diagnostics::{
     CorpusRenderScope, CorpusRenderStage, CorpusRenderTrace, StageGuard,
 };
-use super::file_modules::expand_file_modules;
+use super::file_modules::{ExpandFileModulesArgs, expand_file_modules};
+use super::forum_modules::ExpandForumModulesArgs;
 use super::list_pages::{CountPagesExpansionOptions, ListPagesRuntimeDisplay};
 use super::literal_regions::LiteralRegionIndex;
 use super::mail_form_module::expand_mail_form_modules;
@@ -1323,28 +1324,28 @@ impl RenderService {
         )
         .await
         .or_raise(make_error)?;
-        wikitext = Self::expand_forum_modules(
+        wikitext = Self::expand_forum_modules(ExpandForumModulesArgs {
             ctx,
             wikitext,
             settings,
-            options.current_site_id,
-            options.current_page_id,
-            options.viewer_user_id,
-            options.url,
+            current_site_id: options.current_site_id,
+            current_page_id: options.current_page_id,
+            viewer_user_id: options.viewer_user_id,
+            url: options.url,
             compat_html,
-        )
+        })
         .await
         .or_raise(make_error)?;
-        wikitext = expand_file_modules(
+        wikitext = expand_file_modules(ExpandFileModulesArgs {
             ctx,
             wikitext,
             page_info,
             settings,
-            options.current_site_id,
-            options.current_page_id,
-            options.viewer_user_id,
+            current_site_id: options.current_site_id,
+            current_page_id: options.current_page_id,
+            viewer_user_id: options.viewer_user_id,
             compat_html,
-        )
+        })
         .await
         .or_raise(make_error)?;
         let search_all_accessible_name = localized_runtime_module_label(

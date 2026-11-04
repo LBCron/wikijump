@@ -68,8 +68,10 @@ use self::rendered_fragments::{
     list_pages_rendered_fragment_has_html_block, list_pages_rendered_inline_fragment,
     take_empty_paragraph_restore_scanned_bytes,
 };
-pub(in crate::services::render) use self::runtime::ListPagesSubstitutionContext;
 pub(super) use self::runtime::substitute_list_pages_variables_inner;
+pub(in crate::services::render) use self::runtime::{
+    ListPagesSubstitutionArgs, ListPagesSubstitutionContext,
+};
 use self::selectors::{ListPagesNameSelector, compose_list_pages_name_selectors};
 pub(in crate::services::render) use self::selectors::{
     UrlSelector, is_dynamic_list_pages_value,

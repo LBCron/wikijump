@@ -32,6 +32,10 @@ use super::substitution::{
 };
 use super::template::ListPagesTemplatePlan;
 use super::{
+    ListPagesAuthorCacheKey, ListPagesBatchDisplays, ListPagesPagerRoute,
+    ResolvedListPagesAuthors,
+};
+use super::{
     ListPagesExpansionBudget, PendingDelayedListPagesOutput,
     register_generated_list_pages_html, repair_list_pages_block_boundaries,
     strip_generated_list_pages_html_markers, wrap_pending_list_pages_delayed_output,
@@ -39,6 +43,7 @@ use super::{
 use crate::error::prelude::Result;
 use crate::hash::TextHash;
 use crate::services::ServiceContext;
+use crate::services::page_query::{FoundPages, PageQueryScoreFilterCache};
 use crate::services::render::UrlArguments;
 use crate::services::render::service::IncludeExpansionOptions;
 use ftml::data::PageInfo;
@@ -515,20 +520,100 @@ pub(in crate::services::render) struct ListPagesExpansion {
         Vec<super::super::compat::preparation::RuntimeCssInsertion>,
 }
 
-#[allow(clippy::too_many_arguments)]
+pub(in crate::services::render) struct ListPagesBlockRenderArgs<'a, 'ctx, 'info, 'url> {
+    pub(in crate::services::render) ctx: &'a ServiceContext<'ctx>,
+    pub(in crate::services::render) page_context: ListPagesPageContext<'url>,
+    pub(in crate::services::render) pager_route: ListPagesPagerRoute,
+    pub(in crate::services::render) compat_html: &'a mut CompatHtmlFragments,
+    pub(in crate::services::render) viewer_user_id: Option<i64>,
+    pub(in crate::services::render) page_info: &'a PageInfo<'info>,
+    pub(in crate::services::render) page_preview: bool,
+    pub(in crate::services::render) settings: &'a WikitextSettings,
+    pub(in crate::services::render) arguments: ListPagesArguments,
+    pub(in crate::services::render) template: &'a ListPagesTemplatePlan,
+    pub(in crate::services::render) include_budget: &'a mut IncludeExpansionBudget,
+    pub(in crate::services::render) render_cost_budget: &'a SharedRenderCostBudget,
+    pub(in crate::services::render) prefetched_pages: Option<FoundPages>,
+    pub(in crate::services::render) prefetched_displays:
+        Option<&'a ListPagesBatchDisplays>,
+    pub(in crate::services::render) content_cache: &'a mut ListPagesContentCache,
+    pub(in crate::services::render) expansion_budget: &'a mut ListPagesExpansionBudget,
+    pub(in crate::services::render) permission_cache:
+        &'a mut BTreeMap<(i64, Option<i64>), bool>,
+    pub(in crate::services::render) score_filter_cache: &'a mut PageQueryScoreFilterCache,
+    pub(in crate::services::render) author_resolution_cache:
+        &'a mut BTreeMap<ListPagesAuthorCacheKey, ResolvedListPagesAuthors>,
+    pub(in crate::services::render) compat_text: &'a mut CompatTextFragments,
+}
+
+pub(in crate::services::render) struct ListPagesExpansionArgs<'a, 'ctx, 'info, 'opts> {
+    pub(in crate::services::render) ctx: &'a ServiceContext<'ctx>,
+    pub(in crate::services::render) wikitext: String,
+    pub(in crate::services::render) page_info: &'a PageInfo<'info>,
+    pub(in crate::services::render) settings: &'a WikitextSettings,
+    pub(in crate::services::render) compat_html: &'a mut CompatHtmlFragments,
+    pub(in crate::services::render) include_source_cache: &'a mut IncludeSourceCache,
+    pub(in crate::services::render) compat_text: &'a mut CompatTextFragments,
+    pub(in crate::services::render) options: ListPagesExpansionOptions<'opts>,
+}
+
+pub(in crate::services::render) struct ListPagesNestedExpansionArgs<
+    'a,
+    'ctx,
+    'info,
+    'opts,
+> {
+    pub(in crate::services::render) call: ListPagesExpansionArgs<'a, 'ctx, 'info, 'opts>,
+    pub(in crate::services::render) expansion_budget: &'a mut ListPagesExpansionBudget,
+    pub(in crate::services::render) seen: &'a mut BTreeSet<TextHash>,
+    pub(in crate::services::render) depth: usize,
+}
+
+pub(in crate::services::render) struct ListPagesGeneratedIncludesArgs<'a, 'ctx, 'info> {
+    pub(in crate::services::render) ctx: &'a ServiceContext<'ctx>,
+    pub(in crate::services::render) expansion: &'a mut ListPagesExpansion,
+    pub(in crate::services::render) page_info: &'a PageInfo<'info>,
+    pub(in crate::services::render) settings: &'a WikitextSettings,
+    pub(in crate::services::render) current_site_id: i64,
+    pub(in crate::services::render) page_preview: bool,
+    pub(in crate::services::render) include_source_cache: &'a mut IncludeSourceCache,
+    pub(in crate::services::render) compat_text: &'a mut CompatTextFragments,
+    pub(in crate::services::render) include_budget: &'a mut IncludeExpansionBudget,
+    pub(in crate::services::render) render_cost_budget: &'a SharedRenderCostBudget,
+    pub(in crate::services::render) initial_remaining_include_expansions: usize,
+}
+
+pub(in crate::services::render) struct ListPagesSelectedContentArgs<'a, 'ctx, 'info, 'url>
+{
+    pub(in crate::services::render) ctx: &'a ServiceContext<'ctx>,
+    pub(in crate::services::render) wikitext: &'a str,
+    pub(in crate::services::render) page_info: &'a PageInfo<'info>,
+    pub(in crate::services::render) settings: &'a WikitextSettings,
+    pub(in crate::services::render) current_site_id: i64,
+    pub(in crate::services::render) current_category_id: i64,
+    pub(in crate::services::render) current_page_id: i64,
+    pub(in crate::services::render) viewer_user_id: Option<i64>,
+    pub(in crate::services::render) max_include_expansions: usize,
+    pub(in crate::services::render) render_cost_budget: SharedRenderCostBudget,
+    pub(in crate::services::render) url: UrlArguments<'url>,
+}
+
 pub(in crate::services::render) async fn expand_list_pages_generated_includes(
-    ctx: &ServiceContext<'_>,
-    expansion: &mut ListPagesExpansion,
-    page_info: &PageInfo<'_>,
-    settings: &WikitextSettings,
-    current_site_id: i64,
-    page_preview: bool,
-    include_source_cache: &mut IncludeSourceCache,
-    compat_text: &mut CompatTextFragments,
-    include_budget: &mut IncludeExpansionBudget,
-    render_cost_budget: &SharedRenderCostBudget,
-    initial_remaining_include_expansions: usize,
+    args: ListPagesGeneratedIncludesArgs<'_, '_, '_>,
 ) -> Result<()> {
+    let ListPagesGeneratedIncludesArgs {
+        ctx,
+        expansion,
+        page_info,
+        settings,
+        current_site_id,
+        page_preview,
+        include_source_cache,
+        compat_text,
+        include_budget,
+        render_cost_budget,
+        initial_remaining_include_expansions,
+    } = args;
     let IncludeExpansion {
         wikitext,
         included_pages,
@@ -626,31 +711,18 @@ pub(in crate::services::render) struct CountPagesExpansionOptions {
 }
 
 impl RenderService {
-    #[allow(clippy::too_many_arguments)]
     pub(in crate::services::render) async fn expand_list_pages(
-        ctx: &ServiceContext<'_>,
-        wikitext: String,
-        page_info: &PageInfo<'_>,
-        settings: &WikitextSettings,
-        compat_html: &mut CompatHtmlFragments,
-        include_source_cache: &mut IncludeSourceCache,
-        compat_text: &mut CompatTextFragments,
-        options: ListPagesExpansionOptions<'_>,
+        args: ListPagesExpansionArgs<'_, '_, '_, '_>,
     ) -> Result<ListPagesExpansion> {
         let mut expansion_budget = ListPagesExpansionBudget::new();
         let mut seen = BTreeSet::<TextHash>::new();
         Box::pin(Self::expand_list_pages_nested(
-            ctx,
-            wikitext,
-            page_info,
-            settings,
-            compat_html,
-            include_source_cache,
-            compat_text,
-            options,
-            &mut expansion_budget,
-            &mut seen,
-            0,
+            ListPagesNestedExpansionArgs {
+                call: args,
+                expansion_budget: &mut expansion_budget,
+                seen: &mut seen,
+                depth: 0,
+            },
         ))
         .await
     }

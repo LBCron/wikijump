@@ -78,20 +78,39 @@ pub(in crate::services::render) struct ListPagesSubstitutionContext<'a> {
     pub(in crate::services::render) render_generated_html: bool,
 }
 
-#[allow(clippy::too_many_arguments)]
+pub(in crate::services::render) struct ListPagesSubstitutionArgs<'a, 'ctx> {
+    pub(in crate::services::render) template: &'a str,
+    pub(in crate::services::render) page: &'a FoundPageRow,
+    pub(in crate::services::render) index: usize,
+    pub(in crate::services::render) total: usize,
+    pub(in crate::services::render) context: &'a ListPagesSubstitutionContext<'ctx>,
+    pub(in crate::services::render) compat_html: &'a mut CompatHtmlFragments,
+    pub(in crate::services::render) compat_text: &'a mut CompatTextFragments,
+    pub(in crate::services::render) tracked_content_fragments:
+        Option<&'a mut BTreeSet<usize>>,
+    pub(in crate::services::render) generated_slots:
+        Option<&'a mut Vec<ListPagesGeneratedSlot>>,
+    pub(in crate::services::render) runtime_text_ranges:
+        Option<&'a mut Vec<ListPagesRuntimeTextRange>>,
+    pub(in crate::services::render) runtime_title_is_delayed: bool,
+}
+
 pub(in crate::services::render::list_pages) fn substitute_list_pages_variables_inner(
-    template: &str,
-    page: &FoundPageRow,
-    index: usize,
-    total: usize,
-    context: &ListPagesSubstitutionContext<'_>,
-    compat_html: &mut CompatHtmlFragments,
-    compat_text: &mut CompatTextFragments,
-    mut tracked_content_fragments: Option<&mut BTreeSet<usize>>,
-    mut generated_slots: Option<&mut Vec<ListPagesGeneratedSlot>>,
-    mut runtime_text_ranges: Option<&mut Vec<ListPagesRuntimeTextRange>>,
-    runtime_title_is_delayed: bool,
+    args: ListPagesSubstitutionArgs<'_, '_>,
 ) -> String {
+    let ListPagesSubstitutionArgs {
+        template,
+        page,
+        index,
+        total,
+        context,
+        compat_html,
+        compat_text,
+        mut tracked_content_fragments,
+        mut generated_slots,
+        mut runtime_text_ranges,
+        runtime_title_is_delayed,
+    } = args;
     let html_body_ranges = collect_list_pages_html_body_ranges(template);
     let html_escape_ranges = collect_list_pages_html_escape_ranges(template);
     let full_slug = page.slug.as_deref().unwrap_or("");

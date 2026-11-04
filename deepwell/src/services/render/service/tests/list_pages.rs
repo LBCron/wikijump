@@ -2005,16 +2005,16 @@ fn generated_list_pages_pager_still_renders_without_forgeable_marker() {
     let page_info = fallback_test_page_info("scp-7243", "SCP-7243");
     let mut wikitext = String::new();
 
-    push_list_pages_pager(
-        &mut wikitext,
-        &page_info,
-        ListPagesPagerRoute::SavedPage,
-        UrlArguments::default(),
-        None,
-        0,
-        2,
-        5,
-    );
+    push_list_pages_pager(ListPagesPagerArgs {
+        output: &mut wikitext,
+        page_info: &page_info,
+        route: ListPagesPagerRoute::SavedPage,
+        url: UrlArguments::default(),
+        url_attr_prefix: None,
+        offset: 0,
+        per_page: 2,
+        total_selected: 5,
+    });
 
     assert!(wikitext.starts_with(r#"<div class="pager">"#));
     assert!(!wikitext.contains("data-wikijump-compat-pager"));
@@ -2046,16 +2046,16 @@ fn generated_list_pages_pager_keeps_untrusted_slug_inside_href() {
     );
     let mut wikitext = String::new();
 
-    push_list_pages_pager(
-        &mut wikitext,
-        &page_info,
-        ListPagesPagerRoute::SavedPage,
-        UrlArguments::default(),
-        None,
-        0,
-        2,
-        5,
-    );
+    push_list_pages_pager(ListPagesPagerArgs {
+        output: &mut wikitext,
+        page_info: &page_info,
+        route: ListPagesPagerRoute::SavedPage,
+        url: UrlArguments::default(),
+        url_attr_prefix: None,
+        offset: 0,
+        per_page: 2,
+        total_selected: 5,
+    });
 
     let encoded_slug = concat!(
         "%E6%97%A5%E6%9C%AC%E8%AA%9E%2Falready%252Fencoded%5D%20",
@@ -2094,19 +2094,19 @@ fn generated_list_pages_pager_preserves_live_url_argument_shape() {
     ];
     let mut wikitext = String::new();
 
-    push_list_pages_pager(
-        &mut wikitext,
-        &page_info,
-        ListPagesPagerRoute::SavedPage,
-        UrlArguments {
+    push_list_pages_pager(ListPagesPagerArgs {
+        output: &mut wikitext,
+        page_info: &page_info,
+        route: ListPagesPagerRoute::SavedPage,
+        url: UrlArguments {
             path_arguments: &path_arguments,
             ..UrlArguments::default()
         },
-        None,
-        4,
-        2,
-        10,
-    );
+        url_attr_prefix: None,
+        offset: 4,
+        per_page: 2,
+        total_selected: 10,
+    });
 
     assert!(
         wikitext.contains("/listpages-url-shape/tag/alpha/p/1/p/3"),
@@ -2128,19 +2128,19 @@ fn generated_list_pages_pager_appends_after_malformed_page_arguments() {
     }];
     let mut wikitext = String::new();
 
-    push_list_pages_pager(
-        &mut wikitext,
-        &page_info,
-        ListPagesPagerRoute::SavedPage,
-        UrlArguments {
+    push_list_pages_pager(ListPagesPagerArgs {
+        output: &mut wikitext,
+        page_info: &page_info,
+        route: ListPagesPagerRoute::SavedPage,
+        url: UrlArguments {
             path_arguments: &path_arguments,
             ..UrlArguments::default()
         },
-        None,
-        0,
-        2,
-        5,
-    );
+        url_attr_prefix: None,
+        offset: 0,
+        per_page: 2,
+        total_selected: 5,
+    });
 
     assert!(
         wikitext.contains("/listpages-malformed-pager/p/nope/p/2"),
@@ -2157,19 +2157,19 @@ fn generated_list_pages_pager_replaces_zero_page_arguments() {
     }];
     let mut wikitext = String::new();
 
-    push_list_pages_pager(
-        &mut wikitext,
-        &page_info,
-        ListPagesPagerRoute::SavedPage,
-        UrlArguments {
+    push_list_pages_pager(ListPagesPagerArgs {
+        output: &mut wikitext,
+        page_info: &page_info,
+        route: ListPagesPagerRoute::SavedPage,
+        url: UrlArguments {
             path_arguments: &path_arguments,
             ..UrlArguments::default()
         },
-        None,
-        0,
-        2,
-        5,
-    );
+        url_attr_prefix: None,
+        offset: 0,
+        per_page: 2,
+        total_selected: 5,
+    });
 
     assert!(wikitext.contains("/listpages-zero-pager/p/2"), "{wikitext}");
     assert!(!wikitext.contains("/listpages-zero-pager/p/0/p/2"));
@@ -2185,19 +2185,19 @@ fn generated_list_pages_pager_uses_url_attr_prefix() {
     }];
     let mut wikitext = String::new();
 
-    push_list_pages_pager(
-        &mut wikitext,
-        &page_info,
-        ListPagesPagerRoute::SavedPage,
-        UrlArguments {
+    push_list_pages_pager(ListPagesPagerArgs {
+        output: &mut wikitext,
+        page_info: &page_info,
+        route: ListPagesPagerRoute::SavedPage,
+        url: UrlArguments {
             path_arguments: &path_arguments,
             ..UrlArguments::default()
         },
-        Some("a"),
-        0,
-        2,
-        5,
-    );
+        url_attr_prefix: Some("a"),
+        offset: 0,
+        per_page: 2,
+        total_selected: 5,
+    });
 
     assert!(
         wikitext.contains("/listpages-prefixed-pager/p/2/a_p/2"),
@@ -2210,16 +2210,16 @@ fn generated_list_pages_pager_uses_ajax_module_route_and_prefix() {
     let page_info = fallback_test_page_info("", "ListPages preview");
     let mut html = String::new();
 
-    push_list_pages_pager(
-        &mut html,
-        &page_info,
-        ListPagesPagerRoute::AjaxModuleConnector,
-        UrlArguments::default(),
-        Some("x"),
-        0,
-        2,
-        5,
-    );
+    push_list_pages_pager(ListPagesPagerArgs {
+        output: &mut html,
+        page_info: &page_info,
+        route: ListPagesPagerRoute::AjaxModuleConnector,
+        url: UrlArguments::default(),
+        url_attr_prefix: Some("x"),
+        offset: 0,
+        per_page: 2,
+        total_selected: 5,
+    });
 
     assert!(
         html.contains(r#"href="/ajax-module-connector.php/x_p/2""#),

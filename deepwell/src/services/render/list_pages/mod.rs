@@ -72,8 +72,9 @@ pub(super) use self::data_forms::load_list_pages_data_form_definitions;
 #[cfg(test)]
 pub(super) use self::delayed::substitute_list_pages_variables_with_fragments;
 pub(super) use self::delayed::{
-    MAX_NESTED_LISTPAGES_DEPTH, MAX_NESTED_LISTPAGES_MODULES_PER_PASS,
-    PendingDelayedListPagesOutput, append_list_pages_delayed_occurrences,
+    FinishOrDeferListPagesDelayedOutputParams, MAX_NESTED_LISTPAGES_DEPTH,
+    MAX_NESTED_LISTPAGES_MODULES_PER_PASS, PendingDelayedListPagesOutput,
+    PrepareDelayedListPagesRowParams, append_list_pages_delayed_occurrences,
     append_list_pages_runtime_text_ranges,
     find_list_pages_module_matches_with_delayed_links_budgeted,
     finish_or_defer_list_pages_delayed_output_with_modes, list_pages_row_markup_bytes,
@@ -104,6 +105,8 @@ pub(super) use self::generated_html::{
     register_generated_list_pages_html, repair_list_pages_block_boundaries,
     strip_generated_list_pages_html_markers, url_offset_list_pages_content_bytes,
 };
+#[cfg(test)]
+pub(super) use self::pagination::ListPagesPagerArgs;
 pub(super) use self::pagination::{
     ListPagesPagerRoute, list_pages_feed_info_html, push_list_pages_pager,
 };
@@ -122,14 +125,14 @@ pub(super) use self::random_cache::seed_random_list_pages_order;
 pub(super) use self::rendering::render_wikidot_social_module;
 pub(super) use self::rendering_support::{
     CountPagesBlockRenderResult, CountPagesExpansionOptions, CountPagesRequiredTagSource,
-    CountPagesRequiredTagTotal, ListPagesBlockRenderResult, ListPagesContentCache,
-    ListPagesExpansion, ListPagesExpansionOptions, ListPagesPageContext,
-    ListPagesRenderedBlock, expand_list_pages_generated_includes,
-    list_pages_body_starts_with_preparsed_block, list_pages_feed_only_render_result,
-    list_pages_html_encoded_head_owns_script_tail, prepare_list_pages_rendered_block,
-    preserve_list_pages_module_matches, push_list_pages_generated_output,
-    push_list_pages_generated_output_with_cost, push_list_pages_trailing_runtime_blocks,
-    suppress_generated_list_pages_heading_toc,
+    CountPagesRequiredTagTotal, ListPagesBlockRenderArgs, ListPagesBlockRenderResult,
+    ListPagesContentCache, ListPagesExpansion, ListPagesExpansionArgs,
+    ListPagesExpansionOptions, ListPagesPageContext, ListPagesRenderedBlock,
+    expand_list_pages_generated_includes, list_pages_body_starts_with_preparsed_block,
+    list_pages_feed_only_render_result, list_pages_html_encoded_head_owns_script_tail,
+    prepare_list_pages_rendered_block, preserve_list_pages_module_matches,
+    push_list_pages_generated_output, push_list_pages_generated_output_with_cost,
+    push_list_pages_trailing_runtime_blocks, suppress_generated_list_pages_heading_toc,
 };
 pub(super) use self::substitution::{
     CurrentPageAuthorSource, ExactNameListPagesBatchKey, ListPagesArguments,

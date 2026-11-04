@@ -19,7 +19,7 @@
  */
 
 use super::service::{SiteIconSourceKind, validate_site_icon_source};
-use super::structs::{GetSiteIconOutput, SetSiteIconOutput};
+use super::structs::{GetSiteIconOutput, SetSiteIcon, SetSiteIconOutput};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::site::{self, Model as SiteModel};
 use crate::models::site_icon::{self, Entity as SiteIcon};
@@ -29,7 +29,6 @@ use crate::types::{Maybe, Reference};
 use crate::utils::now;
 use sea_orm::sea_query::OnConflict;
 use sea_orm::{ActiveModelTrait, EntityTrait, Set};
-use std::net::IpAddr;
 
 pub const MAX_SITE_ICON_BYTES: usize = 524288;
 
@@ -116,19 +115,20 @@ fn sha256_hex(bytes: &[u8]) -> String {
 }
 
 impl super::service::SiteService {
-    #[allow(clippy::too_many_arguments)]
     pub async fn set_site_icon(
         ctx: &ServiceContext<'_>,
-        reference: Reference<'_>,
-        kind: &str,
-        source: Option<Option<String>>,
-        mime: Option<String>,
-        data: Option<Option<Vec<u8>>>,
+        SetSiteIcon {
+            site: reference,
+            kind,
+            ip_address,
+            source,
+            mime,
+            data,
+        }: SetSiteIcon<'_>,
         actor_user_id: i64,
-        ip_address: IpAddr,
     ) -> Result<SetSiteIconOutput> {
         let txn = ctx.transaction();
-        let kind = SiteIconSourceKind::parse(kind).ok_or_else(|| {
+        let kind = SiteIconSourceKind::parse(&kind).ok_or_else(|| {
             Error::new(
                 format!("unknown site icon kind '{kind}'"),
                 ErrorType::BadRequest,

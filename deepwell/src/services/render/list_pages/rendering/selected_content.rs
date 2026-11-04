@@ -13,6 +13,7 @@
 #![allow(clippy::wildcard_imports)]
 
 use super::super::super::module_arguments::wikidot_module_argument;
+use super::super::rendering_support::ListPagesSelectedContentArgs;
 use super::*;
 use crate::services::render::service::wikidot_inline_span_marker_open;
 use ftml::tree::{SocialButtons, SocialSelection, SocialService};
@@ -495,21 +496,23 @@ fn protect_selected_content_includes(
     protected
 }
 
-#[allow(clippy::too_many_arguments)]
 pub(super) async fn render_list_pages_default_summary_source(
-    ctx: &ServiceContext<'_>,
-    wikitext: &str,
-    page_info: &PageInfo<'_>,
-    settings: &WikitextSettings,
-    current_site_id: i64,
-    current_category_id: i64,
-    current_page_id: i64,
+    args: ListPagesSelectedContentArgs<'_, '_, '_, '_>,
     page_preview: bool,
-    viewer_user_id: Option<i64>,
-    max_include_expansions: usize,
-    render_cost_budget: SharedRenderCostBudget,
-    url: UrlArguments<'_>,
 ) -> Result<RenderedListPagesSource> {
+    let ListPagesSelectedContentArgs {
+        ctx,
+        wikitext,
+        page_info,
+        settings,
+        current_site_id,
+        current_category_id,
+        current_page_id,
+        viewer_user_id,
+        max_include_expansions,
+        render_cost_budget,
+        url,
+    } = args;
     render_cost_budget
         .charge(1, "default-summary render")
         .map_err(|error| Error::new(error.to_string(), ErrorType::Render))?;
@@ -551,21 +554,23 @@ pub(super) async fn render_list_pages_default_summary_source(
     })
 }
 
-#[allow(clippy::too_many_arguments)]
 pub(super) async fn render_list_pages_selected_content_source(
-    ctx: &ServiceContext<'_>,
-    wikitext: &str,
-    page_info: &PageInfo<'_>,
-    settings: &WikitextSettings,
-    current_site_id: i64,
-    current_category_id: i64,
-    current_page_id: i64,
-    viewer_user_id: Option<i64>,
+    args: ListPagesSelectedContentArgs<'_, '_, '_, '_>,
     include_mode: SelectedContentIncludeMode,
-    max_include_expansions: usize,
-    render_cost_budget: SharedRenderCostBudget,
-    url: UrlArguments<'_>,
 ) -> Result<RenderedListPagesSource> {
+    let ListPagesSelectedContentArgs {
+        ctx,
+        wikitext,
+        page_info,
+        settings,
+        current_site_id,
+        current_category_id,
+        current_page_id,
+        viewer_user_id,
+        max_include_expansions,
+        render_cost_budget,
+        url,
+    } = args;
     render_cost_budget
         .charge(1, "selected-content render")
         .map_err(|error| Error::new(error.to_string(), ErrorType::Render))?;

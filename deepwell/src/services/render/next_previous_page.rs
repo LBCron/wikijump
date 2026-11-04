@@ -31,7 +31,7 @@ use super::compat::CompatHtmlFragments;
 use super::compat::text_fragments::CompatTextFragments;
 use super::list_pages::template::ListPagesTemplatePlan;
 use super::list_pages::{
-    ListPagesAuthorCacheKey, ListPagesBatchDisplayRequirements,
+    ListPagesAuthorCacheKey, ListPagesBatchDisplayRequirements, ListPagesBlockRenderArgs,
     ListPagesBlockRenderResult, ListPagesContentCache, ListPagesExpansionBudget,
     ListPagesPageContext, ListPagesPagerRoute, ListPagesRenderedBlock,
     ResolvedListPagesAuthors, is_list_pages_visible_tag, parse_list_pages_arguments,
@@ -133,21 +133,37 @@ struct CurrentPageSortKey {
     created_at: time::OffsetDateTime,
 }
 
+pub(super) struct ExpandNextPreviousPageModulesArgs<'a, 'b, 'c, 'd> {
+    pub(super) ctx: &'a ServiceContext<'b>,
+    pub(super) wikitext: String,
+    pub(super) page_info: &'a PageInfo<'c>,
+    pub(super) settings: &'a WikitextSettings,
+    pub(super) current_site_id: Option<i64>,
+    pub(super) current_page_id: Option<i64>,
+    pub(super) include_budget: &'a mut IncludeExpansionBudget,
+    pub(super) render_cost_budget: &'a SharedRenderCostBudget,
+    pub(super) url: UrlArguments<'d>,
+    pub(super) compat_html: &'a mut CompatHtmlFragments,
+    pub(super) compat_text: &'a mut CompatTextFragments,
+}
+
 impl RenderService {
-    #[allow(clippy::too_many_arguments)]
     pub(super) async fn expand_next_previous_page_modules(
-        ctx: &ServiceContext<'_>,
-        wikitext: String,
-        page_info: &PageInfo<'_>,
-        settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        current_page_id: Option<i64>,
-        include_budget: &mut IncludeExpansionBudget,
-        render_cost_budget: &SharedRenderCostBudget,
-        url: UrlArguments<'_>,
-        compat_html: &mut CompatHtmlFragments,
-        compat_text: &mut CompatTextFragments,
+        args: ExpandNextPreviousPageModulesArgs<'_, '_, '_, '_>,
     ) -> Result<NextPreviousPageExpansion> {
+        let ExpandNextPreviousPageModulesArgs {
+            ctx,
+            wikitext,
+            page_info,
+            settings,
+            current_site_id,
+            current_page_id,
+            include_budget,
+            render_cost_budget,
+            url,
+            compat_html,
+            compat_text,
+        } = args;
         if !settings.enable_page_syntax
             || !NEXT_PREVIOUS_PAGE_MODULE_OPEN_REGEX.is_match(&wikitext)
         {
@@ -228,16 +244,16 @@ impl RenderService {
                 }
                 query_count += 1;
             }
-            let pages = select_next_previous_page(
+            let pages = select_next_previous_page(SelectNextPreviousPageArgs {
                 ctx,
                 current_site_id,
                 current_page_id,
-                &current_key,
-                occurrence.name,
-                &arguments,
-                template.fields(),
-                &mut score_filter_cache,
-            )
+                current_key: &current_key,
+                module: occurrence.name,
+                arguments: &arguments,
+                fields: template.fields(),
+                score_filter_cache: &mut score_filter_cache,
+            })
             .await?;
             let mut display_requirements = ListPagesBatchDisplayRequirements::default();
             display_requirements.include(&template);
@@ -261,33 +277,34 @@ impl RenderService {
                 continue;
             };
 
-            let rendered = Box::pin(Self::render_list_pages_block(
-                ctx,
-                ListPagesPageContext {
-                    site_id: current_site_id,
-                    page_id: Some(current_page_id),
-                    url,
-                },
-                ListPagesPagerRoute::SavedPage,
-                compat_html,
-                None,
-                page_info,
-                false,
-                settings,
-                list_pages_arguments,
-                &template,
-                include_budget,
-                render_cost_budget,
-                Some(pages),
-                prefetched_displays.as_ref(),
-                &mut content_cache,
-                &mut expansion_budget,
-                &mut permission_cache,
-                &mut score_filter_cache,
-                &mut author_resolution_cache,
-                compat_text,
-            ))
-            .await?;
+            let rendered =
+                Box::pin(Self::render_list_pages_block(ListPagesBlockRenderArgs {
+                    ctx,
+                    page_context: ListPagesPageContext {
+                        site_id: current_site_id,
+                        page_id: Some(current_page_id),
+                        url,
+                    },
+                    pager_route: ListPagesPagerRoute::SavedPage,
+                    compat_html,
+                    viewer_user_id: None,
+                    page_info,
+                    page_preview: false,
+                    settings,
+                    arguments: list_pages_arguments,
+                    template: &template,
+                    include_budget,
+                    render_cost_budget,
+                    prefetched_pages: Some(pages),
+                    prefetched_displays: prefetched_displays.as_ref(),
+                    content_cache: &mut content_cache,
+                    expansion_budget: &mut expansion_budget,
+                    permission_cache: &mut permission_cache,
+                    score_filter_cache: &mut score_filter_cache,
+                    author_resolution_cache: &mut author_resolution_cache,
+                    compat_text,
+                }))
+                .await?;
 
             match rendered {
                 ListPagesBlockRenderResult::Expanded(ListPagesRenderedBlock {
@@ -579,17 +596,30 @@ async fn load_current_next_previous_sort_key(
     })
 }
 
-#[allow(clippy::too_many_arguments)]
-async fn select_next_previous_page(
-    ctx: &ServiceContext<'_>,
+struct SelectNextPreviousPageArgs<'a, 'b> {
+    ctx: &'a ServiceContext<'b>,
     current_site_id: i64,
     current_page_id: i64,
-    current_key: &CurrentPageSortKey,
+    current_key: &'a CurrentPageSortKey,
     module: NextPreviousModule,
-    arguments: &NextPreviousPageArguments,
-    mut fields: FoundPageFields,
-    score_filter_cache: &mut PageQueryScoreFilterCache,
+    arguments: &'a NextPreviousPageArguments,
+    fields: FoundPageFields,
+    score_filter_cache: &'a mut PageQueryScoreFilterCache,
+}
+
+async fn select_next_previous_page(
+    args: SelectNextPreviousPageArgs<'_, '_>,
 ) -> Result<FoundPages> {
+    let SelectNextPreviousPageArgs {
+        ctx,
+        current_site_id,
+        current_page_id,
+        current_key,
+        module,
+        arguments,
+        mut fields,
+        score_filter_cache,
+    } = args;
     if arguments.no_candidate_can_match {
         return Ok(FoundPages { pages: Vec::new() });
     }

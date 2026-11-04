@@ -15,8 +15,8 @@ use super::scanner::{
     find_list_pages_module_matches_with_budget,
 };
 use super::substitution::{
-    ListPagesSubstitutionContext, substitute_list_pages_rating_only,
-    substitute_list_pages_variables_inner,
+    ListPagesSubstitutionArgs, ListPagesSubstitutionContext,
+    substitute_list_pages_rating_only, substitute_list_pages_variables_inner,
 };
 use super::suppress_generated_list_pages_heading_toc;
 use super::template::ListPagesTemplatePlan;
@@ -107,6 +107,79 @@ pub(in crate::services::render) struct PreparedDelayedListPagesRow {
     pub html_fragments: Option<CompatHtmlFragments>,
 }
 
+pub(in crate::services::render) struct PrepareDelayedListPagesRowParams<'a> {
+    pub(in crate::services::render) template: &'a ListPagesTemplatePlan,
+    pub(in crate::services::render) body: &'a str,
+    pub(in crate::services::render) page: &'a FoundPageRow,
+    pub(in crate::services::render) index: usize,
+    pub(in crate::services::render) total: usize,
+    pub(in crate::services::render) context: &'a ListPagesSubstitutionContext<'a>,
+    pub(in crate::services::render) outer_page_tags: &'a [Cow<'a, str>],
+    pub(in crate::services::render) compat_text: &'a mut CompatTextFragments,
+    pub(in crate::services::render) uses_star_rating: bool,
+    pub(in crate::services::render) numbered_link_titles:
+        Option<&'a WikidotCompatLinkTitleMap>,
+    pub(in crate::services::render) render_cost_budget:
+        Option<&'a SharedRenderCostBudget>,
+}
+
+pub(in crate::services::render) struct SubstituteListPagesVariablesDelayedParams<'a> {
+    pub(in crate::services::render) template: &'a str,
+    pub(in crate::services::render) page: &'a FoundPageRow,
+    pub(in crate::services::render) index: usize,
+    pub(in crate::services::render) total: usize,
+    pub(in crate::services::render) context: &'a ListPagesSubstitutionContext<'a>,
+    pub(in crate::services::render) compat_html: &'a mut CompatHtmlFragments,
+    pub(in crate::services::render) compat_text: &'a mut CompatTextFragments,
+    pub(in crate::services::render) tracked_content_fragments: &'a mut BTreeSet<usize>,
+    pub(in crate::services::render) generated_slots: &'a mut Vec<ListPagesGeneratedSlot>,
+    pub(in crate::services::render) runtime_text_ranges:
+        &'a mut Vec<ListPagesRuntimeTextRange>,
+    pub(in crate::services::render) runtime_title_is_delayed: bool,
+}
+
+pub(in crate::services::render) struct ProtectListPagesDelayedOutputParams<'a> {
+    pub(in crate::services::render) output: String,
+    pub(in crate::services::render) delayed_occurrences:
+        Vec<(Range<usize>, GeneratedValue<'static>)>,
+    pub(in crate::services::render) runtime_text_ranges: Vec<ListPagesRuntimeTextRange>,
+    pub(in crate::services::render) delayed_html_fragments: Vec<CompatHtmlFragments>,
+    pub(in crate::services::render) compat_text: &'a mut CompatTextFragments,
+    pub(in crate::services::render) block_output: bool,
+    pub(in crate::services::render) list_pages_inline: bool,
+    pub(in crate::services::render) page_existence: Option<PageExistenceSnapshot>,
+}
+
+pub(in crate::services::render) struct FinishOrDeferListPagesDelayedOutputParams<'a> {
+    pub(in crate::services::render) output: String,
+    pub(in crate::services::render) delayed_occurrences:
+        Vec<(Range<usize>, GeneratedValue<'static>)>,
+    pub(in crate::services::render) runtime_text_ranges: Vec<ListPagesRuntimeTextRange>,
+    pub(in crate::services::render) delayed_html_fragments: Vec<CompatHtmlFragments>,
+    pub(in crate::services::render) defer_for_include_expansion: bool,
+    pub(in crate::services::render) page_info: &'a PageInfo<'a>,
+    pub(in crate::services::render) settings: &'a WikitextSettings,
+    pub(in crate::services::render) compat_html: &'a mut CompatHtmlFragments,
+    pub(in crate::services::render) compat_text: &'a mut CompatTextFragments,
+    pub(in crate::services::render) block_output: bool,
+    pub(in crate::services::render) list_pages_inline: bool,
+    pub(in crate::services::render) page_existence: Option<&'a PageExistenceSnapshot>,
+}
+
+pub(in crate::services::render) struct SealListPagesDelayedOutputParams<'a> {
+    pub(in crate::services::render) output: String,
+    pub(in crate::services::render) delayed_occurrences:
+        Vec<(Range<usize>, GeneratedValue<'static>)>,
+    pub(in crate::services::render) runtime_text_ranges: Vec<ListPagesRuntimeTextRange>,
+    pub(in crate::services::render) delayed_html_fragments: Vec<CompatHtmlFragments>,
+    pub(in crate::services::render) page_info: &'a PageInfo<'a>,
+    pub(in crate::services::render) settings: &'a WikitextSettings,
+    pub(in crate::services::render) compat_html: &'a mut CompatHtmlFragments,
+    pub(in crate::services::render) block_output: bool,
+    pub(in crate::services::render) list_pages_inline: bool,
+    pub(in crate::services::render) page_existence: Option<&'a PageExistenceSnapshot>,
+}
+
 #[derive(Debug)]
 pub(in crate::services::render) struct PendingDelayedListPagesOutput {
     slots: Vec<PendingDelayedListPagesSlot>,
@@ -167,20 +240,17 @@ fn restore_delayed_row_parser_gates(
     prepared_body
 }
 
-#[allow(clippy::too_many_arguments)]
 pub(in crate::services::render) fn prepare_delayed_list_pages_row(
-    template: &ListPagesTemplatePlan,
-    body: &str,
-    page: &FoundPageRow,
-    index: usize,
-    total: usize,
-    context: &ListPagesSubstitutionContext<'_>,
-    outer_page_tags: &[Cow<'_, str>],
-    compat_text: &mut CompatTextFragments,
-    uses_star_rating: bool,
-    numbered_link_titles: Option<&WikidotCompatLinkTitleMap>,
+    mut params: PrepareDelayedListPagesRowParams<'_>,
 ) -> PreparedDelayedListPagesRow {
-    prepare_delayed_list_pages_row_with_budget(
+    params.render_cost_budget = None;
+    prepare_delayed_list_pages_row_with_budget(params)
+}
+
+pub(in crate::services::render) fn prepare_delayed_list_pages_row_with_budget(
+    params: PrepareDelayedListPagesRowParams<'_>,
+) -> PreparedDelayedListPagesRow {
+    let PrepareDelayedListPagesRowParams {
         template,
         body,
         page,
@@ -191,24 +261,8 @@ pub(in crate::services::render) fn prepare_delayed_list_pages_row(
         compat_text,
         uses_star_rating,
         numbered_link_titles,
-        None,
-    )
-}
-
-#[allow(clippy::too_many_arguments)]
-pub(in crate::services::render) fn prepare_delayed_list_pages_row_with_budget(
-    template: &ListPagesTemplatePlan,
-    body: &str,
-    page: &FoundPageRow,
-    index: usize,
-    total: usize,
-    context: &ListPagesSubstitutionContext<'_>,
-    outer_page_tags: &[Cow<'_, str>],
-    compat_text: &mut CompatTextFragments,
-    uses_star_rating: bool,
-    numbered_link_titles: Option<&WikidotCompatLinkTitleMap>,
-    render_cost_budget: Option<&SharedRenderCostBudget>,
-) -> PreparedDelayedListPagesRow {
+        render_cost_budget,
+    } = params;
     let mut generated_slots = Vec::new();
     let mut runtime_text_ranges = Vec::new();
     let mut tracked_content_fragments = BTreeSet::new();
@@ -227,17 +281,19 @@ pub(in crate::services::render) fn prepare_delayed_list_pages_row_with_budget(
         body
     } else {
         let mut body = substitute_list_pages_variables_delayed(
-            &prepared_body,
-            page,
-            index,
-            total,
-            context,
-            &mut fragments,
-            compat_text,
-            &mut tracked_content_fragments,
-            &mut generated_slots,
-            &mut runtime_text_ranges,
-            runtime_title_is_delayed,
+            SubstituteListPagesVariablesDelayedParams {
+                template: &prepared_body,
+                page,
+                index,
+                total,
+                context,
+                compat_html: &mut fragments,
+                compat_text,
+                tracked_content_fragments: &mut tracked_content_fragments,
+                generated_slots: &mut generated_slots,
+                runtime_text_ranges: &mut runtime_text_ranges,
+                runtime_title_is_delayed,
+            },
         );
         resolve_list_pages_expr_parser_functions(
             &mut body,
@@ -380,21 +436,10 @@ pub(in crate::services::render) fn append_list_pages_runtime_text_ranges(
     true
 }
 
-#[allow(clippy::too_many_arguments)]
 pub(in crate::services::render) fn substitute_list_pages_variables_delayed(
-    template: &str,
-    page: &FoundPageRow,
-    index: usize,
-    total: usize,
-    context: &ListPagesSubstitutionContext<'_>,
-    compat_html: &mut CompatHtmlFragments,
-    compat_text: &mut CompatTextFragments,
-    tracked_content_fragments: &mut BTreeSet<usize>,
-    generated_slots: &mut Vec<ListPagesGeneratedSlot>,
-    runtime_text_ranges: &mut Vec<ListPagesRuntimeTextRange>,
-    runtime_title_is_delayed: bool,
+    params: SubstituteListPagesVariablesDelayedParams<'_>,
 ) -> String {
-    substitute_list_pages_variables_inner(
+    let SubstituteListPagesVariablesDelayedParams {
         template,
         page,
         index,
@@ -402,11 +447,24 @@ pub(in crate::services::render) fn substitute_list_pages_variables_delayed(
         context,
         compat_html,
         compat_text,
-        Some(tracked_content_fragments),
-        Some(generated_slots),
-        Some(runtime_text_ranges),
+        tracked_content_fragments,
+        generated_slots,
+        runtime_text_ranges,
         runtime_title_is_delayed,
-    )
+    } = params;
+    substitute_list_pages_variables_inner(ListPagesSubstitutionArgs {
+        template,
+        page,
+        index,
+        total,
+        context,
+        compat_html,
+        compat_text,
+        tracked_content_fragments: Some(tracked_content_fragments),
+        generated_slots: Some(generated_slots),
+        runtime_text_ranges: Some(runtime_text_ranges),
+        runtime_title_is_delayed,
+    })
 }
 
 #[cfg(test)]
@@ -419,7 +477,7 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
     compat_html: &mut CompatHtmlFragments,
     compat_text: &mut CompatTextFragments,
 ) -> String {
-    substitute_list_pages_variables_inner(
+    substitute_list_pages_variables_inner(ListPagesSubstitutionArgs {
         template,
         page,
         index,
@@ -427,11 +485,11 @@ pub(in crate::services::render) fn substitute_list_pages_variables_with_fragment
         context,
         compat_html,
         compat_text,
-        None,
-        None,
-        None,
-        false,
-    )
+        tracked_content_fragments: None,
+        generated_slots: None,
+        runtime_text_ranges: None,
+        runtime_title_is_delayed: false,
+    })
 }
 
 #[cfg(test)]
@@ -520,17 +578,20 @@ mod tests {
             ftml::layout::Layout::Wikidot,
         );
         let mut compat_html = CompatHtmlFragments::new(source);
-        let sealed = seal_list_pages_delayed_output_with_mode(
-            source.to_owned(),
-            Vec::new(),
-            Vec::new(),
-            Vec::new(),
-            &page_info,
-            &settings,
-            &mut compat_html,
-            true,
-        )
-        .expect("delayed row should seal");
+        let sealed =
+            seal_list_pages_delayed_output_with_mode(SealListPagesDelayedOutputParams {
+                output: source.to_owned(),
+                delayed_occurrences: Vec::new(),
+                runtime_text_ranges: Vec::new(),
+                delayed_html_fragments: Vec::new(),
+                page_info: &page_info,
+                settings: &settings,
+                compat_html: &mut compat_html,
+                block_output: true,
+                list_pages_inline: false,
+                page_existence: None,
+            })
+            .expect("delayed row should seal");
         let rendered = compat_html.restore(&sealed);
 
         assert!(
@@ -562,20 +623,23 @@ mod tests {
         );
         let range_start = source.find("%%unknown%%").expect("unknown token fixture");
         let mut compat_html = CompatHtmlFragments::new(source);
-        let sealed = seal_list_pages_delayed_output_with_mode(
-            source.to_owned(),
-            Vec::new(),
-            vec![ListPagesRuntimeTextRange {
-                source_range: range_start..range_start + "%%unknown%%".len(),
-                origin: TextOrigin::RuntimeLiteral,
-            }],
-            Vec::new(),
-            &page_info,
-            &settings,
-            &mut compat_html,
-            false,
-        )
-        .expect("combined runtime-text row should seal");
+        let sealed =
+            seal_list_pages_delayed_output_with_mode(SealListPagesDelayedOutputParams {
+                output: source.to_owned(),
+                delayed_occurrences: Vec::new(),
+                runtime_text_ranges: vec![ListPagesRuntimeTextRange {
+                    source_range: range_start..range_start + "%%unknown%%".len(),
+                    origin: TextOrigin::RuntimeLiteral,
+                }],
+                delayed_html_fragments: Vec::new(),
+                page_info: &page_info,
+                settings: &settings,
+                compat_html: &mut compat_html,
+                block_output: false,
+                list_pages_inline: false,
+                page_existence: None,
+            })
+            .expect("combined runtime-text row should seal");
 
         assert_eq!(
             compat_html.restore(&sealed),
@@ -659,18 +723,19 @@ mod tests {
             &data_form_values,
         );
         let mut compat_text = CompatTextFragments::new(source);
-        let prepared = prepare_delayed_list_pages_row(
-            &template,
-            template.body(),
-            &page,
-            1,
-            1,
-            &context,
-            &[],
-            &mut compat_text,
-            false,
-            None,
-        );
+        let prepared = prepare_delayed_list_pages_row(PrepareDelayedListPagesRowParams {
+            template: &template,
+            body: template.body(),
+            page: &page,
+            index: 1,
+            total: 1,
+            context: &context,
+            outer_page_tags: &[],
+            compat_text: &mut compat_text,
+            uses_star_rating: false,
+            numbered_link_titles: None,
+            render_cost_budget: None,
+        });
         assert!(
             prepared
                 .body
@@ -745,18 +810,19 @@ mod tests {
             &data_form_values,
         );
         let mut compat_text = CompatTextFragments::new(source);
-        let prepared = prepare_delayed_list_pages_row(
-            &template,
-            template.body(),
-            &page,
-            1,
-            1,
-            &context,
-            &[],
-            &mut compat_text,
-            false,
-            None,
-        );
+        let prepared = prepare_delayed_list_pages_row(PrepareDelayedListPagesRowParams {
+            template: &template,
+            body: template.body(),
+            page: &page,
+            index: 1,
+            total: 1,
+            context: &context,
+            outer_page_tags: &[],
+            compat_text: &mut compat_text,
+            uses_star_rating: false,
+            numbered_link_titles: None,
+            render_cost_budget: None,
+        });
 
         let escaped_payload = "&lt;img src=x onerror=&quot;alert(1)&quot;&gt;";
         assert!(
@@ -892,18 +958,19 @@ mod tests {
         );
         let mut compat_text = CompatTextFragments::new(source);
 
-        let prepared = prepare_delayed_list_pages_row(
-            &template,
-            template.body(),
-            &page,
-            1,
-            1,
-            &context,
-            &[],
-            &mut compat_text,
-            false,
-            None,
-        );
+        let prepared = prepare_delayed_list_pages_row(PrepareDelayedListPagesRowParams {
+            template: &template,
+            body: template.body(),
+            page: &page,
+            index: 1,
+            total: 1,
+            context: &context,
+            outer_page_tags: &[],
+            compat_text: &mut compat_text,
+            uses_star_rating: false,
+            numbered_link_titles: None,
+            render_cost_budget: None,
+        });
 
         assert!(prepared.body.contains("Literal… 24,000\u{a0}km"));
         assert!(
@@ -1027,18 +1094,20 @@ mod tests {
             let template = ListPagesTemplatePlan::compile(source)
                 .expect("supported unknown-variable row");
             let mut compat_text = CompatTextFragments::new(source);
-            let prepared = prepare_delayed_list_pages_row(
-                &template,
-                template.body(),
-                &page,
-                1,
-                1,
-                &context,
-                &[],
-                &mut compat_text,
-                false,
-                None,
-            );
+            let prepared =
+                prepare_delayed_list_pages_row(PrepareDelayedListPagesRowParams {
+                    template: &template,
+                    body: template.body(),
+                    page: &page,
+                    index: 1,
+                    total: 1,
+                    context: &context,
+                    outer_page_tags: &[],
+                    compat_text: &mut compat_text,
+                    uses_star_rating: false,
+                    numbered_link_titles: None,
+                    render_cost_budget: None,
+                });
             assert_eq!(prepared.runtime_text_ranges.len(), 1, "{source}");
             assert_eq!(
                 prepared.runtime_text_ranges[0].origin,
@@ -1103,18 +1172,19 @@ mod tests {
             &data_form_values,
         );
         let mut compat_text = CompatTextFragments::new(source);
-        let prepared = prepare_delayed_list_pages_row(
-            &template,
-            template.body(),
-            &page,
-            1,
-            1,
-            &context,
-            &[],
-            &mut compat_text,
-            false,
-            None,
-        );
+        let prepared = prepare_delayed_list_pages_row(PrepareDelayedListPagesRowParams {
+            template: &template,
+            body: template.body(),
+            page: &page,
+            index: 1,
+            total: 1,
+            context: &context,
+            outer_page_tags: &[],
+            compat_text: &mut compat_text,
+            uses_star_rating: false,
+            numbered_link_titles: None,
+            render_cost_budget: None,
+        });
         let page_info = PageInfo {
             page: Cow::Borrowed("preview"),
             category: None,
@@ -1195,18 +1265,19 @@ mod tests {
         context.page_wikitext_scalar_count = Some(1);
         let mut compat_text = CompatTextFragments::new(source);
 
-        let prepared = prepare_delayed_list_pages_row(
-            &template,
-            template.body(),
-            &page,
-            1,
-            1,
-            &context,
-            &[],
-            &mut compat_text,
-            false,
-            None,
-        );
+        let prepared = prepare_delayed_list_pages_row(PrepareDelayedListPagesRowParams {
+            template: &template,
+            body: template.body(),
+            page: &page,
+            index: 1,
+            total: 1,
+            context: &context,
+            outer_page_tags: &[],
+            compat_text: &mut compat_text,
+            uses_star_rating: false,
+            numbered_link_titles: None,
+            render_cost_budget: None,
+        });
 
         assert!(
             !prepared.body.contains("component:hidden"),
@@ -1272,18 +1343,19 @@ mod tests {
         context.page_wikitext_scalar_count = Some(1);
         let mut compat_text = CompatTextFragments::new(source);
 
-        let prepared = prepare_delayed_list_pages_row(
-            &template,
-            template.body(),
-            &page,
-            1,
-            1,
-            &context,
-            &[],
-            &mut compat_text,
-            false,
-            None,
-        );
+        let prepared = prepare_delayed_list_pages_row(PrepareDelayedListPagesRowParams {
+            template: &template,
+            body: template.body(),
+            page: &page,
+            index: 1,
+            total: 1,
+            context: &context,
+            outer_page_tags: &[],
+            compat_text: &mut compat_text,
+            uses_star_rating: false,
+            numbered_link_titles: None,
+            render_cost_budget: None,
+        });
 
         assert!(
             prepared.body.contains("--selected: two"),

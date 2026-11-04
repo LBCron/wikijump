@@ -35,17 +35,30 @@ pub(in crate::services::render) enum ListPagesPagerRoute {
     AjaxModuleConnector,
 }
 
-#[allow(clippy::too_many_arguments)]
+pub(in crate::services::render) struct ListPagesPagerArgs<'a, 'info, 'url> {
+    pub(in crate::services::render) output: &'a mut String,
+    pub(in crate::services::render) page_info: &'a PageInfo<'info>,
+    pub(in crate::services::render) route: ListPagesPagerRoute,
+    pub(in crate::services::render) url: UrlArguments<'url>,
+    pub(in crate::services::render) url_attr_prefix: Option<&'a str>,
+    pub(in crate::services::render) offset: u32,
+    pub(in crate::services::render) per_page: u64,
+    pub(in crate::services::render) total_selected: usize,
+}
+
 pub(in crate::services::render) fn push_list_pages_pager(
-    output: &mut String,
-    page_info: &PageInfo<'_>,
-    route: ListPagesPagerRoute,
-    url: UrlArguments<'_>,
-    url_attr_prefix: Option<&str>,
-    offset: u32,
-    per_page: u64,
-    total_selected: usize,
+    args: ListPagesPagerArgs<'_, '_, '_>,
 ) {
+    let ListPagesPagerArgs {
+        output,
+        page_info,
+        route,
+        url,
+        url_attr_prefix,
+        offset,
+        per_page,
+        total_selected,
+    } = args;
     let per_page = per_page
         .min(MAX_LISTPAGES_RENDER_LIMIT)
         .min(usize::MAX as u64) as usize;

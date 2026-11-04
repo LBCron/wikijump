@@ -20,7 +20,9 @@
 
 use super::article_cache::{ArticlePageCache, ArticlePageCacheMetadataInput};
 use super::module_arguments::PageModuleArguments;
-use super::module_render::render_body_for_module_arguments;
+use super::module_render::{
+    RenderBodyForModuleArgumentsInput, render_body_for_module_arguments,
+};
 use super::options::PageOptions;
 use super::random_helper::{find_random_helper_selector, resolve_random_helper_redirect};
 use super::redirect::{wikidot_redirect_location, wikidot_redirect_noredirect_body_html};
@@ -927,14 +929,18 @@ impl ViewService {
                     ) = raise_multiple!(wikitext_result, compiled_body_result, compiled_body_styles_result, compiled_top_bar_result, compiled_side_bar_result; make_error);
 
                     let compiled_body_html = render_body_for_module_arguments(
-                        ctx,
-                        &module_arguments,
-                        &wikitext,
-                        &page,
-                        &page_revision,
-                        &site,
-                        user_session.as_ref().map(|session| session.user.user_id),
-                        compiled_body_html,
+                        RenderBodyForModuleArgumentsInput {
+                            ctx,
+                            module_arguments: &module_arguments,
+                            wikitext: &wikitext,
+                            page: &page,
+                            page_revision: &page_revision,
+                            site: &site,
+                            viewer_user_id: user_session
+                                .as_ref()
+                                .map(|session| session.user.user_id),
+                            stored_body_html: compiled_body_html,
+                        },
                     )
                     .await
                     .or_raise(make_error)?;

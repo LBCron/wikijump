@@ -3,10 +3,27 @@ import { sqlInt, sqlQuote } from './corpus-import-sql-values.mjs';
 
 export const FOREIGN_STORAGE_PREFIX = '_foreign:';
 
+export function holdingOwnSources(holding) {
+  return [holding.siteSlug, ...holding.runBranches];
+}
+
+export function holdingSiteSlugSql(siteId) {
+  return `(SELECT slug FROM site WHERE site_id = ${sqlInt(siteId)})`;
+}
+
+export function holdingRunBranchesSql(siteId) {
+  return `(SELECT DISTINCT source_branch FROM wikidot_corpus_import_run WHERE site_id = ${sqlInt(siteId)})`;
+}
+
+export function foreignSnapshotExclusionSql(pageIdRef, siteId) {
+  return `NOT EXISTS (SELECT 1 FROM wikidot_page_snapshot snapshot WHERE snapshot.page_id = ${pageIdRef} AND snapshot.source_site NOT IN ${holdingSiteSlugSql(siteId)} AND snapshot.source_site NOT IN ${holdingRunBranchesSql(siteId)})`;
+}
+
 export function isForeignSource(holding, sourceSite) {
-  if (sourceSite === holding.siteSlug) return false;
-  if (Array.isArray(holding.foreignSourceSites) && holding.foreignSourceSites.includes(sourceSite)) return true;
-  return !holding.runBranches.includes(sourceSite);
+  if (Array.isArray(holding.foreignSourceSites) && holding.foreignSourceSites.includes(sourceSite)) {
+    return sourceSite !== holding.siteSlug;
+  }
+  return !holdingOwnSources(holding).includes(sourceSite);
 }
 
 export function storageSlug(holding, row) {
@@ -24,7 +41,7 @@ export function assertNotReservedFullname(row) {
 export function holdingSiteSql(siteId) {
   return `
 SELECT json_build_object(
-  'siteSlug', (SELECT slug FROM site WHERE site_id = ${sqlInt(siteId)}),
+  'siteSlug', ${holdingSiteSlugSql(siteId)},
   'runBranches', COALESCE((
     SELECT json_agg(DISTINCT source_branch ORDER BY source_branch)
     FROM wikidot_corpus_import_run

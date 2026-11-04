@@ -3,7 +3,8 @@ import test from "node:test";
 
 import {
   buildPrecreateDbShellCategoriesSql,
-  dbShellCategorySlug,
+  sourceCategorySlug,
+  storageCategorySlug,
 } from "../scripts/apply-corpus-import-manifest.mjs";
 
 const SCP_WIKI = { siteSlug: "scp-wiki", runBranches: ["05command", "en", "ko"] };
@@ -18,24 +19,26 @@ function row(overrides = {}) {
   };
 }
 
-test("dbShellCategorySlug derives the category from the storage slug", () => {
-  assert.equal(dbShellCategorySlug(SCP_WIKI, row()), "_foreign:scpko:theme");
+test("storageCategorySlug derives the category from the storage slug, sourceCategorySlug from the fullname", () => {
+  assert.equal(sourceCategorySlug(row()), "theme");
+  assert.equal(sourceCategorySlug(row({ fullname: "scp-173" })), "_default");
+  assert.equal(storageCategorySlug(SCP_WIKI, row()), "_foreign:scpko:theme");
   assert.equal(
-    dbShellCategorySlug(SCP_WIKI, row({ fullname: "component:image-block" })),
+    storageCategorySlug(SCP_WIKI, row({ fullname: "component:image-block" })),
     "_foreign:scpko:component",
   );
   assert.equal(
-    dbShellCategorySlug(SCP_WIKI, row({ source_site: "scp-wiki", source_branch: "en" })),
+    storageCategorySlug(SCP_WIKI, row({ source_site: "scp-wiki", source_branch: "en" })),
     "theme",
     "the holding site's own rows keep their fullname category",
   );
   assert.equal(
-    dbShellCategorySlug(SCP_WIKI, row({ source_site: "en", source_branch: "en" })),
+    storageCategorySlug(SCP_WIKI, row({ source_site: "en", source_branch: "en" })),
     "theme",
     "a row from an imported branch is own, so its category is the fullname category",
   );
   assert.equal(
-    dbShellCategorySlug(SCP_WIKI, row({ fullname: "scp-173" })),
+    storageCategorySlug(SCP_WIKI, row({ fullname: "scp-173" })),
     "_foreign:scpko",
     "a category-less foreign fullname lands in the _foreign:<source> category, matching Deepwell's split at the last colon",
   );

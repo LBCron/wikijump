@@ -4,6 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
   assertForeignStoragePlan,
@@ -12,7 +13,9 @@ import {
 import {
   assertNotReservedFullname,
   classifyForeignSnapshotHolders,
+  foreignSnapshotExclusionSql,
   holdingForImport,
+  holdingOwnSources,
   isForeignSource,
   parseHoldingSite,
   storageSlug,
@@ -42,6 +45,28 @@ test("foreign classification matches Deepwell's foreign_snapshot_exclusion_sql",
   );
   assert.equal(isForeignSource(SCP_WIKI, "scpko"), true, "another Wikidot site is foreign");
   assert.equal(isForeignSource(SCP_WIKI, "scp-int"), true);
+});
+
+test("the generated exclusion SQL is Deepwell's foreign_snapshot_exclusion_sql", () => {
+  assert.deepEqual(holdingOwnSources(SCP_WIKI), ["scp-wiki", "05command", "en", "ko"]);
+  const generated = foreignSnapshotExclusionSql("p.page_id", 6000006);
+  assert.equal(
+    generated,
+    "NOT EXISTS (SELECT 1 FROM wikidot_page_snapshot snapshot WHERE snapshot.page_id = p.page_id AND snapshot.source_site NOT IN (SELECT slug FROM site WHERE site_id = 6000006) AND snapshot.source_site NOT IN (SELECT DISTINCT source_branch FROM wikidot_corpus_import_run WHERE site_id = 6000006))",
+  );
+  const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
+  const rust = fs.readFileSync(path.join(repositoryRoot, "deepwell/src/services/page/service.rs"), "utf8");
+  const fnStart = rust.indexOf("fn foreign_snapshot_exclusion_sql");
+  assert.notEqual(fnStart, -1);
+  const literal = /format!\(\s*"((?:[^"\\]|\\.)*)"\s*\)/su.exec(rust.slice(fnStart));
+  assert.ok(literal);
+  const rendered = literal[1]
+    .replace(/\\\n\s*/gu, "")
+    .replace(/\\"/gu, '"')
+    .replaceAll('"site"', "site")
+    .replaceAll("{page_id_ref}", "p.page_id")
+    .replaceAll("{site_id}", "6000006");
+  assert.equal(rendered, generated);
 });
 
 test("foreign rows are stored under their source site, own rows at their fullname", () => {

@@ -60,6 +60,7 @@ import {
   foreignSnapshotHoldersSql,
   holdingSiteSql,
   holdingForImport,
+  holdingOwnSources,
   isForeignSource,
   isSameSnapshotProvenance,
   parseHoldingSite,
@@ -434,13 +435,19 @@ ON CONFLICT (hash) DO NOTHING;
   await flush();
 }
 
-export function dbShellCategorySlug(holding, row) {
-  return categoryName(storageSlug(holding, row));
+export function sourceCategorySlug(row) {
+  return categoryName(row.fullname);
+}
+
+export function storageCategorySlug(holding, row) {
+  return isForeignSource(holding, row.source_site)
+    ? categoryName(storageSlug(holding, row))
+    : sourceCategorySlug(row);
 }
 
 export function buildPrecreateDbShellCategoriesSql(args, selectedRows) {
   if (args.createMode !== 'db') return null;
-  const categories = [...new Set(selectedRows.map((row) => dbShellCategorySlug(args.holding, row)))].sort();
+  const categories = [...new Set(selectedRows.map((row) => storageCategorySlug(args.holding, row)))].sort();
   if (categories.length === 0) return null;
   const values = categories.map((category) => `(${sqlInt(args.siteId)}, ${sqlQuote(category)})`).join(',\n  ');
   return `
@@ -469,7 +476,7 @@ async function precreateDbShellCategories(args, sqlExecutor, selectedRows) {
   const sql = buildPrecreateDbShellCategoriesSql(args, selectedRows);
   if (sql === null) return;
   const ids = parsePrecreatedCategoryIds(await sqlExecutor.runSql(sql, { capture: true }));
-  const expected = new Set(selectedRows.map((row) => dbShellCategorySlug(args.holding, row)));
+  const expected = new Set(selectedRows.map((row) => storageCategorySlug(args.holding, row)));
   if (ids.size !== expected.size || [...expected].some((slug) => !ids.has(slug))) {
     throw new Error('category precreate output did not contain every requested category');
   }
@@ -777,7 +784,7 @@ export function upsertSnapshotSql(args, row, pageId, revisionId, importRunId) {
   const metaText = metaJsonText(row);
   const title = fallbackTitle(row);
   const rowIsOwn = !isForeignSource(args.holding, row.source_site);
-  const ownSources = [args.holding.siteSlug, ...args.holding.runBranches].map(sqlQuote).join(', ');
+  const ownSources = holdingOwnSources(args.holding).map(sqlQuote).join(', ');
   return `
 UPDATE page
 SET

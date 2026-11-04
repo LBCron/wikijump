@@ -515,6 +515,181 @@ class ActivationSafetyTest(unittest.TestCase):
         self.assertNotIn("wikijump-standing", source)
 
 
+class LiveMigrationTest(unittest.TestCase):
+    CANDIDATE = ["20260101000000_init.sql", "20261104010000_user_mfa_last_totp_step.sql"]
+
+    def source_root(self, directory: Path) -> Path:
+        migrations = directory / "deepwell" / "migrations"
+        migrations.mkdir(parents=True)
+        for name in self.CANDIDATE:
+            (migrations / name).write_text("SELECT 1;\n", encoding="utf-8")
+        (migrations / "notes.txt").write_text("not a migration\n", encoding="utf-8")
+        return directory
+
+    def test_pending_migrations_are_the_unrecorded_versions_in_apply_order(self) -> None:
+        pending = promote.pending_migration_files(
+            list(reversed(self.CANDIDATE)), {20260101000000}
+        )
+        self.assertEqual(pending, ["20261104010000_user_mfa_last_totp_step.sql"])
+        self.assertEqual(promote.pending_migration_files(self.CANDIDATE, set()), self.CANDIDATE)
+        self.assertEqual(
+            promote.pending_migration_files(
+                self.CANDIDATE, {20260101000000, 20261104010000}
+            ),
+            [],
+        )
+
+    def test_a_migration_filename_without_a_version_is_refused(self) -> None:
+        with self.assertRaisesRegex(ValueError, "not a Deepwell migration filename"):
+            promote.migration_version("user_mfa.sql")
+
+    def test_candidate_files_are_the_sql_files_of_the_migrations_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.source_root(Path(directory))
+            self.assertEqual(promote.candidate_migration_files(root), self.CANDIDATE)
+
+    def test_applied_versions_come_from_the_sqlx_bookkeeping_table(self) -> None:
+        with mock.patch.object(
+            promote, "psql", side_effect=["t\n", "20260101000000\n20261104010000\n"]
+        ) as psql:
+            applied = promote.applied_migration_versions("db")
+        self.assertEqual(applied, {20260101000000, 20261104010000})
+        self.assertIn("_sqlx_migrations", psql.call_args_list[1].args[1])
+
+    def test_applied_versions_are_empty_until_sqlx_creates_its_table(self) -> None:
+        with mock.patch.object(promote, "psql", return_value="f\n") as psql:
+            self.assertEqual(promote.applied_migration_versions("db"), set())
+        self.assertEqual(psql.call_count, 1)
+
+    def run_live_migration(self, root: Path, applied_sequence, run_logged):
+        patches = [
+            mock.patch.object(
+                promote, "applied_migration_versions", side_effect=applied_sequence
+            ),
+            mock.patch.object(
+                promote.render_ahead, "container_inspect", return_value={}
+            ),
+            mock.patch.object(
+                promote.render_ahead,
+                "runtime_environment",
+                return_value={"DATABASE_URL": "postgres://standing"},
+            ),
+            mock.patch.object(promote, "run_logged", side_effect=run_logged),
+        ]
+        for patch in patches:
+            patch.start()
+        try:
+            return promote.apply_live_migrations(
+                "candidate-image", root, root / "live-migration.log"
+            )
+        finally:
+            for patch in reversed(patches):
+                patch.stop()
+
+    def test_no_pending_migrations_is_a_noop_that_runs_no_container(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.source_root(Path(directory))
+            run_logged = mock.Mock(side_effect=AssertionError("no container may run"))
+            with mock.patch.object(
+                promote,
+                "applied_migration_versions",
+                return_value={20260101000000, 20261104010000},
+            ):
+                result = promote.apply_live_migrations(
+                    "candidate-image", root, root / "live-migration.log"
+                )
+        self.assertEqual(result, {"status": "no-op", "pending": [], "applied": []})
+        run_logged.assert_not_called()
+
+    def test_pending_migrations_run_the_candidate_images_own_sqlx(self) -> None:
+        seen = {}
+
+        def fake_run_logged(args, log, cwd):
+            seen["args"] = args
+            env_path = Path(args[args.index("--env-file") + 1])
+            seen["env"] = env_path.read_text(encoding="utf-8")
+            seen["env_path"] = env_path
+            return ""
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.source_root(Path(directory))
+            result = self.run_live_migration(
+                root,
+                [{20260101000000}, {20260101000000, 20261104010000}],
+                fake_run_logged,
+            )
+        self.assertEqual(result["status"], "pass")
+        self.assertEqual(result["applied"], ["20261104010000_user_mfa_last_totp_step.sql"])
+        args = seen["args"]
+        self.assertEqual(args[:3], ["docker", "run", "--rm"])
+        self.assertIn(f"container:{promote.STANDING_DEEPWELL}", args)
+        self.assertEqual(args[args.index("--entrypoint") + 1], promote.SQLX_BINARY)
+        self.assertEqual(args[args.index("candidate-image") + 1:], ["migrate", "run", "--source", promote.MIGRATIONS_IN_IMAGE])
+        self.assertIn("DATABASE_URL=postgres://standing", seen["env"])
+        self.assertFalse(seen["env_path"].exists(), "the env file is removed after the run")
+
+    def test_a_failed_migration_run_fails_the_stage(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.source_root(Path(directory))
+            with self.assertRaisesRegex(RuntimeError, "applying the candidate migrations"):
+                self.run_live_migration(
+                    root,
+                    [{20260101000000}],
+                    mock.Mock(side_effect=RuntimeError("run failed")),
+                )
+
+    def test_migrations_still_pending_after_the_run_fail_the_stage(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.source_root(Path(directory))
+            with self.assertRaisesRegex(RuntimeError, "still missing migrations"):
+                self.run_live_migration(
+                    root,
+                    [{20260101000000}, {20260101000000}],
+                    lambda *a: "",
+                )
+
+    def test_a_changed_migration_with_none_pending_still_runs_sqlx(self) -> None:
+        run_logged = mock.Mock(return_value="")
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.source_root(Path(directory))
+            patches = [
+                mock.patch.object(
+                    promote,
+                    "applied_migration_versions",
+                    return_value={20260101000000, 20261104010000},
+                ),
+                mock.patch.object(promote.render_ahead, "container_inspect", return_value={}),
+                mock.patch.object(
+                    promote.render_ahead,
+                    "runtime_environment",
+                    return_value={"DATABASE_URL": "postgres://standing"},
+                ),
+                mock.patch.object(promote, "run_logged", run_logged),
+            ]
+            for patch in patches:
+                patch.start()
+            try:
+                result = promote.apply_live_migrations(
+                    "candidate-image", root, root / "live-migration.log",
+                    [f"deepwell/migrations/{self.CANDIDATE[0]}"],
+                )
+            finally:
+                for patch in reversed(patches):
+                    patch.stop()
+        self.assertEqual(result["status"], "pass")
+        run_logged.assert_called_once()
+
+    def test_live_migration_runs_after_the_rehearsal_and_before_render_ahead(self) -> None:
+        source = inspect.getsource(promote.finish)
+        rehearsal = source.index("\n        rehearsal_stage()\n")
+        live = source.index('stages.run("live-migration", live_migration_stage)')
+        ahead = source.index('stages.run("render-ahead", render_stage)')
+        self.assertLess(rehearsal, live)
+        self.assertLess(live, ahead)
+        self.assertNotIn("ThreadPoolExecutor", source)
+
+
+
 if __name__ == "__main__":
     unittest.main()
 

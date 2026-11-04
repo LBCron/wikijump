@@ -4,18 +4,30 @@
 One command, in this order; each stage blocks the next and a failure leaves
 standing as it was (or restores it):
 
-1. identity     the checkout is clean and exactly the fetched origin/develop.
-2. build        the three application images, from BuildKit caches.
-3. render-ahead when the renderer generation changes, every saved page is
-                rendered with the new image while the old one keeps serving.
-4. rehearsal    when activation cannot be undone by restarting the old
-                containers (new migrations or a new renderer generation), the
-                new images start on a copy of standing's data and must pass
-                the same freshness, HTTP and browser checks first.
-5. activation   park the old containers, start the new ones, require health,
-                reload Caddy from the new Deepwell, zero stale saved pages,
-                the HTTP canary and the standing browser parity; restore the
-                parked containers (and reload Caddy from them) on any failure.
+1. identity       the checkout is clean and exactly the fetched
+                  origin/develop.
+2. build          the three application images, from BuildKit caches.
+3. rehearsal      when activation cannot be undone by restarting the old
+                  containers (new migrations or a new renderer generation),
+                  the new images start on a copy of standing's data and must
+                  pass the same freshness, HTTP and browser checks first.
+4. live-migration the candidate's pending Deepwell migrations are applied
+                  to the live database with the candidate image's own sqlx,
+                  while the previous release keeps serving. A migration in
+                  a promoted head therefore runs against the previous
+                  release, so it must be backward-compatible with it
+                  (expand first: add nullable columns or new tables; drop
+                  or rename only in a later promotion, once no serving
+                  code reads the old shape).
+5. render-ahead   when the renderer generation changes, every saved page
+                  is rendered with the new image while the old one keeps
+                  serving. It runs after live-migration because the new
+                  renderer reads the live database.
+6. activation     park the old containers, start the new ones, require
+                  health, reload Caddy from the new Deepwell, zero stale
+                  saved pages, the HTTP canary and the standing browser
+                  parity; restore the parked containers (and reload Caddy
+                  from them) on any failure.
 
 """
 
@@ -146,6 +158,116 @@ def rehearsal_reason(mode: str, migrations: list[str]) -> str | None:
     if mode == "always":
         return "requested"
     return None
+
+
+# Live migration
+
+
+SQLX_BINARY = "/usr/local/bin/sqlx"
+MIGRATIONS_IN_IMAGE = "/opt/deepwell/migrations"
+MIGRATION_FILENAME = re.compile(r"^([0-9]+)_.+\.sql$")
+
+
+def migration_version(filename: str) -> int:
+    match = MIGRATION_FILENAME.match(Path(filename).name)
+    if match is None:
+        raise ValueError(f"not a Deepwell migration filename: {filename}")
+    return int(match.group(1))
+
+
+def candidate_migration_files(source_root: Path) -> list[str]:
+    directory = source_root / "deepwell" / "migrations"
+    return sorted(path.name for path in directory.glob("*.sql"))
+
+
+def pending_migration_files(candidate: list[str], applied_versions: set[int]) -> list[str]:
+    """Candidate migrations the database has not recorded, in the order
+    sqlx applies them."""
+    return [
+        name for name in sorted(candidate) if migration_version(name) not in applied_versions
+    ]
+
+
+def applied_migration_versions(database: str = STANDING_DATABASE) -> set[int]:
+    present = psql(
+        database, "SELECT to_regclass('public._sqlx_migrations') IS NOT NULL;\n"
+    ).split()
+    if present != ["t"]:
+        return set()
+    rows = psql(
+        database, "SELECT version FROM _sqlx_migrations WHERE success ORDER BY version;\n"
+    )
+    return {int(value) for value in rows.split()}
+
+
+@contextlib.contextmanager
+def one_off_env_file(environment: dict[str, str]):
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", prefix="live-migration-env.", delete=False
+    ) as env_file:
+        os.chmod(env_file.name, 0o600)
+        for key, value in environment.items():
+            if "\n" in value:
+                raise ValueError(f"{key} is not a single-line environment value")
+            env_file.write(f"{key}={value}\n")
+    try:
+        yield Path(env_file.name)
+    finally:
+        os.unlink(env_file.name)
+
+
+def apply_live_migrations(
+    image: str,
+    source_root: Path,
+    log: Path,
+    changed_migrations: list[str] | tuple[str, ...] = (),
+    database: str = STANDING_DATABASE,
+    deepwell: str = STANDING_DEEPWELL,
+) -> dict[str, object]:
+    """Apply the candidate's pending migrations to the live database.
+
+    This is the mechanism activation's Deepwell uses, run early: a one-off
+    container from the candidate image runs its own
+    `sqlx migrate run --source /opt/deepwell/migrations`, which records
+    version and checksum in `_sqlx_migrations` and is a no-op when nothing
+    is pending. The container joins the serving Deepwell's network
+    namespace and copies its environment, so `DATABASE_URL` is standing's
+    own and no second credential path exists. It runs while the previous
+    release keeps serving, so the migrations it applies must be
+    backward-compatible with that release (see the module docstring).
+    A changed migration file with no pending version still runs sqlx, so a
+    checksum drift against an applied migration fails here instead of at
+    activation."""
+    candidate = candidate_migration_files(source_root)
+    pending = pending_migration_files(candidate, applied_migration_versions(database))
+    if not pending and not changed_migrations:
+        return {"status": "no-op", "pending": [], "applied": []}
+    inspected = render_ahead.container_inspect(deepwell)
+    environment = render_ahead.runtime_environment(inspected)
+    try:
+        with one_off_env_file(environment) as env_file:
+            run_logged(
+                [
+                    "docker", "run", "--rm",
+                    "--network", f"container:{deepwell}",
+                    "--env-file", str(env_file),
+                    "--entrypoint", SQLX_BINARY,
+                    image, "migrate", "run", "--source", MIGRATIONS_IN_IMAGE,
+                ],
+                log,
+                source_root,
+            )
+    except RuntimeError:
+        raise RuntimeError(
+            f"applying the candidate migrations to the standing database failed; see {log}"
+        ) from None
+    remaining = pending_migration_files(candidate, applied_migration_versions(database))
+    if remaining:
+        raise RuntimeError(
+            "the standing database is still missing migrations after the "
+            f"live-migration stage: {', '.join(remaining)}"
+        )
+    return {"status": "pass", "pending": pending, "applied": pending}
 
 
 def free_port() -> int:
@@ -1045,11 +1167,12 @@ def finish(
     args, source_root, runtime_home, override_file, identity, evidence,
     stages, plan, reference, built, rehearsal_volumes,
 ) -> int:
-    """Render ahead, rehearse, activate and prove, after the build."""
+    """Rehearse, migrate the live database, render ahead, activate and
+    prove, after the build."""
     target = identity["wikijump_sha"]
     images = {service: built["images"][service] for service in SERVICES}
 
-    # 4. render-ahead
+    # 4. render-ahead, after rehearsal and live-migration below
     render_ahead = {
         "status": "not-needed",
         "expected_compiled_generator": plan["expected_compiled_generator"],
@@ -1089,22 +1212,22 @@ def finish(
             target, images["deepwell"],
         )
 
-    # 5. rehearsal, alongside render-ahead when both are needed: neither reads
-    # the other's database, and the rehearsal holds its own copy of the text
-    # blocks render-ahead replaces.
-    if plan["render_ahead"] and plan["rehearse"]:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
-            ahead = pool.submit(stages.run, "render-ahead", render_stage)
-            rehearsal = pool.submit(rehearsal_stage)
-            errors = [future.exception() for future in (ahead, rehearsal)]
-        for error in errors:
-            if error is not None:
-                raise error
-        render_ahead = ahead.result()
-    elif plan["render_ahead"]:
-        render_ahead = stages.run("render-ahead", render_stage)
-    if plan["rehearse"] and not plan["render_ahead"]:
+    def live_migration_stage():
+        return apply_live_migrations(
+            images["deepwell"], source_root, evidence / "live-migration.log",
+            plan["migration_changes"],
+        )
+
+    # 5. rehearsal, then live-migration, then render-ahead. These no longer
+    # run alongside each other: render-ahead runs the new renderer against
+    # the live database, so that database must already carry the candidate's
+    # migrations, and applying them is only safe once the rehearsal has
+    # passed on a copy of standing's data.
+    if plan["rehearse"]:
         rehearsal_stage()
+    stages.run("live-migration", live_migration_stage)
+    if plan["render_ahead"]:
+        render_ahead = stages.run("render-ahead", render_stage)
 
     # 6. activation and standing proof
     activation = activate(

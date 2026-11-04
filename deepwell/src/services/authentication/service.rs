@@ -36,26 +36,44 @@ use std::net::IpAddr;
 #[derive(Debug)]
 pub struct AuthenticationService;
 
+const LOGIN_IP_MAX_ATTEMPTS: i64 = 30;
+const LOGIN_IP_WINDOW_SECONDS: i64 = 60;
+const LOGIN_ACCOUNT_IP_MAX_ATTEMPTS: i64 = 10;
+const LOGIN_ACCOUNT_IP_WINDOW_SECONDS: i64 = 600;
+const LOGIN_ACCOUNT_MAX_ATTEMPTS: i64 = 100;
+const LOGIN_ACCOUNT_WINDOW_SECONDS: i64 = 600;
+
 #[derive(Debug)]
 struct LoginAttemptBuckets {
     ip_bucket: String,
+    account_ip_bucket: Option<String>,
     account_bucket: Option<String>,
 }
 
 impl LoginAttemptBuckets {
     fn for_auth(auth: &UserAuthInfo, ip_address: &IpAddr) -> Self {
+        let ip_address = ip_address.to_string();
+
         LoginAttemptBuckets {
-            ip_bucket: AuthenticationAttemptService::login_ip_bucket(
-                &ip_address.to_string(),
-            ),
+            ip_bucket: AuthenticationAttemptService::login_ip_bucket(&ip_address),
+            account_ip_bucket: auth.valid.then(|| {
+                AuthenticationAttemptService::login_user_ip_bucket(
+                    auth.user_id,
+                    &ip_address,
+                )
+            }),
             account_bucket: auth
                 .valid
                 .then(|| AuthenticationAttemptService::login_user_bucket(auth.user_id)),
         }
     }
 
+    #[cfg(test)]
     fn all_buckets(&self) -> Vec<String> {
         let mut buckets = vec![self.ip_bucket.clone()];
+        if let Some(account_ip_bucket) = &self.account_ip_bucket {
+            buckets.push(account_ip_bucket.clone());
+        }
         if let Some(account_bucket) = &self.account_bucket {
             buckets.push(account_bucket.clone());
         }
@@ -63,20 +81,52 @@ impl LoginAttemptBuckets {
         buckets
     }
 
-    async fn reserve_account_bucket(&self, ctx: &ServiceContext<'_>) -> Result<bool> {
-        match &self.account_bucket {
-            Some(account_bucket) => {
-                AuthenticationAttemptService::reserve(ctx, account_bucket, 10, 600).await
+    async fn reserve_account_buckets(&self, ctx: &ServiceContext<'_>) -> Result<bool> {
+        if let Some(account_ip_bucket) = &self.account_ip_bucket {
+            let allowed = AuthenticationAttemptService::reserve(
+                ctx,
+                account_ip_bucket,
+                LOGIN_ACCOUNT_IP_MAX_ATTEMPTS,
+                LOGIN_ACCOUNT_IP_WINDOW_SECONDS,
+            )
+            .await?;
+            if !allowed {
+                return Ok(false);
             }
-            None => Ok(true),
         }
+
+        if let Some(account_bucket) = &self.account_bucket {
+            let allowed = AuthenticationAttemptService::reserve(
+                ctx,
+                account_bucket,
+                LOGIN_ACCOUNT_MAX_ATTEMPTS,
+                LOGIN_ACCOUNT_WINDOW_SECONDS,
+            )
+            .await?;
+            if !allowed {
+                return Ok(false);
+            }
+        }
+
+        Ok(true)
     }
 
-    async fn clear_after_verified_password(
+    async fn settle_after_verified_password(
         &self,
         ctx: &ServiceContext<'_>,
     ) -> Result<()> {
-        AuthenticationAttemptService::clear(ctx, &self.all_buckets()).await
+        if let Some(account_ip_bucket) = &self.account_ip_bucket {
+            AuthenticationAttemptService::clear(
+                ctx,
+                std::slice::from_ref(account_ip_bucket),
+            )
+            .await?;
+        }
+
+        if let Some(account_bucket) = &self.account_bucket {
+            AuthenticationAttemptService::release(ctx, account_bucket).await?;
+        }
+        AuthenticationAttemptService::release(ctx, &self.ip_bucket).await
     }
 }
 
@@ -101,13 +151,19 @@ impl AuthenticationService {
             .or_raise(make_error)?;
         let buckets = LoginAttemptBuckets::for_auth(&auth, &ip_address);
 
-        if !AuthenticationAttemptService::reserve(ctx, &buckets.ip_bucket, 30, 60).await?
+        if !AuthenticationAttemptService::reserve(
+            ctx,
+            &buckets.ip_bucket,
+            LOGIN_IP_MAX_ATTEMPTS,
+            LOGIN_IP_WINDOW_SECONDS,
+        )
+        .await?
         {
             ctx.commit_expected_authentication_rejection();
             bail!(make_error());
         }
 
-        if !buckets.reserve_account_bucket(ctx).await? {
+        if !buckets.reserve_account_buckets(ctx).await? {
             ctx.commit_expected_authentication_rejection();
             bail!(make_error());
         }
@@ -126,7 +182,7 @@ impl AuthenticationService {
             bail!(make_error());
         }
 
-        buckets.clear_after_verified_password(ctx).await?;
+        buckets.settle_after_verified_password(ctx).await?;
 
         Ok(AuthenticateUserOutput {
             needs_mfa: auth.multi_factor_secret.is_some(),
@@ -245,6 +301,7 @@ mod tests {
             buckets.all_buckets(),
             vec![
                 AuthenticationAttemptService::login_ip_bucket("127.0.0.1"),
+                AuthenticationAttemptService::login_user_ip_bucket(42, "127.0.0.1"),
                 AuthenticationAttemptService::login_user_bucket(42),
             ],
         );
@@ -254,6 +311,7 @@ mod tests {
             buckets.all_buckets(),
             vec![AuthenticationAttemptService::login_ip_bucket("127.0.0.1")],
         );
+        assert!(buckets.account_ip_bucket.is_none());
         assert!(buckets.account_bucket.is_none());
     }
 }

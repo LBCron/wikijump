@@ -198,6 +198,7 @@ impl MfaService {
                 .await
                 .or_raise(make_error)?
             {
+                ctx.commit_expected_authentication_rejection();
                 bail!(Error::new(
                     format!(
                         "cannot disable MFA for user '{}' (ID {}) because too many MFA attempts have been made",
@@ -211,7 +212,13 @@ impl MfaService {
                 Ok(totp) => Self::verify(ctx, user, totp).await,
                 Err(_) => Self::verify_recovery(ctx, user, totp_or_code).await,
             };
-            verification?;
+            if let Err(error) = verification {
+                if error.error_type == ErrorType::InvalidAuthentication {
+                    ctx.commit_expected_authentication_rejection();
+                }
+
+                return Err(error);
+            }
 
             AuthenticationAttemptService::clear(ctx, &[mfa_bucket])
                 .await

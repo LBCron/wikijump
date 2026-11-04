@@ -73,6 +73,24 @@ async fn rpc_request(method: &str, params: Value) -> Value {
     response
 }
 
+async fn authentication_bucket_attempts(
+    database: &sea_orm::DatabaseConnection,
+    bucket_key: &str,
+) -> Option<i64> {
+    let row = database
+        .query_one_raw(Statement::from_sql_and_values(
+            database.get_database_backend(),
+            "SELECT attempts FROM authentication_attempt WHERE bucket_key = $1",
+            [SqlValue::from(bucket_key.to_owned())],
+        ))
+        .await
+        .expect("authentication attempt query should succeed");
+    row.map(|row| {
+        row.try_get("", "attempts")
+            .expect("attempt count should be an integer")
+    })
+}
+
 async fn local_authoring_request(
     client: &reqwest::Client,
     address: SocketAddr,
@@ -664,8 +682,11 @@ async fn production_rpc_stack_commits_password_failure_buckets() {
     }
 
     let login_ip_bucket = AuthenticationAttemptService::login_ip_bucket(ip_address);
+    let login_pair_bucket =
+        AuthenticationAttemptService::login_user_ip_bucket(user_id, ip_address);
     for (bucket_key, expected) in [
         (format!("login:user:{user_id}"), 2_i64),
+        (login_pair_bucket.clone(), 2_i64),
         (login_ip_bucket.clone(), 2_i64),
     ] {
         let row = state
@@ -698,22 +719,23 @@ async fn production_rpc_stack_commits_password_failure_buckets() {
         successful_login["result"]["session_token"].is_string(),
         "a valid password should log in and clear prior failure buckets: {successful_login}",
     );
+    assert_eq!(
+        authentication_bucket_attempts(&state.database, &login_pair_bucket).await,
+        None,
+        "successful login should clear its own (account, IP) bucket",
+    );
     for bucket_key in [format!("login:user:{user_id}"), login_ip_bucket.clone()] {
-        let row = state
-            .database
-            .query_one_raw(Statement::from_sql_and_values(
-                state.database.get_database_backend(),
-                "SELECT attempts FROM authentication_attempt WHERE bucket_key = $1",
-                [SqlValue::from(bucket_key.clone())],
-            ))
-            .await
-            .expect("cleared authentication attempt query should succeed");
-        assert!(row.is_none(), "successful login should clear {bucket_key}");
+        assert_eq!(
+            authentication_bucket_attempts(&state.database, &bucket_key).await,
+            Some(2),
+            "successful login must only release its own reservation from the \
+             shared bucket {bucket_key}, leaving the failure count intact",
+        );
     }
 
     for statement in [
         format!(
-            "DELETE FROM authentication_attempt WHERE bucket_key IN ('login:user:{user_id}', '{login_ip_bucket}')"
+            "DELETE FROM authentication_attempt WHERE bucket_key IN ('login:user:{user_id}', '{login_pair_bucket}', '{login_ip_bucket}')"
         ),
         format!("DELETE FROM session WHERE user_id = {user_id}"),
         format!("DELETE FROM \"user\" WHERE user_id = {user_id}"),
@@ -721,6 +743,431 @@ async fn production_rpc_stack_commits_password_failure_buckets() {
     ] {
         state.database.execute_unprepared(&statement).await.ok();
     }
+}
+
+#[tokio::test]
+async fn production_rpc_login_lockout_is_scoped_to_the_source_ip() {
+    let state = build_server_state_without_workers(
+        Config::integration_testing(),
+        Secrets::load(),
+    )
+    .await
+    .expect("Unable to set up server state");
+    let suffix = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("system clock should be after the Unix epoch")
+        .as_nanos();
+    let name = format!("Rpc Boundary Lockout {suffix}");
+    let password = "rpc-boundary-lockout-password";
+    let attacker_ip = "203.0.113.9";
+    let owner_ip = "192.0.2.77";
+
+    let created = rpc_request(
+        "user_create",
+        json!({
+            "user_type": "regular",
+            "name": name,
+            "email": format!("rpc-boundary-lockout-{suffix}@example.com"),
+            "locales": ["en"],
+            "password": password,
+            "ip_address": attacker_ip,
+        }),
+    )
+    .await;
+    let user_id = created["result"]["user_id"]
+        .as_i64()
+        .unwrap_or_else(|| panic!("user_create should return a user id: {created}"));
+
+    for _ in 0..11 {
+        let rejected = rpc_request(
+            "login",
+            json!({
+                "name_or_email": name,
+                "password": "wrong-rpc-boundary-lockout-password",
+                "ip_address": attacker_ip,
+                "user_agent": "rpc-boundary-lockout-attacker",
+            }),
+        )
+        .await;
+        assert_eq!(
+            rejected["error"]["code"].as_i64(),
+            Some(i64::from(ErrorType::InvalidAuthentication.code())),
+            "bad password should be rejected: {rejected}",
+        );
+    }
+
+    let pair_bucket =
+        AuthenticationAttemptService::login_user_ip_bucket(user_id, attacker_ip);
+    assert_eq!(
+        authentication_bucket_attempts(&state.database, &pair_bucket).await,
+        Some(11),
+        "the (account, IP) bucket should saturate from the attacking source",
+    );
+    assert_eq!(
+        authentication_bucket_attempts(
+            &state.database,
+            &format!("login:user:{user_id}"),
+        )
+        .await,
+        Some(10),
+        "the account-global bucket should only count attempts that passed the pair reserve",
+    );
+
+    let refused = rpc_request(
+        "login",
+        json!({
+            "name_or_email": name,
+            "password": password,
+            "ip_address": attacker_ip,
+            "user_agent": "rpc-boundary-lockout-owner-same-ip",
+        }),
+    )
+    .await;
+    assert_eq!(
+        refused["error"]["code"].as_i64(),
+        Some(i64::from(ErrorType::InvalidAuthentication.code())),
+        "the strict lockout must still refuse even the correct password from the saturated source: {refused}",
+    );
+
+    let login = rpc_request(
+        "login",
+        json!({
+            "name_or_email": name,
+            "password": password,
+            "ip_address": owner_ip,
+            "user_agent": "rpc-boundary-lockout-owner",
+        }),
+    )
+    .await;
+    assert!(
+        login["result"]["session_token"].is_string(),
+        "a lockout earned from one source IP must not refuse the owner logging in from another IP: {login}",
+    );
+    assert_eq!(
+        authentication_bucket_attempts(
+            &state.database,
+            &format!("login:user:{user_id}"),
+        )
+        .await,
+        Some(10),
+        "the owner's success must not erase failures recorded against the account-global bucket",
+    );
+
+    let attacker_ip_bucket = AuthenticationAttemptService::login_ip_bucket(attacker_ip);
+    let owner_ip_bucket = AuthenticationAttemptService::login_ip_bucket(owner_ip);
+    for statement in [
+        format!(
+            "DELETE FROM authentication_attempt WHERE bucket_key LIKE 'login:user:{user_id}%' OR bucket_key IN ('{attacker_ip_bucket}', '{owner_ip_bucket}')"
+        ),
+        format!("DELETE FROM session WHERE user_id = {user_id}"),
+        format!("DELETE FROM \"user\" WHERE user_id = {user_id}"),
+        format!("DELETE FROM known_user WHERE user_id = {user_id}"),
+    ] {
+        state.database.execute_unprepared(&statement).await.ok();
+    }
+}
+
+#[tokio::test]
+async fn production_rpc_successful_login_keeps_shared_ip_bucket() {
+    let state = build_server_state_without_workers(
+        Config::integration_testing(),
+        Secrets::load(),
+    )
+    .await
+    .expect("Unable to set up server state");
+    let suffix = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("system clock should be after the Unix epoch")
+        .as_nanos();
+    let ip_address = "198.51.100.23";
+    let own_password = "rpc-boundary-spray-own-password";
+
+    let mut user_ids = Vec::new();
+    let create_user = |label: &str, user_password: &str| {
+        let name = format!("Rpc Boundary Spray {label} {suffix}");
+        let email = format!("rpc-boundary-spray-{label}-{suffix}@example.com");
+        let password = user_password.to_owned();
+        async move {
+            let created = rpc_request(
+                "user_create",
+                json!({
+                    "user_type": "regular",
+                    "name": name,
+                    "email": email,
+                    "locales": ["en"],
+                    "password": password,
+                    "ip_address": ip_address,
+                }),
+            )
+            .await;
+            let user_id = created["result"]["user_id"].as_i64().unwrap_or_else(|| {
+                panic!("user_create should return a user id: {created}")
+            });
+            (name, user_id)
+        }
+    };
+
+    let mut target_names = Vec::new();
+    for label in ["one", "two", "three"] {
+        let (target_name, target_id) =
+            create_user(label, "rpc-boundary-spray-target-password").await;
+        target_names.push(target_name);
+        user_ids.push(target_id);
+    }
+    let (own_name, own_id) = create_user("own", own_password).await;
+    user_ids.push(own_id);
+
+    for target_name in &target_names {
+        for _ in 0..4 {
+            let rejected = rpc_request(
+                "login",
+                json!({
+                    "name_or_email": target_name,
+                    "password": "wrong-rpc-boundary-spray-password",
+                    "ip_address": ip_address,
+                    "user_agent": "rpc-boundary-spray",
+                }),
+            )
+            .await;
+            assert_eq!(
+                rejected["error"]["code"].as_i64(),
+                Some(i64::from(ErrorType::InvalidAuthentication.code())),
+                "bad password should be rejected: {rejected}",
+            );
+        }
+    }
+
+    let ip_bucket = AuthenticationAttemptService::login_ip_bucket(ip_address);
+    assert_eq!(
+        authentication_bucket_attempts(&state.database, &ip_bucket).await,
+        Some(12),
+        "failures spread across accounts should accumulate in the shared IP bucket",
+    );
+
+    let login = rpc_request(
+        "login",
+        json!({
+            "name_or_email": own_name,
+            "password": own_password,
+            "ip_address": ip_address,
+            "user_agent": "rpc-boundary-spray-own",
+        }),
+    )
+    .await;
+    assert!(
+        login["result"]["session_token"].is_string(),
+        "the attacker's own login should succeed: {login}",
+    );
+    assert_eq!(
+        authentication_bucket_attempts(&state.database, &ip_bucket).await,
+        Some(12),
+        "one successful login must not clear the shared IP bucket that other accounts' failures filled",
+    );
+
+    for user_id in user_ids {
+        for statement in [
+            format!(
+                "DELETE FROM authentication_attempt WHERE bucket_key LIKE 'login:user:{user_id}%'"
+            ),
+            format!("DELETE FROM session WHERE user_id = {user_id}"),
+            format!("DELETE FROM \"user\" WHERE user_id = {user_id}"),
+            format!("DELETE FROM known_user WHERE user_id = {user_id}"),
+        ] {
+            state.database.execute_unprepared(&statement).await.ok();
+        }
+    }
+    state
+        .database
+        .execute_unprepared(&format!(
+            "DELETE FROM authentication_attempt WHERE bucket_key = '{ip_bucket}'"
+        ))
+        .await
+        .ok();
+}
+
+#[tokio::test]
+async fn production_rpc_mfa_disable_attempts_persist_and_lock_out() {
+    let state = build_server_state_without_workers(
+        Config::integration_testing(),
+        Secrets::load(),
+    )
+    .await
+    .expect("Unable to set up server state");
+    let suffix = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("system clock should be after the Unix epoch")
+        .as_nanos();
+    let ip_address = "192.0.2.14";
+    let password = "rpc-boundary-mfa-disable-password";
+
+    let valid_code = |secret: &str| -> String {
+        let secret_bytes = BASE32_NOPAD
+            .decode(secret.as_bytes())
+            .expect("generated TOTP secret should be valid base32");
+        let totp = TOTP::builder()
+            .secret(secret_bytes)
+            .algorithm(TotpAlgorithm::SHA256)
+            .digits(state.config.totp_digits)
+            .time_step(state.config.totp_time_step)
+            .build()
+            .expect("TOTP builder should accept Deepwell configuration");
+        let timestamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock should be after the Unix epoch")
+            .as_secs()
+            .checked_add_signed(state.config.totp_time_skew)
+            .expect("configured TOTP time offset should produce a valid timestamp");
+        totp.generate_at(timestamp).to_string()
+    };
+    let wrong_code = |secret: &str| -> String {
+        let modulus = 10_u32.pow(state.config.totp_digits);
+        (valid_code(secret)
+            .parse::<u32>()
+            .expect("TOTP code should be numeric")
+            + 1)
+        .checked_rem(modulus)
+        .expect("TOTP modulus should be nonzero")
+        .to_string()
+    };
+
+    let setup_user = |label: &str| {
+        let name = format!("Rpc Boundary Mfa Disable {label} {suffix}");
+        let email = format!("rpc-boundary-mfa-disable-{label}-{suffix}@example.com");
+        async move {
+            let created = rpc_request(
+                "user_create",
+                json!({
+                    "user_type": "regular",
+                    "name": name,
+                    "email": email,
+                    "locales": ["en"],
+                    "password": password,
+                    "ip_address": ip_address,
+                }),
+            )
+            .await;
+            let user_id = created["result"]["user_id"].as_i64().unwrap_or_else(|| {
+                panic!("user_create should return a user id: {created}")
+            });
+
+            let login = rpc_request(
+                "login",
+                json!({
+                    "name_or_email": name,
+                    "password": password,
+                    "ip_address": ip_address,
+                    "user_agent": "rpc-boundary-mfa-disable",
+                }),
+            )
+            .await;
+            let session_token = login["result"]["session_token"]
+                .as_str()
+                .unwrap_or_else(|| panic!("login should return a session token: {login}"))
+                .to_owned();
+
+            let setup = rpc_request(
+                "mfa_setup",
+                json!({
+                    "user_id": user_id,
+                    "session_token": session_token,
+                    "ip_address": ip_address,
+                }),
+            )
+            .await;
+            let secret = setup["result"]["totp_secret"]
+                .as_str()
+                .unwrap_or_else(|| {
+                    panic!("mfa_setup should return a TOTP secret: {setup}")
+                })
+                .to_owned();
+
+            (user_id, session_token, secret)
+        }
+    };
+
+    let disable = |user_id: i64, session_token: String, code: String| async move {
+        rpc_request(
+            "mfa_disable",
+            json!({
+                "user_id": user_id,
+                "session_token": session_token,
+                "ip_address": ip_address,
+                "password": password,
+                "totp_or_code": code,
+            }),
+        )
+        .await
+    };
+
+    let (user_id, session_token, secret) = setup_user("first").await;
+    let mfa_bucket = format!("mfa:user:{user_id}");
+    for _ in 0..3 {
+        let rejected = disable(user_id, session_token.clone(), wrong_code(&secret)).await;
+        assert!(
+            rejected.get("error").is_some(),
+            "a wrong second factor must reject the disable: {rejected}",
+        );
+    }
+    assert_eq!(
+        authentication_bucket_attempts(&state.database, &mfa_bucket).await,
+        Some(3),
+        "failed mfa_disable attempts must persist their throttle reservation",
+    );
+
+    let disabled = disable(user_id, session_token.clone(), valid_code(&secret)).await;
+    assert!(
+        disabled.get("error").is_none(),
+        "a correct disable before the cap should succeed: {disabled}",
+    );
+    assert_eq!(
+        authentication_bucket_attempts(&state.database, &mfa_bucket).await,
+        None,
+        "a successful disable should clear the MFA bucket",
+    );
+
+    let (user_id_2, session_token_2, secret_2) = setup_user("second").await;
+    let mfa_bucket_2 = format!("mfa:user:{user_id_2}");
+    for _ in 0..5 {
+        let rejected =
+            disable(user_id_2, session_token_2.clone(), wrong_code(&secret_2)).await;
+        assert!(
+            rejected.get("error").is_some(),
+            "a wrong second factor must reject the disable: {rejected}",
+        );
+    }
+    assert_eq!(
+        authentication_bucket_attempts(&state.database, &mfa_bucket_2).await,
+        Some(5),
+        "failed mfa_disable attempts should accumulate to the cap",
+    );
+
+    let refused =
+        disable(user_id_2, session_token_2.clone(), valid_code(&secret_2)).await;
+    assert!(
+        refused.get("error").is_some(),
+        "once the MFA bucket is saturated, even a correct disable must be refused: {refused}",
+    );
+
+    let ip_bucket = AuthenticationAttemptService::login_ip_bucket(ip_address);
+    for user_id in [user_id, user_id_2] {
+        for statement in [
+            format!(
+                "DELETE FROM authentication_attempt WHERE bucket_key LIKE 'login:user:{user_id}%' OR bucket_key = 'mfa:user:{user_id}'"
+            ),
+            format!("DELETE FROM session WHERE user_id = {user_id}"),
+            format!("DELETE FROM \"user\" WHERE user_id = {user_id}"),
+            format!("DELETE FROM known_user WHERE user_id = {user_id}"),
+        ] {
+            state.database.execute_unprepared(&statement).await.ok();
+        }
+    }
+    state
+        .database
+        .execute_unprepared(&format!(
+            "DELETE FROM authentication_attempt WHERE bucket_key = '{ip_bucket}'"
+        ))
+        .await
+        .ok();
 }
 
 #[tokio::test]

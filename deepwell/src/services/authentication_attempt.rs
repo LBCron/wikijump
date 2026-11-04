@@ -96,6 +96,35 @@ RETURNING attempts
         Ok(())
     }
 
+    pub async fn release(ctx: &ServiceContext<'_>, bucket_key: &str) -> Result<()> {
+        let transaction = ctx.transaction();
+        let delete = Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "DELETE FROM authentication_attempt WHERE bucket_key = $1 AND attempts = 1",
+            [Value::from(bucket_key.to_owned())],
+        );
+        transaction.execute_raw(delete).await.or_raise(|| {
+            Error::new(
+                "failed to release authentication attempt counter",
+                ErrorType::DatabaseQuery,
+            )
+        })?;
+
+        let decrement = Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "UPDATE authentication_attempt SET attempts = attempts - 1 WHERE bucket_key = $1 AND attempts > 1",
+            [Value::from(bucket_key.to_owned())],
+        );
+        transaction.execute_raw(decrement).await.or_raise(|| {
+            Error::new(
+                "failed to release authentication attempt counter",
+                ErrorType::DatabaseQuery,
+            )
+        })?;
+
+        Ok(())
+    }
+
     pub fn login_ip_bucket(ip_address: &str) -> String {
         format!(
             "login:ip:{}",
@@ -105,6 +134,13 @@ RETURNING attempts
 
     pub fn login_user_bucket(user_id: i64) -> String {
         format!("login:user:{user_id}")
+    }
+
+    pub fn login_user_ip_bucket(user_id: i64, ip_address: &str) -> String {
+        format!(
+            "login:user:{user_id}:ip:{}",
+            hex::encode(Sha256::digest(ip_address.as_bytes()))
+        )
     }
 
     pub fn mfa_user_bucket(user_id: i64) -> String {

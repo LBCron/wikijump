@@ -95,7 +95,7 @@ test("SEC-02: a valid session token is used as-is, other errors are not retried"
   client.request = async (method: string, params: any) => {
     calls.push([method, params])
     if (params.session_token === "valid-token") return { resolvedSession: "valid-token" }
-    throw { code: 5000, message: "unrelated failure" }
+    throw Object.assign(new Error("unrelated failure"), { code: 5000 })
   }
 
   const result = await views.articleView(17, ["en"], null, "valid-token")

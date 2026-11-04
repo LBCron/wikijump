@@ -162,14 +162,19 @@ class MediaQueryHandler {
     const curIdx = this.breakpoints.get(current)
     const brkIdx = this.breakpoints.get(breakpoint)
 
-    // prettier-ignore
     switch (operator) {
-      case "==": return curIdx === brkIdx
-      case ">":  return curIdx >   brkIdx
-      case "<":  return curIdx <   brkIdx
-      case ">=": return curIdx >=  brkIdx
-      case "<=": return curIdx <=  brkIdx
-      default: throw new Error(`Query (${query}) was somehow impossible to evaluate!`)
+      case "==":
+        return curIdx === brkIdx
+      case ">":
+        return curIdx > brkIdx
+      case "<":
+        return curIdx < brkIdx
+      case ">=":
+        return curIdx >= brkIdx
+      case "<=":
+        return curIdx <= brkIdx
+      default:
+        throw new Error(`Query (${query}) was somehow impossible to evaluate!`)
     }
   }
 }

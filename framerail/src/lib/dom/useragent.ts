@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-namespace */
-
+/* eslint-disable-next-line @typescript-eslint/no-namespace */
 export namespace UserAgent {
   export let mouseX = 0
   export let mouseY = 0

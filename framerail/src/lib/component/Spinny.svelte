@@ -50,19 +50,33 @@
   )
 
   $effect(() => {
-    // prettier-ignore
     switch (status) {
-      case "active":  label = t("spinny-label.active")  ?? t("message-loading") ?? "" ; break
-      case "error":   label = t("spinny-label.error")   ?? t("message-loading") ?? "" ; break
-      case "success": label = t("spinny-label.success") ?? t("message-loading") ?? "" ; break
-      case "warning": label = t("spinny-label.warning") ?? t("message-loading") ?? "" ; break
+      case "active":
+        label = t("spinny-label.active") ?? t("message-loading") ?? ""
+        break
+      case "error":
+        label = t("spinny-label.error") ?? t("message-loading") ?? ""
+        break
+      case "success":
+        label = t("spinny-label.success") ?? t("message-loading") ?? ""
+        break
+      case "warning":
+        label = t("spinny-label.warning") ?? t("message-loading") ?? ""
+        break
     }
-    // prettier-ignore
     switch (status) {
-      case "active":  icon = ""                              ; break
-      case "error":   icon = "fa-solid:exclamation-circle"   ; break
-      case "success": icon = "fa-solid:check"                ; break
-      case "warning": icon = "fa-solid:exclamation-triangle" ; break
+      case "active":
+        icon = ""
+        break
+      case "error":
+        icon = "fa-solid:exclamation-circle"
+        break
+      case "success":
+        icon = "fa-solid:check"
+        break
+      case "warning":
+        icon = "fa-solid:exclamation-triangle"
+        break
     }
   })
 </script>
@@ -226,27 +240,39 @@
     }
   }
 
-  // prettier-ignore
   @keyframes skeleton-fade-in {
-    0%   { opacity: 0; }
-    100% { opacity: 1; }
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 
-  // prettier-ignore
   @keyframes spinny-block-rotate {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
-  // prettier-ignore
   @keyframes spinny-block-dash {
-    0%   { stroke-dasharray: 10, 90; }
-    100% { stroke-dasharray: 60, 90; }
+    0% {
+      stroke-dasharray: 10, 90;
+    }
+    100% {
+      stroke-dasharray: 60, 90;
+    }
   }
 
-  // prettier-ignore
   @keyframes spinny-inline-rotate {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 </style>

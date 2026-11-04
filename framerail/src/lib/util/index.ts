@@ -65,8 +65,7 @@ export function removeUndefined<T>(obj: T) {
 }
 
 export function escapeRegExp(str: string) {
-  // eslint-disable-next-line no-useless-escape
-  return str.replace(/[.*+?^${}()|\[\]\\]/g, "\\$&")
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
 export function hasSigil<T extends string = string>(

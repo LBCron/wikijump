@@ -87,14 +87,17 @@
     <!-- special case: input is a password type -->
     <!-- when this happens, we'll turn the icon into a "show password" button -->
     {#if input?.type === "password"}
-      <!-- prettier-ignore -->
       <span
         class="textinput-icon is-password"
         aria-hidden="true"
         use:tip={t("hold-to-show-password")}
         use:whileHeld={{
-          pressed: () => { if (input) input.type = "text" },
-          released: () => { if (input) input.type = "password" }
+          pressed: () => {
+            if (input) input.type = "text"
+          },
+          released: () => {
+            if (input) input.type = "password"
+          }
         }}
       >
         <Icon i={icon} size="1.25em" />

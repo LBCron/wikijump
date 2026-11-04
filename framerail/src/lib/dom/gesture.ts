@@ -21,9 +21,10 @@ export class Gesture {
   declare type: GestureType
 
   constructor(start: Point, end: Point, type: GestureType = "move") {
-    // prettier-ignore
-    const x1 = start[0], y1 = start[1],
-          x2 = end[0],   y2 = end[1]
+    const x1 = start[0],
+      y1 = start[1],
+      x2 = end[0],
+      y2 = end[1]
 
     const diff: Point = [y1 - y2, x1 - x2]
     const diffAbs: Point = [Math.abs(diff[0]), Math.abs(diff[1])]
@@ -47,9 +48,10 @@ export class Gesture {
   }
 
   get angle() {
-    // prettier-ignore
-    const x1 = this.start[0], y1 = this.start[1],
-          x2 = this.end[0],   y2 = this.end[1]
+    const x1 = this.start[0],
+      y1 = this.start[1],
+      x2 = this.end[0],
+      y2 = this.end[1]
     return (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI
   }
 
@@ -143,13 +145,21 @@ export class GestureObserver {
     } else return
 
     let type: GestureType
-    // prettier-ignore
     switch (evt.type) {
-      case 'touchstart':  type = 'start';  break
-      case 'touchmove':   type = 'move';   break
-      case 'touchend':    type = 'end';    break
-      case 'touchcancel': type = 'cancel'; break
-      default: throw new Error(`Unknown event type: ${evt.type}`)
+      case "touchstart":
+        type = "start"
+        break
+      case "touchmove":
+        type = "move"
+        break
+      case "touchend":
+        type = "end"
+        break
+      case "touchcancel":
+        type = "cancel"
+        break
+      default:
+        throw new Error(`Unknown event type: ${evt.type}`)
     }
 
     const gesture = new Gesture(this.start!, [touch.clientX, touch.clientY], type)

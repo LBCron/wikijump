@@ -17,10 +17,13 @@
   let viewBox = $state("")
 
   $effect(() => {
-    // prettier-ignore
     switch (i) {
-      case "wj-karma": viewBox = "0 0 64 114" ; break;
-      default:         viewBox = "0 0 24 24"  ; break;
+      case "wj-karma":
+        viewBox = "0 0 64 114"
+        break
+      default:
+        viewBox = "0 0 24 24"
+        break
     }
   })
 </script>

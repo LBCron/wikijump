@@ -29,11 +29,13 @@ export function scrollsHorizontally(element: HTMLElement) {
 }
 
 export function scrolls(element: HTMLElement, dir: ScrollDirection = "both") {
-  // prettier-ignore
   switch (dir) {
-    case "both":       return scrollsVertically(element) || scrollsHorizontally(element)
-    case "vertical":   return scrollsVertically(element)
-    case "horizontal": return scrollsHorizontally(element)
+    case "both":
+      return scrollsVertically(element) || scrollsHorizontally(element)
+    case "vertical":
+      return scrollsVertically(element)
+    case "horizontal":
+      return scrollsHorizontally(element)
   }
 }
 

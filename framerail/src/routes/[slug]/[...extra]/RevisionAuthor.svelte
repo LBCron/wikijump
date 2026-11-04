@@ -9,9 +9,8 @@
 </script>
 
 {#if author}
-  <!-- eslint-disable svelte/no-navigation-without-resolve -- absolute profile URL from user data -->
-  <span class="printuser"
-    ><a href={author["user-profile-url"]}>{author["user-name"]}</a></span
-  >
-  <!-- eslint-enable svelte/no-navigation-without-resolve -->
+  <span class="printuser">
+    <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- absolute profile URL from user data -->
+    <a href={author["user-profile-url"]}>{author["user-name"]}</a>
+  </span>
 {/if}

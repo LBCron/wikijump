@@ -9,7 +9,7 @@ import {
   parseSiteFileReference,
   resolveExternalThemeHref,
   siteFilePresenceKey
-} from "../src/lib/site-settings.js"
+} from "../src/lib/site-settings.ts"
 
 const SITE = { slug: "scp-wiki", from_wikidot: true }
 const FILES = "scp-wiki.wjfiles.localhost"

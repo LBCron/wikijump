@@ -9,7 +9,7 @@ import {
   wikidotDataFormFieldNames,
   wikidotDataFormPagepathSelectorClass,
   wikidotDataFormUrlDisplay
-} from "../src/lib/wikidot/wikidot-data-form.js"
+} from "../src/lib/wikidot/wikidot-data-form.ts"
 
 const field = (name, fieldType, configuredValue = null) => ({
   name,

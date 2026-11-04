@@ -5,7 +5,7 @@ import {
   WikidotEditLeaseSession,
   classifyEditLeaseSaveError,
   createEditLeaseTransport
-} from "../src/lib/wikidot/wikidot-edit-lease.js"
+} from "../src/lib/wikidot/wikidot-edit-lease.ts"
 
 const grantOutput = (overrides = {}) => ({
   grant: {

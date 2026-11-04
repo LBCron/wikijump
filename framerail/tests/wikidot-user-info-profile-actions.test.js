@@ -6,7 +6,7 @@ import { after, before, test } from "node:test"
 import { createTestViteServer } from "./vite-test-server.js"
 
 import { loadWikidotUserInfo } from "../src/lib/server/wikidot-user-info.js"
-import { showUserProfileActionAuthenticationGuard } from "../src/lib/user-profile-action-auth-guard.js"
+import { showUserProfileActionAuthenticationGuard } from "../src/lib/user-profile-action-auth-guard.ts"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 

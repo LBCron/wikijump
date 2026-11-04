@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { installWikidotCategories } from "../src/lib/wikidot/wikidot-categories.js"
+import { installWikidotCategories } from "../src/lib/wikidot/wikidot-categories.ts"
 
 test("Wikidot Categories loads once then toggles the retained page list locally", async () => {
   const elements = new Map([

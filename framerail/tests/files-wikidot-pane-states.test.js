@@ -9,7 +9,7 @@ import { after, before, test } from "node:test"
 
 import { createTestViteServer } from "./vite-test-server.js"
 
-import { wikidotFileSize } from "../src/lib/wikidot-file-contract.js"
+import { wikidotFileSize } from "../src/lib/wikidot-file-contract.ts"
 
 /** @param {any} value */
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")

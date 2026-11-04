@@ -6,7 +6,7 @@ import {
   WIKIDOT_USER_INFO_MISSING,
   loadWikidotUserInfo
 } from "../src/lib/server/wikidot-user-info.js"
-import { showUserProfileActionAuthenticationGuard } from "../src/lib/user-profile-action-auth-guard.js"
+import { showUserProfileActionAuthenticationGuard } from "../src/lib/user-profile-action-auth-guard.ts"
 
 /**
  * @typedef {{

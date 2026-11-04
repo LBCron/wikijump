@@ -9,7 +9,7 @@ import {
   normalizePlatformFooterDestination,
   readNativeFooterDestinationOverrides,
   resolveNativeFooterLinks
-} from "../src/lib/platform-footer-links.js"
+} from "../src/lib/platform-footer-links.ts"
 
 const KEYS_AND_DEFAULT_HREFS = [
   ["terms-conditions", "https://wikijump.com/legal:terms-of-service"],

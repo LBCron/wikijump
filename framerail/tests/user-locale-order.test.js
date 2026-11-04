@@ -5,7 +5,7 @@ import {
   addLocalePreference,
   moveLocalePreference,
   removeLocalePreference
-} from "../src/lib/user-locale-order.js"
+} from "../src/lib/user-locale-order.ts"
 
 test("display language ordering preserves primary and fallback positions", () => {
   assert.deepEqual(moveLocalePreference(["ja", "en", "ko"], "ko", -1), ["ja", "ko", "en"])

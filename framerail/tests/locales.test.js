@@ -5,7 +5,7 @@ import {
   limitLocalePreferences,
   MAX_LOCALE_LENGTH,
   MAX_LOCALE_PREFERENCES
-} from "../src/lib/locales.js"
+} from "../src/lib/locales.ts"
 
 describe("limitLocalePreferences", () => {
   it("deduplicates and caps user locale lists", () => {

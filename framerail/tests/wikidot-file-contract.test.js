@@ -11,7 +11,7 @@ import {
   wikidotFileUploadDate,
   wikidotRenameDeniedPopup,
   wikidotUploadDeniedPopup
-} from "../src/lib/wikidot-file-contract.js"
+} from "../src/lib/wikidot-file-contract.ts"
 
 test("file sizes match the frozen Wikidot strings", () => {
   assert.equal(wikidotFileSize(204126), "199.34 kB")

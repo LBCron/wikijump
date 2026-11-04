@@ -4,7 +4,7 @@ import test from "node:test"
 import {
   buildWikidotDataFormState,
   serializeWikidotDataFormSource
-} from "../src/lib/wikidot/wikidot-data-form.js"
+} from "../src/lib/wikidot/wikidot-data-form.ts"
 
 const definition = {
   default_layout: true,

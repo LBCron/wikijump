@@ -5,7 +5,7 @@ import {
   MAX_LOCALE_PREFERENCES,
   parseAcceptLangHeader,
   withFallbackLocale
-} from "../src/lib/locales.js"
+} from "../src/lib/locales.ts"
 import { buildPageLoadData } from "../src/lib/server/load/page-data.js"
 
 const requestWithAcceptLanguage = (value) => {

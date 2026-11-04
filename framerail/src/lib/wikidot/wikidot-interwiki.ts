@@ -14,8 +14,8 @@ query InterwikiQuery($url: URL!) {
 }
 `
 
-import { installWikidotInterwikiStyleRuntime } from "./wikidot-interwiki-style-runtime.js"
-import { localizeWikidotThemeUrl } from "./wikidot-styleframe-contract.js"
+import { installWikidotInterwikiStyleRuntime } from "./wikidot-interwiki-style-runtime.ts"
+import { localizeWikidotThemeUrl } from "./wikidot-styleframe-contract.ts"
 
 const DEFAULT_ICON_URL = "//scp-wiki.wdfiles.com/local--files/nav:side/default.png"
 const WIKIDOT_BASE_STYLESHEET = "/wikidot/styles/wikidot-base-165bc434fd1d.css"

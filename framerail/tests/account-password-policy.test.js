@@ -5,7 +5,7 @@ import test from "node:test"
 import {
   ACCOUNT_PASSWORD_MIN_CODE_POINTS,
   accountPasswordMeetsMinimum
-} from "../src/lib/account-password-policy.js"
+} from "../src/lib/account-password-policy.ts"
 
 test("account passwords require fifteen Unicode code points", () => {
   assert.equal(ACCOUNT_PASSWORD_MIN_CODE_POINTS, 15)

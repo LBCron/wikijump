@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url"
 import {
   normalizeThemeSetting,
   resolveThemePreviewUrl
-} from "../src/lib/site-settings.js"
+} from "../src/lib/site-settings.ts"
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const layoutSource = fs.readFileSync(path.join(root, "src/routes/+layout.svelte"), "utf8")

@@ -6,7 +6,7 @@ import {
   buildWikidotSectionEditSource,
   findWikidotEditSections,
   toggleWikidotEditSections
-} from "../src/lib/wikidot/wikidot-edit-sections.js"
+} from "../src/lib/wikidot/wikidot-edit-sections.ts"
 
 /** @param {any} level @param {any} index @returns {any} */
 const heading = (level, index) => ({ id: `toc${index}`, tagName: `H${level}` })

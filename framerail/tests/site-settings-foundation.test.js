@@ -13,7 +13,7 @@ import {
   normalizeThemeSetting,
   resolveExternalThemeHref,
   resolveThemePreviewUrl
-} from "../src/lib/site-settings.js"
+} from "../src/lib/site-settings.ts"
 
 describe("Wikidot site settings foundation", () => {
   it("uses the captured Wiki Settings language values in source order", () => {

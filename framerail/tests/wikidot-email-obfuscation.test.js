@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { decodeWikidotEmailObfuscation } from "../src/lib/wikidot/wikidot-email-obfuscation.js"
+import { decodeWikidotEmailObfuscation } from "../src/lib/wikidot/wikidot-email-obfuscation.ts"
 
 test("decodes a plain Wikidot email address", () => {
   assert.deepEqual(decodeWikidotEmailObfuscation("vog.isfn|ofni#vog.isfn|ofni"), {

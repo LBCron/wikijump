@@ -17,7 +17,7 @@ import {
   isImportedWikidotView,
   shouldUseWikidotLicenseHtml,
   wikidotFooterControls
-} from "../src/lib/wikidot/wikidot-footer.js"
+} from "../src/lib/wikidot/wikidot-footer.ts"
 
 test("uses Wikidot footer labels in source order", () => {
   assert.deepEqual(
@@ -243,7 +243,7 @@ test("binds the footer's inline handler names without compiling them", () => {
 
 test("reproduces the anonymous EN/JA BugReportModule bodies", async () => {
   const { buildWikidotBugReportDialogHtml } =
-    await import("../src/lib/wikidot/wikidot-footer.js")
+    await import("../src/lib/wikidot/wikidot-footer.ts")
   const fixture = JSON.parse(
     await (
       await import("node:fs/promises")

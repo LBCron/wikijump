@@ -1,14 +1,14 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { authCancelDestination } from "../src/lib/auth-cancel.js"
+import { authCancelDestination } from "../src/lib/auth-cancel.ts"
 
 test("authentication cancellation always uses the safe platform root", () => {
   assert.equal(authCancelDestination(), "/")
 })
 
 test("sign-in returns to the same-site page it was started from", async () => {
-  const { authReturnDestination } = await import("../src/lib/auth-cancel.js")
+  const { authReturnDestination } = await import("../src/lib/auth-cancel.ts")
   const at = (query) => new URL(`https://scp-wiki.example.test/-/login${query}`)
 
   assert.equal(authReturnDestination(at("")), "/")

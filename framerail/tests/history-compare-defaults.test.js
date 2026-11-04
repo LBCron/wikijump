@@ -5,7 +5,7 @@ import {
   comparableHistoryTimelineNumbers,
   defaultHistoryComparePair,
   isComparableHistoryRevision
-} from "../src/lib/history-compare-defaults.js"
+} from "../src/lib/history-compare-defaults.ts"
 
 test("defaults comparison to the newest two distinct page revisions in a mixed timeline", () => {
   const entries = [

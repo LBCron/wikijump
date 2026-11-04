@@ -39,8 +39,8 @@ test("the email action restores hidden Wikidot email spans in the article DOM", 
   await page.locator("#page-content").evaluate(async (content) => {
     const module = (await import(
       /* @vite-ignore */
-      new URL("/src/lib/wikidot/wikidot-email-obfuscation.js", location.href).href
-    )) as typeof import("../src/lib/wikidot/wikidot-email-obfuscation.js")
+      new URL("/src/lib/wikidot/wikidot-email-obfuscation.ts", location.href).href
+    )) as typeof import("../src/lib/wikidot/wikidot-email-obfuscation.ts")
     module.wikidotEmailObfuscation(content)
   })
 

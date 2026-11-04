@@ -200,7 +200,7 @@ impl Serialize for User {
     }
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, PartialEq)]
 pub struct WikijumpUserOutput {
     pub user_id: i64,
     pub user_type: UserType,
@@ -277,6 +277,41 @@ impl UserOutput {
                 })
             }
             User::Wikidot(user) => UserOutput::Wikidot(user),
+        }
+    }
+}
+
+impl UserOutput {
+    pub fn user_id(&self) -> i64 {
+        match self {
+            UserOutput::Wikijump(user) => user.user_id,
+            UserOutput::Wikidot(user) => i64::from(user.user_id),
+        }
+    }
+
+    pub fn unwrap_wikijump(self) -> Result<WikijumpUserOutput> {
+        match self {
+            UserOutput::Wikijump(user) => Ok(user),
+            UserOutput::Wikidot(user) => bail!(Error::new(
+                "expected a wikijump user",
+                ErrorType::ExpectedWikijumpUser { was_user: user },
+            )),
+        }
+    }
+
+    #[inline]
+    pub fn is_wikijump(&self) -> bool {
+        match self {
+            UserOutput::Wikijump(_) => true,
+            UserOutput::Wikidot(_) => false,
+        }
+    }
+
+    #[inline]
+    pub fn is_wikidot(&self) -> bool {
+        match self {
+            UserOutput::Wikijump(_) => false,
+            UserOutput::Wikidot(_) => true,
         }
     }
 }

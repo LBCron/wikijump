@@ -115,7 +115,7 @@ response typeの処理を維持。bulk末尾等の従来の受理範囲も変更
 再実行:
 
 ```sh
-node framerail/cache-scaling-bench.mjs > /tmp/cache-scaling.json
+node framerail/cache-scaling-bench.ts > /tmp/cache-scaling.json
 ```
 
 旧cache/parserは固定Git revisionの実ファイルを `git show` で読み込む。

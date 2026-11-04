@@ -1,4 +1,4 @@
-// Run from any directory: node framerail/xmlrpc-scaling-bench.mjs [baseline-ref]
+// Run from any directory: node framerail/xmlrpc-scaling-bench.ts [baseline-ref]
 //
 // The default baseline fixture is an exact, hash-pinned pre-change Git blob.
 // Pass a Git ref to compare another revision without changing the worktree.
@@ -18,25 +18,28 @@ import { join } from "node:path"
 import { performance } from "node:perf_hooks"
 import { fileURLToPath } from "node:url"
 
+type XmlRpcParser = (xml: string) => unknown
+
 const REPO_ROOT = fileURLToPath(new URL("../", import.meta.url))
 const baselineRef = process.argv[2] ?? null
 const PROTOCOL_PATH = "framerail/src/lib/server/xmlrpc/protocol.ts"
 
 const { createJiti } = await import("jiti")
 
-async function loadParser(source, label) {
+async function loadParser(source: string | null, label: string): Promise<XmlRpcParser> {
   if (source) {
     const dir = mkdtempSync(join(tmpdir(), `xmlrpc-baseline-${label}-`))
     const file = join(dir, "protocol.ts")
     writeFileSync(file, source)
     const jiti = createJiti(import.meta.url)
-    return (await jiti.import(file)).parseXmlRpcCall
+    return ((await jiti.import(file)) as { parseXmlRpcCall: XmlRpcParser })
+      .parseXmlRpcCall
   }
   const jiti = createJiti(import.meta.url)
   return (
-    await jiti.import(
+    (await jiti.import(
       fileURLToPath(new URL("./src/lib/server/xmlrpc/protocol.ts", import.meta.url))
-    )
+    )) as { parseXmlRpcCall: XmlRpcParser }
   ).parseXmlRpcCall
 }
 
@@ -75,24 +78,24 @@ const currentParse = await loadParser(null, "new")
 const counters = { regexp: 0, exec: 0, scanChars: 0, sliceChars: 0 }
 const RealRegExp = globalThis.RegExp
 
-function countScan(from, input, match) {
+function countScan(from: number, input: string, match: RegExpExecArray | null) {
   const hit = match ? match.index + match[0].length : input.length
   counters.scanChars += Math.max(0, hit - from)
 }
 
 class CountingRegExp extends RealRegExp {
-  constructor(...args) {
+  constructor(...args: [pattern: string | RegExp, flags?: string]) {
     counters.regexp += 1
     super(...args)
   }
-  exec(input) {
+  exec(input: string) {
     counters.exec += 1
     const from = this.lastIndex ?? 0
     const match = super.exec(input)
     countScan(from, input, match)
     return match
   }
-  test(input) {
+  test(input: string) {
     counters.exec += 1
     const from = this.lastIndex ?? 0
     const match = RealRegExp.prototype.exec.call(this, input)
@@ -110,8 +113,11 @@ function installCounters() {
   counters.exec = 0
   counters.scanChars = 0
   counters.sliceChars = 0
-  globalThis.RegExp = CountingRegExp
-  String.prototype.slice = function slice(start, end) {
+  globalThis.RegExp = CountingRegExp as typeof RegExp
+  String.prototype.slice = function slice(
+    start: number | undefined,
+    end: number | undefined
+  ) {
     const out = realSlice.call(this, start, end)
     counters.sliceChars += out.length
     return out
@@ -126,12 +132,18 @@ function removeCounters() {
 // Fixtures
 // ---------------------------------------------------------------------------
 
-/**
- * Struct nested `depth` levels deep; the innermost member carries
- * `leafName`/`leafValue`. Every level is a well-formed
- * `<member><name>..</name><value><struct>..</struct></value></member>`.
- */
-function nestedStructRequest({ depth, leafName, leafValue }) {
+// Struct nested `depth` levels deep; the innermost member carries
+// `leafName`/`leafValue`. Every level is a well-formed
+// `<member><name>..</name><value><struct>..</struct></value></member>`.
+function nestedStructRequest({
+  depth,
+  leafName,
+  leafValue
+}: {
+  depth: number
+  leafName: string
+  leafValue: string
+}) {
   let body = `<member><name>${leafName}</name><value><string>${leafValue}</string></value></member>`
   for (let level = 0; level < depth; level += 1) {
     body = `<member><name>level${level}</name><value><struct>${body}</struct></value></member>`
@@ -143,8 +155,14 @@ function nestedStructRequest({ depth, leafName, leafValue }) {
   )
 }
 
-/** One struct with `memberCount` sibling members; no nesting. */
-function flatStructRequest({ memberCount, leafBytes }) {
+// One struct with `memberCount` sibling members; no nesting.
+function flatStructRequest({
+  memberCount,
+  leafBytes
+}: {
+  memberCount: number
+  leafBytes: number
+}) {
   const body = `<member><name>leaf</name><value><string>${"x".repeat(leafBytes)}</string></value></member>${Array.from(
     { length: memberCount - 1 },
     (_, i) => `<member><name>m${i}</name><value><int>${i}</int></value></member>`
@@ -156,9 +174,9 @@ function flatStructRequest({ memberCount, leafBytes }) {
   )
 }
 
-function measure(parse, xml) {
+function measure(parse: XmlRpcParser, xml: string) {
   installCounters()
-  let value
+  let value: unknown
   try {
     value = parse(xml)
   } finally {
@@ -167,9 +185,9 @@ function measure(parse, xml) {
   return value
 }
 
-const medianMs = (fn, samples = 5) => {
+const medianMs = (fn: () => void, samples = 5) => {
   fn()
-  const times = []
+  const times: number[] = []
   for (let i = 0; i < samples; i += 1) {
     const start = performance.now()
     fn()
@@ -179,8 +197,8 @@ const medianMs = (fn, samples = 5) => {
   return Number(times[Math.floor(times.length / 2)].toFixed(3))
 }
 
-const rows = []
-const record = (path, dimensions, xml) => {
+const rows: Record<string, unknown>[] = []
+const record = (path: string, dimensions: Record<string, number>, xml: string) => {
   // Correctness: both parsers must agree on the decoded structure.
   assert.deepEqual(
     measure(currentParse, xml),
@@ -196,7 +214,7 @@ const record = (path, dimensions, xml) => {
   measure(currentParse, xml)
   const afterWork = { ...counters }
 
-  const row = {
+  const row: Record<string, unknown> = {
     path,
     ...dimensions,
     bytes: Buffer.byteLength(xml),

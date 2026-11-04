@@ -417,6 +417,7 @@ fn output_test_user() -> WikijumpUserModel {
         password: str!("$argon2id$password-hash-sentinel"),
         multi_factor_secret: Some(mfa_value),
         multi_factor_recovery_codes: Some(vec![str!("recovery-code-sentinel")]),
+        multi_factor_last_totp_step: None,
         locales: vec![str!("en")],
         avatar_s3_hash: None,
         forum_signature: None,

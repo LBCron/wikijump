@@ -872,18 +872,23 @@ impl<'a> ModuleEventScanner<'a> {
         }
         let mut cursor = start + 3;
         skip_horizontal_whitespace(bytes, &mut cursor);
+        let mut nested_left_block = false;
         if bytes.get(cursor..cursor + 2) == Some(&b"[["[..])
             && left_block_start_in_run(bytes, cursor).0 == Some(cursor)
         {
+            nested_left_block = true;
             cursor += 2;
             skip_horizontal_whitespace(bytes, &mut cursor);
         }
         let (name, raw_name_end) = wikidot_trimmed_name(bytes, cursor);
         let name = name?;
         let name = name.strip_suffix(b"_").unwrap_or(name);
-        let _kind = [ModuleOpenKind::Legacy654, ModuleOpenKind::Standard]
+        let kind = [ModuleOpenKind::Legacy654, ModuleOpenKind::Standard]
             .into_iter()
             .find(|kind| name == kind.name())?;
+        if nested_left_block && kind == ModuleOpenKind::Standard {
+            return None;
+        }
         cursor = raw_name_end;
         skip_module_close_spacing(bytes, &mut cursor);
         if bytes.get(cursor) != Some(&b']') {

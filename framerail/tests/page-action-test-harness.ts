@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url"
 
-import { createTestViteServer } from "./vite-test-server.js"
+import { createTestViteServer } from "./vite-test-server.ts"
 
 export const PAGE_ACTION_ROOT = fileURLToPath(new URL("..", import.meta.url))
 

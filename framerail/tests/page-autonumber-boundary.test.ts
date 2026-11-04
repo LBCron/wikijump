@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { fileURLToPath } from "node:url"
 import test from "node:test"
 
-import { createTestViteServer } from "./vite-test-server.js"
+import { createTestViteServer } from "./vite-test-server.ts"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 

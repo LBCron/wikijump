@@ -3,7 +3,7 @@ import { createServer as createHttpServer } from "node:http"
 import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
 
-import { createTestViteServer } from "./vite-test-server.js"
+import { createTestViteServer } from "./vite-test-server.ts"
 import { resetDevelopmentArticleResponseCacheStores } from "../src/lib/server/cache/article-response/runtime.ts"
 
 const root = fileURLToPath(new URL("..", import.meta.url))

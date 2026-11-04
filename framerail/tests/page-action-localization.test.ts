@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { after, before, test } from "node:test"
 
-import { createTestViteServer } from "./vite-test-server.js"
+import { createTestViteServer } from "./vite-test-server.ts"
 
 let vite: any
 let buildPageTranslateKeys: any

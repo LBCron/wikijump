@@ -2,9 +2,11 @@ import defaults from "$lib/defaults"
 
 import { authGetSession } from "$lib/server/auth/get-session"
 import { authLogin } from "$lib/server/auth/login"
+import { authLogout } from "$lib/server/auth/logout"
 import { authMfaVerify } from "$lib/server/auth/mfa"
 import { setSessionCookie } from "$lib/server/auth/session-cookie"
 import { translate } from "$lib/server/deepwell/translate"
+import { userView } from "$lib/server/deepwell/user"
 import {
   clearLoginPassword,
   redactAuthActionPayload
@@ -12,11 +14,17 @@ import {
 import { resolveClientIp } from "$lib/server/client-ip"
 import { failForActionError, requireActionSession } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
+import {
+  getPreloadBackendLocales,
+  getPreloadRequestLocales
+} from "$lib/server/load/preload"
 import { translateMfaCodeLabel } from "./login-translation"
 import { fail } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"
 import { valibot } from "sveltekit-superforms/adapters"
 import { minLength, object, pipe, string } from "valibot"
+
+import { UserType } from "$lib/types"
 
 import type { PreloadDataAsync } from "$lib/server/deepwell/views"
 import type { TranslateKeys } from "$lib/types"
@@ -41,6 +49,7 @@ export async function loadLoginPage(request: Request, preloadData: PreloadDataAs
     "login.toast": {},
     "forgot-password": {},
     "forgot-password.question": {},
+    "wiki-auth-verify-email.resend-email": {},
     "remember-me": {},
     "create-account": {}
   }
@@ -89,6 +98,14 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
         ipAddress,
         userAgent
       )
+      const refusal = await refuseUnverifiedLogin(
+        sessionToken,
+        request,
+        form,
+        submittedPassword
+      )
+      if (refusal) return refusal
+
       await setAuthenticatedSessionCookie(cookies, sessionToken, request.url)
 
       return redactAuthActionPayload(
@@ -124,6 +141,16 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
     const { data } = form
     const res = await authLogin(data.nameOrEmail, data.password, ipAddress, userAgent)
 
+    if (res.session_token) {
+      const refusal = await refuseUnverifiedLogin(
+        res.session_token,
+        request,
+        form,
+        submittedPassword
+      )
+      if (refusal) return refusal
+    }
+
     if (res.session_token && !res.needs_mfa) {
       await setAuthenticatedSessionCookie(cookies, res.session_token, request.url)
     }
@@ -142,6 +169,44 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
       redactAuthActionPayload(payload, [submittedPassword])
     )
   }
+}
+
+const EMAIL_VERIFICATION_REQUIRED_MESSAGE =
+  "Your e-mail address has not been verified. Verify your e-mail address to log in."
+
+async function loginBlockedForUnverifiedEmail(
+  sessionToken: string,
+  request: Request
+): Promise<boolean> {
+  const { siteId } = loadSiteInfo(request.headers)
+  const locales = getPreloadBackendLocales(getPreloadRequestLocales(request))
+  const response = await userView(siteId, locales, sessionToken)
+  if (response.type !== "user_found") return false
+
+  const user = response.data.user
+  return user.user_type === UserType.Regular && user.email_verified_at === null
+}
+
+async function refuseUnverifiedLogin<T extends { data: { password?: string } }>(
+  sessionToken: string,
+  request: Request,
+  form: T,
+  submittedPassword: string
+) {
+  if (!(await loginBlockedForUnverifiedEmail(sessionToken, request))) return null
+
+  await authLogout(sessionToken).catch(() => undefined)
+  return fail(
+    403,
+    redactAuthActionPayload(
+      {
+        form: clearLoginPassword(form),
+        message: EMAIL_VERIFICATION_REQUIRED_MESSAGE,
+        emailVerificationRequired: true
+      },
+      [submittedPassword]
+    )
+  )
 }
 
 const loginSchema = object({

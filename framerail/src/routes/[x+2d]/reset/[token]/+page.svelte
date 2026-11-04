@@ -91,7 +91,13 @@
     </div>
   </form>
 {:else}
-  <form id="reset-link" class="login-form" method="POST" use:redeemEnhance>
+  <form
+    id="reset-link"
+    class="login-form"
+    method="POST"
+    action="?/redeem"
+    use:redeemEnhance
+  >
     <input name="token" type="hidden" bind:value={$redeemForm.token} />
     <div class="action-row auth-actions">
       <button class="action-button auth-button button-login clickable" type="submit">

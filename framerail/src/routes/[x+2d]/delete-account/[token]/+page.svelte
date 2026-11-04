@@ -96,7 +96,13 @@
   <p class="auth-notice">
     A deletion was requested for your account. Continue to confirm it.
   </p>
-  <form id="redeem-delete-link" class="login-form" method="POST" use:redeemEnhance>
+  <form
+    id="redeem-delete-link"
+    class="login-form"
+    method="POST"
+    action="?/redeem"
+    use:redeemEnhance
+  >
     <input name="token" type="hidden" bind:value={$redeemForm.token} />
     <div class="action-row auth-actions">
       <button class="action-button auth-button button-login clickable" type="submit">

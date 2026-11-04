@@ -8,4 +8,4 @@ export async function load({ request, parent, params }) {
   return loadDeleteTokenPage(request, parent, params.token)
 }
 
-export const actions = { default: deleteRedeemAction, confirm: deleteCompleteAction }
+export const actions = { redeem: deleteRedeemAction, confirm: deleteCompleteAction }

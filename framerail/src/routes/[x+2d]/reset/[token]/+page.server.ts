@@ -8,4 +8,4 @@ export async function load({ request, parent, params }) {
   return loadResetTokenPage(request, parent, params.token)
 }
 
-export const actions = { default: resetRedeemAction, setPassword: resetCompleteAction }
+export const actions = { redeem: resetRedeemAction, setPassword: resetCompleteAction }

@@ -21,13 +21,10 @@ const MAX_PINNED_ORACLE_SOURCE_BYTES: usize = 256;
 
 #[test]
 fn pinned_css_closer_scanner_matches_the_bounded_ftml_oracle() {
-    let valid = [
-        "[[/module]]",
-        "[[/ module]]",
+    let valid = ["[[/module]]", "[[/ module]]"];
+    let invalid = [
         "[[/[[module]]",
         "[[/ [[ module]]",
-    ];
-    let invalid = [
         "[[/module ]]",
         "[[/module654]]",
         "[[/module\n]]",

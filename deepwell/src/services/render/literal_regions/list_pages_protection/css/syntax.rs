@@ -145,12 +145,6 @@ fn skip_physical_line_endings(bytes: &[u8], cursor: &mut usize) {
 pub(super) fn pinned_module_close_end(bytes: &[u8], start: usize) -> Option<usize> {
     let mut cursor = start + 3;
     skip_horizontal_whitespace(bytes, &mut cursor);
-    if bytes.get(cursor..cursor + 2) == Some(&b"[["[..])
-        && left_block_start_in_run(bytes, cursor).0 == Some(cursor)
-    {
-        cursor += 2;
-        skip_horizontal_whitespace(bytes, &mut cursor);
-    }
     let (name, name_end) = wikidot_trimmed_name(bytes, cursor);
     let name = name?;
     if !name.eq_ignore_ascii_case(b"module") {

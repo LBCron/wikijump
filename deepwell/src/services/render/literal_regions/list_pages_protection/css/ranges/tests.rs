@@ -366,7 +366,7 @@ fn pinned_css_heads_with_quoted_brackets_and_spacing_own_runtime_modules() {
 
 #[test]
 fn pinned_css_closer_variants_own_runtime_modules() {
-    for closer in ["[[/ module]]", "[[/[[module]]", "[[/ [[ module]]"] {
+    for closer in ["[[/ module]]"] {
         let source = format!(
             "[[module CSS]]\n\
              [[module ListPages name=\"hidden-list\"]]X\n\
@@ -377,7 +377,12 @@ fn pinned_css_closer_variants_own_runtime_modules() {
         assert_runtime_modules_are_owned_until_live(&source);
     }
 
-    for closer in ["[[/module ]]", "[[/module654]]"] {
+    for closer in [
+        "[[/module ]]",
+        "[[/module654]]",
+        "[[/[[module]]",
+        "[[/ [[ module]]",
+    ] {
         let source = format!(
             "[[module CSS]]\n\
              [[module ListPages name=\"hidden-list\"]]X\n\

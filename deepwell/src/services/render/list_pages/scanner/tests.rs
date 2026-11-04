@@ -469,13 +469,17 @@ fn list_pages_scanner_uses_pinned_module_name_delimiters() {
     assert_eq!(modules.len(), 1);
     assert_eq!(modules[0].body, "A[[module654 ListUsers]]B[[/module654_]]C");
 
-    for optional_left_block_close in ["[[/[[module]]", "[[/ [[ module]]"] {
+    for rejected_nested_close in ["[[/[[module]]", "[[/ [[ module]]"] {
         let source = format!(
-            "[[module ListPages name=\"live\"]]A{optional_left_block_close}OUT[[/module]]",
+            "[[module ListPages name=\"live\"]]A{rejected_nested_close}OUT[[/module]]",
         );
         let modules = find_list_pages_module_matches(&source);
-        assert_eq!(modules.len(), 1, "{optional_left_block_close:?}");
-        assert_eq!(modules[0].body, "A", "{optional_left_block_close:?}");
+        assert_eq!(modules.len(), 1, "{rejected_nested_close:?}");
+        assert_eq!(
+            modules[0].body,
+            format!("A{rejected_nested_close}OUT"),
+            "{rejected_nested_close:?}",
+        );
     }
 
     let nested_optional_left_block = concat!(

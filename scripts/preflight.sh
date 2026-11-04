@@ -271,6 +271,7 @@ group_framerail() {
     run_test "framerail unit tests" pnpm --dir framerail test:unit
     if [[ "${MODE}" == "final" ]]; then
       run "framerail build" pnpm --dir framerail build
+      run_test "framerail production boot test" node --test framerail/tests/production-boot.test.js
     fi
   fi
 }

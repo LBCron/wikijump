@@ -40,14 +40,15 @@ use crate::services::filter::{FilterClass, FilterType};
 use crate::services::{AliasService, FilterService, PasswordService};
 use crate::types::{AliasType, UserType};
 use crate::types::{Maybe, Reference};
+use crate::utils::confusable_skeleton;
 use crate::utils::now;
 use crate::utils::regex_replace_in_place;
 use paste::paste;
 use redis::AsyncCommands;
 use sea_orm::sea_query::Expr;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue, ColumnTrait, Condition, DbErr, EntityTrait, NotSet,
-    QueryFilter, Set, SqlErr,
+    ActiveModelTrait, ActiveValue, ColumnTrait, Condition, ConnectionTrait, DbErr,
+    EntityTrait, FromQueryResult, NotSet, QueryFilter, Set, SqlErr, Statement, Value,
 };
 use serde_json::Value as JsonValue;
 use std::borrow::Cow;
@@ -58,6 +59,12 @@ use std::net::IpAddr;
 pub const DISABLED_PASSWORD_HASH: &str = "!";
 
 const VERIFIED_EMAIL_UNIQUE_INDEX: &str = "user_verified_email_active_unique_idx";
+
+#[derive(Debug, FromQueryResult)]
+struct NonAsciiUserSlug {
+    slug: String,
+}
+
 #[derive(Debug)]
 pub struct UserService;
 
@@ -373,6 +380,14 @@ impl UserService {
             ));
         }
 
+        if !reuse_existing_known_user
+            && matches!(user_type, UserType::Regular | UserType::Bot)
+        {
+            Self::check_slug_confusable(ctx, &slug, None)
+                .await
+                .or_raise(make_error)?;
+        }
+
         if matches!(user_type, UserType::Regular | UserType::Bot) && email.is_empty() {
             error!("Attempting to create user with empty email");
             bail!(Error::new(
@@ -382,14 +397,17 @@ impl UserService {
         }
 
         if user_type == UserType::Regular {
+            let mut condition = Condition::all()
+                .add(user::Column::Email.eq(email.as_str()))
+                .add(user::Column::UserType.eq(UserType::Regular))
+                .add(user::Column::DeletedAt.is_null());
+
+            if reuse_existing_known_user {
+                condition = condition.add(user::Column::EmailVerifiedAt.is_not_null());
+            }
+
             let result = WikijumpUser::find()
-                .filter(
-                    Condition::all()
-                        .add(user::Column::Email.eq(email.as_str()))
-                        .add(user::Column::UserType.eq(UserType::Regular))
-                        .add(user::Column::EmailVerifiedAt.is_not_null())
-                        .add(user::Column::DeletedAt.is_null()),
-                )
+                .filter(condition)
                 .one(txn)
                 .await
                 .or_raise(make_error)?;
@@ -981,6 +999,19 @@ impl UserService {
                 .or_raise(make_error)?;
             }
 
+            if email_changed
+                && !email.is_empty()
+                && user.user_type == UserType::Regular
+                && Self::live_email_owner_exists(ctx, &email, Some(user.user_id))
+                    .await
+                    .or_raise(make_error)?
+            {
+                bail!(Error::new(
+                    "cannot change email, another active user already owns it",
+                    ErrorType::UserExists,
+                ));
+            }
+
             let email_validation_json =
                 match EmailService::validate_when_available(ctx, &email)
                     .await
@@ -1148,6 +1179,99 @@ impl UserService {
         Ok(new_user)
     }
 
+    async fn live_email_owner_exists(
+        ctx: &ServiceContext<'_>,
+        email: &str,
+        exclude_user_id: Option<i64>,
+    ) -> Result<bool> {
+        let mut condition = Condition::all()
+            .add(user::Column::Email.eq(email))
+            .add(user::Column::UserType.eq(UserType::Regular))
+            .add(user::Column::DeletedAt.is_null());
+
+        if let Some(user_id) = exclude_user_id {
+            condition = condition.add(user::Column::UserId.ne(user_id));
+        }
+
+        WikijumpUser::find()
+            .filter(condition)
+            .one(ctx.transaction())
+            .await
+            .map(|user| user.is_some())
+            .or_raise(|| Error::new("failed to check email ownership", ErrorType::User))
+    }
+
+    async fn check_slug_confusable(
+        ctx: &ServiceContext<'_>,
+        slug: &str,
+        exclude_user_id: Option<i64>,
+    ) -> Result<()> {
+        let make_error = || {
+            Error::new(
+                format!("failed to check slug '{slug}' for confusable collisions"),
+                ErrorType::User,
+            )
+        };
+
+        let skeleton = confusable_skeleton(slug);
+        let txn = ctx.transaction();
+
+        let mut condition = Condition::all()
+            .add(user::Column::Slug.eq(skeleton.as_str()))
+            .add(user::Column::DeletedAt.is_null());
+
+        if let Some(user_id) = exclude_user_id {
+            condition = condition.add(user::Column::UserId.ne(user_id));
+        }
+
+        let latin_owner = WikijumpUser::find()
+            .filter(condition)
+            .one(txn)
+            .await
+            .or_raise(make_error)?;
+
+        if let Some(owner) = latin_owner
+            && owner.slug != slug
+        {
+            error!(
+                "Slug '{slug}' is confusable with existing user slug '{}'",
+                owner.slug,
+            );
+            bail!(Error::new(
+                format!(
+                    "cannot use slug '{slug}', it is confusable with another user's slug"
+                ),
+                ErrorType::UserExists,
+            ));
+        }
+
+        let rows = NonAsciiUserSlug::find_by_statement(Statement::from_sql_and_values(
+            txn.get_database_backend(),
+            r#"SELECT slug FROM "user" WHERE deleted_at IS NULL AND user_id <> $1 AND char_length(slug) < octet_length(slug)"#,
+            [Value::from(exclude_user_id.unwrap_or(i64::MIN))],
+        ))
+        .all(txn)
+        .await
+        .or_raise(make_error)?;
+
+        for row in rows {
+            if row.slug != slug && confusable_skeleton(&row.slug) == skeleton {
+                error!(
+                    "Slug '{slug}' is confusable with existing user slug '{}'",
+                    row.slug,
+                );
+                bail!(Error::new(
+                    format!(
+                        "cannot use slug '{slug}', it is confusable with another user's slug"
+                    ),
+                    ErrorType::UserExists,
+                ));
+            }
+        }
+
+        Ok(())
+    }
+
     async fn verified_email_owner_exists(
         ctx: &ServiceContext<'_>,
         email: &str,
@@ -1248,10 +1372,47 @@ impl UserService {
             return Ok(());
         }
 
+        let slug_owner = WikijumpUser::find()
+            .filter(
+                Condition::all()
+                    .add(user::Column::Slug.eq(new_slug.as_str()))
+                    .add(user::Column::DeletedAt.is_null())
+                    .add(user::Column::UserId.ne(user.user_id)),
+            )
+            .one(ctx.transaction())
+            .await
+            .or_raise(make_error)?;
+
+        if slug_owner.is_some() {
+            error!("User slug '{new_slug}' is held by another user, cannot rename");
+            bail!(Error::new(
+                format!(
+                    "cannot rename user, another user already has the slug '{new_slug}'"
+                ),
+                ErrorType::UserExists,
+            ));
+        }
+
+        Self::check_slug_confusable(ctx, &new_slug, Some(user.user_id))
+            .await
+            .or_raise(make_error)?;
+
         if let Some(alias) = AliasService::get_optional(ctx, AliasType::User, &new_slug)
             .await
             .or_raise(make_error)?
         {
+            if alias.target_id != user.user_id {
+                error!(
+                    "User slug '{new_slug}' is a past alias of another user, cannot rename"
+                );
+                bail!(Error::new(
+                    format!(
+                        "cannot rename user, the slug '{new_slug}' is a past name of another user"
+                    ),
+                    ErrorType::UserExists,
+                ));
+            }
+
             debug!("User slug is a past alias, rename is free");
 
             AliasService::swap(ctx, alias, old_slug, user.user_id)

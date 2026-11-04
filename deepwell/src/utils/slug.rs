@@ -34,6 +34,72 @@ pub fn normalize_page_slug<S: Into<String>>(name: S) -> String {
     slug
 }
 
+const CONFUSABLE_SKELETON_MAP: &[(char, char)] = &[
+    // Cyrillic lookalikes
+    ('\u{430}', 'a'),
+    ('\u{435}', 'e'),
+    ('\u{43E}', 'o'),
+    ('\u{440}', 'p'),
+    ('\u{441}', 'c'),
+    ('\u{443}', 'y'),
+    ('\u{445}', 'x'),
+    ('\u{456}', 'i'),
+    ('\u{458}', 'j'),
+    ('\u{455}', 's'),
+    ('\u{4BB}', 'h'),
+    ('\u{43C}', 'm'),
+    ('\u{442}', 't'),
+    ('\u{43A}', 'k'),
+    ('\u{501}', 'd'),
+    ('\u{50D}', 'g'),
+    ('\u{51B}', 'q'),
+    ('\u{51D}', 'w'),
+    // Greek lookalikes
+    ('\u{3B1}', 'a'),
+    ('\u{3B2}', 'b'),
+    ('\u{3B5}', 'e'),
+    ('\u{3B7}', 'n'),
+    ('\u{3B9}', 'i'),
+    ('\u{3BA}', 'k'),
+    ('\u{3BC}', 'u'),
+    ('\u{3BD}', 'v'),
+    ('\u{3BF}', 'o'),
+    ('\u{3C0}', 'n'),
+    ('\u{3C1}', 'p'),
+    ('\u{3C4}', 't'),
+    ('\u{3C5}', 'u'),
+    ('\u{3C7}', 'x'),
+    ('\u{3C9}', 'w'),
+];
+
+pub fn confusable_skeleton(value: &str) -> String {
+    let mut skeleton = String::with_capacity(value.len());
+    for ch in value.chars().flat_map(char::to_lowercase) {
+        let mapped = CONFUSABLE_SKELETON_MAP
+            .iter()
+            .find_map(|&(lookalike, latin)| (lookalike == ch).then_some(latin))
+            .unwrap_or(ch);
+        skeleton.push(mapped);
+    }
+    skeleton
+}
+
+#[test]
+fn confusable_skeleton_maps_cyrillic_and_greek_lookalikes() {
+    assert_eq!(confusable_skeleton("sectest-\u{435}ve"), "sectest-eve");
+    assert_eq!(confusable_skeleton("sectest-\u{415}ve"), "sectest-eve");
+    assert_eq!(confusable_skeleton("\u{3B1}\u{3C1}\u{3C4}"), "apt");
+    assert_eq!(confusable_skeleton("\u{440}\u{430}\u{441}"), "pac");
+}
+
+#[test]
+fn confusable_skeleton_leaves_other_characters_alone() {
+    assert_eq!(confusable_skeleton("plain-name_1"), "plain-name_1");
+    assert_eq!(confusable_skeleton("PLAIN"), "plain");
+    assert_eq!(confusable_skeleton("\u{434}mitry"), "\u{434}mitry");
+    assert_eq!(confusable_skeleton(""), "");
+}
+
 /// Resolve only the page URL aliases observed in Wikidot's public router.
 ///
 /// This intentionally does not use `normalize_page_slug`: that function also

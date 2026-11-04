@@ -81,6 +81,17 @@ async fn insert_wikidot_user(
     .expect("wikidot_user fixture should insert");
 }
 
+async fn force_user_email(runner: &TestRunner, user_id: i64, email: &str) {
+    user::ActiveModel {
+        user_id: Set(user_id),
+        email: Set(email.to_owned()),
+        ..Default::default()
+    }
+    .update(runner.context().transaction())
+    .await
+    .expect("forced email fixture should update");
+}
+
 #[tokio::test]
 async fn user_view_resolves_only_active_imported_slugs_without_changing_local_lookup() {
     let runner = TestRunner::setup().await;
@@ -927,7 +938,7 @@ async fn basic_update() {
 }
 
 #[tokio::test]
-async fn user_create_only_verified_email_blocks_conflict() {
+async fn preexisting_duplicate_email_verify_and_login_behavior() {
     let mut runner = TestRunner::setup().await;
     runner.set_request_context(RequestContext {
         user_id: Some(ADMIN_USER_ID),
@@ -948,13 +959,15 @@ async fn user_create_only_verified_email_blocks_conflict() {
         }),
     );
 
+    // Registration now rejects duplicate emails, so the second holder of
+    // the shared address is inserted directly, as pre-existing data.
     let second = run_endpoint!(
         runner,
         user_create,
         json!({
             "user_type": "regular",
             "name": "Second Unverified Email User",
-            "email": "shared-unverified@example.invalid",
+            "email": "second-unverified@example.invalid",
             "locales": ["en"],
             "password": "changed-password-fixture",
             "bypass_email_verification": true,
@@ -962,6 +975,7 @@ async fn user_create_only_verified_email_blocks_conflict() {
         }),
     );
     assert_ne!(first.user_id, second.user_id);
+    force_user_email(&runner, second.user_id, "shared-unverified@example.invalid").await;
 
     let error = run_endpoint_err!(
         runner,
@@ -1066,13 +1080,15 @@ async fn verifying_email_displaces_other_pending_claims() {
         }),
     );
 
+    // As above, the duplicate claim is inserted directly, as
+    // pre-existing data registration would no longer accept.
     let second = run_endpoint!(
         runner,
         user_create,
         json!({
             "user_type": "regular",
             "name": "Second Pending Email Claim",
-            "email": "disputed-mailbox@example.invalid",
+            "email": "second-pending-claim@example.invalid",
             "locales": ["en"],
             "password": "changed-password-fixture",
             "bypass_email_verification": true,
@@ -1080,6 +1096,7 @@ async fn verifying_email_displaces_other_pending_claims() {
         }),
     );
     assert_ne!(first.user_id, second.user_id);
+    force_user_email(&runner, second.user_id, "disputed-mailbox@example.invalid").await;
 
     let verified = run_endpoint!(
         runner,
@@ -2000,4 +2017,302 @@ async fn avatar_changes_drop_only_that_users_wws_cache_entry() {
     assert_eq!(untouched.as_deref(), Some("stale-avatar-hash"));
 
     let _: usize = redis.del(cached(other)).await.expect("cache cleanup");
+}
+
+#[tokio::test]
+async fn user_create_and_email_change_reject_duplicate_emails() {
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
+
+    let first = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "First Email Owner",
+            "email": "taken-email@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(first.user_id > 0);
+
+    let error = run_endpoint_err!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Second Email Claimant",
+            "email": "taken-email@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    let changer = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Email Changer",
+            "email": "changer@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(changer.user_id),
+        ..Default::default()
+    });
+
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": changer.user_id,
+            "email": "taken-email@example.invalid",
+            "current_password": "password-fixture",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    let changed = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": changer.user_id,
+            "email": "changer-new@example.invalid",
+            "current_password": "password-fixture",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(changed.email, "changer-new@example.invalid");
+}
+
+#[tokio::test]
+async fn user_create_and_rename_reject_confusable_names() {
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
+
+    let victim = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Sectest Eve",
+            "email": "sectest-eve@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(victim.slug, "sectest-eve");
+
+    let error = run_endpoint_err!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Sectest \u{0415}ve",
+            "email": "sectest-confusable@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    let confusable = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Reverse \u{0415}ve",
+            "email": "reverse-confusable@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_ne!(confusable.slug, "reverse-eve");
+
+    let error = run_endpoint_err!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Reverse Eve",
+            "email": "reverse-latin@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    let bystander = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "\u{0414}mitry Test",
+            "email": "dmitry-test@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(bystander.user_id > 0);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(bystander.user_id),
+        ..Default::default()
+    });
+
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": bystander.user_id,
+            "name": "Sectest \u{0415}ve",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    let renamed = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": bystander.user_id,
+            "name": "Dmitry Renamed",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(renamed.slug, "dmitry-renamed");
+}
+
+#[tokio::test]
+async fn user_rename_rejects_live_slug_and_foreign_alias() {
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
+
+    let victim = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Original Victim",
+            "email": "original-victim@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let attacker = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Rename Attacker",
+            "email": "rename-attacker@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(victim.user_id),
+        ..Default::default()
+    });
+
+    let renamed = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": victim.user_id,
+            "name": "Victim Renamed",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(renamed.slug, "victim-renamed");
+    assert_eq!(renamed.name_changes_left, 1);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(attacker.user_id),
+        ..Default::default()
+    });
+
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": attacker.user_id,
+            "name": "Victim Renamed",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": attacker.user_id,
+            "name": "Original Victim",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(victim.user_id),
+        ..Default::default()
+    });
+
+    let reclaimed = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": victim.user_id,
+            "name": "Original Victim",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(reclaimed.slug, "original-victim");
+    assert_eq!(reclaimed.name_changes_left, 1);
 }

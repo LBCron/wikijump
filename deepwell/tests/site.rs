@@ -2190,3 +2190,101 @@ async fn site_domain_changes_invalidate_the_wws_site_domain_cache() {
         .await
         .expect("cache cleanup");
 }
+
+#[tokio::test]
+async fn custom_domains_are_canonicalized_and_the_platform_apex_is_refused() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let site_id = create_site(&runner, n).await;
+    let other_site_id = create_site(&runner, next_n()).await;
+    let ctx = runner.context();
+
+    for platform_domain in [
+        "wikijump.com",
+        "WIKIJUMP.COM",
+        "wjfiles.com",
+        "tenant.wikijump.com",
+    ] {
+        let error = DomainService::create_custom(
+            ctx,
+            CreateCustomDomain {
+                domain: platform_domain.to_owned(),
+                site_id,
+                www_redirect: false,
+            },
+        )
+        .await
+        .expect_err("platform domain must be refused");
+        assert_contains_error!(error, ErrorType::CustomDomainSubdomain);
+    }
+
+    DomainService::create_custom(
+        ctx,
+        CreateCustomDomain {
+            domain: format!("G6-Canonical-{n}.Example.COM"),
+            site_id,
+            www_redirect: false,
+        },
+    )
+    .await
+    .expect("failed to create custom domain");
+
+    let canonical = format!("g6-canonical-{n}.example.com");
+    let listed = DomainService::list_custom(ctx, site_id)
+        .await
+        .expect("failed to list custom domains");
+    assert_eq!(listed.len(), 1);
+    assert_eq!(listed[0].domain, canonical);
+
+    for variant in [
+        format!("G6-CANONICAL-{n}.EXAMPLE.COM"),
+        format!("{canonical}."),
+        canonical.clone(),
+    ] {
+        let error = DomainService::create_custom(
+            ctx,
+            CreateCustomDomain {
+                domain: variant,
+                site_id: other_site_id,
+                www_redirect: false,
+            },
+        )
+        .await
+        .expect_err("variant spelling must collide with the existing domain");
+        assert_contains_error!(error, ErrorType::CustomDomainExists);
+    }
+
+    let found = DomainService::site_from_custom_domain_optional(
+        ctx,
+        &format!("G6-Canonical-{n}.EXAMPLE.com"),
+    )
+    .await
+    .expect("resolution failed")
+    .expect("mixed-case query should resolve the stored canonical domain");
+    assert_eq!(found.site_id, site_id);
+    assert!(
+        DomainService::custom_domain_exists(ctx, &format!("{canonical}."))
+            .await
+            .expect("exists check failed")
+    );
+
+    DomainService::create_custom(
+        ctx,
+        CreateCustomDomain {
+            domain: format!("g6-other-{n}.example.org"),
+            site_id: other_site_id,
+            www_redirect: true,
+        },
+    )
+    .await
+    .expect("an unrelated domain should still bind");
+
+    DomainService::remove_custom(ctx, site_id, format!("G6-CANONICAL-{n}.EXAMPLE.COM."))
+        .await
+        .expect("removal by variant spelling should succeed");
+    assert!(
+        !DomainService::custom_domain_exists(ctx, &canonical)
+            .await
+            .expect("exists check failed")
+    );
+}

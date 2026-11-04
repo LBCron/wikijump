@@ -289,9 +289,6 @@ mod tests {
         assert!(!include_hidden_categories(r#" includeHidden = "true""#));
         assert!(!include_hidden_categories(r#" INCLUDEHIDDEN="true""#));
         assert!(!include_hidden_categories(r#" includeHidden='true'"#));
-        // Retained V7 matrix rows (#1028): a duplicated includeHidden pair
-        // still exposes hidden categories live, while an unknown argument
-        // keeps them hidden.
         assert!(include_hidden_categories(
             r#" includeHidden="one" includeHidden="two""#
         ));

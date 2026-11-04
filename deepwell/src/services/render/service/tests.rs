@@ -258,10 +258,6 @@ fn render_saved_wikidot_page_body(page: &'static str, wikitext: &str) -> String 
 
 #[test]
 fn saved_page_bare_attachment_images_follow_wikidot_file_type_default() {
-    // Saved Wikidot pages (issue #2349): scp-9506 line 1, 1-hachiro, and
-    // 12-aromantic-abatement render their bare .png attachments as the plain
-    // original; the shared-corpus saved HTML renders .jpeg/.webp/.svg
-    // attachments as the linked medium.jpg resize.
     for (page, source, original) in [
         (
             "scp-9506",
@@ -394,10 +390,6 @@ fn render_wikidot_trimmed_page_body(wikitext: &str) -> String {
         .restore(|protection| protection.compat_text().restore(&html))
 }
 
-/// Wikidot trims the leading whitespace of a page source before it parses, so
-/// an indented first block head owns its block.
-///
-/// Wikidot observations: anonymous PagePreviewModule, scp-wiki, 2026-10-19.
 #[test]
 fn trims_the_leading_whitespace_of_a_page_source() {
     for (source, expected) in [
@@ -427,8 +419,6 @@ fn trims_the_leading_whitespace_of_a_page_source() {
     }
 }
 
-/// The trim only covers the start of the page source, so an indented marker
-/// after other content stays literal text.
 #[test]
 fn keeps_indented_markers_after_content_literal() {
     assert_eq!(
@@ -1552,10 +1542,6 @@ fn standalone_rate_breaks_cross_tree_inline_scopes_but_inline_rate_stays_literal
 
 #[test]
 fn rate_module_renders_directly_inside_header_cells_and_list_items() {
-    // Anonymous Wikidot PagePreviewModule (scp-wiki, 2026-10-11, issue #2348):
-    // [[module Rate]] inside [[hcell]], [[cell]], [[ul]][[li]], and [[ol]][[li]]
-    // renders <th>/<td>/<li><div class="page-rate-widget-box">…</div></th|td|li>
-    // with no paragraph between the container and the widget.
     for (source, parent) in [
         (
             "[[table]]\n[[row]]\n[[hcell]]\n[[module Rate]]\n[[/hcell]]\n[[/row]]\n[[/table]]\n",
@@ -1842,9 +1828,6 @@ fn render_protected_links(
 
 #[test]
 fn link_targets_keep_the_authored_text_of_protected_fragments() {
-    // Wikidot links an unbound variable target by its authored text
-    // (component:earthworm: `[[[{$previous-url} | {$previous-title}]]]`
-    // links to /previous-url) and keeps a stray `##` inside a URL.
     let source = concat!(
         "[[[{$previous-url} | {$previous-title}]]]\n\n",
         "[[[adult:{$page} | Adult]]]\n\n",
@@ -1889,10 +1872,6 @@ fn link_targets_keep_the_authored_text_of_protected_fragments() {
 
 #[test]
 fn link_labels_keep_the_authored_text_of_protected_fragments() {
-    // Corpus Wikidot HTML: the wikiwalk footer's `[[[{$prev}|]]]` derives
-    // its empty label from the normalized target (`<a class="newpage"
-    // href="/prev">prev</a>`, blood-rivers), while fragment:antho-card's
-    // `[[[{$link}]]]` shows the variable as written (`>{$link}</a>`).
     let source = concat!(
         "[[span class=\"ww-{$prev}\"]]<< [[[{$prev}|]]] |[[/span]]\n\n",
         "[[[{$link}]]]\n",
@@ -2014,11 +1993,6 @@ fn multiline_page_links_respect_canonical_literal_regions() {
 
 #[test]
 fn raw_markers_on_separate_lines_do_not_protect_a_multiline_page_link() {
-    // Wikidot never pairs `@@` across lines: `@@[[[escape-link|Nope\nPlease]]]@@`
-    // renders `@@<a class="newpage" href="/escape-link">Nope Please</a>@@`
-    // (`raw-pair-across-lines-link` in wikidot-at-raw-preview-20261019.json).
-    // The marker lines are not literal, but joining them would put both `@@`
-    // on one line where the parser would pair them, so the link is left as-is.
     let source = "@@[[[escape-link|Nope\nPlease]]]@@\n";
     let mut wikitext = source.to_owned();
     RenderService::normalize_wikidot_multiline_page_links(&mut wikitext);
@@ -2307,8 +2281,6 @@ fn restores_dense_wikidot_wikipedia_links_without_repeated_scans() {
 
 #[test]
 fn renders_wikidot_wikipedia_links_without_language_split_and_verbatim_default_label() {
-    // Live Wikidot keeps a language-looking prefix in the path of one fixed
-    // host instead of splitting it into a subdomain; see issue #2576.
     assert_eq!(
         super::build_wikidot_wikipedia_link("it:Albert_Einstein", Some("Albert")).anchor,
         r#"<a href="https://en.wikipedia.org/wiki/it:Albert_Einstein" onclick="window.open(this.href, '_blank'); return false;">Albert</a>"#,
@@ -2422,10 +2394,6 @@ fn collapse_html_whitespace(html: &str) -> String {
 
 #[test]
 fn long_bullet_lists_render_inline_syntax_like_wikidot() {
-    // Anonymous Wikidot PagePreview of this source
-    // (`list-typography-and-links` and `list-bold-mono` in
-    // wikidot-list-rendering-preview-20261019.json). Long runs used to be
-    // pre-rendered with a partial inline renderer (#2575).
     let source = concat!(
         "* [*http://scp-jp.wikidot.com/example Example] -- by x\n",
         "* Murphy Law in... Type 3043 -- FOR MURDER!\n",
@@ -2458,10 +2426,6 @@ fn long_bullet_lists_render_inline_syntax_like_wikidot() {
 
 #[test]
 fn nested_top_bar_lists_keep_wikidot_server_markup() {
-    // `nested-no-link-parent` and `nav_top` in
-    // wikidot-list-rendering-preview-20261019.json: Wikidot's server HTML leaves a
-    // parent item's text bare. Its client script wraps it in a
-    // `javascript:;` anchor afterwards (fixMenuList), as Framerail does.
     let source = concat!(
         "[[div class=\"top-bar\"]]\n",
         "* About\n",
@@ -2495,9 +2459,6 @@ fn nested_top_bar_lists_keep_wikidot_server_markup() {
 
 #[test]
 fn indented_list_markers_after_a_block_stay_literal_in_long_runs() {
-    // Wikidot starts a list only at the root depth after another block
-    // (ftml test/list/native-wikidot-structure); an eight-item run with an
-    // indented first marker is literal text, not a pre-rendered list.
     let mut source = String::from("Paragraph.\n\n");
     for index in 0..8 {
         source.push_str(&format!(" * item {index}\n"));
@@ -2708,11 +2669,6 @@ fn direct_balanced_iftags_without_includes_are_evaluated_by_ftml() {
     assert!(rendered.contains("visible"), "{rendered}");
 }
 
-/// Live sandbox-for-codex observations, 2026-10-15 (run-owned pages
-/// `wjct2353-*`, `wjct2353b-*`): `[[/module]]` pairs with the nearest
-/// preceding module opener that starts a line, so a body-less module does not
-/// reach past a later `[[module CSS]]` and swallow the `[[/iftags]]` between
-/// them (#2353). Without the later CSS module the gate already resolved.
 #[test]
 fn bodyless_module_does_not_take_a_later_modules_closer() {
     let css = "[[module CSS]]\n.x { color: red; }\n[[/module]]\n";
@@ -2876,8 +2832,6 @@ fn include_argument_pipes_are_collected_before_parser_function_evaluation() {
 
 #[test]
 fn parser_functions_open_wikidot_comment_delimiters_before_ftml() {
-    // Live provenance:
-    // ftml-oracle-20260712T230555Z/run-parser-comment-delimiter.
     let mut source = concat!(
         "[!-- [[#if aroace | --] |  ]]OMEGA_TRUE[!-- --]\n",
         "[!-- [[#if 0 | --] |  ]]OMEGA_FALSE[!-- --]\n",
@@ -3191,9 +3145,6 @@ fn matches_live_wikidot_tag_predicate_matrix() {
     assert!(!wikidot_tag_conditions_match("+alpha +beta", &tags));
     assert!(wikidot_tag_conditions_match("+alpha -beta", &tags));
     assert!(!wikidot_tag_conditions_match("+alpha -alpha", &tags));
-    // A bare gate has no conditions to check: it passes exactly when the
-    // page carries at least one tag (the saved-route behavior; the frozen
-    // PagePreview observations are all tag-less and bind it as false).
     assert!(wikidot_tag_conditions_match("", &tags));
     assert!(!wikidot_tag_conditions_match("", &[]));
     assert!(wikidot_tag_conditions_match("-", &tags));
@@ -3201,9 +3152,6 @@ fn matches_live_wikidot_tag_predicate_matrix() {
 
 #[test]
 fn resolves_parser_generated_iftags_predicates_before_tag_matching() {
-    // Frozen theme sources use this exact nested #ifexpr-in-iftags shape.
-    // The live tagged preview and saved-page matrix is retained under
-    // ftml-oracle-20260713T042816Z/run-iftags-parser-predicate.
     let page_info = ftml::data::PageInfo {
         tags: vec![Cow::Borrowed("alpha")],
         ..fallback_test_page_info("tagged-page", "Tagged Page")
@@ -3248,11 +3196,6 @@ fn resolves_parser_generated_iftags_predicates_before_tag_matching() {
 
 #[test]
 fn authored_and_generated_empty_iftags_specs_diverge_in_preparation() {
-    // The tagged saved-route population carries authored bare gates whose
-    // bodies render live (css-theme-preparation-tool among them), while
-    // the frozen parser-predicate matrix binds a parser function that
-    // evaluates its spec to nothing as the OFF state. Preparation marks
-    // generated heads before evaluating them so both behaviors hold.
     let page_info = ftml::data::PageInfo {
         tags: vec![Cow::Borrowed("alpha")],
         ..fallback_test_page_info("tagged-page", "Tagged Page")
@@ -3301,8 +3244,6 @@ fn authored_bare_iftags_stays_closed_on_a_tagless_page_in_preparation() {
 
 #[test]
 fn parser_generated_name_and_bracket_fragments_form_iftags_boundaries() {
-    // Live preview and saved-page observations are retained under
-    // ftml-oracle-20260713T125500Z/run-parser-generated-partial.
     for (source, body) in [
         (
             concat!(
@@ -3355,8 +3296,6 @@ fn parser_generated_name_and_bracket_fragments_form_iftags_boundaries() {
 
 #[test]
 fn parser_generated_boundaries_participate_in_partial_iftags_recovery() {
-    // Live preview and saved-page observations are retained under
-    // ftml-oracle-20260713T125500Z/run-parser-generated-partial.
     for source in [
         concat!(
             "[[iftags +alpha]]\n",
@@ -3395,8 +3334,6 @@ fn parser_generated_boundaries_participate_in_partial_iftags_recovery() {
 
 #[test]
 fn parser_generated_partial_recovery_preserves_native_quote_depth() {
-    // Live preview and saved-page observations are retained under
-    // ftml-oracle-20260713T125500Z/run-parser-generated-partial.
     for (source, depth) in [
         (
             concat!(
@@ -3441,8 +3378,6 @@ fn parser_generated_partial_recovery_preserves_native_quote_depth() {
 
 #[test]
 fn preserves_parser_generated_iftags_inside_literal_regions() {
-    // Live preview and saved-page observations are retained under
-    // ftml-oracle-20260713T051411Z/run-iftags-quoted-generated.
     let page_info = ftml::data::PageInfo {
         tags: vec![Cow::Borrowed("alpha")],
         ..fallback_test_page_info("tagged-page", "Tagged Page")
@@ -3544,7 +3479,6 @@ fn resolves_single_line_wikidot_iftags_fragments_in_source() {
 
 #[test]
 fn prepares_wikidot_unicode_iftags_component_with_cross_closed_collapsible() {
-    // scp-jp:component:centered-header-bhl uses this close order; Wikidot renders the outer div around the complete collapsible despite the cross-closed source markers.
     let page_info = ftml::data::PageInfo {
         tags: vec![Cow::Borrowed("theme")],
         language: Cow::Borrowed("ja-JP"),

@@ -146,7 +146,6 @@ mod tests {
 
     #[test]
     fn pinned_ftml_keeps_newline_after_aligned_image_at_paragraph_break() {
-        // FTML #733, pinned at c36bc5fe655fdb6cd41a563882194493f50008e1.
         let html = render_wikidot(
             "[[f>image landscape.jpg]]\n\nEXTERNAL [[image https://example.com/some-image.webp]]",
         );
@@ -155,7 +154,6 @@ mod tests {
 
     #[test]
     fn pinned_ftml_resizes_page_qualified_attachments_on_the_owning_page() {
-        // FTML #734, pinned at c36bc5fe655fdb6cd41a563882194493f50008e1.
         let html = render_wikidot("[[image other-page/photo.jpeg]]");
         assert!(
             html.contains(
@@ -190,9 +188,6 @@ mod tests {
 
     #[test]
     fn pinned_ftml_reads_attachment_trees_serialized_before_the_page_field() {
-        // FTML #744 added an optional `page` field to implicit-attachment
-        // trees; trees serialized by the previous pin have no such field and
-        // must still deserialize.
         let source: ftml::tree::ImageSource = serde_json::from_str(
             r#"{"type":"implicit-attachment","data":{"file":"photo.jpeg","alt":"photo.jpeg","size":"medium"}}"#,
         )

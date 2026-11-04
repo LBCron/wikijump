@@ -28,7 +28,6 @@ macro_rules! mime {
     };
 }
 
-// Thanks to https://www.digipres.org/formats/mime-types/ for many of these.
 mime!(ACTIONSCRIPT, "text/actionscript");
 mime!(APL, "text/apl");
 mime!(ASM, "text/x-asm");

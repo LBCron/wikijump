@@ -186,9 +186,6 @@ fn runtime_meta_raw_owns_exactly_six_delimiter_bytes() {
 
     assert!((0..6).all(|offset| runtime.contains(offset)));
     assert!(!runtime.contains(source.find("live").unwrap()));
-    // Wikidot pairs the first four `@@` (an empty raw) and leaves the last two
-    // literal, so `live` is ordinary text (`six-at-then-bold` in
-    // wikidot-at-raw-preview-20261019.json renders `@@ live <strong>bold</strong>`).
     assert!(
         !LiteralRegionIndex::new_wikidot_syntax(source)
             .contains(source.find("live").unwrap())
@@ -277,9 +274,6 @@ fn unclosed_wikidot_comments_and_blocks_extend_to_eof() {
 
 #[test]
 fn common_index_pairs_inline_raw_within_physical_lines() {
-    // Wikidot never pairs `@@` across lines or paragraphs (retained anonymous
-    // PagePreviewModule observations, wikidot-at-raw-preview-20261019.json):
-    // an unmatched `@@` is literal and must not own the text that follows.
     for source in [
         "live @@raw\nacross lines@@ following",
         "live @@unclosed\nthrough eof",

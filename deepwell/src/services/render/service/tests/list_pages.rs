@@ -135,8 +135,6 @@ fn a_url_tag_selector_without_a_tag_falls_back() {
 
 #[test]
 fn an_unresolved_url_tag_selector_widens_rather_than_matching_nothing() {
-    // Live lists the whole site here rather than rendering an empty list,
-    // which is why `system:page-tags` writes the `|_` fallback.
     for tag in [None, Some("")] {
         let arguments =
             parse_list_pages_arguments_with_url(r#" tags="@URL""#, url_tag(tag))
@@ -360,8 +358,6 @@ fn a_url_category_selector_without_a_category_falls_back() {
 
 #[test]
 fn an_unresolved_url_category_selector_names_no_category() {
-    // Live drops the constraint, which for `category` means the module's own
-    // default rather than every category. Dropping is not matching everything.
     for category in [None, Some("")] {
         let arguments = parse_list_pages_arguments_with_url(
             r#" category="@URL""#,
@@ -1040,7 +1036,6 @@ fn parses_relative_and_comparison_date_selectors() {
         );
     }
 
-    // The relative unit defaults to one day and the direction is preserved.
     for (value, comparison) in [
         ("older than 5", ComparisonOperation::LessThan),
         ("newer than 5", ComparisonOperation::GreaterThan),
@@ -1360,8 +1355,6 @@ fn parses_wikidot_camel_case_list_pages_order_argument() {
         ("revisions desc", OrderProperty::Revisions, false),
         ("comments desc", OrderProperty::Comments, false),
         ("created_at desc desc", OrderProperty::CreatedAt, true),
-        // The live preview accepts the ordinary `asc` spelling as ascending;
-        // `desc desc` is the legacy alternate spelling for that direction.
         ("created_at asc", OrderProperty::CreatedAt, true),
         ("unknown", OrderProperty::CreatedAt, false),
     ] {
@@ -1968,19 +1961,11 @@ fn defers_wikidot_list_pages_custom_date_format_to_odate_class() {
     );
 
     assert!(rendered.contains("format_%25Y-%25m-%25d%20%25R%7Cagohover"));
-    // ListPages' anonymous PagePreview response carries the UTC server text;
-    // the requested format is carried by the ODate class.
     assert!(rendered.ends_with(">08 Aug 2024 19:44</span>"));
 }
 
 #[test]
 fn saved_list_pages_date_carries_utc_server_text_like_preview() {
-    // Issue #2638: the saved-page path must not pin JST. Unix 1454705501 is
-    // 2016-02-05 20:51:41 UTC, which is already 2016-02-06 in JST — a
-    // JST-pinned render would show the wrong day. Both paths must emit the
-    // UTC server text while the requested comma format stays in the class
-    // for the browser ODate phase. The zero-padded day pins the server
-    // `%d` grammar.
     let created_at = time::OffsetDateTime::from_unix_timestamp(1_454_705_501)
         .expect("fixture timestamp should be valid");
     let rendered = format_list_pages_created_at(Some(created_at), None, true);
@@ -3710,10 +3695,6 @@ fn snapshot_commenter_without_local_thread_resolves_commented_by_id_and_unix_to_
         ),
     );
 
-    // The snapshot carries the last commenter's name but no user ID or slug,
-    // and the page has no local discussion thread, so the ID and unix
-    // variables have no source: they resolve to an empty string instead of
-    // leaking the raw %%...%% token.
     assert_eq!(rendered, "last comment by ikjseo (id: , unix: )");
     assert!(!rendered.contains("%%commented_by_id%%"));
     assert!(!rendered.contains("%%commented_by_unix%%"));
@@ -3751,8 +3732,6 @@ fn missing_snapshot_vote_count_uses_zero_vote_ratio_state() {
         &list_pages_substitution_context(20, &BTreeMap::new(), None, &BTreeMap::new()),
     );
 
-    // The pinned FTML parser-functions implementation reports division by
-    // zero instead of manufacturing a numeric result.
     assert_eq!(rendered, "zero-vote 24.5 run-time error: division by zero");
     assert!(!rendered.contains("[[#"));
 }
@@ -4669,11 +4648,6 @@ fn substituted_tag_values_escape_html_blocks_at_any_line_position() {
     }
 }
 
-/// Ordinary identity and tag values inside `[[html]]` blocks: names pass
-/// through byte-identically (no HTML-significant characters in 103,915
-/// observed corpus names), and the only escaping is `&` → `&amp;` (599
-/// observed tags such as `s&c-plastics`), which renders the identical
-/// visible glyph. Fails before the fix, which left `&` raw.
 #[test]
 fn substituted_ordinary_values_keep_visible_output_inside_html_blocks() {
     let template = "[[html]]\nBy %%created_by%% (%%updated_by%%) tags %%tags%% hidden %%_tags%%\n[[/html]]";

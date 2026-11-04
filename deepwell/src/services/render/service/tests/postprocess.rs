@@ -732,17 +732,8 @@ fn render_wikidot_alignment_body(wikitext: &str) -> String {
     preserved.restore(&restored)
 }
 
-/// An alignment marker with trailing whitespace is not a block head, so the
-/// opener and its closer both print as their authored text.
-///
-/// Wikidot observations: anonymous PagePreviewModule, scp-wiki, 2026-10-19.
 #[test]
 fn keeps_alignment_markers_with_trailing_whitespace_literal() {
-    // Exact bodies from the #2573 issue table. Line breaks inside one
-    // paragraph serialize as `<br>\n` in this pipeline (the pinned FTML
-    // paragraph shape, also frozen by `keeps_indented_markers_after_content_literal`),
-    // while the paragraph structure — one literal paragraph plus `z` — is the
-    // evidenced Wikidot contract.
     for source in [
         "[[=]] \nA\n[[/=]]\n\nz",
         "[[=]]\t\nA\n[[/=]]\n\nz",
@@ -763,8 +754,6 @@ fn keeps_alignment_markers_with_trailing_whitespace_literal() {
     }
 }
 
-/// Blank lines between poisoned markers split the literal paragraphs, exactly
-/// as the #2573 issue table records.
 #[test]
 fn keeps_blank_line_separated_poisoned_markers_literal() {
     let body = render_wikidot_alignment_body("[[=]] \n\nA\n\n[[/=]]");
@@ -804,8 +793,6 @@ fn keeps_left_and_right_alignment_markers_with_trailing_whitespace_literal() {
     }
 }
 
-/// A marker that owns no block prints as its authored text, because Wikidot
-/// only renders the block when an opener and a closer pair up.
 #[test]
 fn keeps_unpaired_alignment_markers_literal() {
     let body = render_wikidot_alignment_body("[[=]]\nA\n");
@@ -831,8 +818,6 @@ fn keeps_unpaired_alignment_markers_literal() {
     );
 }
 
-/// An opener and a closer that pair up own an alignment block, even when
-/// the marker lines carry leading whitespace.
 #[test]
 fn renders_paired_alignment_markers_as_a_block() {
     for source in [
@@ -906,11 +891,6 @@ fn render_wikidot_expanded_alignment_body(top: &str, fragment: &str) -> String {
         .restore(|protection| protection.compat_text().restore(&restored))
 }
 
-/// An opener in the page source and its closer in an included page still
-/// pair up, because ownership is decided on the expanded document through
-/// the production outer preparation below. The poisoned-split companion
-/// pins the post-expansion pass itself: without it, the pinned FTML
-/// revision builds the block from trailing-space markers.
 #[test]
 fn pairs_alignment_markers_split_across_include_boundaries() {
     let body = render_wikidot_expanded_alignment_body(
@@ -945,18 +925,6 @@ fn leaves_unpaired_opener_in_unexpanded_source_unclaimed() {
     );
 }
 
-/// A comment boundary must not split an alignment pair. The scp-744
-/// regression (issues #2573/#2577, epoch 38) printed a literal `[[>]]`
-/// after a documentation `[!--` idiom: the opener scanned while its
-/// closer fell inside the apparent comment, so the expanded-document
-/// normalization escaped the opener as authored text while the pinned
-/// FTML could no longer see the pair together. Both sides of a
-/// comment-split pair stay raw, exactly as before the expanded-document
-/// normalization, so the pair still owns its block and every witness
-/// line survives. The `[!--` inside the `@@` escape keeps the shape
-/// general: the expanded-document scan counts the comment open while
-/// the pinned FTML reads the escape literally and still pairs the two
-/// markers.
 #[test]
 fn keeps_comment_split_alignment_pair_raw_for_ftml() {
     let body = render_wikidot_alignment_body(concat!(
@@ -988,8 +956,6 @@ fn keeps_comment_split_alignment_pair_raw_for_ftml() {
     }
 }
 
-/// A trailing-whitespace poison on either side of a split pair still owns
-/// no block: both markers print as their authored text.
 #[test]
 fn keeps_trailing_whitespace_poisoned_split_pair_literal() {
     let body = render_wikidot_expanded_alignment_body(

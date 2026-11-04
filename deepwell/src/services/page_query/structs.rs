@@ -57,7 +57,6 @@ pub struct TagCondition<'a> {
 
     pub none_present: TagList<'a>,
 
-    /// Wikidot's `tags="-"` selector; page must carry no tags at all.
     pub untagged: bool,
 }
 
@@ -69,10 +68,6 @@ pub enum AuthorSelector<'a> {
         user_ids: &'a [i64],
         wikidot_snapshot_names: &'a [Cow<'a, str>],
     },
-    /// Wikidot's `created_by="-="`; pages this author did not create.
-    ///
-    /// Both representations are excluded together, so a page matching either
-    /// the local creator ID or the imported snapshot name is left out.
     NotAny {
         user_ids: &'a [i64],
         wikidot_snapshot_names: &'a [Cow<'a, str>],

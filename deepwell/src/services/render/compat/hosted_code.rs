@@ -10,17 +10,6 @@
  * (at your option) any later version.
  */
 
-//! Text served from `/local--code/<page>/<n>` for a page's `[[code]]` blocks.
-//!
-//! Wikidot serves a block from the page's own source: the body between the
-//! markers without its leading and trailing newlines, plus one final newline,
-//! with tabs kept. Every retained Wikidot `local--code` response whose source
-//! is in the corpus follows this (#2351). FTML expands tabs inside code bodies
-//! because Wikidot's rendered `<pre>` does, so the rendered block cannot be
-//! served as is. The hosted text takes the raw source body instead, but only
-//! when that body renders to exactly FTML's block; otherwise it keeps FTML's
-//! text, so a block the raw scan cannot pair is never replaced by guesswork.
-
 use super::fallback_code::CompatCodeBlock;
 use crate::error::prelude::Result;
 use crate::models::site::Model as SiteModel;
@@ -30,15 +19,6 @@ use crate::services::text_block::{TextBlock, TextBlockService, mime_for_language
 use crate::types::TextBlockType;
 use ftml::tree::CodeBlock;
 
-/// Replaces a page's hosted code blocks with their `/local--code/` text.
-///
-/// `include_comment_blocks` asks for Wikidot's comment recovery. FTML
-/// discards comment content before block parsing, so a `[[code]]` block
-/// inside `[!-- ... --]` never reaches `code_blocks`, but Wikidot hosts
-/// it anyway. When the caller renders the page's own source (rather
-/// than a fallback whose blocks already come from the raw scan), the
-/// scan's comment-wrapped blocks are merged in at their source
-/// positions so the numbering matches Wikidot's.
 pub(in crate::services::render) async fn persist_hosted_code_blocks(
     ctx: &ServiceContext<'_>,
     page_id: i64,
@@ -264,11 +244,6 @@ fn wikidot_hosted_code(body: &str) -> String {
     hosted
 }
 
-/// A code body with the differences FTML's Wikidot preprocessing makes
-/// removed: tabs become four spaces, non-breaking spaces become spaces, the
-/// control characters Wikidot discards are dropped, whitespace-only lines
-/// become empty, and runs of empty lines (including leading and trailing
-/// ones) collapse. Two bodies with the same key are the same block.
 fn rendered_code_key(body: &str) -> String {
     let mut lines = Vec::new();
     let mut blank_run = false;
@@ -342,8 +317,6 @@ mod tests {
 
     #[test]
     fn hosted_code_drops_surrounding_newlines_and_ends_with_one() {
-        // theme:basalt block 3: `[[code type="css"]]`, a blank line, the rule,
-        // a blank line, `[[/code]]`. Wikidot serves the rule and one newline.
         let rendered = "\n\n#page-title {\n    display: none !important;\n}\n\n";
         assert_eq!(
             hosted_code_texts(&[rendered], None, identity),
@@ -504,9 +477,6 @@ mod tests {
 
     #[test]
     fn merged_recovers_the_evidenced_comment_pages() {
-        // nav:interwiki-c404 (scp-jp): both blocks sit in one comment and
-        // the render produced none of them; the hosted bodies are the
-        // live-served first lines.
         let nav = [
             CompatCodeBlock {
                 language: Some("html".to_owned()),
@@ -530,8 +500,6 @@ mod tests {
         assert_eq!(merged[0].language.as_deref(), Some("html"));
         assert_eq!(merged[1].language.as_deref(), Some("JavaScript"));
 
-        // theme:shushuin (scp-jp): three comment-wrapped CSS blocks, in
-        // source order, opening with the lines Wikidot serves for /1../3.
         let shushuin = [
             raw_comment(
                 "@import url('https://fonts.googleapis.com/css?family=Noto+Serif+JP');\n/*header*/",
@@ -569,8 +537,6 @@ mod tests {
 
     #[test]
     fn hosted_code_keeps_source_whitespace_only_lines_and_blank_runs() {
-        // component:acs-animation keeps " " lines and theme:basalt keeps two
-        // blank lines in a row; FTML's block has neither.
         let source = [raw("a {\n \n\tb: c;\n}\n\n\nd {}")];
         let rendered = "a {\n\n    b: c;\n}\n\nd {}";
         assert_eq!(

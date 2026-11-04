@@ -304,14 +304,6 @@ impl RenderService {
         *wikitext = normalized;
     }
 
-    /// Whether joining a link's physical lines could change `@@` pairing.
-    ///
-    /// Wikidot pairs inline raw `@@ ... @@` within each original physical line,
-    /// before a link label spanning lines is read. Collapsing the label puts
-    /// those lines' `@@` markers on one line, where the parser would then pair
-    /// them. Such a link is left to the parser, which reads the label across
-    /// lines itself (`raw-pair-across-lines-link` in
-    /// wikidot-at-raw-preview-20261019.json).
     fn joined_lines_carry_raw_markers(
         source: &str,
         link_match: &regex::Match<'_>,
@@ -346,8 +338,6 @@ impl RenderService {
     pub(in crate::services::render) fn remove_wikijump_underline_wrappers(
         html: &str,
     ) -> String {
-        // FTML uses semantic <s> elements for paired Wikidot --text--
-        // strikethrough. Those are visible formatting, not plain wrappers.
         html.replace("<u>", "").replace("</u>", "")
     }
 
@@ -651,10 +641,6 @@ impl RenderService {
         page: &str,
     ) -> PageRef {
         match site {
-            // Host-form `<slug>.wikidot.com` spellings name the same site as
-            // the bare slug (Wikidot looks the segment up as a site or a
-            // host), so canonicalize before normalization runs. Anything else
-            // passes through unchanged.
             Some(site) => PageRef::page_and_site(
                 ftml::data::canonical_include_site(site).into_owned(),
                 page,
@@ -702,10 +688,6 @@ impl RenderService {
         inside
     }
 
-    /// Whether `start` falls inside an inline raw `@@ ... @@` pair.
-    ///
-    /// Wikidot pairs `@@` within a physical line only, so an earlier lone `@@`
-    /// on another line must not change the answer.
     pub(super) fn is_inside_wikidot_escape(source: &str, start: usize) -> bool {
         let line_start = source[..start].rfind('\n').map_or(0, |newline| newline + 1);
         source[line_start..start].matches("@@").count() % 2 == 1
@@ -772,9 +754,6 @@ impl RenderService {
             return name.to_owned();
         }
 
-        // Wikidot keeps extensionless root-page attachments on its implicit
-        // attachment path, which supplies the medium resize and original-file
-        // link. Qualified include owners still use the direct URL path below.
         if attachment_owner.is_none()
             && !name
                 .rsplit('/')

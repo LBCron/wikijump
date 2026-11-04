@@ -56,7 +56,6 @@ pub(in crate::services::render) fn protected_construct_end(
     match kind {
         TagKind::Comment => comment_end(html, start),
         TagKind::BogusComment => bogus_comment_end(html, start),
-        // CDATA sections require foreign-content namespace context, and declarations require their own tokenizer states; this lexical scanner has neither.
         TagKind::Cdata | TagKind::Declaration => None,
         TagKind::Element { .. } => element_tag_end(html, start),
     }

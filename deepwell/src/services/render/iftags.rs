@@ -796,13 +796,6 @@ mod tests {
 
     #[test]
     fn skipped_opener_leaves_its_closer_raw_for_ftml_recovery() {
-        // scp-744 (issues #2573/#2577, epoch 38): a backend gate whose
-        // opener hides inside documentation while its closer scans. The
-        // closer has no stack partner, but escaping it would freeze it as
-        // authored text and blind the pinned FTML to a pair it still
-        // resolves natively; with the closer raw the gate recovers and the
-        // article body survives. A closer nothing opens prints literally
-        // either way, so leaving it raw changes no evidenced output.
         let mut source = concat!(
             "[!-- documentation opens\n",
             "[[iftags +component-backend]]\n",

@@ -896,9 +896,6 @@ fn leaves_image_block_includes_on_non_scp_wiki_sites_for_normal_expansion() {
 
 #[test]
 fn expands_dotted_site_image_block_includes_like_the_canonical_spelling() {
-    // `:scp-wiki.wikidot.com:` names the same site as `:scp-wiki:` (Wikidot
-    // looks the segment up as a site or a host), so the dotted spelling must
-    // expand exactly like the canonical one on an scp-wiki page.
     let page_info = fallback_test_page_info("scp-3922", "SCP-3922");
     let mut dotted =
         "[[include :scp-wiki.wikidot.com:component:image-block name=dotted.jpg]]\n"
@@ -932,8 +929,6 @@ fn dotted_image_block_include_refs_canonicalize_while_dashed_spellings_stay_dist
         ),
         PageRef::page_and_site("scp-sandbox-3", "component:image-block"),
     );
-    // Dashed host form is a different, nonexistent site on Wikidot
-    // (capture pv2-dashed-host-form): its key must not move.
     assert_eq!(
         RenderService::wikidot_image_block_page_ref(
             Some("scp-jp-wikidot-com"),

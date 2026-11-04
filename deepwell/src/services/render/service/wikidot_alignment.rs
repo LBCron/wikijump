@@ -16,13 +16,6 @@ struct WikidotAlignmentMarker {
 }
 
 impl RenderService {
-    /// Trim the leading whitespace of a Wikidot page source.
-    ///
-    /// Wikidot trims the whitespace at the start of a page source before it
-    /// parses, so an indented first block head owns its block instead of
-    /// printing as authored text. The trim belongs to the page source, so
-    /// included text, which lands inside the document, keeps its own leading
-    /// whitespace.
     pub(super) fn trim_wikidot_document_leading_whitespace(wikitext: &mut String) {
         let trimmed = wikitext.trim_start_matches([' ', '\t', '\n', '\r']);
         if trimmed.len() == wikitext.len() {
@@ -31,21 +24,6 @@ impl RenderService {
         *wikitext = trimmed.to_owned();
     }
 
-    /// Rewrite the Wikidot alignment markers that own a block into the
-    /// alignment divs they stand for.
-    ///
-    /// Wikidot accepts leading whitespace before a line-start marker, but a
-    /// trailing space or tab means the line is not a block head. A marker
-    /// only owns a block when an opener and a closer of the same alignment
-    /// pair, and a pair with trailing whitespace on either side owns no
-    /// block at all: both markers then print as their authored text.
-    ///
-    /// The pairing is decided on the whole expanded document, so an opener
-    /// and its closer may live in different included sources. A comment or
-    /// another literal region never splits a pair: when only one side of a
-    /// pair scans inside a literal region, both sides stay raw, so the
-    /// pinned FTML still pairs them exactly as it did before the
-    /// expanded-document normalization.
     pub(super) fn normalize_wikidot_alignment_markers(
         wikitext: &mut String,
         preserved: &mut CompatTextFragments,

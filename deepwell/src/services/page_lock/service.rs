@@ -280,8 +280,6 @@ impl PageLockService {
             .or_raise(make_error)?;
 
         if let Some(lock) = active_lock {
-            // Upstream #3136 adds a dedicated page-lock resource; accept it
-            // in addition to our existing page-scoped bypass check.
             let can_bypass_permission = ctx
                 .user_has_permission(Permission {
                     resource_type: Resource::Page,

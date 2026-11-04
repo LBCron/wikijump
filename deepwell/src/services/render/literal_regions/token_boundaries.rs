@@ -186,11 +186,6 @@ fn scan_email(
         _ => {}
     }
 
-    // Keep this in lockstep with the pinned FTML scanner, which follows
-    // Wikidot's `word(.word)*@label(.label)+`: local words are ASCII
-    // alphanumeric, `_`, or `-`; domain labels are ASCII alphanumeric or `-`.
-    // Every later start inside the scanned local run reaches the same `@` or
-    // stop, so a failed scan proves the whole local run.
     let local_end = scan_email_dotted(bytes, start, is_email_local_byte);
     debug_assert!(local_end >= identifier_end);
     record_email_bytes_examined(local_end - start);
@@ -1052,8 +1047,6 @@ mod tests {
             "https://e.test/a@<b",
         );
         let cursor = TextTokenCursor::new(source);
-        // FTML 4.0.0 (the pinned dependency) exposes reserved `@@` and `@<`
-        // markers instead of allowing a URL/email scan to consume them.
         let ranges = [
             0..15,
             19..34,

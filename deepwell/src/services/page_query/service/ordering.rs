@@ -269,13 +269,6 @@ pub(super) fn apply_sql_ordering(
     query
 }
 
-/// Effective vote count for a page: the imported Wikidot votes plus the
-/// local votes. The imported term is the snapshot's captured `votes_count`
-/// meta figure when the snapshot carries a usable one; when it does not
-/// (the corpus import does not write that key), the imported term falls
-/// back to counting the page's imported (`from_wikidot`) vote rows,
-/// mirroring how the Sum scorer treats the roster when no baseline
-/// figure is in play. Local votes are the active non-Wikidot rows.
 pub(super) fn effective_vote_count_sql(page_id_sql: &str) -> String {
     format!(
         "COALESCE((\

@@ -1313,10 +1313,6 @@ mod tests {
 
     #[test]
     fn missing_context_errors_route_only_to_their_live_kinds() {
-        // Retained #1034 live own-line contracts: each missing-context error
-        // routes to exactly its module kinds. Comments, ForumStart,
-        // RecentPosts, and RecentThreads have distinct live outputs and must
-        // never receive another module's error text.
         for name in [
             "Comments",
             "FrontForum",
@@ -1360,10 +1356,6 @@ mod tests {
 
     #[test]
     fn comments_hideform_matrix_parses_only_observed_double_quoted_values() {
-        // Retained #1367/r7 contract: omitted and exact double-quoted false
-        // keep the form path open, while exact double-quoted true/yes close
-        // it. Every other spelling fails closed instead of inferring hidden
-        // form behavior from an unobserved source shape.
         for (head, hide_form) in [
             ("", false),
             ("hideForm=\"false\"", false),

@@ -31,13 +31,6 @@ use crate::types::Reference;
 const MAX_VISIBLE_FILE_ROWS: u64 = 15;
 const MIN_EVIDENCED_FILE_SIZE: i64 = 1024;
 
-/// Opaque per-render suffix domain for saved Files module instances.
-///
-/// Live evidence shows unpadded decimal values of four to six digits and does
-/// not establish the server generator, its domain, or its seed. These bounds
-/// are a local replacement domain chosen only to keep the observable shape
-/// (fresh, opaque, unpadded, at least four digits) while never claiming to
-/// reproduce the unobserved generator.
 const MIN_FILES_MODULE_SUFFIX: u32 = 1_000;
 const MAX_FILES_MODULE_SUFFIX: u32 = 1_000_000;
 
@@ -453,10 +446,6 @@ mod tests {
 
     #[test]
     fn flickr_gallery_with_arguments_stays_literal_without_provider_fetch() {
-        // Retained #1039 contract: only the bare documented opener renders
-        // the preview no-photos diagnostics. Argument-bearing invocations
-        // (e.g. the spec's tags/tagMode example) stay literal so no provider
-        // is fetched and no photos are fabricated.
         for source in [
             "[[module FlickrGallery tags=\"linux,sun\" tagMode=\"all\"]]",
             "[[module FlickrGallery userName=\"fixture\" perPage=\"5\"]]",
@@ -473,11 +462,6 @@ mod tests {
 
     #[test]
     fn flickr_gallery_documented_limits_stay_literal_without_provider_fetch() {
-        // Retained #1039 contract: the spec documents perPage 1-100,
-        // tagMode any/all, 7 sort values, 4 size values, 7 contentType
-        // values, and their defaults. Out-of-range, non-numeric, unknown
-        // enum, and unknown-attribute invocations stay byte-literal so no
-        // provider is fetched and no photos are fabricated.
         for source in [
             "[[module FlickrGallery perPage=\"0\"]]",
             "[[module FlickrGallery perPage=\"101\"]]",

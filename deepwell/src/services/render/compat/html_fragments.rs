@@ -890,7 +890,6 @@ fn contains_only_text_breaks_and_balanced_inline_elements(value: &str) -> bool {
             }
             stack.pop();
         } else if is_void_html_element(&name) {
-            // HTML void elements are balanced by definition.
         } else {
             if tag.trim_end().ends_with('/') {
                 return false;
@@ -1103,11 +1102,6 @@ fn advance_open_html_element_stack(
             return false;
         }
         if closing {
-            // Match the browser tree builder's recovery for crossed tags:
-            // close the named ancestor and discard open descendants. A stray
-            // closing tag with no matching open element has no effect. This
-            // lets a later trusted fragment use the actual surviving parent
-            // while malformed tag text still fails closed above.
             if let Some(open_index) = stack.iter().rposition(|open| open == &name) {
                 stack.truncate(open_index);
             }
@@ -1171,9 +1165,6 @@ fn is_void_html_element(name: &str) -> bool {
     )
 }
 
-/// Parents that may directly contain a restored block fragment. Table cells
-/// and list items are included because Wikidot places block module output
-/// (ListPages, Rate) directly in `<td>`, `<th>`, and `<li>`.
 fn is_safe_block_html_container(name: &str) -> bool {
     matches!(
         name,
@@ -1601,9 +1592,6 @@ mod tests {
 
     #[test]
     fn block_html_restores_as_a_direct_child_of_header_cells_and_list_items() {
-        // Anonymous Wikidot PagePreviewModule (scp-wiki, 2026-10-11): ListPages
-        // and Rate output inside [[hcell]] and [[li]] is a direct child of
-        // <th>/<li>, exactly like the [[cell]] (<td>) and [[div]] controls.
         let mut fragments = CompatHtmlFragments::new("");
         let marker = fragments.push_block_html(
             r#"<div class="list-pages-box"><p>row</p></div>"#.to_owned(),
@@ -1878,11 +1866,6 @@ mod tests {
 
     #[test]
     fn color_restore_expands_inline_code_and_authored_code_div() {
-        // An authored `<div class="code">` is an ordinary div: live Wikidot
-        // renders color spans inside `[[div class="code"]]` (see
-        // `component:coltop`). Only `<pre>`/`<script>`-style block literals
-        // keep markers unrestored here; real `[[code]]` output is `<wj-code>`
-        // at this pipeline stage.
         let mut fragments = CompatHtmlFragments::new("");
         let marker = fragments.push_html("<span>trusted</span>".to_owned());
         let html = format!(

@@ -28,16 +28,6 @@ use std::time::Duration;
 
 pub const JOB_QUEUE_NAME: &str = "job";
 
-/// How long messages, after being delivered, cannot be delivered to another consumer.
-///
-/// This feature is a part of job queues to prevent a job from being run twice by
-/// two different consumers. Because a job which fails won't report back to the queue,
-/// so you cannot tell the difference between a job which is in progress vs a job that failed.
-///
-/// The way we resolve this is setting a time limit for "process time", which is the designated
-/// period a job is allowed to run. If a job takes longer than that, then we assume it failed or
-/// died. This risks a false positive of still-running jobs, but as long as this time is well
-/// above what a job should take to run this risk is minimal.
 pub const JOB_QUEUE_PROCESS_TIME: Option<Duration> = Some(Duration::from_secs(30));
 
 pub const JOB_QUEUE_DELAY: Option<Duration> = None;

@@ -319,11 +319,6 @@ fn leaves_quote_prefixed_css_modules_for_ftml_literal_rendering() {
 
 #[test]
 fn css_module_openers_are_recognized_only_at_the_start_of_a_line() {
-    // Wikidot treats a mid-line `[[module CSS]]`, including one inside `{{ }}`,
-    // as plain text that consumes nothing, while an indented opener is live
-    // (`css-mid-line-*`, `css-indented-opener`, `css-same-line-open-close-mid`
-    // in wikidot-at-raw-preview-20261019.json). `theme:flopstyle-dark` documents
-    // `{{[[module CSS]]}}` thousands of lines before its real module.
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
 
     for original in [
@@ -696,12 +691,6 @@ fn restores_color_inside_inline_monospace_from_ralliston_authorpage() {
 
 #[test]
 fn restores_color_spans_inside_authored_code_div_from_component_coltop() {
-    // Refs #2352. Live Wikidot renders `##color|text##` inside the authored
-    // `[[div class="code"]]` on `component:coltop` as color spans; Wikijump
-    // leaked raw `WIKIJUMPWIKIDOTCOMPATHTML` markers there because the color
-    // restoration pass treated the authored div as a code block. A real
-    // `[[code]]` block keeps its contents literal (no markers are created for
-    // it at protect time).
     let page_info = fallback_test_page_info("component:coltop", "ColTop Component");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
     let mut wikitext = concat!(
@@ -1056,11 +1045,6 @@ fn localizes_matching_wikidot_local_file_urls() {
 
 #[test]
 fn localizes_wikidot_page_code_routes_and_double_slash_code_urls_in_stylesheets() {
-    // Wikidot redirects `https://scp-wiki.wikidot.com/theme:al-slop/code/1` and
-    // `https://scp-wiki.wikidot.com//local--code/theme:much-cool/1` to
-    // `https://scp-wiki.wdfiles.com/local--code/<page>/1` (observed 2026-10-19),
-    // which is how authors import a theme's hosted CSS. Left alone they are
-    // blocked by CSP and the theme is not applied.
     let site = wikidot_site("scp-wiki-en-corpus", Some("scp-wiki.wikidot.com"));
     let mut config = Config::integration_testing();
     config.files_domain = ".wjfiles.localhost".to_owned();
@@ -1371,10 +1355,6 @@ fn localizes_query_param_asset_urls_in_final_output() {
 
 #[test]
 fn localizes_entity_quoted_urls_in_style_attributes() {
-    // Theme mastheads put `url(&#39;...&#39;)` references in real
-    // `style="..."` attributes. The entity quoting defeats the plain
-    // stylesheet pass, so the final output resolves them when scoped to a
-    // literal style attribute opener.
     let site = wikidot_site("scp-wiki", Some("scp-wiki.wikidot.com"));
     let mut config = Config::integration_testing();
     config.files_domain = ".wjfiles.localhost".to_owned();
@@ -1498,8 +1478,6 @@ fn code_block_compatibility_preserves_external_css_dependencies() {
 
 #[test]
 fn color_span_bodies_render_nested_inline_syntax_like_wikidot() {
-    // Anonymous Wikidot PagePreview renders every one of these inside the
-    // color span (wikidot-color-span-nested-preview-20261019.json, #2567).
     for (case, source, expected) in [
         (
             "color-sup-italic",
@@ -1593,8 +1571,6 @@ fn color_span_bodies_render_nested_inline_syntax_like_wikidot() {
 
 #[test]
 fn color_span_bodies_with_raw_markers_keep_each_span_closed() {
-    // scp-102-vn redacts with `##transparent|@@@@…##` on several lines. A raw
-    // marker in the body must not pair with one past the span's close.
     let html = render_wikidot_inline_markup_after_protection(concat!(
         "it's me, ##transparent|@@@@@@@@@@##. Good thing.\n",
         "\n",
@@ -1655,11 +1631,6 @@ fn render_wikidot_inline_markup_after_protection(wikitext: &str) -> String {
 
 #[test]
 fn div_heads_with_arguments_ignore_trailing_spaces_before_the_line_break() {
-    // Wikidot opens `[[div class="a"]]  ` + newline like the same head without
-    // trailing spaces; the pinned FTML used to leave the opener literal with a
-    // stray `[[/div]]` (`div-class-trailing-two-spaces`,
-    // `div-trailing-space-valid-style`, `div-trailing-space-then-blank`,
-    // `div-two-blocks-first-weird` in wikidot-at-raw-preview-20261019.json).
     let page_info = fallback_test_page_info("div-head-space", "Div head space");
     let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
 

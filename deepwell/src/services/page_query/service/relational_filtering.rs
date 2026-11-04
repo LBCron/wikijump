@@ -119,13 +119,6 @@ pub(super) async fn page_parent_condition(
     Ok(Some(condition))
 }
 
-/// The pages whose first revision one of the bound users made.
-///
-/// Uncorrelated, so Postgres evaluates it once: the correlated form
-/// `EXISTS (... WHERE pr.page_id = page.page_id ...)` probed every page of
-/// the site for its first revision, about 0.3 s for SCP Wiki, and an author
-/// page runs dozens of these queries. `page_revision.page_id` is never NULL,
-/// so `NOT IN` keeps the `NOT EXISTS` meaning.
 fn first_revision_author_page_ids_sql(placeholders: &str) -> String {
     format!(
         "SELECT pr.page_id FROM page_revision pr WHERE pr.user_id IN ({placeholders}) \

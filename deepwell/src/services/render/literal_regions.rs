@@ -515,15 +515,6 @@ fn collect_html_tag_ranges(source: &str, ranges: &mut Vec<Range<usize>>) {
     }
 }
 
-/// Pairs `delimiter` occurrences left to right within each physical line.
-///
-/// Wikidot's inline raw `@@ ... @@` never spans lines: a lone `@@`, plain or
-/// inside `{{ }}`, is literal text, and `@@` on different lines or in different
-/// paragraphs never pair (anonymous `PagePreviewModule` observations,
-/// retained in
-/// `install/local/wikidot-verification/artifacts/wikidot-at-raw-preview-20261019.json`).
-/// A page that mentions one `@@` therefore must not change which later `@@`
-/// pairs own literal text; an unmatched `@@` owns no region.
 fn collect_line_paired_ranges(
     source: &str,
     delimiter: &str,

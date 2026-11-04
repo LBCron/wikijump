@@ -680,10 +680,6 @@ impl UserService {
         Ok(new_user)
     }
 
-    /// Drops WWS's cached avatar hash for a user (`user_avatar:<id>`, see
-    /// `wws/src/cache.rs`), so a changed or removed avatar stops being served
-    /// (#2556). WWS also expires the entry, which bounds a re-cache that races
-    /// this request's commit.
     pub async fn invalidate_avatar_cache(
         ctx: &ServiceContext<'_>,
         user_id: i64,

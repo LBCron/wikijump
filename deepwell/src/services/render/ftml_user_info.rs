@@ -356,10 +356,6 @@ mod tests {
 
     #[test]
     fn wikidot_avatar_url_matches_the_compiled_wikidot_avatar() {
-        // Live SCP-9506 (2026-10-12): the license box compiled on
-        // 2026-10-04 serves `src="https://www.wikidot.com/avatar.php?
-        // userid=3158795&amp;amp;size=small&amp;amp;timestamp=1791147832"`;
-        // FTML adds the second escape.
         assert_eq!(
             wikidot_avatar_url(3158795, 1791147832),
             "https://www.wikidot.com/avatar.php?userid=3158795&amp;size=small&amp;timestamp=1791147832",

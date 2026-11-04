@@ -25,9 +25,6 @@ fn wikidot_unclosed_css_yields_to_a_complete_root_list_pages_module() {
     );
     let list_pages = source.find("[[module ListPages").unwrap();
 
-    // Anonymous Wikidot PagePreview emits an empty ListPages wrapper for this
-    // shape. The provenance-backed raw HTML SHA-256 is
-    // b3e8cc0484ab7b9d9291bad408d2668491e4d052edfe91e320e205cb3d31418c.
     assert!(collect_downstream_css_module_ranges(source).is_empty());
     assert_eq!(
         collect_wikidot_unclosed_css_yield_openers(source),
@@ -48,9 +45,6 @@ fn wikidot_unclosed_css_yields_to_multiple_complete_list_pages_modules() {
         "[[/module]]",
     );
 
-    // Anonymous Wikidot PagePreview emits two ListPages wrappers. The
-    // provenance-backed raw HTML SHA-256 is
-    // 48a80a2dd6ca8c27d1813e82ed7e0f9a1700214d34095cb81fdefda88344365f.
     assert!(collect_downstream_css_module_ranges(source).is_empty());
     let index = LiteralRegionIndex::new_list_pages_syntax(source);
     assert!(!index.contains(source.find("missing-one").unwrap()));
@@ -70,9 +64,6 @@ fn wikidot_closed_css_keeps_complete_list_pages_markers_raw() {
         "[[/module]]",
     );
 
-    // Adding the true outer close makes the matching anonymous Wikidot
-    // PagePreview empty. Its raw HTML SHA-256 is
-    // 545c38b0922de19734fbffde62792c37c2aef6a3216cfa472449173165220f7d.
     assert_eq!(
         collect_downstream_css_module_ranges(source),
         vec![0..source.len()],
@@ -87,9 +78,6 @@ const MISSING_LIST_PAGES: &str = "[[module ListPages name=\"missing-x\"]]";
 
 #[test]
 fn wikidot_css_consumes_list_pages_heads_whose_whitespace_body_leaves_the_close_raw() {
-    // A ListPages body that is only whitespace leaves its close as text, so
-    // the CSS module owns that close (wikidot-css-listpages-preview-20261019.json,
-    // all five render only the trailing `z`, or nothing).
     let head = MISSING_LIST_PAGES;
     for (case, source) in [
         (
@@ -134,8 +122,6 @@ fn wikidot_css_consumes_list_pages_heads_whose_whitespace_body_leaves_the_close_
 
 #[test]
 fn wikidot_css_yields_to_list_pages_with_a_body_or_an_inline_close() {
-    // Both render an empty list-pages-box before `z`
-    // (wikidot-css-listpages-preview-20261019.json).
     let head = MISSING_LIST_PAGES;
     for (case, source) in [
         (
@@ -221,8 +207,6 @@ fn wikidot_inline_css_keeps_nested_list_pages_markers_raw() {
     let source = "[[module CSS]][[module ListPages name=\"=\"]]%%title%%[[/module]]";
     let list_pages = source.find("[[module ListPages").unwrap();
 
-    // Same-line module ownership remains a fail-closed nonexecution boundary
-    // pending the broader exact-literal work in FTML issue #330.
     assert_eq!(
         collect_downstream_css_module_ranges(source),
         vec![0..source.len()],
@@ -291,12 +275,6 @@ fn wikidot_unclosed_css_stops_before_list_pages_after_a_root_tab_close() {
     );
     let list_pages = source.find("[[module ListPages").unwrap();
 
-    // Three exact-source literal replays (CN, JP, and KO translations of the
-    // same hub) have empty anonymous Wikidot output when a completed root tab
-    // precedes the ListPages head. Their source SHA-256 values are
-    // c48edee0c7d5e0d7e35d35c28d00148b1097b0a88206a355952de6a9cdff8437,
-    // d9c089fd53d7c95f6b71c9d79f2583e05e63025630247d45dd1be2b5d2491f52,
-    // and 809311718037764d189b63533687b8a79052ebae37b8e988e0ffa35f41d35cde.
     assert_eq!(
         collect_downstream_css_module_ranges(source),
         vec![0..source.len()],
@@ -714,10 +692,6 @@ fn assert_css_range_owns_named_module_only(source: &str, owned: &str, live: &str
 
 #[test]
 fn raw_markers_on_their_own_lines_do_not_change_css_module_recognition() {
-    // Wikidot's `@@` never spans lines, so a CSS module whose body holds lone
-    // `@@` lines is recognized exactly like the same module without them
-    // (`css-module-lone-at-lines-listpages` and `css-module-no-at-listpages` in
-    // wikidot-at-raw-preview-20261019.json).
     let with_raw =
         "[[module CSS]]\n@@\n[[module ListPages name=\"inline-raw\"]]\n[[/module]]\n@@";
     let without_raw =

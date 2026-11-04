@@ -231,9 +231,6 @@ mod tests {
         let module = source.find("[[module CountPages").unwrap();
         assert!(LiteralRegionIndex::new_count_pages_syntax(source).contains(module));
 
-        // A lone `@@` is literal text in Wikidot (wikidot-at-raw-preview-20261019.json:
-        // `plain-lone-at-then-code`, `lone-at-then-module-next-line`), so it does not
-        // own the rest of the document.
         for source in [
             "@@ [[module CountPages tags=\"+live\"]]L[[/module]]",
             "text @@\n[[module CountPages tags=\"+live\"]]L[[/module]]",

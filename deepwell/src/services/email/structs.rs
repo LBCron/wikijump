@@ -20,8 +20,6 @@
 
 use serde::{Deserialize, Serialize};
 
-// As of March 2026, see https://www.usercheck.com/docs/api/email-endpoint.md for information
-
 #[derive(Deserialize, Debug, Clone)]
 #[serde(untagged)]
 pub enum MailCheckResponse {

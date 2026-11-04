@@ -447,9 +447,6 @@ pub(in crate::services::render) fn build_wikidot_wikipedia_link(
     target: &str,
     label: Option<&str>,
 ) -> WikidotWikipediaLink {
-    // Live Wikidot keeps the whole target (including any language-looking
-    // prefix) in the path of one fixed host; see issue #2576. The frozen
-    // documentation's language-subdomain split is superseded.
     let href = wikidot_wikipedia_href(target);
     let label = label.filter(|value| !value.is_empty()).unwrap_or(target);
     let anchor = format!(

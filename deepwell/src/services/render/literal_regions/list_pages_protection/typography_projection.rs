@@ -23,7 +23,6 @@ thread_local! {
     static UTF8_BYTES_VALIDATED: Cell<usize> = const { Cell::new(0) };
 }
 
-// The pinned tokenizer classifies `?` as Other, its URL and email scans accept it like the Unicode typography replacements, and no recognized multi-byte delimiter contains it, so it cannot combine with neighboring source bytes into syntax.
 const INERT: u8 = b'?';
 
 // Keep these expressions and their order in lockstep with the pinned FTML typography preprocessor (rev a0bac18a5e2491701f90507509333a2868410569). The equal-width inert bytes preserve original offsets while having the same scanner-relevant property as the Unicode replacements: they are not ASCII quotes, dots, whitespace, or Wikidot delimiters.

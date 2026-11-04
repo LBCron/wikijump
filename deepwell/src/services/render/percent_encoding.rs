@@ -10,10 +10,6 @@
  * (at your option) any later version.
  */
 
-/// Percent-encode one URL path segment using the RFC 3986 unreserved set.
-///
-/// Existing percent escapes are encoded as literal percent signs. This keeps
-/// encoded separators such as `%2F` inside the segment after URL decoding.
 pub(super) fn percent_encode_path_segment(segment: &str) -> String {
     const HEX: &[u8; 16] = b"0123456789ABCDEF";
 

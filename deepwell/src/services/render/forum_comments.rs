@@ -493,8 +493,6 @@ mod tests {
 
     #[test]
     fn thread_pager_matches_every_page_of_a_live_eight_page_thread() {
-        // Retained anonymous ForumViewThreadPostsModule responses for
-        // scp-wiki thread 17768232, pages 1 through 8 (2026-10-12).
         for (page, tokens) in [
             (1, "[1] 2 3 ... 7 8 >2"),
             (2, "<1 1 [2] 3 4 ... 7 8 >3"),

@@ -29,8 +29,6 @@ fn rewrite(source: &str) -> String {
 
 #[test]
 fn scp744_rate_row_and_article_gate_rewrite_to_divs() {
-    // Mirrors the scp-744 marker shapes: the rating-widget row and the
-    // center/left article gates, with body text between and around them.
     let source = concat!(
         "[[>]]\n",
         "[[module Rate]]\n",
@@ -76,8 +74,6 @@ fn scp744_rate_row_and_article_gate_rewrite_to_divs() {
 
 #[test]
 fn comment_hidden_markers_are_not_rewritten() {
-    // Markers inside a Wikidot comment are literal regions: the rewrite must
-    // leave them alone so FTML comment handling (not a div) owns them.
     let source = "[!--\n[[>]]\nbody\n[[/>]]\n--]\n";
     let rewritten = rewrite(source);
     assert!(
@@ -89,7 +85,6 @@ fn comment_hidden_markers_are_not_rewritten() {
         "no div may be emitted inside a comment, got:\n{rewritten}"
     );
 
-    // Same for an unclosed comment: everything after the opener is hidden.
     let source = "before\n[!--\n[[>]]\n";
     let rewritten = rewrite(source);
     assert!(

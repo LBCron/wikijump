@@ -77,10 +77,6 @@ pub(in crate::services::render) fn render_list_pages_numbered_rows_with_titles(
                 .iter()
                 .any(|line| line.to_ascii_lowercase().contains("[[footnote"))
             {
-                // FTML owns footnote allocation and the corresponding footer
-                // registry. Leave the complete ordered-list run as syntax
-                // when any item contains a footnote instead of partially
-                // rendering the item through the compatibility inline helper.
                 for line in &lines[list_start..list_end] {
                     output.push_str(line);
                 }

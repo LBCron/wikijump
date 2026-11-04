@@ -239,7 +239,6 @@ impl RenderService {
             let page = if pages.len() == 1 {
                 pages.pop()
             } else {
-                // Active duplicate slugs are permitted by PostgreSQL's NULL treatment in the existing uniqueness constraint, so preserve the former singular lookup's page and permission decision for that exceptional case while retaining one batch query for ordinary slugs.
                 PageService::get_optional(ctx, site_id, Reference::from(slug.as_str()))
                     .await?
             };

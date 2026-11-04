@@ -947,8 +947,6 @@ fn large_tabbed_gallery_renders_every_collapsible_body_and_image() {
     assert!(errors.is_empty(), "{errors:#?}");
     let html = HtmlRender.render(&tree, &page_info, &settings).body;
 
-    // The tabview container carries an id attribute before the class, so
-    // assert the class token rather than the tag prefix.
     assert!(html.contains(r#"class="yui-navset""#));
     assert!(html.contains("yui-content"));
     for tab in 0..TABS {
@@ -1450,7 +1448,6 @@ fn html_block_with_neutralized_interwiki_frame_rebuilds_the_local_frame() {
         None,
     );
 
-    // The FTML language code ja maps to the interwiki branch code jp.
     assert!(rewritten.contains(
         r#"<iframe src="/-/wikidot-interwiki/interwikiFrame.html?lang=jp&community=scp&pagename=replay" allowtransparency="true" class="html-block-iframe scpnet-interwiki-frame"></iframe>"#
     ));
@@ -1486,8 +1483,6 @@ fn html_block_rewrite_keys_hosted_blocks_to_the_owner_page() {
         Some("nav:side"),
     );
 
-    // The interwiki frame binds to the viewed page even when the assembly
-    // is owned by another page, and a missing pagename is appended.
     assert!(rewritten.contains("pagename=main"));
     assert!(rewritten.contains(r#"src="/nav:side/html/2""#));
     assert!(!rewritten.contains("/main/html/"));
@@ -1627,16 +1622,12 @@ fn direct_html_iframe_with_relative_src_falls_back_to_hosted_frame() {
         r#"<iframe src="/local/path" sandbox="allow-scripts allow-same-origin"></iframe>"#,
     );
 
-    // A relative src would resolve against the wiki page origin, so it must
-    // not reach the page DOM even with an attacker-chosen sandbox value.
     assert!(rewritten.contains(r#"<iframe src="/replay/html/1""#));
     assert!(!rewritten.contains("allow-scripts"));
 }
 
 #[test]
 fn direct_html_iframe_without_src_passes_through_verbatim() {
-    // Live Wikidot emits a src-less iframe with a recognized attribute
-    // directly; it loads nothing, so the scheme gate has nothing to vet.
     let block = r#"<iframe title="probe"></iframe>"#;
     let rewritten = rewrite_single_html_block_body(block);
 
@@ -1664,8 +1655,6 @@ fn direct_html_iframe_with_repeated_src_falls_back_to_hosted_frame() {
         r#"<iframe src="https://example.com/a" src="javascript:alert(1)"></iframe>"#,
     );
 
-    // Browsers resolve the first src, so the second occurrence must not
-    // smuggle a scheme past the gate.
     assert!(rewritten.contains(r#"<iframe src="/replay/html/1""#));
     assert!(!rewritten.contains("javascript:"));
 }
@@ -1693,8 +1682,6 @@ fn direct_html_iframe_with_https_src_and_sandbox_passes_through_verbatim() {
     let block = r#"<iframe src="https://example.com/embed" width="500" sandbox="allow-scripts" allowfullscreen></iframe>"#;
     let rewritten = rewrite_single_html_block_body(block);
 
-    // Live Wikidot probes list sandbox among the recognized pass-through
-    // attributes, so it stays allowlisted; the scheme gate is the boundary.
     assert!(rewritten.contains(block));
     assert!(!rewritten.contains("/replay/html/1"));
 }
@@ -1720,8 +1707,6 @@ fn direct_html_iframe_with_embedded_allowlisted_scheme_falls_back_to_hosted_fram
 
 #[test]
 fn direct_html_iframe_with_padded_dangerous_src_falls_back_to_hosted_frame() {
-    // No trim by design (stricter than the legacy gate): leading whitespace
-    // fails starts_with, and browsers would strip it before resolving.
     let rewritten =
         rewrite_single_html_block_body(r#"<iframe src=" //evil/x"></iframe>"#);
 
@@ -2034,10 +2019,6 @@ fn list_pages_embed_after_one_line_html_block_is_protected() {
 
 #[test]
 fn include_carried_embedvideo_resolves_after_one_line_html_block() {
-    // [[embedvideo]] is an FTML typed element rather than a claimed
-    // [[embed]] block, so carriage through an include already reaches the
-    // parser; this pins that the one-line html block ahead of it changes
-    // nothing and the full YouTube payload set resolves.
     let source = concat!(
         "[[html]]<hr>[[/html]]\n",
         "[[embedvideo]]\n",

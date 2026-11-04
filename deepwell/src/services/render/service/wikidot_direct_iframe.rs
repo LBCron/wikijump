@@ -118,15 +118,10 @@ impl RenderService {
         let mut src_seen = false;
         for attribute in &parsed.attributes {
             if attribute.name == "src" {
-                // Browsers resolve the first src and compare its scheme
-                // case-insensitively, so a repeated src cannot be vetted.
                 if std::mem::replace(&mut src_seen, true) {
                     return None;
                 }
                 let unquoted = attribute.value?;
-                // Live probes cover HTTP and HTTPS src values for direct
-                // emission, and list sandbox among the pass-through
-                // attributes, so sandbox stays allowlisted.
                 if !(unquoted.starts_with("https://") || unquoted.starts_with("http://"))
                 {
                     return None;
@@ -151,10 +146,6 @@ impl RenderService {
         }
 
         let full_slug = Self::page_info_full_slug(page_info);
-        // PagePreviewModule uses `search:site` for the otherwise anonymous
-        // preview page identity. Keep that route fallback local to HTML-block
-        // registration: treating it as the query's current page changes
-        // ListPages selection and exclusion semantics.
         let full_slug = if full_slug.is_empty() {
             "search:site".to_owned()
         } else {

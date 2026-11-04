@@ -103,16 +103,6 @@ pub(in crate::services::render) fn scan_compat_code_blocks(
     Ok(blocks)
 }
 
-/// Flags scanned blocks whose opener sits inside a Wikidot comment.
-///
-/// FTML discards `[!-- ... --]` comment content before block parsing, so
-/// a code block inside a comment never reaches the syntax tree, while
-/// Wikidot hosts the block anyway: it extracts blocks from the raw
-/// source, comment or not. This pass re-walks the source tracking
-/// comment state outside code-block spans -- markers inside a block's
-/// span are block content, not comment delimiters -- and flags each
-/// block whose opener line begins inside a comment. An unclosed comment
-/// runs to the end of the source, as FTML's discard does.
 pub(in crate::services::render) fn mark_comment_wrapped_code_blocks(
     wikitext: &str,
     blocks: &mut [CompatCodeBlock],

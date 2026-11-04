@@ -418,13 +418,6 @@ WHERE invitation_id = $1 AND accepted = FALSE
         }
     }
 
-    /// Map an actor state to Join-module visibility on unsaved previews.
-    ///
-    /// Live Wikidot shows the Join control to site members on PagePreview
-    /// (the documented way for members to check the button), while saved
-    /// pages keep the saved visibility above. Only the member cell differs;
-    /// every other state mirrors the saved mapping until live evidence for
-    /// that state exists.
     pub const fn join_module_preview_state(actor: JoinActorState) -> JoinModuleState {
         match actor {
             JoinActorState::Member => JoinModuleState::Show,
@@ -835,10 +828,6 @@ mod tests {
 
     #[test]
     fn join_preview_shows_members_while_saved_states_stay_hidden() {
-        // Live sandbox probes show the Join control to members on
-        // PagePreview (documentation L0020 agrees), while saved pages keep
-        // the saved visibility. Only the member cell differs from the saved
-        // mapping; every other state mirrors it.
         for (actor, expected) in [
             (JoinActorState::Anonymous, JoinModuleState::Show),
             (JoinActorState::Eligible, JoinModuleState::Show),

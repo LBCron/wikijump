@@ -291,13 +291,6 @@ mod tests {
         );
     }
 
-    /// Live PagePreview controls for standalone buttons (sandbox-for-codex,
-    /// identical for anonymous, member, and non-member actors): exact labels,
-    /// classes, listener hooks, safe style passthrough, and exact error
-    /// blocks for the missing-text and unknown-action shapes. The styled
-    /// source row asserts attributes without order because FTML emits style
-    /// after onclick while live emits it before href; order is cosmetic and
-    /// owned by the FTML renderer.
     #[test]
     fn standalone_button_preview_matches_live_control_dom() {
         fn render(source: &str) -> String {
@@ -349,11 +342,6 @@ mod tests {
         assert!(render("[[button print]]").contains(
             r#"<a class="wiki-standalone-button" href="javascript:;" onclick="WIKIDOT.page.listeners.printClick(event)">print</a>"#
         ));
-        // Live emits raw single quotes around the alterations while FTML
-        // HTML-escapes them as &#39;; both parse to the identical DOM
-        // string, so the pin covers hook, order, content, label, and class
-        // while the cosmetic escaping delta stays an FTML-owned residual
-        // (same for the style-attribute order covered above).
         let set_tags = render("[[button set-tags +tag1 -tag2 text=\"Change tags\"]]");
         for expected in [
             r#"class="wiki-standalone-button""#,

@@ -275,25 +275,6 @@ impl RenderService {
         iframe.replace(original_src, &local_src)
     }
 
-    /// The frame a saved `[[html]]` block holds when the block carries one
-    /// of the SCPnet interwiki frames, emitted through the local interwiki
-    /// routes instead of the hosted html-block wrapper.
-    ///
-    /// `[[embed]]`-carried frames are rewritten by
-    /// [`Self::allowed_wikidot_embed_iframe`]. A `[[html]]`-carried frame
-    /// would otherwise be served from the hosted wrapper, which cannot
-    /// populate the other-languages box, and an import may have replaced
-    /// the stored frame source with an empty inline document, so the box
-    /// would stay empty even once it is served.
-    ///
-    /// Two source shapes are recognized. The live Wikidot source keeps its
-    /// query, except that `pagename` binds to the page being viewed, as on
-    /// Wikidot, where the sidebar frame reports the viewed page regardless
-    /// of which component page carries the block. The neutralized source an
-    /// import substituted — an inline `data:` document — carries nothing
-    /// to recover, so the frame is identified by its surviving authored
-    /// attributes and its target is rebuilt from the render's own page and
-    /// language.
     pub(in crate::services::render) fn wikidot_html_block_interwiki_iframe(
         html_block: &str,
         root_page_full_slug: &str,
@@ -329,9 +310,6 @@ impl RenderService {
             return None;
         }
 
-        // The visible frame keeps the SCPnet component's class. The SCPnet
-        // component serves the SCP community's branches, so the rebuilt
-        // frame addresses that community.
         let class = parsed.attribute_value("class").unwrap_or("");
         if class
             .split_whitespace()
@@ -347,10 +325,6 @@ impl RenderService {
             return Some(parsed.iframe.replace(src, &local_src));
         }
 
-        // The hidden style frame is exactly an iframe with a `src` and a
-        // `display: none` style; its authored parameters went away with
-        // the neutralized source, and the local style frame route serves
-        // a fixed document that takes no parameters.
         let style = parsed.attribute_value("style")?;
         let compact_style: String = style
             .chars()
@@ -394,9 +368,6 @@ impl RenderService {
         )
     }
 
-    /// The interwiki branch code for an FTML page language. The frame
-    /// routes key their language branches by Wikidot's site codes, which
-    /// differ from the FTML locale codes for a few languages.
     fn wikidot_interwiki_language(page_language: &str) -> &str {
         match page_language {
             "ja" => "jp",
@@ -447,12 +418,6 @@ impl RenderService {
     }
 }
 
-/// Wikidot ends the current paragraph before its unsupported-embed error and
-/// leaves any following line break and text at the surrounding block level.
-/// FTML sees only the opaque marker and therefore keeps the whole source line
-/// in one paragraph. Split only a plain-text paragraph containing the marker;
-/// inline markup and malformed HTML retain the established literal replacement
-/// path.
 #[derive(Debug, Clone, Copy)]
 struct WikidotEmbedMarker {
     start: usize,

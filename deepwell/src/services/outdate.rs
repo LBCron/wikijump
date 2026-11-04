@@ -113,14 +113,6 @@ impl OutdateService {
         Ok(())
     }
 
-    /// Performs outdating tasks for a page created (or restored) here.
-    ///
-    /// Wikidot re-renders every page that referenced this slug while no page
-    /// existed there, as soon as one is created: an include of it renders the
-    /// new source and a link to it loses the `newpage` class (live
-    /// sandbox-for-codex observations, 2026-10-15). Those references are
-    /// missing connections, or connections to an earlier, deleted page with
-    /// the same slug, so the ordinary dependents of the new page ID miss them.
     pub async fn process_page_create(
         ctx: &ServiceContext<'_>,
         site_id: i64,
@@ -147,14 +139,6 @@ impl OutdateService {
         Ok(())
     }
 
-    /// Performs outdating tasks for a page deleted here.
-    ///
-    /// Wikidot does not re-render the pages that include or link a deleted
-    /// page: they keep serving the deleted page's content (and a plain link)
-    /// until they are themselves re-rendered. Live sandbox-for-codex
-    /// observations, 2026-10-15, at 2, 30, 90 and 120 seconds after the
-    /// deletion. Template and navigation dependents keep the existing refresh,
-    /// which those observations do not cover.
     pub async fn process_page_delete(
         ctx: &ServiceContext<'_>,
         site_id: i64,

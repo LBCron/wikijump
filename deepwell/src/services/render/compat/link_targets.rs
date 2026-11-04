@@ -130,8 +130,6 @@ fn restore_location(location: &mut LinkLocation<'_>, fragments: &CompatTextFragm
     match location {
         LinkLocation::Page(PageRef { site, page, extra }) => {
             if fragments.contains_marker(page) {
-                // FTML stores page targets already slug-normalized, so the
-                // authored text is normalized by the same Wikidot rules.
                 let mut restored = fragments.restore_ignoring_case(page);
                 normalize(&mut restored);
                 *page = restored;
@@ -157,9 +155,6 @@ fn restore_string(value: &mut String, fragments: &CompatTextFragments) {
     }
 }
 
-/// Wikidot derives an empty label (`[[[{$prev}|]]]`) from the normalized
-/// target, and FTML does so while parsing, so such a label is the normalized
-/// marker. A label equal to the parsed page target is that derivation.
 fn label_derived_from_target(
     label: &LinkLabel<'_>,
     location: &LinkLocation<'_>,

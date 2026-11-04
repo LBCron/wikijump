@@ -115,10 +115,6 @@ pub(in crate::services::render) fn protect_wikidot_color_spans(
                 return captures[0].to_owned();
             };
             let body = &captures["body"];
-            // A raw marker in the body could pair with one beyond the span's
-            // close, and FTML does not split long `@` runs the way Wikidot does
-            // (`##transparent|@@@@@@@@@@##` redactions). Such bodies keep the
-            // pre-rendered literal form.
             if body.contains("@@") {
                 let html = render_wikidot_color_span_html(&color, body);
                 let marker = protected_spans.fragments.push_html(html.clone());

@@ -105,38 +105,6 @@ impl JobWorker {
         tokio::spawn(worker.main_loop());
     }
 
-    /// The main execution loop for a job worker.
-    ///
-    /// This will listen to the queue, picking up new items as they arrive,
-    /// and sleeping for a random duration when there are no jobs available.
-    /// (This way we do not hammer the queue when all the workers wake up
-    /// at once.)
-    ///
-    /// # Clearing job items
-    /// RSMQ (and other queue systems) attempt to maintain job durability,
-    /// such that if a worker takes a job and then crashes, the job is later
-    /// retried. This is behavior we wish to have as well, but it means that
-    /// our job queue flow is a bit different than what may seem obvious.
-    ///
-    /// The `rsmq_async` crate provides two sets of methods for retrieving jobs:
-    /// 1. `pop_message()`
-    ///
-    /// This removes a job from the queue and yields it to a worker. If the worker
-    /// then dies, the job is no longer on the queue and thus is effectively lost.
-    ///
-    /// 2. `receive_message()` followed by `delete_message()`
-    ///
-    /// This receives a job from the queue, during which time the job can no longer
-    /// be picked up by any other consumers. This prevents work being done twice.
-    ///
-    /// After the job execution period, if no further updates are received, then the
-    /// queue assumes the worker died or failed, and then the job is later available
-    /// on the queue for workers to retry.
-    ///
-    /// This means that, after a `receive_message()`, if and only if the job was
-    /// successfully run (aside from any cases where we specifically decide we do
-    /// not want this job to re-run), we will then run `delete_message()` so that
-    /// it is no longer enqueued.
     async fn main_loop(mut self) -> Infallible {
         trace!("Beginning main execution of worker ID {}", self.id);
 

@@ -563,10 +563,6 @@ fn render_gallery_dom(
         output.push_str("\n<div class=\"gallery-item ");
         output.push_str(size);
         output.push_str("\">\n<table>\n<tr>\n<td>");
-        // Wikidot keeps the static `with-lb` anchor even when `viewer="no"`
-        // or `viewer="false"`; only the client-side LightBox initializer is
-        // omitted. Framerail therefore decides whether to activate the
-        // interaction from the page source while this DOM stays exact.
         output.push_str("<a href=\"");
         output.push_str(&original_url);
         output.push_str("\" class=\"with-lb\">");

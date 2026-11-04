@@ -94,3 +94,5 @@ node server.ts
 ```
 
 `pnpm preview` starts Vite's local preview server for inspection; it does not exercise the deployed `server.ts` fast path or lifecycle.
+
+Production runs the code `server.ts` statically imports directly from source under Node's type stripping; everything else is compiled by Vite at build time. Files in that directly loaded graph therefore use `.ts` import specifiers and erasable syntax only — no enums, namespaces, or parameter properties. The `tsc -p tsconfig.node-runtime.json` check in the lint script enforces this.

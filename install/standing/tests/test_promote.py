@@ -56,6 +56,29 @@ class BrowserReferenceTest(unittest.TestCase):
             self.assertEqual(reference["policy"], str(home / "policy.json"))
             self.assertEqual(reference["candidate_port"], 18560)
 
+
+class FramerailImageCheckTest(unittest.TestCase):
+    def test_the_built_framerail_image_must_load_its_server_entry(self) -> None:
+        with mock.patch.object(promote, "run_logged") as run_logged:
+            promote.check_framerail_image_loads("image-id", Path("import.log"), Path("root"))
+        args, log, cwd = run_logged.call_args.args
+        self.assertEqual(
+            args,
+            [
+                "docker", "run", "--rm", "--network", "none",
+                "--entrypoint", "node", "image-id",
+                "--input-type=module", "-e", 'await import("/app/server.ts")',
+            ],
+        )
+        self.assertEqual(log, Path("import.log"))
+        self.assertEqual(cwd, Path("root"))
+
+    def test_an_image_that_cannot_load_its_server_entry_fails_the_stage(self) -> None:
+        with mock.patch.object(promote, "run_logged", side_effect=RuntimeError("run failed")):
+            with self.assertRaisesRegex(RuntimeError, "cannot load /app/server.ts"):
+                promote.check_framerail_image_loads("image-id", Path("import.log"), Path("root"))
+
+
 class FakeStanding:
     """Containers and calls of a standing runtime for `promote.activate`."""
 

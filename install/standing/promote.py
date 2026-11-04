@@ -83,6 +83,23 @@ def last_json_line(stdout: str) -> dict[str, object]:
     raise RuntimeError("step printed no JSON result")
 
 
+def check_framerail_image_loads(image: str, log: Path, cwd: Path) -> None:
+    try:
+        run_logged(
+            [
+                "docker", "run", "--rm", "--network", "none",
+                "--entrypoint", "node", image,
+                "--input-type=module", "-e", 'await import("/app/server.ts")',
+            ],
+            log,
+            cwd,
+        )
+    except RuntimeError:
+        raise RuntimeError(
+            f"the built framerail image cannot load /app/server.ts; see {log}"
+        ) from None
+
+
 class Stages:
     """Run named stages and report each one's duration."""
 
@@ -963,7 +980,13 @@ def promote(args, source_root, runtime_home, override_file, identity, evidence, 
             evidence / "build.log",
             source_root,
         )
-        return last_json_line(stdout)
+        built = last_json_line(stdout)
+        check_framerail_image_loads(
+            built["images"]["framerail"],
+            evidence / "framerail-image-import.log",
+            source_root,
+        )
+        return built
 
     rehearsal_volumes = {
         "database": f"wjrehearsal-{target[:12]}-postgres",

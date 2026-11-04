@@ -30,10 +30,14 @@ use crate::models::blob_blacklist::{self, Entity as BlobBlacklist};
 use crate::models::blob_pending::{
     self, Entity as BlobPending, Model as BlobPendingModel,
 };
+use crate::models::file;
 use crate::models::file_revision::{self, Entity as FileRevision};
+use crate::models::page::{self, Entity as Page};
 use crate::models::user::{self, Entity as User};
+use crate::models::wikidot_user::{self, Entity as WikidotUser};
 use crate::services::ServiceContext;
 use crate::services::file::{DeleteFile, FileService};
+use crate::services::permission::PermissionService;
 use crate::utils::assert_is_csprng;
 use crate::utils::{ConvertToI64, ConvertToU64, ConvertToUsize, now};
 use bytes::Bytes;
@@ -44,8 +48,8 @@ use s3::request::request_trait::ResponseData;
 use s3::serde_types::HeadObjectResult;
 use sea_orm::prelude::Value;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QuerySelect,
-    Set,
+    ActiveModelTrait, ColumnTrait, EntityTrait, JoinType, PaginatorTrait, QueryFilter,
+    QuerySelect, RelationTrait, Set,
 };
 use sea_orm::{DatabaseBackend, FromQueryResult, Statement, TransactionTrait};
 use std::collections::{HashMap, HashSet};
@@ -1178,6 +1182,81 @@ impl BlobService {
         hash: &[u8],
     ) -> Result<BlobMetadata> {
         find_or_error!(Self::get_metadata_optional(ctx, hash), "blob", Blob)
+    }
+
+    pub async fn can_read(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<bool> {
+        let make_error =
+            || Error::new("failed to check blob read access", ErrorType::Blob);
+
+        if ctx.request().user_id == Some(ADMIN_USER_ID) || hash == EMPTY_BLOB_HASH {
+            return Ok(true);
+        }
+
+        let txn = ctx.transaction();
+
+        let live_avatar = User::find()
+            .filter(user::Column::AvatarS3Hash.eq(hash))
+            .filter(user::Column::DeletedAt.is_null())
+            .one(txn)
+            .await
+            .or_raise(make_error)?;
+        if live_avatar.is_some() {
+            return Ok(true);
+        }
+
+        let live_wikidot_avatar = WikidotUser::find()
+            .filter(wikidot_user::Column::AvatarS3Hash.eq(hash))
+            .filter(wikidot_user::Column::IsDeleted.eq(false))
+            .one(txn)
+            .await
+            .or_raise(make_error)?;
+        if live_wikidot_avatar.is_some() {
+            return Ok(true);
+        }
+
+        let owner_pages: Vec<(i64, i64)> = FileRevision::find()
+            .select_only()
+            .column(file_revision::Column::SiteId)
+            .column(file_revision::Column::PageId)
+            .join(JoinType::InnerJoin, file_revision::Relation::File.def())
+            .join(JoinType::InnerJoin, file_revision::Relation::Page.def())
+            .filter(file_revision::Column::S3Hash.eq(hash))
+            .filter(file::Column::DeletedAt.is_null())
+            .filter(page::Column::DeletedAt.is_null())
+            .into_tuple()
+            .all(txn)
+            .await
+            .or_raise(make_error)?;
+
+        let mut checked_page_ids = HashSet::new();
+        for (site_id, page_id) in owner_pages {
+            if !checked_page_ids.insert(page_id) {
+                continue;
+            }
+
+            let page = Page::find_by_id(page_id)
+                .filter(page::Column::SiteId.eq(site_id))
+                .filter(page::Column::DeletedAt.is_null())
+                .one(txn)
+                .await
+                .or_raise(make_error)?;
+            let Some(page) = page else {
+                continue;
+            };
+
+            let can_view = PermissionService::check_user_can_view_page(
+                ctx,
+                ctx.request().user_id,
+                &page,
+            )
+            .await
+            .or_raise(make_error)?;
+            if can_view {
+                return Ok(true);
+            }
+        }
+
+        Ok(false)
     }
 
     pub async fn fetch_if_requested(

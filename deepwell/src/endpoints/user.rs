@@ -25,7 +25,7 @@ use crate::models::wikidot_user::Entity as WikidotUser;
 use crate::services::authentication::AuthenticateUser;
 use crate::services::user::{
     ActivateUserFromWikidot, CreateUser, CreateUserOutput, DeleteUser, GetUser,
-    GetUserOutput, UpdateUser, UpdateUserBody, User,
+    GetUserOutput, UpdateUser, UpdateUserBody, User, UserOutput,
 };
 use crate::services::{
     AuthenticationService, MutationAuthorization, PasswordService, SessionService,
@@ -136,6 +136,8 @@ pub async fn user_get(
         .await
         .or_raise(make_error)?;
 
+    let viewer_user_id = ctx.request().user_id;
+
     match user {
         None => Ok(None),
 
@@ -145,13 +147,13 @@ pub async fn user_get(
                 .or_raise(make_error)?;
 
             Ok(Some(GetUserOutput {
-                user: User::Wikijump(user),
+                user: UserOutput::new(User::Wikijump(user), viewer_user_id),
                 aliases,
             }))
         }
 
         Some(user) => Ok(Some(GetUserOutput {
-            user,
+            user: UserOutput::new(user, viewer_user_id),
             aliases: vec![],
         })),
     }

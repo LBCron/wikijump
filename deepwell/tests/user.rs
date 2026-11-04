@@ -32,7 +32,7 @@ use deepwell::models::blob_pending::{self, Entity as BlobPending};
 use deepwell::models::wikidot_user::{Entity as WikidotUser, Model as WikidotUserModel};
 use deepwell::models::{known_user, user, wikidot_user};
 use deepwell::services::import::ImportUserOutput;
-use deepwell::services::user::UserService;
+use deepwell::services::user::{User, UserOutput, UserService};
 use deepwell::services::view::GetUserViewOutput;
 use deepwell::services::{BlobService, RequestContext};
 use deepwell::types::Reference;
@@ -509,11 +509,12 @@ async fn regular_account_password_policy_rejects_short_create_passwords() {
         ..Default::default()
     });
     let before_password =
-        run_endpoint!(runner, user_get, json!({ "user": created.user_id }))
-            .unwrap()
-            .user
+        UserService::get_optional(runner.context(), Reference::Id(created.user_id))
+            .await
+            .expect("created user lookup should succeed")
+            .expect("created user should exist")
             .unwrap_wikijump()
-            .unwrap()
+            .expect("created user should be a Wikijump user")
             .password;
 
     let update_error = run_endpoint_err!(
@@ -533,11 +534,12 @@ async fn regular_account_password_policy_rejects_short_create_passwords() {
         },
     );
     let unchanged_password =
-        run_endpoint!(runner, user_get, json!({ "user": created.user_id }))
-            .unwrap()
-            .user
+        UserService::get_optional(runner.context(), Reference::Id(created.user_id))
+            .await
+            .expect("created user lookup should succeed")
+            .expect("created user should exist")
             .unwrap_wikijump()
-            .unwrap()
+            .expect("created user should be a Wikijump user")
             .password;
     assert_eq!(unchanged_password, before_password);
 
@@ -844,10 +846,16 @@ async fn basic_update() {
     assert!(user.deleted_at.is_none());
     assert_eq!(user.name_changes_left, 2);
     assert!(user.last_renamed_at.is_none());
-    assert!(!user.password.is_empty());
-    assert_eq!(user.email, "jane@private.me");
+    let stored = UserService::get_optional(runner.context(), Reference::Id(user_id))
+        .await
+        .expect("created user lookup should succeed")
+        .expect("created user should exist")
+        .unwrap_wikijump()
+        .expect("created user should be a Wikijump user");
+    assert!(!stored.password.is_empty());
+    assert_str_eq!(user.email, Some("jane@private.me"));
     assert!(user.email_verified_at.is_none());
-    assert!(user.email_validation_info.is_some());
+    assert!(stored.email_validation_info.is_some());
     assert!(user.email_validation_at.is_some());
     assert_eq!(user.locales.len(), 1);
     assert_eq!(&user.locales[0], "en_GB");
@@ -883,14 +891,24 @@ async fn basic_update() {
         .expect("Returned user not of type Wikijump");
 
     let birthday = Date::from_calendar_date(1986, Month::February, 1).unwrap();
-    assert_eq!(user, last_user);
+    let expected = UserOutput::new(User::Wikijump(last_user), Some(user_id))
+        .unwrap_wikijump()
+        .expect("Edited user not of type Wikijump");
+    assert_eq!(user, expected);
     assert_str_eq!(user.real_name, Some("Jane H. Doe"));
     assert_str_eq!(user.gender, Some("she/they"));
     assert_eq!(user.birthday, Some(birthday));
     assert_str_eq!(user.location, Some("Edinburgh, Scotland"));
     assert!(user.biography.is_none());
     assert_str_eq!(user.user_page, Some("https://example.net"));
-    let old_password = user.password;
+    let old_password =
+        UserService::get_optional(runner.context(), Reference::Id(user_id))
+            .await
+            .expect("user lookup should succeed")
+            .expect("user should exist")
+            .unwrap_wikijump()
+            .expect("user should be a Wikijump user")
+            .password;
 
     let user = run_endpoint!(
         runner,
@@ -1114,7 +1132,7 @@ async fn verifying_email_displaces_other_pending_claims() {
         .user
         .unwrap_wikijump()
         .expect("displaced user should be a Wikijump user");
-    assert!(displaced.email.is_empty());
+    assert_eq!(displaced.email.as_deref(), Some(""));
     assert!(displaced.email_verified_at.is_none());
 
     let login = run_endpoint!(
@@ -1661,10 +1679,10 @@ async fn wikidot_user() {
     let output = run_endpoint!(runner, user_get, json!({ "user": USER_ID }))
         .expect("No user exists after Wikidot user creation");
 
-    let user = output
-        .user
-        .unwrap_wikidot()
-        .expect("Returned user was not of type Wikidot");
+    let user = match output.user {
+        UserOutput::Wikidot(user) => user,
+        UserOutput::Wikijump(_) => panic!("Returned user was not of type Wikidot"),
+    };
 
     check_wikidot_user(&user);
 
@@ -1689,14 +1707,14 @@ async fn wikidot_user() {
         .unwrap_wikijump()
         .expect("Returned user not of type Wikijump");
 
-    assert_eq!(
-        user, wikijump_user,
-        "Wikijump user data doesn't match returned",
-    );
+    let expected = UserOutput::new(User::Wikijump(wikijump_user), Some(ADMIN_USER_ID))
+        .unwrap_wikijump()
+        .expect("Returned user not of type Wikijump");
+    assert_eq!(user, expected, "Wikijump user data doesn't match returned",);
     assert_eq!(user.created_at, datetime!(2009-05-01 16:32:20 UTC));
     assert_eq!(user.name, USER_NAME);
     assert_eq!(user.slug, USER_SLUG);
-    assert_eq!(user.email, "bob@wikijump");
+    assert_str_eq!(user.email, Some("bob@wikijump"));
     assert_eq!(user.locales, ["en-AU", "en"]);
     assert_str_eq!(user.real_name, Some("Bob Smith"));
     assert_str_eq!(user.gender, Some("male"));

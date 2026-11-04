@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::constants::ADMIN_USER_ID;
 use crate::error::prelude::{Error, ErrorType, Result, StdResult};
 use crate::models::alias::Model as AliasModel;
 use crate::models::user::Model as WikijumpUserModel;
@@ -28,7 +29,7 @@ use serde::ser::SerializeStruct;
 use serde::{Serialize, Serializer};
 use std::borrow::Cow;
 use std::net::IpAddr;
-use time::Date;
+use time::{Date, OffsetDateTime};
 
 #[derive(Debug, Clone)]
 pub enum User {
@@ -199,6 +200,136 @@ impl Serialize for User {
     }
 }
 
+#[derive(Serialize, Debug, Clone, PartialEq)]
+pub struct WikijumpUserOutput {
+    pub user_id: i64,
+    pub user_type: UserType,
+    #[serde(with = "time::serde::rfc3339")]
+    pub created_at: OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339::option")]
+    pub updated_at: Option<OffsetDateTime>,
+    #[serde(with = "time::serde::rfc3339::option")]
+    pub deleted_at: Option<OffsetDateTime>,
+    pub name: String,
+    pub slug: String,
+    pub name_changes_left: i16,
+    #[serde(with = "time::serde::rfc3339")]
+    pub last_name_change_added_at: OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339::option")]
+    pub last_renamed_at: Option<OffsetDateTime>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
+    #[serde(with = "time::serde::rfc3339::option")]
+    pub email_verified_at: Option<OffsetDateTime>,
+    #[serde(with = "time::serde::rfc3339::option")]
+    pub email_validation_at: Option<OffsetDateTime>,
+    pub locales: Vec<String>,
+    pub avatar_s3_hash: Option<Vec<u8>>,
+    pub forum_signature: Option<String>,
+    pub real_name: Option<String>,
+    pub gender: Option<String>,
+    pub birthday: Option<Date>,
+    pub location: Option<String>,
+    pub biography: Option<String>,
+    pub website: Option<String>,
+    pub user_page: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub enum UserOutput {
+    Wikijump(WikijumpUserOutput),
+    Wikidot(WikidotUserModel),
+}
+
+impl UserOutput {
+    pub fn new(user: User, viewer_user_id: Option<i64>) -> Self {
+        match user {
+            User::Wikijump(user) => {
+                let include_email = matches!(
+                    viewer_user_id,
+                    Some(id) if id == user.user_id || id == ADMIN_USER_ID,
+                );
+
+                UserOutput::Wikijump(WikijumpUserOutput {
+                    user_id: user.user_id,
+                    user_type: user.user_type,
+                    created_at: user.created_at,
+                    updated_at: user.updated_at,
+                    deleted_at: user.deleted_at,
+                    name: user.name,
+                    slug: user.slug,
+                    name_changes_left: user.name_changes_left,
+                    last_name_change_added_at: user.last_name_change_added_at,
+                    last_renamed_at: user.last_renamed_at,
+                    email: include_email.then_some(user.email),
+                    email_verified_at: user.email_verified_at,
+                    email_validation_at: user.email_validation_at,
+                    locales: user.locales,
+                    avatar_s3_hash: user.avatar_s3_hash,
+                    forum_signature: user.forum_signature,
+                    real_name: user.real_name,
+                    gender: user.gender,
+                    birthday: user.birthday,
+                    location: user.location,
+                    biography: user.biography,
+                    website: user.website,
+                    user_page: user.user_page,
+                })
+            }
+            User::Wikidot(user) => UserOutput::Wikidot(user),
+        }
+    }
+}
+
+impl UserOutput {
+    pub fn user_id(&self) -> i64 {
+        match self {
+            UserOutput::Wikijump(user) => user.user_id,
+            UserOutput::Wikidot(user) => i64::from(user.user_id),
+        }
+    }
+
+    pub fn unwrap_wikijump(self) -> Result<WikijumpUserOutput> {
+        match self {
+            UserOutput::Wikijump(user) => Ok(user),
+            UserOutput::Wikidot(user) => bail!(Error::new(
+                "expected a wikijump user",
+                ErrorType::ExpectedWikijumpUser { was_user: user },
+            )),
+        }
+    }
+
+    #[inline]
+    pub fn is_wikijump(&self) -> bool {
+        match self {
+            UserOutput::Wikijump(_) => true,
+            UserOutput::Wikidot(_) => false,
+        }
+    }
+
+    #[inline]
+    pub fn is_wikidot(&self) -> bool {
+        match self {
+            UserOutput::Wikijump(_) => false,
+            UserOutput::Wikidot(_) => true,
+        }
+    }
+}
+
+impl Serialize for UserOutput {
+    fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match self {
+            UserOutput::Wikijump(user) => user.serialize(serializer),
+            UserOutput::Wikidot(user) => {
+                User::Wikidot(user.clone()).serialize(serializer)
+            }
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct UserStub;
 
@@ -265,10 +396,91 @@ fn delete_user_requires_request_ip() {
     );
 }
 
+#[cfg(test)]
+fn output_test_user() -> WikijumpUserModel {
+    let mfa_value = ["mfa", "secret", "sentinel"].join("-");
+    WikijumpUserModel {
+        user_id: 42,
+        user_type: UserType::Regular,
+        created_at: OffsetDateTime::UNIX_EPOCH,
+        updated_at: None,
+        deleted_at: None,
+        name: str!("Output Test"),
+        slug: str!("output-test"),
+        name_changes_left: 3,
+        last_name_change_added_at: OffsetDateTime::UNIX_EPOCH,
+        last_renamed_at: None,
+        email: str!("output-test@example.com"),
+        email_verified_at: None,
+        email_validation_info: Some(serde_json::json!({"token": "validation-secret"})),
+        email_validation_at: None,
+        password: str!("$argon2id$password-hash-sentinel"),
+        multi_factor_secret: Some(mfa_value),
+        multi_factor_recovery_codes: Some(vec![str!("recovery-code-sentinel")]),
+        locales: vec![str!("en")],
+        avatar_s3_hash: None,
+        forum_signature: None,
+        real_name: None,
+        gender: None,
+        birthday: None,
+        location: None,
+        biography: None,
+        website: None,
+        user_page: None,
+    }
+}
+
+#[test]
+fn user_output_never_serializes_credential_material() {
+    let viewers = [None, Some(7), Some(42), Some(ADMIN_USER_ID)];
+
+    for viewer in viewers {
+        let output = UserOutput::new(User::Wikijump(output_test_user()), viewer);
+        let json = serde_json::to_string(&output).expect("output serializes");
+
+        for forbidden in [
+            "password",
+            "password-hash-sentinel",
+            "multi_factor_secret",
+            "mfa-secret-sentinel",
+            "multi_factor_recovery_codes",
+            "recovery-code-sentinel",
+            "email_validation_info",
+            "validation-secret",
+        ] {
+            assert!(
+                !json.contains(forbidden),
+                "viewer {viewer:?} output leaked {forbidden}: {json}",
+            );
+        }
+    }
+}
+
+#[test]
+fn user_output_email_only_for_self_or_platform_staff() {
+    let email_for = |viewer| {
+        let output = UserOutput::new(User::Wikijump(output_test_user()), viewer);
+        let value: serde_json::Value =
+            serde_json::to_value(&output).expect("output serializes");
+        value.get("email").cloned()
+    };
+
+    assert_eq!(email_for(None), None);
+    assert_eq!(email_for(Some(7)), None);
+    assert_eq!(
+        email_for(Some(42)),
+        Some(serde_json::json!("output-test@example.com")),
+    );
+    assert_eq!(
+        email_for(Some(ADMIN_USER_ID)),
+        Some(serde_json::json!("output-test@example.com")),
+    );
+}
+
 #[derive(Serialize, Debug, Clone)]
 pub struct GetUserOutput {
     #[serde(flatten)]
-    pub user: User,
+    pub user: UserOutput,
     pub aliases: Vec<AliasModel>,
 }
 

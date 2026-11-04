@@ -19,8 +19,10 @@
  */
 
 use super::prelude::*;
+use crate::constants::ADMIN_USER_ID;
 use crate::models::relation::Model as RelationModel;
 use crate::services::MutationAuthorization;
+use crate::services::permission::PermissionService;
 use crate::services::relation::{CreateSiteBan, GetSiteBan, RemoveSiteBan, SiteBanData};
 use crate::services::user::User;
 use crate::types::{Action, Permission, Reference, Resource};
@@ -99,6 +101,23 @@ struct RemoveSiteBanInput {
     ip_address: IpAddr,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+enum SiteBanViewAccess {
+    Allowed,
+    NeedsSiteAdminCheck(i64),
+    Denied,
+}
+
+fn site_ban_view_access(actor: Option<i64>, subject_user_id: i64) -> SiteBanViewAccess {
+    match actor {
+        Some(actor) if actor == subject_user_id || actor == ADMIN_USER_ID => {
+            SiteBanViewAccess::Allowed
+        }
+        Some(actor) => SiteBanViewAccess::NeedsSiteAdminCheck(actor),
+        None => SiteBanViewAccess::Denied,
+    }
+}
+
 pub async fn site_ban_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -106,6 +125,29 @@ pub async fn site_ban_get(
     let input: GetSiteBan = parse!(params, SiteBanRelation);
     let user_id = input.user_id;
     let site_id = input.site_id;
+
+    let privileged = match site_ban_view_access(ctx.request().user_id, user_id) {
+        SiteBanViewAccess::Allowed => true,
+        SiteBanViewAccess::Denied => false,
+        SiteBanViewAccess::NeedsSiteAdminCheck(actor) => {
+            PermissionService::check_user_can_access_admin(ctx, Some(actor), site_id)
+                .await
+                .or_raise(|| {
+                    Error::new(
+                        "failed to check permission to view site ban data",
+                        ErrorType::SiteBanRelation,
+                    )
+                })?
+        }
+    };
+
+    if !privileged {
+        return Err(Error::new(
+            "user does not have permission to view site ban data",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
 
     RelationService::get_optional_site_ban(ctx, input)
         .await
@@ -188,4 +230,35 @@ pub async fn site_ban_remove(
             ErrorType::SiteBanRelation,
         )
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{SiteBanViewAccess, site_ban_view_access};
+    use crate::constants::ADMIN_USER_ID;
+
+    #[test]
+    fn site_ban_view_access_allows_subject_and_platform_admin() {
+        assert_eq!(
+            site_ban_view_access(Some(42), 42),
+            SiteBanViewAccess::Allowed
+        );
+        assert_eq!(
+            site_ban_view_access(Some(ADMIN_USER_ID), 42),
+            SiteBanViewAccess::Allowed,
+        );
+    }
+
+    #[test]
+    fn site_ban_view_access_requires_site_admin_check_for_other_users() {
+        assert_eq!(
+            site_ban_view_access(Some(7), 42),
+            SiteBanViewAccess::NeedsSiteAdminCheck(7),
+        );
+    }
+
+    #[test]
+    fn site_ban_view_access_denies_anonymous() {
+        assert_eq!(site_ban_view_access(None, 42), SiteBanViewAccess::Denied);
+    }
 }

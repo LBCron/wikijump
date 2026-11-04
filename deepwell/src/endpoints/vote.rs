@@ -194,6 +194,17 @@ fn user_history_is_authorized(
     }
 }
 
+fn exclude_retracted_page_votes(
+    kind: crate::services::vote::VoteHistoryKind,
+    deleted: &mut Option<bool>,
+    disabled: &mut Option<bool>,
+) {
+    if matches!(kind, crate::services::vote::VoteHistoryKind::Page(_)) {
+        *deleted = Some(false);
+        *disabled = Some(false);
+    }
+}
+
 pub async fn vote_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -429,7 +440,8 @@ pub async fn vote_list_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<Vec<PageVoteModel>> {
-    let input: GetVoteHistory = parse!(params);
+    let mut input: GetVoteHistory = parse!(params);
+    exclude_retracted_page_votes(input.kind, &mut input.deleted, &mut input.disabled);
     if !user_history_is_authorized(ctx.request().user_id().ok(), input.kind) {
         return Err(Error::new(
             "a user's page-rating history is private",
@@ -461,7 +473,8 @@ pub async fn vote_list_count(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<u64> {
-    let input: CountVoteHistory = parse!(params);
+    let mut input: CountVoteHistory = parse!(params);
+    exclude_retracted_page_votes(input.kind, &mut input.deleted, &mut input.disabled);
     if !user_history_is_authorized(ctx.request().user_id().ok(), input.kind) {
         return Err(Error::new(
             "a user's page-rating history is private",
@@ -514,5 +527,35 @@ mod tests {
         ));
         assert!(!user_history_is_authorized(None, VoteHistoryKind::User(42)));
         assert!(user_history_is_authorized(None, VoteHistoryKind::Page(42)));
+    }
+
+    #[test]
+    fn page_vote_history_always_excludes_retracted_votes() {
+        use crate::services::vote::VoteHistoryKind;
+
+        for (deleted, disabled) in [
+            (None, None),
+            (Some(true), Some(true)),
+            (Some(true), None),
+            (None, Some(false)),
+        ] {
+            let (mut deleted, mut disabled) = (deleted, disabled);
+            exclude_retracted_page_votes(
+                VoteHistoryKind::Page(42),
+                &mut deleted,
+                &mut disabled,
+            );
+            assert_eq!(deleted, Some(false));
+            assert_eq!(disabled, Some(false));
+        }
+
+        let (mut deleted, mut disabled) = (Some(true), None);
+        exclude_retracted_page_votes(
+            VoteHistoryKind::User(42),
+            &mut deleted,
+            &mut disabled,
+        );
+        assert_eq!(deleted, Some(true));
+        assert_eq!(disabled, None);
     }
 }

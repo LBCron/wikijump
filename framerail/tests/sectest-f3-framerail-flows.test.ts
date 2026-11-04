@@ -225,6 +225,36 @@ function stubLogin({ user, needsMfa = false }: { user: any; needsMfa?: boolean }
   return logoutCalls
 }
 
+const restrictedSessionError = () =>
+  Object.assign(new Error("Unable to perform operation involving a login session"), {
+    code: 3003
+  })
+
+function stubMfaLogin({ user }: { user: any }) {
+  const logoutCalls: any[] = []
+  const userViewCalls: any[] = []
+  client.request = async (method: string, params: any) => {
+    switch (method) {
+      case "login":
+        return { session_token: "restricted-token", needs_mfa: true }
+      case "mfa_verify":
+        return "mfa-token"
+      case "user_view":
+        userViewCalls.push(params.session_token)
+        if (params.session_token === "restricted-token") throw restrictedSessionError()
+        return { type: "user_found", data: { user } }
+      case "session_get":
+        return { user_id: 7, expires_at: "2030-01-01T00:00:00Z" }
+      case "logout":
+        logoutCalls.push(params)
+        return null
+      default:
+        throw new Error(`unexpected method ${method}`)
+    }
+  }
+  return { logoutCalls, userViewCalls }
+}
+
 function loginEvent(fields: Record<string, string>, cookies: any) {
   return {
     request: postRequest("https://test.wikijump.localhost/-/login", fields),
@@ -247,15 +277,58 @@ test("SEC-04: password login is refused for an unverified native account", async
   assert.equal(cookies.setCalls.length, 0)
 })
 
-test("SEC-04: the refusal fires before an MFA challenge is handed out", async () => {
-  const logoutCalls = stubLogin({ user: unverifiedRegular, needsMfa: true })
+test("C2W2-2: the password step hands a verified MFA account its challenge", async () => {
+  const { logoutCalls, userViewCalls } = stubMfaLogin({ user: verifiedRegular })
   const cookies = fakeCookies(undefined)
 
   const result = await loginLoad.loginAction(loginEvent(passwordFields, cookies))
+  assert.equal(result.status, undefined)
+  assert.equal(result.needsMfa, true)
+  assert.equal(result.isLoggedIn, false)
+  assert.deepEqual(userViewCalls, [])
+  assert.deepEqual(logoutCalls, [])
+  assert.equal(cookies.setCalls.length, 0)
+})
+
+test("C2W2-2: a verified MFA account completes login end to end", async () => {
+  const { logoutCalls } = stubMfaLogin({ user: verifiedRegular })
+  const cookies = fakeCookies(undefined)
+
+  const challenge = await loginLoad.loginAction(loginEvent(passwordFields, cookies))
+  assert.equal(challenge.needsMfa, true)
+
+  const result = await loginLoad.loginAction(
+    loginEvent(
+      { ...passwordFields, mfaSessionToken: "restricted-token", totpOrCode: "123456" },
+      cookies
+    )
+  )
+  assert.equal(result.status, undefined)
+  assert.equal(result.isLoggedIn, true)
+  assert.equal(result.needsMfa, false)
+  assert.deepEqual(logoutCalls, [])
+  assert.ok(cookies.setCalls.some(([name]: any[]) => name === "wikijump_token"))
+})
+
+test("SEC-04: an unverified MFA account is refused at MFA completion", async () => {
+  const { logoutCalls } = stubMfaLogin({ user: unverifiedRegular })
+  const cookies = fakeCookies(undefined)
+
+  const challenge = await loginLoad.loginAction(loginEvent(passwordFields, cookies))
+  assert.equal(challenge.status, undefined)
+  assert.equal(challenge.needsMfa, true)
+  assert.deepEqual(logoutCalls, [])
+
+  const result = await loginLoad.loginAction(
+    loginEvent(
+      { ...passwordFields, mfaSessionToken: "restricted-token", totpOrCode: "123456" },
+      cookies
+    )
+  )
   assert.equal(result.status, 403)
   assert.equal(result.data.emailVerificationRequired, true)
-  assert.equal(result.data.session_token, undefined)
-  assert.deepEqual(logoutCalls, [["login-token"]])
+  assert.deepEqual(logoutCalls, [["mfa-token"]])
+  assert.equal(cookies.setCalls.length, 0)
 })
 
 test("SEC-04: MFA completion is gated the same way", async () => {

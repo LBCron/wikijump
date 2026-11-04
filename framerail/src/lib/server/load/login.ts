@@ -141,7 +141,7 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
     const { data } = form
     const res = await authLogin(data.nameOrEmail, data.password, ipAddress, userAgent)
 
-    if (res.session_token) {
+    if (res.session_token && !res.needs_mfa) {
       const refusal = await refuseUnverifiedLogin(
         res.session_token,
         request,
@@ -149,9 +149,7 @@ export async function loginAction({ request, getClientAddress, cookies }: Reques
         submittedPassword
       )
       if (refusal) return refusal
-    }
 
-    if (res.session_token && !res.needs_mfa) {
       await setAuthenticatedSessionCookie(cookies, res.session_token, request.url)
     }
 

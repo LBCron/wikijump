@@ -205,7 +205,6 @@ impl Config {
         );
     }
 
-    #[allow(dead_code)]
     pub fn integration_testing() -> Self {
         Config {
             raw_toml: str!("[[ BUILT-IN ]]"),

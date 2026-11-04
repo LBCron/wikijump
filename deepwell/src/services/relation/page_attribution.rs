@@ -158,30 +158,6 @@ impl RelationService {
         Ok(attrib)
     }
 
-    #[allow(dead_code)]
-    pub async fn page_attribution_exists(
-        ctx: &ServiceContext<'_>,
-        page_id: i64,
-        user_id: i64,
-        metadata: &PageAttributionMetadata,
-    ) -> Result<bool> {
-        let make_error = || {
-            Error::new(
-                format!(
-                    "failed to check if page attribution entry for user ID {} on page ID {} (metadata {:?})",
-                    user_id, page_id, metadata,
-                ),
-                ErrorType::PageAttributionRelation,
-            )
-        };
-
-        let metadata_json = serde_json::to_value(metadata).or_raise(make_error)?;
-
-        find_page_attribution(ctx, page_id, user_id, &metadata_json)
-            .await
-            .map(|relation| relation.is_some())
-    }
-
     pub async fn get_page_attributions(
         ctx: &ServiceContext<'_>,
         GetPageAttributions { site_id, page }: GetPageAttributions<'_>,

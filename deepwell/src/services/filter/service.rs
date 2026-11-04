@@ -19,13 +19,11 @@
  */
 
 use super::matcher::{FilterMatcher, FilterSummary};
-use super::structs::{CreateFilter, FilterClass, FilterType, UpdateFilter};
+use super::structs::{CreateFilter, FilterClass, FilterType};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::filter::{self, Entity as Filter, Model as FilterModel};
 use crate::services::ServiceContext;
-use crate::types::Maybe;
 use crate::utils::now;
-use crate::utils::trim_start_matches_in_place;
 use paste::paste;
 use regex::{Regex, RegexSet};
 use sea_orm::{
@@ -102,96 +100,6 @@ impl FilterService {
         Ok(filter)
     }
 
-    #[allow(dead_code)]
-    pub async fn update(
-        ctx: &ServiceContext<'_>,
-        UpdateFilter {
-            filter_id,
-            affects_user,
-            affects_email,
-            affects_page,
-            affects_file,
-            affects_forum,
-            case_sensitive,
-            mut regex,
-            description,
-        }: UpdateFilter,
-    ) -> Result<FilterModel> {
-        let txn = ctx.transaction();
-
-        info!("Updating filter with ID {filter_id}");
-
-        let regex2 = regex.to_option().cloned();
-        let make_error = || {
-            let mut message = format!("failed to update filter ID {filter_id}");
-
-            if let Some(regex) = regex2 {
-                str_write!(&mut message, " (new regex '{regex}')");
-            }
-
-            Error::new(message, ErrorType::Filter)
-        };
-
-        let mut model = filter::ActiveModel {
-            filter_id: Set(filter_id),
-            updated_at: Set(Some(now())),
-            ..Default::default()
-        };
-
-        if let Maybe::Set(case_sensitive) = case_sensitive {
-            match regex {
-                Maybe::Set(ref mut regex) if !case_sensitive => {
-                    regex.insert_str(0, "(?i)")
-                }
-
-                Maybe::Set(_) => {}
-
-                Maybe::Unset => {
-                    let mut model_regex = str!(model.get(filter::Column::Regex).as_ref());
-                    trim_start_matches_in_place(&mut model_regex, "(?i)");
-
-                    if !case_sensitive {
-                        model_regex.insert_str(0, "(?i)");
-                    }
-
-                    model.regex = Set(model_regex);
-                }
-            }
-        };
-
-        if let Maybe::Set(affects) = affects_user {
-            model.affects_user = Set(affects);
-        }
-
-        if let Maybe::Set(affects) = affects_email {
-            model.affects_email = Set(affects);
-        }
-
-        if let Maybe::Set(affects) = affects_page {
-            model.affects_page = Set(affects);
-        }
-
-        if let Maybe::Set(affects) = affects_file {
-            model.affects_file = Set(affects);
-        }
-
-        if let Maybe::Set(affects) = affects_forum {
-            model.affects_forum = Set(affects);
-        }
-
-        if let Maybe::Set(regex) = regex {
-            model.regex = Set(regex);
-        }
-
-        if let Maybe::Set(description) = description {
-            model.description = Set(description);
-        }
-
-        let filter = model.update(txn).await.or_raise(make_error)?;
-        Ok(filter)
-    }
-
-    #[allow(dead_code)]
     pub async fn delete(ctx: &ServiceContext<'_>, filter_id: i64) -> Result<()> {
         info!("Deleting filter with ID {filter_id}");
         let txn = ctx.transaction();
@@ -222,7 +130,6 @@ impl FilterService {
         Ok(())
     }
 
-    #[allow(dead_code)]
     pub async fn restore(
         ctx: &ServiceContext<'_>,
         filter_id: i64,

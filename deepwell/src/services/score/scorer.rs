@@ -25,10 +25,8 @@ use sea_orm::{Condition, DatabaseTransaction};
 use std::future::Future;
 
 pub trait Scorer {
-    #[allow(dead_code)]
     fn score_type(&self) -> ScoreType;
 
-    #[allow(dead_code)]
     fn accepts_vote_type(&self, vtype: VoteType) -> bool;
 
     fn score(

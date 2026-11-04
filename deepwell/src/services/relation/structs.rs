@@ -49,7 +49,6 @@ impl From<RelationObject> for RelationObjectType {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[allow(dead_code)]
 pub enum RelationReference {
     Id(i64),
     Relationship {
@@ -123,7 +122,6 @@ impl RelationObjectTypes {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[allow(dead_code)]
 pub enum RelationDirection {
     Dest,
     From,

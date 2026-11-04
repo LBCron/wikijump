@@ -65,12 +65,12 @@ impl VoteMap {
     }
 
     #[inline]
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn is_empty(&self) -> bool {
         self.count() == 0
     }
 
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub fn sum(&self) -> i64 {
         self.iter().fold(0, |sum, (value, count)| {
             let value = i64::from(value);

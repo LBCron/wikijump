@@ -88,21 +88,13 @@ pub enum ErrorType {
     CustomDomain,
     Alias,
     AuthorizationToken,
-    #[allow(dead_code)]
     Forum,
-    #[allow(dead_code)]
     ForumGroup,
-    #[allow(dead_code)]
     ForumCategory,
-    #[allow(dead_code)]
     ForumThread,
-    #[allow(dead_code)]
     ForumPost,
-    #[allow(dead_code)]
     ForumPostRevision,
 
-    #[allow(dead_code)]
-    GeneralNotFound,
     AliasNotFound,
     RelationNotFound,
     UserNotFound,
@@ -150,14 +142,8 @@ pub enum ErrorType {
     Permission,
     Role,
     AddRolePermission,
-    #[allow(dead_code)]
-    RemoveRolePermission,
     GrantUserRole,
-    #[allow(dead_code)]
     RevokeUserRole,
-    #[allow(dead_code)]
-    PermissionNotFound,
-    #[allow(dead_code)]
     RoleNotFound,
     PermissionDenied,
     CyclicRoleViolation {
@@ -381,7 +367,6 @@ impl ErrorType {
             ErrorType::Permission => 1328,
             ErrorType::Role => 1329,
 
-            ErrorType::GeneralNotFound => 2000,
             ErrorType::AliasNotFound => 2001,
             ErrorType::RelationNotFound => 2002,
             ErrorType::UserNotFound => 2003,
@@ -424,10 +409,8 @@ impl ErrorType {
             ErrorType::InvalidAuthorizationToken => 3006,
 
             ErrorType::AddRolePermission => 3100,
-            ErrorType::RemoveRolePermission => 3101,
             ErrorType::GrantUserRole => 3102,
             ErrorType::RevokeUserRole => 3103,
-            ErrorType::PermissionNotFound => 3104,
             ErrorType::RoleNotFound => 3105,
             ErrorType::PermissionDenied => 3106,
             ErrorType::CyclicRoleViolation { .. } => 3107,
@@ -587,7 +570,6 @@ impl ErrorType {
             ErrorType::Permission => "Failed to act on a permission",
             ErrorType::Role => "Failed to act on a role",
 
-            ErrorType::GeneralNotFound => "Unspecified entity does not exist",
             ErrorType::AliasNotFound => "Alias does not exist",
             ErrorType::RelationNotFound => "Relation value does not exist",
             ErrorType::UserNotFound => "User does not exist",
@@ -640,12 +622,8 @@ impl ErrorType {
             }
 
             ErrorType::AddRolePermission => "Failed to add a permission to a role",
-            ErrorType::RemoveRolePermission => {
-                "Failed to remove a permission from a role"
-            }
             ErrorType::GrantUserRole => "Failed to grant a role to a user",
             ErrorType::RevokeUserRole => "Failed to revoke a role from a user",
-            ErrorType::PermissionNotFound => "Permission not found",
             ErrorType::RoleNotFound => "Role not found",
             ErrorType::PermissionDenied => {
                 "User does not have permission to perform this action"
@@ -941,7 +919,6 @@ mod tests {
             (ErrorType::ForumPostRevision, 1327),
             (ErrorType::Permission, 1328),
             (ErrorType::Role, 1329),
-            (ErrorType::GeneralNotFound, 2000),
             (ErrorType::AliasNotFound, 2001),
             (ErrorType::RelationNotFound, 2002),
             (ErrorType::UserNotFound, 2003),
@@ -987,10 +964,8 @@ mod tests {
             (ErrorType::EmptyPassword, 3005),
             (ErrorType::InvalidAuthorizationToken, 3006),
             (ErrorType::AddRolePermission, 3100),
-            (ErrorType::RemoveRolePermission, 3101),
             (ErrorType::GrantUserRole, 3102),
             (ErrorType::RevokeUserRole, 3103),
-            (ErrorType::PermissionNotFound, 3104),
             (ErrorType::RoleNotFound, 3105),
             (ErrorType::PermissionDenied, 3106),
             (

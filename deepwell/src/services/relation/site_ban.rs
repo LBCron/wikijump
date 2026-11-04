@@ -53,7 +53,6 @@ impl_relation! {
 }
 
 impl RelationService {
-    #[allow(dead_code)]
     pub async fn active_site_ban_exists(
         ctx: &ServiceContext<'_>,
         body: GetSiteBan,
@@ -84,7 +83,6 @@ impl RelationService {
         })
     }
 
-    #[allow(dead_code)]
     pub async fn create_site_ban(
         ctx: &ServiceContext<'_>,
         CreateSiteBan {

@@ -20,7 +20,6 @@
 
 use super::RelationService;
 use super::structs::{RelationDirection, RelationObject, RelationReference};
-use super::user_follow::RemoveUserFollow;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::relation::Model as RelationModel;
 use crate::services::ServiceContext;
@@ -42,61 +41,6 @@ impl_relation! {
 }
 
 impl RelationService {
-    #[allow(dead_code)]
-    pub async fn create_user_block(
-        ctx: &ServiceContext<'_>,
-        CreateUserBlock {
-            blocked_user,
-            blocking_user,
-            created_by,
-            metadata,
-        }: CreateUserBlock,
-    ) -> Result<()> {
-        let make_error = || {
-            Error::new(
-                format!(
-                    "failed to create user block ({} is blocking {}), as created by {}",
-                    blocking_user, blocked_user, created_by,
-                ),
-                ErrorType::UserBlockRelation,
-            )
-        };
-
-        let (result1, result2) = join!(
-            Self::remove_user_follow(
-                ctx,
-                RemoveUserFollow {
-                    followed_user: blocked_user,
-                    following_user: blocking_user,
-                    removed_by: created_by,
-                },
-            ),
-            Self::remove_user_follow(
-                ctx,
-                RemoveUserFollow {
-                    followed_user: blocking_user,
-                    following_user: blocked_user,
-                    removed_by: created_by,
-                },
-            ),
-        );
-        raise_multiple!(result1, result2; make_error);
-
-        Self::create_user_block_inner(
-            ctx,
-            CreateUserBlockInner {
-                blocked_user,
-                blocking_user,
-                created_by,
-                metadata: &metadata,
-            },
-        )
-        .await
-        .or_raise(make_error)?;
-
-        Ok(())
-    }
-
     pub async fn check_user_block(
         ctx: &ServiceContext<'_>,
         user_id_1: i64,

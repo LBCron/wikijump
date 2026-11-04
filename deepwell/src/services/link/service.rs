@@ -108,7 +108,6 @@ impl LinkService {
         })
     }
 
-    #[allow(dead_code)]
     pub async fn get_connections_from(
         ctx: &ServiceContext<'_>,
         page_id: i64,

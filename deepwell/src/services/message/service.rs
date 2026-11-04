@@ -493,42 +493,6 @@ impl MessageService {
         Ok(record_model)
     }
 
-    #[allow(dead_code)]
-    pub async fn mark_read(
-        ctx: &ServiceContext<'_>,
-        record_id: &str,
-        user_id: i64,
-        value: bool,
-    ) -> Result<()> {
-        info!("Setting message read status for {record_id} / {user_id}: read={value}");
-
-        let make_error = || {
-            Error::new(
-                format!(
-                    "failed to mark message ID {} from user ID {} as {}",
-                    record_id,
-                    user_id,
-                    if value { "read" } else { "unread" },
-                ),
-                ErrorType::Message,
-            )
-        };
-
-        let txn = ctx.transaction();
-        let message = Self::get_message(ctx, record_id, user_id)
-            .await
-            .or_raise(make_error)?;
-
-        let model = message::ActiveModel {
-            internal_id: Set(message.internal_id),
-            flag_read: Set(value),
-            ..Default::default()
-        };
-        model.update(txn).await.or_raise(make_error)?;
-
-        Ok(())
-    }
-
     pub async fn get_message_optional(
         ctx: &ServiceContext<'_>,
         record_id: &str,

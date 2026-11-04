@@ -597,7 +597,6 @@ impl FileRevisionService {
     }
 
     #[inline]
-    #[allow(dead_code)]
     pub async fn get(
         ctx: &ServiceContext<'_>,
         input: GetFileRevision,

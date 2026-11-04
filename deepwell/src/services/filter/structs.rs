@@ -19,7 +19,6 @@
  */
 
 use crate::models::filter;
-use crate::types::Maybe;
 use sea_orm::{ColumnTrait, Condition};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -102,17 +101,4 @@ pub struct CreateFilter {
     pub case_sensitive: bool,
     pub regex: String,
     pub description: String,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct UpdateFilter {
-    pub filter_id: i64,
-    pub affects_user: Maybe<bool>,
-    pub affects_email: Maybe<bool>,
-    pub affects_page: Maybe<bool>,
-    pub affects_file: Maybe<bool>,
-    pub affects_forum: Maybe<bool>,
-    pub case_sensitive: Maybe<bool>,
-    pub regex: Maybe<String>,
-    pub description: Maybe<String>,
 }

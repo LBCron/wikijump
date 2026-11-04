@@ -200,7 +200,6 @@ wjfiles.localhost {
 }
 
 # Missing custom domains
-http://,
 https://,
 localhost {
 	import strip_headers

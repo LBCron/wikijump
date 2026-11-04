@@ -13,6 +13,8 @@
 use regex::Regex;
 use std::{ops::Range, sync::LazyLock};
 
+use crate::services::render::literal_regions::token_boundaries::TextTokenIndex;
+
 #[cfg(test)]
 use std::cell::Cell;
 
@@ -24,7 +26,7 @@ thread_local! {
 // The pinned tokenizer classifies `?` as Other, its URL and email scans accept it like the Unicode typography replacements, and no recognized multi-byte delimiter contains it, so it cannot combine with neighboring source bytes into syntax.
 const INERT: u8 = b'?';
 
-// Keep these expressions and their order in lockstep with FTML 4fc7df28's typography preprocessor. The equal-width inert bytes preserve original offsets while having the same scanner-relevant property as the Unicode replacements: they are not ASCII quotes, dots, whitespace, or Wikidot delimiters.
+// Keep these expressions and their order in lockstep with the pinned FTML typography preprocessor (rev 24dec27905c8bb1507528acbb5c62f836366671b). The equal-width inert bytes preserve original offsets while having the same scanner-relevant property as the Unicode replacements: they are not ASCII quotes, dots, whitespace, or Wikidot delimiters.
 static DOUBLE_QUOTES: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"``(.*?)''").unwrap());
 static LOW_DOUBLE_QUOTES: LazyLock<Regex> =
@@ -77,11 +79,14 @@ fn project_replacement(source: &mut [u8], regex: &Regex) -> bool {
 fn replacement_matches(source: &str, regex: &Regex) -> Vec<Range<usize>> {
     let mut ranges = Vec::new();
     let mut offset = 0usize;
+    let mut token_cursor = TextTokenIndex::new(source).cursor();
     while let Some(capture) = regex.captures_at(source, offset) {
         let target = capture
             .name("repl")
             .expect("replacement typography regex has a repl group");
-        ranges.push(target.start()..target.end());
+        if !token_cursor.advance_and_contains(target.start()) {
+            ranges.push(target.start()..target.end());
+        }
         offset = target.end();
     }
     ranges
@@ -102,6 +107,12 @@ mod tests {
     fn inert_projection(source: &str) -> String {
         let mut projected = source.as_bytes().to_vec();
         assert!(project_typography_in_place(&mut projected));
+        String::from_utf8(projected).unwrap()
+    }
+
+    fn inert_projection_allowing_identity(source: &str) -> String {
+        let mut projected = source.as_bytes().to_vec();
+        project_typography_in_place(&mut projected);
         String::from_utf8(projected).unwrap()
     }
 
@@ -220,9 +231,11 @@ mod tests {
             ("https://e.test/a...@@ tail", "@@", false, false),
             ("https://e.test/a...@< tail", "@<", true, true),
             ("https://e.test/a. . .@@ tail", "@@", false, false),
-            ("https://e.test/a. . .@< tail", "@<", false, true),
+            ("https://e.test/a. . .@< tail", "@<", false, false),
+            ("https://e.test/ab. . .@< tail", "@<", false, false),
+            ("https://e.test/a...@< tail", "@<", true, true),
         ] {
-            let inert = inert_projection(source);
+            let inert = inert_projection_allowing_identity(source);
             let actual = ftml_typography(source);
             assert_eq!(token_owns(source, delimiter), raw_owned, "raw {source:?}");
             assert_eq!(

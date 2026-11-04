@@ -208,3 +208,29 @@ test("saved Wikidot Site tools action lazily activates the compatibility pane", 
   assert.match(siteToolsSource, /st-orphaned-pages-button/u)
   assert.match(siteToolsSource, /st-draft-pages-button/u)
 })
+
+test("Site Tools AMC fails closed when the renderer declines authorization", async () => {
+  const shapes: any[] = [
+    ["sitetools/SiteToolsModule", "1", {}],
+    ["sitetools/WantedPagesModule", "2", {}],
+    ["sitetools/OrphanedPagesModule", "3", {}],
+    ["list/ListDraftsModule", "4", { location: "sitetools" }]
+  ]
+
+  for (const [moduleName, callbackIndex, parameters] of shapes) {
+    const response = await handleAjaxModuleConnectorRequest(
+      request({ moduleName, callbackIndex, ...parameters }),
+      {
+        siteId: 17,
+        renderListPages: async () => assert.fail("must not render ListPages"),
+        renderSiteToolsModule: async () => null
+      }
+    )
+    const body = await response.json()
+    assert.equal(body.status, "not_ok", moduleName)
+    assert.equal(body.body, "", moduleName)
+    assert.equal(body.callbackIndex, callbackIndex, moduleName)
+    assert.deepEqual(body.cssInclude, [])
+    assert.deepEqual(body.jsInclude, [])
+  }
+})

@@ -23,7 +23,8 @@ mod structs;
 
 pub use self::service::PageEditLockService;
 pub(crate) use self::service::{
-    append_wikitext, extract_section, is_live, modes_conflict, splice_section,
+    any_live_lock_from_other_user, append_wikitext, extract_section, is_live,
+    modes_conflict, splice_section,
 };
 pub use self::structs::{
     AcquirePageEditLock, AcquirePageEditLockInput, AcquirePageEditLockOutput,

@@ -429,13 +429,25 @@ WHERE page.site_id = $1
         };
 
         if wikitext.is_set() && !system_writer {
+            let lock_rows = PageEditLockService::rows_for_page(ctx, page_id)
+                .await
+                .or_raise(make_error)?;
+            let error_type = if page_edit_lock::any_live_lock_from_other_user(
+                &lock_rows,
+                user_id,
+                now(),
+            ) {
+                ErrorType::PageEditLockConflict
+            } else {
+                ErrorType::PageEditLockMissing
+            };
             bail!(Error::new(
                 format!(
                     "page edit of '{}' (ID {}) in site ID {}, performed by user ID {}, \
                      carries new source but no edit lease",
                     slug, page_id, site_id, user_id,
                 ),
-                ErrorType::PageEditLockConflict,
+                error_type,
             ));
         }
 

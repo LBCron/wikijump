@@ -199,6 +199,7 @@ pub enum ErrorType {
     CannotHideLatestRevision,
     NotLatestRevisionId,
     PageEditLockConflict,
+    PageEditLockMissing,
 
     FileNameEmpty,
     FileNameTooLong {
@@ -455,6 +456,7 @@ impl ErrorType {
             ErrorType::CannotHideLatestRevision => 4302,
             ErrorType::NotLatestRevisionId => 4303,
             ErrorType::PageEditLockConflict => 4304,
+            ErrorType::PageEditLockMissing => 4305,
 
             ErrorType::FileNameEmpty => 4400,
             ErrorType::FileNameTooLong { .. } => 4401,
@@ -687,6 +689,9 @@ impl ErrorType {
             }
             ErrorType::PageEditLockConflict => {
                 "The page is being edited under another user's edit lock"
+            }
+            ErrorType::PageEditLockMissing => {
+                "The page edit was rejected because it does not carry an edit lease"
             }
 
             ErrorType::FileNameEmpty => "File name cannot be empty",
@@ -1024,6 +1029,7 @@ mod tests {
             (ErrorType::CannotHideLatestRevision, 4302),
             (ErrorType::NotLatestRevisionId, 4303),
             (ErrorType::PageEditLockConflict, 4304),
+            (ErrorType::PageEditLockMissing, 4305),
             (ErrorType::FileNameEmpty, 4400),
             (
                 ErrorType::FileNameTooLong {

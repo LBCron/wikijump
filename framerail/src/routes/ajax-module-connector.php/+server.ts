@@ -739,22 +739,36 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
       moduleName: string
       parameters: Record<string, string>
     }) => {
-      if (moduleName === "sitetools/SiteToolsModule") {
-        return { status: "ok", body: renderWikidotSiteTools() }
-      }
-      if (moduleName === "sitetools/WantedPagesModule") {
-        const targets = await siteToolsWantedPages(siteId, requestContext)
-        return { status: "ok", body: renderWikidotWantedPages(targets) }
-      }
-      if (moduleName === "sitetools/OrphanedPagesModule") {
-        const pages = await siteToolsOrphanedPages(siteId, requestContext)
-        return { status: "ok", body: renderWikidotOrphanedPages(pages) }
-      }
       if (moduleName === "list/ListDraftsModule") {
+        let session = null
+        try {
+          session = sessionToken ? await authGetSession(sessionToken) : null
+        } catch {
+          session = null
+        }
+        if (!session) return null
         const drafts = await siteToolsListDrafts(siteId, requestContext)
         return { status: "ok", body: renderWikidotListDrafts(drafts) }
       }
-      return { status: "not_ok", body: "" }
+      if (
+        moduleName === "sitetools/SiteToolsModule" ||
+        moduleName === "sitetools/WantedPagesModule" ||
+        moduleName === "sitetools/OrphanedPagesModule"
+      ) {
+        const locales = getPreloadBackendLocales(getPreloadRequestLocales(request))
+        const authorization = await adminView(siteId, locales, sessionToken)
+        if (authorization.type !== "site_found") return null
+        if (moduleName === "sitetools/SiteToolsModule") {
+          return { status: "ok", body: renderWikidotSiteTools() }
+        }
+        if (moduleName === "sitetools/WantedPagesModule") {
+          const targets = await siteToolsWantedPages(siteId, requestContext)
+          return { status: "ok", body: renderWikidotWantedPages(targets) }
+        }
+        const pages = await siteToolsOrphanedPages(siteId, requestContext)
+        return { status: "ok", body: renderWikidotOrphanedPages(pages) }
+      }
+      return null
     },
     renderPageReadModule: async ({
       siteId,

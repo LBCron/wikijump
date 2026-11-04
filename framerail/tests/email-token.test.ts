@@ -240,13 +240,13 @@ describe("email-token routes", () => {
     assert.equal(data.tokenForm.data.token, WELL_FORMED)
     assert.ok(!calls.some(({ method }) => method === "password_reset_redeem"))
 
-    const redeemed = await routes.reset.actions.default(
+    const redeemed = await routes.reset.actions.redeem(
       actionEvent(postRequest(`/-/reset/${WELL_FORMED}`, { token: WELL_FORMED }))
     )
     assert.equal(redeemed.grant, "grant-token")
 
     calls.length = 0
-    const malformed = await routes.reset.actions.default(
+    const malformed = await routes.reset.actions.redeem(
       actionEvent(postRequest("/-/reset/nope", { token: "nope" }))
     )
     assert.equal(malformed.status, 400)
@@ -387,7 +387,7 @@ describe("email-token routes", () => {
     })
 
     calls.length = 0
-    const redeemed = await routes.deleteToken.actions.default(
+    const redeemed = await routes.deleteToken.actions.redeem(
       sessionEvent(
         postRequest(`/-/delete-account/${WELL_FORMED}`, { token: WELL_FORMED })
       )
@@ -400,14 +400,14 @@ describe("email-token routes", () => {
     })
 
     calls.length = 0
-    const malformed = await routes.deleteToken.actions.default(
+    const malformed = await routes.deleteToken.actions.redeem(
       sessionEvent(postRequest("/-/delete-account/nope", { token: "nope" }))
     )
     assert.equal(malformed.status, 400)
     assert.ok(!calls.some(({ method }) => method === "account_delete_redeem"))
 
     calls.length = 0
-    const unsigned = await routes.deleteToken.actions.default({
+    const unsigned = await routes.deleteToken.actions.redeem({
       request: postRequest(`/-/delete-account/${WELL_FORMED}`, { token: WELL_FORMED }),
       cookies: { get: () => undefined },
       getClientAddress: () => "192.0.2.77",

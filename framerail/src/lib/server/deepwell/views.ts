@@ -1,4 +1,5 @@
 import { client } from "$lib/server/deepwell"
+import { withAnonymousSessionFallback } from "$lib/server/auth/get-session"
 
 import type {
   Nullable,
@@ -235,12 +236,14 @@ export async function pageView(
   route: Nullable<PageRoute>,
   sessionToken: Optional<string>
 ): Promise<PageView> {
-  return client.request("page_view", {
-    site_id: siteId,
-    locales,
-    session_token: sessionToken,
-    route
-  })
+  return withAnonymousSessionFallback(sessionToken, (token) =>
+    client.request("page_view", {
+      site_id: siteId,
+      locales,
+      session_token: token,
+      route
+    })
+  )
 }
 
 export type ArticleView = Viewer & {
@@ -256,12 +259,14 @@ export async function articleView(
   route: Nullable<PageRoute>,
   sessionToken: Optional<string>
 ): Promise<ArticleView> {
-  return client.request("article_view", {
-    site_id: siteId,
-    locales,
-    session_token: sessionToken,
-    route
-  })
+  return withAnonymousSessionFallback(sessionToken, (token) =>
+    client.request("article_view", {
+      site_id: siteId,
+      locales,
+      session_token: token,
+      route
+    })
+  )
 }
 
 export interface ArticleViewCacheMetadata {
@@ -315,9 +320,11 @@ export async function adminView(
   locales: string[],
   sessionToken: Optional<string>
 ): Promise<AdminViewSiteFound | AdminViewAdminPermissions> {
-  return client.request("admin_view", {
-    site_id: siteId,
-    locales,
-    session_token: sessionToken
-  })
+  return withAnonymousSessionFallback(sessionToken, (token) =>
+    client.request("admin_view", {
+      site_id: siteId,
+      locales,
+      session_token: token
+    })
+  )
 }

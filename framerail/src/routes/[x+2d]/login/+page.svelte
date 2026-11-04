@@ -12,6 +12,7 @@
   let { data }: PageProps = $props()
 
   let isLoggedIn = $derived<boolean>(data.isLoggedIn)
+  let emailVerificationRequired = $state(false)
   let mfaSessionToken = $state<string | undefined>()
   let totpOrCode = $state("")
 
@@ -24,6 +25,7 @@
     {
       onResult: async ({ result }) => {
         if (result.type === "success" && result.data) {
+          emailVerificationRequired = false
           if (result.data.needsMfa && result.data.session_token) {
             mfaSessionToken = result.data.session_token
             isLoggedIn = false
@@ -43,6 +45,7 @@
         }
 
         if (result.type === "failure" && result.data) {
+          emailVerificationRequired = result.data?.emailVerificationRequired === true
           errorPopupState.current = {
             state: true,
             message: result.data?.message,
@@ -121,6 +124,13 @@
       {data.internationalization?.["forgot-password.question"]}
     </a>
   </p>
+  {#if emailVerificationRequired}
+    <p class="auth-notice">
+      <a href={resolve("/-/verify-email", {})}>
+        {data.internationalization?.["wiki-auth-verify-email.resend-email"]}
+      </a>
+    </p>
+  {/if}
 {/if}
 
 <style lang="scss">

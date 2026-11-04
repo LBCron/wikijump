@@ -18,6 +18,7 @@ import {
   getPreloadBackendLocales,
   getPreloadRequestLocales
 } from "$lib/server/load/preload"
+import { resolveCookieSessionToken } from "$lib/server/auth/get-session"
 import { storeRequestContext } from "$lib/server/request-context"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { applyStaticSecurityHeaders } from "$lib/server/security-headers"
@@ -159,7 +160,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   const { siteId, siteSlug } = loadSiteInfo(request.headers)
   const page_slug = params.slug
-  const sessionToken = cookies.get("wikijump_token")
+  const sessionToken = await resolveCookieSessionToken(cookies, request.url)
 
   storeRequestContext(locals, sessionToken, siteId, page_slug)
 

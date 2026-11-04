@@ -1,5 +1,6 @@
 import { limitLocalePreferences } from "$lib/locales"
 import { client } from "$lib/server/deepwell"
+import { withAnonymousSessionFallback } from "$lib/server/auth/get-session"
 import { startBlobUpload, uploadToPresignUrl } from "./file"
 
 import type {
@@ -30,12 +31,14 @@ export async function userView(
   sessionToken: Optional<string>,
   username?: string
 ): Promise<UserViewResult> {
-  return client.request("user_view", {
-    site_id: siteId,
-    session_token: sessionToken,
-    locales,
-    user: username
-  })
+  return withAnonymousSessionFallback(sessionToken, (token) =>
+    client.request("user_view", {
+      site_id: siteId,
+      session_token: token,
+      locales,
+      user: username
+    })
+  )
 }
 
 interface UserEditParams {

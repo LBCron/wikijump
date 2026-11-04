@@ -80,6 +80,7 @@ arrayvec = "0.7.6"
 deepwell-relation-impl-derive = { path = "relation-impl-derive" }
 
 [dev-dependencies]
+ftml = { git = "https://github.com/Rokurolize/ftml", rev = "196e7c9da753988529d0c0507ca378412e281351", features = ["test-support"] }
 maplit = "1"
 pretty_assertions = "1"
 self_cell = "1"

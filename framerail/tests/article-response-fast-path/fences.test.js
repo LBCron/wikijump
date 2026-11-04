@@ -4,7 +4,7 @@ import test from "node:test"
 import {
   buildPublicContentFenceKey,
   createMemoryArticleResponseFenceCache
-} from "../../src/lib/server/cache/article-response/index.js"
+} from "../../src/lib/server/cache/article-response/index.ts"
 import {
   SITE_ID,
   createCountingStore,

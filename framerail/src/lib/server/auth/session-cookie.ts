@@ -1,5 +1,5 @@
-import { parseDeploymentEnvironment } from "$lib/server/deployment-environment.js"
-import { platformDomains } from "$lib/server/platform-domains.js"
+import { parseDeploymentEnvironment } from "$lib/server/deployment-environment"
+import { platformDomains } from "$lib/server/platform-domains"
 
 import type { Cookies } from "@sveltejs/kit"
 

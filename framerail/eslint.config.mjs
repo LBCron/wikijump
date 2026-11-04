@@ -67,6 +67,7 @@ export default defineConfig(
       "@typescript-eslint/no-for-in-array": "error",
       "@typescript-eslint/prefer-optional-chain": "error",
       "@typescript-eslint/prefer-regexp-exec": "error",
+      "@typescript-eslint/no-import-type-side-effects": "error",
       "no-useless-constructor": "off",
       "@typescript-eslint/no-useless-constructor": "error",
       "@typescript-eslint/unbound-method": "error",
@@ -180,8 +181,7 @@ export default defineConfig(
       "!**/.env.example",
       "**/pnpm-lock.yaml",
       "**/package-lock.json",
-      "**/yarn.lock",
-      "sveltekit-options.js"
+      "**/yarn.lock"
     ]),
 
     {

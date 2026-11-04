@@ -3,9 +3,9 @@ import test from "node:test"
 
 const previousFramerailEnvironment = process.env.FRAMERAIL_ENV
 process.env.FRAMERAIL_ENV = "local"
-const { default: config } = await import("../sveltekit-options.js")
+const { default: config } = await import("../sveltekit-options.ts")
 const { AUDITED_EXTERNAL_ASSET_ORIGINS } =
-  await import("../src/lib/server/audited-external-asset-origins.js")
+  await import("../src/lib/server/audited-external-asset-origins.ts")
 if (previousFramerailEnvironment === undefined) {
   delete process.env.FRAMERAIL_ENV
 } else {
@@ -34,7 +34,7 @@ test("local mirror style and font grants do not reach other deployments", async 
     for (const environment of ["dev", "prod"]) {
       process.env.FRAMERAIL_ENV = environment
       const { default: other } = await import(
-        `../sveltekit-options.js?mirror-assets=${environment}`
+        `../sveltekit-options.ts?mirror-assets=${environment}`
       )
       for (const directive of ["style-src", "font-src"]) {
         const sources = other.csp.directives[directive]

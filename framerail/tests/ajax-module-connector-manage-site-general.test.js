@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { handleAjaxModuleConnectorRequest } from "../src/lib/server/ajax-module-connector.js"
+import { handleAjaxModuleConnectorRequest } from "../src/lib/server/ajax-module-connector.ts"
 
 const MODULE_NAME = "managesite/ManageSiteGeneralModule"
 

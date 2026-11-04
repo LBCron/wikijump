@@ -1,5 +1,5 @@
 import { loadPage } from "$lib/server/load/page/page"
-import { isReservedAdminAliasSlug } from "$lib/server/reserved-admin-alias.js"
+import { isReservedAdminAliasSlug } from "$lib/server/reserved-admin-alias"
 import { redirect } from "@sveltejs/kit"
 
 export async function load({ params, request, cookies, locals }) {

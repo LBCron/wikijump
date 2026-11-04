@@ -19,11 +19,11 @@ const freePort = () =>
   })
 
 test(
-  "production build boots via server.js and answers HTTP",
+  "production build boots via server.ts and answers HTTP",
   { skip: hasBuild ? false : "run `pnpm build` first", timeout: 30_000 },
   async () => {
     const port = await freePort()
-    const child = spawn(process.execPath, ["server.js"], {
+    const child = spawn(process.execPath, ["server.ts"], {
       cwd: framerailRoot,
       env: { PATH: process.env.PATH, HOST: "127.0.0.1", PORT: String(port) },
       stdio: ["ignore", "pipe", "pipe"]
@@ -40,12 +40,12 @@ test(
         check()
       })
       const started = await Promise.race([listening, exited.then(() => false)])
-      assert.ok(started, `server.js exited before listening:\n${output}`)
+      assert.ok(started, `server.ts exited before listening:\n${output}`)
 
       const response = await fetch(`http://127.0.0.1:${port}/`)
       assert.equal(typeof response.status, "number")
       await response.arrayBuffer()
-      assert.equal(child.exitCode, null, `server.js exited after request:\n${output}`)
+      assert.equal(child.exitCode, null, `server.ts exited after request:\n${output}`)
     } finally {
       child.kill("SIGTERM")
       await exited

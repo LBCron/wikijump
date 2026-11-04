@@ -6,7 +6,7 @@ import { client } from "$lib/server/deepwell"
 import {
   isNotLatestRevisionIdError,
   isPageEditLockConflictError
-} from "$lib/server/deepwell/public-error.js"
+} from "$lib/server/deepwell/public-error"
 import {
   getXmlRpcWriteContext,
   getXmlRpcWritePrincipal,

@@ -5,7 +5,7 @@ import {
   buildAnonymousArticleResponseCacheFences,
   buildPublicContentFenceKey,
   createMemoryArticleResponseFenceCache
-} from "../../src/lib/server/cache/article-response/fences.js"
+} from "../../src/lib/server/cache/article-response/fences.ts"
 import { createFenceSubscriber } from "../article-response-fast-path/helpers.js"
 import {
   ARTICLE_RESPONSE_CACHE_MAX_BYTES,
@@ -21,7 +21,7 @@ import {
   serializeArticleResponseForCache,
   writeAnonymousArticleResponseToken,
   writeCachedArticleResponse
-} from "../../src/lib/server/cache/article-response/index.js"
+} from "../../src/lib/server/cache/article-response/index.ts"
 
 const REQUEST_HOST = "scp-wiki.example"
 

@@ -11,7 +11,7 @@ import {
   NewSiteSubmissionError,
   newSiteRedirectTarget,
   parseNewSiteSubmission
-} from "$lib/server/load/page/page-newsite-validation.js"
+} from "$lib/server/load/page/page-newsite-validation"
 
 import type { RequestContext } from "$lib/server/request-context"
 import type { RequestEvent } from "@sveltejs/kit"

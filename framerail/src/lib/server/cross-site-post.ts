@@ -1,4 +1,4 @@
-import { csrfTrustedOrigins } from "./deployment-environment.js"
+import { csrfTrustedOrigins } from "./deployment-environment.ts"
 
 const STATE_CHANGING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"])
 

@@ -1,16 +1,16 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { createByteLimitedCache } from "../../src/lib/server/cache/article-response/byte-limited-cache.js"
-import { normalizeCachedArticleResponseEntry } from "../../src/lib/server/cache/article-response/entry.js"
-import { createByteLimitedLru } from "../../src/lib/server/cache/article-response/local-lru.js"
-import { normalizeCachedArticleResponseReplay } from "../../src/lib/server/cache/article-response/replay.js"
+import { createByteLimitedCache } from "../../src/lib/server/cache/article-response/byte-limited-cache.ts"
+import { normalizeCachedArticleResponseEntry } from "../../src/lib/server/cache/article-response/entry.ts"
+import { createByteLimitedLru } from "../../src/lib/server/cache/article-response/local-lru.ts"
+import { normalizeCachedArticleResponseReplay } from "../../src/lib/server/cache/article-response/replay.ts"
 import {
   ARTICLE_RESPONSE_CACHE_MAX_SERIALIZED_BYTES,
   createMemoryArticleResponseCacheStore,
   readCachedArticleResponse,
   writeCachedArticleResponse
-} from "../../src/lib/server/cache/article-response/index.js"
+} from "../../src/lib/server/cache/article-response/index.ts"
 
 test("cached article response writes reject oversized serialized entries", async () => {
   assert.equal(Number.isInteger(ARTICLE_RESPONSE_CACHE_MAX_SERIALIZED_BYTES), true)

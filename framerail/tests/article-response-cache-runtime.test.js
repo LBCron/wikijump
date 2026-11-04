@@ -4,7 +4,7 @@ import test from "node:test"
 import {
   configureArticleResponseCacheStores,
   getArticleResponseCacheStores
-} from "../src/lib/server/cache/article-response/runtime.js"
+} from "../src/lib/server/cache/article-response/runtime.ts"
 
 test("runtime cache stores have explicit configuration and reset ownership", () => {
   const stores = {

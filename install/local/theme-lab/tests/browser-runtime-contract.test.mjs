@@ -46,7 +46,7 @@ test('runtime surface identity follows local static imports but scopes lazy pane
   const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../../../..');
   const normal=runtimeDependencyFilesForObservation(repo,'page.normal','desktop');
   const history=runtimeDependencyFilesForObservation(repo,'page.history','desktop');
-  assert.ok(normal.includes('framerail/src/lib/server/wikidot-request-info.js'));
+  assert.ok(normal.includes('framerail/src/lib/server/wikidot-request-info.ts'));
   assert.ok(normal.includes('framerail/src/routes/[slug]/[...extra]/PageView.svelte'));
   assert.equal(normal.includes('framerail/src/routes/[slug]/[...extra]/HistoryPane.svelte'),false);
   assert.ok(history.includes('framerail/src/routes/[slug]/[...extra]/HistoryPane.svelte'));

@@ -8,7 +8,7 @@ import { resolve } from "path"
 
 import type { UserConfig } from "vite"
 
-import svelteKitOptions from "./sveltekit-options.js"
+import svelteKitOptions from "./sveltekit-options.ts"
 
 const pnpmVersion = pkg.packageManager?.startsWith("pnpm@")
   ? pkg.packageManager.slice("pnpm@".length)
@@ -59,7 +59,7 @@ const config: UserConfig = {
     allowedHosts: true
   },
   // SvelteKit 3 no longer reads svelte.config.js; the kit/adapter/CSP/CSRF/
-  // preprocess options are passed here (see sveltekit-options.js).
+  // preprocess options are passed here (see sveltekit-options.ts).
   plugins: [sveltekit(svelteKitOptions)],
   define: {
     // also update $lib/vite-env.d.ts if these defines are changed

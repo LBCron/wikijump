@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { licenseFormValues, licenseOptionsFor } from "$lib/admin/admin-license.js"
+  import { licenseFormValues, licenseOptionsFor } from "$lib/admin/admin-license"
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"

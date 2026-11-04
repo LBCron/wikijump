@@ -3,7 +3,7 @@ import defaults from "$lib/defaults"
 import { client } from "$lib/server/deepwell"
 import { pageFileRevisionHistory } from "$lib/server/deepwell/page-file"
 import { Layout, PageLockType } from "$lib/types"
-import { mergeWikidotHistoryTimeline } from "$lib/server/wikidot-history-timeline.js"
+import { mergeWikidotHistoryTimeline } from "$lib/server/wikidot-history-timeline"
 
 import type {
   FileRevisionType,

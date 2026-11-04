@@ -1,6 +1,6 @@
 <script lang="ts">
   import { invalidateAll } from "$app/navigation"
-  import { WIKIDOT_SITE_LANGUAGES } from "$lib/admin/wikidot-site-languages.js"
+  import { WIKIDOT_SITE_LANGUAGES } from "$lib/admin/wikidot-site-languages"
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { untrack } from "svelte"
   import { superForm } from "sveltekit-superforms"

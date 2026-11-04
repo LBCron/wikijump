@@ -1,8 +1,8 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { createFramerailHttpServer } from "../server.js"
-import { createStartupReadiness } from "../startup-readiness.js"
+import { createFramerailHttpServer } from "../server.ts"
+import { createStartupReadiness } from "../startup-readiness.ts"
 
 const listen = async (server) => {
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve))

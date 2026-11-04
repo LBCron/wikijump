@@ -7,10 +7,10 @@ import {
 } from "$lib/locales"
 
 import { deleteSessionCookie } from "$lib/server/auth/session-cookie"
-import { isInvalidSessionTokenError } from "$lib/server/deepwell/public-error.js"
+import { isInvalidSessionTokenError } from "$lib/server/deepwell/public-error"
 import { preloadView } from "$lib/server/deepwell/views"
 import { loadSiteInfo } from "$lib/server/load/site-info"
-import { buildPublicPreloadData } from "$lib/server/load/preload-data.js"
+import { buildPublicPreloadData } from "$lib/server/load/preload-data"
 import { sanitizeUserData } from "$lib/server/load/user"
 
 import type { PreloadData, Viewer } from "$lib/server/deepwell/views"

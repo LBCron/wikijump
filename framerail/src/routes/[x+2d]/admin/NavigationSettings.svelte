@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navigationFormValues } from "$lib/admin/admin-navigation.js"
+  import { navigationFormValues } from "$lib/admin/admin-navigation"
   import { errorPopupState } from "$lib/layout/stores.svelte"
   import { superForm } from "sveltekit-superforms"
   import { untrack } from "svelte"

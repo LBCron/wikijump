@@ -1,5 +1,5 @@
 import { client } from "$lib/server/deepwell"
-import { NEW_SITE_DEFAULT_LICENSE } from "$lib/server/load/page/page-newsite-validation.js"
+import { NEW_SITE_DEFAULT_LICENSE } from "$lib/server/load/page/page-newsite-validation"
 import { canonicalSitemapOrigin } from "$lib/server/sitemap"
 
 import type { RequestContext } from "$lib/server/request-context"

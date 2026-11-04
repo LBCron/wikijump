@@ -4,9 +4,9 @@ import assert from "node:assert/strict"
 import { execFileSync } from "node:child_process"
 import { performance } from "node:perf_hooks"
 import { fileURLToPath } from "node:url"
-import { createByteLimitedCache } from "./src/lib/server/cache/article-response/byte-limited-cache.js"
-import { RedisRequestQueue } from "./src/lib/server/cache/redis-request-queue.js"
-import { RedisResponseDecoder } from "./src/lib/server/cache/redis-response-decoder.js"
+import { createByteLimitedCache } from "./src/lib/server/cache/article-response/byte-limited-cache.ts"
+import { RedisRequestQueue } from "./src/lib/server/cache/redis-request-queue.ts"
+import { RedisResponseDecoder } from "./src/lib/server/cache/redis-response-decoder.ts"
 
 const baseline = process.argv[2] ?? "e0e40e49d146f5d71c463f8e15fd3ddb616b0f18"
 const cwd = fileURLToPath(new URL("../", import.meta.url))

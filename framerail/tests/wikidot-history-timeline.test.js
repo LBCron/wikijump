@@ -1,8 +1,8 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { mergeWikidotHistoryTimeline } from "../src/lib/server/wikidot-history-timeline.js"
-import { renderWikidotPageRevisionList } from "../src/lib/server/ajax-module-connector-page-reads.js"
+import { mergeWikidotHistoryTimeline } from "../src/lib/server/wikidot-history-timeline.ts"
+import { renderWikidotPageRevisionList } from "../src/lib/server/ajax-module-connector-page-reads.ts"
 
 const author = {
   "user-id": 52,

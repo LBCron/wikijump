@@ -1,5 +1,5 @@
-import { parseDeploymentEnvironment } from "./deployment-environment.js"
-import { platformDomains, platformHttpsOrigin } from "./platform-domains.js"
+import { parseDeploymentEnvironment } from "./deployment-environment.ts"
+import { platformDomains, platformHttpsOrigin } from "./platform-domains.ts"
 
 /**
  * Authoritative platform legal destinations.

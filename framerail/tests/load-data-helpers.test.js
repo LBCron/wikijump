@@ -6,7 +6,7 @@ import {
   parseAcceptLangHeader,
   withFallbackLocale
 } from "../src/lib/locales.ts"
-import { buildPageLoadData } from "../src/lib/server/load/page-data.js"
+import { buildPageLoadData } from "../src/lib/server/load/page-data.ts"
 
 const requestWithAcceptLanguage = (value) => {
   return new Request("https://scp-wiki.example/", {

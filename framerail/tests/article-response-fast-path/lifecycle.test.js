@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert"
 import test from "node:test"
 
-import { createMemoryArticleResponseCacheStore } from "../../src/lib/server/cache/article-response/index.js"
+import { createMemoryArticleResponseCacheStore } from "../../src/lib/server/cache/article-response/index.ts"
 import {
   createCountingStore,
   createFastPathFixtureStore,

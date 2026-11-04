@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { deepwellRpcAuthorization } from "../src/lib/server/deepwell/rpc-auth.js"
+import { deepwellRpcAuthorization } from "../src/lib/server/deepwell/rpc-auth.ts"
 
 const TOKEN = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
 

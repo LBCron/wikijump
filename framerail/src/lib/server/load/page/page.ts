@@ -1,5 +1,5 @@
 import { resolveHeadImageUrls } from "$lib/head-metadata"
-import { buildAnonymousArticleResponseCacheMetadata } from "$lib/server/cache/article-response/index.js"
+import { buildAnonymousArticleResponseCacheMetadata } from "$lib/server/cache/article-response/index"
 import {
   resolveShellLayoutValue,
   WIKIDOT_LAYOUT
@@ -12,7 +12,7 @@ import {
   pageDeletedGet,
   pageScore
 } from "$lib/server/deepwell/page"
-import { pageErrorStatus } from "$lib/server/load/page/page-error-status.js"
+import { pageErrorStatus } from "$lib/server/load/page/page-error-status"
 import { translate } from "$lib/server/deepwell/translate"
 import { articleView } from "$lib/server/deepwell/views"
 import { buildPageLoadData } from "$lib/server/load/page-data"

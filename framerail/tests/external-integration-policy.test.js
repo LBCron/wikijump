@@ -12,7 +12,7 @@ import {
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const layoutSource = fs.readFileSync(path.join(root, "src/routes/+layout.svelte"), "utf8")
 const svelteConfigSource = fs.readFileSync(
-  path.join(root, "sveltekit-options.js"),
+  path.join(root, "sveltekit-options.ts"),
   "utf8"
 )
 const serverSource = [

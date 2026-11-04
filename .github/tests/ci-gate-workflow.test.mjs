@@ -157,7 +157,7 @@ test("known local Compose runtime definitions trigger runtime, workflow and veri
   const promotion = classifyChanges([
     "install/local/docker-compose.yaml",
     ".github/tests/local-publish-loopback.test.mjs",
-    "framerail/sveltekit-options.js",
+    "framerail/sveltekit-options.ts",
     "framerail/tests/wikidot-csp-config.test.js",
     "locales/fluent/wiki-page/zh_Hans.ftl",
   ])

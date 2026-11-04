@@ -2,7 +2,7 @@ import {
   DEEPWELL_PERMISSION_DENIED,
   isInvalidAuthenticationError,
   isInvalidSessionTokenError
-} from "../deepwell/public-error.js"
+} from "../deepwell/public-error.ts"
 import type { JsonValue } from "$lib/types"
 import { fail } from "@sveltejs/kit"
 import { parse } from "valibot"

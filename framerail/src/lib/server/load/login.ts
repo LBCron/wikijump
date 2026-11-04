@@ -8,8 +8,8 @@ import { translate } from "$lib/server/deepwell/translate"
 import {
   clearLoginPassword,
   redactAuthActionPayload
-} from "$lib/server/load/auth-form-redaction.js"
-import { resolveClientIp } from "$lib/server/client-ip.js"
+} from "$lib/server/load/auth-form-redaction"
+import { resolveClientIp } from "$lib/server/client-ip"
 import { failForActionError, requireActionSession } from "$lib/server/load/action-error"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { translateMfaCodeLabel } from "./login-translation"

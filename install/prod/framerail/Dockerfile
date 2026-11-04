@@ -47,4 +47,4 @@ ENV BODY_SIZE_LIMIT=2097152
 ENV PORT=3393
 EXPOSE 3393
 
-CMD ["/usr/local/bin/node", "server.js"]
+CMD ["/usr/local/bin/node", "server.ts"]

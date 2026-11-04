@@ -23,7 +23,7 @@ Compatibility changes require evidence from live Wikidot or provenance-bearing c
 
 `src/hooks.server.ts` applies cross-cutting work around route resolution. Before resolving a route it derives site, session, and page context and attempts eligible anonymous article-cache reads. During response generation it injects Wikidot request information. After resolution it applies static security headers and writes eligible anonymous article responses and cache tokens. Endpoint-specific business logic stays in routes and load modules.
 
-`server.js` is the deployed HTTP entry point. It wraps the adapter-node handler with the anonymous article fast path, owns the in-memory fence-cache lifecycle, listens on `SOCKET_PATH` or `HOST` and `PORT`, and closes resources on termination signals.
+`server.ts` is the deployed HTTP entry point. It wraps the adapter-node handler with the anonymous article fast path, owns the in-memory fence-cache lifecycle, listens on `SOCKET_PATH` or `HOST` and `PORT`, and closes resources on termination signals.
 
 ## Where capabilities belong
 
@@ -40,7 +40,7 @@ Compatibility changes require evidence from live Wikidot or provenance-bearing c
 | Global styles and theme primitives              | `src/lib/css/`                                                                             |
 | Wikidot page shell and Sigma-style layout       | `src/lib/sigma-esque/`                                                                     |
 | Route parameter matching                        | `src/params/`                                                                              |
-| Node server and anonymous article fast path     | `server.js`, `article-response-fast-path.js`, and `src/lib/server/cache/article-response/` |
+| Node server and anonymous article fast path     | `server.ts`, `article-response-fast-path.ts`, and `src/lib/server/cache/article-response/` |
 | Focused unit and integration tests              | `tests/`                                                                                   |
 
 Add a capability to its existing owner before creating a new cross-cutting layer. A route should compose capabilities, a load module should coordinate them, and a Deepwell module should represent backend transport rather than browser policy.
@@ -86,11 +86,11 @@ fixed performance gate.
 
 ## Node deployment
 
-Production uses `@sveltejs/adapter-node`, configured in `sveltekit-options.js` (passed to the `sveltekit()` Vite plugin). Build the adapter output and start the repository server entry point:
+Production uses `@sveltejs/adapter-node`, configured in `sveltekit-options.ts` (passed to the `sveltekit()` Vite plugin). Build the adapter output and start the repository server entry point:
 
 ```bash
 pnpm build
-node server.js
+node server.ts
 ```
 
-`pnpm preview` starts Vite's local preview server for inspection; it does not exercise the deployed `server.js` fast path or lifecycle.
+`pnpm preview` starts Vite's local preview server for inspection; it does not exercise the deployed `server.ts` fast path or lifecycle.

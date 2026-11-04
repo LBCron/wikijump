@@ -1,8 +1,8 @@
 import defaults from "$lib/defaults"
 import { discussionUpdateValue } from "$lib/admin-forum.js"
-import { licenseUpdateValue } from "$lib/admin/admin-license.js"
-import { navigationUpdateValues } from "$lib/admin/admin-navigation.js"
-import { isWikidotSiteLanguage } from "$lib/admin/wikidot-site-languages.js"
+import { licenseUpdateValue } from "$lib/admin/admin-license"
+import { navigationUpdateValues } from "$lib/admin/admin-navigation"
+import { isWikidotSiteLanguage } from "$lib/admin/wikidot-site-languages"
 import { isGoogleAnalyticsProfile } from "$lib/site-settings.js"
 
 import { authGetSession } from "$lib/server/auth/get-session"

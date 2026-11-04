@@ -6,7 +6,7 @@ import {
   REGISTER_HONEYPOT_FIELD,
   REGISTER_HONEYPOT_LABEL,
   isRegistrationHoneypotTripped
-} from "../src/lib/server/load/register-honeypot.js"
+} from "../src/lib/server/load/register-honeypot.ts"
 
 test("an untouched honeypot does not trip the gate", () => {
   for (const value of [undefined, null, "", "false", "off", "0", []]) {

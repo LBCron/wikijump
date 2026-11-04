@@ -4,8 +4,8 @@ import test from "node:test"
 import {
   containsCspNonce,
   renewCspNonce
-} from "../../src/lib/server/cache/article-response/entry.js"
-import { renewArticleResponseFastPathNonce } from "../../article-response-fast-path.js"
+} from "../../src/lib/server/cache/article-response/entry.ts"
+import { renewArticleResponseFastPathNonce } from "../../article-response-fast-path.ts"
 
 const STORED_NONCE = "QpQiIhnXH4Dlj6zeDbCNMg=="
 const FRESH_NONCE = "1wzsxCSD7Z7iuHv09jC4Yg=="
@@ -53,8 +53,8 @@ test("a fast-path hit serves a fresh nonce that matches its CSP header", async (
 
   const header = replay.headers.find(([name]) => name === "content-security-policy")[1]
   const body = replay.bodyBuffer.toString("utf8")
-  const headerNonce = header.match(/'nonce-([^']+)'/u)[1]
-  const bodyNonce = body.match(/nonce="([^"]+)"/u)[1]
+  const headerNonce = /'nonce-([^']+)'/u.exec(header)[1]
+  const bodyNonce = /nonce="([^"]+)"/u.exec(body)[1]
 
   assert.notEqual(headerNonce, STORED_NONCE)
   assert.equal(headerNonce, bodyNonce, "header and body must carry the same fresh nonce")

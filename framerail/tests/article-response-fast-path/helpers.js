@@ -11,8 +11,8 @@ import {
   buildPublicContentFenceKey,
   createMemoryArticleResponseFenceCache,
   createMemoryArticleResponseCacheStore
-} from "../../src/lib/server/cache/article-response/index.js"
-import { createArticleResponseFastPathHandler } from "../../article-response-fast-path.js"
+} from "../../src/lib/server/cache/article-response/index.ts"
+import { createArticleResponseFastPathHandler } from "../../article-response-fast-path.ts"
 
 export const SITE_ID = 6000005
 export const SITE_SLUG = "scp-wiki"

@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url"
 import { after, before, test } from "node:test"
 
 import { createTestViteServer } from "./vite-test-server.js"
-import { resetDevelopmentArticleResponseCacheStores } from "../src/lib/server/cache/article-response/runtime.js"
+import { resetDevelopmentArticleResponseCacheStores } from "../src/lib/server/cache/article-response/runtime.ts"
 
 const root = fileURLToPath(new URL("..", import.meta.url))
 const siteHeaders = {

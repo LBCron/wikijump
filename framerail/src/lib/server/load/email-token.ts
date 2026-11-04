@@ -12,7 +12,7 @@ import {
   passwordResetRedeem
 } from "$lib/server/deepwell/email-token"
 import { translate } from "$lib/server/deepwell/translate"
-import { resolveClientIp } from "$lib/server/client-ip.js"
+import { resolveClientIp } from "$lib/server/client-ip"
 import { getRequestContext } from "$lib/server/request-context"
 import {
   failForActionError,
@@ -22,11 +22,11 @@ import {
 import {
   clearRegisterPasswords,
   redactAuthActionPayload
-} from "$lib/server/load/auth-form-redaction.js"
+} from "$lib/server/load/auth-form-redaction"
 import {
   isEmailTokenWellFormed,
   normalizeLookupEmail
-} from "$lib/server/load/email-token-validation.js"
+} from "$lib/server/load/email-token-validation"
 import { loadSiteInfo } from "$lib/server/load/site-info"
 import { fail, redirect } from "@sveltejs/kit"
 import { superValidate } from "sveltekit-superforms"

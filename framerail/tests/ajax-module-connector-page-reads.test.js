@@ -11,7 +11,7 @@ import {
   renderWikidotWhoRated,
   renderWikidotWhoRatedUnavailable,
   renderWikidotViewSource
-} from "../src/lib/server/ajax-module-connector-page-reads.js"
+} from "../src/lib/server/ajax-module-connector-page-reads.ts"
 
 const ROBOTS_META = {
   name: "robots",

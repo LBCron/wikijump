@@ -11,7 +11,7 @@ import {
   injectWikidotRequestInfo,
   requestHostFromRequest,
   serializeWikidotRequestInfo
-} from "../src/lib/server/wikidot-request-info.js"
+} from "../src/lib/server/wikidot-request-info.ts"
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 

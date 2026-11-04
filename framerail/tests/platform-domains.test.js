@@ -4,7 +4,7 @@ import test from "node:test"
 import {
   platformDomains,
   platformHttpsOrigin
-} from "../src/lib/server/platform-domains.js"
+} from "../src/lib/server/platform-domains.ts"
 
 test("each deployment environment has documented platform hosts on port 443", () => {
   assert.deepEqual(platformDomains({ deploymentEnvironment: "local", env: {} }), {

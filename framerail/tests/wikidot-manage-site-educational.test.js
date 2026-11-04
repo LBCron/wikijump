@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { renderWikidotManageSiteEducational } from "../src/lib/server/wikidot-manage-site-educational.js"
+import { renderWikidotManageSiteEducational } from "../src/lib/server/wikidot-manage-site-educational.ts"
 
 test("Educational upgrade renders the observed application and benefits", () => {
   const body = renderWikidotManageSiteEducational()

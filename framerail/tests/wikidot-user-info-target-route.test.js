@@ -5,7 +5,7 @@ import { test } from "node:test"
 import {
   WIKIDOT_USER_INFO_MISSING,
   loadWikidotUserInfo
-} from "../src/lib/server/wikidot-user-info.js"
+} from "../src/lib/server/wikidot-user-info.ts"
 import { showUserProfileActionAuthenticationGuard } from "../src/lib/user-profile-action-auth-guard.ts"
 
 /**

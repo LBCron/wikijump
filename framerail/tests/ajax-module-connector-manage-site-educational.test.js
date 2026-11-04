@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { handleAjaxModuleConnectorRequest } from "../src/lib/server/ajax-module-connector.js"
+import { handleAjaxModuleConnectorRequest } from "../src/lib/server/ajax-module-connector.ts"
 
 const SITE_ID = 6000006
 const MODULE_NAME = "managesite/ManageSiteUpgradeEduModule"

@@ -1107,6 +1107,27 @@ async fn get_page_who_rated_target(
     Ok(page)
 }
 
+#[derive(Debug, PartialEq, Eq)]
+enum DirectPageGate {
+    Show,
+    Hide,
+    RequireDeletePermission,
+}
+
+fn direct_page_gate(
+    page_site_id: i64,
+    requested_site_id: i64,
+    is_deleted: bool,
+) -> DirectPageGate {
+    if page_site_id != requested_site_id {
+        DirectPageGate::Hide
+    } else if is_deleted {
+        DirectPageGate::RequireDeletePermission
+    } else {
+        DirectPageGate::Show
+    }
+}
+
 pub async fn page_get_direct(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -1132,6 +1153,40 @@ pub async fn page_get_direct(
     match page {
         None => Ok(None),
         Some(page) => {
+            match direct_page_gate(page.site_id, site_id, page.deleted_at.is_some()) {
+                DirectPageGate::Show => {}
+                DirectPageGate::Hide => return Ok(None),
+                DirectPageGate::RequireDeletePermission => {
+                    let Some(user_id) = ctx.request().user_id else {
+                        return Err(Error::new(
+                            "deleted page lookup requires an authenticated request context",
+                            ErrorType::PermissionDenied,
+                        )
+                        .into());
+                    };
+
+                    let can_delete = PermissionService::check_user_can(
+                        ctx,
+                        &CheckPermissionContext {
+                            user_id: Some(user_id),
+                            site_id,
+                            page_reference: Some(Reference::Id(page.page_id)),
+                        },
+                        Permission {
+                            resource_type: Resource::Page,
+                            resource_category: Some(Reference::Id(page.page_category_id)),
+                            action: Action::Delete,
+                        },
+                    )
+                    .await
+                    .or_raise(make_error)?;
+
+                    if !can_delete {
+                        return Ok(None);
+                    }
+                }
+            }
+
             if page.slug.eq_ignore_ascii_case("_admin")
                 && !PermissionService::check_user_can_view_page(
                     ctx,
@@ -1616,8 +1671,8 @@ fn require_matching_mutation_actor(
 #[cfg(test)]
 mod tests {
     use super::{
-        SiteChangesBrowserPerpage, require_matching_mutation_actor,
-        site_changes_browser_perpage,
+        DirectPageGate, SiteChangesBrowserPerpage, direct_page_gate,
+        require_matching_mutation_actor, site_changes_browser_perpage,
     };
     use crate::services::render::wikidot_site_changes_empty_response;
 
@@ -1662,5 +1717,16 @@ mod tests {
         let response = wikidot_site_changes_empty_response();
         assert_eq!(response.status, "ok");
         assert_eq!(response.body, "Sorry, no revisions matching your criteria.");
+    }
+
+    #[test]
+    fn direct_page_gate_scopes_to_site_and_guards_deleted_pages() {
+        assert_eq!(direct_page_gate(10, 10, false), DirectPageGate::Show);
+        assert_eq!(direct_page_gate(10, 20, false), DirectPageGate::Hide);
+        assert_eq!(direct_page_gate(10, 20, true), DirectPageGate::Hide);
+        assert_eq!(
+            direct_page_gate(10, 10, true),
+            DirectPageGate::RequireDeletePermission,
+        );
     }
 }

@@ -63,7 +63,7 @@ use crate::services::render::{
 use crate::services::settings::{
     NavigationPageHtml, PageRatingSettings, PageRatingType, SettingsService,
 };
-use crate::services::user::User;
+use crate::services::user::{User, UserOutput};
 use crate::services::view::ViewType;
 use crate::services::vote::GetVote;
 use crate::services::{
@@ -1792,6 +1792,8 @@ ORDER BY breadcrumb_chain.depth ASC
             .await
             .or_raise(make_error)?;
 
+        let viewer_user_id = user_session.as_ref().map(|session| session.user.user_id);
+
         let user = match user_ref {
             Some(ref user_ref) => UserService::get_optional(ctx, user_ref.borrow())
                 .await
@@ -1801,7 +1803,9 @@ ORDER BY breadcrumb_chain.depth ASC
         };
 
         let output = match user {
-            Some(user) => GetUserViewOutput::UserFound { user },
+            Some(user) => GetUserViewOutput::UserFound {
+                user: UserOutput::new(user, viewer_user_id),
+            },
             None => GetUserViewOutput::UserMissing,
         };
 

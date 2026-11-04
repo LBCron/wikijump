@@ -33,7 +33,7 @@ use crate::services::render::{LegacyBrowserAction, RateBrowserActionRegistry};
 use crate::services::settings::{
     PageDiscussionSettings, PageRatingSettings, ThemeSetting,
 };
-use crate::services::user::User;
+use crate::services::user::UserOutput;
 use crate::types::Reference;
 use time::OffsetDateTime;
 
@@ -199,7 +199,7 @@ pub struct GetUserView<'a> {
 #[derive(Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case", tag = "type", content = "data")]
 pub enum GetUserViewOutput {
-    UserFound { user: User },
+    UserFound { user: UserOutput },
     UserMissing,
 }
 

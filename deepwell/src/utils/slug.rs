@@ -34,52 +34,19 @@ pub fn normalize_page_slug<S: Into<String>>(name: S) -> String {
     slug
 }
 
-const CONFUSABLE_SKELETON_MAP: &[(char, char)] = &[
-    // Cyrillic lookalikes
-    ('\u{430}', 'a'),
-    ('\u{435}', 'e'),
-    ('\u{43E}', 'o'),
-    ('\u{440}', 'p'),
-    ('\u{441}', 'c'),
-    ('\u{443}', 'y'),
-    ('\u{445}', 'x'),
-    ('\u{456}', 'i'),
-    ('\u{458}', 'j'),
-    ('\u{455}', 's'),
-    ('\u{4BB}', 'h'),
-    ('\u{43C}', 'm'),
-    ('\u{442}', 't'),
-    ('\u{43A}', 'k'),
-    ('\u{501}', 'd'),
-    ('\u{50D}', 'g'),
-    ('\u{51B}', 'q'),
-    ('\u{51D}', 'w'),
-    // Greek lookalikes
-    ('\u{3B1}', 'a'),
-    ('\u{3B2}', 'b'),
-    ('\u{3B5}', 'e'),
-    ('\u{3B7}', 'n'),
-    ('\u{3B9}', 'i'),
-    ('\u{3BA}', 'k'),
-    ('\u{3BC}', 'u'),
-    ('\u{3BD}', 'v'),
-    ('\u{3BF}', 'o'),
-    ('\u{3C0}', 'n'),
-    ('\u{3C1}', 'p'),
-    ('\u{3C4}', 't'),
-    ('\u{3C5}', 'u'),
-    ('\u{3C7}', 'x'),
-    ('\u{3C9}', 'w'),
-];
+mod confusables;
+
+use self::confusables::CONFUSABLE_SKELETON_MAP;
 
 pub fn confusable_skeleton(value: &str) -> String {
     let mut skeleton = String::with_capacity(value.len());
     for ch in value.chars().flat_map(char::to_lowercase) {
-        let mapped = CONFUSABLE_SKELETON_MAP
-            .iter()
-            .find_map(|&(lookalike, latin)| (lookalike == ch).then_some(latin))
-            .unwrap_or(ch);
-        skeleton.push(mapped);
+        match CONFUSABLE_SKELETON_MAP
+            .binary_search_by_key(&ch, |&(lookalike, _)| lookalike)
+        {
+            Ok(index) => skeleton.push_str(CONFUSABLE_SKELETON_MAP[index].1),
+            Err(_) => skeleton.push(ch),
+        }
     }
     skeleton
 }
@@ -93,8 +60,33 @@ fn confusable_skeleton_maps_cyrillic_and_greek_lookalikes() {
 }
 
 #[test]
+fn confusable_skeleton_maps_previously_unmapped_lookalikes() {
+    assert_eq!(confusable_skeleton("cycle2-\u{432}ob"), "cycle2-bob");
+    assert_eq!(confusable_skeleton("cycle2-\u{412}en"), "cycle2-ben");
+    assert_eq!(confusable_skeleton("cycle2-\u{454}ve"), "cycle2-eve");
+    assert_eq!(confusable_skeleton("cycle2-\u{4af}ara"), "cycle2-yara");
+    assert_eq!(confusable_skeleton("cycle2-m0do"), "cycle2-modo");
+    assert_eq!(confusable_skeleton("user1"), "userl");
+    assert_eq!(confusable_skeleton("\u{3c3}"), "o");
+    assert_eq!(confusable_skeleton("\u{585}"), "o");
+    assert_eq!(confusable_skeleton("\u{43d}"), "h");
+    assert_eq!(confusable_skeleton("\u{3c0}"), "n");
+}
+
+#[test]
+fn confusable_skeleton_map_matches_the_pinned_dataset() {
+    assert_eq!(confusables::CONFUSABLES_DATASET_ENTRIES, 6355);
+    assert_eq!(CONFUSABLE_SKELETON_MAP.len(), 6074);
+    assert!(
+        CONFUSABLE_SKELETON_MAP
+            .windows(2)
+            .all(|pair| pair[0].0 < pair[1].0)
+    );
+}
+
+#[test]
 fn confusable_skeleton_leaves_other_characters_alone() {
-    assert_eq!(confusable_skeleton("plain-name_1"), "plain-name_1");
+    assert_eq!(confusable_skeleton("plain-name_2"), "plain-name_2");
     assert_eq!(confusable_skeleton("PLAIN"), "plain");
     assert_eq!(confusable_skeleton("\u{434}mitry"), "\u{434}mitry");
     assert_eq!(confusable_skeleton(""), "");

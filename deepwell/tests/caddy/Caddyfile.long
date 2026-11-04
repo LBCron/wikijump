@@ -214,7 +214,6 @@ http://*.wjfiles.host.site.somedomain.example.com {
 
 
 # Missing custom domains
-http://,
 https:// {
 	import strip_headers
 	request_header X-Wikijump-Basic-Error 1

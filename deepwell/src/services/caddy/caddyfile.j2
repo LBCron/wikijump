@@ -297,11 +297,9 @@ http://*{{ files_domain }} {
 
 # Missing custom domains
 {% if local -%}
-http://,
 https://,
 localhost {
 {%- else -%}
-http://,
 https:// {
 {%- endif %}
 	import strip_headers

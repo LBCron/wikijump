@@ -24,6 +24,7 @@ use super::structs::{RelationDirection, RelationObject, RelationReference};
 use crate::constants::{SYSTEM_IP_ADDRESS, SYSTEM_USER_ID};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::relation::{self, Entity as Relation, Model as RelationModel};
+use crate::models::user::{self, Entity as User};
 use crate::models::user_role::{self, Entity as UserRole};
 use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, AuditService};
@@ -31,9 +32,10 @@ use crate::services::role::{RevokeUserRoleInput, RoleService};
 use crate::types::RelationType;
 use crate::utils::now;
 use deepwell_relation_impl_derive::impl_relation;
-use sea_orm::sea_query::Expr;
-use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter};
+use sea_orm::sea_query::{Expr, Func};
+use sea_orm::{ColumnTrait, Condition, EntityTrait, ExprTrait, QueryFilter};
 use serde::Serialize;
+use std::collections::HashSet;
 use std::net::IpAddr;
 use time::Date;
 
@@ -179,6 +181,112 @@ impl RelationService {
         .or_raise(make_error)?;
 
         Ok(())
+    }
+
+    pub async fn carry_over_site_bans(
+        ctx: &ServiceContext<'_>,
+        new_user_id: i64,
+        email: &str,
+        ip_address: IpAddr,
+    ) -> Result<u64> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to carry over site bans to re-registered user ID {new_user_id}",
+                ),
+                ErrorType::SiteBanRelation,
+            )
+        };
+
+        let txn = ctx.transaction();
+
+        let predecessors = User::find()
+            .filter(
+                Condition::all()
+                    .add(user::Column::DeletedAt.is_not_null())
+                    .add(user::Column::UserId.ne(new_user_id))
+                    .add(
+                        Expr::expr(Func::lower(Expr::col(user::Column::Email)))
+                            .eq(email.to_lowercase()),
+                    ),
+            )
+            .all(txn)
+            .await
+            .or_raise(make_error)?;
+
+        if predecessors.is_empty() {
+            return Ok(0);
+        }
+
+        let predecessor_ids: Vec<i64> =
+            predecessors.iter().map(|user| user.user_id).collect();
+
+        let bans = Relation::find()
+            .filter(
+                Condition::all()
+                    .add(relation::Column::RelationType.eq(RelationType::SiteBan))
+                    .add(relation::Column::FromId.is_in(predecessor_ids))
+                    .add(relation::Column::DeletedAt.is_null())
+                    .add(relation::Column::OverwrittenAt.is_null()),
+            )
+            .all(txn)
+            .await
+            .or_raise(make_error)?;
+
+        let today = now().date();
+        let mut carried_sites = HashSet::new();
+        let mut carried = 0;
+
+        for ban in bans {
+            let metadata: SiteBanData =
+                serde_json::from_value(ban.metadata).or_raise(make_error)?;
+
+            if metadata.banned_until.is_some_and(|until| until < today) {
+                continue;
+            }
+
+            let site_id = ban.dest_id;
+            if !carried_sites.insert(site_id) {
+                continue;
+            }
+
+            let existing = Self::get_optional_site_ban(
+                ctx,
+                GetSiteBan {
+                    site_id,
+                    user_id: new_user_id,
+                },
+            )
+            .await
+            .or_raise(make_error)?;
+
+            if existing.is_some() {
+                continue;
+            }
+
+            Self::create_site_ban(
+                ctx,
+                CreateSiteBan {
+                    site_id,
+                    user_id: new_user_id,
+                    created_by: SYSTEM_USER_ID,
+                    metadata,
+                },
+                ip_address,
+            )
+            .await
+            .or_raise(make_error)?;
+
+            carried += 1;
+        }
+
+        if carried > 0 {
+            info!(
+                "Carried over {carried} site ban(s) to re-registered user ID {new_user_id}",
+            );
+        }
+
+        Ok(carried)
     }
 
     pub async fn remove_site_ban(

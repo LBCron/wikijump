@@ -40,7 +40,7 @@ use crate::services::render::{
 };
 use crate::services::{
     PasswordService, RequestContext, ServiceContext, SessionService, SiteService,
-    TextBlockService,
+    TextBlockService, UserService,
 };
 use crate::{database, info, redis as redis_db};
 use jsonrpsee::server::{RpcModule, Server, ServerConfig, ServerHandle};
@@ -736,7 +736,7 @@ async fn build_request(
     let make_error =
         || Error::new("failed to resolve request context", ErrorType::Request);
 
-    let (session, mut user_id) = match headers.session_token.as_deref() {
+    let (mut session, mut user_id) = match headers.session_token.as_deref() {
         Some("") | None => (None, None),
         Some(token) => {
             match SessionService::get_optional(ctx, token)
@@ -751,6 +751,23 @@ async fn build_request(
             }
         }
     };
+
+    if let Some(active_session) = &session {
+        let session_user_id = active_session.user_id;
+        let user = UserService::get_real_optional(
+            ctx,
+            crate::types::Reference::Id(session_user_id),
+        )
+        .await
+        .or_raise(make_error)?;
+        if !matches!(user, Some(user) if user.deleted_at.is_none()) {
+            SessionService::invalidate_all(ctx, session_user_id)
+                .await
+                .or_raise(make_error)?;
+            session = None;
+            user_id = None;
+        }
+    }
 
     if may_bind_local_authoring_actor(
         ctx.config().main_domain_no_dot.as_str(),

@@ -38,7 +38,7 @@ def default_runtime_home() -> Path:
 
 
 DEFAULT_RUNTIME_HOME = default_runtime_home()
-CANARY_URL = "http://scp-wiki.wikijump.localhost/scp-9506"
+CANARY_URL = "https://scp-wiki.wikijump.localhost/scp-9506"
 FTML_SOURCE = re.compile(
     r'source = "git\+https://github\.com/Rokurolize/ftml[^\"]*#([0-9a-f]{40})"'
 )

@@ -366,7 +366,8 @@ fn pinned_css_heads_with_quoted_brackets_and_spacing_own_runtime_modules() {
 
 #[test]
 fn pinned_css_closer_variants_own_runtime_modules() {
-    for closer in ["[[/ module]]"] {
+    {
+        let closer = "[[/ module]]";
         let source = format!(
             "[[module CSS]]\n\
              [[module ListPages name=\"hidden-list\"]]X\n\

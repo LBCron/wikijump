@@ -52,13 +52,11 @@ export async function preloadView(
   locales: string[],
   sessionToken: Optional<string>
 ): Promise<Viewer> {
-  return withAnonymousSessionFallback(sessionToken, (token) =>
-    client.request("preload_view", {
-      site_id: siteId,
-      locales,
-      session_token: token
-    })
-  )
+  return client.request("preload_view", {
+    site_id: siteId,
+    locales,
+    session_token: sessionToken
+  })
 }
 
 export interface ClientUserSession {

@@ -337,6 +337,12 @@ test("login shares a session across native Wikijump wiki hosts but not custom do
         assert.equal(params.password, "fixture-password")
         return { session_token: "shared-account-session", needs_mfa: false }
       }
+      if (method === "user_view") {
+        return {
+          user_type: "regular",
+          email_verified_at: "2026-08-10T00:00:00Z"
+        }
+      }
       if (method === "session_get") {
         assert.deepEqual(params, ["shared-account-session"])
         return {

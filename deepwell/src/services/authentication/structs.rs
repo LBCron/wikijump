@@ -18,6 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use crate::error::prelude::{Error, ErrorType, ExnError, Result};
 use crate::models::user::Model as UserModel;
 use crate::services::PasswordService;
 use std::net::IpAddr;
@@ -42,6 +43,27 @@ pub struct LoginUser {
 
     #[serde(flatten)]
     pub authenticate: AuthenticateUser,
+}
+
+#[derive(Debug)]
+pub enum LoginOutcome {
+    Authenticated(AuthenticateUserOutput),
+    InvalidAuthentication(ExnError),
+    Failed(ExnError),
+}
+
+impl LoginOutcome {
+    pub fn from_result(result: Result<AuthenticateUserOutput>) -> Self {
+        match result {
+            Ok(output) => LoginOutcome::Authenticated(output),
+            Err(error) if error.error_type == ErrorType::InvalidAuthentication => {
+                LoginOutcome::InvalidAuthentication(error)
+            }
+            Err(error) => LoginOutcome::Failed(
+                error.raise(Error::new("failed to perform login", ErrorType::Login)),
+            ),
+        }
+    }
 }
 
 #[derive(Serialize, Debug, Clone)]

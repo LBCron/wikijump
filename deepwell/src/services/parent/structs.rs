@@ -82,6 +82,13 @@ pub struct DirectParentMetadata {
     pub title: String,
 }
 
+#[derive(Serialize, Debug, Clone, PartialEq, Eq)]
+#[serde(untagged)]
+pub enum DirectParentMetadataResult {
+    Visible(DirectParentMetadata),
+    Undisclosed,
+}
+
 #[derive(Serialize, Debug, Copy, Clone)]
 pub struct RemoveParentOutput {
     pub was_deleted: bool,

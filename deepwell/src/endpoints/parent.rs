@@ -25,9 +25,9 @@ use crate::models::page::Model as PageModel;
 use crate::models::page_parent::Model as PageParentModel;
 use crate::services::page::GetPageReference;
 use crate::services::parent::{
-    DirectParentMetadata, GetChildOutput, GetParentRelationships, ParentDescription,
-    RemoveParentOutput, TraceParents, TraceParentsOutput, UpdateParents,
-    UpdateParentsOutput,
+    DirectParentMetadata, DirectParentMetadataResult, GetChildOutput,
+    GetParentRelationships, ParentDescription, RemoveParentOutput, TraceParents,
+    TraceParentsOutput, UpdateParents, UpdateParentsOutput,
 };
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::types::{Action, Permission, Reference, Resource};
@@ -58,7 +58,7 @@ pub async fn parent_relationships_get(
 pub async fn parent_get_direct_metadata(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<Option<DirectParentMetadata>> {
+) -> Result<DirectParentMetadataResult> {
     let GetPageReference {
         site_id,
         page: child_reference,
@@ -74,17 +74,17 @@ pub async fn parent_get_direct_metadata(
         .await
         .or_raise(make_error)?
     else {
-        return Ok(None);
+        return Ok(DirectParentMetadataResult::Undisclosed);
     };
     if !page_is_viewable(ctx, &child).await.or_raise(make_error)? {
-        return Ok(None);
+        return Ok(DirectParentMetadataResult::Undisclosed);
     }
     let relationships =
         ParentService::get_parents(ctx, site_id, Reference::Id(child.page_id))
             .await
             .or_raise(make_error)?;
     let [relationship] = relationships.as_slice() else {
-        return Ok(None);
+        return Ok(DirectParentMetadataResult::Undisclosed);
     };
     let Some(parent) = PageService::get_optional(
         ctx,
@@ -94,27 +94,27 @@ pub async fn parent_get_direct_metadata(
     .await
     .or_raise(make_error)?
     else {
-        return Ok(None);
+        return Ok(DirectParentMetadataResult::Undisclosed);
     };
 
     if !page_is_viewable(ctx, &parent).await.or_raise(make_error)? {
-        return Ok(None);
+        return Ok(DirectParentMetadataResult::Undisclosed);
     }
 
     let Some(revision_id) = parent.latest_revision_id else {
-        return Ok(None);
+        return Ok(DirectParentMetadataResult::Undisclosed);
     };
     let Some(revision) = PageRevisionService::get_direct_optional(ctx, revision_id)
         .await
         .or_raise(make_error)?
     else {
-        return Ok(None);
+        return Ok(DirectParentMetadataResult::Undisclosed);
     };
     if revision.page_id != parent.page_id || revision.site_id != site_id {
-        return Ok(None);
+        return Ok(DirectParentMetadataResult::Undisclosed);
     }
 
-    Ok(Some(DirectParentMetadata {
+    Ok(DirectParentMetadataResult::Visible(DirectParentMetadata {
         slug: parent.slug,
         title: revision.title,
     }))
@@ -624,8 +624,26 @@ async fn ensure_child_page_edit_permission<'a>(
 mod tests {
     use super::parent_update_exceeds_budget;
     use crate::services::parent::UpdateParents;
+    use crate::services::parent::{DirectParentMetadata, DirectParentMetadataResult};
     use crate::types::Reference;
     use std::borrow::Cow;
+
+    #[test]
+    fn direct_parent_metadata_result_serializes_as_metadata_or_null() {
+        let visible = DirectParentMetadataResult::Visible(DirectParentMetadata {
+            slug: str!("parent-page"),
+            title: str!("Parent Page"),
+        });
+        assert_eq!(
+            serde_json::to_value(&visible).expect("visible metadata serializes"),
+            serde_json::json!({"slug": "parent-page", "title": "Parent Page"}),
+        );
+        assert_eq!(
+            serde_json::to_value(&DirectParentMetadataResult::Undisclosed)
+                .expect("undisclosed metadata serializes"),
+            serde_json::Value::Null,
+        );
+    }
 
     #[test]
     fn parent_update_budget_covers_both_directions() {

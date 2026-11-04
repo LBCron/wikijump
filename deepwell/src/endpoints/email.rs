@@ -23,7 +23,7 @@ use crate::services::MutationAuthorization;
 use crate::services::PasswordService;
 use crate::services::email::{
     EmailService, EmailTokenPurpose, EmailTokenService, EmailValidationOutput,
-    IssueEmailToken, IssueEmailTokenOutcome,
+    GrantTokenPurpose, IssueEmailToken, IssueEmailTokenOutcome, LinkTokenPurpose,
 };
 use crate::services::user::UpdateUserBody;
 use crate::types::{Maybe, Reference};
@@ -110,14 +110,15 @@ pub async fn email_verify_redeem(
     params: Params<'static>,
 ) -> Result<()> {
     let EmailTokenRedeem { token, ip_address } = parse!(params, Request);
-    let redeemed = EmailTokenService::redeem(ctx, &token, EmailTokenPurpose::VerifyEmail)
-        .await
-        .or_raise(|| {
-            Error::new(
-                "failed to redeem verification token",
-                ErrorType::InvalidEmailToken,
-            )
-        })?;
+    let redeemed =
+        EmailTokenService::redeem_link(ctx, &token, LinkTokenPurpose::VerifyEmail)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to redeem verification token",
+                    ErrorType::InvalidEmailToken,
+                )
+            })?;
 
     let user = UserService::get_real(ctx, Reference::Id(redeemed.user_id))
         .await
@@ -171,7 +172,7 @@ pub async fn password_reset_redeem(
 ) -> Result<ResetGrantOutput> {
     let EmailTokenRedeem { token, ip_address } = parse!(params, Request);
     let redeemed =
-        EmailTokenService::redeem(ctx, &token, EmailTokenPurpose::ResetPassword)
+        EmailTokenService::redeem_link(ctx, &token, LinkTokenPurpose::ResetPassword)
             .await
             .or_raise(|| {
                 Error::new(
@@ -193,9 +194,8 @@ pub async fn password_reset_redeem(
 
     let issued = EmailTokenService::issue_grant(
         ctx,
-        redeemed.user_id,
-        redeemed.email,
-        EmailTokenPurpose::ResetGrant,
+        &redeemed,
+        GrantTokenPurpose::ResetGrant,
         ip_address,
     )
     .await
@@ -228,11 +228,12 @@ pub async fn password_reset_complete(
         new_password,
         ip_address,
     } = parse!(params, Request);
-    let redeemed = EmailTokenService::redeem(ctx, &grant, EmailTokenPurpose::ResetGrant)
-        .await
-        .or_raise(|| {
-            Error::new("failed to redeem reset grant", ErrorType::InvalidEmailToken)
-        })?;
+    let redeemed =
+        EmailTokenService::redeem_grant(ctx, &grant, GrantTokenPurpose::ResetGrant)
+            .await
+            .or_raise(|| {
+                Error::new("failed to redeem reset grant", ErrorType::InvalidEmailToken)
+            })?;
 
     let user = UserService::get_real(ctx, Reference::Id(redeemed.user_id))
         .await
@@ -338,7 +339,7 @@ pub async fn account_delete_redeem(
     let actor_user_id =
         MutationAuthorization::require_authenticated(ctx, "redeem account deletion")?;
     let redeemed =
-        EmailTokenService::redeem(ctx, &token, EmailTokenPurpose::DeleteConfirm)
+        EmailTokenService::redeem_link(ctx, &token, LinkTokenPurpose::DeleteConfirm)
             .await
             .or_raise(|| {
                 Error::new(
@@ -370,9 +371,8 @@ pub async fn account_delete_redeem(
 
     let issued = EmailTokenService::issue_grant(
         ctx,
-        redeemed.user_id,
-        redeemed.email,
-        EmailTokenPurpose::DeleteGrant,
+        &redeemed,
+        GrantTokenPurpose::DeleteGrant,
         ip_address,
     )
     .await
@@ -396,25 +396,24 @@ pub struct DeleteCompleteOutput {
     pub sessions_revoked: u64,
 }
 
-pub async fn account_delete_complete(
+struct VerifiedAccountDeletion {
+    user_id: i64,
+}
+
+async fn verify_account_deletion(
     ctx: &ServiceContext<'_>,
-    params: Params<'static>,
-) -> Result<DeleteCompleteOutput> {
-    let AccountDeleteComplete {
-        grant,
-        password,
-        ip_address,
-    } = parse!(params, Request);
-    let actor_user_id =
-        MutationAuthorization::require_authenticated(ctx, "complete account deletion")?;
-    let redeemed = EmailTokenService::redeem(ctx, &grant, EmailTokenPurpose::DeleteGrant)
-        .await
-        .or_raise(|| {
-            Error::new(
-                "failed to redeem deletion grant",
-                ErrorType::InvalidEmailToken,
-            )
-        })?;
+    grant: &str,
+    password: &str,
+) -> Result<VerifiedAccountDeletion> {
+    let redeemed =
+        EmailTokenService::redeem_grant(ctx, grant, GrantTokenPurpose::DeleteGrant)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to redeem deletion grant",
+                    ErrorType::InvalidEmailToken,
+                )
+            })?;
 
     MutationAuthorization::require_matching_actor(
         ctx,
@@ -435,7 +434,7 @@ pub async fn account_delete_complete(
         .into());
     }
 
-    PasswordService::verify_sleep(ctx, &password, &user.password, true)
+    PasswordService::verify_sleep(ctx, password, &user.password, true)
         .await
         .map_err(|_| {
             Error::new(
@@ -444,11 +443,22 @@ pub async fn account_delete_complete(
             )
         })?;
 
-    UserService::delete(ctx, Reference::Id(user.user_id), actor_user_id, ip_address)
+    Ok(VerifiedAccountDeletion {
+        user_id: user.user_id,
+    })
+}
+
+async fn complete_account_deletion(
+    ctx: &ServiceContext<'_>,
+    proof: VerifiedAccountDeletion,
+    actor_user_id: i64,
+    ip_address: IpAddr,
+) -> Result<DeleteCompleteOutput> {
+    UserService::delete(ctx, Reference::Id(proof.user_id), actor_user_id, ip_address)
         .await
         .or_raise(|| Error::new("failed to delete account", ErrorType::User))?;
 
-    let sessions_revoked = SessionService::invalidate_all(ctx, user.user_id)
+    let sessions_revoked = SessionService::invalidate_all(ctx, proof.user_id)
         .await
         .or_raise(|| {
             Error::new(
@@ -458,4 +468,21 @@ pub async fn account_delete_complete(
         })?;
 
     Ok(DeleteCompleteOutput { sessions_revoked })
+}
+
+pub async fn account_delete_complete(
+    ctx: &ServiceContext<'_>,
+    params: Params<'static>,
+) -> Result<DeleteCompleteOutput> {
+    let AccountDeleteComplete {
+        grant,
+        password,
+        ip_address,
+    } = parse!(params, Request);
+    let actor_user_id =
+        MutationAuthorization::require_authenticated(ctx, "complete account deletion")?;
+
+    let proof = verify_account_deletion(ctx, &grant, &password).await?;
+
+    complete_account_deletion(ctx, proof, actor_user_id, ip_address).await
 }

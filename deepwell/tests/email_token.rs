@@ -13,7 +13,7 @@ use deepwell::services::ServiceContext;
 use deepwell::services::authentication::{AuthenticateUser, AuthenticationService};
 use deepwell::services::email::{
     EmailTokenPurpose, EmailTokenService, IssueEmailToken, IssueEmailTokenOutcome,
-    RedeemedEmailToken,
+    LinkTokenPurpose, RedeemedLinkToken,
 };
 use deepwell::services::import::{ImportService, ImportUser, ImportedUserType};
 use deepwell::services::session::{CreateSession, SessionService};
@@ -515,7 +515,7 @@ async fn redeem_in_fresh_transaction(
     state: ServerState,
     token: String,
     start: Option<Arc<Barrier>>,
-) -> ExnResult<RedeemedEmailToken> {
+) -> ExnResult<RedeemedLinkToken> {
     let txn = state
         .database
         .begin()
@@ -528,7 +528,7 @@ async fn redeem_in_fresh_transaction(
 
     let result = {
         let ctx = ServiceContext::new(&state, &txn);
-        EmailTokenService::redeem(&ctx, &token, EmailTokenPurpose::VerifyEmail).await
+        EmailTokenService::redeem_link(&ctx, &token, LinkTokenPurpose::VerifyEmail).await
     };
 
     match result {
@@ -704,9 +704,13 @@ async fn consumed_tokens_are_purged_on_next_issue() {
         EmailTokenPurpose::VerifyEmail,
     )
     .await;
-    EmailTokenService::redeem(runner.context(), &first, EmailTokenPurpose::VerifyEmail)
-        .await
-        .expect("first token should redeem");
+    EmailTokenService::redeem_link(
+        runner.context(),
+        &first,
+        LinkTokenPurpose::VerifyEmail,
+    )
+    .await
+    .expect("first token should redeem");
     issue_for(
         &runner,
         created.user_id,

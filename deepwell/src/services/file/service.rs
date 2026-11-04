@@ -21,12 +21,14 @@
 use super::structs::{
     CreateFile, CreateFileOutput, DeleteFile, DeleteFileOutput, EditFile, EditFileBody,
     EditFileOutput, GetFile, MoveFile, MoveFileOutput, RestoreFile, RestoreFileOutput,
-    RollbackFile, VisibleFileRow,
+    RollbackFile, VisibleFileRow, is_fully_imported_page,
 };
 use crate::error::prelude::{Error, ErrorType, OptionExt, Result, ResultExt};
 use crate::hash::slice_to_blob_hash;
 use crate::models::file::{self, Entity as File, Model as FileModel};
 use crate::models::file_revision::Model as FileRevisionModel;
+use crate::models::page::Entity as Page;
+use crate::models::site::Entity as Site;
 use crate::services::ServiceContext;
 use crate::services::audit::{AuditEvent, ObjectScope};
 use crate::services::blob::{ContentTypeDescriptor, FinalizeBlobUploadOutput};
@@ -891,6 +893,23 @@ impl FileService {
             .ok_or_raise(make_error)?;
         let maximum_rows = usize::try_from(maximum_rows).or_raise(make_error)?;
         let txn = ctx.transaction();
+        let fully_imported = match Page::find_by_id(page_id)
+            .one(txn)
+            .await
+            .or_raise(make_error)?
+        {
+            Some(page) => match Site::find_by_id(page.site_id)
+                .one(txn)
+                .await
+                .or_raise(make_error)?
+            {
+                Some(site) => {
+                    is_fully_imported_page(page.from_wikidot, site.from_wikidot)
+                }
+                None => false,
+            },
+            None => false,
+        };
         #[derive(Debug, FromQueryResult)]
         struct VisibleFileRowQuery {
             file_id: i64,
@@ -918,18 +937,13 @@ impl FileService {
                 "ORDER BY fr.revision_number DESC, fr.revision_id DESC LIMIT 1",
                 ") latest ON TRUE ",
                 "WHERE f.site_id = $1 AND f.page_id = $2 AND f.deleted_at IS NULL ",
-                "AND (f.from_wikidot OR NOT EXISTS (",
-                "SELECT 1 FROM page imported_page ",
-                "JOIN site imported_site ON imported_site.site_id = imported_page.site_id ",
-                "WHERE imported_page.page_id = f.page_id ",
-                "AND imported_page.from_wikidot = TRUE ",
-                "AND imported_site.from_wikidot = TRUE",
-                ")) ",
-                "ORDER BY f.name ASC, f.file_id ASC LIMIT $3",
+                "AND (f.from_wikidot OR $3 = FALSE) ",
+                "ORDER BY f.name ASC, f.file_id ASC LIMIT $4",
             ),
             [
                 Value::from(site_id),
                 Value::from(page_id),
+                Value::from(fully_imported),
                 Value::from(query_limit),
             ],
         );

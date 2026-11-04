@@ -4,11 +4,18 @@ import type { RequestContext } from "../request-context"
 
 export { uploadToPresignUrl } from "$lib/server/deepwell/presigned-upload"
 
+export interface PublicBlobByHash {
+  data: number[]
+  mime: string
+  size: number
+  created_at: string
+}
+
 export async function getFileByHash(
   /** Either a Uint8Array or a hex string */
   fileHash: Uint8Array | string
 ): Promise<Blob> {
-  const res = await client.request(
+  const res: PublicBlobByHash = await client.request(
     "blob_get",
     typeof fileHash === "string" ? fileHash : Buffer.from(fileHash).toString("hex")
   )

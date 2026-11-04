@@ -23,7 +23,7 @@ mod structs;
 
 pub use self::service::ParentService;
 pub use self::structs::{
-    DirectParentMetadata, GetChildOutput, GetParentRelationships, ParentDescription,
-    RemoveParentOutput, TraceParents, TraceParentsOutput, UpdateParents,
-    UpdateParentsOutput,
+    DirectParentMetadata, DirectParentMetadataResult, GetChildOutput,
+    GetParentRelationships, ParentDescription, RemoveParentOutput, TraceParents,
+    TraceParentsOutput, UpdateParents, UpdateParentsOutput,
 };

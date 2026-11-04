@@ -27,4 +27,5 @@ pub use self::structs::{
     CreateFile, CreateFileOutput, DeleteFile, DeleteFileOutput, EditFile, EditFileBody,
     EditFileOutput, GetFile, GetFileDetails, GetFileOutput, GetPageFiles, MoveFile,
     MoveFileOutput, RestoreFile, RestoreFileOutput, RollbackFile, VisibleFileRow,
+    is_fully_imported_page,
 };

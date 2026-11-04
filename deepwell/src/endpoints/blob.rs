@@ -22,8 +22,8 @@ use super::prelude::*;
 use crate::hash::slice_to_blob_hash;
 use crate::services::MutationAuthorization;
 use crate::services::blob::{
-    BlobMetadata, CancelBlobUpload, GetBlobOutput, HardDelete, HardDeleteOutput,
-    PendingBlobOwner, StartBlobUpload, StartBlobUploadOutput, StartBlobUploadScope,
+    BlobMetadata, CancelBlobUpload, HardDelete, HardDeleteOutput, PendingBlobOwner,
+    PublicBlobByHash, StartBlobUpload, StartBlobUploadOutput, StartBlobUploadScope,
 };
 use crate::types::Action;
 use crate::types::Bytes;
@@ -31,7 +31,7 @@ use crate::types::Bytes;
 pub async fn blob_get(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<GetBlobOutput> {
+) -> Result<PublicBlobByHash> {
     let hash: Bytes = parse!(params, Blob);
 
     let make_error = || Error::new("failed to get blob data", ErrorType::Blob);
@@ -48,7 +48,7 @@ pub async fn blob_get(
         .await
         .or_raise(make_error)?;
 
-    Ok(GetBlobOutput {
+    Ok(PublicBlobByHash {
         data,
         mime,
         size,

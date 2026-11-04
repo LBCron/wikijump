@@ -33,7 +33,7 @@ use crate::services::render::{LegacyBrowserAction, RateBrowserActionRegistry};
 use crate::services::settings::{
     PageDiscussionSettings, PageRatingSettings, ThemeSetting,
 };
-use crate::services::user::UserOutput;
+use crate::services::user::{UserOutput, WikijumpUserOutput};
 use crate::types::Reference;
 use time::OffsetDateTime;
 
@@ -262,8 +262,40 @@ pub enum ViewerLicenseKind {
 
 #[derive(Serialize, Debug, Clone)]
 pub struct UserSession {
-    pub session: SessionModel,
-    pub user: WikijumpUserModel,
+    pub session: ViewerSession,
+    pub user: WikijumpUserOutput,
+}
+
+impl UserSession {
+    pub fn new(session: SessionModel, user: WikijumpUserModel) -> Self {
+        let user_id = user.user_id;
+
+        UserSession {
+            session: ViewerSession::from(session),
+            user: WikijumpUserOutput::new(user, Some(user_id)),
+        }
+    }
+}
+
+#[derive(Serialize, Debug, Clone)]
+pub struct ViewerSession {
+    pub user_id: i64,
+    #[serde(with = "time::serde::rfc3339")]
+    pub created_at: OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339")]
+    pub expires_at: OffsetDateTime,
+    pub restricted: bool,
+}
+
+impl From<SessionModel> for ViewerSession {
+    fn from(session: SessionModel) -> Self {
+        ViewerSession {
+            user_id: session.user_id,
+            created_at: session.created_at,
+            expires_at: session.expires_at,
+            restricted: session.restricted,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq)]
@@ -286,6 +318,116 @@ mod reserved_route_tests {
         }
         for slug in ["admin", "category:_admin", "_admin:page"] {
             assert!(!is_reserved_admin_slug(slug), "{slug}");
+        }
+    }
+}
+
+#[cfg(test)]
+mod user_session_tests {
+    use super::UserSession;
+    use crate::models::session::Model as SessionModel;
+    use crate::models::user::Model as WikijumpUserModel;
+    use crate::services::user::{User, UserOutput};
+    use crate::types::UserType;
+    use sea_orm::prelude::IpNetwork;
+    use std::net::{IpAddr, Ipv4Addr};
+    use time::OffsetDateTime;
+
+    fn session_test_user() -> WikijumpUserModel {
+        let password_value = ["password", "hash", "sentinel"].join("-");
+        let mfa_value = ["mfa", "secret", "sentinel"].join("-");
+        WikijumpUserModel {
+            user_id: 42,
+            user_type: UserType::Regular,
+            created_at: OffsetDateTime::UNIX_EPOCH,
+            updated_at: None,
+            deleted_at: None,
+            name: "Viewer Test".to_owned(),
+            slug: "viewer-test".to_owned(),
+            name_changes_left: 3,
+            last_name_change_added_at: OffsetDateTime::UNIX_EPOCH,
+            last_renamed_at: None,
+            email: "viewer-test@example.com".to_owned(),
+            email_verified_at: None,
+            email_validation_info: Some(
+                serde_json::json!({"token": "validation-secret"}),
+            ),
+            email_validation_at: None,
+            password: password_value,
+            multi_factor_secret: Some(mfa_value),
+            multi_factor_recovery_codes: Some(vec!["recovery-code-sentinel".to_owned()]),
+            multi_factor_last_totp_step: None,
+            locales: vec!["en".to_owned()],
+            avatar_s3_hash: None,
+            forum_signature: None,
+            real_name: None,
+            gender: None,
+            birthday: None,
+            location: None,
+            biography: None,
+            website: None,
+            user_page: None,
+        }
+    }
+
+    fn session_test_session() -> SessionModel {
+        let token_value = ["session", "token", "sentinel"].join("-");
+        SessionModel {
+            session_token: token_value,
+            user_id: 42,
+            created_at: OffsetDateTime::UNIX_EPOCH,
+            expires_at: OffsetDateTime::UNIX_EPOCH,
+            ip_address: IpNetwork::from(IpAddr::V4(Ipv4Addr::new(203, 0, 113, 99))),
+            user_agent: "user-agent-sentinel".to_owned(),
+            restricted: false,
+            mfa_failed_attempts: 0,
+        }
+    }
+
+    #[test]
+    fn user_session_serializes_only_projected_data() {
+        let user_session = UserSession::new(session_test_session(), session_test_user());
+        let value = serde_json::to_value(&user_session).expect("user session serializes");
+        let json = value.to_string();
+
+        let expected_user = serde_json::to_value(UserOutput::new(
+            User::Wikijump(session_test_user()),
+            Some(42),
+        ))
+        .expect("user output serializes");
+        assert_eq!(value["user"], expected_user);
+        assert_eq!(
+            value["user"]["email"],
+            serde_json::json!("viewer-test@example.com"),
+        );
+
+        let session = value["session"].as_object().expect("session object");
+        let mut keys: Vec<&str> = session.keys().map(String::as_str).collect();
+        keys.sort_unstable();
+        assert_eq!(keys, ["created_at", "expires_at", "restricted", "user_id"]);
+        assert_eq!(session["user_id"], serde_json::json!(42));
+
+        for forbidden in [
+            "password",
+            "password-hash-sentinel",
+            "multi_factor_secret",
+            "mfa-secret-sentinel",
+            "multi_factor_recovery_codes",
+            "recovery-code-sentinel",
+            "multi_factor_last_totp_step",
+            "email_validation_info",
+            "validation-secret",
+            "session_token",
+            "session-token-sentinel",
+            "ip_address",
+            "203.0.113.99",
+            "user_agent",
+            "user-agent-sentinel",
+        ] {
+            assert!(
+                !json.contains(forbidden),
+                "user session leaked {forbidden}: {json}",
+            );
         }
     }
 }

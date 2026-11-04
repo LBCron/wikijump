@@ -241,40 +241,46 @@ pub enum UserOutput {
     Wikidot(WikidotUserModel),
 }
 
+impl WikijumpUserOutput {
+    pub fn new(user: WikijumpUserModel, viewer_user_id: Option<i64>) -> Self {
+        let include_email = matches!(
+            viewer_user_id,
+            Some(id) if id == user.user_id || id == ADMIN_USER_ID,
+        );
+
+        WikijumpUserOutput {
+            user_id: user.user_id,
+            user_type: user.user_type,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+            deleted_at: user.deleted_at,
+            name: user.name,
+            slug: user.slug,
+            name_changes_left: user.name_changes_left,
+            last_name_change_added_at: user.last_name_change_added_at,
+            last_renamed_at: user.last_renamed_at,
+            email: include_email.then_some(user.email),
+            email_verified_at: user.email_verified_at,
+            email_validation_at: user.email_validation_at,
+            locales: user.locales,
+            avatar_s3_hash: user.avatar_s3_hash,
+            forum_signature: user.forum_signature,
+            real_name: user.real_name,
+            gender: user.gender,
+            birthday: user.birthday,
+            location: user.location,
+            biography: user.biography,
+            website: user.website,
+            user_page: user.user_page,
+        }
+    }
+}
+
 impl UserOutput {
     pub fn new(user: User, viewer_user_id: Option<i64>) -> Self {
         match user {
             User::Wikijump(user) => {
-                let include_email = matches!(
-                    viewer_user_id,
-                    Some(id) if id == user.user_id || id == ADMIN_USER_ID,
-                );
-
-                UserOutput::Wikijump(WikijumpUserOutput {
-                    user_id: user.user_id,
-                    user_type: user.user_type,
-                    created_at: user.created_at,
-                    updated_at: user.updated_at,
-                    deleted_at: user.deleted_at,
-                    name: user.name,
-                    slug: user.slug,
-                    name_changes_left: user.name_changes_left,
-                    last_name_change_added_at: user.last_name_change_added_at,
-                    last_renamed_at: user.last_renamed_at,
-                    email: include_email.then_some(user.email),
-                    email_verified_at: user.email_verified_at,
-                    email_validation_at: user.email_validation_at,
-                    locales: user.locales,
-                    avatar_s3_hash: user.avatar_s3_hash,
-                    forum_signature: user.forum_signature,
-                    real_name: user.real_name,
-                    gender: user.gender,
-                    birthday: user.birthday,
-                    location: user.location,
-                    biography: user.biography,
-                    website: user.website,
-                    user_page: user.user_page,
-                })
+                UserOutput::Wikijump(WikijumpUserOutput::new(user, viewer_user_id))
             }
             User::Wikidot(user) => UserOutput::Wikidot(user),
         }

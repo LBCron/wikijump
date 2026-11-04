@@ -63,7 +63,7 @@ use crate::services::render::{
 use crate::services::settings::{
     NavigationPageHtml, PageRatingSettings, PageRatingType, SettingsService,
 };
-use crate::services::user::{User, UserOutput};
+use crate::services::user::UserOutput;
 use crate::services::view::ViewType;
 use crate::services::vote::GetVote;
 use crate::services::{
@@ -1794,19 +1794,25 @@ ORDER BY breadcrumb_chain.depth ASC
 
         let viewer_user_id = user_session.as_ref().map(|session| session.user.user_id);
 
-        let user = match user_ref {
-            Some(ref user_ref) => UserService::get_optional(ctx, user_ref.borrow())
-                .await
-                .or_raise(make_error)?,
+        let output = match user_ref {
+            Some(ref user_ref) => {
+                match UserService::get_optional(ctx, user_ref.borrow())
+                    .await
+                    .or_raise(make_error)?
+                {
+                    Some(user) => GetUserViewOutput::UserFound {
+                        user: UserOutput::new(user, viewer_user_id),
+                    },
+                    None => GetUserViewOutput::UserMissing,
+                }
+            }
 
-            None => user_session.map(|session| User::Wikijump(session.user)),
-        };
-
-        let output = match user {
-            Some(user) => GetUserViewOutput::UserFound {
-                user: UserOutput::new(user, viewer_user_id),
+            None => match user_session {
+                Some(session) => GetUserViewOutput::UserFound {
+                    user: UserOutput::Wikijump(session.user),
+                },
+                None => GetUserViewOutput::UserMissing,
             },
-            None => GetUserViewOutput::UserMissing,
         };
 
         Ok(output)
@@ -2029,7 +2035,7 @@ ORDER BY breadcrumb_chain.depth ASC
                     locales = user_locales;
                 }
 
-                Some(UserSession { session, user })
+                Some(UserSession::new(session, user))
             }
         };
 
@@ -2086,7 +2092,7 @@ ORDER BY breadcrumb_chain.depth ASC
                     .await
                     .or_raise(make_error)?;
 
-                Some(UserSession { session, user })
+                Some(UserSession::new(session, user))
             }
         };
 

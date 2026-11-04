@@ -89,19 +89,7 @@ impl RelationService {
             )
         };
 
-        if dest == from {
-            error!(
-                "Source and destination are the same: {:?}, cannot create relation",
-                dest,
-            );
-            bail!(Error::new(
-                format!(
-                    "cannot create relation, source and destination are the same: {:?}",
-                    dest
-                ),
-                ErrorType::BadRequest
-            ));
-        }
+        Self::assert_distinct_relation_objects(dest, from)?;
 
         let txn = ctx.transaction();
         if let Some(relation) = Self::get_optional(
@@ -147,6 +135,27 @@ impl RelationService {
             .await
             .or_raise(make_error)?;
         Ok(relation)
+    }
+
+    pub fn assert_distinct_relation_objects(
+        dest: RelationObject,
+        from: RelationObject,
+    ) -> Result<()> {
+        if dest == from {
+            error!(
+                "Source and destination are the same: {:?}, cannot create relation",
+                dest,
+            );
+            bail!(Error::new(
+                format!(
+                    "cannot create relation, source and destination are the same: {:?}",
+                    dest
+                ),
+                ErrorType::BadRequest
+            ));
+        }
+
+        Ok(())
     }
 
     pub async fn remove(
@@ -342,5 +351,39 @@ impl RelationService {
             .or_raise(make_error)?;
 
         Ok(relations)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn distinct_relation_objects_are_accepted() {
+        assert!(
+            RelationService::assert_distinct_relation_objects(
+                RelationObject::Page(1),
+                RelationObject::Page(2),
+            )
+            .is_ok()
+        );
+        assert!(
+            RelationService::assert_distinct_relation_objects(
+                RelationObject::Site(1),
+                RelationObject::User(1),
+            )
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn identical_relation_objects_are_rejected() {
+        let error = RelationService::assert_distinct_relation_objects(
+            RelationObject::Page(1),
+            RelationObject::Page(1),
+        )
+        .unwrap_err();
+
+        assert_eq!(error.error_type, ErrorType::BadRequest);
     }
 }

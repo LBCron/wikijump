@@ -546,16 +546,13 @@ impl RoleService {
                 ));
             }
 
-            let is_proper_subset =
-                Self::validate_child_role_subset_of_parent(ctx, role_id, parent_id)
-                    .await
-                    .or_raise(make_error)?;
+            Self::validate_child_role_subset_of_parent(ctx, role_id, parent_id)
+                .await
+                .or_raise(make_error)?;
 
-            if !is_proper_subset {
-                Self::validate_reparent_no_cycle(ctx, site_id, role_id, parent_id)
-                    .await
-                    .or_raise(make_error)?;
-            }
+            Self::validate_reparent_no_cycle(ctx, site_id, role_id, parent_id)
+                .await
+                .or_raise(make_error)?;
         }
 
         role::ActiveModel {
@@ -588,7 +585,7 @@ impl RoleService {
         ctx: &ServiceContext<'_>,
         child_role_id: i64,
         parent_role_id: i64,
-    ) -> Result<bool> {
+    ) -> Result<()> {
         let make_error = || {
             Error::new(
                 format!(
@@ -621,7 +618,7 @@ impl RoleService {
             ));
         }
 
-        Ok(child_permissions.len() < parent_permissions.len())
+        Ok(())
     }
 
     async fn validate_reparent_no_cycle(
@@ -668,7 +665,21 @@ impl RoleService {
             .collect();
 
         let mut current = parent_id;
+        let mut visited = std::collections::HashSet::new();
         loop {
+            if !visited.insert(current) {
+                bail!(Error::new(
+                    format!(
+                        "reparenting role ID {} under role ID {} would create a cycle",
+                        role_id, parent_id,
+                    ),
+                    ErrorType::CyclicRoleViolation {
+                        role_id,
+                        parent_role_id: parent_id,
+                    },
+                ));
+            }
+
             match parent_map.get(&current) {
                 Some(&pid) if pid == role_id => {
                     bail!(Error::new(

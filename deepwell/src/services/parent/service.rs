@@ -22,7 +22,8 @@ use super::structs::{ParentDescription, ParentalRelationshipType, RemoveParentOu
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page::Model as PageModel;
 use crate::models::page_parent::{self, Entity as PageParent, Model as PageParentModel};
-use crate::services::{OutdateService, PageService, ServiceContext};
+use crate::services::relation::RelationObject;
+use crate::services::{OutdateService, PageService, RelationService, ServiceContext};
 use crate::types::{PageId, Reference, RerenderDepth};
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, DeleteResult, EntityTrait, QueryFilter,
@@ -67,19 +68,10 @@ impl ParentService {
             )
         };
 
-        if parent_page.page_id == child_page.page_id {
-            error!(
-                "Cannot parent a page to itself (ID {})",
-                parent_page.page_id,
-            );
-            bail!(Error::new(
-                format!(
-                    "cannot parent a page to itself (page '{}', ID {})",
-                    parent_page.slug, parent_page.page_id
-                ),
-                ErrorType::BadRequest
-            ));
-        }
+        RelationService::assert_distinct_relation_objects(
+            RelationObject::Page(parent_page.page_id),
+            RelationObject::Page(child_page.page_id),
+        )?;
 
         let relationship =
             PageParent::find_by_id((parent_page.page_id, child_page.page_id))

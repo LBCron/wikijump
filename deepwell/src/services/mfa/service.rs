@@ -296,20 +296,12 @@ impl MfaService {
             }
         };
 
-        let mut matched = None;
-        for recovery_code_hash in recovery_code_hashes {
-            if PasswordService::verify_sleep(
-                ctx,
-                recovery_code,
-                recovery_code_hash,
-                false,
-            )
-            .await
-            .is_ok()
-            {
-                matched = Some(recovery_code_hash);
-            }
-        }
+        let matched = Self::constant_time_recovery_code_match(
+            ctx,
+            recovery_code,
+            recovery_code_hashes,
+        )
+        .await;
 
         match matched {
             Some(hash) => {
@@ -325,6 +317,29 @@ impl MfaService {
                 ErrorType::InvalidAuthentication,
             )),
         }
+    }
+
+    async fn constant_time_recovery_code_match<'a>(
+        ctx: &ServiceContext<'_>,
+        recovery_code: &str,
+        recovery_code_hashes: &'a [String],
+    ) -> Option<&'a String> {
+        let mut matched = None;
+        for recovery_code_hash in recovery_code_hashes {
+            if PasswordService::verify_sleep(
+                ctx,
+                recovery_code,
+                recovery_code_hash,
+                false,
+            )
+            .await
+            .is_ok()
+            {
+                matched = Some(recovery_code_hash);
+            }
+        }
+
+        matched
     }
 }
 

@@ -36,6 +36,55 @@ use std::net::IpAddr;
 #[derive(Debug)]
 pub struct AuthenticationService;
 
+#[derive(Debug)]
+struct VerifiedPassword;
+
+#[derive(Debug)]
+struct LoginAttemptBuckets {
+    ip_bucket: String,
+    account_bucket: Option<String>,
+}
+
+impl LoginAttemptBuckets {
+    fn for_auth(auth: &UserAuthInfo, ip_address: &IpAddr) -> Self {
+        LoginAttemptBuckets {
+            ip_bucket: AuthenticationAttemptService::login_ip_bucket(
+                &ip_address.to_string(),
+            ),
+            account_bucket: auth
+                .valid
+                .then(|| AuthenticationAttemptService::login_user_bucket(auth.user_id)),
+        }
+    }
+
+    fn all_buckets(&self) -> Vec<String> {
+        let mut buckets = vec![self.ip_bucket.clone()];
+        if let Some(account_bucket) = &self.account_bucket {
+            buckets.push(account_bucket.clone());
+        }
+
+        buckets
+    }
+
+    async fn consume_account_bucket_after_failed_verification(
+        &self,
+        ctx: &ServiceContext<'_>,
+    ) -> Result<()> {
+        if let Some(account_bucket) = &self.account_bucket {
+            AuthenticationAttemptService::reserve(ctx, account_bucket, 10, 600).await?;
+        }
+
+        Ok(())
+    }
+
+    async fn clear_after_verified_password(
+        &self,
+        ctx: &ServiceContext<'_>,
+    ) -> Result<()> {
+        AuthenticationAttemptService::clear(ctx, &self.all_buckets()).await
+    }
+}
+
 impl AuthenticationService {
     pub async fn auth_password(
         ctx: &ServiceContext<'_>,
@@ -55,29 +104,21 @@ impl AuthenticationService {
         let auth = Self::get_user_auth(ctx, &name_or_email)
             .await
             .or_raise(make_error)?;
-        let ip_bucket =
-            AuthenticationAttemptService::login_ip_bucket(&ip_address.to_string());
-        let mut buckets = vec![ip_bucket.clone()];
+        let buckets = LoginAttemptBuckets::for_auth(&auth, &ip_address);
 
-        if !AuthenticationAttemptService::reserve(ctx, &ip_bucket, 30, 60).await? {
+        if !AuthenticationAttemptService::reserve(ctx, &buckets.ip_bucket, 30, 60).await?
+        {
             ctx.commit_expected_authentication_rejection();
             bail!(make_error());
         }
-        let account_bucket = auth.valid.then(|| {
-            let bucket = AuthenticationAttemptService::login_user_bucket(auth.user_id);
-            buckets.push(bucket.clone());
-            bucket
-        });
 
         if let Err(error) =
-            PasswordService::verify_sleep(ctx, &password, &auth.password_hash, false)
-                .await
+            Self::verify_password_before_account_bucket(ctx, &password, &auth).await
         {
             if error.error_type == ErrorType::InvalidAuthentication {
-                if let Some(account_bucket) = &account_bucket {
-                    AuthenticationAttemptService::reserve(ctx, account_bucket, 10, 600)
-                        .await?;
-                }
+                buckets
+                    .consume_account_bucket_after_failed_verification(ctx)
+                    .await?;
                 ctx.commit_expected_authentication_rejection();
             }
             return Err(error.raise(make_error()));
@@ -88,12 +129,22 @@ impl AuthenticationService {
             bail!(make_error());
         }
 
-        AuthenticationAttemptService::clear(ctx, &buckets).await?;
+        buckets.clear_after_verified_password(ctx).await?;
 
         Ok(AuthenticateUserOutput {
             needs_mfa: auth.multi_factor_secret.is_some(),
             user_id: auth.user_id,
         })
+    }
+
+    async fn verify_password_before_account_bucket(
+        ctx: &ServiceContext<'_>,
+        password: &str,
+        auth: &UserAuthInfo,
+    ) -> Result<VerifiedPassword> {
+        PasswordService::verify_sleep(ctx, password, &auth.password_hash, false)
+            .await
+            .map(|()| VerifiedPassword)
     }
 
     pub async fn auth_mfa(
@@ -174,5 +225,40 @@ impl AuthenticationService {
 
             None => Ok(UserAuthInfo::invalid()),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn auth(valid: bool) -> UserAuthInfo {
+        UserAuthInfo {
+            user_id: 42,
+            password_hash: str!("hash"),
+            multi_factor_secret: None,
+            valid,
+        }
+    }
+
+    #[test]
+    fn login_buckets_include_account_bucket_only_for_valid_auth() {
+        let ip_address = IpAddr::from([127, 0, 0, 1]);
+
+        let buckets = LoginAttemptBuckets::for_auth(&auth(true), &ip_address);
+        assert_eq!(
+            buckets.all_buckets(),
+            vec![
+                AuthenticationAttemptService::login_ip_bucket("127.0.0.1"),
+                AuthenticationAttemptService::login_user_bucket(42),
+            ],
+        );
+
+        let buckets = LoginAttemptBuckets::for_auth(&auth(false), &ip_address);
+        assert_eq!(
+            buckets.all_buckets(),
+            vec![AuthenticationAttemptService::login_ip_bucket("127.0.0.1")],
+        );
+        assert!(buckets.account_bucket.is_none());
     }
 }

@@ -10,7 +10,6 @@
  * (at your option) any later version.
  */
 
-#[allow(unused_imports)]
 #[macro_use]
 mod common;
 

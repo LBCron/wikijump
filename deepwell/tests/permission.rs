@@ -336,13 +336,6 @@ impl CategoryWidePermissionKey {
     const CATEGORY_SEGMENT: &'static str = "_default";
 }
 
-#[derive(Clone, Copy, Debug)]
-struct CategoryScopedPermissionKey {
-    resource: Resource,
-    category_id: i64,
-    action: Action,
-}
-
 async fn cached_category_wide_page_view(
     ctx: &ServiceContext<'_>,
     site_id: i64,
@@ -398,20 +391,6 @@ async fn category_wide_permission_cache_key(
         key.resource,
         CategoryWidePermissionKey::CATEGORY_SEGMENT,
         key.action,
-    );
-    permission_cache_key_matching(ctx, pattern).await
-}
-
-#[allow(unused)]
-async fn category_scoped_permission_cache_key(
-    ctx: &ServiceContext<'_>,
-    site_id: i64,
-    user_id: i64,
-    key: CategoryScopedPermissionKey,
-) -> String {
-    let pattern = format!(
-        "permission:site:{site_id}:user:{user_id}:*:permission:{}:{}:{}",
-        key.resource, key.category_id, key.action,
     );
     permission_cache_key_matching(ctx, pattern).await
 }

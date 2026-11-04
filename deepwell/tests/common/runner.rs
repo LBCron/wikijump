@@ -140,13 +140,13 @@ impl TestRunner {
         Self::new(request_ctx, TestRunnerRequestContext::build_service_context)
     }
 
-    #[allow(unused)]
+    #[allow(dead_code)]
     pub async fn setup_with_config(config: Config) -> Self {
         let request_ctx = TestRunnerRequestContext::new_with_config(config).await;
         Self::new(request_ctx, TestRunnerRequestContext::build_service_context)
     }
 
-    #[allow(unused)]
+    #[allow(dead_code)]
     pub async fn setup_with_job_queue_namespace(namespace: &str) -> Self {
         let request_ctx =
             TestRunnerRequestContext::new_with_job_queue_namespace(namespace).await;
@@ -154,24 +154,24 @@ impl TestRunner {
     }
 
     #[inline]
-    #[allow(unused)]
+    #[allow(dead_code)]
     pub fn state(&self) -> &ServerState {
         &self.borrow_owner().state
     }
 
     #[inline]
-    #[allow(unused)]
+    #[allow(dead_code)]
     pub fn config(&self) -> &Config {
         &self.state().config
     }
 
     #[inline]
-    #[allow(unused)]
+    #[allow(dead_code)]
     pub fn context<'a>(&'a self) -> &'a ServiceContext<'a> {
         self.borrow_dependent()
     }
 
-    #[allow(unused)]
+    #[allow(dead_code)]
     pub fn set_request_context(&mut self, req_ctx: RequestContext) {
         self.with_dependent_mut(|owner, ctx| {
             let replacement = ServiceContext::new(&owner.state, owner.transaction());
@@ -180,7 +180,7 @@ impl TestRunner {
         });
     }
 
-    #[allow(unused)]
+    #[allow(dead_code)]
     pub async fn teardown(self) {
         self.into_owner().transaction.rollback().await;
     }

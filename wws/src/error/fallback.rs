@@ -32,15 +32,6 @@ pub enum FallbackError {
     RedirectMain,
 
     TextBlockS3Fetch,
-
-    /// Unable to generate the initial Caddyfile.
-    ///
-    /// NOTE: This enum variant is never used in wws.
-    /// This is because it is used by caddy when it cannot reach DEEPWELL
-    /// to generate its initial Caddyfile (which is a pre-requisite to ever
-    /// routing any requests to wws, which in this scenario is probably down too).
-    #[allow(dead_code)]
-    CannotGenerateCaddyfile,
 }
 
 impl FallbackError {
@@ -55,7 +46,6 @@ impl FallbackError {
             FallbackError::BasicErrorDirect => 1002,
             FallbackError::RedirectMain => 1003,
             FallbackError::TextBlockS3Fetch => 1004,
-            FallbackError::CannotGenerateCaddyfile => 1005,
         }
     }
 
@@ -67,7 +57,6 @@ impl FallbackError {
                 StatusCode::GATEWAY_TIMEOUT
             }
             FallbackError::TextBlockS3Fetch => StatusCode::INTERNAL_SERVER_ERROR,
-            FallbackError::CannotGenerateCaddyfile => StatusCode::BAD_GATEWAY,
         }
     }
 }
@@ -93,7 +82,6 @@ mod tests {
         assert_eq!(FallbackError::BasicErrorDirect.error_code(), 1002);
         assert_eq!(FallbackError::RedirectMain.error_code(), 1003);
         assert_eq!(FallbackError::TextBlockS3Fetch.error_code(), 1004);
-        assert_eq!(FallbackError::CannotGenerateCaddyfile.error_code(), 1005);
     }
 
     #[test]
@@ -117,10 +105,6 @@ mod tests {
         assert_eq!(
             FallbackError::TextBlockS3Fetch.status_code(),
             StatusCode::INTERNAL_SERVER_ERROR,
-        );
-        assert_eq!(
-            FallbackError::CannotGenerateCaddyfile.status_code(),
-            StatusCode::BAD_GATEWAY,
         );
     }
 

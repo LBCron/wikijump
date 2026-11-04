@@ -18,8 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#![allow(dead_code)]
-
 use crate::error::prelude::{Error, ErrorType};
 
 fn make_error(method: &str) -> Error {

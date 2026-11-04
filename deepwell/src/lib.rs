@@ -42,7 +42,6 @@ extern crate str_macro;
 #[macro_use]
 mod macros;
 
-#[allow(unused_imports)]
 pub mod models;
 
 #[cfg(feature = "watch")]

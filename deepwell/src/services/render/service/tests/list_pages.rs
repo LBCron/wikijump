@@ -1623,12 +1623,12 @@ fn list_pages_scan_target_covers_requested_page_within_the_safety_ceiling() {
 }
 
 #[test]
-#[allow(clippy::assertions_on_constants)]
 fn list_pages_scan_envelope_covers_the_synchronized_live_inventory() {
     const SYNCHRONIZED_SANDBOX_PAGE_COUNT: u32 = 6_566;
 
     assert!(
-        MAX_LISTPAGES_RENDER_SCAN_ROWS > SYNCHRONIZED_SANDBOX_PAGE_COUNT,
+        list_pages_row_scan_target(None, 0, false)
+            > u64::from(SYNCHRONIZED_SANDBOX_PAGE_COUNT),
         "the bounded scan must classify the complete live inventory instead of truncating it",
     );
 }

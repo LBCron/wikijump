@@ -24,11 +24,6 @@ mod wikidot;
 mod wikidot_ranges;
 
 use self::count_pages::collect_count_pages_literal_ranges;
-#[allow(unused_imports)]
-pub(in crate::services::render) use self::downstream_protectors::{
-    DownstreamProtectorFamily, DownstreamProtectorRange,
-    collect_downstream_protector_ranges,
-};
 pub(in crate::services::render) use self::list_pages_protection::ListPagesSourceProjection;
 pub(in crate::services::render) use self::list_pages_protection::collect_list_pages_css_yield_openers;
 #[cfg(test)]

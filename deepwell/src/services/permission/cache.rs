@@ -113,11 +113,7 @@ impl PermissionCache {
     }
 
     pub fn is_cacheable(resource_type: Resource, action: Action) -> bool {
-        #[allow(clippy::match_like_matches_macro)]
-        match (resource_type, action) {
-            (_, Action::View) => true,
-            _ => false,
-        }
+        matches!((resource_type, action), (_, Action::View))
     }
 
     pub async fn check_user_permission(

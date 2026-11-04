@@ -22,8 +22,4 @@ mod build {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 }
 
-#[allow(unused_imports)]
-pub use self::build::{
-    CFG_ENDIAN, GIT_COMMIT_HASH, NUM_JOBS, PKG_AUTHORS, PKG_DESCRIPTION, PKG_LICENSE,
-    PKG_NAME, PKG_REPOSITORY, PKG_VERSION, RUSTC_VERSION, TARGET,
-};
+pub use self::build::{PKG_AUTHORS, PKG_DESCRIPTION, PKG_VERSION};

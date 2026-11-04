@@ -20,9 +20,6 @@
 
 use regex::Regex;
 
-// TODO: When https://doc.rust-lang.org/stable/std/str/pattern/trait.Pattern.html is stabilized,
-//       use it in the definition of replace_in_place() if possible.
-
 pub fn replace_in_place(string: &mut String, pattern: &str, replacement: &str) {
     assert!(
         !pattern.is_empty(),

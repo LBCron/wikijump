@@ -1300,8 +1300,6 @@ async fn wikidot_ajax_listpages_returns_unwrapped_client_rows() {
         }),
     );
 
-    // The live G37 target reported two revisions after one edit, so the title
-    // change here leaves the saved source, and its %%size%%, untouched.
     run_endpoint!(
         runner,
         page_edit,
@@ -2925,9 +2923,6 @@ async fn child_listpages_expands_site_domain_and_parent_fullname() {
         .expect("parent relationship should be created");
     }
 
-    // The live capture of component:offset-timeline builds each offset link from
-    // %%site_domain%% plus %%parent_fullname%%, so the module is installed after
-    // the children exist and are linked.
     let source = concat!(
         "[[module ListPages parent=\".\" category=\"fragment\" ",
         "order=\"created_at\" separate=\"no\"]]\n",
@@ -3747,8 +3742,6 @@ async fn listpages_uses_limit_as_total_and_defaults_pagination_to_twenty() {
     }
 }
 
-/// Anonymous Wikidot PagePreview evidence, 2026-07-30:
-/// `pager-dom-b16b76666.json`, case `scout-pager-dom-wrapper-no`.
 #[tokio::test]
 async fn listpages_unwrapped_separate_row_is_adjacent_to_its_pager() {
     let runner = TestRunner::setup().await;
@@ -3831,8 +3824,6 @@ async fn listpages_unwrapped_sectioned_block_template_stays_outside_paragraph() 
     runner.teardown().await;
 }
 
-/// Anonymous Wikidot PagePreview evidence, 2026-07-30:
-/// `section-grammar-live.jsonl`, case `scout-sections-perm-hbf`.
 #[tokio::test]
 async fn listpages_combined_inline_sections_share_one_paragraph() {
     let runner = TestRunner::setup().await;
@@ -3861,9 +3852,6 @@ async fn listpages_combined_inline_sections_share_one_paragraph() {
     runner.teardown().await;
 }
 
-/// Anonymous Wikidot PagePreview evidence, 2026-08-09:
-/// `issue-1010-generated-heading-foot-boundary-scp-wiki-live.jsonl`, case
-/// `scout-generated-heading-foot-section-level-two`.
 #[tokio::test]
 async fn listpages_own_line_head_starts_a_separate_paragraph() {
     let runner = TestRunner::setup().await;
@@ -5672,8 +5660,6 @@ async fn listpages_default_rows_suppress_nested_rate_modules() {
     .html_output
     .body;
 
-    // Live page-preview evidence a3a16270... selects three rating-enabled
-    // pages and emits their surrounding content without any Rate module DOM.
     assert!(
         preview.contains("RATE_START") && preview.contains("RATE_END"),
         "ListPages should retain content surrounding a nested Rate module:\n{preview}",
@@ -6562,8 +6548,6 @@ async fn zero_row_listpages_still_renders_its_wikidot_rss_link() {
 
     assert!(
         preview.contains(r#"<div class="feedinfo">"#)
-            // Wikidot emits the same path on its own site origin; the saved
-            // HTML keeps it origin-relative so the link stays on the mirror.
             && preview.contains(concat!(
                 r#"href="/feed/pages/category/_default/"#,
                 "range/./limit/1/t/Most+Recently+Translated",

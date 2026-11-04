@@ -261,9 +261,6 @@ async fn documented_ftml_owned_syntax_has_public_preview_regressions() {
             "wikitext": "[[note]]\nPublic preview note marker\n[[/note]]",
         }),
     );
-    // Since the FTML pin at 82df3f47 (ftml #753), a bare [[note]] renders in
-    // the Wikidot layout (live evidence references-20261025-01); it no longer
-    // stays literal.
     assert!(note.body.contains("wiki-note"), "{}", note.body);
     assert!(
         note.body.contains("Public preview note marker"),
@@ -16206,11 +16203,6 @@ async fn non_scp_page_render_does_not_hardcode_scp_image_block_include() {
     }
 }
 
-/// Live capture (sandbox-for-codex, 2026-09-14): the Rate widget control
-/// sequence is identical for anonymous, non-member, member, moderator, and
-/// administrator readers and for existing voters in every observed rating
-/// mode: plus-minus (`rateup`/`ratedown`/`cancel`), stars (`data-rating` with
-/// no cancel), and disabled plus-only (`rateup`/`cancel` without `ratedown`).
 #[tokio::test]
 async fn page_render_rate_widget_matches_actor_and_rating_mode_matrix() {
     const PLUS_MINUS_CATEGORY: &str = "fixture-rate-matrix-plus-minus";
@@ -26136,10 +26128,6 @@ async fn countpages_saved_page_views_follow_current_matching_page_state() {
     );
 }
 
-/// Live capture (sandbox-for-codex, 2026-08-06): an unclosed CountPages
-/// opener with the all-category selector uses Wikidot's deprecated default
-/// shell, while the following source remains outside that shell.  A closed
-/// CountPages with no body is a separate literal case.
 #[tokio::test]
 async fn unclosed_countpages_all_category_uses_live_default_shell() {
     let mut runner = TestRunner::setup().await;
@@ -26180,9 +26168,6 @@ async fn unclosed_countpages_all_category_uses_live_default_shell() {
     );
 }
 
-/// The same live boundary (sandbox-for-codex, 2026-08-06) leaves source after
-/// the unclosed opener outside the deprecated shell, while a closed empty
-/// CountPages module remains literal rather than selecting that fallback.
 #[tokio::test]
 async fn countpages_unclosed_shell_stops_at_opener_and_closed_empty_stays_literal() {
     let mut runner = TestRunner::setup().await;
@@ -27936,11 +27921,6 @@ async fn saved_tagcloud_page_view_follows_independent_tag_mutations() {
     );
 }
 
-/// Live capture (sandbox-for-codex, 2026-07-29): `TagCloud` emits a
-/// `pages-tag-cloud-box` of tag anchors, filters by category, interpolates
-/// font/color styles over the displayed alphabetical tag slice, treats a
-/// non-empty `showHidden` value as enabling hidden tags, and uses prefixed URL
-/// argument names in generated links.
 #[tokio::test]
 async fn tagcloud_module_renders_live_category_links_styles_and_boolean_quirks() {
     fn section_between<'a>(html: &'a str, start: &str, end: &str) -> &'a str {
@@ -28157,11 +28137,6 @@ async fn tagcloud_module_renders_live_category_links_styles_and_boolean_quirks()
     );
 }
 
-/// Live capture (sandbox-for-codex, 2026-07-29): omitted `category` counts
-/// visible tags site-wide, `skipCategoryFromUrl="true"` removes the category
-/// URL argument, invalid paired colors render Wikidot's error block, and
-/// `mode="3d"` remains literal because its legacy SWFObject runtime would
-/// execute external and inline script in the page origin.
 #[tokio::test]
 async fn tagcloud_module_renders_live_sitewide_skip_3d_and_color_error() {
     fn section<'a>(html: &'a str, start: &str, end: &str) -> &'a str {
@@ -28437,10 +28412,6 @@ async fn tagcloud_module_filters_anonymous_hidden_category_pages_before_loading_
     );
 }
 
-/// Live capture (sandbox-for-codex, 2026-07-29): `PageCalendar` emits a
-/// `page-calendar-box`, groups viewable pages by creation year and month,
-/// applies category selectors, and generates date-path links to the current
-/// page or to `targetPage` / `startPage`.
 #[tokio::test]
 async fn pagecalendar_module_renders_live_category_links_and_counts() {
     fn section<'a>(html: &'a str, start: &str, end: &str) -> &'a str {
@@ -28665,11 +28636,6 @@ async fn pagecalendar_module_renders_live_category_links_and_counts() {
     assert!(!html.contains("[[module PageCalendar"), "{html}");
 }
 
-/// Live capture (sandbox-for-codex, 2026-07-29): despite the documentation,
-/// `tags` does not filter the calendar counts. It is only propagated into
-/// generated `tag` URL path arguments, with `+` replaced by spaces. When a
-/// `category="@URL|fallback"` selector resolves from the URL, PageCalendar
-/// carries that category forward in generated links.
 #[tokio::test]
 async fn pagecalendar_module_matches_live_tag_url_and_current_category_quirks() {
     fn section_between<'a>(html: &'a str, start: &str, end: &str) -> &'a str {

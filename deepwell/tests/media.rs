@@ -683,10 +683,6 @@ async fn image_head_ascii_whitespace_boundary_matches_live_preview_and_saved_pag
 
 #[tokio::test]
 async fn m776_m806_image_argument_boundary_matches_retained_live_preview() {
-    // Expected bodies are the 2026-09-13 anonymous PagePreview observations
-    // with only the documented Deepwell projections applied: scp-wiki
-    // wjfiles host/scheme, empty preview page for implicit attachments,
-    // and FTML's DOM-equivalent attribute order and quote spelling.
     let runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki site should exist");

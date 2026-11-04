@@ -18,38 +18,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// Allows for equality assertions on `Option<String>` without boilerplate.
-///
-/// This avoids the type annoyance that comes with these two types,
-/// for improved readability within test code.
-///
-/// This code is simple, readable, and doesn't work:
-/// ```compile_fail
-/// let left: Option<String> = Some(str!("foo"));
-/// assert_eq!(left, Some("foo"));
-/// ```
-///
-/// So instead, we have to unwrap it, which either means a bulky
-/// `.expect()` message or a separate assertion in front of it to
-/// catch cases of `None`. Both are inelegant:
-///
-/// ```
-/// # let left: Option<String> = Some(str!("foo"));
-/// assert_eq!(left.expect("Left is None"), "foo");
-/// ```
-///
-/// ```
-/// # let left: Option<String> = Some(str!("foo"));
-/// assert!(left.is_some());
-/// assert_eq!(left.unwrap(), "foo");
-/// ```
-///
-/// Instead, we can use this macro to compare them, which coerces both
-/// types to `Option<&str>` instead, permitting a more natural comparison:
-/// ```
-/// # let left: Option<String> = Some(str!("foo"));
-/// assert_str_eq!(left, Some("foo"));
-/// ```
 #[allow(unused_macros)]
 macro_rules! assert_str_eq {
     ($left:expr, $right:expr $(,)?) => {{

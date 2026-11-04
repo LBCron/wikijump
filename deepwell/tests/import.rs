@@ -339,16 +339,6 @@ async fn import_user_deleted_snapshot_clears_public_profile_without_local_accoun
 
 #[tokio::test]
 async fn mirror_seed_carries_source_tags_and_navigation() {
-    // T14 (issues #2077, #2079): the repository-owned scp-wiki mirror
-    // bootstrap must materialize the source tag sets and the source
-    // navigation pages instead of collapsing to generic seed content.
-    //
-    // Expected tag sets are the authoritative shared-corpus page metadata
-    // (corpus/en/pages/<slug>/meta.json, status active; the 2026-10-11 run
-    // for scp-002/scp-3352/scp-3922/scp-5382/scp-7000, and the scp-9506 set
-    // corroborated by the 2026-10-07 live observation of 12 tags). The
-    // expected nav:top source is corpus/en/pages/nav:top/source.wikidot.txt
-    // from the same 2026-10-11 run.
     let runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki mirror site should exist");
@@ -531,13 +521,6 @@ async fn mirror_seed_carries_source_tags_and_navigation() {
 
 #[tokio::test]
 async fn mirror_seed_carries_source_random_helper_routes() {
-    // Issue #2080: the repository-owned scp-wiki mirror bootstrap must
-    // include the source site's first-party random helper pages, because the
-    // imported navigation links them. Expected sources, titles, and tags are
-    // the authoritative shared-corpus records
-    // (corpus/en/pages/random:<name>/source.wikidot.txt and meta.json).
-    // Pages are imported because the source site defines them; their names
-    // are not special-cased anywhere else.
     let runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki mirror site should exist");
@@ -587,12 +570,6 @@ async fn mirror_seed_carries_source_random_helper_routes() {
 
 #[tokio::test]
 async fn mirror_seed_prefers_source_system_pages_over_generic_seeds() {
-    // Refs #2083: a source-owned system page from the imported corpus takes
-    // precedence over a generic seed page with the same slug. The seeded
-    // scp-wiki mirror must serve the source system:join membership guide
-    // (corpus en/pages/system:join, run-20261011-230158, status active),
-    // not the generic starter, alongside the other source-owned system
-    // pages, while fresh native sites keep the generic defaults (#2066).
     let runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
         .expect("seeded SCP Wiki mirror site should exist");
@@ -737,8 +714,6 @@ async fn failed_import_rolls_back_new_known_user_with_caller_transaction() {
     }
 }
 
-// Source attachment modification time from the sealed issue evidence:
-// WDFiles reports scp-9506/weathermap.gif at Mon, 20 Apr 2026 21:35:49 GMT.
 fn source_attachment_time() -> OffsetDateTime {
     OffsetDateTime::parse(
         "2026-04-20T21:35:49Z",

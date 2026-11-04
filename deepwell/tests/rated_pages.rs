@@ -658,10 +658,6 @@ start-[[module RatedPages]]-middle
     assert!(runtime_html.contains("start-[[module RatedPages]]-middle"));
 }
 
-/// Live capture (sandbox-for-codex, 2026-09-14): equal score rows follow title
-/// ascending in both score directions, unrated pages stay in the result with
-/// `(Rating: 0)`, `minRating` drops them, and anonymous through administrator
-/// output is byte-identical for the same public candidate set.
 #[tokio::test]
 async fn ratedpages_equal_scores_order_by_title_and_keep_unrated_rows() {
     const CATEGORY: &str = "ratedpages-ties";

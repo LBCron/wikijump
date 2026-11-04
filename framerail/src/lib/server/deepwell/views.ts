@@ -92,7 +92,6 @@ interface PageViewDataBase {
   options: PageOptions
   redirect_page: Nullable<string>
   redirect_kind?: Nullable<"wikidot_module" | "random_helper">
-  wikitext: string
   compiled_body_html: string
   compiled_body_styles: string[]
   compiled_top_bar_html: Optional<string>
@@ -151,6 +150,7 @@ export type MembershipBrowserAction =
 interface PageViewFound {
   type: "found"
   data: PageViewDataBase & {
+    wikitext: string
     page: PageModel
     page_revision: PageRevisionModel
     wikidot_snapshot: Nullable<WikidotPageSnapshotView>
@@ -222,6 +222,7 @@ export interface DataFormEditor {
 interface PageViewMissing {
   type: "missing"
   data: PageViewDataBase & {
+    wikitext: string
     new_page_wikitext: Nullable<string>
     page_templates: PageTemplateSummary[]
     selected_template_page_id: Nullable<number>

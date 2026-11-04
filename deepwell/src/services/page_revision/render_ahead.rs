@@ -47,6 +47,11 @@ impl PageRevisionService {
         let revision = Self::get_latest(ctx, site_id, page_id)
             .await
             .or_raise(make_error)?;
+        let fresh_render =
+            Self::render_revision(ctx, id, &revision, revision.from_wikidot, None)
+                .await
+                .or_raise(make_error)?;
+        let rendered_revision_id = fresh_render.checked_revision_id();
         let RenderPageOutput {
             compiled_body_html_hash,
             compiled_body_styles_hash,
@@ -55,9 +60,7 @@ impl PageRevisionService {
             compiled_at,
             compiled_generator,
             ..
-        } = Self::render_revision(ctx, id, &revision, revision.from_wikidot, None)
-            .await
-            .or_raise(make_error)?;
+        } = fresh_render.into_output();
 
         let txn = ctx.transaction();
         txn.execute_raw(Statement::from_sql_and_values(
@@ -100,6 +103,6 @@ impl PageRevisionService {
         .await
         .or_raise(make_error)?;
 
-        Ok(revision.revision_id)
+        Ok(rendered_revision_id)
     }
 }

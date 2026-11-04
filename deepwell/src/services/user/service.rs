@@ -444,7 +444,11 @@ impl UserService {
             }
             UserType::Bot => {
                 info!("Creating bot user '{slug}'");
-                format!("TODO bot token: {password}")
+                if password.is_empty() {
+                    str!(DISABLED_PASSWORD_HASH)
+                } else {
+                    PasswordService::new_hash(&password).or_raise(make_error)?
+                }
             }
         };
 

@@ -24,7 +24,8 @@ use crate::models::page;
 use crate::models::text_block::{self, Entity as TextBlockTable};
 use crate::runtime::ServerState;
 use crate::services::ServiceContext;
-use crate::types::TextBlockType;
+use crate::services::permission::{CheckPermissionContext, PermissionService};
+use crate::types::{Action, Permission, Reference, Resource, TextBlockType};
 use crate::utils::ConvertToI16;
 use futures::{StreamExt, stream::FuturesUnordered};
 use s3::bucket::Bucket;
@@ -34,7 +35,7 @@ use sea_orm::{
     Set, SqlErr, Statement, TransactionTrait,
 };
 use sha1::{Digest, Sha1};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 
 /// Keep each SeaORM insert well below PostgreSQL's 65,535 bind-parameter limit.
@@ -46,8 +47,6 @@ const TEXT_BLOCK_REPLACE_ATTEMPTS: u32 = 3;
 
 const TEXT_BLOCK_WIKIDOT_SHA1_BACKFILL_BATCH_SIZE: u64 = 256;
 const MAX_TEXT_BLOCK_OBJECT_BYTES: usize = 16 * 1024 * 1024;
-
-const MAX_WIKIDOT_SHA1_CANDIDATES: usize = 32;
 
 async fn sha1_s3_object(bucket: &Bucket, s3_filename: &str) -> Result<Vec<u8>> {
     let s3::request::request_trait::ResponseDataStream {
@@ -507,16 +506,27 @@ impl TextBlockService {
         }
     }
 
-    pub(crate) async fn get_blocks_by_wikidot_sha1(
+    pub(crate) async fn get_visible_block_by_wikidot_sha1(
         ctx: &ServiceContext<'_>,
         site_id: i64,
         digest: &[u8],
-    ) -> Result<Option<Vec<super::structs::TextBlockCandidate>>> {
-        TextBlockTable::find()
+        user_id: Option<i64>,
+    ) -> Result<Option<super::structs::TextBlockCandidate>> {
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to find HTML text blocks with SHA-1 in site ID {site_id}"
+                ),
+                ErrorType::TextBlock,
+            )
+        };
+
+        let rows: Vec<(i64, i16, String, i64)> = TextBlockTable::find()
             .select_only()
             .column(text_block::Column::PageId)
             .column(text_block::Column::BlockIndex)
             .column(text_block::Column::S3Filename)
+            .column(page::Column::PageCategoryId)
             .join(JoinType::InnerJoin, text_block::Relation::Page.def())
             .filter(
                 Condition::all()
@@ -527,34 +537,47 @@ impl TextBlockService {
             )
             .order_by_asc(text_block::Column::PageId)
             .order_by_asc(text_block::Column::BlockIndex)
-            .limit((MAX_WIKIDOT_SHA1_CANDIDATES + 1) as u64)
             .into_tuple()
             .all(ctx.transaction())
             .await
-            .or_raise(|| {
-                Error::new(
-                    format!(
-                        "failed to find HTML text blocks with SHA-1 in site ID {site_id}"
-                    ),
-                    ErrorType::TextBlock,
-                )
-            })
-            .map(|rows| {
-                if rows.len() > MAX_WIKIDOT_SHA1_CANDIDATES {
-                    return None;
+            .or_raise(make_error)?;
+
+        let mut viewable_pages: HashMap<i64, bool> = HashMap::new();
+        let mut visible_candidate = None;
+        for (page_id, index, s3_filename, page_category_id) in rows {
+            let can_view = match viewable_pages.get(&page_id) {
+                Some(can_view) => *can_view,
+                None => {
+                    let can_view = PermissionService::check_user_can(
+                        ctx,
+                        &CheckPermissionContext {
+                            user_id,
+                            site_id,
+                            page_reference: Some(Reference::Id(page_id)),
+                        },
+                        Permission {
+                            resource_type: Resource::Page,
+                            resource_category: Some(Reference::Id(page_category_id)),
+                            action: Action::View,
+                        },
+                    )
+                    .await
+                    .or_raise(make_error)?;
+                    viewable_pages.insert(page_id, can_view);
+                    can_view
                 }
-                Some(
-                    rows.into_iter()
-                        .map(|(page_id, index, s3_filename)| {
-                            super::structs::TextBlockCandidate {
-                                page_id,
-                                index,
-                                s3_filename,
-                            }
-                        })
-                        .collect(),
-                )
-            })
+            };
+            if !can_view {
+                continue;
+            }
+            if visible_candidate.is_some() {
+                return Ok(None);
+            }
+            visible_candidate =
+                Some(super::structs::TextBlockCandidate { index, s3_filename });
+        }
+
+        Ok(visible_candidate)
     }
 
     async fn get_block_s3_filenames(
@@ -586,7 +609,6 @@ impl TextBlockService {
     }
 
     pub async fn delete_blocks(ctx: &ServiceContext<'_>, page_id: i64) -> Result<()> {
-        let txn = ctx.transaction();
         let make_error = || {
             Error::new(
                 format!("failed to delete text blocks on page ID {}", page_id),
@@ -594,20 +616,39 @@ impl TextBlockService {
             )
         };
 
-        let filenames = Self::get_block_s3_filenames(ctx, page_id, None)
+        DeletedTextBlockRows::delete_block_rows(ctx, page_id)
             .await
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .clear_objects_after_commit(ctx)
+            .or_raise(make_error)
+    }
+}
+
+struct DeletedTextBlockRows {
+    filenames: Vec<String>,
+}
+
+impl DeletedTextBlockRows {
+    async fn delete_block_rows(ctx: &ServiceContext<'_>, page_id: i64) -> Result<Self> {
+        let filenames =
+            TextBlockService::get_block_s3_filenames(ctx, page_id, None).await?;
 
         TextBlockTable::delete_many()
             .filter(text_block::Column::PageId.eq(page_id))
-            .exec(txn)
+            .exec(ctx.transaction())
             .await
-            .or_raise(make_error)?;
+            .or_raise(|| {
+                Error::new(
+                    format!("failed to delete text blocks on page ID {}", page_id),
+                    ErrorType::TextBlock,
+                )
+            })?;
 
-        ctx.defer_text_block_cleanup(filenames)
-            .or_raise(make_error)?;
+        Ok(Self { filenames })
+    }
 
-        Ok(())
+    fn clear_objects_after_commit(self, ctx: &ServiceContext<'_>) -> Result<()> {
+        ctx.defer_text_block_cleanup(self.filenames)
     }
 }
 

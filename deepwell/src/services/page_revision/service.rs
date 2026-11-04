@@ -101,6 +101,27 @@ macro_rules! conditional_future {
 #[derive(Debug)]
 pub struct PageRevisionService;
 
+#[derive(Debug)]
+pub(super) struct RenderFreshnessGuard {
+    revision_id: i64,
+}
+
+#[derive(Debug)]
+pub(super) struct FreshRenderOutput {
+    output: RenderPageOutput,
+    freshness: RenderFreshnessGuard,
+}
+
+impl FreshRenderOutput {
+    pub(super) fn checked_revision_id(&self) -> i64 {
+        self.freshness.revision_id
+    }
+
+    pub(super) fn into_output(self) -> RenderPageOutput {
+        self.output
+    }
+}
+
 #[derive(Debug, Default)]
 pub(crate) struct ParsedPageRevisionHiddenFields {
     pub(crate) wikitext: bool,
@@ -1202,13 +1223,34 @@ impl PageRevisionService {
         .await
     }
 
+    async fn check_render_freshness(
+        ctx: &ServiceContext<'_>,
+        id: PageId,
+        revision: &PageRevisionModel,
+    ) -> Result<RenderFreshnessGuard> {
+        let latest = Self::get_latest(ctx, id.site_id, id.page_id).await?;
+        if latest.revision_id != revision.revision_id {
+            bail!(Error::new(
+                format!(
+                    "revision {} of page ID {} was superseded by revision {} during render; discarding the stale render",
+                    revision.revision_id, id.page_id, latest.revision_id,
+                ),
+                ErrorType::PageRevision,
+            ));
+        }
+
+        Ok(RenderFreshnessGuard {
+            revision_id: revision.revision_id,
+        })
+    }
+
     pub(super) async fn render_revision(
         ctx: &ServiceContext<'_>,
         id: PageId,
         revision: &PageRevisionModel,
         allow_corpus_dense_includes: bool,
         trace: Option<&CorpusRenderTrace>,
-    ) -> Result<RenderPageOutput> {
+    ) -> Result<FreshRenderOutput> {
         let PageId {
             site_id, page_id, ..
         } = id;
@@ -1244,18 +1286,9 @@ impl PageRevisionService {
         )
         .await?;
 
-        let latest = Self::get_latest(ctx, id.site_id, id.page_id).await?;
-        if latest.revision_id != revision.revision_id {
-            bail!(Error::new(
-                format!(
-                    "revision {} of page ID {} was superseded by revision {} during render; discarding the stale render",
-                    revision.revision_id, id.page_id, latest.revision_id,
-                ),
-                ErrorType::PageRevision,
-            ));
-        }
+        let freshness = Self::check_render_freshness(ctx, id, revision).await?;
 
-        Ok(output)
+        Ok(FreshRenderOutput { output, freshness })
     }
 
     async fn rerender_inner(
@@ -1339,7 +1372,8 @@ impl PageRevisionService {
             compiled_generator,
         } = Self::render_revision(ctx, id, &revision, allow_corpus_dense_includes, trace)
             .await
-            .or_raise(make_error)?;
+            .or_raise(make_error)?
+            .into_output();
 
         let model = match rerender_type {
             RerenderType::Full => {

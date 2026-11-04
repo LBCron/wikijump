@@ -46,12 +46,20 @@ pub(super) struct ArticlePageCacheMetadata {
     pub anonymous_permission_cache_fence: String,
 }
 
+pub(super) struct ArticlePageCacheMetadataInput<'a> {
+    pub page_view: &'a GetPageView,
+    pub public_content_cache_fence: Option<String>,
+}
+
 impl ArticlePageCache {
     pub(super) async fn metadata(
         ctx: &ServiceContext<'_>,
-        input: &GetPageView,
-        public_content_cache_fence: Option<String>,
+        input: ArticlePageCacheMetadataInput<'_>,
     ) -> Result<Option<ArticlePageCacheMetadata>> {
+        let ArticlePageCacheMetadataInput {
+            page_view: input,
+            public_content_cache_fence,
+        } = input;
         if !matches!(input.session_token.as_deref(), None | Some("")) {
             return Ok(None);
         }
@@ -126,14 +134,26 @@ impl ArticlePageCache {
         let Some(row) = row else {
             return Ok(None);
         };
-        let Some(latest_revision_id) = row.latest_revision_id else {
+        let ArticlePageCacheKeyRow {
+            page_id,
+            page_slug: row_page_slug,
+            page_updated_at: row_page_updated_at,
+            latest_revision_id: row_latest_revision_id,
+            from_wikidot,
+            compiled_body_html_hash,
+            compiled_body_styles_hash,
+            compiled_top_bar_html_hash,
+            compiled_side_bar_html_hash,
+            source_contents,
+        } = row;
+        let Some(latest_revision_id) = row_latest_revision_id else {
             return Ok(None);
         };
-        if !row.from_wikidot {
+        if !from_wikidot {
             return Ok(None);
         }
 
-        let (category, page) = split_category(&row.page_slug);
+        let (category, page) = split_category(&row_page_slug);
         let template_source =
             BlueprintPageService::get_page_template(ctx, input.site_id, category, page)
                 .await?;
@@ -167,8 +187,7 @@ impl ArticlePageCache {
             .as_deref()
             .map(|source| Sha256::digest(source.as_bytes()).to_vec());
 
-        let page_updated_at = row
-            .page_updated_at
+        let page_updated_at = row_page_updated_at
             .map(|value| value.unix_timestamp_nanos())
             .unwrap_or_default();
         let public_content_cache_fence = match public_content_cache_fence {
@@ -182,20 +201,20 @@ impl ArticlePageCache {
         let locales = input.locales.join(",");
 
         Ok(format_article_page_cache_key_if_source_eligible(
-            row.source_contents.as_deref(),
+            source_contents.as_deref(),
             template_source.as_deref(),
             ArticlePageCacheKeyParts {
                 site_id: input.site_id,
-                page_id: row.page_id,
+                page_id,
                 latest_revision_id,
                 page_updated_at,
                 public_content_cache_fence: &public_content_cache_fence,
                 permission_fence: &permission_fence,
                 template_source_hash: template_source_hash.as_deref(),
-                compiled_body_html_hash: row.compiled_body_html_hash.as_deref(),
-                compiled_body_styles_hash: row.compiled_body_styles_hash.as_deref(),
-                compiled_top_bar_html_hash: row.compiled_top_bar_html_hash.as_deref(),
-                compiled_side_bar_html_hash: row.compiled_side_bar_html_hash.as_deref(),
+                compiled_body_html_hash: compiled_body_html_hash.as_deref(),
+                compiled_body_styles_hash: compiled_body_styles_hash.as_deref(),
+                compiled_top_bar_html_hash: compiled_top_bar_html_hash.as_deref(),
+                compiled_side_bar_html_hash: compiled_side_bar_html_hash.as_deref(),
                 route_slug,
                 page_extra,
                 locales: &locales,
@@ -270,6 +289,32 @@ struct CategoryThemeRow {
     theme_custom_css: Option<String>,
 }
 
+struct CategoryThemeFingerprintInput<'a> {
+    theme_kind: &'a str,
+    theme_builtin_id: Option<i64>,
+    theme_external_url: Option<&'a str>,
+    theme_custom_css: Option<&'a str>,
+}
+
+impl CategoryThemeRow {
+    fn fingerprint_input(&self) -> CategoryThemeFingerprintInput<'_> {
+        let Self {
+            slug: _,
+            theme_kind,
+            theme_builtin_id,
+            theme_external_url,
+            theme_custom_css,
+        } = self;
+
+        CategoryThemeFingerprintInput {
+            theme_kind: theme_kind.as_str(),
+            theme_builtin_id: *theme_builtin_id,
+            theme_external_url: theme_external_url.as_deref(),
+            theme_custom_css: theme_custom_css.as_deref(),
+        }
+    }
+}
+
 fn category_theme_fingerprint(rows: &[CategoryThemeRow], own_slug: &str) -> Vec<u8> {
     let mut hasher = Sha256::new();
     let mut slugs = vec![own_slug];
@@ -281,12 +326,18 @@ fn category_theme_fingerprint(rows: &[CategoryThemeRow], own_slug: &str) -> Vec<
         hasher.update([0]);
         match rows.iter().find(|row| row.slug == slug) {
             Some(row) => {
-                hasher.update(row.theme_kind.as_bytes());
+                let CategoryThemeFingerprintInput {
+                    theme_kind,
+                    theme_builtin_id,
+                    theme_external_url,
+                    theme_custom_css,
+                } = row.fingerprint_input();
+                hasher.update(theme_kind.as_bytes());
                 hasher.update([0]);
-                hasher.update(row.theme_builtin_id.unwrap_or_default().to_be_bytes());
-                hasher.update(row.theme_external_url.as_deref().unwrap_or("").as_bytes());
+                hasher.update(theme_builtin_id.unwrap_or_default().to_be_bytes());
+                hasher.update(theme_external_url.unwrap_or("").as_bytes());
                 hasher.update([0]);
-                hasher.update(row.theme_custom_css.as_deref().unwrap_or("").as_bytes());
+                hasher.update(theme_custom_css.unwrap_or("").as_bytes());
                 hasher.update([0]);
             }
             None => hasher.update(b"absent\0"),

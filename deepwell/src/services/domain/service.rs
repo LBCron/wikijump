@@ -46,6 +46,7 @@ impl DomainService {
             www_redirect,
         }: CreateCustomDomain,
     ) -> Result<()> {
+        let domain = canonicalize_domain(&domain);
         info!("Creating custom domain '{domain}' (site ID {site_id})");
 
         let make_error = || {
@@ -69,16 +70,15 @@ impl DomainService {
         validate_domain(&domain).or_raise(make_error)?;
 
         let config = ctx.config();
-        if domain.ends_with(&config.main_domain) || domain.ends_with(&config.files_domain)
-        {
+        if is_platform_domain(config, &domain) {
             error!(
-                "Custom domains cannot be subdomains of the Wikijump main domain ('{}') or files domain ('{}'): {}",
-                config.main_domain, config.files_domain, domain,
+                "Custom domains cannot be the Wikijump main domain ('{}') or files domain ('{}'), or subdomains of them: {}",
+                config.main_domain_no_dot, config.files_domain_no_dot, domain,
             );
             bail!(Error::new(
                 format!(
-                    "cannot create domain '{}', must not be subdomain of the Wikijump main ('{}') or files domains ('{}')",
-                    domain, config.main_domain, config.files_domain
+                    "cannot create domain '{}', must not be the Wikijump main ('{}') or files domains ('{}') or a subdomain of them",
+                    domain, config.main_domain_no_dot, config.files_domain_no_dot
                 ),
                 ErrorType::CustomDomainSubdomain,
             ));
@@ -123,6 +123,7 @@ impl DomainService {
         site_id: i64,
         domain: String,
     ) -> Result<()> {
+        let domain = canonicalize_domain(&domain);
         info!("Deleting custom domain '{domain}'");
 
         let make_error = || {
@@ -168,7 +169,7 @@ impl DomainService {
         let txn = ctx.transaction();
         let model = Site::find()
             .join(JoinType::Join, site::Relation::SiteDomain.def())
-            .filter(site_domain::Column::Domain.eq(domain))
+            .filter(site_domain::Column::Domain.eq(canonicalize_domain(domain)))
             .one(txn)
             .await
             .or_raise(make_error)?;
@@ -255,7 +256,7 @@ impl DomainService {
 
 #[cfg(test)]
 mod tests {
-    use super::DomainService;
+    use super::{DomainService, canonicalize_domain, is_platform_domain};
     use crate::config::Config;
 
     fn config_with_port(https_port: u16) -> Config {
@@ -297,6 +298,63 @@ mod tests {
             format!("scp-wiki{}:18443", config.files_domain),
         );
     }
+
+    #[test]
+    fn canonicalize_domain_lowercases_and_strips_one_trailing_dot() {
+        assert_eq!(
+            canonicalize_domain("W2C-ALPHA.example"),
+            "w2c-alpha.example"
+        );
+        assert_eq!(
+            canonicalize_domain("w2c-alpha.example."),
+            "w2c-alpha.example"
+        );
+        assert_eq!(canonicalize_domain("Example.COM"), "example.com");
+        assert_eq!(canonicalize_domain("example.com"), "example.com");
+        assert_eq!(canonicalize_domain("example.com.."), "example.com.");
+        assert_eq!(
+            canonicalize_domain(&canonicalize_domain("A.B.Example.")),
+            "a.b.example",
+        );
+    }
+
+    #[test]
+    fn platform_domain_covers_the_apex_and_subdomains() {
+        let config = Config::integration_testing();
+
+        for domain in [
+            "wikijump.com",
+            "wjfiles.com",
+            "site.wikijump.com",
+            "site.wjfiles.com",
+            "deep.site.wikijump.com",
+        ] {
+            assert!(is_platform_domain(&config, domain), "{domain}");
+        }
+
+        for domain in [
+            "example.com",
+            "notwikijump.com",
+            "wikijump.com.example.com",
+            "mywjfiles.com",
+        ] {
+            assert!(!is_platform_domain(&config, domain), "{domain}");
+        }
+    }
+}
+
+fn canonicalize_domain(domain: &str) -> String {
+    domain
+        .strip_suffix('.')
+        .unwrap_or(domain)
+        .to_ascii_lowercase()
+}
+
+fn is_platform_domain(config: &Config, domain: &str) -> bool {
+    domain == config.main_domain_no_dot
+        || domain == config.files_domain_no_dot
+        || domain.ends_with(&config.main_domain)
+        || domain.ends_with(&config.files_domain)
 }
 
 fn validate_domain(domain: &str) -> Result<()> {

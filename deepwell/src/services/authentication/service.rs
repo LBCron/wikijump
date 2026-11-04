@@ -37,9 +37,6 @@ use std::net::IpAddr;
 pub struct AuthenticationService;
 
 #[derive(Debug)]
-struct VerifiedPassword;
-
-#[derive(Debug)]
 struct LoginAttemptBuckets {
     ip_bucket: String,
     account_bucket: Option<String>,
@@ -66,15 +63,13 @@ impl LoginAttemptBuckets {
         buckets
     }
 
-    async fn consume_account_bucket_after_failed_verification(
-        &self,
-        ctx: &ServiceContext<'_>,
-    ) -> Result<()> {
-        if let Some(account_bucket) = &self.account_bucket {
-            AuthenticationAttemptService::reserve(ctx, account_bucket, 10, 600).await?;
+    async fn reserve_account_bucket(&self, ctx: &ServiceContext<'_>) -> Result<bool> {
+        match &self.account_bucket {
+            Some(account_bucket) => {
+                AuthenticationAttemptService::reserve(ctx, account_bucket, 10, 600).await
+            }
+            None => Ok(true),
         }
-
-        Ok(())
     }
 
     async fn clear_after_verified_password(
@@ -112,13 +107,15 @@ impl AuthenticationService {
             bail!(make_error());
         }
 
+        if !buckets.reserve_account_bucket(ctx).await? {
+            ctx.commit_expected_authentication_rejection();
+            bail!(make_error());
+        }
+
         if let Err(error) =
             Self::verify_password_before_account_bucket(ctx, &password, &auth).await
         {
             if error.error_type == ErrorType::InvalidAuthentication {
-                buckets
-                    .consume_account_bucket_after_failed_verification(ctx)
-                    .await?;
                 ctx.commit_expected_authentication_rejection();
             }
             return Err(error.raise(make_error()));
@@ -141,10 +138,8 @@ impl AuthenticationService {
         ctx: &ServiceContext<'_>,
         password: &str,
         auth: &UserAuthInfo,
-    ) -> Result<VerifiedPassword> {
-        PasswordService::verify_sleep(ctx, password, &auth.password_hash, false)
-            .await
-            .map(|()| VerifiedPassword)
+    ) -> Result<()> {
+        PasswordService::verify_sleep(ctx, password, &auth.password_hash, false).await
     }
 
     pub async fn auth_mfa(

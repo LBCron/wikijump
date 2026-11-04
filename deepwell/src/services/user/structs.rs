@@ -469,6 +469,7 @@ fn user_serialization() {
             password: str!("!"),
             multi_factor_secret: None,
             multi_factor_recovery_codes: None,
+            multi_factor_last_totp_step: None,
             locales: vec![str!("en")],
             avatar_s3_hash: None,
             forum_signature: None,
@@ -499,6 +500,7 @@ fn user_serialization() {
   "password": "!",
   "multi_factor_secret": null,
   "multi_factor_recovery_codes": null,
+  "multi_factor_last_totp_step": null,
   "locales": [
     "en"
   ],
@@ -533,6 +535,7 @@ fn user_serialization() {
             password: str!(),
             multi_factor_secret: None,
             multi_factor_recovery_codes: None,
+            multi_factor_last_totp_step: None,
             locales: vec![str!("en")],
             avatar_s3_hash: None,
             forum_signature: None,
@@ -563,6 +566,7 @@ fn user_serialization() {
   "password": "",
   "multi_factor_secret": null,
   "multi_factor_recovery_codes": null,
+  "multi_factor_last_totp_step": null,
   "locales": [
     "en"
   ],
@@ -602,6 +606,7 @@ fn user_serialization() {
                 str!("!c"),
                 str!("d"),
             ]),
+            multi_factor_last_totp_step: None,
             locales: vec![str!("fr"), str!("de")],
             avatar_s3_hash: Some(vec![0; 4]),
             forum_signature: None,
@@ -637,6 +642,7 @@ fn user_serialization() {
     "!c",
     "d"
   ],
+  "multi_factor_last_totp_step": null,
   "locales": [
     "fr",
     "de"

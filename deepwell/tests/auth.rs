@@ -527,6 +527,8 @@ async fn mfa_setup_reset_disable_and_totp_login_flow() {
             "user_id": user_id,
             "session_token": login.session_token,
             "ip_address": common::IP_ADDRESS,
+            "password": PASSWORD,
+            "totp_or_code": reset.recovery_codes[0].clone(),
         }),
     );
     let user = UserService::get_real(runner.context(), Reference::Id(user_id))
@@ -785,38 +787,193 @@ async fn account_holders_change_their_password_with_the_current_one() {
 }
 
 #[tokio::test]
-async fn saturated_account_bucket_does_not_lock_out_correct_password() {
+async fn saturated_account_bucket_locks_out_even_the_correct_password() {
     const LOCKOUT_TEST_IP: &str = "127.0.0.200";
 
     let runner = TestRunner::setup().await;
     let n = next_n();
     let (name, _) = create_auth_test_user(&runner, n, false).await;
+    let (other_name, _) = create_auth_test_user(&runner, next_n(), false).await;
 
-    let wrong_password_params = || {
+    let login_params_for = |name_or_email: &str, password: &str| {
         json!({
-            "name_or_email": name,
-            "password": "wrong-password-fixture",
+            "name_or_email": name_or_email,
+            "password": password,
             "ip_address": LOCKOUT_TEST_IP,
             "user_agent": "deepwell-auth-test-lockout",
         })
     };
 
-    for _ in 0..2 {
-        for _ in 0..11 {
-            let error = run_endpoint_err!(runner, auth_login, wrong_password_params());
-            assert_contains_error!(error, ErrorType::InvalidAuthentication);
-        }
-
-        let login = run_endpoint!(
+    for _ in 0..10 {
+        let error = run_endpoint_err!(
             runner,
             auth_login,
-            json!({
-                "name_or_email": name,
-                "password": PASSWORD,
-                "ip_address": LOCKOUT_TEST_IP,
-                "user_agent": "deepwell-auth-test-lockout",
-            })
+            login_params_for(&name, "wrong-password-fixture")
         );
-        assert!(!login.needs_mfa);
+        assert_contains_error!(error, ErrorType::InvalidAuthentication);
     }
+
+    // The account bucket (10 per 600 seconds) is now saturated: further
+    // attempts against this account are rejected before password
+    // verification, with the same uniform error as a wrong password.
+    let error = run_endpoint_err!(
+        runner,
+        auth_login,
+        login_params_for(&name, "wrong-password-fixture")
+    );
+    assert_contains_error!(error, ErrorType::InvalidAuthentication);
+
+    let error = run_endpoint_err!(runner, auth_login, login_params_for(&name, PASSWORD));
+    assert_contains_error!(error, ErrorType::InvalidAuthentication);
+
+    // A different account from the same address is unaffected, and its
+    // success does not clear the locked account's bucket.
+    let other_login =
+        run_endpoint!(runner, auth_login, login_params_for(&other_name, PASSWORD));
+    assert!(!other_login.needs_mfa);
+
+    let error = run_endpoint_err!(runner, auth_login, login_params_for(&name, PASSWORD));
+    assert_contains_error!(error, ErrorType::InvalidAuthentication);
+}
+#[tokio::test]
+async fn totp_code_cannot_be_replayed_for_a_second_login() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let (name, user_id) = create_auth_test_user(&runner, n, true).await;
+
+    let code = current_totp(TEST_MFA_SECRET, &runner);
+
+    let first_login = run_endpoint!(runner, auth_login, login_params(&name));
+    assert!(first_login.needs_mfa);
+    run_endpoint!(
+        runner,
+        auth_mfa_verify,
+        json!({
+            "session_token": first_login.session_token,
+            "totp_or_code": code.to_string(),
+            "ip_address": common::IP_ADDRESS,
+            "user_agent": "deepwell-auth-test-totp-first",
+        }),
+    );
+
+    // The same code inside the same window must not authenticate again.
+    let second_login = run_endpoint!(runner, auth_login, login_params(&name));
+    assert!(second_login.needs_mfa);
+    let replay_error = run_endpoint_err!(
+        runner,
+        auth_mfa_verify,
+        json!({
+            "session_token": second_login.session_token,
+            "totp_or_code": code.to_string(),
+            "ip_address": common::IP_ADDRESS,
+            "user_agent": "deepwell-auth-test-totp-replay",
+        }),
+    );
+    assert_contains_error!(replay_error, ErrorType::InvalidAuthentication);
+
+    // Simulate the last accepted code having come from the previous step:
+    // a code for the current (later) step must still be accepted.
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("test clock should be after the Unix epoch")
+        .as_secs();
+    let current_step = (now as i64 + runner.config().totp_time_skew)
+        / runner.config().totp_time_step as i64;
+    UserService::set_mfa_last_totp_step(
+        runner.context(),
+        user_id,
+        ActiveValue::Set(Some(current_step - 1)),
+    )
+    .await
+    .expect("rewinding the last accepted TOTP step should succeed");
+
+    let next_login = run_endpoint!(runner, auth_login, login_params(&name));
+    assert!(next_login.needs_mfa);
+    run_endpoint!(
+        runner,
+        auth_mfa_verify,
+        json!({
+            "session_token": next_login.session_token,
+            "totp_or_code": current_totp(TEST_MFA_SECRET, &runner).to_string(),
+            "ip_address": common::IP_ADDRESS,
+            "user_agent": "deepwell-auth-test-totp-next-step",
+        }),
+    );
+}
+
+#[tokio::test]
+async fn mfa_disable_requires_password_and_second_factor() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let (name, user_id) = create_auth_test_user(&runner, n, true).await;
+
+    let login = run_endpoint!(runner, auth_login, login_params(&name));
+    assert!(login.needs_mfa);
+    let session_token = run_endpoint!(
+        runner,
+        auth_mfa_verify,
+        json!({
+            "session_token": login.session_token,
+            "totp_or_code": RECOVERY_CODE,
+            "ip_address": common::IP_ADDRESS,
+            "user_agent": "deepwell-auth-test-disable-session",
+        }),
+    );
+
+    let disable_params = |password: &str, totp_or_code: String| {
+        json!({
+            "user_id": user_id,
+            "session_token": session_token,
+            "ip_address": common::IP_ADDRESS,
+            "password": password,
+            "totp_or_code": totp_or_code,
+        })
+    };
+    let assert_mfa_intact = |user: &deepwell::models::user::Model| {
+        assert!(user.multi_factor_secret.is_some());
+        assert!(user.multi_factor_recovery_codes.is_some());
+    };
+
+    // A valid second factor does not help with the wrong password.
+    let error = run_endpoint_err!(
+        runner,
+        auth_mfa_disable,
+        disable_params(
+            "wrong-password-fixture",
+            current_totp(TEST_MFA_SECRET, &runner).to_string(),
+        )
+    );
+    assert_contains_error!(error, ErrorType::InvalidAuthentication);
+    let user = UserService::get_real(runner.context(), Reference::Id(user_id))
+        .await
+        .expect("user lookup after failed disable should succeed");
+    assert_mfa_intact(&user);
+
+    // The correct password does not help with a wrong TOTP code.
+    let error = run_endpoint_err!(
+        runner,
+        auth_mfa_disable,
+        disable_params(PASSWORD, wrong_current_totp(&runner))
+    );
+    assert_contains_error!(error, ErrorType::InvalidAuthentication);
+    let user = UserService::get_real(runner.context(), Reference::Id(user_id))
+        .await
+        .expect("user lookup after failed disable should succeed");
+    assert_mfa_intact(&user);
+
+    // Password plus the current TOTP code disables MFA.
+    run_endpoint!(
+        runner,
+        auth_mfa_disable,
+        disable_params(PASSWORD, current_totp(TEST_MFA_SECRET, &runner).to_string(),)
+    );
+    let user = UserService::get_real(runner.context(), Reference::Id(user_id))
+        .await
+        .expect("user lookup after disable should succeed");
+    assert!(user.multi_factor_secret.is_none());
+    assert!(user.multi_factor_recovery_codes.is_none());
+    assert!(user.multi_factor_last_totp_step.is_none());
+
+    let login = run_endpoint!(runner, auth_login, login_params(&name));
+    assert!(!login.needs_mfa);
 }

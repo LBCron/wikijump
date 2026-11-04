@@ -26,7 +26,8 @@ use crate::services::authentication::{
 };
 use crate::services::authorization_token::AuthorizationTokenService;
 use crate::services::mfa::{
-    MultiFactorConfigure, MultiFactorResetOutput, MultiFactorSetupOutput,
+    MultiFactorConfigure, MultiFactorDisable, MultiFactorResetOutput,
+    MultiFactorSetupOutput,
 };
 use crate::services::session::{
     CreateSession, GetOtherSessions, GetOtherSessionsOutput, InvalidateOtherSessions,
@@ -246,10 +247,12 @@ pub async fn auth_mfa_disable(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
 ) -> Result<()> {
-    let MultiFactorConfigure {
+    let MultiFactorDisable {
         user_id,
         session_token,
         ip_address,
+        password,
+        totp_or_code,
     } = parse!(params);
 
     let make_error = || Error::new("failed to disable MFA", ErrorType::Request);
@@ -258,7 +261,7 @@ pub async fn auth_mfa_disable(
         .await
         .or_raise(make_error)?;
 
-    MfaService::disable(ctx, user.user_id, ip_address)
+    MfaService::disable(ctx, &user, &password, &totp_or_code, ip_address)
         .await
         .or_raise(make_error)
 }

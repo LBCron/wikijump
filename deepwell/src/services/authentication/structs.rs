@@ -151,6 +151,7 @@ mod tests {
             password: str!("stored-password-hash"),
             multi_factor_secret: Some(str!("mfa-secret")),
             multi_factor_recovery_codes: None,
+            multi_factor_last_totp_step: None,
             locales: vec![str!("en")],
             avatar_s3_hash: None,
             forum_signature: None,

@@ -326,11 +326,32 @@ async fn revoke_role(ctx: &ServiceContext<'_>, site_id: i64, user_id: i64, role_
     .expect("Failed to revoke role from user");
 }
 
-async fn cached_page_view(
+#[derive(Clone, Copy, Debug)]
+struct CategoryWidePermissionKey {
+    resource: Resource,
+    action: Action,
+}
+
+impl CategoryWidePermissionKey {
+    const CATEGORY_SEGMENT: &'static str = "_default";
+}
+
+#[derive(Clone, Copy, Debug)]
+struct CategoryScopedPermissionKey {
+    resource: Resource,
+    category_id: i64,
+    action: Action,
+}
+
+async fn cached_category_wide_page_view(
     ctx: &ServiceContext<'_>,
     site_id: i64,
     user_id: i64,
 ) -> Option<bool> {
+    let key = CategoryWidePermissionKey {
+        resource: Resource::Page,
+        action: Action::View,
+    };
     let fence = PermissionCache::cache_fence(ctx, site_id, Some(user_id))
         .await
         .expect("Failed to read permission cache fence");
@@ -338,29 +359,19 @@ async fn cached_page_view(
         ctx,
         Some(site_id),
         Some(user_id),
-        Resource::Page,
+        key.resource,
         None,
-        Action::View,
+        key.action,
         &fence,
     )
     .await
     .expect("Failed to read permission cache")
 }
 
-async fn permission_cache_key(
+async fn permission_cache_key_matching(
     ctx: &ServiceContext<'_>,
-    site_id: i64,
-    user_id: i64,
-    resource: Resource,
-    category_id: Option<i64>,
-    action: Action,
+    pattern: String,
 ) -> String {
-    let category = category_id
-        .map(|id| id.to_string())
-        .unwrap_or_else(|| "_default".to_owned());
-    let pattern = format!(
-        "permission:site:{site_id}:user:{user_id}:*:permission:{resource}:{category}:{action}"
-    );
     let mut redis = ctx.redis();
     let keys: Vec<String> = redis
         .keys(&pattern)
@@ -376,12 +387,50 @@ async fn permission_cache_key(
         .expect("permission cache key should exist")
 }
 
-async fn page_view_permission_cache_key(
+async fn category_wide_permission_cache_key(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    user_id: i64,
+    key: CategoryWidePermissionKey,
+) -> String {
+    let pattern = format!(
+        "permission:site:{site_id}:user:{user_id}:*:permission:{}:{}:{}",
+        key.resource,
+        CategoryWidePermissionKey::CATEGORY_SEGMENT,
+        key.action,
+    );
+    permission_cache_key_matching(ctx, pattern).await
+}
+
+#[allow(unused)]
+async fn category_scoped_permission_cache_key(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    user_id: i64,
+    key: CategoryScopedPermissionKey,
+) -> String {
+    let pattern = format!(
+        "permission:site:{site_id}:user:{user_id}:*:permission:{}:{}:{}",
+        key.resource, key.category_id, key.action,
+    );
+    permission_cache_key_matching(ctx, pattern).await
+}
+
+async fn category_wide_page_view_cache_key(
     ctx: &ServiceContext<'_>,
     site_id: i64,
     user_id: i64,
 ) -> String {
-    permission_cache_key(ctx, site_id, user_id, Resource::Page, None, Action::View).await
+    category_wide_permission_cache_key(
+        ctx,
+        site_id,
+        user_id,
+        CategoryWidePermissionKey {
+            resource: Resource::Page,
+            action: Action::View,
+        },
+    )
+    .await
 }
 
 async fn run_queued_cache_invalidations(ctx: &ServiceContext<'_>) {
@@ -744,14 +793,14 @@ async fn cached_view_permissions_have_ttl() {
         "precondition: user_a should initially have RoleA page:view"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         Some(true),
         "precondition: page:view should be cached"
     );
 
     let mut redis = ctx.redis();
     let ttl: i64 = redis
-        .ttl(page_view_permission_cache_key(ctx, f.site_id, f.user_a).await)
+        .ttl(category_wide_page_view_cache_key(ctx, f.site_id, f.user_a).await)
         .await
         .expect("Failed to read permission cache TTL");
 
@@ -779,7 +828,7 @@ async fn writing_one_cached_permission_does_not_extend_unrelated_permission_ttl(
     .await
     .expect("Failed to seed page:view permission cache");
 
-    let view_key = page_view_permission_cache_key(ctx, f.site_id, f.user_a).await;
+    let view_key = category_wide_page_view_cache_key(ctx, f.site_id, f.user_a).await;
     let mut redis = ctx.redis();
     let expire_set: bool = redis
         .expire(&view_key, 1)
@@ -799,13 +848,14 @@ async fn writing_one_cached_permission_does_not_extend_unrelated_permission_ttl(
     .await
     .expect("Failed to write page:edit permission cache");
 
-    let edit_key = permission_cache_key(
+    let edit_key = category_wide_permission_cache_key(
         ctx,
         f.site_id,
         f.user_a,
-        Resource::Page,
-        None,
-        Action::Edit,
+        CategoryWidePermissionKey {
+            resource: Resource::Page,
+            action: Action::Edit,
+        },
     )
     .await;
     let view_ttl: i64 = redis
@@ -861,7 +911,7 @@ async fn stale_user_permission_fence_does_not_write_cache() {
         "stale user fence must not write permission cache after invalidation"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "stale fenced write must not recreate page:view cache"
     );
@@ -885,7 +935,7 @@ async fn stale_user_permission_fence_does_not_read_old_cache_key() {
     .await
     .expect("Failed to seed page:view permission cache");
 
-    let old_key = page_view_permission_cache_key(ctx, f.site_id, f.user_a).await;
+    let old_key = category_wide_page_view_cache_key(ctx, f.site_id, f.user_a).await;
     let mut redis = ctx.redis();
     let _: i64 = redis
         .incr(
@@ -904,7 +954,7 @@ async fn stale_user_permission_fence_does_not_read_old_cache_key() {
     );
 
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "permission cache reads must ignore keys written under stale fences"
     );
@@ -944,7 +994,7 @@ async fn stale_site_permission_fence_does_not_write_cache() {
         "stale site fence must not write permission cache after invalidation"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "stale site fenced write must not recreate page:view cache"
     );
@@ -1058,7 +1108,7 @@ async fn role_permission_updates_invalidate_cached_view_permissions() {
         "precondition: user_a should initially have RoleA page:view"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         Some(true),
         "precondition: page:view should be cached before role permission update"
     );
@@ -1076,7 +1126,7 @@ async fn role_permission_updates_invalidate_cached_view_permissions() {
     .await;
 
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         Some(true),
         "role permission update should queue invalidation until post-commit actions run"
     );
@@ -1084,7 +1134,7 @@ async fn role_permission_updates_invalidate_cached_view_permissions() {
     run_queued_cache_invalidations(ctx).await;
 
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "role permission update should invalidate stale page:view cache"
     );
@@ -1135,7 +1185,7 @@ async fn role_revocation_invalidates_cached_view_permissions() {
         "precondition: user_a should initially have RoleA page:view"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         Some(true),
         "precondition: page:view should be cached before role revocation"
     );
@@ -1144,7 +1194,7 @@ async fn role_revocation_invalidates_cached_view_permissions() {
     run_queued_cache_invalidations(ctx).await;
 
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "role revocation should invalidate stale page:view cache"
     );
@@ -1183,7 +1233,7 @@ async fn site_membership_changes_invalidate_cached_view_permissions() {
         "precondition: user_a should initially have explicit RoleA page:view"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         Some(true),
         "precondition: explicit page:view should be cached before membership change"
     );
@@ -1191,7 +1241,7 @@ async fn site_membership_changes_invalidate_cached_view_permissions() {
     create_site_member(ctx, f.site_id, f.user_a).await;
     run_queued_cache_invalidations(ctx).await;
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "site membership creation should invalidate stale page:view cache"
     );
@@ -1209,7 +1259,7 @@ async fn site_membership_changes_invalidate_cached_view_permissions() {
         "explicit RoleA page:view should remain valid after membership creation"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         Some(true),
         "explicit page:view should be cached again before membership removal"
     );
@@ -1217,7 +1267,7 @@ async fn site_membership_changes_invalidate_cached_view_permissions() {
     remove_site_member(ctx, f.site_id, f.user_a).await;
     run_queued_cache_invalidations(ctx).await;
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "site membership removal should invalidate stale page:view cache"
     );
@@ -1255,7 +1305,7 @@ async fn banned_user_does_not_retain_explicit_role_permissions() {
         "precondition: user_a should initially have RoleA page:view"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         Some(true),
         "precondition: page:view should be cached before banning user_a"
     );
@@ -1278,7 +1328,7 @@ async fn banned_user_does_not_retain_explicit_role_permissions() {
     run_queued_cache_invalidations(ctx).await;
 
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "site ban creation should invalidate stale page:view cache"
     );
@@ -1296,7 +1346,7 @@ async fn banned_user_does_not_retain_explicit_role_permissions() {
         "banned user should not retain page:view from cached explicit RoleA"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "active site ban should not recreate page:view cache with a denial"
     );
@@ -1351,7 +1401,7 @@ async fn active_timed_site_ban_does_not_cache_denied_view_permission() {
         "precondition: user_a should initially have RoleA page:view"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         Some(true),
         "precondition: page:view should be cached before the timed ban"
     );
@@ -1367,7 +1417,7 @@ async fn active_timed_site_ban_does_not_cache_denied_view_permission() {
     run_queued_cache_invalidations(ctx).await;
 
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "timed site ban creation should invalidate stale page:view cache"
     );
@@ -1384,7 +1434,7 @@ async fn active_timed_site_ban_does_not_cache_denied_view_permission() {
         "active timed site ban should deny page:view"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "active timed site ban should not recreate page:view cache with a denial"
     );
@@ -1414,7 +1464,7 @@ async fn page_scoped_view_check_does_not_populate_the_category_cache() {
     assert!(allowed, "user_a has unscoped RoleA page:view");
 
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "a page-scoped view decision must not be written to the category-wide cache",
     );
@@ -1476,7 +1526,7 @@ async fn active_site_ban_suppresses_view_permission_caching() {
         "a banned user without page:view should be denied"
     );
     assert_eq!(
-        cached_page_view(ctx, f.site_id, f.user_a).await,
+        cached_category_wide_page_view(ctx, f.site_id, f.user_a).await,
         None,
         "an active site ban must suppress caching of the view decision",
     );

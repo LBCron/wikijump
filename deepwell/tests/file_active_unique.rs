@@ -493,6 +493,37 @@ async fn concurrent_file_creates_leave_exactly_one_active_row() {
             .expect("winner temporary blob state should be observable");
         assert_eq!(winner_permanent.status_code(), 200);
         assert_eq!(winner_temporary.status_code(), 404);
+
+        let loser_upload = &fixture.uploads[loser_index];
+        let loser_hash = sha512_hash(&loser_upload.data);
+        let loser_permanent = state
+            .s3_files_bucket
+            .get_object(blob_hash_to_hex(&loser_hash).as_str())
+            .await
+            .expect("loser permanent blob state should be observable");
+        assert_eq!(
+            loser_permanent.status_code(),
+            404,
+            "the losing create must not promote its blob into the permanent pool"
+        );
+        let loser_temporary = state
+            .s3_files_bucket
+            .get_object(&loser_upload.temporary_path)
+            .await
+            .expect("loser temporary blob state should be observable");
+        assert_eq!(
+            loser_temporary.status_code(),
+            200,
+            "the losing create must leave its pending upload object in place"
+        );
+        let loser_pending = BlobPending::find_by_id(&loser_upload.id)
+            .one(&state.database)
+            .await
+            .expect("loser pending upload row should be readable");
+        assert!(
+            loser_pending.is_some(),
+            "the losing create must not consume its pending upload row"
+        );
     })
     .catch_unwind()
     .await;

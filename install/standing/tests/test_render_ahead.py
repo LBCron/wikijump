@@ -120,6 +120,27 @@ class RenderAheadRuntimeTest(unittest.TestCase):
             "truncated failure details cannot prove every failure is a deadline",
         )
 
+    def test_tail_retries_cover_storage_timeouts_but_not_other_failures(self) -> None:
+        storage = {
+            "error": "failed to insert 1 new html text blocks\n"
+            "reqwest: error sending request for url (http://127.0.0.1:9000/deepwell-text-blocks/x)\n"
+            "`-- operation timed out, at src/services/text_block/service.rs:221:24"
+        }
+        deadline = {"error": "failed to render\n`-- deadline has elapsed, at service.rs"}
+        other = {"error": "include expansion exceeded maximum total includes 256"}
+        self.assertTrue(RENDER_AHEAD.tail_retryable_only({"failed": 1, "failures": [storage]}))
+        self.assertTrue(
+            RENDER_AHEAD.tail_retryable_only({"failed": 2, "failures": [deadline, storage]})
+        )
+        self.assertFalse(RENDER_AHEAD.deadline_only({"failed": 1, "failures": [storage]}))
+        self.assertFalse(
+            RENDER_AHEAD.tail_retryable_only({"failed": 2, "failures": [storage, other]})
+        )
+        self.assertFalse(
+            RENDER_AHEAD.tail_retryable_only({"failed": 51, "failures": [storage] * 50}),
+            "truncated failure details cannot prove every failure is retryable",
+        )
+
     def test_extended_deadline_replaces_exactly_one_setting(self) -> None:
         config = "[main]\nrender-timeout-ms = 2000\nother = 1\n"
         self.assertEqual(
@@ -151,12 +172,15 @@ class FakeSite:
     `links` maps a page to a function of the current links and the render
     count; `readers` are the pages whose render reads the link graph.
     `deadline` maps a page to how hard it misses the render deadline: 1
-    renders alone, 2 needs the extended deadline, 3 never renders."""
+    renders alone, 2 needs the extended deadline, 3 never renders.
+    `storage` maps a page to how hard its text-block PUT times out: 1
+    renders alone, 2 never renders."""
 
-    def __init__(self, links, readers=(), deadline=()):
+    def __init__(self, links, readers=(), deadline=(), storage=()):
         self.produce = links
         self.readers = set(readers)
         self.deadline = dict(deadline)
+        self.storage = dict(storage)
         self.links = {str(page): "old" for page in links}
         self.renders = 0
         self.calls = []
@@ -165,10 +189,17 @@ class FakeSite:
         self.calls.append((name, cutoff, pages, serial, extended))
         selected = list(pages) if pages is not None else sorted(self.produce)
         failed = []
+        errors = []
         for page in selected:
             misses = self.deadline.get(page, 0)
             if misses >= 3 or (misses == 2 and not extended) or (misses == 1 and not serial):
                 failed.append(page)
+                errors.append("deadline has elapsed")
+                continue
+            stalls = self.storage.get(page, 0)
+            if stalls >= 2 or (stalls == 1 and not serial):
+                failed.append(page)
+                errors.append("operation timed out, at src/services/text_block/service.rs")
                 continue
             self.renders += 1
             self.links[str(page)] = self.produce[page](self.links, self.renders)
@@ -176,7 +207,7 @@ class FakeSite:
             "candidates": len(selected),
             "failed_page_ids": failed,
             "failed": len(failed),
-            "failures": [{"error": "deadline has elapsed"} for _ in failed],
+            "failures": [{"error": error} for error in errors],
             "link_reader_page_ids": sorted(set(selected) & self.readers - set(failed)),
         }
 
@@ -323,6 +354,42 @@ class RenderUntilLinksSettleTest(unittest.TestCase):
         self.assertTrue(site.calls[2][4], "the second retry uses the extended deadline")
         self.assertFalse(site.calls[2][3], "extended-deadline renders do not race the deadline")
         self.assertEqual(site.links["2"], "reads-new")
+
+    def test_storage_timeouts_are_retried_before_links_are_compared(self) -> None:
+        site = FakeSite(
+            {1: lambda links, n: "new", 2: lambda links, n: "reads-" + links["1"]},
+            readers=[2],
+            storage={1: 1},
+        )
+        readers, _ = site.settle()
+        self.assertEqual(readers, [2])
+        self.assertEqual(site.names()[:2], ["full", "full-tail-serial"])
+        self.assertEqual(site.calls[1][2], [1])
+        self.assertTrue(site.calls[1][3], "the storage retry renders alone")
+        self.assertEqual(site.links["2"], "reads-new")
+
+    def test_storage_timeouts_that_never_clear_stop_the_run(self) -> None:
+        site = FakeSite({1: lambda links, n: "new"}, storage={1: 2})
+        with self.assertRaisesRegex(RuntimeError, "even with the extended deadline"):
+            site.settle()
+
+    def test_a_storage_timeout_beside_a_real_failure_stops_the_run(self) -> None:
+        site = FakeSite(
+            {1: lambda links, n: "new", 2: lambda links, n: "new"},
+            storage={1: 1},
+            deadline={2: 1},
+        )
+        original = site.render
+        def render(*args, **flags):
+            summary = original(*args, **flags)
+            summary["failures"] = [
+                {"error": "include limit"} if page == 2 else failure
+                for page, failure in zip(summary["failed_page_ids"], summary["failures"])
+            ]
+            return summary
+        site.render = render
+        with self.assertRaisesRegex(RuntimeError, "other than the render deadline"):
+            site.settle()
 
     def test_other_failures_stop_the_run(self) -> None:
         site = FakeSite({1: lambda links, n: "new"}, deadline={1: 1})

@@ -100,6 +100,7 @@ impl MappedSource {
         self.rewrite(&replacements, Some(replacement));
     }
 
+    #[cfg(test)]
     pub(super) fn replace_original_ranges_with_inert_markers(
         &mut self,
         ranges: &[Range<usize>],

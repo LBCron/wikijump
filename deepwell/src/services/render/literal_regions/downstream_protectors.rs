@@ -19,6 +19,7 @@ use self::pretransform_plan::{
     DownstreamProtectorPretransformPlan,
 };
 use super::LiteralRegionIndex;
+#[cfg(test)]
 use super::block_candidates::{
     RuntimeModuleHeadCandidate, collect_head_candidate_streams,
 };
@@ -80,6 +81,7 @@ pub(in crate::services::render) struct DownstreamProtectorRange {
     pub(in crate::services::render) contains_ownership_delimiter: bool,
 }
 
+#[cfg(test)]
 pub(in crate::services::render) fn collect_downstream_protector_ranges(
     source: &str,
 ) -> Vec<DownstreamProtectorRange> {
@@ -127,6 +129,7 @@ fn collect_with_pretransform_plan(
     collect_from_mapped_source(source, working)
 }
 
+#[cfg(test)]
 fn collect_with_pretransform_ranges<'a>(
     source: &str,
     opaque_batches: impl IntoIterator<Item = &'a [Range<usize>]>,

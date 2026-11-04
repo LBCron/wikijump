@@ -235,14 +235,8 @@ impl RenderService {
         }
 
         let mut selected_pages = Vec::with_capacity(pages_by_slug.len());
-        for (slug, mut pages) in pages_by_slug {
-            let page = if pages.len() == 1 {
-                pages.pop()
-            } else {
-                PageService::get_optional(ctx, site_id, Reference::from(slug.as_str()))
-                    .await?
-            };
-            if let Some(page) = page
+        for mut pages in pages_by_slug.into_values() {
+            if let Some(page) = pages.pop()
                 && authorized_selector.check_page_viewability(&page).await?
             {
                 selected_pages.push(page);
@@ -329,7 +323,7 @@ impl RenderService {
         WikidotCompatibilityFallbackOutput::body(body)
     }
 
-    #[allow(dead_code)]
+    #[cfg(test)]
     pub(in crate::services::render) fn render_wikidot_compatibility_fallback_with_code_blocks(
         wikitext: &str,
     ) -> String {
@@ -338,7 +332,7 @@ impl RenderService {
         )
     }
 
-    #[allow(dead_code)]
+    #[cfg(test)]
     fn render_wikidot_compatibility_fallback_with_code_blocks_for_page(
         wikitext: &str,
         current_page: Option<&str>,
@@ -350,6 +344,7 @@ impl RenderService {
         )
     }
 
+    #[cfg(test)]
     pub(in crate::services::render) fn render_wikidot_compatibility_fallback_with_code_blocks_for_context(
         wikitext: &str,
         current_page: Option<&str>,
@@ -364,6 +359,7 @@ impl RenderService {
         .body
     }
 
+    #[cfg(test)]
     pub(in crate::services::render) fn render_wikidot_compatibility_fallback_output_for_context(
         wikitext: &str,
         current_page: Option<&str>,
@@ -560,20 +556,6 @@ impl RenderService {
         }
     }
 
-    #[allow(dead_code)]
-    fn push_wikidot_compat_fallback_text_chunk(body: &mut String, chunk: &mut String) {
-        let mut html_block_texts = Vec::new();
-        Self::push_wikidot_compat_fallback_text_chunk_for_page(
-            body,
-            chunk,
-            None,
-            None,
-            None,
-            WikidotHtmlBlockEmission::default(),
-            &mut html_block_texts,
-        );
-    }
-
     fn push_wikidot_compat_fallback_text_chunk_for_page(
         body: &mut String,
         chunk: &mut String,
@@ -652,39 +634,6 @@ impl RenderService {
                     && !index.is_empty()
                     && index.chars().all(|character| character.is_ascii_digit())
             })
-    }
-
-    #[allow(dead_code)]
-    fn render_wikidot_compat_fallback_text_html(text: &str) -> String {
-        Self::render_wikidot_compat_fallback_text_html_for_page(text, None)
-    }
-
-    #[allow(dead_code)]
-    fn render_wikidot_compat_fallback_text_html_for_page(
-        text: &str,
-        current_page: Option<&str>,
-    ) -> String {
-        Self::render_wikidot_compat_fallback_text_html_for_context(
-            text,
-            current_page,
-            None,
-        )
-    }
-
-    fn render_wikidot_compat_fallback_text_html_for_context(
-        text: &str,
-        current_page: Option<&str>,
-        local_file_site_slug: Option<&str>,
-    ) -> String {
-        let mut html_block_texts = Vec::new();
-        Self::render_wikidot_compat_fallback_text_html_with_blocks(
-            text,
-            current_page,
-            local_file_site_slug,
-            None,
-            WikidotHtmlBlockEmission::default(),
-            &mut html_block_texts,
-        )
     }
 
     fn render_wikidot_compat_fallback_text_html_with_blocks(
@@ -1506,11 +1455,6 @@ impl RenderService {
         }
         paragraph.text.clear();
         paragraph.leading_html.clear();
-    }
-
-    #[allow(dead_code)]
-    fn render_wikidot_compat_fallback_inline_html(value: &str) -> String {
-        Self::render_wikidot_compat_fallback_inline_html_for_page(value, None, None)
     }
 
     pub(in crate::services::render) fn render_wikidot_compat_fallback_inline_html_for_page(

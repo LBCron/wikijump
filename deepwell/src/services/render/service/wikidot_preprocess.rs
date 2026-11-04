@@ -830,56 +830,6 @@ impl RenderService {
         Some(arguments)
     }
 
-    #[allow(dead_code)]
-    pub(super) fn find_preview_component_separator_markers(
-        wikitext: &str,
-    ) -> Option<(usize, usize, usize, usize)> {
-        let lines = Self::wikitext_line_ranges(wikitext);
-
-        for include_start_line in 0..lines.len() {
-            let include_start = Self::trim_wikitext_line(lines[include_start_line].2);
-            if !include_start.starts_with("[[include") {
-                continue;
-            }
-
-            let mut include_text = String::new();
-            let mut include_end_line = include_start_line;
-            loop {
-                let line = lines[include_end_line].2;
-                include_text.push_str(line);
-                if line.contains("]]") {
-                    break;
-                }
-
-                include_end_line += 1;
-                if include_end_line >= lines.len() {
-                    break;
-                }
-            }
-
-            if !include_text
-                .to_ascii_lowercase()
-                .contains("component:preview")
-            {
-                continue;
-            }
-
-            if include_start_line == 0 || include_end_line + 1 >= lines.len() {
-                continue;
-            }
-
-            let before = lines[include_start_line - 1];
-            let after = lines[include_end_line + 1];
-            if Self::trim_wikitext_line(before.2) == "====="
-                && Self::trim_wikitext_line(after.2) == "====="
-            {
-                return Some((before.0, before.1, after.0, after.1));
-            }
-        }
-
-        None
-    }
-
     pub(super) fn wikitext_line_ranges(wikitext: &str) -> Vec<(usize, usize, &str)> {
         let mut lines = Vec::new();
         let mut start = 0;

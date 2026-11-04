@@ -14,7 +14,6 @@ mod anchor_candidates;
 mod base_candidates;
 mod block_candidates;
 mod count_pages;
-#[allow(dead_code)]
 mod downstream_protectors;
 pub(in crate::services::render) mod list_pages_protection;
 mod parser_candidates;

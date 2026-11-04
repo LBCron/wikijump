@@ -90,8 +90,3 @@ pub(super) fn direct_wdfiles_local_file_url(host: &str, path: &str) -> Option<St
 
     Some(format!("https://{site_slug}.wdfiles.com{path}"))
 }
-
-#[allow(dead_code)]
-pub(super) fn public_url_port_suffix(port: Option<u16>) -> String {
-    port.map(|port| format!(":{port}")).unwrap_or_default()
-}

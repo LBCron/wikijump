@@ -34,6 +34,10 @@ class RefreshStandingTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "must be absolute"):
                 REFRESH.default_runtime_home()
 
+    def test_canary_url_uses_https(self) -> None:
+        self.assertTrue(REFRESH.CANARY_URL.startswith("https://"))
+        self.assertIn("scp-wiki.wikijump.localhost/scp-9506", REFRESH.CANARY_URL)
+
     def test_container_identity_rejects_mutable_identity(self) -> None:
         with self.assertRaisesRegex(ValueError, "immutable container ID"):
             REFRESH.normalize_container_identity(

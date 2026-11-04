@@ -29,6 +29,7 @@ use deepwell::error::prelude::*;
 use deepwell::models::audit_log::{self, Entity as AuditLog};
 use deepwell::models::relation::{self, Entity as Relation};
 use deepwell::services::permission::PermissionService;
+use deepwell::services::relation::GetSiteBan;
 use deepwell::services::role::{
     GrantUserRoleInput, InternalCreateRoleInput, RoleService, UpdateRolePermissionsInput,
 };
@@ -1013,4 +1014,186 @@ async fn expiration_cleanup_does_not_remove_a_replacement_ban() {
         removal_events.is_empty(),
         "Stale cleanup emitted a removal audit event: {removal_events:?}",
     );
+}
+
+#[tokio::test]
+async fn site_ban_carries_over_when_banned_user_reregisters_with_same_email() {
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(request_actor(Some(ADMIN_USER_ID)));
+    let site_id = test_site_id(&runner).await;
+
+    let target = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Ban Carryover Target",
+            "email": "ban-carryover-target@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    run_endpoint!(
+        runner,
+        site_ban_set,
+        json!({
+            "site_id": site_id,
+            "user_id": target.user_id,
+            "metadata": {
+                "banned_until": null,
+                "reason": "carry-over fixture ban",
+            },
+            "created_by": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    runner.set_request_context(request_actor(Some(target.user_id)));
+    let deleted = run_endpoint!(
+        runner,
+        user_delete,
+        json!({
+            "user": target.user_id,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(deleted.deleted_at.is_some());
+
+    runner.set_request_context(request_actor(None));
+    let reregistered = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Ban Carryover Target",
+            "email": "ban-carryover-target@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_ne!(reregistered.user_id, target.user_id);
+
+    runner.set_request_context(request_actor(Some(ADMIN_USER_ID)));
+    let ban = run_endpoint!(
+        runner,
+        site_ban_get,
+        json!({
+            "site_id": site_id,
+            "user_id": reregistered.user_id,
+        }),
+    )
+    .expect("site ban should carry over to the re-registered account");
+    assert_eq!(ban.metadata["reason"], "carry-over fixture ban");
+
+    let error = RelationService::check_site_ban(
+        runner.context(),
+        GetSiteBan {
+            site_id,
+            user_id: reregistered.user_id,
+        },
+        "apply",
+    )
+    .await
+    .expect_err("carried-over ban should block site actions");
+    assert_contains_error!(error, ErrorType::SiteBannedUser);
+
+    let control = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Ban Carryover Control",
+            "email": "ban-carryover-control@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    let ban = run_endpoint!(
+        runner,
+        site_ban_get,
+        json!({
+            "site_id": site_id,
+            "user_id": control.user_id,
+        }),
+    );
+    assert!(
+        ban.is_none(),
+        "unrelated account should not inherit the ban"
+    );
+}
+
+#[tokio::test]
+async fn expired_site_ban_does_not_carry_over_to_reregistration() {
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(request_actor(Some(ADMIN_USER_ID)));
+    let site_id = test_site_id(&runner).await;
+
+    let target = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Ban Carryover Expired",
+            "email": "ban-carryover-expired@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    run_endpoint!(
+        runner,
+        site_ban_set,
+        json!({
+            "site_id": site_id,
+            "user_id": target.user_id,
+            "metadata": {
+                "banned_until": "2020-01-01",
+                "reason": "expired fixture ban",
+            },
+            "created_by": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    runner.set_request_context(request_actor(Some(target.user_id)));
+    let deleted = run_endpoint!(
+        runner,
+        user_delete,
+        json!({
+            "user": target.user_id,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(deleted.deleted_at.is_some());
+
+    runner.set_request_context(request_actor(None));
+    let reregistered = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Ban Carryover Expired",
+            "email": "ban-carryover-expired@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_ne!(reregistered.user_id, target.user_id);
+
+    RelationService::check_site_ban(
+        runner.context(),
+        GetSiteBan {
+            site_id,
+            user_id: reregistered.user_id,
+        },
+        "apply",
+    )
+    .await
+    .expect("expired ban should not carry over to the re-registered account");
 }

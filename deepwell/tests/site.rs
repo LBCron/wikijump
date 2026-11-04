@@ -29,7 +29,7 @@ use deepwell::models::alias::{self, Entity as AliasTable};
 use deepwell::models::audit_log::{Column as AuditLogColumn, Entity as AuditLogTable};
 use deepwell::models::relation::{Column as RelationColumn, Entity as RelationTable};
 use deepwell::models::role_permission::{self, Entity as RolePermissionTable};
-use deepwell::models::site::Entity as SiteTable;
+use deepwell::models::site::{Column as SiteColumn, Entity as SiteTable};
 use deepwell::models::user::{Column as UserColumn, Entity as UserTable};
 use deepwell::services::PageService;
 use deepwell::services::RequestContext;
@@ -2305,4 +2305,214 @@ async fn custom_domains_are_canonicalized_and_the_platform_apex_is_refused() {
             .await
             .expect("exists check failed")
     );
+}
+
+async fn create_site_as(
+    runner: &TestRunner,
+    slug: String,
+    actor_user_id: i64,
+) -> deepwell::services::site::CreateSiteOutput {
+    SiteService::create(
+        runner.context(),
+        CreateSite {
+            name: slug.clone(),
+            slug,
+            tagline: String::new(),
+            description: String::new(),
+            default_page: None,
+            layout: None,
+            license: License::CcBySa40,
+            locale: String::from("en"),
+            ip_address: common::IP_ADDRESS,
+        },
+        Some(actor_user_id),
+    )
+    .await
+    .expect("failed to create quota fixture site")
+}
+
+#[tokio::test]
+async fn site_create_reserved_platform_slugs_are_rejected() {
+    let mut runner = TestRunner::setup().await;
+    let n = next_n();
+    let actor_user_id = create_user(&runner, n, "reserved-slug-creator").await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(actor_user_id),
+        ..Default::default()
+    });
+
+    for slug in [
+        "support",
+        "help",
+        "admin",
+        "api",
+        "blog",
+        "mail",
+        "staff",
+        "official",
+        "login",
+        "register",
+        "static",
+        "app",
+        "cdn",
+        "security",
+        "abuse",
+        "files",
+        "auth",
+        "dashboard",
+    ] {
+        let error = run_endpoint_err!(
+            runner,
+            site_create,
+            json!({
+                "slug": slug,
+                "name": format!("Reserved slug fixture {slug}"),
+                "tagline": "",
+                "description": "",
+                "default_page": null,
+                "layout": null,
+                "license": "cc-by-sa-4.0",
+                "locale": "en",
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+        assert_contains_error!(error, ErrorType::BadRequest);
+    }
+
+    let created = run_endpoint!(
+        runner,
+        site_create,
+        json!({
+            "slug": format!("reserved-slug-control-{n}"),
+            "name": format!("Reserved slug control {n}"),
+            "tagline": "",
+            "description": "",
+            "default_page": null,
+            "layout": null,
+            "license": "cc-by-sa-4.0",
+            "locale": "en",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert!(created.site_id > 0);
+}
+
+#[tokio::test]
+async fn site_creation_quota_limits_burst_and_recovers_after_window() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let actor_user_id = create_user(&runner, n, "quota-creator").await;
+    let txn = runner.context().transaction();
+
+    let mut site_ids = Vec::new();
+    for i in 0..5 {
+        let site =
+            create_site_as(&runner, format!("quota-burst-{n}-{i}"), actor_user_id).await;
+        site_ids.push(site.site_id);
+    }
+
+    let error = SiteService::create(
+        runner.context(),
+        CreateSite {
+            slug: format!("quota-burst-{n}-extra"),
+            name: format!("Quota burst {n} extra"),
+            tagline: String::new(),
+            description: String::new(),
+            default_page: None,
+            layout: None,
+            license: License::CcBySa40,
+            locale: String::from("en"),
+            ip_address: common::IP_ADDRESS,
+        },
+        Some(actor_user_id),
+    )
+    .await
+    .expect_err("sixth site within 24 hours should be refused");
+    assert_contains_error!(error, ErrorType::RateLimited);
+
+    for site_id in &site_ids {
+        let site = SiteTable::find_by_id(*site_id)
+            .one(txn)
+            .await
+            .expect("quota fixture site lookup should succeed")
+            .expect("quota fixture site should exist");
+        let backdated = site.created_at - time::Duration::hours(25);
+        let mut active = site.into_active_model();
+        active.created_at = Set(backdated);
+        active
+            .update(txn)
+            .await
+            .expect("quota fixture site backdating should succeed");
+    }
+
+    create_site_as(
+        &runner,
+        format!("quota-burst-{n}-after-window"),
+        actor_user_id,
+    )
+    .await;
+
+    let live_count = SiteTable::find()
+        .filter(SiteColumn::MasterAdminUserId.eq(actor_user_id))
+        .filter(SiteColumn::DeletedAt.is_null())
+        .count(txn)
+        .await
+        .expect("live site count should succeed");
+    assert_eq!(live_count, 6);
+
+    for i in live_count..100 {
+        deepwell::models::site::ActiveModel {
+            slug: Set(format!("quota-total-{n}-{i}")),
+            name: Set(format!("Quota total fixture {n} {i}")),
+            tagline: Set(String::new()),
+            description: Set(String::new()),
+            locale: Set(String::from("en")),
+            license: Set(License::CcBySa40),
+            master_admin_user_id: Set(Some(actor_user_id)),
+            created_at: Set(time::OffsetDateTime::now_utc() - time::Duration::days(2)),
+            ..Default::default()
+        }
+        .insert(txn)
+        .await
+        .expect("quota total fixture insert should succeed");
+    }
+
+    let error = SiteService::create(
+        runner.context(),
+        CreateSite {
+            slug: format!("quota-total-{n}-extra"),
+            name: format!("Quota total {n} extra"),
+            tagline: String::new(),
+            description: String::new(),
+            default_page: None,
+            layout: None,
+            license: License::CcBySa40,
+            locale: String::from("en"),
+            ip_address: common::IP_ADDRESS,
+        },
+        Some(actor_user_id),
+    )
+    .await
+    .expect_err("site beyond the total live-site limit should be refused");
+    assert_contains_error!(error, ErrorType::RateLimited);
+
+    let fixture = SiteTable::find()
+        .filter(SiteColumn::Slug.eq(format!("quota-total-{n}-6")))
+        .one(txn)
+        .await
+        .expect("quota total fixture lookup should succeed")
+        .expect("quota total fixture should exist");
+    let mut active = fixture.into_active_model();
+    active.deleted_at = Set(Some(time::OffsetDateTime::now_utc()));
+    active
+        .update(txn)
+        .await
+        .expect("quota total fixture soft-delete should succeed");
+
+    create_site_as(
+        &runner,
+        format!("quota-total-{n}-after-delete"),
+        actor_user_id,
+    )
+    .await;
 }

@@ -40,7 +40,8 @@ use ftml::layout::Layout;
 use paste::paste;
 use sea_orm::NotSet;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, QueryFilter, QuerySelect, Set,
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, PaginatorTrait, QueryFilter,
+    QuerySelect, Set,
 };
 use std::net::IpAddr;
 use std::str::FromStr;
@@ -50,6 +51,59 @@ use wikidot_normalize::normalize;
 pub struct SiteService;
 
 const RESERVED_PLATFORM_HOSTNAME_SLUGS: &[&str] = &["acme", "dns", "ech"];
+const RESERVED_PLATFORM_SITE_SLUGS: &[&str] = &[
+    "abuse",
+    "account",
+    "accounts",
+    "admin",
+    "api",
+    "app",
+    "assets",
+    "auth",
+    "billing",
+    "blog",
+    "cdn",
+    "dashboard",
+    "developer",
+    "developers",
+    "docs",
+    "files",
+    "ftp",
+    "git",
+    "help",
+    "imap",
+    "internal",
+    "localhost",
+    "login",
+    "mail",
+    "metrics",
+    "mx",
+    "ns1",
+    "ns2",
+    "official",
+    "ops",
+    "platform",
+    "pop",
+    "privacy",
+    "register",
+    "root",
+    "security",
+    "settings",
+    "signup",
+    "smtp",
+    "staff",
+    "static",
+    "status",
+    "support",
+    "system",
+    "terms",
+    "uploads",
+    "webmaster",
+    "www",
+];
+const SITE_CREATION_DAILY_LIMIT: u64 = 5;
+const SITE_CREATION_TOTAL_LIMIT: u64 = 100;
+const SITE_CREATION_WINDOW: time::Duration = time::Duration::hours(24);
 const LOCAL_FILE_SOURCE_PREFIX: &str = "/local--files/";
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
@@ -226,6 +280,12 @@ impl SiteService {
         Self::check_conflicts(ctx, &slug, "create")
             .await
             .or_raise(make_error)?;
+
+        if let Some(actor_user_id) = actor_user_id {
+            Self::check_creation_limits(ctx, &slug, actor_user_id)
+                .await
+                .or_raise(make_error)?;
+        }
 
         validate_locale(&locale)?;
 
@@ -946,6 +1006,73 @@ impl SiteService {
         })
     }
 
+    async fn check_creation_limits(
+        ctx: &ServiceContext<'_>,
+        slug: &str,
+        actor_user_id: i64,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        let make_error = || {
+            Error::new(
+                format!(
+                    "failed to check site creation limits for user ID {actor_user_id}",
+                ),
+                ErrorType::Site,
+            )
+        };
+
+        if is_reserved_platform_site_slug(slug) {
+            error!("Cannot create site with reserved platform slug '{slug}'");
+            bail!(Error::new(
+                format!(
+                    "cannot create site, site slug '{slug}' is reserved by the platform",
+                ),
+                ErrorType::BadRequest,
+            ));
+        }
+
+        let live_sites = Site::find().filter(
+            Condition::all()
+                .add(site::Column::MasterAdminUserId.eq(actor_user_id))
+                .add(site::Column::DeletedAt.is_null()),
+        );
+
+        let recent_creations = live_sites
+            .clone()
+            .filter(site::Column::CreatedAt.gte(now() - SITE_CREATION_WINDOW))
+            .count(txn)
+            .await
+            .or_raise(make_error)?;
+
+        if recent_creations >= SITE_CREATION_DAILY_LIMIT {
+            error!(
+                "User ID {actor_user_id} cannot create site '{slug}', daily creation limit reached",
+            );
+            bail!(Error::new(
+                format!(
+                    "cannot create site, account has reached the limit of {SITE_CREATION_DAILY_LIMIT} new sites per 24 hours",
+                ),
+                ErrorType::RateLimited,
+            ));
+        }
+
+        let total_creations = live_sites.count(txn).await.or_raise(make_error)?;
+
+        if total_creations >= SITE_CREATION_TOTAL_LIMIT {
+            error!(
+                "User ID {actor_user_id} cannot create site '{slug}', total creation limit reached",
+            );
+            bail!(Error::new(
+                format!(
+                    "cannot create site, account has reached the limit of {SITE_CREATION_TOTAL_LIMIT} live sites",
+                ),
+                ErrorType::RateLimited,
+            ));
+        }
+
+        Ok(())
+    }
+
     async fn check_conflicts(
         ctx: &ServiceContext<'_>,
         slug: &str,
@@ -1028,6 +1155,15 @@ async fn validate_settings_page(
     }
 }
 
+pub(crate) fn is_reserved_platform_site_slug(slug: &str) -> bool {
+    let mut canonical = slug.to_owned();
+    normalize(&mut canonical);
+    let canonical = canonical.trim_end_matches('.');
+    RESERVED_PLATFORM_SITE_SLUGS
+        .iter()
+        .any(|reserved| canonical.eq_ignore_ascii_case(reserved))
+}
+
 pub(crate) fn is_reserved_platform_hostname_slug(slug: &str) -> bool {
     let mut canonical = slug.to_owned();
     normalize(&mut canonical);
@@ -1040,7 +1176,8 @@ pub(crate) fn is_reserved_platform_hostname_slug(slug: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{
-        SiteIconSourceKind, is_reserved_platform_hostname_slug, is_site_owned_icon_source,
+        SiteIconSourceKind, is_reserved_platform_hostname_slug,
+        is_reserved_platform_site_slug, is_site_owned_icon_source,
     };
     use wikidot_normalize::normalize;
 
@@ -1050,6 +1187,39 @@ mod tests {
             assert!(
                 is_reserved_platform_hostname_slug(slug),
                 "{slug} should be reserved",
+            );
+        }
+    }
+
+    #[test]
+    fn squatted_and_platform_site_slugs_are_reserved() {
+        for slug in [
+            "support", "help", "admin", "api", "blog", "mail", "staff", "official",
+            "login", "register", "static", "app", "cdn", "security", "abuse", "www",
+            "files", "SUPPORT", "Admin", "api.",
+        ] {
+            assert!(
+                is_reserved_platform_site_slug(slug),
+                "{slug} should be a reserved platform site slug",
+            );
+        }
+    }
+
+    #[test]
+    fn ordinary_site_slugs_are_not_reserved() {
+        for slug in [
+            "scp-wiki",
+            "my-wiki",
+            "support-group",
+            "helpdesk",
+            "admins",
+            "static-site",
+            "example",
+            "test",
+        ] {
+            assert!(
+                !is_reserved_platform_site_slug(slug),
+                "{slug} should not be a reserved platform site slug",
             );
         }
     }

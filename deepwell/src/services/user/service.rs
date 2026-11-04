@@ -37,7 +37,7 @@ use crate::services::email::{
     EmailClassification, EmailService, EmailTokenService, EmailValidationOutput,
 };
 use crate::services::filter::{FilterClass, FilterType};
-use crate::services::{AliasService, FilterService, PasswordService};
+use crate::services::{AliasService, FilterService, PasswordService, RelationService};
 use crate::types::{AliasType, UserType};
 use crate::types::{Maybe, Reference};
 use crate::utils::confusable_skeleton;
@@ -525,6 +525,12 @@ impl UserService {
         AuditService::log(ctx, ip_address, AuditEvent::UserCreate { user_id })
             .await
             .or_raise(make_error)?;
+
+        if user_type == UserType::Regular && !reuse_existing_known_user {
+            RelationService::carry_over_site_bans(ctx, user_id, &email, ip_address)
+                .await
+                .or_raise(make_error)?;
+        }
 
         Ok(CreateUserOutput { user_id, slug })
     }

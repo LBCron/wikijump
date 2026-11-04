@@ -8,7 +8,7 @@ import {
   historyEntryMatchesTypes,
   historyPagerModel,
   paginateHistoryEntries
-} from "../src/lib/wikidot-history-contract.js"
+} from "../src/lib/wikidot-history-contract.ts"
 
 const pageEntry = (changes, revisionType = "regular") => ({
   history_kind: "page",

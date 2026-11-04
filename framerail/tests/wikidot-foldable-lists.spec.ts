@@ -1,6 +1,6 @@
 import { expect, test } from "./hermetic-playwright"
 
-import { wikidotFoldableLists } from "../src/lib/wikidot/wikidot-foldable-lists.js"
+import { wikidotFoldableLists } from "../src/lib/wikidot/wikidot-foldable-lists.ts"
 
 test("native foldable menus preserve independent controls, replacement initialization and cleanup", async ({
   page

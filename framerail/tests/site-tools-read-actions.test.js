@@ -8,7 +8,7 @@ import {
   renderWikidotSiteTools,
   renderWikidotWantedPages
 } from "../src/lib/server/wikidot-site-tools.js"
-import { requestWikidotSiteToolsModule } from "../src/lib/wikidot/wikidot-site-tools.js"
+import { requestWikidotSiteToolsModule } from "../src/lib/wikidot/wikidot-site-tools.ts"
 
 /** @param {any} form */
 const request = (form) =>

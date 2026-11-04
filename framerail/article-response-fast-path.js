@@ -15,7 +15,7 @@ import {
   renewCspNonce
 } from "./src/lib/server/cache/article-response/entry.js"
 import { applyStaticSecurityHeadersToNodeResponse } from "./src/lib/server/security-headers.js"
-import { parseAcceptLangHeader, withFallbackLocale } from "./src/lib/locales.js"
+import { parseAcceptLangHeader, withFallbackLocale } from "./src/lib/locales.ts"
 import { promisify } from "node:util"
 import zlib from "node:zlib"
 import { randomBytes } from "node:crypto"

@@ -7,7 +7,7 @@ import {
   initialUserInfoTabState,
   selectUserInfoTab,
   userInfoTabClass
-} from "../src/lib/user-info-tabs.js"
+} from "../src/lib/user-info-tabs.ts"
 
 const evidenceFile = new URL(
   "../../install/local/wikidot-verification/artifacts/userinfo-tab-switching-live-20261022.json",

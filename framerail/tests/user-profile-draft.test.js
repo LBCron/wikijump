@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { acceptedSnapshot, partialPatch } from "../src/lib/user-profile-draft.js"
+import { acceptedSnapshot, partialPatch } from "../src/lib/user-profile-draft.ts"
 
 const persistedUser = {
   name: "Rokurokubi",

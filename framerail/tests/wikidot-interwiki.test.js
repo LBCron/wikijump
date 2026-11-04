@@ -5,8 +5,8 @@ import {
   buildWikidotInterwikiFrameHtml,
   extractWikidotInterwikiLinks
 } from "../src/lib/wikidot/wikidot-interwiki.ts"
-import { installWikidotInterwikiStyleRuntime } from "../src/lib/wikidot/wikidot-interwiki-style-runtime.js"
-import { localizeWikidotThemeUrl } from "../src/lib/wikidot/wikidot-styleframe-contract.js"
+import { installWikidotInterwikiStyleRuntime } from "../src/lib/wikidot/wikidot-interwiki-style-runtime.ts"
+import { localizeWikidotThemeUrl } from "../src/lib/wikidot/wikidot-styleframe-contract.ts"
 import {
   WIKIDOT_STYLE_FRAME_SCRIPT,
   buildWikidotStyleFrameHtml

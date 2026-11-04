@@ -2,7 +2,7 @@ import { expect, test, waitForSvelteDelegatedHandler } from "./hermetic-playwrig
 import {
   filterHistoryByTypes,
   paginateHistoryEntries
-} from "../src/lib/wikidot-history-contract.js"
+} from "../src/lib/wikidot-history-contract.ts"
 
 const SITE_HEADERS = {
   "X-Wikijump-Site-Id": "6000005",

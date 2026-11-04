@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url"
 import {
   wikidotPageSourceHtml,
   wikidotRevisionSourceHtml
-} from "../src/lib/wikidot-history-contract.js"
+} from "../src/lib/wikidot-history-contract.ts"
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const evidence = "framerail/tests/fixtures/native-revision-source"

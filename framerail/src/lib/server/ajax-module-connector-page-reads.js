@@ -4,7 +4,7 @@ import {
   wikidotRevisionDate,
   wikidotRevisionFlags,
   wikidotRevisionSourceHtml
-} from "../wikidot-history-contract.js"
+} from "../wikidot-history-contract.ts"
 
 /** @param {string} value */
 const escapeHtml = (value) =>

@@ -8,7 +8,7 @@ import {
   builtInThemeHeadHtml,
   customThemeHeadHtml,
   normalizeThemeSetting
-} from "../src/lib/site-settings.js"
+} from "../src/lib/site-settings.ts"
 
 const ORIGIN = "http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--theme"
 const THEME_URL = (dir) => `${ORIGIN}/${dir}/css/style.css`

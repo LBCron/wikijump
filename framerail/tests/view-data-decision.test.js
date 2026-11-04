@@ -4,7 +4,7 @@ import test from "node:test"
 import {
   resolveCanonicalViewData,
   resolveCanonicalViewMetadata
-} from "../src/lib/view-data-decision.js"
+} from "../src/lib/view-data-decision.ts"
 
 const fixture = (label) => ({
   site: { locale: `${label}-locale` },

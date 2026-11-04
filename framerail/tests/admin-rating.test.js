@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 
-import { ratingFormValues } from "../src/lib/admin-rating.js"
+import { ratingFormValues } from "../src/lib/admin-rating.ts"
 
 /** @type {NonNullable<Parameters<typeof ratingFormValues>[1]>} */
 const defaultCategory = {

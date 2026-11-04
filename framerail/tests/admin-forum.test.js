@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { discussionFormValues, discussionUpdateValue } from "../src/lib/admin-forum.js"
+import { discussionFormValues, discussionUpdateValue } from "../src/lib/admin-forum.ts"
 
 test("forum discussion form preserves Wikidot default, enable, and disable states", () => {
   assert.deepEqual(

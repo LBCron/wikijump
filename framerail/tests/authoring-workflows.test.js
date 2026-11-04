@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { readFile } from "node:fs/promises"
 import { describe, it } from "node:test"
 
-import { parseUserLocalePreferences } from "../src/lib/user-settings.js"
+import { parseUserLocalePreferences } from "../src/lib/user-settings.ts"
 
 describe("authoring workflows", () => {
   it("normalizes ordered display-language preferences before persistence", () => {

@@ -6,7 +6,7 @@ import {
   submitWikidotTopSearch,
   wikidotSearchAllPath,
   wikidotSearchPath
-} from "../src/lib/wikidot/wikidot-search.js"
+} from "../src/lib/wikidot/wikidot-search.ts"
 
 test("Wikidot top search preserves and path-encodes the submitted query", () => {
   assert.equal(

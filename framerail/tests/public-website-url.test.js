@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { normalizePublicWebsiteUrl } from "../src/lib/public-website-url.js"
+import { normalizePublicWebsiteUrl } from "../src/lib/public-website-url.ts"
 
 test("normalizes public website values to HTTP(S) links", () => {
   assert.equal(normalizePublicWebsiteUrl("https://example.org"), "https://example.org/")

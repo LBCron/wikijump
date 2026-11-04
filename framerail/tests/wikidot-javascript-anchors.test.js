@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 
-import { installJavascriptAnchorGuard } from "../src/lib/wikidot/wikidot-javascript-anchors.js"
+import { installJavascriptAnchorGuard } from "../src/lib/wikidot/wikidot-javascript-anchors.ts"
 
 const fakeRoot = () => {
   const listeners = new Set()

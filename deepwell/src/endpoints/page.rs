@@ -1018,7 +1018,7 @@ pub async fn page_watchers(
             .await
             .or_raise(make_error)?;
         let Some(identity) = user.and_then(|user| user.into_public_identity()) else {
-            return Err(make_error().into());
+            continue;
         };
         watchers.push(identity);
     }

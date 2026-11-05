@@ -24,8 +24,8 @@ use rand::distr::{Alphanumeric, SampleString};
 use sea_orm::prelude::IpNetwork;
 use sea_orm::sea_query::Expr;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
-    Set,
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseBackend, EntityTrait,
+    QueryFilter, QueryOrder, Set, Statement, Value,
 };
 use serde::{Deserialize, Serialize};
 use time::Duration;
@@ -33,6 +33,7 @@ use time::Duration;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::hash::{TextHexHash, k12_hash, text_hash_to_hex};
 use crate::models::email_token::{self, Entity as EmailToken};
+use crate::services::AuthenticationAttemptService;
 use crate::services::ServiceContext;
 use crate::utils::{assert_is_csprng, now};
 
@@ -44,8 +45,8 @@ const DELETE_GRANT_TTL: Duration = Duration::minutes(15);
 
 const RESEND_COOLDOWN: Duration = Duration::seconds(60);
 
-const ISSUE_IP_MAX: u64 = 10;
-const ISSUE_IP_WINDOW: Duration = Duration::minutes(15);
+const ISSUE_ACCOUNT_MAX: i64 = 10;
+const ISSUE_ACCOUNT_WINDOW_SECONDS: i64 = 900;
 
 const TOKEN_LENGTH: usize = 48;
 
@@ -198,12 +199,9 @@ impl EmailTokenService {
         let transaction = ctx.transaction();
         let now = now();
 
+        Self::lock_issuance(ctx, user_id).await?;
         Self::delete_expired(ctx, user_id, purpose).await?;
         Self::delete_consumed(ctx, user_id, purpose).await?;
-
-        if Self::address_over_bound(ctx, &ip_address, purpose, now).await? {
-            return Ok(IssueEmailTokenOutcome::Suppressed);
-        }
 
         if let Some(newest) = EmailToken::find()
             .filter(email_token::Column::UserId.eq(user_id))
@@ -225,6 +223,17 @@ impl EmailTokenService {
                 .exec(transaction)
                 .await
                 .or_raise(make_error)?;
+        }
+
+        if !AuthenticationAttemptService::reserve(
+            ctx,
+            &AuthenticationAttemptService::email_issue_user_bucket(user_id),
+            ISSUE_ACCOUNT_MAX,
+            ISSUE_ACCOUNT_WINDOW_SECONDS,
+        )
+        .await?
+        {
+            return Ok(IssueEmailTokenOutcome::Suppressed);
         }
 
         let issued = Self::insert_token(ctx, user_id, email, purpose, ip_address).await?;
@@ -407,25 +416,21 @@ impl EmailTokenService {
         Ok(())
     }
 
-    async fn address_over_bound(
-        ctx: &ServiceContext<'_>,
-        ip_address: &IpAddr,
-        purpose: EmailTokenPurpose,
-        now: time::OffsetDateTime,
-    ) -> Result<bool> {
-        let recent = EmailToken::find()
-            .filter(email_token::Column::CreatedIp.eq(IpNetwork::from(*ip_address)))
-            .filter(email_token::Column::Purpose.eq(purpose.as_str()))
-            .filter(email_token::Column::CreatedAt.gt(now - ISSUE_IP_WINDOW))
-            .count(ctx.transaction())
+    async fn lock_issuance(ctx: &ServiceContext<'_>, user_id: i64) -> Result<()> {
+        ctx.transaction()
+            .execute_raw(Statement::from_sql_and_values(
+                DatabaseBackend::Postgres,
+                "SELECT pg_advisory_xact_lock(hashtextextended('email-issue-user:' || $1::TEXT, 0))",
+                [Value::from(user_id)],
+            ))
             .await
             .or_raise(|| {
                 Error::new(
-                    format!("failed to count recent {} issues", purpose.as_str()),
+                    "failed to serialize email token issuance",
                     ErrorType::Email,
                 )
             })?;
-        Ok(recent >= ISSUE_IP_MAX)
+        Ok(())
     }
 
     fn generate() -> String {

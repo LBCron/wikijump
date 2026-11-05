@@ -34,6 +34,17 @@ services:
     pull_policy: never
     restart: unless-stopped
     network_mode: "service:caddy"
+    # Sized from the Deepwell pool, not from PostgreSQL's default: 32 serving
+    # connections + 32 for the render-ahead container + 3 superuser-reserved
+    # + maintenance headroom. Parallel query is off because this topology
+    # targets a small single node; each parallel worker is another backend
+    # process (docs/development/PLAN-memory-reduction.md, phases 3 and 5).
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=80"
+      - "-c"
+      - "max_parallel_workers_per_gather=0"
     environment:
       POSTGRES_DB: wikijump
       POSTGRES_USER: wikijump
@@ -64,6 +75,15 @@ services:
       MINIO_REGION_NAME: local
       INITIAL_BUCKETS: deepwell-files deepwell-text-blocks
       DATA_DIR: /data
+      # Soft Go heap target. Measured standing resident memory was 358 MiB
+      # (358,176 KiB VmRSS; 351 MiB PSS) before this setting; the limit leaves
+      # headroom for file traffic while bounding growth (PLAN-memory-reduction
+      # phase 2, intervention 8). The pgsty/silo fork honors both variables:
+      # with MINIO_BROWSER=off the console does not listen even when the
+      # entrypoint passes --console-address (verified 2026-11-05).
+      GOMEMLIMIT: "512MiB"
+      MINIO_BROWSER: "off"
+      MINIO_API_REQUESTS_MAX: "100"
     volumes:
       - wikijump-standing-files-data:/data
     labels:
@@ -112,6 +132,11 @@ services:
       S3_SECRET_ACCESS_KEY: defaultpassword
       DEEPWELL_RPC_TOKEN: ${DEEPWELL_RPC_TOKEN:?DEEPWELL_RPC_TOKEN is required}
       DEEPWELL_BUILD_PROFILE: release
+      # glibc creates up to 8 malloc arenas per core and rarely returns their
+      # freed pages; Tokio starts one worker per core. Both are sized to the
+      # host, not the workload (PLAN-memory-reduction phase 2, intervention 3).
+      MALLOC_ARENA_MAX: "2"
+      TOKIO_WORKER_THREADS: "2"
     volumes:
       - type: bind
         source: ./deepwell/config.toml
@@ -153,6 +178,12 @@ services:
       BODY_SIZE_LIMIT: "2097152"
       FRAMERAIL_MODE: built
       FRAMERAIL_ENV: local
+      # Without a cgroup limit V8 sizes its heap from the whole host (~4 GiB
+      # here) and collects lazily. Measured standing Framerail peak was 177 MiB
+      # of cgroup memory (85 MiB resident at idle), so 512 MiB is a guardrail
+      # above the working set, not a tight budget (PLAN-memory-reduction
+      # phase 2, intervention 7).
+      NODE_OPTIONS: "--max-old-space-size=512"
       FRAMERAIL_CSRF_CHECK_ORIGIN: "true"
       REDIS_URL: redis://127.0.0.1:6379
       WIKIJUMP_STARTUP_READINESS: "true"
@@ -185,6 +216,8 @@ services:
       S3_ACCESS_KEY_ID: minio
       S3_SECRET_ACCESS_KEY: defaultpassword
       WWS_BUILD_PROFILE: release
+      MALLOC_ARENA_MAX: "2"
+      TOKIO_WORKER_THREADS: "2"
     labels:
       <<: *runtime-labels
       com.rokurolize.wikijump.role: wws
@@ -207,6 +240,11 @@ services:
     environment:
       DEEPWELL_RPC_TOKEN: ${DEEPWELL_RPC_TOKEN:?DEEPWELL_RPC_TOKEN is required}
       WIKIJUMP_STARTUP_READINESS: "true"
+      # Soft Go heap target. Measured standing Caddy resident memory was 64 MiB
+      # (51 MiB anonymous). Caddy is the network-namespace anchor for every
+      # other service, so this stays generous and is never a hard limit
+      # (PLAN-memory-reduction phase 2, intervention 8).
+      GOMEMLIMIT: "128MiB"
     ports:
       - "127.0.0.1:80:80"
       - "127.0.0.1:443:443"

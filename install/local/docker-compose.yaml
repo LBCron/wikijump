@@ -75,6 +75,12 @@ services:
       - "S3_ACCESS_KEY_ID=minio"
       - "S3_SECRET_ACCESS_KEY=defaultpassword"
       - "DEEPWELL_BUILD_PROFILE=${DEEPWELL_BUILD_PROFILE:-debug}"
+      # The development tier runs many stacks at once on one workstation.
+      # glibc otherwise keeps up to 8 arenas per core resident and Tokio starts
+      # one worker per core (PLAN-memory-reduction phase 2, intervention 3).
+      - "MALLOC_ARENA_MAX=2"
+      - "TOKIO_WORKER_THREADS=${TOKIO_WORKER_THREADS:-4}"
+      # Keep rustc peaks bounded: every lane on the box shares one CPU budget.
       - "CARGO_BUILD_JOBS=${CARGO_BUILD_JOBS:-2}"
       - "CARGO_INCREMENTAL=1"
       - "CARGO_TARGET_DIR=/src/target"
@@ -155,6 +161,8 @@ services:
       - "S3_ACCESS_KEY_ID=minio"
       - "S3_SECRET_ACCESS_KEY=defaultpassword"
       - "WWS_BUILD_PROFILE=${WWS_BUILD_PROFILE:-debug}"
+      - "MALLOC_ARENA_MAX=2"
+      - "TOKIO_WORKER_THREADS=${TOKIO_WORKER_THREADS:-4}"
       - "CARGO_BUILD_JOBS=${CARGO_BUILD_JOBS:-2}"
       - "CARGO_INCREMENTAL=1"
       - "CARGO_TARGET_DIR=/src/target"

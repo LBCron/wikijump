@@ -21,18 +21,16 @@
 use super::get_site_id;
 use crate::attachment::content_disposition_attachment;
 use crate::deepwell::FileData;
-use crate::fetch::{
-    fetch_file_info, fetch_full_body, fetch_range_bytes, fetch_range_stream,
-};
+use crate::fetch::{fetch_file_info, fetch_full_body, fetch_range_stream};
 use crate::range::{ByteRange, ParsedRange, evaluate_range};
 use crate::state::ServerState;
-use axum::body::Body;
+use axum::body::{Body, Bytes};
 use axum::extract::{Path, State};
 use axum::http::header::{self, HeaderMap};
 use axum::http::{Method, StatusCode, Uri};
 use axum::response::{IntoResponse, Response};
+use futures_util::stream::{self, Stream, StreamExt};
 use rand::distr::{Alphanumeric, SampleString};
-use std::fmt::Write;
 
 /// Prefix for MIME boundaries used in `multipart/byteranges` responses.
 ///
@@ -260,14 +258,14 @@ async fn serve_multi_range(
 ) -> Response {
     let boundary = generate_multipart_boundary();
     let content_type = format!("multipart/byteranges; boundary={boundary}");
+    let content_length = multipart_content_length(
+        &boundary,
+        params.content_type,
+        ranges,
+        params.file_size,
+    );
 
     if params.is_head {
-        let len = multipart_content_length(
-            &boundary,
-            params.content_type,
-            ranges,
-            params.file_size,
-        );
         return build_or_500(
             base_headers(
                 StatusCode::PARTIAL_CONTENT,
@@ -277,16 +275,16 @@ async fn serve_multi_range(
                 params.filename,
             )
             .header(header::CONTENT_TYPE, content_type)
-            .header(header::CONTENT_LENGTH, len)
+            .header(header::CONTENT_LENGTH, content_length)
             .body(Body::empty()),
         );
     }
 
-    let mut body = Vec::new();
+    let mut range_bodies = Vec::with_capacity(ranges.len());
 
     for range in ranges {
-        let data = match fetch_range_bytes(state, file_info, *range).await {
-            Ok(d) => d,
+        match fetch_range_stream(state, file_info, *range).await {
+            Ok(body) => range_bodies.push(body),
             Err(error) => {
                 error!(
                     s3_hash = &file_info.s3_hash,
@@ -296,23 +294,8 @@ async fn serve_multi_range(
                 );
                 return StatusCode::INTERNAL_SERVER_ERROR.into_response();
             }
-        };
-
-        let mut part_header = String::new();
-        let _ = write!(
-            part_header,
-            "--{boundary}\r\n\
-             Content-Type: {}\r\n\
-             Content-Range: bytes {}-{}/{}\r\n\
-             \r\n",
-            params.content_type, range.start, range.end, params.file_size,
-        );
-        body.extend_from_slice(part_header.as_bytes());
-        body.extend_from_slice(&data);
-        body.extend_from_slice(b"\r\n");
+        }
     }
-
-    body.extend_from_slice(format!("--{boundary}--\r\n").as_bytes());
 
     build_or_500(
         base_headers(
@@ -323,9 +306,36 @@ async fn serve_multi_range(
             params.filename,
         )
         .header(header::CONTENT_TYPE, content_type)
-        .header(header::CONTENT_LENGTH, body.len())
-        .body(Body::from(body)),
+        .header(header::CONTENT_LENGTH, content_length)
+        .body(Body::from_stream(multipart_body_stream(
+            boundary,
+            params.content_type.to_owned(),
+            ranges.to_vec(),
+            params.file_size,
+            range_bodies,
+        ))),
     )
+}
+
+/// Streams the multipart body so range bytes are never buffered.
+fn multipart_body_stream(
+    boundary: String,
+    mime: String,
+    ranges: Vec<ByteRange>,
+    file_size: u64,
+    range_bodies: Vec<Body>,
+) -> impl Stream<Item = Result<Bytes, axum::Error>> {
+    let closing = Bytes::from(multipart_closing_boundary(&boundary));
+
+    stream::iter(ranges.into_iter().zip(range_bodies))
+        .flat_map(move |(range, body)| {
+            let header =
+                Bytes::from(multipart_part_header(&boundary, &mime, range, file_size));
+            stream::iter([Ok::<Bytes, axum::Error>(header)])
+                .chain(body.into_data_stream())
+                .chain(stream::iter([Ok(Bytes::from_static(b"\r\n"))]))
+        })
+        .chain(stream::iter([Ok(closing)]))
 }
 
 pub async fn handle_local_file(
@@ -516,27 +526,38 @@ fn generate_multipart_boundary() -> String {
     boundary
 }
 
+fn multipart_part_header(
+    boundary: &str,
+    mime: &str,
+    range: ByteRange,
+    file_size: u64,
+) -> String {
+    format!(
+        "--{boundary}\r\n\
+         Content-Type: {mime}\r\n\
+         Content-Range: bytes {}-{}/{file_size}\r\n\
+         \r\n",
+        range.start, range.end,
+    )
+}
+
+fn multipart_closing_boundary(boundary: &str) -> String {
+    format!("--{boundary}--\r\n")
+}
+
 fn multipart_content_length(
     boundary: &str,
     mime: &str,
     ranges: &[ByteRange],
     file_size: u64,
 ) -> usize {
-    let mut len: usize = 0;
+    let mut len = 0;
     for range in ranges {
-        len += 2 + boundary.len() + 2;
-        len += "Content-Type: ".len() + mime.len() + 2;
-        let cr = format!(
-            "Content-Range: bytes {}-{}/{file_size}\r\n",
-            range.start, range.end
-        );
-        len += cr.len();
-        len += 2;
+        len += multipart_part_header(boundary, mime, *range, file_size).len();
         len += range.len() as usize;
         len += 2;
     }
-    len += 2 + boundary.len() + 2 + 2;
-    len
+    len + multipart_closing_boundary(boundary).len()
 }
 
 #[cfg(test)]
@@ -888,6 +909,122 @@ mod tests {
             requests,
             handle,
         }
+    }
+
+    /// S3 mock that sends each response's headers and first body chunk, then
+    /// holds the rest of the body until released.
+    fn spawn_held_body_s3_server(
+        responses: Vec<(u16, &'static [u8])>,
+        first_chunk_len: usize,
+        hold: Duration,
+    ) -> (S3Server, Vec<std::sync::mpsc::Sender<()>>) {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let endpoint = format!("http://{}", listener.local_addr().unwrap());
+        let requests = Arc::new(Mutex::new(Vec::new()));
+        let server_requests = Arc::clone(&requests);
+        let (releases, receivers): (
+            Vec<std::sync::mpsc::Sender<()>>,
+            Vec<std::sync::mpsc::Receiver<()>>,
+        ) = responses.iter().map(|_| std::sync::mpsc::channel()).unzip();
+
+        let handle = thread::spawn(move || {
+            let mut receivers = receivers.into_iter();
+            let mut workers = Vec::new();
+            let accept_deadline = std::time::Instant::now() + Duration::from_secs(5);
+
+            for (status, body) in responses {
+                let mut stream = loop {
+                    match listener.accept() {
+                        Ok((stream, _)) => break stream,
+                        Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                            if std::time::Instant::now() >= accept_deadline {
+                                return;
+                            }
+                            thread::sleep(Duration::from_millis(1));
+                        }
+                        Err(error) => panic!("mock S3 accept failed: {error}"),
+                    }
+                };
+                stream.set_nonblocking(false).unwrap();
+
+                let release = receivers.next().unwrap();
+                let worker_requests = Arc::clone(&server_requests);
+                workers.push(thread::spawn(move || {
+                    serve_held_body_response(
+                        &mut stream,
+                        status,
+                        body,
+                        first_chunk_len,
+                        hold,
+                        &release,
+                        &worker_requests,
+                    );
+                }));
+            }
+
+            for worker in workers {
+                worker.join().unwrap();
+            }
+        });
+
+        (
+            S3Server {
+                endpoint,
+                requests,
+                handle,
+            },
+            releases,
+        )
+    }
+
+    fn serve_held_body_response(
+        stream: &mut std::net::TcpStream,
+        status: u16,
+        body: &'static [u8],
+        first_chunk_len: usize,
+        hold: Duration,
+        release: &std::sync::mpsc::Receiver<()>,
+        requests: &Arc<Mutex<Vec<String>>>,
+    ) {
+        stream
+            .set_read_timeout(Some(Duration::from_secs(2)))
+            .unwrap();
+
+        let mut raw = Vec::new();
+        let mut chunk = [0_u8; 1024];
+        loop {
+            let read = stream.read(&mut chunk).unwrap();
+            if read == 0 {
+                break;
+            }
+            raw.extend_from_slice(&chunk[..read]);
+            if raw.windows(4).any(|window| window == b"\r\n\r\n") {
+                break;
+            }
+        }
+
+        requests
+            .lock()
+            .unwrap()
+            .push(String::from_utf8_lossy(&raw).into_owned());
+
+        let response = format!(
+            concat!(
+                "HTTP/1.1 {status} OK\r\n",
+                "Content-Length: {length}\r\n",
+                "Content-Type: application/octet-stream\r\n",
+                "ETag: \"test-etag\"\r\n",
+                "Connection: close\r\n",
+                "\r\n",
+            ),
+            status = status,
+            length = body.len(),
+        );
+        stream.write_all(response.as_bytes()).unwrap();
+        stream.write_all(&body[..first_chunk_len]).unwrap();
+        let _ = release.recv_timeout(hold);
+        let _ = stream.write_all(&body[first_chunk_len..]);
     }
 
     fn file_data(size: i64) -> FileData {
@@ -1796,6 +1933,80 @@ mod tests {
                 .to_ascii_lowercase()
                 .contains("range: bytes=3-4"),
         );
+        server.join();
+    }
+
+    #[tokio::test]
+    async fn serve_get_multi_range_streams_parts_without_buffering_them() {
+        let (server, releases) = spawn_held_body_s3_server(
+            vec![(206, b"ab"), (206, b"de")],
+            1,
+            Duration::from_secs(2),
+        );
+        let state = test_state_with_endpoint(&server.endpoint).await;
+        let mut headers = HeaderMap::new();
+        headers.insert(RANGE, "bytes=0-1,3-4".parse().unwrap());
+        let file_info = file_data(6);
+
+        // A buffering handler cannot answer until the held bodies complete.
+        let response = tokio::time::timeout(
+            Duration::from_secs(1),
+            serve_file(
+                &state,
+                &Method::GET,
+                &headers,
+                &file_info,
+                false,
+                "page",
+                "file.txt",
+            ),
+        )
+        .await;
+        for release in releases {
+            let _ = release.send(());
+        }
+        let response = response.expect("handler buffered the multipart body");
+
+        assert_eq!(response.status(), StatusCode::PARTIAL_CONTENT);
+        let content_type = response
+            .headers()
+            .get(CONTENT_TYPE)
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .to_owned();
+        let boundary = content_type
+            .strip_prefix("multipart/byteranges; boundary=")
+            .expect("multipart content type")
+            .to_owned();
+        let expected = format!(
+            "--{boundary}\r\nContent-Type: text/plain\r\nContent-Range: bytes 0-1/6\r\n\r\nab\r\n\
+             --{boundary}\r\nContent-Type: text/plain\r\nContent-Range: bytes 3-4/6\r\n\r\nde\r\n\
+             --{boundary}--\r\n",
+        );
+        let expected_length = expected.len().to_string();
+        assert_eq!(
+            response.headers().get(CONTENT_LENGTH).unwrap(),
+            expected_length.as_str(),
+        );
+
+        let requests = server.requests();
+        assert!(
+            requests[0]
+                .to_ascii_lowercase()
+                .contains("range: bytes=0-1"),
+        );
+        assert!(
+            requests[1]
+                .to_ascii_lowercase()
+                .contains("range: bytes=3-4"),
+        );
+
+        let body = body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(&body[..], expected.as_bytes());
+
         server.join();
     }
 

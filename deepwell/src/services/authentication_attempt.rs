@@ -136,6 +136,10 @@ RETURNING attempts
         format!("login:user:{user_id}")
     }
 
+    pub fn email_issue_user_bucket(user_id: i64) -> String {
+        format!("email_issue:user:{user_id}")
+    }
+
     pub fn login_user_ip_bucket(user_id: i64, ip_address: &str) -> String {
         format!(
             "login:user:{user_id}:ip:{}",

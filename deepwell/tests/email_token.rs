@@ -647,7 +647,7 @@ async fn concurrent_double_redeem_leaves_exactly_one_winner() {
 }
 
 #[tokio::test]
-async fn issue_throttle_bounds_one_address_across_accounts() {
+async fn issue_does_not_suppress_across_accounts_sharing_an_address() {
     let runner = TestRunner::setup().await;
     let n = next_n();
 
@@ -669,18 +669,11 @@ async fn issue_throttle_bounds_one_address_across_accounts() {
             },
         )
         .await
-        .expect("throttled issue should not error");
-        if i < 10 {
-            assert!(
-                matches!(outcome, IssueEmailTokenOutcome::Issued(_)),
-                "issue {i} from a fresh address should issue",
-            );
-        } else {
-            assert!(
-                matches!(outcome, IssueEmailTokenOutcome::Suppressed),
-                "the eleventh issue from one address should suppress",
-            );
-        }
+        .expect("issue should not error");
+        assert!(
+            matches!(outcome, IssueEmailTokenOutcome::Issued(_)),
+            "issue {i} for a distinct account sharing one address should issue",
+        );
     }
     runner.teardown().await;
 }
@@ -1290,6 +1283,221 @@ async fn delete_link_and_grant_die_with_old_email_after_rotation() {
             .await
             .deleted_at
             .is_none()
+    );
+    runner.teardown().await;
+}
+
+async fn issue_in_fresh_transaction(
+    state: ServerState,
+    user_id: i64,
+    email: String,
+    purpose: EmailTokenPurpose,
+    start: Option<Arc<Barrier>>,
+) -> ExnResult<IssueEmailTokenOutcome> {
+    let txn = state
+        .database
+        .begin()
+        .await
+        .expect("email token issue transaction should begin");
+
+    if let Some(start) = start {
+        start.wait().await;
+    }
+
+    let result = {
+        let ctx = ServiceContext::new(&state, &txn);
+        EmailTokenService::issue(
+            &ctx,
+            IssueEmailToken {
+                user_id,
+                email,
+                purpose,
+                ip_address: common::IP_ADDRESS,
+            },
+        )
+        .await
+    };
+
+    match result {
+        Ok(outcome) => {
+            txn.commit()
+                .await
+                .expect("email token issue transaction should commit");
+            Ok(outcome)
+        }
+        Err(error) => {
+            txn.rollback()
+                .await
+                .expect("failed email token issue should roll back");
+            Err(error)
+        }
+    }
+}
+
+#[tokio::test]
+async fn concurrent_issue_leaves_exactly_one_issued() {
+    let runner = TestRunner::setup().await;
+    let state = Arc::clone(runner.state());
+    let n = next_n();
+    let email = format!("email-token-issue-race-{n}@example.invalid");
+
+    let setup_txn = state
+        .database
+        .begin()
+        .await
+        .expect("email token race fixture transaction should begin");
+    let user_id = {
+        let ctx = ServiceContext::new(&state, &setup_txn);
+        let created =
+            UserService::create(&ctx, token_user(n, UserType::Regular, email.clone()))
+                .await
+                .expect("race fixture user should be created");
+        created.user_id
+    };
+    setup_txn
+        .commit()
+        .await
+        .expect("email token race fixture transaction should commit");
+
+    let start = Arc::new(Barrier::new(8));
+    let outcomes = timeout(Duration::from_secs(30), async {
+        futures::future::join_all((0..8).map(|_| {
+            issue_in_fresh_transaction(
+                Arc::clone(&state),
+                user_id,
+                email.clone(),
+                EmailTokenPurpose::VerifyEmail,
+                Some(Arc::clone(&start)),
+            )
+        }))
+        .await
+    })
+    .await
+    .expect("concurrent email token issuance should not deadlock");
+
+    let mut issued = 0_u64;
+    let mut suppressed = 0_u64;
+    for outcome in &outcomes {
+        match outcome.as_ref().expect("concurrent issue should not error") {
+            IssueEmailTokenOutcome::Issued(_) => issued += 1,
+            IssueEmailTokenOutcome::Suppressed => suppressed += 1,
+        }
+    }
+    assert_eq!(issued, 1, "exactly one concurrent issue should issue");
+    assert_eq!(
+        suppressed, 7,
+        "the remaining concurrent issues should suppress"
+    );
+
+    let cleanup_txn = state
+        .database
+        .begin()
+        .await
+        .expect("email token race cleanup transaction should begin");
+    {
+        let ctx = ServiceContext::new(&state, &cleanup_txn);
+        let live = EmailTokenTable::find()
+            .filter(email_token::Column::UserId.eq(user_id))
+            .filter(email_token::Column::ConsumedAt.is_null())
+            .count(&cleanup_txn)
+            .await
+            .expect("live token count should succeed");
+        assert_eq!(live, 1, "exactly one live token row should survive");
+        UserService::delete(&ctx, Reference::Id(user_id), user_id, common::IP_ADDRESS)
+            .await
+            .expect("race fixture user should be soft-deleted");
+        EmailTokenTable::delete_many()
+            .filter(email_token::Column::UserId.eq(user_id))
+            .exec(&cleanup_txn)
+            .await
+            .expect("race fixture tokens should be deleted");
+    }
+    cleanup_txn
+        .commit()
+        .await
+        .expect("email token race cleanup transaction should commit");
+
+    runner.teardown().await;
+}
+
+async fn backdate_newest_issue(
+    runner: &TestRunner,
+    user_id: i64,
+    purpose: EmailTokenPurpose,
+) {
+    let row = EmailTokenTable::find()
+        .filter(email_token::Column::UserId.eq(user_id))
+        .filter(email_token::Column::Purpose.eq(purpose.as_str()))
+        .filter(email_token::Column::ConsumedAt.is_null())
+        .one(runner.context().transaction())
+        .await
+        .expect("token lookup should succeed")
+        .expect("live token row should exist");
+    let mut active: email_token::ActiveModel = row.into();
+    active.created_at = Set(now() - time::Duration::seconds(120));
+    active
+        .update(runner.context().transaction())
+        .await
+        .expect("cooldown backdate should succeed");
+}
+
+#[tokio::test]
+async fn per_account_backstop_bounds_sustained_issuance_across_purposes() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let email = format!("email-token-backstop-{n}@example.invalid");
+    let created = UserService::create(
+        runner.context(),
+        token_user(n, UserType::Regular, email.clone()),
+    )
+    .await
+    .expect("backstop fixture user should be created");
+    let user_id = created.user_id;
+
+    for round in 0..5_u64 {
+        if round > 0 {
+            backdate_newest_issue(&runner, user_id, EmailTokenPurpose::VerifyEmail).await;
+            backdate_newest_issue(&runner, user_id, EmailTokenPurpose::ResetPassword)
+                .await;
+        }
+        for purpose in [
+            EmailTokenPurpose::VerifyEmail,
+            EmailTokenPurpose::ResetPassword,
+        ] {
+            let outcome = EmailTokenService::issue(
+                runner.context(),
+                IssueEmailToken {
+                    user_id,
+                    email: email.clone(),
+                    purpose,
+                    ip_address: common::IP_ADDRESS,
+                },
+            )
+            .await
+            .expect("backstop issue should not error");
+            assert!(
+                matches!(outcome, IssueEmailTokenOutcome::Issued(_)),
+                "round {round} {} should issue",
+                purpose.as_str(),
+            );
+        }
+    }
+
+    backdate_newest_issue(&runner, user_id, EmailTokenPurpose::VerifyEmail).await;
+    let outcome = EmailTokenService::issue(
+        runner.context(),
+        IssueEmailToken {
+            user_id,
+            email,
+            purpose: EmailTokenPurpose::VerifyEmail,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("saturated backstop issue should not error");
+    assert!(
+        matches!(outcome, IssueEmailTokenOutcome::Suppressed),
+        "the eleventh issue across purposes should suppress",
     );
     runner.teardown().await;
 }

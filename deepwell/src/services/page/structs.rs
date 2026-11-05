@@ -70,6 +70,9 @@ pub struct GetPageReferenceDetails<'a> {
 
     #[serde(default)]
     pub details: PageDetails,
+
+    #[serde(default)]
+    pub session_token: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]

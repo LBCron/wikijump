@@ -134,12 +134,14 @@ impl Deepwell {
         &self,
         site_id: i64,
         page_slug: &str,
+        session_token: Option<&str>,
     ) -> Result<Option<PageData>> {
         let params = rpc_object! {
             "site_id" => site_id,
             "page" => page_slug,
             "wikitext" => false,
             "compiled" => false,
+            "session_token" => session_token,
         };
 
         let page_data: Option<PageData> = self.request("page_get", params).await?;
@@ -607,7 +609,7 @@ mod tests {
         )
         .unwrap();
 
-        let page = deepwell.get_page(1, "scp-9506").await.unwrap();
+        let page = deepwell.get_page(1, "scp-9506", None).await.unwrap();
         assert_eq!(page.map(|page| page.page_id), Some(123));
     }
 
@@ -622,12 +624,18 @@ mod tests {
             .await
             .unwrap();
 
-        let error = deepwell.get_page(1, "scp-9506").await.unwrap_err();
+        let error = deepwell.get_page(1, "scp-9506", None).await.unwrap_err();
         assert!(matches!(error, Error::DeepwellBusy), "{error}");
         assert!(requests_by_method(&requests, "page_get").is_empty());
 
         drop(held);
-        assert!(deepwell.get_page(1, "scp-9506").await.unwrap().is_some());
+        assert!(
+            deepwell
+                .get_page(1, "scp-9506", None)
+                .await
+                .unwrap()
+                .is_some()
+        );
     }
 
     #[test]
@@ -656,7 +664,7 @@ mod tests {
         assert_eq!(presence_request[0]["params"]["shard"], 0);
         assert_eq!(
             deepwell
-                .get_page(42, "scp-173")
+                .get_page(42, "scp-173", Some("session-token"))
                 .await
                 .unwrap()
                 .unwrap()
@@ -717,6 +725,7 @@ mod tests {
         assert_eq!(page_get[0]["params"]["page"], "scp-173");
         assert_eq!(page_get[0]["params"]["wikitext"], false);
         assert_eq!(page_get[0]["params"]["compiled"], false);
+        assert_eq!(page_get[0]["params"]["session_token"], "session-token");
 
         let file_get = requests_by_method(&requests, "file_get");
         assert_eq!(file_get[0]["params"]["site_id"], 42);

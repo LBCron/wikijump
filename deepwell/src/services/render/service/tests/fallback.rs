@@ -216,6 +216,7 @@ fn wikidot_compatibility_fallback_preserves_hosted_code_block_metadata() {
             contents: Cow::Borrowed(".x { color: red; }"),
             language: Some(Cow::Borrowed("css")),
             name: Some(Cow::Borrowed("theme")),
+            wikidot_block_open_elements: Vec::new(),
         }],
     );
 }

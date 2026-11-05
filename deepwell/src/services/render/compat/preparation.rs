@@ -319,6 +319,7 @@ fn render_css_module_code_block(
             contents: Cow::Borrowed(body),
             language: Some(Cow::Borrowed("css")),
             name: None,
+            wikidot_block_open_elements: Vec::new(),
         })],
         wikitext_len: body.len(),
         ..SyntaxTree::default()

@@ -1653,7 +1653,7 @@ mod runtime_module_residual_tests {
             r#"[[module <em>UnknownOracleModule</em>]] No such module, please <a href="https://www.wikidot.com/doc:modules""#,
         ));
         assert!(
-            rendered.contains("[[module NewPage button=&quot;literal&quot;]]"),
+            rendered.contains("[[module&#32;NewPage&#32;button=&quot;literal&quot;]]"),
             "{rendered}",
         );
     }

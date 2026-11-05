@@ -2337,6 +2337,157 @@ async fn user_create_and_rename_reject_confusable_names() {
 }
 
 #[tokio::test]
+async fn user_create_and_rename_reject_confusables_of_digit_slugs() {
+    let mut runner = TestRunner::setup().await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        ..Default::default()
+    });
+
+    let victim_one = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Cycle3 Vic1",
+            "email": "cycle3-vic1@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(victim_one.slug, "cycle3-vic1");
+
+    let victim_zero = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Cycle3 M0do",
+            "email": "cycle3-m0do@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(victim_zero.slug, "cycle3-m0do");
+
+    let control = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Cycle3 Vic2",
+            "email": "cycle3-vic2@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_eq!(control.slug, "cycle3-vic2");
+
+    let attacker_one = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Cycle3 Attacker One",
+            "email": "cycle3-attacker-one@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let attacker_zero = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Cycle3 Attacker Zero",
+            "email": "cycle3-attacker-zero@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let error = run_endpoint_err!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Cycle3 Vi\u{0441}1",
+            "email": "cycle3-vic1-register@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    let error = run_endpoint_err!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Cycle3 M\u{043e}do",
+            "email": "cycle3-m0do-register@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "bypass_filter": true,
+            "bypass_email_verification": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(attacker_one.user_id),
+        ..Default::default()
+    });
+
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": attacker_one.user_id,
+            "name": "Cycle3 Vi\u{0441}1",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(attacker_zero.user_id),
+        ..Default::default()
+    });
+
+    let error = run_endpoint_err!(
+        runner,
+        user_edit,
+        json!({
+            "user": attacker_zero.user_id,
+            "name": "Cycle3 M\u{043e}do",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::UserExists);
+}
+
+#[tokio::test]
 async fn user_rename_rejects_live_slug_and_foreign_alias() {
     let mut runner = TestRunner::setup().await;
     runner.set_request_context(RequestContext {

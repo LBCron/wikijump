@@ -14280,10 +14280,14 @@ async fn search_and_feed_modules_match_live_preview_and_page_view_boundaries() {
             && body.contains(search_error)
             && body.contains("SEARCH_END")
             && body.contains("FEED_START")
-            && body.contains(feed_missing)
+            && body.contains(r#"<div class="wikidot-hybrid-module" id="wikidot-hybrid-module-"#)
+            && body.contains(
+                r#"{&quot;module&quot;:&quot;feed\/FeedModule&quot;,&quot;params&quot;:{}}"#
+            )
             && body.contains("FEED_END")
+            && !body.contains(feed_missing)
             && !body.contains("[[module"),
-        "saved page view should preserve both live module boundaries:\n{body}",
+        "saved page view should render the live Search error and Feed hybrid-module placeholder:\n{body}",
     );
 }
 
@@ -15291,15 +15295,24 @@ async fn anonymous_page_and_site_utility_modules_match_frozen_safe_states() {
         } => compiled_body_html,
         other => panic!("expected found site utility module view, got {other:?}"),
     };
-    for expected in [
-        "You're not signed in or you are not an administrator of this Wiki.",
+    assert!(
+        body.contains(
+            "You're not signed in or you are not an administrator of this Wiki."
+        ) && body.contains(r#"<div class="homer">"#),
+        "the saved page's standalone ManageSite must take over the page with the live anonymous scaffold:\n{body}",
+    );
+    for suppressed in [
+        "REDIRECT\n",
+        "THEME\n",
+        "PETITION\n",
+        "SITEGRID\n",
+        "END",
         "You should be logged in to clone a site.",
-        "This tool is for use by the administrators of this site",
         "No sites provided.",
     ] {
         assert!(
-            body.contains(expected),
-            "saved anonymous utility view should contain {expected:?}:\n{body}",
+            !body.contains(suppressed),
+            "live ManageSite page takeover suppresses the rest of the page ({suppressed:?}):\n{body}",
         );
     }
     assert!(
@@ -15600,7 +15613,7 @@ async fn authenticated_site_utility_preview_denies_only_non_administrators() {
 }
 
 #[tokio::test]
-async fn saved_site_utility_modules_recheck_the_session_actor() {
+async fn saved_manage_site_page_view_rechecks_the_session_actor() {
     const HOLDER: &str = "fixture-site-utility-actor-boundary";
     const SOURCE: &str = concat!(
         "MANAGE_START\n",
@@ -15624,7 +15637,6 @@ async fn saved_site_utility_modules_recheck_the_session_actor() {
         "\t\t<h3>You're not signed in or you are not an administrator of this Wiki.</h3>\n",
         "\t\t\t</div>\n</div>",
     );
-    const PETITION_ADMIN_DENIAL_HTML: &str = r#"<div class="error-block"><div class="title">Permission error</div>This tool is for use by the administrators of this site</div>"#;
 
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
@@ -15678,11 +15690,10 @@ async fn saved_site_utility_modules_recheck_the_session_actor() {
             "locales": ["en-US", "en"],
         }),
     ));
-    assert!(
-        non_admin.contains(MANAGE_SITE_NON_ADMIN_HTML)
-            && non_admin.contains(PETITION_ADMIN_DENIAL_HTML)
-            && !non_admin.contains(">Sign in</a>"),
-        "saved non-admin view must use the two exact authenticated denial states:\n{non_admin}",
+    assert_eq!(
+        non_admin.trim(),
+        MANAGE_SITE_NON_ADMIN_HTML,
+        "the saved ManageSite takeover must recheck the session actor for each view",
     );
 
     let administrator = body(run_endpoint!(
@@ -15698,11 +15709,15 @@ async fn saved_site_utility_modules_recheck_the_session_actor() {
     assert!(
         administrator.contains("id=\"site-manager-menu\"")
             && administrator.contains("id=\"sm-action-area\"")
-            && administrator.contains("id=\"petition-admin-module-box\"")
-            && administrator.contains("You have no petition campaigns defined.")
             && !administrator.contains(MANAGE_SITE_NON_ADMIN_HTML)
-            && !administrator.contains(PETITION_ADMIN_DENIAL_HTML),
-        "saved administrator view must recheck authority and render both read models:\n{administrator}",
+            && !administrator.contains(">Sign in</a>"),
+        "the saved ManageSite takeover must render the administrator manager shell without a denial:\n{administrator}",
+    );
+    assert!(
+        !administrator.contains("MANAGE_START")
+            && !administrator.contains("PETITION_START")
+            && !administrator.contains("petition-admin-module-box"),
+        "the ManageSite page takeover suppresses the rest of the page:\n{administrator}",
     );
 }
 
@@ -29302,4 +29317,311 @@ async fn page_render_restores_color_spans_in_lists_and_their_nested_syntax() {
     );
     assert!(html.contains(r#"<sup class="footnoteref">"#), "{html}");
     assert!(!html.contains("[[footnote]]"), "{html}");
+}
+
+#[tokio::test]
+async fn wikidot_layout_pages_honor_the_redirect_module() {
+    const SOURCE_SLUG: &str = "fixture-layout-redirect-source";
+    const TARGET_SLUG: &str = "fixture-layout-redirect-target";
+    const OVERRIDE_SLUG: &str = "fixture-layout-redirect-override";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        TARGET_SLUG,
+        "Fixture Layout Redirect Target",
+        "Layout redirect destination content.",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        SOURCE_SLUG,
+        "Fixture Layout Redirect Source",
+        &format!("[[module Redirect destination=\"{TARGET_SLUG}\"]]"),
+    )
+    .await;
+    let override_page = run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": format!("[[module Redirect destination=\"{TARGET_SLUG}\"]]"),
+            "title": "Fixture Layout Redirect Override",
+            "alt_title": null,
+            "slug": OVERRIDE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "fixture layout override",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+            "bypass_filter": true,
+        }),
+    );
+    PageService::set_layout(
+        runner.context(),
+        deepwell::services::page::SetPageLayout {
+            site_id,
+            page_id: override_page.page_id,
+            layout: Some(Layout::Wikijump),
+            user_id: ADMIN_USER_ID,
+            ip_address: common::IP_ADDRESS,
+        },
+    )
+    .await
+    .expect("page layout override should be stored");
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let redirected = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": SOURCE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    match redirected {
+        GetPageViewOutput::Found {
+            redirect_page,
+            redirect_kind,
+            ..
+        } => {
+            assert_eq!(
+                redirect_page.as_deref(),
+                Some(format!("/{TARGET_SLUG}").as_str())
+            );
+            assert_eq!(
+                redirect_kind,
+                Some(deepwell::services::view::PageRedirectKind::WikidotModule)
+            );
+        }
+        other => panic!("expected a redirecting found page, got {other:?}"),
+    }
+
+    let overridden = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": OVERRIDE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    match overridden {
+        GetPageViewOutput::Found {
+            redirect_page,
+            compiled_body_html,
+            ..
+        } => {
+            assert_eq!(redirect_page, None);
+            assert!(
+                compiled_body_html.contains("[[module Redirect"),
+                "a non-Wikidot-layout page keeps the Redirect module literal:\n{compiled_body_html}",
+            );
+        }
+        other => panic!("expected a non-redirecting found page, got {other:?}"),
+    }
+}
+
+#[tokio::test]
+async fn manage_site_standalone_module_takes_over_the_saved_page_view() {
+    const SOURCE_SLUG: &str = "fixture-manage-site-takeover";
+    const INLINE_SLUG: &str = "fixture-manage-site-inline";
+
+    const MANAGE_SITE_ANONYMOUS_HTML: &str = concat!(
+        r#"<div class="row-fluid">"#,
+        "\n\t",
+        r#"<div class="span3 offset1">"#,
+        "\n\t\t",
+        r#"<div class="homer">"#,
+        "\n\t\t",
+        r#"<img src="/common--images/404_homer.png">"#,
+        "\n\t\t</div>\n\t</div>\n\t",
+        r#"<div class="span7">"#,
+        "\n\t\t<h1>Doh!</h1>\n",
+        "\t\t<h3>You're not signed in or you are not an administrator of this Wiki.</h3>\n",
+        "\t\t\t\t",
+        r#"<div class="form-actions">"#,
+        "\n\t\t\t",
+        r#"<a href="javascript:;" class="btn btn-primary btn-large" onclick="WIKIDOT.page.listeners.loginClick(event)">Sign in</a>"#,
+        "\n\t\t</div>\n\t\t\t</div>\n</div>",
+    );
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        SOURCE_SLUG,
+        "Fixture ManageSite Takeover",
+        "MS1\n\n[[module ManageSite]]\n\nMS2",
+    )
+    .await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        INLINE_SLUG,
+        "Fixture ManageSite Inline",
+        "MS1 [[module ManageSite]] MS2",
+    )
+    .await;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": SOURCE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    match view {
+        GetPageViewOutput::Found {
+            manage_site_takeover,
+            compiled_body_html,
+            ..
+        } => {
+            assert!(
+                manage_site_takeover,
+                "standalone ManageSite must take over the page"
+            );
+            assert_eq!(
+                compiled_body_html.trim(),
+                MANAGE_SITE_ANONYMOUS_HTML,
+                "live serves only the manager scaffold for an anonymous reader",
+            );
+            assert!(
+                !compiled_body_html.contains("MS1")
+                    && !compiled_body_html.contains("MS2"),
+                "the rest of the page is suppressed by the takeover:\n{compiled_body_html}",
+            );
+        }
+        other => panic!("expected a ManageSite takeover found page, got {other:?}"),
+    }
+
+    let inline = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": INLINE_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    match inline {
+        GetPageViewOutput::Found {
+            manage_site_takeover,
+            ..
+        } => assert!(
+            !manage_site_takeover,
+            "a ManageSite call placed inline does not take the page over",
+        ),
+        other => panic!("expected an inline found page, got {other:?}"),
+    }
+}
+
+#[tokio::test]
+async fn editor_preview_executes_tag_cloud_page_tree_page_calendar_and_join() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+
+    let preview_source = "fixture-preview-runtime-modules";
+    let tag_cloud = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": preview_source,
+            "wikitext": "[[module TagCloud]]",
+        }),
+    );
+    assert!(
+        tag_cloud
+            .body
+            .contains(r#"<div class="pages-tag-cloud-box">"#),
+        "live PagePreview renders the TagCloud box:\n{}",
+        tag_cloud.body,
+    );
+    assert!(!tag_cloud.body.contains("TODO: module"));
+
+    let page_tree = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": preview_source,
+            "wikitext": "[[module PageTree]]",
+        }),
+    );
+    assert!(
+        page_tree.body.trim().is_empty(),
+        "live PagePreview has no page context and renders nothing for PageTree:\n{}",
+        page_tree.body,
+    );
+
+    let page_calendar = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": preview_source,
+            "wikitext": "[[module PageCalendar]]",
+        }),
+    );
+    assert!(
+        page_calendar
+            .body
+            .contains(r#"<div class="page-calendar-box">"#),
+        "live PagePreview renders the site calendar:\n{}",
+        page_calendar.body,
+    );
+    assert!(!page_calendar.body.contains("No such module"));
+
+    let join = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": preview_source,
+            "wikitext": "[[module Join]]",
+        }),
+    );
+    assert!(
+        join.body.contains(r#"<div class="join-box">"#)
+            && join
+                .body
+                .contains("WIKIDOT.page.listeners.join(event, 'unified')"),
+        "live PagePreview renders the anonymous Join box:\n{}",
+        join.body,
+    );
 }

@@ -83,6 +83,12 @@ static SITE_UTILITY_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 static MODULE_CLOSE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?is)\[\[/module\]\]").expect("module closing expression is valid")
 });
+static MANAGE_SITE_TAKEOVER_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"(?im)^[\t ]*\[\[module[\t ]+ManageSite\b(?P<head>(?:[^\]"\r\n]+|"[^"\r\n]*")*)\]\][\t ]*$"#,
+    )
+    .expect("ManageSite takeover expression is valid")
+});
 
 pub(super) fn wikitext_requires_site_utility_runtime_render(wikitext: &str) -> bool {
     SITE_UTILITY_MODULE_REGEX
@@ -93,6 +99,32 @@ pub(super) fn wikitext_requires_site_utility_runtime_render(wikitext: &str) -> b
                     || name.as_str().eq_ignore_ascii_case("ManageSite")
                     || name.as_str().eq_ignore_ascii_case("PetitionAdmin")
             })
+        })
+}
+
+/// Whether the saved page is a Wikidot `ManageSite` page.
+///
+/// Live Wikidot does not render a standalone `[[module ManageSite]]` inline:
+/// the module replaces the whole page view with the site-manager document
+/// (the anonymous and non-administrator states are the login scaffold). This
+/// scan uses the same line-start, standalone, non-literal rules as the module
+/// expansion so authored literals never take the page over.
+pub(crate) fn wikitext_has_manage_site_page_takeover(wikitext: &str) -> bool {
+    let literal_regions = LiteralRegionIndex::new_wikidot_module_recognition(wikitext);
+    let last_module_close_start = MODULE_CLOSE_REGEX
+        .find_iter(wikitext)
+        .last()
+        .map(|matched| matched.start());
+    MANAGE_SITE_TAKEOVER_MODULE_REGEX
+        .captures_iter(wikitext)
+        .any(|captures| {
+            let matched = captures
+                .get(0)
+                .expect("a ManageSite takeover capture always has a complete match");
+            let head = captures.name("head").map_or("", |head| head.as_str());
+            !literal_regions.contains(matched.start())
+                && head.trim().is_empty()
+                && !opens_module_body(last_module_close_start, matched.end())
         })
 }
 
@@ -234,18 +266,72 @@ pub(super) fn resolve_typed_root_site_grid_runtime_modules(tree: &mut SyntaxTree
     }
 }
 
+/// Renders the whole-page `ManageSite` document body for a saved page view.
+///
+/// Live Wikidot replaces the page with the site-manager scaffold; the body is
+/// the module output for the current actor (anonymous and non-administrator
+/// states render the login/denial scaffold).
+pub(crate) async fn render_manage_site_page_html(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    viewer_user_id: Option<i64>,
+) -> Result<String> {
+    let Some(user_id) = viewer_user_id else {
+        return Ok(MANAGE_SITE_ANONYMOUS_HTML.to_owned());
+    };
+    let viewer_can_edit_site = PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: Some(user_id),
+            site_id,
+            page_reference: None,
+        },
+        Permission::new(Resource::Site, Action::Edit)
+            .expect("site edit is a valid permission"),
+    )
+    .await?;
+    Ok(if viewer_can_edit_site {
+        MANAGE_SITE_ADMIN_HTML.to_owned()
+    } else {
+        MANAGE_SITE_NON_ADMIN_HTML.to_owned()
+    })
+}
+
 fn opens_module_body(last_close_start: Option<usize>, opening_end: usize) -> bool {
     last_close_start.is_some_and(|close_start| close_start >= opening_end)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::opens_module_body;
+    use super::{opens_module_body, wikitext_has_manage_site_page_takeover};
 
     #[test]
     fn module_body_detection_uses_the_last_close_boundary() {
         assert!(opens_module_body(Some(20), 10));
         assert!(!opens_module_body(Some(10), 20));
         assert!(!opens_module_body(None, 10));
+    }
+
+    #[test]
+    fn manage_site_takeover_requires_an_executable_standalone_invocation() {
+        for source in [
+            "[[module ManageSite]]",
+            "other page text\n[[module ManageSite]]\ntrailing text",
+            "  [[module ManageSite]]  ",
+            "[[MODULE managesite]]",
+        ] {
+            assert!(wikitext_has_manage_site_page_takeover(source), "{source}",);
+        }
+        for source in [
+            "[[module ManageSite foo]]",
+            "[[module ManageSite src=\"x\"]]",
+            "inline [[module ManageSite]] call",
+            "@@[[module ManageSite]]@@",
+            "[[code]]\n[[module ManageSite]]\n[[/code]]",
+            "[[!-- [[module ManageSite]] --]",
+            "[[module ManageSite]]\nbody\n[[/module]]",
+        ] {
+            assert!(!wikitext_has_manage_site_page_takeover(source), "{source}",);
+        }
     }
 }

@@ -235,6 +235,27 @@ fn render_page_tree_node(
     output.push_str("</li>\n");
 }
 
+fn remove_page_tree_module_invocations(wikitext: String) -> String {
+    let literal_regions = LiteralRegionIndex::new_wikidot_module_recognition(&wikitext);
+    let mut output = String::with_capacity(wikitext.len());
+    let mut cursor = 0;
+    for captures in PAGE_TREE_MODULE_REGEX.captures_iter(&wikitext) {
+        let matched = captures
+            .get(0)
+            .expect("a PageTree capture always has a complete match");
+        if literal_regions.contains(matched.start()) {
+            continue;
+        }
+        output.push_str(&wikitext[cursor..matched.start()]);
+        cursor = matched.end();
+    }
+    if cursor == 0 {
+        return wikitext;
+    }
+    output.push_str(&wikitext[cursor..]);
+    output
+}
+
 impl RenderService {
     pub(super) async fn expand_categories_and_page_tree_modules(
         ctx: &ServiceContext<'_>,
@@ -242,6 +263,7 @@ impl RenderService {
         settings: &WikitextSettings,
         current_page: (Option<i64>, Option<i64>),
         viewer_user_id: Option<i64>,
+        page_preview: bool,
         compat_html: &mut CompatHtmlFragments,
     ) -> Result<String> {
         let (current_site_id, current_page_id) = current_page;
@@ -261,6 +283,7 @@ impl RenderService {
             current_site_id,
             current_page_id,
             viewer_user_id,
+            page_preview,
             compat_html,
         )
         .await
@@ -273,6 +296,7 @@ impl RenderService {
         current_site_id: Option<i64>,
         current_page_id: Option<i64>,
         viewer_user_id: Option<i64>,
+        page_preview: bool,
         compat_html: &mut CompatHtmlFragments,
     ) -> Result<String> {
         if !settings.enable_page_syntax || !PAGE_TREE_MODULE_REGEX.is_match(&wikitext) {
@@ -281,6 +305,11 @@ impl RenderService {
         let (Some(current_site_id), Some(current_page_id)) =
             (current_site_id, current_page_id)
         else {
+            if page_preview {
+                // Live PagePreview has no page context, so a PageTree module
+                // renders as nothing rather than as the parser fallback.
+                return Ok(remove_page_tree_module_invocations(wikitext));
+            }
             return Ok(wikitext);
         };
 

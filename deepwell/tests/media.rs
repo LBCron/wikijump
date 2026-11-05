@@ -1079,3 +1079,68 @@ async fn embedvideo_preview_and_saved_page_share_rendered_body() {
             .ends_with(&format!("; deepwell-render/v{DEEPWELL_RENDERER_EPOCH}"))
     );
 }
+
+#[tokio::test]
+async fn saved_wikidot_embedvideo_pages_render_live_error_block_not_the_marker() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let slug = "fixture-embedvideo-live-error-block";
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(Cow::Borrowed(slug))),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": concat!(
+                "EMBEDVIDEO_START\n",
+                "[[embedvideo]]https://example.com/v.mp4[[/embedvideo]]\n",
+                "EMBEDVIDEO_END",
+            ),
+            "title": "Fixture EmbedVideo Live Error Block",
+            "alt_title": null,
+            "slug": slug,
+            "layout": "wikidot",
+            "revision_comments": "fixture embedvideo saved route",
+            "user_id": ADMIN_USER_ID,
+            "ip_address": common::IP_ADDRESS,
+            "bypass_filter": true,
+        }),
+    );
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": slug, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let body = match view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found saved EmbedVideo page, got {other:?}"),
+    };
+    assert!(
+        body.contains(NO_MATCH),
+        "live Wikidot renders the embed error block for an unsupported embedvideo body:\n{body}",
+    );
+    assert!(
+        !body.contains("wj-embed-video"),
+        "the Wikijump-internal marker must not leak into Wikidot-layout saved output:\n{body}",
+    );
+}

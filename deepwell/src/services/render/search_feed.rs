@@ -1,6 +1,7 @@
 use std::sync::LazyLock;
 
 use ftml::settings::WikitextSettings;
+use rand::RngExt;
 use regex::Regex;
 
 use super::compat::CompatHtmlFragments;
@@ -57,7 +58,10 @@ fn feed_source(head: &str) -> Option<&str> {
         .map(|argument| argument.value)
 }
 
-fn render_feed_module(head: &str) -> String {
+fn render_feed_module(head: &str, page_preview: bool) -> String {
+    if !page_preview {
+        return render_feed_hybrid_module(head);
+    }
     let Some(source) = feed_source(head) else {
         return FEED_MISSING_SOURCE_HTML.to_owned();
     };
@@ -65,6 +69,85 @@ fn render_feed_module(head: &str) -> String {
         r#"<div class="error-block">Error processing the feed "{}". The feed can not be accessed or contains errors. </div>"#,
         escape_list_pages_html_text(source),
     )
+}
+
+/// Renders live Wikidot's saved-page representation of `[[module Feed]]`.
+///
+/// Wikidot's feed widget is a client-side module: the saved route emits the
+/// generic `wikidot-hybrid-module` placeholder carrying the module identity
+/// and its parameters as a hidden JSON payload, and the browser script builds
+/// the widget. The editor preview route instead renders the server-side feed
+/// error block (see `render_feed_module`), so the placeholder is saved-page
+/// only.
+fn render_feed_hybrid_module(head: &str) -> String {
+    let params = wikidot_module_arguments(head).unwrap_or_default();
+    let mut json = String::from(r#"{"module":"feed\/FeedModule","params":{"#);
+    let mut first = true;
+    for argument in params {
+        if argument.op != "=" {
+            continue;
+        }
+        if !first {
+            json.push(',');
+        }
+        first = false;
+        json.push('"');
+        json.push_str(&json_escape_string(argument.key));
+        json.push_str(r#"":"#);
+        json.push('"');
+        json.push_str(&json_escape_string(argument.value));
+        json.push('"');
+    }
+    json.push_str("}}");
+    let module_id: u32 = rand::rng().random_range(10_000..1_000_000_000);
+    format!(
+        r#"<div class="wikidot-hybrid-module" id="wikidot-hybrid-module-{module_id}"><div style="display: none">{json}</div></div>"#,
+        json = escape_feed_json_html_text(&json),
+    )
+}
+
+/// Escapes a string the way PHP's default `json_encode` does: quotes,
+/// backslashes, forward slashes, control characters, and non-ASCII characters
+/// (as `\uXXXX`).
+fn json_escape_string(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        match character {
+            '"' => escaped.push_str("\\\""),
+            '\\' => escaped.push_str("\\\\"),
+            '/' => escaped.push_str("\\/"),
+            '\u{08}' => escaped.push_str("\\b"),
+            '\u{0c}' => escaped.push_str("\\f"),
+            '\n' => escaped.push_str("\\n"),
+            '\r' => escaped.push_str("\\r"),
+            '\t' => escaped.push_str("\\t"),
+            character if (character as u32) < 0x20 => {
+                escaped.push_str(&format!("\\u{:04x}", character as u32));
+            }
+            character if character.is_ascii() => escaped.push(character),
+            character => {
+                let mut buffer = [0u16; 2];
+                for unit in character.encode_utf16(&mut buffer) {
+                    escaped.push_str(&format!("\\u{unit:04x}"));
+                }
+            }
+        }
+    }
+    escaped
+}
+
+fn escape_feed_json_html_text(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        match character {
+            '&' => escaped.push_str("&amp;"),
+            '<' => escaped.push_str("&lt;"),
+            '>' => escaped.push_str("&gt;"),
+            '"' => escaped.push_str("&quot;"),
+            _ => escaped.push(character),
+        }
+    }
+    escaped
 }
 
 fn search_all_has_query(url: UrlArguments<'_>) -> bool {
@@ -117,6 +200,7 @@ pub(super) fn expand_search_feed_modules(
     settings: &WikitextSettings,
     url: UrlArguments<'_>,
     accessible_query_name: &str,
+    page_preview: bool,
     compat_html: &mut CompatHtmlFragments,
 ) -> String {
     wikitext = expand_search_all_modules(
@@ -148,7 +232,7 @@ pub(super) fn expand_search_feed_modules(
         let rendered = if name.eq_ignore_ascii_case("Search") {
             SEARCH_UNAVAILABLE_HTML.to_owned()
         } else {
-            render_feed_module(head)
+            render_feed_module(head, page_preview)
         };
         output.push_str(&wikitext[cursor..matched.start()]);
         output.push_str(&compat_html.push_block_html(rendered));
@@ -169,7 +253,7 @@ mod tests {
     use ftml::layout::Layout;
     use ftml::settings::{WikitextMode, WikitextSettings};
 
-    fn expand(source: &str) -> String {
+    fn expand_with_mode(source: &str, page_preview: bool) -> String {
         let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
         let mut compat_html = CompatHtmlFragments::new(source);
         let expanded = expand_search_feed_modules(
@@ -177,9 +261,14 @@ mod tests {
             &settings,
             UrlArguments::default(),
             "Search all Wikis",
+            page_preview,
             &mut compat_html,
         );
         compat_html.restore(&expanded)
+    }
+
+    fn expand(source: &str) -> String {
+        expand_with_mode(source, true)
     }
 
     #[test]
@@ -230,6 +319,75 @@ mod tests {
             expand("before [[module Search]] after\nbefore [[module Feed]] after"),
             "before [[module Search]] after\nbefore [[module Feed]] after",
         );
+    }
+
+    fn hybrid_payload(rendered: &str) -> (&str, String) {
+        let prefix = r#"<div class="wikidot-hybrid-module" id="wikidot-hybrid-module-"#;
+        let start = rendered.find(prefix).unwrap_or_else(|| {
+            panic!("saved Feed must be a hybrid module placeholder:\n{rendered}")
+        });
+        let rest = &rendered[start + prefix.len()..];
+        let id_end = rest
+            .find('"')
+            .unwrap_or_else(|| panic!("hybrid module id must be quoted:\n{rendered}"));
+        let payload_start =
+            rest.find(r#"<div style="display: none">"#)
+                .unwrap_or_else(|| {
+                    panic!("hybrid module payload must be hidden:\n{rendered}")
+                });
+        let payload_start = payload_start + r#"<div style="display: none">"#.len();
+        let payload_end = rest[payload_start..]
+            .find("</div>")
+            .unwrap_or_else(|| panic!("hybrid module payload must close:\n{rendered}"));
+        (
+            &rest[..id_end],
+            rest[payload_start..payload_start + payload_end].to_owned(),
+        )
+    }
+
+    #[test]
+    fn saved_pages_render_the_live_feed_hybrid_module_placeholder() {
+        let rendered = expand_with_mode("[[module Feed]]", false);
+        let (id, payload) = hybrid_payload(&rendered);
+        assert!(id.parse::<u32>().is_ok(), "hybrid module id: {id}");
+        assert_eq!(
+            payload,
+            r#"{&quot;module&quot;:&quot;feed\/FeedModule&quot;,&quot;params&quot;:{}}"#,
+            "live saved Feed placeholder carries the module identity and empty params",
+        );
+        assert!(!rendered.contains("error-block"));
+    }
+
+    #[test]
+    fn saved_feed_hybrid_payload_carries_parameters_in_source_order() {
+        let rendered = expand_with_mode(
+            "[[module Feed title=\"DH2 feed\" max=\"3\" src=\"https://scp-wiki.wikidot.com/feed/pages\"]]",
+            false,
+        );
+        let (_, payload) = hybrid_payload(&rendered);
+        assert_eq!(
+            payload,
+            concat!(
+                r#"{&quot;module&quot;:&quot;feed\/FeedModule&quot;,&quot;params&quot;:{"#,
+                r#"&quot;title&quot;:&quot;DH2 feed&quot;,"#,
+                r#"&quot;max&quot;:&quot;3&quot;,"#,
+                r#"&quot;src&quot;:&quot;https:\/\/scp-wiki.wikidot.com\/feed\/pages&quot;}}"#,
+            ),
+            "live echoes every authored parameter into the hidden payload",
+        );
+    }
+
+    #[test]
+    fn preview_feed_routes_keep_the_server_error_block() {
+        for source in [
+            "[[module Feed]]",
+            "[[module Feed src=\"\" max=\"3\"]]",
+            "[[module Feed src=\"https://example.com/feed.xml\"]]",
+        ] {
+            let rendered = expand_with_mode(source, true);
+            assert!(!rendered.contains("wikidot-hybrid-module"), "{source}");
+            assert!(rendered.contains("error-block"), "{source}");
+        }
     }
 
     #[test]

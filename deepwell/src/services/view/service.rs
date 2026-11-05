@@ -60,7 +60,8 @@ use crate::services::relation::{
 use crate::services::render::{
     LegacyActionRegistry, MembershipActionRegistry, RenderOutput, RenderService,
     ViewablePageRef, compiled_generator_is_current, format_score_value,
-    has_theme_previewer_no_ui, view_decisions_for_scanned_pages,
+    has_theme_previewer_no_ui, render_manage_site_page_html,
+    view_decisions_for_scanned_pages, wikitext_has_manage_site_page_takeover,
 };
 use crate::services::settings::{
     NavigationPageHtml, PageRatingSettings, PageRatingType, SettingsService,
@@ -79,6 +80,7 @@ use crate::utils::{
     get_category_name, locale_for_ftml, observed_wikidot_page_url_alias, parse_locales,
     split_category,
 };
+use ftml::layout::Layout;
 use ftml::prelude::{PageInfo, ScoreValue};
 use ftml::render::html::HtmlOutput;
 use ref_map::OptionRefMap;
@@ -184,11 +186,8 @@ async fn membership_browser_actions_for_page(
     Ok(actions)
 }
 
-fn wikidot_redirect_module_allowed(
-    page: &PageModel,
-    page_revision: &PageRevisionModel,
-) -> bool {
-    page.from_wikidot && page_revision.from_wikidot
+fn wikidot_redirect_module_allowed(layout: Layout) -> bool {
+    layout == Layout::Wikidot
 }
 
 async fn render_wikidot_data_form_wiki_values(
@@ -1413,13 +1412,20 @@ impl ViewService {
             }
         };
 
+        let page_layout = match &page_status {
+            PageStatus::Found { page, .. } => Some(
+                SettingsService::get_layout(ctx, site_id, Some(page.page_id))
+                    .await
+                    .or_raise(make_error)?,
+            ),
+            _ => None,
+        };
+        let redirect_module_allowed =
+            page_layout.is_some_and(wikidot_redirect_module_allowed);
+
         if options.no_redirect
-            && let PageStatus::Found {
-                page,
-                page_revision,
-                ..
-            } = &page_status
-            && wikidot_redirect_module_allowed(page, page_revision)
+            && matches!(&page_status, PageStatus::Found { .. })
+            && redirect_module_allowed
         {
             compiled_body_html = wikidot_redirect_noredirect_body_html(
                 &wikitext,
@@ -1430,12 +1436,8 @@ impl ViewService {
 
         let (redirect_page, redirect_kind) = if let Some(redirect_page) = redirect_page {
             (Some(redirect_page), None)
-        } else if let PageStatus::Found {
-            page,
-            page_revision,
-            ..
-        } = &page_status
-            && wikidot_redirect_module_allowed(page, page_revision)
+        } else if let PageStatus::Found { .. } = &page_status
+            && redirect_module_allowed
             && let Some(redirect_page) =
                 wikidot_redirect_location(&wikitext, page_full_slug, options.no_redirect)
         {
@@ -1467,6 +1469,19 @@ impl ViewService {
         } else {
             (None, None)
         };
+
+        let manage_site_takeover = page_layout == Some(Layout::Wikidot)
+            && matches!(&page_status, PageStatus::Found { .. })
+            && wikitext_has_manage_site_page_takeover(&wikitext);
+        if manage_site_takeover {
+            compiled_body_html = render_manage_site_page_html(
+                ctx,
+                site_id,
+                user_session.as_ref().map(|session| session.user.user_id),
+            )
+            .await
+            .or_raise(make_error)?;
+        }
 
         let theme = SettingsService::get_theme(ctx, site_id, category_id)
             .await
@@ -1549,6 +1564,7 @@ impl ViewService {
                     membership_actions,
                     theme_previewer_no_ui,
                     theme_previewer_blank,
+                    manage_site_takeover,
                     redirect_page,
                     redirect_kind,
                     wikitext,
@@ -2151,71 +2167,11 @@ ORDER BY breadcrumb_chain.depth ASC
 #[cfg(test)]
 mod wikidot_redirect_module_allowed_tests {
     use super::*;
-    use crate::types::PageRevisionType;
-
-    fn page(from_wikidot: bool) -> PageModel {
-        PageModel {
-            page_id: 1,
-            created_at: OffsetDateTime::UNIX_EPOCH,
-            updated_at: None,
-            deleted_at: None,
-            from_wikidot,
-            site_id: 1,
-            latest_revision_id: Some(1),
-            page_category_id: 1,
-            slug: "source".to_owned(),
-            discussion_thread_id: None,
-            layout: None,
-        }
-    }
-
-    fn revision(from_wikidot: bool) -> PageRevisionModel {
-        PageRevisionModel {
-            revision_id: 1,
-            revision_type: PageRevisionType::Regular,
-            created_at: OffsetDateTime::UNIX_EPOCH,
-            updated_at: None,
-            revision_number: 1,
-            page_id: 1,
-            site_id: 1,
-            user_id: 1,
-            anonymous_author_ip: None,
-            from_wikidot,
-            changes: vec![],
-            wikitext_hash: vec![],
-            compiled_body_html_hash: vec![],
-            compiled_body_styles_hash: None,
-            compiled_top_bar_html_hash: None,
-            compiled_side_bar_html_hash: None,
-            compiled_at: OffsetDateTime::UNIX_EPOCH,
-            compiled_generator: "test".to_owned(),
-            comments: String::new(),
-            hidden: vec![],
-            title: "Source".to_owned(),
-            alt_title: None,
-            slug: "source".to_owned(),
-            tags: vec![],
-        }
-    }
 
     #[test]
-    fn allows_only_imported_page_and_imported_revision() {
-        assert!(wikidot_redirect_module_allowed(
-            &page(true),
-            &revision(true)
-        ));
-        assert!(!wikidot_redirect_module_allowed(
-            &page(false),
-            &revision(true)
-        ));
-        assert!(!wikidot_redirect_module_allowed(
-            &page(true),
-            &revision(false)
-        ));
-        assert!(!wikidot_redirect_module_allowed(
-            &page(false),
-            &revision(false)
-        ));
+    fn allows_wikidot_layout_pages_regardless_of_import_provenance() {
+        assert!(wikidot_redirect_module_allowed(Layout::Wikidot));
+        assert!(!wikidot_redirect_module_allowed(Layout::Wikijump));
     }
 }
 

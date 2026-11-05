@@ -5394,7 +5394,7 @@ async fn listpages_saved_view_pager_keeps_the_category_prefix() {
         "the saved-page pager must keep the page category in its href:\n{html}",
     );
     assert!(
-        !html.contains(&format!(r#"href="/fixture-lp-category-pager-holder/p/2""#)),
+        !html.contains(r#"href="/fixture-lp-category-pager-holder/p/2""#),
         "the saved-page pager must not drop the category prefix:\n{html}",
     );
 }

@@ -240,6 +240,7 @@ fn restore_delayed_row_parser_gates(
     prepared_body
 }
 
+#[cfg(test)]
 pub(in crate::services::render) fn prepare_delayed_list_pages_row(
     mut params: PrepareDelayedListPagesRowParams<'_>,
 ) -> PreparedDelayedListPagesRow {
@@ -532,7 +533,6 @@ mod tests {
     ) -> ListPagesSubstitutionContext<'a> {
         ListPagesSubstitutionContext {
             authored_limit: Some(1),
-            ajax_module_response: false,
             page_preview: false,
             site: "sandbox-for-codex",
             site_title: "Sandbox",

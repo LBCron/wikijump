@@ -22,7 +22,6 @@ mod ajax;
 mod argument_errors;
 pub(super) mod authors;
 mod batch_loading;
-mod bounded_expansion;
 mod budget;
 pub(super) mod content_sections;
 mod current_data_form;

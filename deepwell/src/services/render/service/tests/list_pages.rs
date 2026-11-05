@@ -28,7 +28,6 @@ fn list_pages_substitution_context_with_mode<'a>(
 ) -> ListPagesSubstitutionContext<'a> {
     ListPagesSubstitutionContext {
         authored_limit: Some(rendered_limit as u64),
-        ajax_module_response: false,
         page_preview: true,
         site: "scp-wiki",
         site_title: "SCP Wiki",
@@ -3096,7 +3095,6 @@ fn resolves_wikidot_list_pages_parent_fullname_from_import_before_relations() {
         commented_by_name: None,
         rating_votes: None,
         parent_fullname: Some("component:offset-timeline".to_owned()),
-        source_revision_count: 2,
     };
     let imported = BTreeMap::from([(101, snapshot.clone())]);
     let relational = BTreeMap::from([(
@@ -3232,7 +3230,6 @@ fn substitutes_wikidot_list_pages_created_by_unix_from_account_unix_name() {
             commented_by_name: None,
             rating_votes: None,
             parent_fullname: None,
-            source_revision_count: 1,
         },
     )]);
     assert_eq!(
@@ -3590,7 +3587,6 @@ fn substitutes_imported_wikidot_snapshot_metadata_for_list_pages_rows() {
             commented_by_name: Some("Aspenq".to_owned()),
             rating_votes: Some(31),
             parent_fullname: None,
-            source_revision_count: 37,
         },
     );
 
@@ -3676,7 +3672,6 @@ fn snapshot_commenter_without_local_thread_resolves_commented_by_id_and_unix_to_
             commented_by_name: Some("ikjseo".to_owned()),
             rating_votes: Some(31),
             parent_fullname: None,
-            source_revision_count: 37,
         },
     );
 
@@ -4526,7 +4521,6 @@ fn substituted_identity_and_tag_values_escape_html_inside_html_blocks() {
             commented_by_name: Some("<b onmouseover=alert(1)>commenter</b>".to_owned()),
             rating_votes: None,
             parent_fullname: None,
-            source_revision_count: 0,
         },
     );
     let data_form_values = BTreeMap::new();

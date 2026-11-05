@@ -139,7 +139,6 @@ impl RenderService {
             commented_by_name: Option<String>,
             rating_votes: Option<i64>,
             parent_fullname: Option<String>,
-            source_revision_count: i32,
         }
 
         let page_ids = pages
@@ -190,7 +189,7 @@ impl RenderService {
                             AS updated_by_slug, \
                         snapshot.comments, \
                         snapshot.commented_at, snapshot.commented_by_name, \
-                        snapshot.parent_fullname, snapshot.source_revision_count, \
+                        snapshot.parent_fullname, \
                         CASE \
                             WHEN snapshot.meta_json ->> 'votes_count' ~ '^[0-9]{{1,19}}$' \
                                  AND (length(snapshot.meta_json ->> 'votes_count') < 19 \
@@ -226,7 +225,6 @@ impl RenderService {
                              commented_by_name,
                              rating_votes,
                              parent_fullname,
-                             source_revision_count,
                          }| {
                             (
                                 page_id,
@@ -245,7 +243,6 @@ impl RenderService {
                                     commented_by_name,
                                     rating_votes,
                                     parent_fullname,
-                                    source_revision_count,
                                 },
                             )
                         },

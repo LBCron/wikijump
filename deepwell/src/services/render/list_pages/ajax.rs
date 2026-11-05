@@ -47,6 +47,7 @@ pub(in crate::services::render) struct WikidotListPagesModuleRequest {
     pub(in crate::services::render) page: Option<u32>,
 }
 
+#[cfg(test)]
 pub(in crate::services::render) fn build_wikidot_list_pages_module_source(
     module_body: String,
     parameters: &BTreeMap<String, String>,

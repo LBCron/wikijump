@@ -44,7 +44,6 @@ pub(in crate::services::render) struct ListPagesSnapshotDisplay {
     pub(in crate::services::render) commented_by_name: Option<String>,
     pub(in crate::services::render) rating_votes: Option<i64>,
     pub(in crate::services::render) parent_fullname: Option<String>,
-    pub(in crate::services::render) source_revision_count: i32,
 }
 
 #[derive(Debug, Clone)]

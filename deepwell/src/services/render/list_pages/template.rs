@@ -528,6 +528,7 @@ impl ListPagesTemplatePlan {
         self.sections.foot.as_deref()
     }
 
+    #[cfg(test)]
     pub(in crate::services::render) fn has_sections(&self) -> bool {
         self.sections != ListPagesSections::default()
     }

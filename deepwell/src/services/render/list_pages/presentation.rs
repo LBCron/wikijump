@@ -575,7 +575,6 @@ mod tests {
             commented_by_name: None,
             rating_votes: None,
             parent_fullname: None,
-            source_revision_count: 0,
         }
     }
 

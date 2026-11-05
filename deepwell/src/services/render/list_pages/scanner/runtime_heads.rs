@@ -88,6 +88,7 @@ pub(super) fn unresolved_block_conditional_prefix(source: &str) -> bool {
             .is_some_and(char::is_whitespace)
 }
 
+#[cfg(test)]
 pub(in crate::services::render) fn list_pages_runtime_head_is_safe(head: &str) -> bool {
     validate_module_head(head, true) == ModuleHeadValidation::RuntimeSafe
 }

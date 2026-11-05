@@ -47,7 +47,6 @@ mod include_variable_iftags;
 mod include_variables;
 mod legacy_actions;
 mod link_modules;
-#[allow(dead_code)]
 mod list_pages;
 mod literal_regions;
 mod mail_form_module;

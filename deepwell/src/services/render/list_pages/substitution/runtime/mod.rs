@@ -46,7 +46,6 @@ use super::{
 
 pub(in crate::services::render) struct ListPagesSubstitutionContext<'a> {
     pub(in crate::services::render) authored_limit: Option<u64>,
-    pub(in crate::services::render) ajax_module_response: bool,
     pub(in crate::services::render) page_preview: bool,
     pub(in crate::services::render) site: &'a str,
     pub(in crate::services::render) site_title: &'a str,

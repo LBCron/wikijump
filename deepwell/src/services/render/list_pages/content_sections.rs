@@ -1,8 +1,10 @@
 use std::ops::Range;
 
+#[cfg(test)]
 use super::super::include_attachment_owners::{
     DirectiveEndScan, find_wikidot_directive_end,
 };
+#[cfg(test)]
 use super::super::literal_regions::LiteralRegionIndex;
 
 fn is_wikidot_content_separator_line(line: &str) -> bool {
@@ -46,6 +48,7 @@ pub(in crate::services::render) fn wikidot_content_section(
         .unwrap_or_default()
 }
 
+#[cfg(test)]
 fn boundary_crosses_literal(
     literal_regions: &LiteralRegionIndex,
     boundary: usize,
@@ -57,6 +60,7 @@ fn boundary_crosses_literal(
         && literal_regions.contains(boundary)
 }
 
+#[cfg(test)]
 fn boundary_is_inside_wikidot_head(
     source: &str,
     literal_regions: &LiteralRegionIndex,
@@ -82,6 +86,7 @@ fn boundary_is_inside_wikidot_head(
     false
 }
 
+#[cfg(test)]
 pub(in crate::services::render) fn isolate_wikidot_content_section(
     wikitext: &str,
     section: usize,

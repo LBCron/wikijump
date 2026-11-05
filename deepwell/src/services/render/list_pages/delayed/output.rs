@@ -12,15 +12,16 @@
 
 use super::{
     CompatHtmlFragments, CompatTextFragments, DelayedInput, Error, ErrorType,
-    FinishOrDeferListPagesDelayedOutputParams, GeneratedValue, InputSegment,
-    ListPagesRuntimeTextRange, PageInfo, PendingDelayedListPagesOutput,
-    PendingDelayedListPagesSlot, PendingDelayedListPagesSlotValue,
-    ProtectListPagesDelayedOutputParams, Range, RenderService, Result,
-    SealListPagesDelayedOutputParams, SharedRenderCostBudget, SlotBindings, TextOrigin,
-    WikitextMode, WikitextSettings,
+    FinishOrDeferListPagesDelayedOutputParams, InputSegment, PageInfo,
+    PendingDelayedListPagesOutput, PendingDelayedListPagesSlot,
+    PendingDelayedListPagesSlotValue, ProtectListPagesDelayedOutputParams, RenderService,
+    Result, SealListPagesDelayedOutputParams, SharedRenderCostBudget, SlotBindings,
+    TextOrigin, WikitextMode, WikitextSettings,
     find_list_pages_module_matches_with_delayed_links_budgeted, parse_delayed_list,
     register_generated_list_pages_html, seal_list_pages_delayed_output_with_modes,
 };
+#[cfg(test)]
+use super::{GeneratedValue, ListPagesRuntimeTextRange, Range};
 
 pub(in crate::services::render) fn replace_recursive_list_pages_with_error(
     source: &str,
@@ -129,6 +130,7 @@ pub(in crate::services::render) fn seal_zero_row_list_pages_wrapper(
     Ok(format!("\n\n{wrapper}\n\n"))
 }
 
+#[cfg(test)]
 pub(in crate::services::render) fn protect_list_pages_delayed_output(
     output: String,
     delayed_occurrences: Vec<(Range<usize>, GeneratedValue<'static>)>,
@@ -146,6 +148,7 @@ pub(in crate::services::render) fn protect_list_pages_delayed_output(
     )
 }
 
+#[cfg(test)]
 pub(in crate::services::render) fn protect_list_pages_delayed_output_with_mode(
     output: String,
     delayed_occurrences: Vec<(Range<usize>, GeneratedValue<'static>)>,
@@ -232,21 +235,6 @@ fn protect_list_pages_delayed_output_with_modes(
             page_existence,
         }),
     ))
-}
-
-pub(in crate::services::render) fn finish_or_defer_list_pages_delayed_output(
-    mut params: FinishOrDeferListPagesDelayedOutputParams<'_>,
-) -> Result<(String, Option<PendingDelayedListPagesOutput>)> {
-    params.block_output = true;
-    finish_or_defer_list_pages_delayed_output_with_mode(params)
-}
-
-pub(in crate::services::render) fn finish_or_defer_list_pages_delayed_output_with_mode(
-    mut params: FinishOrDeferListPagesDelayedOutputParams<'_>,
-) -> Result<(String, Option<PendingDelayedListPagesOutput>)> {
-    params.list_pages_inline = false;
-    params.page_existence = None;
-    finish_or_defer_list_pages_delayed_output_with_modes(params)
 }
 
 pub(in crate::services::render) fn finish_or_defer_list_pages_delayed_output_with_modes(

@@ -1,12 +1,15 @@
+#[cfg(test)]
+use super::Range;
 use super::{
     CompatHtmlFragments, DelayedInput, Error, ErrorType, GeneratedInput, GeneratedKind,
     GeneratedValue, InputSegment, ListPagesRuntimeTextRange, PageInfo,
-    PendingDelayedListPagesOutput, PendingDelayedListPagesSlotValue, Range,
-    RenderService, Result, SealListPagesDelayedOutputParams, SlotBindings, SlotId,
-    TextOrigin, WikitextMode, WikitextSettings, parse_delayed_list,
+    PendingDelayedListPagesOutput, PendingDelayedListPagesSlotValue, RenderService,
+    Result, SealListPagesDelayedOutputParams, SlotBindings, SlotId, TextOrigin,
+    WikitextMode, WikitextSettings, parse_delayed_list,
     register_generated_list_pages_html, strip_generated_list_pages_html_markers,
 };
 
+#[cfg(test)]
 pub(in crate::services::render) fn seal_list_pages_delayed_output(
     output: String,
     delayed_occurrences: Vec<(Range<usize>, GeneratedValue<'static>)>,
@@ -30,6 +33,7 @@ pub(in crate::services::render) fn seal_list_pages_delayed_output(
     })
 }
 
+#[cfg(test)]
 pub(in crate::services::render) fn seal_list_pages_delayed_output_with_mode(
     mut params: SealListPagesDelayedOutputParams<'_>,
 ) -> Result<String> {

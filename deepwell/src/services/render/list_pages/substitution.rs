@@ -267,6 +267,7 @@ pub(in crate::services::render) fn list_pages_recognized_static_url_fallback_ran
         .collect()
 }
 
+#[cfg(test)]
 pub(in crate::services::render) fn list_pages_static_parent_fullname(
     head: &str,
 ) -> Option<String> {

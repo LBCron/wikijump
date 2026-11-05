@@ -905,6 +905,7 @@ async fn load_forum_feed_category(
 
 async fn load_forum_feed_thread(
     ctx: &ServiceContext<'_>,
+    visibility: &mut ForumPageVisibility<'_, '_>,
     site_id: i64,
     thread_id: i64,
 ) -> Result<Option<ForumFeedScopeMetadata>> {
@@ -913,18 +914,24 @@ async fn load_forum_feed_thread(
         group_name: String,
         category_name: String,
         thread_title: String,
+        page_id: Option<i64>,
+        page_category_id: Option<i64>,
     }
 
     let row = ForumFeedThreadRow::find_by_statement(Statement::from_sql_and_values(
         ctx.transaction().get_database_backend(),
-        "SELECT g.name AS group_name, c.name AS category_name, t.title AS thread_title \
+        "SELECT g.name AS group_name, c.name AS category_name, t.title AS thread_title, \
+                t.page_id, p.page_category_id \
          FROM forum_thread t \
          JOIN forum_category c ON c.forum_category_id = t.forum_category_id \
                               AND c.site_id = t.site_id AND c.deleted_at IS NULL \
          JOIN forum_group g ON g.forum_group_id = t.forum_group_id \
                            AND g.site_id = t.site_id AND g.deleted_at IS NULL \
                            AND g.visible = TRUE \
-         WHERE t.site_id = $1 AND t.forum_thread_id = $2 AND t.deleted_at IS NULL",
+         LEFT JOIN page p ON p.page_id = t.page_id AND p.site_id = t.site_id \
+                          AND p.deleted_at IS NULL \
+         WHERE t.site_id = $1 AND t.forum_thread_id = $2 AND t.deleted_at IS NULL \
+           AND (t.page_id IS NULL OR p.page_id IS NOT NULL)",
         [Value::from(site_id), Value::from(thread_id)],
     ))
     .one(ctx.transaction())
@@ -936,7 +943,17 @@ async fn load_forum_feed_thread(
         )
     })?;
 
-    Ok(row.map(|row| ForumFeedScopeMetadata {
+    let Some(row) = row else {
+        return Ok(None);
+    };
+    if !visibility
+        .page_is_viewable(site_id, row.page_id, row.page_category_id)
+        .await?
+    {
+        return Ok(None);
+    }
+
+    Ok(Some(ForumFeedScopeMetadata {
         group_name: row.group_name,
         category_id: None,
         category_name: Some(row.category_name),
@@ -953,6 +970,7 @@ enum ForumFeedScopeVisibility {
 
 async fn resolve_forum_feed_scope_visibility(
     ctx: &ServiceContext<'_>,
+    visibility: &mut ForumPageVisibility<'_, '_>,
     site_id: i64,
     scope: WikidotForumFeedScope,
 ) -> Result<ForumFeedScopeVisibility> {
@@ -965,7 +983,7 @@ async fn resolve_forum_feed_scope_visibility(
             }
         }
         WikidotForumFeedScope::Thread(thread_id) => {
-            match load_forum_feed_thread(ctx, site_id, thread_id).await? {
+            match load_forum_feed_thread(ctx, visibility, site_id, thread_id).await? {
                 Some(thread) => Some(thread),
                 None => return Ok(ForumFeedScopeVisibility::NotVisible),
             }
@@ -987,11 +1005,17 @@ impl RenderService {
             return Ok(None);
         }
 
-        let scope_metadata =
-            match resolve_forum_feed_scope_visibility(ctx, site_id, scope).await? {
-                ForumFeedScopeVisibility::Visible(metadata) => metadata,
-                ForumFeedScopeVisibility::NotVisible => return Ok(None),
-            };
+        let scope_metadata = match resolve_forum_feed_scope_visibility(
+            ctx,
+            &mut visibility,
+            site_id,
+            scope,
+        )
+        .await?
+        {
+            ForumFeedScopeVisibility::Visible(metadata) => metadata,
+            ForumFeedScopeVisibility::NotVisible => return Ok(None),
+        };
 
         let site = SiteService::get(ctx, Reference::Id(site_id)).await?;
         let mut items = Vec::with_capacity(FORUM_FEED_ITEM_LIMIT);

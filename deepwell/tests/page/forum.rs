@@ -4981,3 +4981,327 @@ async fn forum_reply_controls_follow_effective_nesting_and_boundary_sibling_orde
         }
     }
 }
+
+#[tokio::test]
+async fn forum_post_create_requires_page_view_on_page_bound_threads() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+
+    let group = ForumService::create_group(
+        runner.context(),
+        CreateForumGroup {
+            site_id,
+            user_id: ADMIN_USER_ID,
+            name: "Page-view create group".to_owned(),
+            description: String::new(),
+            visible: true,
+            sort_index: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("page-view create group should be created");
+    let category = ForumService::create_category(
+        runner.context(),
+        CreateForumCategory {
+            forum_group_id: group.forum_group_id,
+            user_id: ADMIN_USER_ID,
+            name: "Page-view create category".to_owned(),
+            description: String::new(),
+            sort_index: None,
+            max_nest_level: Some(3),
+            per_page_discussion: Some(false),
+            layout: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("page-view create category should be created");
+
+    const PRIVATE_SLUG: &str = "fixture-forum-f5-private-page";
+    const PRIVATE_CATEGORY: &str = "fixture-forum-f5-private-category";
+    make_listpages_test_category_admin_only(&runner, site_id, PRIVATE_CATEGORY).await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        PRIVATE_SLUG,
+        "Forum F5 Private Page",
+        "private forum create fixture",
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, PRIVATE_SLUG, PRIVATE_CATEGORY)
+        .await;
+    let private_page_id = listpages_test_page_id(&runner, site_id, PRIVATE_SLUG).await;
+
+    let page_thread = ForumThreadService::create(
+        runner.context(),
+        CreateForumThread {
+            forum_category_id: category.forum_category_id,
+            user_id: ADMIN_USER_ID,
+            associated_page_id: Some(private_page_id),
+            title: "Private page thread".to_owned(),
+            description: String::new(),
+            sticky: false,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("page-bound thread should be created");
+    let open_thread = ForumThreadService::create(
+        runner.context(),
+        CreateForumThread {
+            forum_category_id: category.forum_category_id,
+            user_id: ADMIN_USER_ID,
+            associated_page_id: None,
+            title: "Open thread".to_owned(),
+            description: String::new(),
+            sticky: false,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("open thread should be created");
+
+    for role_slug in ["anonymous", "admin"] {
+        let role = RoleService::get(
+            runner.context(),
+            site_id,
+            Reference::Slug(Cow::Borrowed(role_slug)),
+        )
+        .await
+        .unwrap_or_else(|_| panic!("{role_slug} role should exist"));
+        role_permission::ActiveModel {
+            role_id: Set(role.role_id),
+            site_id: Set(site_id),
+            resource_type: Set(Resource::ForumCategory),
+            resource_category_id: Set(Some(category.forum_category_id)),
+            action: Set(Action::Create),
+            ..Default::default()
+        }
+        .insert(runner.context().transaction())
+        .await
+        .unwrap_or_else(|_| {
+            panic!("{role_slug} forum post permission should be inserted")
+        });
+    }
+    PermissionCache::invalidate_site(runner.context(), site_id)
+        .await
+        .expect("forum permission cache should be invalidated");
+
+    runner.set_request_context(RequestContext {
+        user_id: None,
+        site_id: Some(site_id),
+        ..Default::default()
+    });
+    let denied = run_endpoint_err!(
+        runner,
+        forum_post_create,
+        json!({
+            "site_id": site_id,
+            "forum_thread_id": page_thread.forum_thread_id,
+            "parent_post_id": null,
+            "title": "",
+            "wikitext": "blind write into a private discussion",
+            "guest_name": "Blind Guest",
+            "guest_email_md5": "84991830db6f52c0a36a85d452311203",
+        }),
+    );
+    assert_contains_error!(denied, ErrorType::PermissionDenied);
+
+    run_endpoint!(
+        runner,
+        forum_post_create,
+        json!({
+            "site_id": site_id,
+            "forum_thread_id": open_thread.forum_thread_id,
+            "parent_post_id": null,
+            "title": "",
+            "wikitext": "guest post in the open thread",
+            "guest_name": "Open Guest",
+            "guest_email_md5": "84991830db6f52c0a36a85d452311203",
+        }),
+    );
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        ..Default::default()
+    });
+    run_endpoint!(
+        runner,
+        forum_post_create,
+        json!({
+            "site_id": site_id,
+            "forum_thread_id": page_thread.forum_thread_id,
+            "parent_post_id": null,
+            "title": "Admin reply",
+            "wikitext": "admin reply in the private discussion",
+        }),
+    );
+
+    let summary = run_endpoint!(
+        runner,
+        forum_post_page_summary,
+        json!({"site_id": site_id, "page": PRIVATE_SLUG}),
+    );
+    let summary_value =
+        serde_json::to_value(summary).expect("forum summary should serialize");
+    assert_eq!(
+        summary_value["comments"],
+        json!(1),
+        "the denied blind write must not land in the private discussion"
+    );
+}
+
+#[tokio::test]
+async fn wikidot_forum_feed_thread_scope_hides_private_page_threads() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+
+    let group = ForumService::create_group(
+        runner.context(),
+        CreateForumGroup {
+            site_id,
+            user_id: ADMIN_USER_ID,
+            name: "Feed scope group".to_owned(),
+            description: String::new(),
+            visible: true,
+            sort_index: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("feed scope group should be created");
+    let category = ForumService::create_category(
+        runner.context(),
+        CreateForumCategory {
+            forum_group_id: group.forum_group_id,
+            user_id: ADMIN_USER_ID,
+            name: "Feed scope category".to_owned(),
+            description: String::new(),
+            sort_index: None,
+            max_nest_level: Some(3),
+            per_page_discussion: Some(false),
+            layout: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("feed scope category should be created");
+
+    const PRIVATE_SLUG: &str = "fixture-forum-f5-feed-private-page";
+    const PRIVATE_CATEGORY: &str = "fixture-forum-f5-feed-private-category";
+    make_listpages_test_category_admin_only(&runner, site_id, PRIVATE_CATEGORY).await;
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        PRIVATE_SLUG,
+        "Forum F5 Feed Private Page",
+        "private forum feed fixture",
+    )
+    .await;
+    set_listpages_test_category_slug(&runner, site_id, PRIVATE_SLUG, PRIVATE_CATEGORY)
+        .await;
+    let private_page_id = listpages_test_page_id(&runner, site_id, PRIVATE_SLUG).await;
+
+    async fn create_thread_with_post(
+        runner: &TestRunner,
+        category_id: i64,
+        page_id: Option<i64>,
+        title: &str,
+    ) -> i64 {
+        let thread = ForumThreadService::create(
+            runner.context(),
+            CreateForumThread {
+                forum_category_id: category_id,
+                user_id: ADMIN_USER_ID,
+                associated_page_id: page_id,
+                title: title.to_owned(),
+                description: String::new(),
+                sticky: false,
+                from_wikidot: false,
+            },
+        )
+        .await
+        .expect("feed scope thread should be created");
+        ForumPostService::create(
+            runner.context(),
+            CreateForumPost {
+                forum_thread_id: thread.forum_thread_id,
+                parent_post_id: None,
+                user_id: ADMIN_USER_ID,
+                title: format!("{title} post"),
+                wikitext: format!("{title} body"),
+                comments: "create feed scope post".to_owned(),
+                from_wikidot: false,
+            },
+        )
+        .await
+        .expect("feed scope post should be created");
+        thread.forum_thread_id
+    }
+
+    let private_thread = create_thread_with_post(
+        &runner,
+        category.forum_category_id,
+        Some(private_page_id),
+        "Private Feed Thread",
+    )
+    .await;
+    let open_thread = create_thread_with_post(
+        &runner,
+        category.forum_category_id,
+        None,
+        "Open Feed Thread",
+    )
+    .await;
+
+    runner.set_request_context(RequestContext {
+        user_id: None,
+        site_id: Some(site_id),
+        ..Default::default()
+    });
+    for kind in ["posts", "threads"] {
+        let feed = run_endpoint!(
+            runner,
+            wikidot_forum_feed,
+            json!({"site_id": site_id, "kind": kind, "thread_id": private_thread}),
+        );
+        assert!(
+            feed.is_none(),
+            "private thread scope must not leak its header for {kind} feeds"
+        );
+    }
+    let open_feed = run_endpoint!(
+        runner,
+        wikidot_forum_feed,
+        json!({"site_id": site_id, "kind": "posts", "thread_id": open_thread}),
+    )
+    .expect("open thread scope should stay viewable");
+    assert_eq!(
+        open_feed.forum_thread_title.as_deref(),
+        Some("Open Feed Thread")
+    );
+    assert_eq!(open_feed.items.len(), 1);
+
+    runner.set_request_context(RequestContext {
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        ..Default::default()
+    });
+    let private_feed = run_endpoint!(
+        runner,
+        wikidot_forum_feed,
+        json!({"site_id": site_id, "kind": "posts", "thread_id": private_thread}),
+    )
+    .expect("private thread scope should stay viewable for viewers");
+    assert_eq!(
+        private_feed.forum_thread_title.as_deref(),
+        Some("Private Feed Thread")
+    );
+    assert_eq!(private_feed.items.len(), 1);
+}

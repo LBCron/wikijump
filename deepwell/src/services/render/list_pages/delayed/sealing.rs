@@ -8,6 +8,7 @@ use super::{
     WikitextMode, WikitextSettings, parse_delayed_list,
     register_generated_list_pages_html, strip_generated_list_pages_html_markers,
 };
+use crate::services::PageExistenceSnapshot;
 
 #[cfg(test)]
 pub(in crate::services::render) fn seal_list_pages_delayed_output(
@@ -319,8 +320,12 @@ pub(in crate::services::render) fn seal_pending_list_pages_delayed_outputs(
     page_info: &PageInfo<'_>,
     settings: &WikitextSettings,
     compat_html: &mut CompatHtmlFragments,
+    page_existence: Option<&PageExistenceSnapshot>,
 ) -> Result<()> {
-    for pending in pending_outputs {
+    for mut pending in pending_outputs {
+        if let Some(page_existence) = page_existence {
+            pending.page_existence = Some(page_existence.clone());
+        }
         let Some((start_marker, end_marker)) = pending.boundary_markers.clone() else {
             return Err(Error::new(
                 "typed ListPages output was not bounded before runtime expansion",

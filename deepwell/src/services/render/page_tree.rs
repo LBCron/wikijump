@@ -67,6 +67,37 @@ enum PageTreeLoad {
 }
 
 const MAX_PAGE_TREE_ROWS: usize = MAX_LISTPAGES_RENDER_SCAN_ROWS as usize;
+
+fn page_tree_title_collation_key(title: &str) -> String {
+    title
+        .chars()
+        .flat_map(char::to_lowercase)
+        .filter(|character| character.is_alphanumeric())
+        .collect()
+}
+
+fn sort_page_tree_children(tree: &mut PageTree) {
+    for child_ids in tree.child_ids_by_parent.values_mut() {
+        child_ids.sort_by(|left, right| {
+            let (Some(left_node), Some(right_node)) =
+                (tree.nodes.get(left), tree.nodes.get(right))
+            else {
+                return left.cmp(right);
+            };
+            page_tree_title_collation_key(&left_node.title)
+                .cmp(&page_tree_title_collation_key(&right_node.title))
+                .then_with(|| {
+                    left_node
+                        .title
+                        .to_lowercase()
+                        .cmp(&right_node.title.to_lowercase())
+                })
+                .then_with(|| left_node.title.cmp(&right_node.title))
+                .then_with(|| left_node.slug.cmp(&right_node.slug))
+                .then_with(|| left.cmp(right))
+        });
+    }
+}
 const PAGE_TREE_QUERY_LIMIT: u64 = MAX_PAGE_TREE_ROWS as u64 + 1;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -360,7 +391,6 @@ impl RenderService {
         let relationships = PageParent::find()
             .filter(page_parent::Column::ParentPageId.is_in(page_ids.clone()))
             .filter(page_parent::Column::ChildPageId.is_in(page_ids))
-            .order_by_asc(page_parent::Column::CreatedAt)
             .order_by_asc(page_parent::Column::ChildPageId)
             .limit(PAGE_TREE_QUERY_LIMIT)
             .all(txn)
@@ -377,11 +407,13 @@ impl RenderService {
                 .push(relationship.child_page_id);
         }
 
-        Ok(PageTreeLoad::Complete(PageTree {
+        let mut tree = PageTree {
             nodes,
             page_ids_by_slug,
             child_ids_by_parent,
-        }))
+        };
+        sort_page_tree_children(&mut tree);
+        Ok(PageTreeLoad::Complete(tree))
     }
 }
 
@@ -392,6 +424,7 @@ mod tests {
     use super::{
         PAGE_TREE_MODULE_REGEX, PageTree, PageTreeArguments, PageTreeNode,
         parse_page_tree_arguments, render_page_tree, root_is_supported,
+        sort_page_tree_children,
     };
     use std::collections::HashMap;
 
@@ -484,6 +517,75 @@ mod tests {
         assert!(html.starts_with("\n<ul>\n<li>\n<a href=\"/root\">Root</a>"));
         assert!(html.contains("Great &lt;Child&gt;"));
         assert_eq!(html.matches(r#"href="/root""#).count(), 1);
+    }
+
+    #[test]
+    fn page_tree_children_follow_live_title_collation() {
+        fn title_for(index: i64) -> String {
+            let detail = match index {
+                0 => "12AM",
+                1 => "1 AM",
+                10 => "10 AM",
+                11 => "11 AM",
+                12 => "RTF-K13 Report",
+                13 => "After-Action Report",
+                14 => "Outside",
+                other => {
+                    return format!("fragment: Site-69 Footage {other} ({other} AM)");
+                }
+            };
+            format!("fragment: Site-69 Footage {index} ({detail})")
+        }
+        let slug_order = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+        let nodes = slug_order
+            .iter()
+            .map(|index| {
+                (
+                    100 + index,
+                    PageTreeNode {
+                        slug: format!("fragment:site-69-footage-{index}"),
+                        title: title_for(*index),
+                    },
+                )
+            })
+            .collect::<HashMap<_, _>>();
+        let child_ids = slug_order.iter().map(|index| 100 + index).collect();
+        let mut tree = PageTree {
+            page_ids_by_slug: nodes
+                .iter()
+                .map(|(page_id, node)| (node.slug.clone(), *page_id))
+                .collect(),
+            nodes,
+            child_ids_by_parent: HashMap::from([(1, child_ids)]),
+        };
+
+        sort_page_tree_children(&mut tree);
+
+        assert_eq!(
+            tree.child_ids_by_parent[&1],
+            vec![
+                100, 110, 111, 101, 112, 113, 114, 102, 103, 104, 105, 106, 107, 108, 109
+            ],
+        );
+        let html = render_page_tree(&tree, 1, false, None);
+        let positions = [
+            "footage-0",
+            "footage-10",
+            "footage-11",
+            "footage-1",
+            "footage-12",
+            "footage-13",
+            "footage-14",
+            "footage-2",
+        ]
+        .map(|slug| {
+            html.find(&format!(r#"href="/fragment:site-69-{slug}""#))
+                .unwrap_or_else(|| panic!("{slug} should render:\n{html}"))
+        });
+        assert!(
+            positions.windows(2).all(|pair| pair[0] < pair[1]),
+            "PageTree children must follow the live title order: {html}",
+        );
     }
 
     #[test]

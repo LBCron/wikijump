@@ -979,7 +979,7 @@ fn parses_site_news_name_date_and_rating_selectors() {
     .expect("site-news selectors should parse");
 
     assert!(arguments.slug.is_none());
-    assert_eq!(arguments.name_pattern.as_deref(), Some("scp-*"));
+    assert_eq!(arguments.name_pattern.as_deref(), Some("scp%"));
     assert!(matches!(
         arguments.creation_date,
         DateSelector::Span {

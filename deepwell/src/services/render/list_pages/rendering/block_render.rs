@@ -1430,6 +1430,20 @@ impl RenderService {
         let list_pages_inline = wrapper
             && !separate
             && list_pages_template_starts_with_inline_anchor(template);
+        let list_pages_page_existence = if output.contains("[[[") {
+            Some(
+                RenderService::resolve_list_pages_page_existence(
+                    ctx,
+                    current_site_id,
+                    page_info.site.as_ref(),
+                    &output,
+                    viewer_user_id,
+                )
+                .await?,
+            )
+        } else {
+            None
+        };
         let (output, pending_delayed) =
             finish_or_defer_list_pages_delayed_output_with_modes(
                 FinishOrDeferListPagesDelayedOutputParams {
@@ -1444,9 +1458,7 @@ impl RenderService {
                     compat_text,
                     block_output,
                     list_pages_inline,
-                    page_existence: numbered_link_titles
-                        .as_ref()
-                        .and_then(|titles| titles.page_existence()),
+                    page_existence: list_pages_page_existence.as_ref(),
                 },
             )?;
         Ok(ListPagesBlockRenderResult::Expanded(

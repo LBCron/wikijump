@@ -23,14 +23,13 @@ use sea_query::{ExprTrait, Func};
 
 pub(super) fn wikidot_name_pattern(value: &str) -> String {
     let mut pattern = String::with_capacity(value.len());
-    let trailing_star = value.ends_with('*') && value.matches('*').count() == 1;
+    let single_star = value.matches('*').count() == 1;
     for (index, character) in value.char_indices() {
+        let trailing = index + character.len_utf8() == value.len();
         match character {
-            '*' if trailing_star && index + character.len_utf8() == value.len() => {
-                pattern.push('%');
-            }
+            '*' if trailing && single_star => pattern.push('%'),
             '*' => pattern.push_str("\\*"),
-            '?' => pattern.push('_'),
+            '%' if trailing => pattern.push('%'),
             '%' => pattern.push_str("\\%"),
             '_' => pattern.push_str("\\_"),
             '\\' => pattern.push_str("\\\\"),

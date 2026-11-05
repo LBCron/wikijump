@@ -9,6 +9,7 @@ mod theme_previewer;
 pub(crate) use theme_previewer::has_theme_previewer_no_ui;
 pub(super) use theme_previewer::{has_theme_previewer_blank, theme_previewer_blank_head};
 mod user_lists;
+mod watchers;
 mod www;
 
 use page_calendar::PageCalendarExpansionOptions;
@@ -340,7 +341,7 @@ static SENDINVITATIONS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static STATIC_ACCOUNT_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)\[\[module\s+(?P<name>AnonymousNotificationsUnsubscribe|Dashboard|UserInfo|SearchUsers|Watchers|WhoInvited|ThemePreviewer|MembershipEmailInvitation)\b(?P<head>(?:[^\]"]+|"[^"]*")*)\]\]"#,
+        r#"(?is)\[\[module\s+(?P<name>AnonymousNotificationsUnsubscribe|Dashboard|UserInfo|SearchUsers|WhoInvited|ThemePreviewer|MembershipEmailInvitation)\b(?P<head>(?:[^\]"]+|"[^"]*")*)\]\]"#,
     )
     .expect("static account module expression is valid")
 });
@@ -1097,8 +1098,6 @@ impl RenderService {
             USERINFO_NO_USER_HTML
         } else if name.eq_ignore_ascii_case("SearchUsers") {
             SEARCHUSERS_DISABLED_HTML
-        } else if name.eq_ignore_ascii_case("Watchers") {
-            ""
         } else if name.eq_ignore_ascii_case("ThemePreviewer") {
             THEME_PREVIEWER_PREVIEW_ERROR_HTML
         } else if name.eq_ignore_ascii_case("MembershipEmailInvitation") {
@@ -1151,11 +1150,7 @@ impl RenderService {
             }
             output.push_str(&wikitext[cursor..matched.start()]);
             let rendered = Self::render_static_account_module(name);
-            if rendered.is_empty() && name.eq_ignore_ascii_case("Watchers") {
-                output.push_str(
-                    &compat_html.push_block_html("<p>\n\n\n\n\n</p>".to_owned()),
-                );
-            } else if !rendered.is_empty() {
+            if !rendered.is_empty() {
                 output.push_str(&compat_html.push_block_html(rendered.to_owned()));
             }
             cursor = matched.end();
@@ -1378,6 +1373,16 @@ impl RenderService {
             settings,
             options.viewer_user_id,
             options.url,
+            compat_html,
+        )
+        .await
+        .or_raise(make_error)?;
+        wikitext = Self::expand_watchers_modules(
+            ctx,
+            wikitext,
+            settings,
+            options.current_page_id,
+            options.viewer_user_id,
             compat_html,
         )
         .await
@@ -1659,8 +1664,12 @@ mod runtime_module_residual_tests {
     }
 
     #[test]
-    fn watchers_argument_bearing_preview_stays_literal_without_watcher_list() {
-        fn preview_static(source: &str) -> String {
+    fn watchers_module_is_owned_by_the_page_watch_expander() {
+        for source in [
+            "[[module Watchers]]",
+            "[[module Watchers noActions=\"true\"]]",
+            "[[module Watchers foo=\"bar\"]]",
+        ] {
             let settings =
                 WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
             let mut compat_html = CompatHtmlFragments::new(source);
@@ -1669,28 +1678,10 @@ mod runtime_module_residual_tests {
                 &settings,
                 &mut compat_html,
             );
-            compat_html.restore(&expanded)
-        }
-
-        let bare = preview_static("[[module Watchers]]");
-        assert!(
-            bare.contains("<p>\n\n\n\n\n</p>"),
-            "bare Watchers must keep the live empty block boundary:\n{bare}",
-        );
-        assert!(
-            !bare.contains("[[module Watchers"),
-            "bare Watchers must be consumed, not leaked:\n{bare}",
-        );
-
-        for source in [
-            "[[module Watchers noActions=\"true\"]]",
-            "[[module Watchers foo=\"bar\"]]",
-        ] {
-            let rendered = preview_static(source);
-            assert_eq!(rendered, source, "{source}");
-            assert!(
-                !rendered.contains("<p>\n\n\n\n\n</p>"),
-                "{source} must not collapse to the empty block:\n{rendered}",
+            assert_eq!(
+                compat_html.restore(&expanded),
+                source,
+                "the static account expander must leave Watchers to the page-watch expander",
             );
         }
     }

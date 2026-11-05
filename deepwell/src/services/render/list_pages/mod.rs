@@ -107,7 +107,8 @@ pub(super) use self::generated_html::{
 #[cfg(test)]
 pub(super) use self::pagination::ListPagesPagerArgs;
 pub(super) use self::pagination::{
-    ListPagesPagerRoute, list_pages_feed_info_html, push_list_pages_pager,
+    ListPagesPagerRoute, list_pages_feed_info_html, list_pages_pager_window,
+    push_list_pages_pager,
 };
 #[cfg(test)]
 pub(super) use self::parents::ListPagesParentDisplay;
@@ -1227,14 +1228,14 @@ mod tests {
     }
 
     #[test]
-    fn list_pages_category_local_names_fold_case_and_trim_source_values() {
+    fn list_pages_category_local_names_fold_case_and_normalize_source_values() {
         let arguments =
             parse_list_pages_arguments(r#"category="+Component" name=" Image?Block ""#)
                 .expect("the evidenced category-local name selector should execute");
 
         assert_eq!(arguments.categories, vec![Cow::Borrowed("component")]);
-        assert_eq!(arguments.name_pattern, Some(Cow::Borrowed("image?block")),);
-        assert_eq!(arguments.slug, None);
+        assert_eq!(arguments.slug, Some(Cow::Borrowed("image-block")),);
+        assert_eq!(arguments.name_pattern, None);
 
         let arguments = parse_list_pages_arguments(r#"category="NAV" name=" Side ""#)
             .expect("an exact category-local name should execute");

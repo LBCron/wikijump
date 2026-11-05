@@ -5103,6 +5103,457 @@ async fn orphanedpages_module_refreshes_after_linker_soft_delete() {
 }
 
 #[tokio::test]
+async fn listpages_name_selector_treats_a_trailing_percent_as_a_wildcard() {
+    const HOLDER_SLUG: &str = "fixture-lp-percent-holder";
+    const ITEM_PREFIX: &str = "fixture-lp-percent";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for index in 1..=2 {
+        let slug = format!("{ITEM_PREFIX}-{index}");
+        create_listpages_test_page(&mut runner, site_id, &slug, &slug, "Percent row")
+            .await;
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER_SLUG,
+        "ListPages percent holder",
+        &format!(
+            concat!(
+                "TRAILING_START\n",
+                "[[module ListPages name=\"{ITEM_PREFIX}-%\" order=\"name\" separate=\"no\" wrapper=\"no\"]]\n",
+                "ROW:%%name%%|\n",
+                "[[/module]]\n",
+                "TRAILING_END\n",
+                "MIDDLE_START\n",
+                "[[module ListPages name=\"{ITEM_PREFIX}-%-2\" order=\"name\" separate=\"no\" wrapper=\"no\"]]\n",
+                "ROW:%%name%%|\n",
+                "[[/module]]\n",
+                "MIDDLE_END\n",
+                "QUESTION_START\n",
+                "[[module ListPages name=\"{ITEM_PREFIX}-1?\" order=\"name\" separate=\"no\" wrapper=\"no\"]]\n",
+                "ROW:%%name%%|\n",
+                "[[/module]]\n",
+                "QUESTION_END\n",
+                "UNDERSCORE_START\n",
+                "[[module ListPages name=\"fixture_lp_percent_2\" order=\"name\" separate=\"no\" wrapper=\"no\"]]\n",
+                "ROW:%%name%%|\n",
+                "[[/module]]\n",
+                "UNDERSCORE_END\n",
+                "STAR_MIDDLE_START\n",
+                "[[module ListPages name=\"{ITEM_PREFIX}*1\" order=\"name\" separate=\"no\" wrapper=\"no\"]]\n",
+                "ROW:%%name%%|\n",
+                "[[/module]]\n",
+                "STAR_MIDDLE_END",
+            ),
+            ITEM_PREFIX = ITEM_PREFIX,
+        ),
+    )
+    .await;
+
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": HOLDER_SLUG,
+        }),
+    )
+    .expect("ListPages percent holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER_SLUG).await;
+    fn section<'a>(document: &'a str, start: &str, end: &str) -> &'a str {
+        let start = document.find(start).expect("section start should render");
+        let end = document[start..]
+            .find(end)
+            .map(|offset| start + offset)
+            .expect("section end should render");
+        &document[start..end]
+    }
+
+    let trailing = section(&html, "TRAILING_START", "TRAILING_END");
+    assert!(
+        trailing.contains(&format!("ROW:{ITEM_PREFIX}-1|"))
+            && trailing.contains(&format!("ROW:{ITEM_PREFIX}-2|")),
+        "a trailing percent is the live prefix wildcard:\n{trailing}",
+    );
+    assert!(
+        !trailing.contains("[[module ListPages"),
+        "the module must execute:\n{trailing}",
+    );
+
+    for (marker, selected) in [
+        ("MIDDLE", format!("ROW:{ITEM_PREFIX}-2|")),
+        ("QUESTION", format!("ROW:{ITEM_PREFIX}-1|")),
+        ("UNDERSCORE", format!("ROW:{ITEM_PREFIX}-2|")),
+        ("STAR_MIDDLE", format!("ROW:{ITEM_PREFIX}-1|")),
+    ] {
+        let body = section(&html, &format!("{marker}_START"), &format!("{marker}_END"));
+        assert!(
+            body.contains(&selected),
+            "{marker} must slugify its separator to a dash like live:\n{body}",
+        );
+    }
+}
+
+#[tokio::test]
+async fn watchers_module_renders_the_page_watcher_list_and_live_action_states() {
+    const HOLDER_SLUG: &str = "fixture-watchers-holder";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER_SLUG,
+        "Watchers Module Holder",
+        concat!(
+            "WATCH_ACTIONS_START\n",
+            "[[module Watchers]]\n",
+            "WATCH_ACTIONS_END\n",
+            "WATCH_NOACTIONS_START\n",
+            "[[module Watchers noActions=\"true\"]]\n",
+            "WATCH_NOACTIONS_END",
+        ),
+    )
+    .await;
+
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": HOLDER_SLUG,
+        }),
+    )
+    .expect("Watchers holder should exist");
+    for from_user_id in [-21_i64, -20] {
+        let transaction = runner.context().transaction();
+        transaction
+            .execute_raw(Statement::from_string(
+                transaction.get_database_backend(),
+                format!(
+                    "INSERT INTO relation ( \
+                         relation_type, dest_type, dest_id, from_type, from_id, created_by \
+                     ) VALUES ('page-watch', 'page', {page_id}, 'user', {from_user_id}, {created_by})",
+                    page_id = holder.page_id,
+                    created_by = SYSTEM_USER_ID,
+                ),
+            ))
+            .await
+            .expect("page-watch relation fixture should insert");
+    }
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER_SLUG).await;
+    fn section<'a>(document: &'a str, start: &str, end: &str) -> &'a str {
+        let start = document.find(start).expect("section start should render");
+        let end = document[start..]
+            .find(end)
+            .map(|offset| start + offset)
+            .expect("section end should render");
+        &document[start..end]
+    }
+
+    let with_actions = section(&html, "WATCH_ACTIONS_START", "WATCH_ACTIONS_END");
+    assert!(
+        with_actions.contains(r#"<span class="printuser">daveyoufool</span><br/>"#),
+        "live renders one printuser line per watcher:\n{with_actions}",
+    );
+    assert!(
+        with_actions.contains(r#"<span class="printuser">SeekGull</span><br/>"#),
+        "{with_actions}",
+    );
+    let dave = with_actions.find("daveyoufool").expect("first watcher");
+    let seek = with_actions.find("SeekGull").expect("second watcher");
+    assert!(
+        dave < seek,
+        "the module renders watchers in the relation service's stable order:\n{with_actions}",
+    );
+    assert!(
+        with_actions.contains(r#"<div class="actions" style="margin-top: 10px">"#),
+        "a Watchers call without noActions renders the live action block:\n{with_actions}",
+    );
+    assert!(with_actions.contains("Watch:"), "{with_actions}");
+    assert!(
+        !with_actions.contains("[[module Watchers"),
+        "the module must be consumed:\n{with_actions}",
+    );
+
+    let without_actions = section(&html, "WATCH_NOACTIONS_START", "WATCH_NOACTIONS_END");
+    assert!(
+        without_actions.contains(r#"<span class="printuser">daveyoufool</span><br/>"#),
+        "noActions must not suppress the watcher list:\n{without_actions}",
+    );
+    assert!(
+        !without_actions.contains(r#"<div class="actions""#),
+        "noActions=\"true\" must suppress the action block:\n{without_actions}",
+    );
+    assert!(
+        !without_actions.contains("[[module Watchers"),
+        "the module must be consumed:\n{without_actions}",
+    );
+}
+
+#[tokio::test]
+async fn listpages_saved_view_pager_keeps_the_category_prefix() {
+    const HOLDER_SLUG: &str = "component:fixture-lp-category-pager-holder";
+    const ITEM_PREFIX: &str = "fixture-lp-category-pager-item";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for index in 1..=3 {
+        let slug = format!("component:{ITEM_PREFIX}-{index}");
+        create_listpages_test_page(&mut runner, site_id, &slug, &slug, "Category row")
+            .await;
+    }
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER_SLUG,
+        "component: fixture ListPages pager holder",
+        &format!(
+            concat!(
+                "[[module ListPages name=\"{ITEM_PREFIX}-*\" order=\"name\" separate=\"no\" perPage=\"1\"]]\n",
+                "ROW%%index%%:%%name%%|\n",
+                "[[/module]]",
+            ),
+            ITEM_PREFIX = ITEM_PREFIX,
+        ),
+    )
+    .await;
+
+    let view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": HOLDER_SLUG, "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let html = match view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected a found ListPages category pager view, got {other:?}"),
+    };
+
+    assert!(
+        html.contains(&format!(r#"href="/{HOLDER_SLUG}/p/2""#)),
+        "the saved-page pager must keep the page category in its href:\n{html}",
+    );
+    assert!(
+        !html.contains(&format!(r#"href="/fixture-lp-category-pager-holder/p/2""#)),
+        "the saved-page pager must not drop the category prefix:\n{html}",
+    );
+}
+
+#[tokio::test]
+async fn page_tree_module_orders_children_by_live_title_collation() {
+    const ROOT: &str = "fixture-pagetree-order-root";
+    const HOLDER_BODY: &str = "[[module PageTree]]";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        ROOT,
+        "PageTree Order Root",
+        HOLDER_BODY,
+    )
+    .await;
+    for (slug, title) in [
+        ("fixture-pagetree-order-1", "Footage 1 (1 AM)"),
+        ("fixture-pagetree-order-2", "Footage 2 (2 AM)"),
+        ("fixture-pagetree-order-10", "Footage 10 (10 AM)"),
+    ] {
+        create_listpages_test_page(
+            &mut runner,
+            site_id,
+            slug,
+            title,
+            "PageTree order fixture",
+        )
+        .await;
+        set_listpages_test_parent(&mut runner, site_id, slug, ROOT).await;
+    }
+
+    let root = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": ROOT,
+        }),
+    )
+    .expect("PageTree order root should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": root.page_category_id,
+            "page_id": root.page_id,
+        }),
+    );
+    let html = load_listpages_test_compiled_html(&runner, site_id, ROOT).await;
+
+    let first = html
+        .find(r#"<a href="/fixture-pagetree-order-10">Footage 10 (10 AM)</a>"#)
+        .expect("Footage 10 should render");
+    let second = html
+        .find(r#"<a href="/fixture-pagetree-order-1">Footage 1 (1 AM)</a>"#)
+        .expect("Footage 1 should render");
+    let third = html
+        .find(r#"<a href="/fixture-pagetree-order-2">Footage 2 (2 AM)</a>"#)
+        .expect("Footage 2 should render");
+    assert!(
+        first < second && second < third,
+        "PageTree children follow live title collation, not slug or creation order:\n{html}",
+    );
+}
+
+#[tokio::test]
+async fn orphanedpages_module_renders_past_the_former_two_thousand_row_cap() {
+    const HOLDER_SLUG: &str = "fixture-orphanedpages-bulk-holder";
+    const BULK_PREFIX: &str = "fixture-orphan-bulk-";
+    const BULK_ROWS: i64 = 2_001;
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    let transaction = runner.context().transaction();
+    for sql in [
+        format!(
+            "INSERT INTO page (site_id, page_category_id, slug, from_wikidot) \
+             SELECT {site_id}, \
+                    (SELECT category_id FROM page_category \
+                      WHERE site_id = {site_id} AND slug = '_default'), \
+                    '{BULK_PREFIX}' || lpad(series.i::text, 5, '0'), \
+                    FALSE \
+             FROM generate_series(1, {BULK_ROWS}) AS series(i)",
+            site_id = site_id,
+        ),
+        format!(
+            "INSERT INTO page_revision ( \
+                 site_id, page_id, user_id, revision_type, revision_number, \
+                 wikitext_hash, compiled_body_html_hash, compiled_at, \
+                 compiled_generator, comments, changes, title, slug \
+             ) \
+             SELECT p.site_id, p.page_id, {site_user_id}, 'create', 0, \
+                    (SELECT hash FROM text ORDER BY hash LIMIT 1), \
+                    (SELECT hash FROM text ORDER BY hash LIMIT 1), \
+                    NOW(), 'test', '', \
+                    ARRAY['wikitext', 'title', 'alt_title', 'slug', 'tags'], \
+                    'Bulk Orphan ' || right(p.slug, 5), p.slug \
+             FROM page p \
+             WHERE p.site_id = {site_id} \
+               AND p.slug LIKE '{BULK_PREFIX}%' \
+               AND p.latest_revision_id IS NULL",
+            site_id = site_id,
+            site_user_id = SYSTEM_USER_ID,
+        ),
+        format!(
+            "UPDATE page SET latest_revision_id = revision.revision_id \
+             FROM page_revision revision \
+             WHERE revision.page_id = page.page_id \
+               AND page.site_id = {site_id} \
+               AND page.slug LIKE '{BULK_PREFIX}%' \
+               AND page.latest_revision_id IS NULL",
+            site_id = site_id,
+        ),
+    ] {
+        transaction
+            .execute_raw(Statement::from_string(
+                transaction.get_database_backend(),
+                sql,
+            ))
+            .await
+            .expect("bulk orphan fixture SQL should succeed");
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        HOLDER_SLUG,
+        "OrphanedPages Bulk Holder",
+        "BULK_ORPHANED_START\n[[module OrphanedPages]]\nBULK_ORPHANED_END",
+    )
+    .await;
+    let holder = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": HOLDER_SLUG,
+        }),
+    )
+    .expect("bulk OrphanedPages holder should exist");
+    run_endpoint!(
+        runner,
+        page_rerender,
+        json!({
+            "site_id": site_id,
+            "category_id": holder.page_category_id,
+            "page_id": holder.page_id,
+        }),
+    );
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, HOLDER_SLUG).await;
+    assert!(
+        html.contains("<h1>List of orphaned pages</h1>"),
+        "OrphanedPages should render its live heading:\n{html}",
+    );
+    assert!(
+        !html.contains("[[module OrphanedPages"),
+        "OrphanedPages must never fall back to the literal module:\n{html}",
+    );
+    assert_eq!(
+        html.matches(&format!(r#"href="/{BULK_PREFIX}"#)).count(),
+        BULK_ROWS as usize,
+        "every orphaned page renders, including rows past the old 2,000-row cap",
+    );
+    assert!(
+        html.contains(r#"<a href="/fixture-orphan-bulk-02001">"#),
+        "the final bulk row should render:\n{html}",
+    );
+}
+
+#[tokio::test]
 async fn wantedpages_module_groups_missing_internal_links_by_target() {
     let mut runner = TestRunner::setup().await;
     let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))

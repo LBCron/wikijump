@@ -521,6 +521,7 @@ pub(super) async fn render_list_pages_default_summary_source(
         .map_err(|error| Error::new(error.to_string(), ErrorType::Render))?;
     let mut summary_settings = settings.clone();
     summary_settings.enable_html_blocks = true;
+    summary_settings.use_true_ids = false;
     let render_context = RenderContext::list_pages_default_summary(
         current_site_id,
         current_category_id,
@@ -605,6 +606,7 @@ pub(super) async fn render_list_pages_selected_content_source(
     };
     let mut selected_content_settings = settings.clone();
     selected_content_settings.enable_page_syntax = true;
+    selected_content_settings.use_true_ids = false;
     let wikitext = RenderService::suppress_rate_modules_in_list_pages_content(
         wikitext,
         &selected_content_settings,

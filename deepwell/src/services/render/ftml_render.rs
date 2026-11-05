@@ -73,10 +73,6 @@ impl WikidotCompatLinkTitleMap {
             })
             == Some(false)
     }
-
-    pub(super) fn page_existence(&self) -> Option<&PageExistenceSnapshot> {
-        self.page_existence.as_ref().map(|(_, pages)| pages)
-    }
 }
 
 pub(super) fn collect_fallback_page_references(wikitext: &str) -> Vec<PageRef> {

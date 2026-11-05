@@ -6,6 +6,7 @@ use super::{
     PageParentSelector, PageQueryResultMetadata, PageTypeSelector, ScoreSelector,
     evaluate_count_pages_exact_count, ftml,
 };
+use wikidot_normalize::normalize;
 
 pub(super) fn list_pages_comparison_value(operator: &str, value: &str) -> String {
     if operator == "!=" {
@@ -238,7 +239,17 @@ pub(in crate::services::render) fn parse_list_pages_comparison(
 }
 
 pub(in crate::services::render) fn wikidot_list_pages_name_slug(value: &str) -> String {
-    value.trim().to_ascii_lowercase().replace(' ', "-")
+    let value = value.trim();
+    let prefix_wildcard = value.ends_with(['%', '*']);
+    let mut slug = match prefix_wildcard {
+        true => value[..value.len() - 1].to_owned(),
+        false => value.to_owned(),
+    };
+    normalize(&mut slug);
+    if prefix_wildcard {
+        slug.push('%');
+    }
+    slug
 }
 
 pub(super) fn exact_raw_color_list_pages_name(value: &str) -> Option<&str> {

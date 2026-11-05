@@ -44,35 +44,62 @@ impl RelationService {
         ctx: &ServiceContext<'_>,
         page_id: i64,
     ) -> Result<Vec<i64>> {
-        let make_error = || {
-            Error::new(
+        let rows = load_active_page_watcher_relations(
+            ctx,
+            page_id,
+            Some(PAGE_WATCHER_QUERY_LIMIT),
+        )
+        .await?;
+        if rows.len() > MAX_PAGE_WATCHER_ROWS {
+            return Err(Error::new(
                 format!("failed to list active watchers for page ID {page_id}"),
                 ErrorType::PageWatchRelation,
             )
-        };
-        let rows = Relation::find()
-            .filter(relation_type_condition(RelationType::PageWatch))
-            .filter(relation::Column::DestType.eq(RelationObjectType::Page))
-            .filter(relation::Column::DestId.eq(page_id))
-            .filter(relation::Column::FromType.eq(RelationObjectType::User))
-            .filter(relation::Column::OverwrittenAt.is_null())
-            .filter(relation::Column::DeletedAt.is_null())
-            .order_by_asc(relation::Column::FromId)
-            .order_by_asc(relation::Column::RelationId)
-            .limit(PAGE_WATCHER_QUERY_LIMIT)
-            .all(ctx.transaction())
-            .await
-            .or_raise(make_error)?;
-
-        if rows.len() > MAX_PAGE_WATCHER_ROWS {
-            return Err(make_error().into());
+            .into());
         }
 
-        Ok(rows
-            .into_iter()
-            .map(|relation| relation.from_id)
-            .collect::<BTreeSet<_>>()
-            .into_iter()
-            .collect())
+        Ok(unique_watcher_ids(rows))
     }
+
+    pub async fn get_all_active_page_watcher_ids(
+        ctx: &ServiceContext<'_>,
+        page_id: i64,
+    ) -> Result<Vec<i64>> {
+        let rows = load_active_page_watcher_relations(ctx, page_id, None).await?;
+        Ok(unique_watcher_ids(rows))
+    }
+}
+
+async fn load_active_page_watcher_relations(
+    ctx: &ServiceContext<'_>,
+    page_id: i64,
+    limit: Option<u64>,
+) -> Result<Vec<RelationModel>> {
+    let make_error = || {
+        Error::new(
+            format!("failed to list active watchers for page ID {page_id}"),
+            ErrorType::PageWatchRelation,
+        )
+    };
+    Relation::find()
+        .filter(relation_type_condition(RelationType::PageWatch))
+        .filter(relation::Column::DestType.eq(RelationObjectType::Page))
+        .filter(relation::Column::DestId.eq(page_id))
+        .filter(relation::Column::FromType.eq(RelationObjectType::User))
+        .filter(relation::Column::OverwrittenAt.is_null())
+        .filter(relation::Column::DeletedAt.is_null())
+        .order_by_asc(relation::Column::FromId)
+        .order_by_asc(relation::Column::RelationId)
+        .limit(limit)
+        .all(ctx.transaction())
+        .await
+        .or_raise(make_error)
+}
+
+fn unique_watcher_ids(rows: Vec<RelationModel>) -> Vec<i64> {
+    rows.into_iter()
+        .map(|relation| relation.from_id)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
 }

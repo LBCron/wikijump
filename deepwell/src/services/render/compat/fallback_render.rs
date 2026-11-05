@@ -44,6 +44,7 @@ use crate::config::Config;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::page_revision;
 use crate::models::site::Model as SiteModel;
+use crate::services::PageExistenceSnapshot;
 use crate::services::ServiceContext;
 use crate::services::{LinkService, PageService};
 use crate::types::Reference;
@@ -193,6 +194,24 @@ impl RenderService {
         }
 
         score
+    }
+
+    pub(in crate::services::render) async fn resolve_list_pages_page_existence(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        site_slug: &str,
+        wikitext: &str,
+        viewer_user_id: Option<i64>,
+    ) -> Result<PageExistenceSnapshot> {
+        let page_refs = collect_fallback_page_references(wikitext);
+        LinkService::resolve_page_existence(
+            ctx,
+            site_id,
+            site_slug,
+            &page_refs,
+            viewer_user_id,
+        )
+        .await
     }
 
     pub(in crate::services::render) async fn load_wikidot_compat_fallback_link_titles(

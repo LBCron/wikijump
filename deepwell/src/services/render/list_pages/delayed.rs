@@ -190,6 +190,14 @@ pub(in crate::services::render) struct PendingDelayedListPagesOutput {
     page_existence: Option<PageExistenceSnapshot>,
 }
 
+impl PendingDelayedListPagesOutput {
+    pub(in crate::services::render) fn wikitext_sources(
+        &self,
+    ) -> impl Iterator<Item = &str> {
+        self.slots.iter().map(|slot| slot.source.as_str())
+    }
+}
+
 #[derive(Debug)]
 struct PendingDelayedListPagesSlot {
     marker: String,

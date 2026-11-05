@@ -216,7 +216,7 @@ test("final preflight is the single explicit full-check barrier", (t) => {
     "pnpm --dir framerail check",
     "pnpm --dir framerail test:unit",
     "pnpm --dir framerail build",
-    "node --test framerail/tests/production-boot.test.js",
+    "node --test framerail/tests/production-boot.test.ts",
     "cargo fmt --manifest-path locales/validator/Cargo.toml --all -- --check",
     "cargo clippy --manifest-path locales/validator/Cargo.toml --locked --tests --no-deps -- -A unused -D warnings",
     "cargo run --manifest-path locales/validator/Cargo.toml --locked"

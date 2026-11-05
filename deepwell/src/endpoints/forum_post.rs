@@ -20,6 +20,7 @@
 
 use super::prelude::*;
 use crate::constants::ANONYMOUS_USER_ID;
+use crate::models::page::{self, Entity as Page};
 use crate::services::forum_post::{
     CreateForumPost, CreateForumPostOutput, ForumPostPageSummary, ForumPostService,
     WikidotForumPost,
@@ -27,6 +28,7 @@ use crate::services::forum_post::{
 use crate::services::forum_thread::{ForumThreadService, GetForumThread};
 use crate::services::permission::{CheckPermissionContext, PermissionService};
 use crate::types::{Action, Permission, Reference, Resource};
+use sea_orm::{ColumnTrait, Condition, EntityTrait, QueryFilter};
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -91,6 +93,45 @@ pub async fn forum_post_create(
             "user does not have permission to create a forum post",
             ErrorType::PermissionDenied,
         ));
+    }
+
+    if let Some(page_id) = thread.page_id {
+        let page = Page::find_by_id(page_id)
+            .filter(
+                Condition::all()
+                    .add(page::Column::SiteId.eq(input.site_id))
+                    .add(page::Column::DeletedAt.is_null()),
+            )
+            .one(ctx.transaction())
+            .await
+            .or_raise(|| {
+                Error::new("failed to load forum thread page", ErrorType::ForumPost)
+            })?;
+        let can_view = match page {
+            Some(page) => {
+                PermissionService::check_user_can(
+                    ctx,
+                    &CheckPermissionContext {
+                        user_id: request_user_id,
+                        site_id: input.site_id,
+                        page_reference: Some(Reference::Id(page.page_id)),
+                    },
+                    Permission {
+                        resource_type: Resource::Page,
+                        resource_category: Some(Reference::Id(page.page_category_id)),
+                        action: Action::View,
+                    },
+                )
+                .await?
+            }
+            None => false,
+        };
+        if !can_view {
+            bail!(Error::new(
+                "user does not have permission to view the forum thread page",
+                ErrorType::PermissionDenied,
+            ));
+        }
     }
 
     let guest_identity = if request_user_id.is_none() {

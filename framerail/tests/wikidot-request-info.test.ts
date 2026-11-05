@@ -68,6 +68,24 @@ test("prefers the HTTP Host header over the adapter origin", () => {
   )
 })
 
+test("accepts an explicit default port in the request host", () => {
+  assert.equal(
+    buildWikidotRequestInfo({
+      ...input,
+      domain: "scp-wiki.wikijump.localhost:80"
+    }).domain,
+    "scp-wiki.wikijump.localhost:80"
+  )
+  assert.equal(
+    requestHostFromRequest(
+      new Request("http://127.0.0.1:34091/scp-173", {
+        headers: { host: "scp-wiki.wikijump.localhost:80" }
+      })
+    ),
+    "scp-wiki.wikijump.localhost:80"
+  )
+})
+
 test("serializes the exact raw statements consumed by wikidot.py", () => {
   const script = serializeWikidotRequestInfo(buildWikidotRequestInfo(input))
   assert.match(script, /^var WIKIREQUEST = \{\};/u)

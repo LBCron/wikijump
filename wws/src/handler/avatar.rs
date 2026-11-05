@@ -95,7 +95,7 @@ pub async fn handle_user_avatar(
 
     let Ok(user_id) = user_id.parse::<i64>() else {
         error!("Unable to parse user id into i64: {user_id}");
-        return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        return StatusCode::NOT_FOUND.into_response();
     };
 
     let avatar_s3_hash = match state.get_avatar_or_response(&headers, user_id).await {

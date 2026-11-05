@@ -21,12 +21,35 @@
 use crate::handler::*;
 use crate::state::ServerState;
 use axum::Router;
-use axum::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, HeaderValue};
+use axum::extract::Request;
+use axum::http::StatusCode;
+use axum::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, HeaderMap, HeaderValue};
+use axum::middleware::{self, Next};
+use axum::response::{IntoResponse, Response};
 use axum::routing::{MethodFilter, any, get, on};
 use tower_http::compression::CompressionLayer;
 use tower_http::normalize_path::NormalizePathLayer;
 use tower_http::set_header::SetResponseHeaderLayer;
 use tower_http::trace::TraceLayer;
+
+async fn reject_unparseable_site_id(
+    headers: HeaderMap,
+    request: Request,
+    next: Next,
+) -> Response {
+    let unparseable = match headers.get(HEADER_SITE_ID) {
+        None => false,
+        Some(value) => value
+            .to_str()
+            .map_or(true, |text| text.parse::<i64>().is_err()),
+    };
+
+    if unparseable {
+        StatusCode::NOT_FOUND.into_response()
+    } else {
+        next.run(request).await
+    }
+}
 
 pub fn build_router(state: ServerState) -> Router {
     Router::new()
@@ -105,6 +128,7 @@ pub fn build_router(state: ServerState) -> Router {
         .route("/.well-known", any(handle_well_known))
         .route("/.well-known/{*path}", any(handle_well_known))
         .fallback(redirect_to_main)
+        .layer(middleware::from_fn(reject_unparseable_site_id))
         .layer(TraceLayer::new_for_http())
         .layer(NormalizePathLayer::trim_trailing_slash())
         .layer(SetResponseHeaderLayer::if_not_present(
@@ -407,6 +431,57 @@ mod tests {
         let post = client.post(&url).send().await.unwrap();
         assert_eq!(post.status(), StatusCode::METHOD_NOT_ALLOWED);
 
+        server.abort();
+    }
+
+    #[tokio::test]
+    async fn unparseable_site_id_header_is_not_found_instead_of_panicking() {
+        let state = build_server_state(false, test_secrets()).await.unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            axum::serve(listener, build_router(state)).await.unwrap();
+        });
+        let client = reqwest::Client::new();
+
+        for (path, site_id) in
+            [("/local--files/some-page/x.png", ""), ("/", "not-a-number")]
+        {
+            let response = client
+                .get(format!("http://{address}{path}"))
+                .header(crate::handler::HEADER_SITE_ID, site_id)
+                .send()
+                .await
+                .unwrap();
+            assert_eq!(response.status(), StatusCode::NOT_FOUND);
+        }
+
+        let response = client
+            .get(format!("http://{address}/robots.txt"))
+            .header(crate::handler::HEADER_TARGET_SERVER, "files")
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.text().await.unwrap(), "User-agent: *\nAllow: /\n");
+        server.abort();
+    }
+
+    #[tokio::test]
+    async fn non_numeric_avatar_user_id_is_not_found() {
+        let state = build_server_state(false, test_secrets()).await.unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let server = tokio::spawn(async move {
+            axum::serve(listener, build_router(state)).await.unwrap();
+        });
+        let client = reqwest::Client::new();
+        let response = client
+            .get(format!("http://{address}/-/avatar/notanid"))
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
         server.abort();
     }
 }

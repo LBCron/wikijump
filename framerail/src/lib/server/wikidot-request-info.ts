@@ -45,13 +45,14 @@ const requireRequestHost = (value: string): string => {
   } catch {
     throw new Error("request host is outside the supported host grammar")
   }
+  const hostWithoutDefaultPort = host.replace(/:80$/u, "")
   if (
     parsed.username ||
     parsed.password ||
     parsed.pathname !== "/" ||
     parsed.search ||
     parsed.hash ||
-    parsed.host !== host
+    (parsed.host !== host && parsed.host !== hostWithoutDefaultPort)
   ) {
     throw new Error("request host is outside the supported host grammar")
   }

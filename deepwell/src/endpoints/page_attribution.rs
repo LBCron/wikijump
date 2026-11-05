@@ -34,18 +34,35 @@ async fn require_page_attribution_permission(
     action: &str,
 ) -> Result<()> {
     MutationAuthorization::require_matching_actor(ctx, submitted_user_id, action)?;
-    MutationAuthorization::require_permission(
-        ctx,
-        site_id,
-        Some(page),
-        Permission {
-            resource_type: Resource::Page,
-            resource_category: None,
-            action: Action::Edit,
-        },
-        action,
-    )
-    .await?;
+
+    // Attributions feed the page-author virtual role, which holds every page
+    // action. Writing them requires the Delete + Rename standing they grant,
+    // scoped to the page's category. The check carries no page reference, so
+    // the page-author role cannot authorize its own membership.
+    let category_id = PageService::get(ctx, site_id, page)
+        .await
+        .or_raise(|| {
+            Error::new(
+                format!("failed to load page to {action}"),
+                ErrorType::PageAttribution,
+            )
+        })?
+        .page_category_id;
+
+    for required in [Action::Delete, Action::Rename] {
+        MutationAuthorization::require_permission(
+            ctx,
+            site_id,
+            None,
+            Permission {
+                resource_type: Resource::Page,
+                resource_category: Some(Reference::Id(category_id)),
+                action: required,
+            },
+            action,
+        )
+        .await?;
+    }
     Ok(())
 }
 

@@ -11,6 +11,9 @@
  */
 
 use super::*;
+use deepwell::services::relation::{
+    PageAttributionEntry, PageAttributionMetadata, SetPageAttributions,
+};
 
 async fn page_move_rpc_request(
     client: &reqwest::Client,
@@ -778,37 +781,47 @@ async fn page_move_render_failure_rolls_back_destination_identity() {
             .as_i64()
             .expect("page move rollback source revision ID should be present");
         let page_id_header = page_id.to_string();
-        let attributions = page_move_rpc_result(
-            page_move_rpc_request(
-                &client,
-                address,
-                Some(&session_token),
-                Some(site_id),
-                Some(&page_id_header),
-                "page_attribution_update",
-                json!({
-                    "site_id": site_id,
-                    "page": page_id,
-                    "updated_by": user_id,
-                    "attributions": [{
-                        "user_id": user_id,
-                        "metadata": {
-                            "attribution_type": "author",
-                            "attribution_date": "2026-08-13",
+        // Member self-attribution through the RPC endpoint is denied since
+        // C3W2L2-1 (attributions grant Rename + Delete), so the fixture seeds
+        // the authorship the move needs directly.
+        let attribution_transaction = state
+            .database
+            .begin()
+            .await
+            .expect("page move attribution fixture transaction should start");
+        {
+            let attribution_context =
+                ServiceContext::new(&state, &attribution_transaction);
+            let attributions = RelationService::set_page_attributions(
+                &attribution_context,
+                SetPageAttributions {
+                    site_id,
+                    page: Reference::Id(page_id),
+                    updated_by: SYSTEM_USER_ID,
+                    attributions: vec![PageAttributionEntry {
+                        user_id,
+                        metadata: PageAttributionMetadata {
+                            attribution_type: PageAttributionKind::Author,
+                            attribution_date: time::Date::from_calendar_date(
+                                2026,
+                                time::Month::August,
+                                13,
+                            )
+                            .expect("page move attribution date should be valid"),
                         },
                     }],
-                }),
+                },
             )
-            .await,
-            "page_attribution_update",
-        );
-        if let Some(attributions) = attributions.as_array() {
-            cleanup.relation_ids.extend(
-                attributions
-                    .iter()
-                    .filter_map(|attribution| attribution["relation_id"].as_i64()),
-            );
+            .await
+            .expect("page move attribution fixture should be set");
+            cleanup
+                .relation_ids
+                .extend(attributions.iter().map(|attribution| attribution.relation_id));
         }
+        attribution_transaction
+            .commit()
+            .await
+            .expect("page move attribution fixture transaction should commit");
         let before =
             page_move_rpc_get_page(&client, address, site_id, &source_slug).await;
 

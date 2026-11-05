@@ -863,23 +863,30 @@ pub async fn page_get(
         site_id,
         page: reference,
         details,
+        session_token,
     } = parse!(params, Page);
 
     let make_error = || Error::new("failed to get page", ErrorType::Page);
 
+    let user_id = match session_token.as_deref() {
+        Some("") | None => ctx.request().user_id,
+        Some(token) => SessionService::get_optional(ctx, token)
+            .await
+            .or_raise(|| {
+                Error::new("failed to resolve page view session", ErrorType::Permission)
+            })?
+            .map(|session| session.user_id),
+    };
+
     if matches!(&reference, Reference::Slug(slug) if slug.trim_matches('/').eq_ignore_ascii_case("_admin"))
-        && !PermissionService::check_user_can_access_admin(
-            ctx,
-            ctx.request().user_id,
-            site_id,
-        )
-        .await
-        .or_raise(|| {
-            Error::new(
-                "failed to check admin page permission",
-                ErrorType::Permission,
-            )
-        })?
+        && !PermissionService::check_user_can_access_admin(ctx, user_id, site_id)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to check admin page permission",
+                    ErrorType::Permission,
+                )
+            })?
     {
         return Err(Error::new(
             "user does not have permission to view this page",
@@ -896,18 +903,14 @@ pub async fn page_get(
         None => Ok(None),
         Some(page) => {
             if page.slug.eq_ignore_ascii_case("_admin")
-                && !PermissionService::check_user_can_view_page(
-                    ctx,
-                    ctx.request().user_id,
-                    &page,
-                )
-                .await
-                .or_raise(|| {
-                    Error::new(
-                        "failed to check page view permission",
-                        ErrorType::Permission,
-                    )
-                })?
+                && !PermissionService::check_user_can_view_page(ctx, user_id, &page)
+                    .await
+                    .or_raise(|| {
+                        Error::new(
+                            "failed to check page view permission",
+                            ErrorType::Permission,
+                        )
+                    })?
             {
                 return Err(Error::new(
                     "user does not have permission to view this page",
@@ -915,18 +918,15 @@ pub async fn page_get(
                 )
                 .into());
             }
-            let can_view = PermissionService::check_user_can_view_page(
-                ctx,
-                ctx.request().user_id,
-                &page,
-            )
-            .await
-            .or_raise(|| {
-                Error::new(
-                    "failed to check page view permission",
-                    ErrorType::Permission,
-                )
-            })?;
+            let can_view =
+                PermissionService::check_user_can_view_page(ctx, user_id, &page)
+                    .await
+                    .or_raise(|| {
+                        Error::new(
+                            "failed to check page view permission",
+                            ErrorType::Permission,
+                        )
+                    })?;
             if !can_view {
                 return Ok(None);
             }

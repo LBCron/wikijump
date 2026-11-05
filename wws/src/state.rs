@@ -24,6 +24,7 @@ use crate::deepwell::{Deepwell, FileData, PageData, UserData};
 use crate::error::{
     BasicError, FallbackError, ResponseResult, Result, is_deepwell_permission_denied,
 };
+use crate::handler::get_session_token;
 use axum::http::HeaderMap;
 use axum::response::IntoResponse;
 use s3::bucket::Bucket;
@@ -123,7 +124,11 @@ impl ServerStateInner {
         site_id: i64,
         page_slug: &str,
     ) -> ResponseResult<i64> {
-        match self.deepwell.get_page(site_id, page_slug).await {
+        match self
+            .deepwell
+            .get_page(site_id, page_slug, get_session_token(headers))
+            .await
+        {
             Ok(Some(PageData { page_id, .. })) => Ok(page_id),
             Ok(None) => {
                 error!(
@@ -470,6 +475,88 @@ mod tests {
         let requests = requests.lock().unwrap();
         assert_eq!(requests[0]["method"], "file_get");
         assert_eq!(requests[1]["method"], "basic_error_missing_file_name");
+        server.abort();
+    }
+
+    async fn page_rpc(AxumState(requests): AxumState<Requests>, body: Bytes) -> Response {
+        let request: Value = serde_json::from_slice(&body).unwrap();
+        let id = request["id"].clone();
+        let method = request["method"].as_str().unwrap().to_owned();
+        let is_viewer = request["params"]["session_token"] == "viewer-token";
+        requests.lock().unwrap().push(request);
+
+        let result = match method.as_str() {
+            "page_get" => {
+                if is_viewer {
+                    json!({ "page_id": 123 })
+                } else {
+                    Value::Null
+                }
+            }
+            "basic_error_missing_page_slug" => {
+                json!({ "title": "missing", "body": "not found" })
+            }
+            other => panic!("unexpected JSON-RPC method: {other}"),
+        };
+
+        (
+            [("content-type", "application/json")],
+            json!({
+                "jsonrpc": "2.0",
+                "result": result,
+                "id": id
+            })
+            .to_string(),
+        )
+            .into_response()
+    }
+
+    async fn spawn_page_rpc() -> (String, Requests, tokio::task::JoinHandle<()>) {
+        let requests = Requests::default();
+        let app = Router::new()
+            .route("/", post(page_rpc))
+            .with_state(Arc::clone(&requests));
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let address = listener.local_addr().unwrap();
+        let task = tokio::spawn(async move {
+            axum::serve(listener, app).await.unwrap();
+        });
+        (format!("http://{address}"), requests, task)
+    }
+
+    #[tokio::test]
+    async fn page_lookup_forwards_the_cookie_session_token() {
+        let (deepwell_url, requests, server) = spawn_page_rpc().await;
+        let mut secrets = test_secrets(true);
+        secrets.deepwell_url = deepwell_url;
+        secrets.redis_url = str!("redis://127.0.0.1:1/");
+        let state = build_server_state(false, secrets).await.unwrap();
+
+        let mut headers = HeaderMap::new();
+        headers.insert(
+            axum::http::header::COOKIE,
+            "theme=dark; wikijump_token=viewer-token".parse().unwrap(),
+        );
+        let page_id = state
+            .get_page_fresh_or_response(&headers, 42, "private-page")
+            .await
+            .unwrap();
+        assert_eq!(page_id, 123);
+
+        let response = state
+            .get_page_fresh_or_response(&HeaderMap::new(), 42, "private-page")
+            .await
+            .unwrap_err();
+        assert_eq!(response.status(), axum::http::StatusCode::NOT_FOUND);
+
+        let requests = requests.lock().unwrap();
+        let page_gets: Vec<&Value> = requests
+            .iter()
+            .filter(|request| request["method"] == "page_get")
+            .collect();
+        assert_eq!(page_gets.len(), 2);
+        assert_eq!(page_gets[0]["params"]["session_token"], "viewer-token");
+        assert!(page_gets[1]["params"]["session_token"].is_null());
         server.abort();
     }
 }

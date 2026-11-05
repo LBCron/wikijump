@@ -44,6 +44,7 @@ use crate::services::{
 };
 use crate::{database, info, redis as redis_db};
 use jsonrpsee::server::{RpcModule, Server, ServerConfig, ServerHandle};
+use jsonrpsee::types::params::Params;
 use reqwest::Client as ReqwestClient;
 use s3::bucket::Bucket;
 use sea_orm::{IsolationLevel, TransactionTrait};
@@ -286,6 +287,24 @@ pub async fn build_server_at(
     Ok((local_address, handle))
 }
 
+fn params_contain_nul(params: &Params) -> bool {
+    match params.parse::<serde_json::Value>() {
+        Ok(value) => json_value_contains_nul(&value),
+        Err(_) => false,
+    }
+}
+
+fn json_value_contains_nul(value: &serde_json::Value) -> bool {
+    match value {
+        serde_json::Value::String(text) => text.contains('\0'),
+        serde_json::Value::Array(items) => items.iter().any(json_value_contains_nul),
+        serde_json::Value::Object(entries) => entries
+            .iter()
+            .any(|(key, item)| key.contains('\0') || json_value_contains_nul(item)),
+        _ => false,
+    }
+}
+
 fn rpc_transaction_isolation(method_name: &str) -> Option<IsolationLevel> {
     match method_name {
         "parent_get_direct_metadata" => Some(IsolationLevel::RepeatableRead),
@@ -320,6 +339,14 @@ async fn build_module(app_state: ServerState) -> Result<RpcModule<ServerState>> 
                 // commit durable attempt counters before returning an error.
                 let db_state = Arc::clone(&state);
                 async move {
+                    if params_contain_nul(&params) {
+                        return Err(Error::new(
+                            "request parameters must not contain NUL characters",
+                            ErrorType::BadRequest,
+                        )
+                        .into());
+                    }
+
                     let txn_result = match $isolation {
                         Some(isolation_level) => {
                             db_state
@@ -935,6 +962,31 @@ mod tests {
                 "unexpected actor binding for {domain}, {method}",
             );
         }
+    }
+
+    #[test]
+    fn params_contain_nul_detection() {
+        for raw in [
+            r#"{"user": "plain"}"#,
+            r#"{"user": "literal\\u0000 text"}"#,
+            r#"["token", 42, null]"#,
+            r#"{"nested": {"list": [1, 2, 3]}}"#,
+        ] {
+            let params = Params::new(Some(raw));
+            assert!(!params_contain_nul(&params), "false positive: {raw}");
+        }
+
+        for raw in [
+            r#"{"user": "a\u0000b"}"#,
+            r#"{"outer": [{"inner": "\u0000"}]}"#,
+            r#"["\u0000"]"#,
+            r#"{"\u0000": 1}"#,
+        ] {
+            let params = Params::new(Some(raw));
+            assert!(params_contain_nul(&params), "missed NUL: {raw}");
+        }
+
+        assert!(!params_contain_nul(&Params::new(None)));
     }
 
     #[test]

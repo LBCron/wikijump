@@ -1293,3 +1293,44 @@ async fn production_rpc_serializes_recovery_code_use_across_sessions() {
         state.database.execute_unprepared(&statement).await.ok();
     }
 }
+
+#[tokio::test]
+async fn production_rpc_stack_rejects_nul_in_params() {
+    for (method, params) in [
+        ("user_get", json!({"user": "x\u{0}y"})),
+        ("site_get", json!({"site": "scp-wiki\u{0}"})),
+        ("page_get", json!({"site_id": 1, "page": "scp-001\u{0}"})),
+        ("session_get", json!(["a\u{0}b"])),
+        ("custom_domain_remove", json!(["a\u{0}b.example.com"])),
+        (
+            "user_create",
+            json!({
+                "name": "nul\u{0}name",
+                "email": "nul@example.com",
+                "password": "correct horse battery staple",
+                "ip_address": "127.0.0.1",
+            }),
+        ),
+    ] {
+        let response = rpc_request(method, params).await;
+        assert!(response.get("result").is_none(), "{method}: {response}");
+        assert_eq!(
+            response["error"]["code"],
+            ErrorType::BadRequest.code(),
+            "{method}: {response}",
+        );
+    }
+}
+
+#[tokio::test]
+async fn production_rpc_stack_allows_params_without_nul() {
+    let response = rpc_request("echo", json!({"value": "literal \\u0000 text"})).await;
+    assert_eq!(response["result"], json!({"value": "literal \\u0000 text"}));
+
+    let response = rpc_request("user_get", json!({"user": "no-such-user-f15"})).await;
+    assert_ne!(
+        response["error"]["code"],
+        ErrorType::BadRequest.code(),
+        "{response}",
+    );
+}

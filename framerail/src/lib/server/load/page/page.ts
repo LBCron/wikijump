@@ -51,6 +51,10 @@ export async function loadPage(
   cookies: Cookies,
   locals?: App.Locals
 ) {
+  if (slug?.includes("\0") || extra?.includes("\0")) {
+    error(404 as never)
+  }
+
   const { siteId, siteSlug } = loadSiteInfo(request.headers)
   const route = slug || extra ? { slug, extra } : null
   const sessionToken = cookies.get("wikijump_token")

@@ -19,6 +19,8 @@
  */
 
 use super::compat::CompatHtmlFragments;
+use super::list_pages::list_pages_pager_window;
+use super::runtime_page_queries::{ViewablePageRef, view_decisions_for_scanned_pages};
 use super::service::{
     RenderService, escape_list_pages_html_attr, escape_list_pages_html_text,
 };
@@ -34,8 +36,6 @@ use std::collections::{BTreeMap, HashMap};
 use std::future::Future;
 use std::sync::{Arc, LazyLock};
 
-pub(super) const MAX_LINK_LISTING_MODULE_ROWS: usize = 2_000;
-const LINK_LISTING_MODULE_QUERY_LIMIT: usize = MAX_LINK_LISTING_MODULE_ROWS + 1;
 const WANTED_PAGES_PER_PAGE: usize = 50;
 const MAX_WANTED_PAGES_MODULE_SOURCE_ROWS: usize = 10_000;
 const WANTED_PAGES_MODULE_QUERY_LIMIT: usize = MAX_WANTED_PAGES_MODULE_SOURCE_ROWS + 1;
@@ -72,7 +72,6 @@ struct WantedPagesModuleTarget {
 
 #[derive(Default)]
 struct LinkModulePagesCache {
-    orphaned_initialized: bool,
     orphaned: Option<Arc<Vec<LinkModulePage>>>,
     wanted_initialized: bool,
     wanted: Option<Arc<Vec<WantedPagesModuleTarget>>>,
@@ -82,21 +81,18 @@ impl LinkModulePagesCache {
     async fn get_or_init_orphaned<F, Fut>(
         &mut self,
         load: F,
-    ) -> Result<Option<Arc<Vec<LinkModulePage>>>>
+    ) -> Result<Arc<Vec<LinkModulePage>>>
     where
         F: FnOnce() -> Fut,
-        Fut: Future<Output = Result<Option<Vec<LinkModulePage>>>>,
+        Fut: Future<Output = Result<Vec<LinkModulePage>>>,
     {
-        if self.orphaned_initialized {
-            return Ok(self.orphaned.as_ref().map(Arc::clone));
+        if let Some(pages) = self.orphaned.as_ref() {
+            return Ok(Arc::clone(pages));
         }
 
-        let pages = load().await?;
-        self.orphaned_initialized = true;
-        if let Some(pages) = pages {
-            self.orphaned = Some(Arc::new(pages));
-        }
-        Ok(self.orphaned.as_ref().map(Arc::clone))
+        let pages = Arc::new(load().await?);
+        self.orphaned = Some(Arc::clone(&pages));
+        Ok(pages)
     }
 
     async fn get_or_init_wanted<F, Fut>(
@@ -120,12 +116,58 @@ impl LinkModulePagesCache {
     }
 }
 
-fn link_listing_scan_exceeded(row_count: usize) -> bool {
-    row_count > MAX_LINK_LISTING_MODULE_ROWS
-}
-
 fn wanted_pages_scan_exceeded(row_count: usize) -> bool {
     row_count > MAX_WANTED_PAGES_MODULE_SOURCE_ROWS
+}
+
+fn orphaned_pages_module_sql(current_site_id: i64) -> String {
+    format!(
+        "SELECT p.page_id, p.page_category_id, p.slug, pr.title \
+         FROM page p \
+         JOIN page_revision pr ON pr.revision_id = p.latest_revision_id \
+         WHERE p.site_id = {current_site_id} \
+           AND p.deleted_at IS NULL \
+           AND NOT EXISTS ( \
+             SELECT 1 \
+             FROM page_connection pc \
+             JOIN page source_page ON source_page.page_id = pc.from_page_id \
+             WHERE pc.to_page_id = p.page_id \
+               AND pc.from_page_id <> p.page_id \
+               AND pc.connection_type = 'link' \
+               AND source_page.site_id = p.site_id \
+               AND source_page.deleted_at IS NULL \
+           ) \
+         ORDER BY lower(pr.title), p.slug",
+    )
+}
+
+async fn filter_viewable_link_module_pages(
+    ctx: &ServiceContext<'_>,
+    viewer_user_id: Option<i64>,
+    site_id: i64,
+    rows: Vec<LinkModulePage>,
+) -> Result<Vec<LinkModulePage>> {
+    let references = rows
+        .iter()
+        .map(|row| ViewablePageRef {
+            page_id: row.page_id,
+            site_id,
+            page_category_id: Some(row.page_category_id),
+        })
+        .collect::<Vec<_>>();
+    let mut category_permissions = BTreeMap::new();
+    let decisions = view_decisions_for_scanned_pages(
+        ctx,
+        viewer_user_id,
+        &references,
+        &mut category_permissions,
+    )
+    .await?;
+    Ok(rows
+        .into_iter()
+        .zip(decisions)
+        .filter_map(|(row, viewable)| viewable.then_some(row))
+        .collect())
 }
 
 fn render_orphaned_pages_module_box(pages: &[LinkModulePage]) -> String {
@@ -206,10 +248,19 @@ fn push_wanted_pages_pager(output: &mut String, page_count: usize, prefix: &str)
     output.push_str(&page_count.to_string());
     output.push_str(r#"</span><span class="current">1</span>"#);
 
-    for page in 2..=page_count {
-        push_wanted_pages_pager_target(output, page, &page.to_string());
+    let mut previous = 0;
+    for page in list_pages_pager_window(1, page_count) {
+        if previous != 0 && page > previous + 1 {
+            output.push_str(r#"<span class="dots">...</span>"#);
+        }
+        if page != 1 {
+            push_wanted_pages_pager_target(output, page, &page.to_string());
+        }
+        previous = page;
     }
-    push_wanted_pages_pager_target(output, 2, "next &raquo;");
+    if page_count > 1 {
+        push_wanted_pages_pager_target(output, 2, "next &raquo;");
+    }
     output.push_str("</div>\n    \n\n");
 }
 
@@ -287,16 +338,11 @@ impl RenderService {
                 continue;
             }
 
-            let Some(pages) = pages_cache
+            let pages = pages_cache
                 .get_or_init_orphaned(|| {
                     Self::load_orphaned_pages_module_pages(ctx, current_site_id)
                 })
-                .await?
-            else {
-                expanded.push_str(mtch.as_str());
-                cursor = mtch.end();
-                continue;
-            };
+                .await?;
             expanded.push_str(
                 &compat_html
                     .push_block_html(render_orphaned_pages_module_box(pages.as_ref())),
@@ -355,7 +401,7 @@ impl RenderService {
     async fn load_orphaned_pages_module_pages(
         ctx: &ServiceContext<'_>,
         current_site_id: i64,
-    ) -> Result<Option<Vec<LinkModulePage>>> {
+    ) -> Result<Vec<LinkModulePage>> {
         let make_error = || {
             Error::new(
                 format!(
@@ -369,59 +415,16 @@ impl RenderService {
         let txn = ctx.transaction();
         let statement = Statement::from_string(
             txn.get_database_backend(),
-            format!(
-                "SELECT p.page_id, p.page_category_id, p.slug, pr.title \
-                 FROM page p \
-                 JOIN page_revision pr ON pr.revision_id = p.latest_revision_id \
-                 WHERE p.site_id = {current_site_id} \
-                   AND p.deleted_at IS NULL \
-                   AND NOT EXISTS ( \
-                     SELECT 1 \
-                     FROM page_connection pc \
-                     JOIN page source_page ON source_page.page_id = pc.from_page_id \
-                     WHERE pc.to_page_id = p.page_id \
-                       AND pc.from_page_id <> p.page_id \
-                       AND pc.connection_type = 'link' \
-                       AND source_page.site_id = p.site_id \
-                       AND source_page.deleted_at IS NULL \
-                   ) \
-                 ORDER BY lower(pr.title), p.slug \
-                 LIMIT {LINK_LISTING_MODULE_QUERY_LIMIT}",
-            ),
+            orphaned_pages_module_sql(current_site_id),
         );
 
         let rows = LinkModulePage::find_by_statement(statement)
             .all(txn)
             .await
             .or_raise(make_error)?;
-        if link_listing_scan_exceeded(rows.len()) {
-            return Ok(None);
-        }
-
-        let mut viewable = Vec::with_capacity(rows.len());
-        for row in rows {
-            let anonymously_viewable = PermissionService::check_user_can(
-                ctx,
-                &CheckPermissionContext {
-                    user_id: None,
-                    site_id: current_site_id,
-                    page_reference: Some(Reference::Id(row.page_id)),
-                },
-                Permission {
-                    resource_type: Resource::Page,
-                    resource_category: Some(Reference::Id(row.page_category_id)),
-                    action: Action::View,
-                },
-            )
+        filter_viewable_link_module_pages(ctx, None, current_site_id, rows)
             .await
-            .or_raise(make_error)?;
-
-            if anonymously_viewable {
-                viewable.push(row);
-            }
-        }
-
-        Ok(Some(viewable))
+            .or_raise(make_error)
     }
 
     async fn load_wanted_pages_module_targets(
@@ -538,10 +541,10 @@ fn compare_case_folded(left: &str, right: &str) -> Ordering {
 #[cfg(test)]
 mod tests {
     use super::{
-        LinkModulePage, LinkModulePagesCache, MAX_LINK_LISTING_MODULE_ROWS,
-        MAX_WANTED_PAGES_MODULE_SOURCE_ROWS, WantedPagesModuleTarget,
-        link_listing_scan_exceeded, render_orphaned_pages_module_box,
-        render_wanted_pages_module_box, wanted_pages_scan_exceeded,
+        LinkModulePage, LinkModulePagesCache, MAX_WANTED_PAGES_MODULE_SOURCE_ROWS,
+        WantedPagesModuleTarget, orphaned_pages_module_sql, push_wanted_pages_pager,
+        render_orphaned_pages_module_box, render_wanted_pages_module_box,
+        wanted_pages_scan_exceeded,
     };
 
     #[test]
@@ -591,26 +594,83 @@ mod tests {
         let mut cache = LinkModulePagesCache::default();
 
         let first = cache
-            .get_or_init_orphaned(|| async { Ok(Some(Vec::new())) })
+            .get_or_init_orphaned(|| async { Ok(Vec::new()) })
             .await
-            .expect("the first orphaned-pages load should succeed")
-            .expect("the first bounded scan should be complete");
+            .expect("the first orphaned-pages load should succeed");
         let second = cache
             .get_or_init_orphaned(|| async {
                 panic!("a cached orphaned-pages result must not query again")
             })
             .await
-            .expect("the cached orphaned-pages load should succeed")
-            .expect("the cached bounded scan should be complete");
+            .expect("the cached orphaned-pages load should succeed");
 
         assert!(first.is_empty());
         assert!(second.is_empty());
     }
 
     #[test]
-    fn link_modules_require_complete_bounded_scans_before_acl_and_paging() {
-        assert!(!link_listing_scan_exceeded(MAX_LINK_LISTING_MODULE_ROWS));
-        assert!(link_listing_scan_exceeded(MAX_LINK_LISTING_MODULE_ROWS + 1));
+    fn wanted_pages_pager_matches_the_live_windowed_pager() {
+        let mut pager = String::new();
+        push_wanted_pages_pager(&mut pager, 55, "            ");
+
+        assert_eq!(
+            pager,
+            concat!(
+                "            ",
+                r#"<div class="pager"><span class="pager-no">page 1 of 55</span>"#,
+                r#"<span class="current">1</span>"#,
+                r#"<span class="target"><a href="javascript:;" onclick="WIKIDOT.modules.WantedPagesModule.updateList(2, this)">2</a></span>"#,
+                r#"<span class="target"><a href="javascript:;" onclick="WIKIDOT.modules.WantedPagesModule.updateList(3, this)">3</a></span>"#,
+                r#"<span class="dots">...</span>"#,
+                r#"<span class="target"><a href="javascript:;" onclick="WIKIDOT.modules.WantedPagesModule.updateList(54, this)">54</a></span>"#,
+                r#"<span class="target"><a href="javascript:;" onclick="WIKIDOT.modules.WantedPagesModule.updateList(55, this)">55</a></span>"#,
+                r#"<span class="target"><a href="javascript:;" onclick="WIKIDOT.modules.WantedPagesModule.updateList(2, this)">next &raquo;</a></span>"#,
+                "</div>\n    \n\n",
+            ),
+        );
+        assert!(!pager.contains("updateList(4, this)"), "{pager}");
+        assert!(!pager.contains("updateList(53, this)"), "{pager}");
+    }
+
+    #[test]
+    fn wanted_pages_pager_keeps_a_short_pager_unwindowed() {
+        let mut pager = String::new();
+        push_wanted_pages_pager(&mut pager, 3, "");
+
+        for page in 2..=3 {
+            assert!(
+                pager.contains(&format!(
+                    "WantedPagesModule.updateList({page}, this)\">{page}</a>"
+                )),
+                "{pager}",
+            );
+        }
+        assert!(!pager.contains("dots"), "{pager}");
+    }
+
+    #[test]
+    fn orphaned_pages_module_loads_every_row_like_live() {
+        let sql = orphaned_pages_module_sql(6000006);
+        assert!(
+            !sql.to_ascii_uppercase().contains("LIMIT"),
+            "live renders every orphaned page, so the scan has no row cap: {sql}",
+        );
+
+        let pages = (0..3_180)
+            .map(|index| LinkModulePage {
+                page_id: index,
+                page_category_id: 1,
+                slug: format!("orphan-{index}"),
+                title: format!("Orphan {index}"),
+            })
+            .collect::<Vec<_>>();
+        let html = render_orphaned_pages_module_box(&pages);
+        assert_eq!(html.matches(r#"<span style="color: #999">"#).count(), 3_180);
+        assert!(html.contains(r#"<a href="/orphan-3179">"#));
+    }
+
+    #[test]
+    fn link_modules_keep_the_wanted_pages_source_bound() {
         assert!(!wanted_pages_scan_exceeded(
             MAX_WANTED_PAGES_MODULE_SOURCE_ROWS
         ));

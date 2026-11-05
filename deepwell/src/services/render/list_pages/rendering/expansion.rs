@@ -887,12 +887,32 @@ impl RenderService {
         {
             expansion.wikitext = nested_source;
         }
+        let delayed_link_source = pending_delayed_outputs
+            .iter()
+            .flat_map(|pending| pending.wikitext_sources())
+            .collect::<Vec<_>>()
+            .join("\n");
+        let delayed_page_existence = if delayed_link_source.contains("[[[") {
+            Some(
+                RenderService::resolve_list_pages_page_existence(
+                    ctx,
+                    current_site_id,
+                    page_info.site.as_ref(),
+                    &delayed_link_source,
+                    viewer_user_id,
+                )
+                .await?,
+            )
+        } else {
+            None
+        };
         seal_pending_list_pages_delayed_outputs(
             &mut expansion.wikitext,
             pending_delayed_outputs,
             page_info,
             settings,
             compat_html,
+            delayed_page_existence.as_ref(),
         )?;
         Ok(expansion)
     }

@@ -46,6 +46,29 @@ pub(in crate::services::render) struct ListPagesPagerArgs<'a, 'info, 'url> {
     pub(in crate::services::render) total_selected: usize,
 }
 
+pub(in crate::services::render) fn list_pages_pager_window(
+    current_page: usize,
+    page_count: usize,
+) -> BTreeSet<usize> {
+    let mut pages = BTreeSet::from([1, current_page, page_count]);
+    if current_page > 1 {
+        pages.insert(current_page - 1);
+    }
+    if current_page < page_count {
+        pages.insert(current_page + 1);
+    }
+    if current_page <= 2 && page_count >= 3 {
+        pages.insert(3);
+    }
+    if current_page + 1 >= page_count && page_count > 2 {
+        pages.insert(page_count - 2);
+    }
+    if page_count > 1 {
+        pages.insert(page_count - 1);
+    }
+    pages
+}
+
 pub(in crate::services::render) fn push_list_pages_pager(
     args: ListPagesPagerArgs<'_, '_, '_>,
 ) {
@@ -77,25 +100,8 @@ pub(in crate::services::render) fn push_list_pages_pager(
         r#"<span class="pager-no">page {current_page} of {page_count}</span>"#
     ));
 
-    let mut pages = BTreeSet::from([1, current_page, page_count]);
-    if current_page > 1 {
-        pages.insert(current_page - 1);
-    }
-    if current_page < page_count {
-        pages.insert(current_page + 1);
-    }
-    if current_page <= 2 && page_count >= 3 {
-        pages.insert(3);
-    }
-    if current_page + 1 >= page_count && page_count > 2 {
-        pages.insert(page_count - 2);
-    }
-    if page_count > 1 {
-        pages.insert(page_count - 1);
-    }
-
     let mut previous = 0;
-    for page in pages {
+    for page in list_pages_pager_window(current_page, page_count) {
         if previous != 0 && page > previous + 1 {
             output.push_str(r#"<span class="dots">...</span>"#);
         }
@@ -293,7 +299,11 @@ fn list_pages_pager_href_path(
     let mut segments = Vec::with_capacity(1 + url.path_arguments.len() * 2 + 2);
     segments.push(match route {
         ListPagesPagerRoute::SavedPage => {
-            percent_encode_path_segment(page_info.page.as_ref())
+            let page = percent_encode_path_segment(page_info.page.as_ref());
+            match RenderService::page_info_category_slug(page_info).as_ref() {
+                "_default" => page,
+                category => format!("{}:{page}", percent_encode_path_segment(category)),
+            }
         }
         ListPagesPagerRoute::AjaxModuleConnector => {
             "ajax-module-connector.php".to_owned()
@@ -362,6 +372,56 @@ mod tests {
                 2,
             ),
             "/ajax-module-connector.php/日本語_p/2",
+        );
+    }
+
+    #[test]
+    fn saved_page_pager_keeps_the_category_prefix_in_its_href() {
+        let page_info = PageInfo {
+            page: Cow::Borrowed("page-tags"),
+            category: Some(Cow::Borrowed("system")),
+            site: Cow::Borrowed("scp-wiki"),
+            title: Cow::Borrowed("Page Tags"),
+            alt_title: None,
+            score: ftml::data::ScoreValue::Integer(0),
+            tags: Vec::new(),
+            language: Cow::Borrowed("en"),
+        };
+
+        assert_eq!(
+            list_pages_pager_href_path(
+                &page_info,
+                ListPagesPagerRoute::SavedPage,
+                UrlArguments::default(),
+                None,
+                2,
+            ),
+            "/system:page-tags/p/2",
+        );
+    }
+
+    #[test]
+    fn saved_page_pager_omits_the_default_category_prefix() {
+        let page_info = PageInfo {
+            page: Cow::Borrowed("scp-8712"),
+            category: None,
+            site: Cow::Borrowed("scp-wiki"),
+            title: Cow::Borrowed("SCP-8712"),
+            alt_title: None,
+            score: ftml::data::ScoreValue::Integer(0),
+            tags: Vec::new(),
+            language: Cow::Borrowed("en"),
+        };
+
+        assert_eq!(
+            list_pages_pager_href_path(
+                &page_info,
+                ListPagesPagerRoute::SavedPage,
+                UrlArguments::default(),
+                None,
+                2,
+            ),
+            "/scp-8712/p/2",
         );
     }
 

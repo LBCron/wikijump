@@ -162,6 +162,31 @@ fn camel_case_order_suffixes_require_a_property() {
 #[test]
 fn name_slug_and_tag_selectors_normalize() {
     assert_eq!(wikidot_list_pages_name_slug(" My Page "), "my-page");
+    assert_eq!(
+        wikidot_list_pages_name_slug("listpages-category-name?block"),
+        "listpages-category-name-block"
+    );
+    assert_eq!(
+        wikidot_list_pages_name_slug("listpages-category-name_block"),
+        "listpages-category-name-block"
+    );
+    assert_eq!(
+        wikidot_list_pages_name_slug("listpages-category-name%block"),
+        "listpages-category-name-block"
+    );
+    assert_eq!(
+        wikidot_list_pages_name_slug("listpages-category-name*block"),
+        "listpages-category-name-block"
+    );
+    assert_eq!(
+        wikidot_list_pages_name_slug("listpages-category-name-%"),
+        "listpages-category-name%"
+    );
+    assert_eq!(
+        wikidot_list_pages_name_slug("listpages-category-name-*"),
+        "listpages-category-name%"
+    );
+    assert_eq!(wikidot_list_pages_name_slug("%"), "%");
     assert!(is_current_page_tag_selector("="));
     assert!(is_current_page_tag_selector(" = "));
     assert!(is_current_page_tag_selector("=="));

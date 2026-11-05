@@ -33,6 +33,7 @@ use deepwell::services::{
 use deepwell::types::Reference;
 use sea_orm::{ActiveModelTrait, ConnectionTrait, Set, Statement, Value};
 use serde_json::json;
+use std::borrow::Cow;
 use uuid::Uuid;
 
 #[tokio::test]
@@ -1185,6 +1186,26 @@ async fn listpages_category_local_names_match_page_identities_and_wildcard_bound
             r#"category="component" name="listpages-category-name?block""#,
             &[TARGET_SLUG][..],
             &[SECONDARY_SLUG][..],
+        ),
+        (
+            r#"category="component" name="listpages-category-name_block""#,
+            &[TARGET_SLUG][..],
+            &[SECONDARY_SLUG][..],
+        ),
+        (
+            r#"category="component" name="listpages-category-name%block""#,
+            &[TARGET_SLUG][..],
+            &[SECONDARY_SLUG][..],
+        ),
+        (
+            r#"category="component" name="listpages-category-name*block""#,
+            &[TARGET_SLUG][..],
+            &[SECONDARY_SLUG][..],
+        ),
+        (
+            r#"category="component" name="listpages-category-name-%""#,
+            &[SECONDARY_SLUG, TARGET_SLUG][..],
+            &[][..],
         ),
         (
             r#"category="component" name="listpages-category-name-*""#,
@@ -5608,6 +5629,194 @@ async fn listpages_selected_content_evaluates_iftags_against_selected_page_tags(
         !preview.contains("[[iftags") && !preview.contains("[[/iftags]]"),
         "selected-page iftags markers must not leak into rendered HTML:\n{preview}",
     );
+}
+
+#[tokio::test]
+async fn listpages_selected_content_does_not_assign_page_toc_ids() {
+    const TARGET_SLUG: &str = "listpages-toc-target";
+    const HOLDER_SLUG: &str = "listpages-toc-holder";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, title, wikitext) in [
+        (
+            TARGET_SLUG,
+            "ListPages TOC Target",
+            "+ Target Heading\n\nTARGET_BODY",
+        ),
+        (
+            HOLDER_SLUG,
+            "ListPages TOC Holder",
+            concat!(
+                "+ Holder Heading\n\n",
+                "[[module ListPages name=\"listpages-toc-target\" separate=\"no\" wrapper=\"no\"]]",
+                "%%content%%",
+                "[[/module]]",
+            ),
+        ),
+    ] {
+        runner.set_request_context(RequestContext {
+            session: None,
+            user_id: Some(ADMIN_USER_ID),
+            site_id: Some(site_id),
+            page_reference: Some(Reference::Slug(slug.into())),
+        });
+        run_endpoint!(
+            runner,
+            page_create,
+            json!({
+                "site_id": site_id,
+                "wikitext": wikitext,
+                "title": title,
+                "alt_title": null,
+                "slug": slug,
+                "layout": "wikidot",
+                "revision_comments": "ListPages selected content TOC fixture",
+                "user_id": ADMIN_USER_ID,
+                "bypass_filter": true,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+    }
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let html = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": HOLDER_SLUG,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("ListPages TOC holder should exist")
+    .compiled_body_html
+    .expect("ListPages TOC holder should have compiled HTML");
+
+    assert!(
+        html.contains(r#"<h1 id="toc0"><span>Holder Heading</span></h1>"#),
+        "the outer page heading keeps its TOC id:\n{html}",
+    );
+    assert!(
+        html.contains(r#"<h1><span>Target Heading</span></h1>"#),
+        "live renders module item headings without TOC ids:\n{html}",
+    );
+    assert_eq!(
+        html.matches(r#"id="toc0""#).count(),
+        1,
+        "module item headings must not duplicate the page TOC id:\n{html}",
+    );
+}
+
+#[tokio::test]
+async fn listpages_template_links_mark_missing_pages_newpage() {
+    const ITEM_PREFIX: &str = "listpages-newpage-item";
+    const HOLDER_SLUG: &str = "listpages-newpage-holder";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    for (slug, wikitext) in [
+        (format!("{ITEM_PREFIX}-1"), "Existing item one."),
+        (format!("{ITEM_PREFIX}-2"), "Existing item two."),
+    ] {
+        runner.set_request_context(RequestContext {
+            session: None,
+            user_id: Some(ADMIN_USER_ID),
+            site_id: Some(site_id),
+            page_reference: Some(Reference::Slug(Cow::Owned(slug.clone()))),
+        });
+        run_endpoint!(
+            runner,
+            page_create,
+            json!({
+                "site_id": site_id,
+                "wikitext": wikitext,
+                "title": slug,
+                "alt_title": null,
+                "slug": slug,
+                "layout": "wikidot",
+                "revision_comments": "ListPages newpage fixture",
+                "user_id": ADMIN_USER_ID,
+                "bypass_filter": true,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+    }
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(HOLDER_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": concat!(
+                "[[module ListPages name=\"listpages-newpage-item-*\" separate=\"no\" wrapper=\"no\"]]\n",
+                "* [[[%%name%%-missing-edition|]]]\n",
+                "* [[[%%name%%|]]]\n",
+                "[[/module]]",
+            ),
+            "title": "ListPages Newpage Holder",
+            "alt_title": null,
+            "slug": HOLDER_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "ListPages newpage holder",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let html = run_endpoint!(
+        runner,
+        page_get,
+        json!({
+            "site_id": site_id,
+            "page": HOLDER_SLUG,
+            "details": {"compiled": true},
+        }),
+    )
+    .expect("ListPages newpage holder should exist")
+    .compiled_body_html
+    .expect("ListPages newpage holder should have compiled HTML");
+
+    for index in 1..=2 {
+        let missing = format!("{ITEM_PREFIX}-{index}-missing-edition");
+        let existing = format!("{ITEM_PREFIX}-{index}");
+        assert!(
+            html.contains(&format!(r#"<a class="newpage" href="/{missing}">"#)),
+            "a ListPages row link to the missing page {missing} must keep the newpage class:\n{html}",
+        );
+        assert!(
+            html.contains(&format!(r#"href="/{existing}""#)),
+            "the existing row page should still link normally:\n{html}",
+        );
+        assert!(
+            !html.contains(&format!(r#"<a class="newpage" href="/{existing}""#)),
+            "an existing ListPages row page must not be marked newpage:\n{html}",
+        );
+    }
 }
 
 #[tokio::test]

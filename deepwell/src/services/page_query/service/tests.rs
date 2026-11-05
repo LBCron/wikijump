@@ -65,13 +65,21 @@ fn revision_ordering_keeps_internal_count_out_of_unrequested_public_field() {
 }
 
 #[test]
-fn wikidot_name_patterns_preserve_the_evidenced_wildcard_boundary() {
+fn wikidot_name_patterns_keep_the_trailing_prefix_wildcard_and_escape_literals() {
+    assert_eq!(wikidot_name_pattern("scp-%"), "scp-%");
     assert_eq!(wikidot_name_pattern("scp-*"), "scp-%");
-    assert_eq!(wikidot_name_pattern("*block"), "\\*block");
-    assert_eq!(wikidot_name_pattern("image*base"), "image\\*base");
-    assert_eq!(wikidot_name_pattern("image?block"), "image_block");
-    assert_eq!(wikidot_name_pattern("fragment:part%"), "fragment:part\\%");
+    assert_eq!(
+        wikidot_name_pattern("fragment:site-69-footage-%"),
+        "fragment:site-69-footage-%"
+    );
+    assert_eq!(wikidot_name_pattern("%"), "%");
+    assert_eq!(wikidot_name_pattern("fragment:part%"), "fragment:part%");
+    assert_eq!(
+        wikidot_name_pattern("fragment:literal%part"),
+        "fragment:literal\\%part"
+    );
     assert_eq!(wikidot_name_pattern("literal_name"), "literal\\_name");
+    assert_eq!(wikidot_name_pattern("image-block"), "image-block");
 }
 
 #[test]
@@ -124,7 +132,7 @@ fn wildcard_free_names_use_the_slug_index_and_wildcards_keep_ilike() {
         vec![Value::from("Component:Literal_Name".to_owned())],
     );
 
-    for name in ["scp-*", "image?block"] {
+    for name in ["scp-%", "fragment:site-69-footage-%"] {
         let pattern = sql(name);
         assert!(
             pattern.sql.contains(r#""page"."slug" ILIKE $1"#),
@@ -137,6 +145,14 @@ fn wildcard_free_names_use_the_slug_index_and_wildcards_keep_ilike() {
             "{name}",
         );
     }
+
+    let literal_slug = sql("image-block");
+    assert!(
+        literal_slug.sql.contains(r#""page"."slug" = LOWER($1)"#),
+        "{}",
+        literal_slug.sql
+    );
+    assert!(!literal_slug.sql.contains("ILIKE"), "{}", literal_slug.sql);
 }
 
 #[test]
@@ -145,12 +161,19 @@ fn explicit_categories_project_short_names_to_stored_full_slugs() {
     assert_eq!(
         category_local_wikidot_name_patterns(
             IncludedCategories::List(&categories),
-            "image?block",
+            "image-block",
         ),
         Some(vec![
-            "component:image_block".to_owned(),
-            "image_block".to_owned(),
+            "component:image-block".to_owned(),
+            "image-block".to_owned(),
         ]),
+    );
+    assert_eq!(
+        category_local_wikidot_name_patterns(
+            IncludedCategories::List(&categories),
+            "image%",
+        ),
+        Some(vec!["component:image%".to_owned(), "image%".to_owned(),]),
     );
     assert_eq!(
         category_local_wikidot_name_patterns(

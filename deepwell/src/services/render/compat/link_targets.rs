@@ -69,7 +69,7 @@ fn restore_element(
         }
         Element::TabView(tabs) => {
             for tab in tabs {
-                restore_elements(&mut tab.elements, fragments, next);
+                restore_elements(tab.elements_mut(), fragments, next);
             }
         }
         Element::Anchor { elements, .. }

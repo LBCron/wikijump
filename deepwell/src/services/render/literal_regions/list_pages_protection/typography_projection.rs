@@ -25,7 +25,7 @@ thread_local! {
 
 const INERT: u8 = b'?';
 
-// Keep these expressions and their order in lockstep with the pinned FTML typography preprocessor (rev a0bac18a5e2491701f90507509333a2868410569). The equal-width inert bytes preserve original offsets while having the same scanner-relevant property as the Unicode replacements: they are not ASCII quotes, dots, whitespace, or Wikidot delimiters.
+// Keep these expressions and their order in lockstep with the pinned FTML typography preprocessor (rev d5e75cbf8b443df22f9f0666087d8a579d05d927). The equal-width inert bytes preserve original offsets while having the same scanner-relevant property as the Unicode replacements: they are not ASCII quotes, dots, whitespace, or Wikidot delimiters.
 static DOUBLE_QUOTES: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"``(.*?)''").unwrap());
 static LOW_DOUBLE_QUOTES: LazyLock<Regex> =

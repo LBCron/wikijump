@@ -11,6 +11,11 @@ run-seeder = true
 seeder-path = "seeder"
 # Local-lab performance setting.
 sqlx-logging = false
+# The workstation runs many stacks at once; keep each pool small. The local
+# database keeps PostgreSQL's default max_connections, so this is headroom.
+max-connections = 16
+statement-cache-capacity = 32
+max-lifetime-secs = 1800
 
 [security]
 authentication-fail-delay-ms = 100
@@ -56,6 +61,11 @@ path = "/opt/locales"
 [ftml]
 render-timeout-ms = 300000
 preprocess-timeout-ms = 30000
+# The workstation runs many stacks at once; bound concurrent renders so a
+# burst in one stack cannot hold a large multiple of a render's footprint
+# resident (PLAN-memory-reduction phase 4, intervention 6).
+render-concurrency = 8
+render-queue-timeout-ms = 60000
 rerender-skip = [
     { job-depth = 3, last-update-ms = 100 },
     { job-depth = 10, last-update-ms = 1500 },

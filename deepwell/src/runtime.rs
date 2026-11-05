@@ -12,6 +12,7 @@ use s3::bucket::Bucket;
 use sea_orm::DatabaseConnection;
 use std::fmt::{self, Debug};
 use std::sync::Arc;
+use tokio::sync::Semaphore;
 
 pub type ServerState = Arc<ServerStateInner>;
 
@@ -26,6 +27,13 @@ pub struct ServerStateInner {
     pub s3_files_bucket: Box<Bucket>,
     pub s3_tblocks_bucket: Box<Bucket>,
     pub mailcheck_api_client: ReqwestClient,
+    /// Bounds the number of blocking renders in flight.
+    ///
+    /// A render takes a permit before it starts and moves it into the blocking
+    /// closure, so an abandoned (timed-out) render keeps its slot until the
+    /// thread actually finishes. The permit count comes from
+    /// `[ftml] render-concurrency`.
+    pub render_permits: Arc<Semaphore>,
 }
 
 impl Debug for ServerStateInner {
@@ -41,6 +49,7 @@ impl Debug for ServerStateInner {
             .field("s3_files_bucket", &self.s3_files_bucket)
             .field("s3_tblocks_bucket", &self.s3_tblocks_bucket)
             .field("mailcheck_api_client", &self.mailcheck_api_client)
+            .field("render_permits", &self.render_permits.available_permits())
             .finish()
     }
 }

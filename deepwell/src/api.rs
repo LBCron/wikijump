@@ -156,7 +156,7 @@ async fn build_server_state_inner(
 
     // Connect to databases
     info!("Connecting to PostgreSQL database");
-    let database = database::connect(&database_url, config.sqlx_logging)
+    let database = database::connect(&database_url, &config)
         .await
         .or_raise(make_error)?;
 
@@ -227,6 +227,7 @@ async fn build_server_state_inner(
     };
 
     // Build server state
+    let render_permits = Arc::new(tokio::sync::Semaphore::new(config.render_concurrency));
     let state = Arc::new(ServerStateInner {
         config,
         rpc_token_digest,
@@ -238,6 +239,7 @@ async fn build_server_state_inner(
         s3_files_bucket,
         s3_tblocks_bucket,
         mailcheck_api_client,
+        render_permits,
     });
 
     // Start workers listening to the job queue (requires ServerState)

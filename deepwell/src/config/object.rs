@@ -59,6 +59,12 @@ pub struct Config {
 
     pub sqlx_logging: bool,
 
+    pub database_max_connections: u32,
+
+    pub database_statement_cache_capacity: u32,
+
+    pub database_max_lifetime: Option<StdDuration>,
+
     pub seeder_path: PathBuf,
 
     pub localization_path: PathBuf,
@@ -106,6 +112,10 @@ pub struct Config {
     pub preprocess_timeout: StdDuration,
 
     pub render_timeout: StdDuration,
+
+    pub render_concurrency: usize,
+
+    pub render_queue_timeout: StdDuration,
 
     pub rerender_skip: Vec<(u32, Option<TimeDuration>)>,
 
@@ -221,6 +231,9 @@ impl Config {
             watch_files: false,
             run_seeder: false,
             sqlx_logging: true,
+            database_max_connections: 100,
+            database_statement_cache_capacity: 100,
+            database_max_lifetime: None,
             seeder_path: PathBuf::from("seeder"),
             localization_path: PathBuf::from("../locales"),
             authentication_fail_delay: StdDuration::from_millis(1),
@@ -245,6 +258,8 @@ impl Config {
             job_lift_expired_punishments: StdDuration::from_secs(60),
             preprocess_timeout: StdDuration::from_millis(1_000),
             render_timeout: StdDuration::from_millis(9_000),
+            render_concurrency: 512,
+            render_queue_timeout: StdDuration::from_millis(30_000),
             rerender_skip: vec![
                 (1, Some(time::Duration::milliseconds(100))),
                 (5, Some(time::Duration::milliseconds(500))),

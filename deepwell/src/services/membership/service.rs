@@ -799,12 +799,9 @@ WHERE invitation_id = $1 AND accepted = FALSE
         let identities = UserService::get_public_identities(ctx, &applicant_ids).await?;
         let mut applications = Vec::with_capacity(listed.len());
         for (user_id, status, comment) in listed {
-            let identity = identities.get(&user_id).ok_or_raise(|| {
-                Error::new(
-                    "membership application user is unavailable",
-                    ErrorType::SiteMembership,
-                )
-            })?;
+            let Some(identity) = identities.get(&user_id) else {
+                continue;
+            };
             applications.push(MembershipApplicationView {
                 user_id,
                 user_name: identity.user_name.to_string(),

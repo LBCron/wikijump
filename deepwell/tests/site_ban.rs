@@ -37,6 +37,7 @@ use deepwell::services::{RelationService, RequestContext, UserService};
 use deepwell::types::{Action, Permission, Reference, RelationType, Resource};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 use serde_json::json;
+use std::borrow::Cow;
 
 const SITE_SLUG: &str = "test";
 
@@ -611,11 +612,58 @@ async fn authorized_manager_can_remove_ban_after_target_is_tombstoned() {
         UpdateRolePermissionsInput {
             site_id,
             role_reference: Reference::Id(manager_role.role_id),
-            new_permissions: vec![Permission {
-                resource_type: Resource::Role,
-                resource_category: None,
-                action: Action::Assign,
-            }],
+            new_permissions: vec![
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: None,
+                    action: Action::View,
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: None,
+                    action: Action::Edit,
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: Some(Reference::Slug(Cow::Borrowed("system"))),
+                    action: Action::Edit,
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: None,
+                    action: Action::Create,
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: None,
+                    action: Action::Delete,
+                },
+                Permission {
+                    resource_type: Resource::Page,
+                    resource_category: None,
+                    action: Action::Rename,
+                },
+                Permission {
+                    resource_type: Resource::Role,
+                    resource_category: None,
+                    action: Action::View,
+                },
+                Permission {
+                    resource_type: Resource::Role,
+                    resource_category: None,
+                    action: Action::Edit,
+                },
+                Permission {
+                    resource_type: Resource::Role,
+                    resource_category: None,
+                    action: Action::Assign,
+                },
+                Permission {
+                    resource_type: Resource::Site,
+                    resource_category: None,
+                    action: Action::Edit,
+                },
+            ],
             cascade_removals: false,
             updating_user_id: ADMIN_USER_ID,
             ip_address: common::IP_ADDRESS,

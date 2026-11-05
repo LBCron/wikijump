@@ -855,7 +855,7 @@ async fn check_page_edit_rate_limit(
     ctx: &ServiceContext<'_>,
     actor_user_id: i64,
 ) -> Result<()> {
-    let allowed = AuthenticationAttemptService::reserve(
+    let saturated = AuthenticationAttemptService::is_saturated(
         ctx,
         &AuthenticationAttemptService::page_edit_user_bucket(actor_user_id),
         PAGE_EDIT_USER_MAX_ATTEMPTS,
@@ -863,13 +863,26 @@ async fn check_page_edit_rate_limit(
     )
     .await
     .or_raise(|| Error::new("failed to check page edit rate limit", ErrorType::Page))?;
-    if !allowed {
+    if saturated {
         ctx.commit_expected_authentication_rejection();
         bail!(Error::new(
             "too many page edits, try again later",
             ErrorType::RateLimited,
         ));
     }
+
+    Ok(())
+}
+
+async fn record_page_edit(ctx: &ServiceContext<'_>, actor_user_id: i64) -> Result<()> {
+    AuthenticationAttemptService::reserve(
+        ctx,
+        &AuthenticationAttemptService::page_edit_user_bucket(actor_user_id),
+        PAGE_EDIT_USER_MAX_ATTEMPTS,
+        PAGE_EDIT_WINDOW_SECONDS,
+    )
+    .await
+    .or_raise(|| Error::new("failed to record page edit rate limit", ErrorType::Page))?;
 
     Ok(())
 }
@@ -1475,9 +1488,14 @@ pub async fn page_edit(
         .or_raise(|| Error::new("failed to check edit permission", ErrorType::Page))?;
     check_page_edit_rate_limit(ctx, actor_user_id).await?;
 
-    PageService::edit(ctx, input)
+    let output = PageService::edit(ctx, input)
         .await
-        .or_raise(|| Error::new("failed to edit page", ErrorType::Page))
+        .or_raise(|| Error::new("failed to edit page", ErrorType::Page))?;
+    if output.is_some() {
+        record_page_edit(ctx, actor_user_id).await?;
+    }
+
+    Ok(output)
 }
 
 pub async fn wikidot_legacy_set_tags(

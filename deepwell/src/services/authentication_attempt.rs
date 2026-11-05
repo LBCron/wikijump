@@ -151,6 +151,47 @@ RETURNING attempts
         format!("mfa:user:{user_id}")
     }
 
+    pub async fn is_saturated(
+        ctx: &ServiceContext<'_>,
+        bucket_key: &str,
+        max_attempts: i64,
+        window_seconds: i64,
+    ) -> Result<bool> {
+        #[derive(Debug, FromQueryResult)]
+        struct CounterRow {
+            attempts: i64,
+            window_active: bool,
+        }
+
+        let statement = Statement::from_sql_and_values(
+            ctx.transaction().get_database_backend(),
+            r#"
+SELECT attempts,
+       window_started_at > NOW() - ($2::bigint * INTERVAL '1 second') AS window_active
+FROM authentication_attempt
+WHERE bucket_key = $1
+            "#,
+            [
+                Value::from(bucket_key.to_owned()),
+                Value::from(window_seconds),
+            ],
+        );
+        let row = CounterRow::find_by_statement(statement)
+            .one(ctx.transaction())
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to read authentication attempt counter",
+                    ErrorType::DatabaseQuery,
+                )
+            })?;
+
+        Ok(match row {
+            Some(row) => row.window_active && row.attempts >= max_attempts,
+            None => false,
+        })
+    }
+
     pub fn register_ip_bucket(ip_address: &str) -> String {
         format!(
             "register:ip:{}",

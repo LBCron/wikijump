@@ -344,7 +344,7 @@ async fn forum_mini_modules_match_live_order_limits_routes_and_owner_boundaries(
     assert!(
         recent_threads.contains(&format!(
             r#"href="/forum/t-{low_thread_id}/low-recent-thread""#
-        )) && recent_threads.contains("Posts: 1"),
+        )) && recent_threads.contains("Posts: 2"),
         "{recent_threads}",
     );
     assert!(
@@ -376,7 +376,7 @@ async fn forum_mini_modules_match_live_order_limits_routes_and_owner_boundaries(
     assert!(
         active_threads.contains(&format!(
             r#"href="/forum/t-{high_thread_id}/high-activity-thread""#
-        )) && active_threads.contains("Posts: 3")
+        )) && active_threads.contains("Posts: 4")
             && !active_threads.contains("Hidden Newest Thread")
             && !active_threads.contains("Private Page Activity Marker"),
         "{active_threads}",
@@ -401,11 +401,13 @@ async fn forum_mini_modules_match_live_order_limits_routes_and_owner_boundaries(
         "{recent_posts}",
     );
     assert!(
-        !recent_posts.contains("Low Root")
+        recent_posts.contains("Low Root")
             && !recent_posts.contains("High Root")
             && !recent_posts.contains("Hidden Reply")
             && !recent_posts.contains("Private Page Reply Marker")
-            && recent_posts.contains(&format!("#post-{}", high_reply_ids[2])),
+            && recent_posts.contains(&format!("#post-{}", high_reply_ids[2]))
+            && recent_posts.contains("posts: 4")
+            && recent_posts.contains("posts: 2"),
         "{recent_posts}",
     );
 
@@ -657,9 +659,39 @@ async fn forum_mini_modules_match_live_order_limits_routes_and_owner_boundaries(
             2usize,
         ),
         (
+            "mini-recent-threads-limit-single-quoted",
+            "[[module MiniRecentThreads limit='1']]",
+            2usize,
+        ),
+        (
+            "mini-recent-threads-limit-bare",
+            "[[module MiniRecentThreads limit=1]]",
+            2usize,
+        ),
+        (
+            "mini-recent-threads-limit-spaced",
+            "[[module MiniRecentThreads limit = \"1\"]]",
+            2usize,
+        ),
+        (
             "mini-recent-threads-unknown-argument",
             "[[module MiniRecentThreads unknown=\"x\"]]",
             2usize,
+        ),
+        (
+            "forum-mini-recent-threads-bare",
+            "[[module ForumMiniRecentThreads]]",
+            2usize,
+        ),
+        (
+            "forum-mini-recent-threads-limit-one",
+            "[[module ForumMiniRecentThreads limit=\"1\"]]",
+            1usize,
+        ),
+        (
+            "forum-mini-recent-threads-lowercase-name",
+            "[[module forumminirecentthreads limit=\"1\"]]",
+            1usize,
         ),
         (
             "mini-active-threads-bare",
@@ -692,9 +724,19 @@ async fn forum_mini_modules_match_live_order_limits_routes_and_owner_boundaries(
             2usize,
         ),
         (
+            "forum-mini-active-threads-bare",
+            "[[module ForumMiniActiveThreads]]",
+            2usize,
+        ),
+        (
+            "forum-mini-active-threads-limit-one",
+            "[[module ForumMiniActiveThreads limit=\"1\"]]",
+            1usize,
+        ),
+        (
             "mini-recent-posts-bare",
             "[[module MiniRecentPosts]]",
-            4usize,
+            5usize,
         ),
         (
             "mini-recent-posts-limit-one",
@@ -704,22 +746,32 @@ async fn forum_mini_modules_match_live_order_limits_routes_and_owner_boundaries(
         (
             "mini-recent-posts-limit-zero",
             "[[module MiniRecentPosts limit=\"0\"]]",
-            4usize,
+            5usize,
         ),
         (
             "mini-recent-posts-limit-negative",
             "[[module MiniRecentPosts limit=\"-1\"]]",
-            4usize,
+            5usize,
         ),
         (
             "mini-recent-posts-limit-text",
             "[[module MiniRecentPosts limit=\"abc\"]]",
-            4usize,
+            5usize,
         ),
         (
             "mini-recent-posts-unknown-argument",
             "[[module MiniRecentPosts unknown=\"x\"]]",
-            4usize,
+            5usize,
+        ),
+        (
+            "forum-mini-recent-posts-bare",
+            "[[module ForumMiniRecentPosts]]",
+            5usize,
+        ),
+        (
+            "forum-mini-recent-posts-limit-one",
+            "[[module ForumMiniRecentPosts limit=\"1\"]]",
+            1usize,
         ),
     ] {
         let preview = run_endpoint!(
@@ -763,6 +815,14 @@ async fn forum_mini_modules_match_live_order_limits_routes_and_owner_boundaries(
         (
             "mini-recent-posts-literal",
             "@@[[module MiniRecentPosts limit=\"1\"]]@@",
+        ),
+        (
+            "forum-mini-recent-threads-inline",
+            "before [[module ForumMiniRecentThreads limit=\"1\"]] after",
+        ),
+        (
+            "forum-mini-recent-posts-literal",
+            "@@[[module ForumMiniRecentPosts limit=\"1\"]]@@",
         ),
     ] {
         let preview = run_endpoint!(
@@ -1703,10 +1763,11 @@ async fn forum_comments_list_resolves_only_visible_page_discussions_impl() {
         saved_comments_body(&runner, site_id, "fixture-forum-comments-hideform-denied")
             .await;
     assert!(
-        hide_form_denied_body.contains(r#"id="comments-options-shown""#)
+        !hide_form_denied_body.contains(r#"id="comments-options-shown""#)
+            && hide_form_denied_body.contains(r#"id="thread-container-posts""#)
             && hide_form_denied_body.contains(r#"id="new-post-button""#)
             && !hide_form_denied_body.contains(r#"id="new-post-form""#),
-        "a denied actor must retain the Comments link without an input form:\n{hide_form_denied_body}",
+        "a zero-comment thread must match live's empty state without an input form:\n{hide_form_denied_body}",
     );
 
     let invalid_body = saved_comments_body(
@@ -5304,4 +5365,371 @@ async fn wikidot_forum_feed_thread_scope_hides_private_page_threads() {
         Some("Private Feed Thread")
     );
     assert_eq!(private_feed.items.len(), 1);
+}
+
+#[tokio::test]
+async fn forum_mini_recent_posts_matches_live_post_content_rules() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+    let group = ForumService::create_group(
+        runner.context(),
+        CreateForumGroup {
+            site_id,
+            user_id: ADMIN_USER_ID,
+            name: "Mini content rules group".to_owned(),
+            description: "Mini content rules fixture".to_owned(),
+            visible: true,
+            sort_index: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("mini content rules group should be created");
+    let category = ForumService::create_category(
+        runner.context(),
+        CreateForumCategory {
+            forum_group_id: group.forum_group_id,
+            user_id: ADMIN_USER_ID,
+            name: "Mini content rules category".to_owned(),
+            description: "Mini content rules fixture".to_owned(),
+            sort_index: None,
+            max_nest_level: Some(2),
+            per_page_discussion: Some(false),
+            layout: None,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("mini content rules category should be created");
+    let thread = ForumThreadService::create(
+        runner.context(),
+        CreateForumThread {
+            forum_category_id: category.forum_category_id,
+            user_id: SAMPLE_USER_ID,
+            associated_page_id: None,
+            title: "Mini Content Thread".to_owned(),
+            description: String::new(),
+            sticky: false,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("mini content rules thread should be created");
+    let long_body = concat!(
+        "muse-probe-wjf root post for the mini-module excerpt probe. ",
+        "This sentence exists to push the preview text past one hundred ",
+        "characters so the truncation rule is observable.",
+    );
+    let root = ForumPostService::create(
+        runner.context(),
+        CreateForumPost {
+            forum_thread_id: thread.forum_thread_id,
+            parent_post_id: None,
+            user_id: SAMPLE_USER_ID,
+            title: "Mini Content Thread".to_owned(),
+            wikitext: long_body.to_owned(),
+            comments: "mini content rules root".to_owned(),
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("mini content rules root post should be created");
+    let reply = ForumPostService::create(
+        runner.context(),
+        CreateForumPost {
+            forum_thread_id: thread.forum_thread_id,
+            parent_post_id: Some(root.forum_post_id),
+            user_id: SAMPLE_USER_ID,
+            title: String::new(),
+            wikitext: "**bold** mini content reply body".to_owned(),
+            comments: "mini content rules reply".to_owned(),
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("mini content rules reply should be created");
+
+    let preview = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": "Mini content rules",
+            "wikitext": "[[module ForumMiniRecentPosts limit=\"2\"]]",
+        }),
+    );
+    let body = preview.body;
+    assert_eq!(body.matches(r#"<div class="item""#).count(), 2, "{body}");
+    assert!(
+        body.contains(&format!(
+            r#"href="/forum/t-{}/mini-content-thread#post-{}""#,
+            thread.forum_thread_id, reply.forum_post_id,
+        )) && body.contains(">(No title)</a>")
+            && body.contains("bold mini content reply body")
+            && !body.contains("<strong>")
+            && body.contains(&format!(
+                r#"href="/forum/t-{}/mini-content-thread#post-{}""#,
+                thread.forum_thread_id, root.forum_post_id,
+            ))
+            && body.contains(concat!(
+                "muse-probe-wjf root post for the mini-module excerpt probe. ",
+                "This sentence exists to push the...",
+            ))
+            && body.contains(", posts: 2"),
+        "live RecentPosts includes standalone thread roots with preview-truncated plain text and (No title) placeholders:\n{body}",
+    );
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-forum-mini-content-page-comment",
+        "Forum Mini Content Page Comment",
+        "page comment holder fixture",
+    )
+    .await;
+    let page_comment_page_id = listpages_test_page_id(
+        &runner,
+        site_id,
+        "fixture-forum-mini-content-page-comment",
+    )
+    .await;
+    let page_thread = ForumThreadService::create(
+        runner.context(),
+        CreateForumThread {
+            forum_category_id: category.forum_category_id,
+            user_id: SAMPLE_USER_ID,
+            associated_page_id: Some(page_comment_page_id),
+            title: "Page Comment Thread".to_owned(),
+            description: String::new(),
+            sticky: false,
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("page comment thread should be created");
+    let page_comment = ForumPostService::create(
+        runner.context(),
+        CreateForumPost {
+            forum_thread_id: page_thread.forum_thread_id,
+            parent_post_id: None,
+            user_id: SAMPLE_USER_ID,
+            title: "Page Comment Root".to_owned(),
+            wikitext: "page comment root body".to_owned(),
+            comments: "page comment root".to_owned(),
+            from_wikidot: false,
+        },
+    )
+    .await
+    .expect("page comment root should be created");
+    let preview = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": "Page comment anchor",
+            "wikitext": "[[module ForumMiniRecentPosts limit=\"1\"]]",
+        }),
+    );
+    assert!(
+        preview.body.contains(&format!(
+            r#"href="/fixture-forum-mini-content-page-comment/comments/show#post-{}""#,
+            page_comment.forum_post_id,
+        )),
+        "page discussion comments keep the page comments anchor live renders:\n{}",
+        preview.body,
+    );
+}
+
+#[tokio::test]
+async fn forum_comments_empty_state_creates_the_live_thread_ui() {
+    use deepwell::models::forum_category::Entity as ForumCategoryTable;
+    use deepwell::models::forum_group::Entity as ForumGroupTable;
+    use sea_orm::{ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter};
+
+    async fn page_body(runner: &mut TestRunner, site_id: i64, slug: &str) -> String {
+        runner.set_request_context(RequestContext::default());
+        let page = run_endpoint!(
+            runner,
+            page_view,
+            json!({
+                "site_id": site_id,
+                "session_token": null,
+                "route": {"slug": slug, "extra": ""},
+                "locales": ["en-US", "en"],
+            }),
+        );
+        match page {
+            GetPageViewOutput::Found {
+                compiled_body_html, ..
+            } => compiled_body_html,
+            other => panic!("expected a found Comments page view, got {other:?}"),
+        }
+    }
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-forum-comments-empty-defaults",
+        "Comments Empty Defaults",
+        "[[module Comments]]",
+    )
+    .await;
+    let page_id =
+        listpages_test_page_id(&runner, site_id, "fixture-forum-comments-empty-defaults")
+            .await;
+    let body = page_body(
+        &mut runner,
+        site_id,
+        "fixture-forum-comments-empty-defaults",
+    )
+    .await;
+    let thread_id = body
+        .split("WIKIDOT.forumThreadId = ")
+        .nth(1)
+        .and_then(|rest| rest.split(';').next())
+        .and_then(|number| number.trim().parse::<i64>().ok())
+        .unwrap_or_else(|| panic!("live empty state must stamp the thread id:\n{body}"));
+    assert!(
+        body.contains(r#"<div class="comments-box">"#)
+            && body.contains(r#"id="comments-options-hidden" style="display: none""#)
+            && body.contains(r#"id="thread-container""#)
+            && body.contains(r#"id="thread-container-posts""#)
+            && body.contains(r#"id="new-post-button""#)
+            && body.contains(r#"id="post-options-template""#)
+            && !body.contains(r#"id="comments-options-shown""#),
+        "a zero-comment page must render live's empty thread UI:\n{body}",
+    );
+
+    let thread = ForumThreadTable::find_by_id(thread_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("created page discussion thread lookup should succeed")
+        .expect("the Comments render must create the page discussion thread");
+    let page_model = PageTable::find_by_id(page_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("comments empty page lookup should succeed")
+        .expect("comments empty page should exist");
+    assert_eq!(thread.page_id, Some(page_id));
+    assert_eq!(thread.site_id, site_id);
+    assert_eq!(thread.created_by, ANONYMOUS_USER_ID);
+    assert_eq!(thread.title, "Comments Empty Defaults");
+    assert_eq!(
+        page_model.discussion_thread_id,
+        Some(thread.forum_thread_id)
+    );
+
+    let category = ForumCategoryTable::find_by_id(thread.forum_category_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("created page discussion category lookup should succeed")
+        .expect("the Comments render must create the per-page discussion category");
+    assert_eq!(category.per_page_discussion, Some(true));
+    assert_eq!(category.name, "Per page discussions");
+    let group = ForumGroupTable::find_by_id(thread.forum_group_id)
+        .one(runner.context().transaction())
+        .await
+        .expect("created page discussion group lookup should succeed")
+        .expect("the Comments render must create the hidden group");
+    assert_eq!(group.name, "Hidden");
+    assert!(!group.visible);
+
+    let second_body = page_body(
+        &mut runner,
+        site_id,
+        "fixture-forum-comments-empty-defaults",
+    )
+    .await;
+    assert!(
+        second_body.contains(&format!("WIKIDOT.forumThreadId = {thread_id};")),
+        "repeated renders must reuse the created thread:\n{second_body}",
+    );
+    let page_threads = ForumThreadTable::find()
+        .filter(deepwell::models::forum_thread::Column::PageId.eq(page_id))
+        .count(runner.context().transaction())
+        .await
+        .expect("page discussion thread count should load");
+    assert_eq!(page_threads, 1);
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-forum-comments-empty-existing-container",
+        "Comments Empty Existing Container",
+        "[[module Comments]]",
+    )
+    .await;
+    let existing_page_id = listpages_test_page_id(
+        &runner,
+        site_id,
+        "fixture-forum-comments-empty-existing-container",
+    )
+    .await;
+    let existing_body = page_body(
+        &mut runner,
+        site_id,
+        "fixture-forum-comments-empty-existing-container",
+    )
+    .await;
+    assert!(
+        existing_body.contains(r#"id="thread-container-posts""#),
+        "later Comments renders must reuse the created container:\n{existing_body}",
+    );
+    let existing_thread = ForumThreadTable::find()
+        .filter(deepwell::models::forum_thread::Column::PageId.eq(existing_page_id))
+        .one(runner.context().transaction())
+        .await
+        .expect("second page discussion thread lookup should succeed")
+        .expect("the second Comments render must create its own thread");
+    assert_eq!(
+        existing_thread.forum_category_id,
+        category.forum_category_id
+    );
+    let categories = ForumCategoryTable::find()
+        .filter(deepwell::models::forum_category::Column::SiteId.eq(site_id))
+        .filter(deepwell::models::forum_category::Column::PerPageDiscussion.eq(true))
+        .count(runner.context().transaction())
+        .await
+        .expect("per-page discussion category count should load");
+    assert_eq!(categories, 1);
+    let groups = ForumGroupTable::find()
+        .filter(deepwell::models::forum_group::Column::SiteId.eq(site_id))
+        .filter(deepwell::models::forum_group::Column::Name.eq("Hidden"))
+        .count(runner.context().transaction())
+        .await
+        .expect("hidden group count should load");
+    assert_eq!(groups, 1);
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-forum-comments-empty-hidden",
+        "Comments Empty Hidden",
+        r#"[[module Comments hide="true"]]"#,
+    )
+    .await;
+    let hidden_page_id =
+        listpages_test_page_id(&runner, site_id, "fixture-forum-comments-empty-hidden")
+            .await;
+    let hidden_body =
+        page_body(&mut runner, site_id, "fixture-forum-comments-empty-hidden").await;
+    assert!(
+        hidden_body.contains(r#"id="comments-options-hidden""#)
+            && !hidden_body.contains(r#"id="thread-container-posts""#)
+            && !hidden_body.contains("WIKIDOT.forumThreadId"),
+        "hide=true must keep the shell inert without creating a thread:\n{hidden_body}",
+    );
+    let hidden_threads = ForumThreadTable::find()
+        .filter(deepwell::models::forum_thread::Column::PageId.eq(hidden_page_id))
+        .count(runner.context().transaction())
+        .await
+        .expect("hidden Comments thread count should load");
+    assert_eq!(hidden_threads, 0);
 }

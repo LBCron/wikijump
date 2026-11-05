@@ -11,9 +11,12 @@ use super::forum_read_routes::{
     render_forum_thread_post,
 };
 use super::forum_visibility::ForumPageVisibility;
+use crate::constants::ANONYMOUS_USER_ID;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::{forum_category, forum_group, forum_post, forum_thread, page};
-use crate::services::{ServiceContext, SettingsService};
+use crate::services::{
+    ForumThreadService, PageRevisionService, ServiceContext, SettingsService,
+};
 
 pub(super) const ROOTS_PER_PAGE: usize = 10;
 const POST_CANDIDATE_LIMIT: usize = 1_001;
@@ -55,12 +58,47 @@ pub(super) async fn load(
     page_id: i64,
     order: ForumCommentsOrder,
     hide_form: bool,
+    create_page_thread: bool,
 ) -> Result<ForumCommentsLoad> {
-    let Some((thread_id, forum_category_id)) =
-        resolve_page_discussion_thread(ctx, site_id, visibility, page_id).await?
-    else {
-        return Ok(ForumCommentsLoad::NoPage);
+    let thread = match resolve_page_discussion_thread(ctx, site_id, visibility, page_id)
+        .await?
+    {
+        PageDiscussionLookup::NoPage => return Ok(ForumCommentsLoad::NoPage),
+        PageDiscussionLookup::Thread(thread) => thread,
+        PageDiscussionLookup::MissingThread(page) => {
+            if !create_page_thread {
+                return Ok(ForumCommentsLoad::NoPage);
+            }
+            let revision =
+                match PageRevisionService::get_latest(ctx, site_id, page.page_id).await {
+                    Ok(revision) => revision,
+                    Err(error) if error.error_type == ErrorType::PageRevisionNotFound => {
+                        return Ok(ForumCommentsLoad::NoPage);
+                    }
+                    Err(error) => return Err(error),
+                };
+            ForumThreadService::ensure_page_discussion_category(ctx, site_id)
+                .await
+                .or_raise(|| {
+                    Error::new(
+                        "failed to prepare the page discussion forum category",
+                        ErrorType::Render,
+                    )
+                })?;
+            ForumThreadService::get_or_create_page_discussion(
+                ctx,
+                &page,
+                ANONYMOUS_USER_ID,
+                &revision.title,
+            )
+            .await
+            .or_raise(|| {
+                Error::new("failed to create page discussion thread", ErrorType::Render)
+            })?
+        }
     };
+    let thread_id = thread.forum_thread_id;
+    let forum_category_id = thread.forum_category_id;
     let can_post = visibility
         .forum_category_is_postable(site_id, forum_category_id)
         .await?;
@@ -91,12 +129,18 @@ pub(super) async fn load(
     }))
 }
 
+enum PageDiscussionLookup {
+    NoPage,
+    Thread(forum_thread::Model),
+    MissingThread(page::Model),
+}
+
 async fn resolve_page_discussion_thread(
     ctx: &ServiceContext<'_>,
     site_id: i64,
     visibility: &mut ForumPageVisibility<'_, '_>,
     page_id: i64,
-) -> Result<Option<(i64, i64)>> {
+) -> Result<PageDiscussionLookup> {
     let make_error = || {
         Error::new(
             "failed to resolve page discussion thread",
@@ -110,13 +154,13 @@ async fn resolve_page_discussion_thread(
         .await
         .or_raise(make_error)?
     else {
-        return Ok(None);
+        return Ok(PageDiscussionLookup::NoPage);
     };
     if !visibility
         .page_is_viewable(site_id, Some(page.page_id), Some(page.page_category_id))
         .await?
     {
-        return Ok(None);
+        return Ok(PageDiscussionLookup::NoPage);
     }
 
     let mut query = forum_thread::Entity::find()
@@ -127,7 +171,7 @@ async fn resolve_page_discussion_thread(
         query = query.filter(forum_thread::Column::ForumThreadId.eq(thread_id));
     }
     let Some(thread) = query.one(ctx.transaction()).await.or_raise(make_error)? else {
-        return Ok(None);
+        return Ok(PageDiscussionLookup::MissingThread(page));
     };
     let category_exists = forum_category::Entity::find_by_id(thread.forum_category_id)
         .filter(forum_category::Column::SiteId.eq(site_id))
@@ -138,7 +182,7 @@ async fn resolve_page_discussion_thread(
         .or_raise(make_error)?
         .is_some();
     if !category_exists {
-        return Ok(None);
+        return Ok(PageDiscussionLookup::NoPage);
     }
     let group_exists = forum_group::Entity::find_by_id(thread.forum_group_id)
         .filter(forum_group::Column::SiteId.eq(site_id))
@@ -148,9 +192,9 @@ async fn resolve_page_discussion_thread(
         .or_raise(make_error)?
         .is_some();
     if !group_exists {
-        return Ok(None);
+        return Ok(PageDiscussionLookup::NoPage);
     }
-    Ok(Some((thread.forum_thread_id, thread.forum_category_id)))
+    Ok(PageDiscussionLookup::Thread(thread))
 }
 
 pub(super) async fn count_comment_roots(
@@ -307,7 +351,9 @@ fn render_comments(
     if order == ForumCommentsOrder::Reverse {
         output.push_str(&new_post);
     }
-    output.push_str(options);
+    if root_count > 0 {
+        output.push_str(options);
+    }
     output.push_str("<div id=\"thread-container-posts\" style=\"display: none\">");
     output.push_str(&pager);
     output.push_str(&render_comment_nodes(comments, max_nest_level));

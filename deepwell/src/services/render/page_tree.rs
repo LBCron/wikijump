@@ -266,7 +266,7 @@ impl RenderService {
         page_preview: bool,
         compat_html: &mut CompatHtmlFragments,
     ) -> Result<String> {
-        let (current_site_id, current_page_id) = current_page;
+        let (current_site_id, _) = current_page;
         let wikitext = Self::expand_categories_modules(
             ctx,
             wikitext,
@@ -280,8 +280,7 @@ impl RenderService {
             ctx,
             wikitext,
             settings,
-            current_site_id,
-            current_page_id,
+            current_page,
             viewer_user_id,
             page_preview,
             compat_html,
@@ -293,8 +292,7 @@ impl RenderService {
         ctx: &ServiceContext<'_>,
         wikitext: String,
         settings: &WikitextSettings,
-        current_site_id: Option<i64>,
-        current_page_id: Option<i64>,
+        current_page: (Option<i64>, Option<i64>),
         viewer_user_id: Option<i64>,
         page_preview: bool,
         compat_html: &mut CompatHtmlFragments,
@@ -302,9 +300,7 @@ impl RenderService {
         if !settings.enable_page_syntax || !PAGE_TREE_MODULE_REGEX.is_match(&wikitext) {
             return Ok(wikitext);
         }
-        let (Some(current_site_id), Some(current_page_id)) =
-            (current_site_id, current_page_id)
-        else {
+        let (Some(current_site_id), Some(current_page_id)) = current_page else {
             if page_preview {
                 // Live PagePreview has no page context, so a PageTree module
                 // renders as nothing rather than as the parser fallback.

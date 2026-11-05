@@ -3704,6 +3704,95 @@
           ]
         }
       ]
+    },
+    {
+      "id": "forum-mini-registry-alias-and-content-rules-20261105",
+      "title": "Forum mini modules accept the ForumMini registry names and share live selection, limit, argument and content rules",
+      "feature_ids": [
+        "module-minirecentthreads",
+        "module-miniactivethreads",
+        "module-minirecentposts"
+      ],
+      "classification": "live-clarification",
+      "observed_at": "2026-11-05",
+      "analysis": "Anonymous GETs of run-owned saved pages on sandbox-for-codex, backed by run-owned forum threads with known post counts, establish the registry and alias spellings, the limit clamp, categoryId handling, row selection and the exact row content contract for the three forum mini modules. The previous 2026-08-09 observation reasoned from a page whose post sample happened to contain only replies; this observation samples standalone thread roots directly and supersedes that inference.",
+      "normative_behavior": [
+        "ForumMiniRecentThreads, ForumMiniActiveThreads and ForumMiniRecentPosts are live module names; MiniRecentThreads, MiniActiveThreads and MiniRecentPosts are registered aliases of the same modules and render identical output. Module names are case-insensitive.",
+        "A positive integer limit from 1 through 300 constrains rows and the default limit is 5; zero, negative, nonnumeric, single-quoted, unquoted and spaced attribute forms retain the default; duplicate double-quoted limit attributes use the last value; a numeric non-integer limit renders <div class=\"error-block\">An error occurred when processing your request.</div>.",
+        "RecentPosts categoryId is honored only by the saved-page module argument form: a numeric category that exists renders the generic processing error block, a numeric category that does not exist renders <div class=\"error-block\">The category can not be found.</div>, and a nonnumeric value renders the generic processing error block. RecentThreads and ActiveThreads ignore categoryId.",
+        "RecentThreads selects every site thread ordered by descending thread id, including zero-post page discussion threads, and renders the thread total post count.",
+        "ActiveThreads selects threads with at least one post inside the last seven days, ordered by that count descending, and renders the thread total post count.",
+        "RecentPosts selects every post ordered by descending post id, including standalone thread roots and page-discussion roots; renders the thread total post count; renders (No title) for an empty post title; and renders the tag-stripped compiled post text truncated to 100 characters at the last space plus three dots.",
+        "Standalone thread post anchors are /forum/t-<thread-id>/<unixified-thread-title>#post-<post-id>; page discussion anchors are /<page-slug>/comments/show#post-<post-id>.",
+        "RecentPosts preview text is the tag-stripped rendered post text with HTML entities decoded once and re-escaped for output, so a source <unsafe> & ampersand renders as &lt;unsafe&gt; &amp; ampersand and markup such as **bold** renders as bold.",
+        "ActiveThreads tie ordering is not deterministic in live SQL and is not established by this observation."
+      ],
+      "evidence": [
+        {
+          "path": "install/local/wikidot-verification/artifacts/forum-mini-and-comments-live-20261105.json",
+          "sha256": "89e139bbbba3234cad5edebcc742c1c692d6203a66c8ca6a69b85f06fa59ba34",
+          "case_ids": [
+            "active-cat",
+            "alias-recent-posts",
+            "alias-recent-threads",
+            "cat-posts-limit",
+            "cat-text",
+            "cat-threads",
+            "cat-valid-other",
+            "fm-active-threads",
+            "fm-recent-posts",
+            "fm-recent-posts-entities",
+            "fm-recent-threads",
+            "head-junk",
+            "limit-0",
+            "limit-100",
+            "limit-300",
+            "limit-301",
+            "limit-bare",
+            "limit-duplicate",
+            "limit-empty",
+            "limit-float",
+            "limit-negative",
+            "limit-single-quoted",
+            "limit-space",
+            "limit-text",
+            "limit-unterminated",
+            "name-lowercase",
+            "name-unknown",
+            "unknown-attribute"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "forum-comments-live-empty-state-20261105",
+      "title": "The Comments module creates the page discussion thread and renders live's zero-comment thread UI",
+      "feature_ids": [
+        "module-comments"
+      ],
+      "classification": "live-clarification",
+      "observed_at": "2026-11-05",
+      "analysis": "Anonymous GETs of run-owned saved pages establish that a page carrying only [[module Comments]] is rendered with a discussion thread: the first render creates the thread for a page whose source has no forum data, and a plain page without the module gets no thread. The zero-comment thread keeps the thread script, hidden thread-container-posts, Add a New Comment control and post-options template; the comments options row appears only after a comment exists. hide=true renders the inert shell and creates no thread.",
+      "normative_behavior": [
+        "A Comments render for a savable page without a discussion thread creates the thread and renders the thread UI; a repeat render reuses the created thread.",
+        "The zero-comment thread body is the forumThreadId script, hidden thread-container-posts, the Add a New Comment control and the hidden post-options template. The comments-options-shown row is absent until the thread has at least one comment.",
+        "The outer comments shell hides its comments-options-hidden row (style=\"display: none\") whenever the thread body is rendered, including the zero-comment state.",
+        "Comments hide=true keeps the shell inert, renders no thread body and creates no discussion thread.",
+        "The created thread title is the page title and the created thread belongs to the site's per-page discussion forum category."
+      ],
+      "evidence": [
+        {
+          "path": "install/local/wikidot-verification/artifacts/forum-mini-and-comments-live-20261105.json",
+          "sha256": "89e139bbbba3234cad5edebcc742c1c692d6203a66c8ca6a69b85f06fa59ba34",
+          "case_ids": [
+            "comments-empty-first-render",
+            "comments-empty-second-render",
+            "comments-hidden",
+            "comments-one-comment",
+            "comments-nested-reply"
+          ]
+        }
+      ]
     }
   ]
 }

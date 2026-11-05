@@ -343,7 +343,7 @@ mod tests {
     }
 }
 
-fn canonicalize_domain(domain: &str) -> String {
+pub(crate) fn canonicalize_domain(domain: &str) -> String {
     domain
         .strip_suffix('.')
         .unwrap_or(domain)

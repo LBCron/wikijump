@@ -2307,6 +2307,59 @@ async fn custom_domains_are_canonicalized_and_the_platform_apex_is_refused() {
     );
 }
 
+#[tokio::test]
+async fn site_update_preferred_domain_stores_the_canonical_spelling() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let site_id = create_site(&runner, n).await;
+    let ctx = runner.context();
+    let canonical = format!("f11-preferred-{n}.example.com");
+
+    DomainService::create_custom(
+        ctx,
+        CreateCustomDomain {
+            domain: canonical.clone(),
+            site_id,
+            www_redirect: false,
+        },
+    )
+    .await
+    .expect("failed to create custom domain");
+
+    for spelling in [
+        format!("F11-PREFERRED-{n}.EXAMPLE.COM"),
+        format!("{canonical}."),
+    ] {
+        SiteService::update(
+            ctx,
+            Reference::Id(site_id),
+            UpdateSiteBody {
+                preferred_domain: Maybe::Set(Some(spelling)),
+                ..Default::default()
+            },
+            None,
+            SYSTEM_USER_ID,
+            common::IP_ADDRESS,
+        )
+        .await
+        .expect("failed to set preferred domain from a non-canonical spelling");
+
+        let site = SiteService::get(ctx, Reference::Id(site_id))
+            .await
+            .expect("failed to reload site");
+        assert_eq!(site.preferred_domain.as_deref(), Some(canonical.as_str()));
+    }
+
+    DomainService::remove_custom(ctx, site_id, canonical)
+        .await
+        .expect("failed to remove the preferred domain");
+
+    let site = SiteService::get(ctx, Reference::Id(site_id))
+        .await
+        .expect("failed to reload site");
+    assert_eq!(site.preferred_domain, None);
+}
+
 async fn create_site_as(
     runner: &TestRunner,
     slug: String,

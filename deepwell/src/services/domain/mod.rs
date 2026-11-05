@@ -21,5 +21,6 @@
 mod service;
 mod structs;
 
+pub(crate) use self::service::canonicalize_domain;
 pub use self::service::{DEFAULT_SITE_SLUG, DomainService};
 pub use self::structs::CreateCustomDomain;

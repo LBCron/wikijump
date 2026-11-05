@@ -26,7 +26,7 @@ use crate::services::PageService;
 use crate::services::ServiceContext;
 use crate::services::alias::CreateAlias;
 use crate::services::audit::{AuditEvent, AuditService, SiteFields};
-use crate::services::domain::{DEFAULT_SITE_SLUG, DomainService};
+use crate::services::domain::{DEFAULT_SITE_SLUG, DomainService, canonicalize_domain};
 use crate::services::relation::CreateSiteUser;
 use crate::services::user::{CreateUser, UpdateUserBody};
 use crate::services::{
@@ -696,6 +696,9 @@ impl SiteService {
         let preferred_domain_changed = matches!(&input.preferred_domain, Maybe::Set(_));
 
         if let Maybe::Set(preferred_domain) = input.preferred_domain {
+            let preferred_domain =
+                preferred_domain.map(|domain| canonicalize_domain(&domain));
+
             if site.slug == DEFAULT_SITE_SLUG && preferred_domain.is_some() {
                 error!("Cannot set a preferred domain for the default site");
                 bail!(Error::new(

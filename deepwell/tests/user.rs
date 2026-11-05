@@ -554,7 +554,7 @@ async fn regular_account_password_policy_rejects_short_create_passwords() {
             .password;
     assert_eq!(unchanged_password, before_password);
 
-    let updated = run_endpoint!(
+    run_endpoint!(
         runner,
         user_edit,
         json!({
@@ -563,7 +563,15 @@ async fn regular_account_password_policy_rejects_short_create_passwords() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert_ne!(updated.password, before_password);
+    let changed_password =
+        UserService::get_optional(runner.context(), Reference::Id(created.user_id))
+            .await
+            .expect("created user lookup should succeed")
+            .expect("created user should exist")
+            .unwrap_wikijump()
+            .expect("created user should be a Wikijump user")
+            .password;
+    assert_ne!(changed_password, before_password);
 }
 
 #[tokio::test]
@@ -902,10 +910,7 @@ async fn basic_update() {
         .expect("Returned user not of type Wikijump");
 
     let birthday = Date::from_calendar_date(1986, Month::February, 1).unwrap();
-    let expected = UserOutput::new(User::Wikijump(last_user), Some(user_id))
-        .unwrap_wikijump()
-        .expect("Edited user not of type Wikijump");
-    assert_eq!(user, expected);
+    assert_eq!(user, last_user);
     assert_str_eq!(user.real_name, Some("Jane H. Doe"));
     assert_str_eq!(user.gender, Some("she/they"));
     assert_eq!(user.birthday, Some(birthday));
@@ -931,10 +936,16 @@ async fn basic_update() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert!(user.email_validation_info.is_some());
+    let stored = UserService::get_optional(runner.context(), Reference::Id(user_id))
+        .await
+        .expect("user lookup should succeed")
+        .expect("user should exist")
+        .unwrap_wikijump()
+        .expect("user should be a Wikijump user");
+    assert!(stored.email_validation_info.is_some());
     assert!(user.email_validation_at.is_some());
     assert_eq!(user.user_id, user_id);
-    assert_eq!(user.email, "jane@wikijump.dev");
+    assert_str_eq!(user.email, Some("jane@wikijump.dev"));
     assert!(user.biography.is_none());
 
     let error = run_endpoint_err!(
@@ -954,7 +965,7 @@ async fn basic_update() {
         user_id: Some(ADMIN_USER_ID),
         ..Default::default()
     });
-    let user = run_endpoint!(
+    run_endpoint!(
         runner,
         user_edit,
         json!({
@@ -963,7 +974,84 @@ async fn basic_update() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert_ne!(user.password, old_password);
+    let new_password =
+        UserService::get_optional(runner.context(), Reference::Id(user_id))
+            .await
+            .expect("user lookup should succeed")
+            .expect("user should exist")
+            .unwrap_wikijump()
+            .expect("user should be a Wikijump user")
+            .password;
+    assert_ne!(new_password, old_password);
+}
+
+#[tokio::test]
+async fn user_edit_and_delete_return_projected_output_without_credential_material() {
+    let mut runner = TestRunner::setup().await;
+    let created = run_endpoint!(
+        runner,
+        user_create,
+        json!({
+            "user_type": "regular",
+            "name": "Projection Check User",
+            "email": "projection-check@example.invalid",
+            "locales": ["en"],
+            "password": "password-fixture",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    runner.set_request_context(RequestContext {
+        user_id: Some(created.user_id),
+        ..Default::default()
+    });
+
+    let edited = run_endpoint!(
+        runner,
+        user_edit,
+        json!({
+            "user": created.user_id,
+            "biography": "projection check",
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    let edited_json =
+        serde_json::to_value(&edited).expect("edited output should serialize");
+    for forbidden in [
+        "password",
+        "multi_factor_secret",
+        "multi_factor_recovery_codes",
+        "email_validation_info",
+    ] {
+        assert!(
+            edited_json.get(forbidden).is_none(),
+            "user_edit output must not contain {forbidden}",
+        );
+    }
+    assert_str_eq!(edited.email, Some("projection-check@example.invalid"));
+    assert_str_eq!(edited.biography, Some("projection check"));
+
+    let deleted = run_endpoint!(
+        runner,
+        user_delete,
+        json!({
+            "user": created.user_id,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+    let deleted_json =
+        serde_json::to_value(&deleted).expect("deleted output should serialize");
+    for forbidden in [
+        "password",
+        "multi_factor_secret",
+        "multi_factor_recovery_codes",
+        "email_validation_info",
+    ] {
+        assert!(
+            deleted_json.get(forbidden).is_none(),
+            "user_delete output must not contain {forbidden}",
+        );
+    }
+    assert!(deleted.deleted_at.is_some());
 }
 
 #[tokio::test]
@@ -1182,7 +1270,7 @@ async fn verifying_email_displaces_other_pending_claims() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert_eq!(relocated.email, "relocated-claim@example.invalid");
+    assert_str_eq!(relocated.email, Some("relocated-claim@example.invalid"));
     let relocated = run_endpoint!(
         runner,
         user_edit,
@@ -1956,7 +2044,7 @@ async fn self_email_change_requires_current_password_proof() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert_eq!(renamed.email, "before-proof@example.invalid");
+    assert_str_eq!(renamed.email, Some("before-proof@example.invalid"));
 
     let changed = run_endpoint!(
         runner,
@@ -1968,7 +2056,7 @@ async fn self_email_change_requires_current_password_proof() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert_eq!(changed.email, "after-proof@example.invalid");
+    assert_str_eq!(changed.email, Some("after-proof@example.invalid"));
     assert!(changed.email_verified_at.is_none());
 }
 
@@ -2129,7 +2217,7 @@ async fn user_create_and_email_change_reject_duplicate_emails() {
             "ip_address": common::IP_ADDRESS,
         }),
     );
-    assert_eq!(changed.email, "changer-new@example.invalid");
+    assert_str_eq!(changed.email, Some("changer-new@example.invalid"));
 }
 
 #[tokio::test]

@@ -31,7 +31,7 @@ use sea_orm::prelude::IpNetwork;
 use sea_orm::sea_query::Expr;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, Condition, DeleteResult, EntityTrait, ExprTrait,
-    QueryFilter, QuerySelect, Set,
+    QueryFilter, QueryOrder, QuerySelect, Set,
 };
 
 #[derive(Debug)]
@@ -92,6 +92,15 @@ impl LockedMfaAttempt {
 
 impl SessionService {
     pub const MAX_MFA_FAILED_ATTEMPTS: i32 = 5;
+
+    /// Maximum live (unexpired) sessions per account, enforced with
+    /// oldest-first eviction on creation. 10 covers many distinct device
+    /// logins per 30-minute session window (legitimate use is low single
+    /// digits; tabs share one session) while bounding per-account live
+    /// credential stock and table growth. It matches the existing
+    /// per-account/per-IP ceilings of 10 (login account-IP attempts, e-mail
+    /// issuance per IP).
+    pub const MAX_LIVE_SESSIONS_PER_USER: u64 = 10;
 
     fn mfa_attempt_session_query(session_token: &str) -> sea_orm::Select<Session> {
         Session::find()
@@ -157,8 +166,72 @@ impl SessionService {
         let SessionModel { session_token, .. } =
             model.insert(txn).await.or_raise(make_error)?;
 
+        Self::enforce_live_session_cap(ctx, user_id, &session_token)
+            .await
+            .or_raise(make_error)?;
+
         info!("Created new session token");
         Ok(session_token)
+    }
+
+    /// Evicts the account's oldest live sessions down to the per-account cap.
+    /// The just-created session is never an eviction candidate, so a
+    /// legitimate login always succeeds and can never lock the caller out of
+    /// their current session.
+    async fn enforce_live_session_cap(
+        ctx: &ServiceContext<'_>,
+        user_id: i64,
+        new_session_token: &str,
+    ) -> Result<()> {
+        let txn = ctx.transaction();
+        let live = Session::find()
+            .filter(
+                Condition::all()
+                    .add(session::Column::UserId.eq(user_id))
+                    .add(session::Column::ExpiresAt.gt(now())),
+            )
+            .order_by_asc(session::Column::CreatedAt)
+            .all(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to list live sessions for user ID {user_id} for cap enforcement",
+                    ),
+                    ErrorType::Session,
+                )
+            })?;
+
+        if live.len() as u64 <= Self::MAX_LIVE_SESSIONS_PER_USER {
+            return Ok(());
+        }
+
+        let excess = live.len() as u64 - Self::MAX_LIVE_SESSIONS_PER_USER;
+        let evict: Vec<String> = live
+            .iter()
+            .filter(|session| session.session_token != new_session_token)
+            .take(excess as usize)
+            .map(|session| session.session_token.clone())
+            .collect();
+
+        if evict.is_empty() {
+            return Ok(());
+        }
+
+        Session::delete_many()
+            .filter(session::Column::SessionToken.is_in(evict))
+            .exec(txn)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to evict oldest live sessions for user ID {user_id}",
+                    ),
+                    ErrorType::Session,
+                )
+            })?;
+
+        Ok(())
     }
 
     fn new_token(config: &Config) -> String {

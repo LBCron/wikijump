@@ -25,7 +25,7 @@ use crate::models::wikidot_user::Entity as WikidotUser;
 use crate::services::authentication::AuthenticateUser;
 use crate::services::user::{
     ActivateUserFromWikidot, CreateUser, CreateUserOutput, DeleteUser, GetUser,
-    GetUserOutput, UpdateUser, UpdateUserBody, User, UserOutput,
+    GetUserOutput, UpdateUser, UpdateUserBody, User, UserOutput, WikijumpUserOutput,
 };
 use crate::services::{
     AuthenticationService, MutationAuthorization, PasswordService, SessionService,
@@ -162,7 +162,7 @@ pub async fn user_get(
 pub async fn user_edit(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<UserModel> {
+) -> Result<WikijumpUserOutput> {
     let UpdateUser {
         user: reference,
         ip_address,
@@ -217,15 +217,18 @@ pub async fn user_edit(
     }
 
     info!("Updating user ID {}", target.user_id);
-    UserService::update(ctx, Reference::Id(target.user_id), ip_address, body)
-        .await
-        .or_raise(|| Error::new("failed to update user", ErrorType::User))
+    let updated =
+        UserService::update(ctx, Reference::Id(target.user_id), ip_address, body)
+            .await
+            .or_raise(|| Error::new("failed to update user", ErrorType::User))?;
+
+    Ok(WikijumpUserOutput::new(updated, ctx.request().user_id))
 }
 
 pub async fn user_delete(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
-) -> Result<UserModel> {
+) -> Result<WikijumpUserOutput> {
     let DeleteUser {
         user: reference,
         ip_address,
@@ -258,7 +261,7 @@ pub async fn user_delete(
             )
         })?;
 
-    Ok(deleted)
+    Ok(WikijumpUserOutput::new(deleted, ctx.request().user_id))
 }
 
 pub async fn user_add_name_change(

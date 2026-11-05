@@ -438,6 +438,101 @@ async fn session_other_listing_and_invalidation_keep_current_session() {
 }
 
 #[tokio::test]
+async fn session_get_others_rejects_restricted_tokens() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let (name, user_id) = create_auth_test_user(&runner, n, true).await;
+
+    let restricted_login = run_endpoint!(runner, auth_login, login_params(&name));
+    assert!(restricted_login.needs_mfa);
+    let full_token = run_endpoint!(
+        runner,
+        auth_mfa_verify,
+        json!({
+            "session_token": restricted_login.session_token,
+            "totp_or_code": current_totp(TEST_MFA_SECRET, &runner).to_string(),
+            "ip_address": common::IP_ADDRESS,
+            "user_agent": "deepwell-auth-test-totp",
+        }),
+    );
+    let second_restricted = run_endpoint!(runner, auth_login, login_params(&name));
+    assert!(second_restricted.needs_mfa);
+
+    // A restricted (pre-MFA) token must not authenticate the listing, exactly
+    // like a foreign or bogus token: uniform 3001, no disclosure.
+    let error = run_endpoint_err!(
+        runner,
+        auth_session_get_others,
+        json!({
+            "user_id": user_id,
+            "session_token": second_restricted.session_token,
+        }),
+    );
+    assert_contains_error!(error, ErrorType::InvalidSessionToken);
+
+    // And restricted rows must not appear in a full token's listing either.
+    let sessions = run_endpoint!(
+        runner,
+        auth_session_get_others,
+        json!({
+            "user_id": user_id,
+            "session_token": full_token,
+        }),
+    );
+    assert_eq!(sessions.current.session_token, full_token);
+    assert!(
+        sessions.others.is_empty(),
+        "restricted sessions must not appear in session_get_others output",
+    );
+}
+
+#[tokio::test]
+async fn live_session_count_per_account_is_capped_with_oldest_eviction() {
+    let runner = TestRunner::setup().await;
+    let n = next_n();
+    let (name, user_id) = create_auth_test_user(&runner, n, false).await;
+
+    let cap = SessionService::MAX_LIVE_SESSIONS_PER_USER as usize;
+    let mut tokens = Vec::new();
+    for _ in 0..cap + 2 {
+        let login = run_endpoint!(runner, auth_login, login_params(&name));
+        assert!(!login.needs_mfa);
+        tokens.push(login.session_token);
+    }
+
+    let sessions = SessionService::get_all(runner.context(), user_id)
+        .await
+        .expect("session listing should succeed");
+    assert_eq!(sessions.len(), cap);
+
+    let live: Vec<&str> = sessions
+        .iter()
+        .map(|session| session.session_token.as_str())
+        .collect();
+    assert!(
+        !live.contains(&tokens[0].as_str()),
+        "oldest session should have been evicted",
+    );
+    assert!(
+        !live.contains(&tokens[1].as_str()),
+        "second-oldest session should have been evicted",
+    );
+    assert!(
+        live.contains(&tokens[cap + 1].as_str()),
+        "newest session must survive cap enforcement",
+    );
+
+    let fetched =
+        run_endpoint!(runner, auth_session_get, json!([tokens[cap + 1].clone()]));
+    assert!(
+        fetched.is_some(),
+        "newest session must still authenticate after eviction",
+    );
+    let evicted = run_endpoint!(runner, auth_session_get, json!([tokens[0].clone()]));
+    assert!(evicted.is_none(), "evicted session must no longer resolve",);
+}
+
+#[tokio::test]
 async fn mfa_setup_reset_disable_and_totp_login_flow() {
     let runner = TestRunner::setup().await;
     let n = next_n();

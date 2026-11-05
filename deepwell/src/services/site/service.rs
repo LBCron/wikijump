@@ -840,6 +840,17 @@ impl SiteService {
             ));
         }
 
+        if is_reserved_platform_site_slug(new_slug) {
+            error!("Cannot update site with reserved platform slug '{new_slug}'");
+            bail!(Error::new(
+                format!(
+                    "cannot update site, site slug '{}' is reserved by the platform",
+                    new_slug
+                ),
+                ErrorType::BadRequest
+            ));
+        }
+
         let make_error = || {
             Error::new(
                 format!(

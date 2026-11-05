@@ -2516,3 +2516,55 @@ async fn site_creation_quota_limits_burst_and_recovers_after_window() {
     )
     .await;
 }
+
+#[tokio::test]
+async fn site_update_rename_to_reserved_platform_slugs_are_rejected() {
+    let mut runner = TestRunner::setup().await;
+    let n = next_n();
+    let site_id = create_site(&runner, n).await;
+    let user_id = create_user(&runner, n, "reserved-rename-editor").await;
+    grant_site_edit(&runner, site_id, user_id, n).await;
+    runner.set_request_context(RequestContext {
+        user_id: Some(user_id),
+        ..Default::default()
+    });
+
+    let original_slug = format!("site-update-permission-{n}");
+    for slug in ["billing", "system", "dashboard", "support", "Billing"] {
+        let current = run_endpoint!(runner, site_get, json!({ "site": site_id }))
+            .expect("test site should exist");
+        assert_eq!(current.site.slug, original_slug);
+
+        let error = run_endpoint_err!(
+            runner,
+            site_update,
+            json!({
+                "site": site_id,
+                "user_id": SYSTEM_USER_ID,
+                "expected_settings_revision": current.settings.revision,
+                "slug": slug,
+                "ip_address": common::IP_ADDRESS,
+            }),
+        );
+        assert_contains_error!(error, ErrorType::BadRequest);
+    }
+
+    let renamed_slug = format!("reserved-rename-control-{n}");
+    let current = run_endpoint!(runner, site_get, json!({ "site": site_id }))
+        .expect("test site should exist");
+    run_endpoint!(
+        runner,
+        site_update,
+        json!({
+            "site": site_id,
+            "user_id": SYSTEM_USER_ID,
+            "expected_settings_revision": current.settings.revision,
+            "slug": renamed_slug,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let renamed = run_endpoint!(runner, site_get, json!({ "site": site_id }))
+        .expect("renamed site should exist");
+    assert_eq!(renamed.site.slug, renamed_slug);
+}

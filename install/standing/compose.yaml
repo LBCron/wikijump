@@ -75,12 +75,14 @@ services:
       MINIO_REGION_NAME: local
       INITIAL_BUCKETS: deepwell-files deepwell-text-blocks
       DATA_DIR: /data
-      # Soft Go heap target. Measured standing resident memory was 358 MiB
-      # (358,176 KiB VmRSS; 351 MiB PSS) before this setting; the limit leaves
-      # headroom for file traffic while bounding growth (PLAN-memory-reduction
-      # phase 2, intervention 8). The pgsty/silo fork honors both variables:
-      # with MINIO_BROWSER=off the console does not listen even when the
-      # entrypoint passes --console-address (verified 2026-11-05).
+      # Soft Go heap target. The 2026-11-05 standing measurement was 363 MiB
+      # of anonymous cgroup memory (358 MiB PSS) plus 695 MiB of page cache;
+      # GOMEMLIMIT bounds the Go heap, not the page cache, so 512 MiB leaves
+      # headroom above the measured working set while stopping growth
+      # (PLAN-memory-reduction phase 2, intervention 8). The pgsty/silo fork
+      # honors both variables: with MINIO_BROWSER=off the console does not
+      # listen even when the entrypoint passes --console-address (verified
+      # 2026-11-05).
       GOMEMLIMIT: "512MiB"
       MINIO_BROWSER: "off"
       MINIO_API_REQUESTS_MAX: "100"
@@ -240,10 +242,11 @@ services:
     environment:
       DEEPWELL_RPC_TOKEN: ${DEEPWELL_RPC_TOKEN:?DEEPWELL_RPC_TOKEN is required}
       WIKIJUMP_STARTUP_READINESS: "true"
-      # Soft Go heap target. Measured standing Caddy resident memory was 64 MiB
-      # (51 MiB anonymous). Caddy is the network-namespace anchor for every
-      # other service, so this stays generous and is never a hard limit
-      # (PLAN-memory-reduction phase 2, intervention 8).
+      # Soft Go heap target. The 2026-11-05 standing measurement was 58 MiB of
+      # anonymous cgroup memory (64 MiB resident). Caddy is the
+      # network-namespace anchor for every other service, so this stays
+      # generous and is never a hard limit (PLAN-memory-reduction phase 2,
+      # intervention 8).
       GOMEMLIMIT: "128MiB"
     ports:
       - "127.0.0.1:80:80"

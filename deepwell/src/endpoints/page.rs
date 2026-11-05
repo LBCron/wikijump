@@ -35,6 +35,7 @@ pub use permissions::{
 
 use crate::models::file::Model as FileModel;
 use crate::models::page::Model as PageModel;
+use crate::services::AuthenticationAttemptService;
 use crate::services::file::{GetFileOutput, GetPageFiles};
 use crate::services::forum_thread::ForumThreadService;
 use crate::services::legacy_action::{LegacyActionService, SetLegacyActionTags};
@@ -802,6 +803,77 @@ mod wikidot_list_pages_set_pair_tests {
     }
 }
 
+const PAGE_CREATE_USER_MAX_ATTEMPTS: i64 = 60;
+const PAGE_CREATE_SITE_MAX_ATTEMPTS: i64 = 600;
+const PAGE_CREATE_WINDOW_SECONDS: i64 = 3600;
+const PAGE_EDIT_USER_MAX_ATTEMPTS: i64 = 120;
+const PAGE_EDIT_WINDOW_SECONDS: i64 = 3600;
+
+async fn check_page_create_rate_limit(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    actor_user_id: i64,
+) -> Result<()> {
+    let make_error =
+        || Error::new("failed to check page create rate limit", ErrorType::Page);
+    let user_allowed = AuthenticationAttemptService::reserve(
+        ctx,
+        &AuthenticationAttemptService::page_create_user_bucket(actor_user_id),
+        PAGE_CREATE_USER_MAX_ATTEMPTS,
+        PAGE_CREATE_WINDOW_SECONDS,
+    )
+    .await
+    .or_raise(make_error)?;
+    if !user_allowed {
+        ctx.commit_expected_authentication_rejection();
+        bail!(Error::new(
+            "too many page creations, try again later",
+            ErrorType::RateLimited,
+        ));
+    }
+
+    let site_allowed = AuthenticationAttemptService::reserve(
+        ctx,
+        &AuthenticationAttemptService::page_create_site_bucket(site_id),
+        PAGE_CREATE_SITE_MAX_ATTEMPTS,
+        PAGE_CREATE_WINDOW_SECONDS,
+    )
+    .await
+    .or_raise(make_error)?;
+    if !site_allowed {
+        ctx.commit_expected_authentication_rejection();
+        bail!(Error::new(
+            "too many page creations, try again later",
+            ErrorType::RateLimited,
+        ));
+    }
+
+    Ok(())
+}
+
+async fn check_page_edit_rate_limit(
+    ctx: &ServiceContext<'_>,
+    actor_user_id: i64,
+) -> Result<()> {
+    let allowed = AuthenticationAttemptService::reserve(
+        ctx,
+        &AuthenticationAttemptService::page_edit_user_bucket(actor_user_id),
+        PAGE_EDIT_USER_MAX_ATTEMPTS,
+        PAGE_EDIT_WINDOW_SECONDS,
+    )
+    .await
+    .or_raise(|| Error::new("failed to check page edit rate limit", ErrorType::Page))?;
+    if !allowed {
+        ctx.commit_expected_authentication_rejection();
+        bail!(Error::new(
+            "too many page edits, try again later",
+            ErrorType::RateLimited,
+        ));
+    }
+
+    Ok(())
+}
+
 pub async fn page_create(
     ctx: &ServiceContext<'_>,
     params: Params<'static>,
@@ -818,6 +890,7 @@ pub async fn page_create(
         .or_raise(|| {
             Error::new("failed to check page create permission", ErrorType::Page)
         })?;
+    check_page_create_rate_limit(ctx, input.site_id, actor_user_id).await?;
 
     PageService::create(ctx, input)
         .await
@@ -1400,6 +1473,7 @@ pub async fn page_edit(
     ensure_page_edit_permission(ctx, input.site_id, input.page.clone(), actor_user_id)
         .await
         .or_raise(|| Error::new("failed to check edit permission", ErrorType::Page))?;
+    check_page_edit_rate_limit(ctx, actor_user_id).await?;
 
     PageService::edit(ctx, input)
         .await

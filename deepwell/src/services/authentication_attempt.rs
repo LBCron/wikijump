@@ -150,4 +150,27 @@ RETURNING attempts
     pub fn mfa_user_bucket(user_id: i64) -> String {
         format!("mfa:user:{user_id}")
     }
+
+    pub fn register_ip_bucket(ip_address: &str) -> String {
+        format!(
+            "register:ip:{}",
+            hex::encode(Sha256::digest(ip_address.as_bytes()))
+        )
+    }
+
+    pub fn register_global_bucket() -> String {
+        str!("register:global")
+    }
+
+    pub fn page_create_user_bucket(user_id: i64) -> String {
+        format!("page_create:user:{user_id}")
+    }
+
+    pub fn page_create_site_bucket(site_id: i64) -> String {
+        format!("page_create:site:{site_id}")
+    }
+
+    pub fn page_edit_user_bucket(user_id: i64) -> String {
+        format!("page_edit:user:{user_id}")
+    }
 }

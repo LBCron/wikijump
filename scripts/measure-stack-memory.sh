@@ -125,9 +125,14 @@ cgroup_probe() {
       fi
     done
     if [ -r /sys/fs/cgroup/memory.stat ]; then
-      for key in anon file shmem; do
-        awk -v key="${key}" "\$1 == key { print key \"=\" \$2 }" /sys/fs/cgroup/memory.stat
-      done
+      while IFS= read -r line; do
+        set -f
+        set -- ${line}
+        set +f
+        case "$1" in
+          anon|file|shmem) printf "%s=%s\n" "$1" "$2" ;;
+        esac
+      done < /sys/fs/cgroup/memory.stat
     fi
   ' 2>/dev/null || true
 }

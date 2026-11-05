@@ -54,8 +54,8 @@
       .filter(([, enabled]) => enabled)
       .map(([key]) => `/${key}`)
 
-    goto(resolve(`/${params.slug}${options.join("")}`, {}), {
-      noScroll: true
+    goto(resolve(`${params.slug}${options.join("")}`), {
+      reset: false
     })
   }
 
@@ -138,8 +138,8 @@
             leaseSession.noteSaveSucceeded(result.data.res)
             syncLease()
           }
-          goto(resolve(`/${params.slug}`, {}), {
-            noScroll: true
+          goto(resolve(`${params.slug}`), {
+            reset: false
           })
         }
         if (result.type === "failure" && result.data) {

@@ -1,3 +1,5 @@
+import type { Page } from "@playwright/test"
+
 import { expect, test } from "./hermetic-playwright"
 
 import {
@@ -17,10 +19,12 @@ test("an intentional request-gate abort is sealed separately from organic page f
   const gate = createBrowserRequestGate({ intervalMs: 4_000 })
   const attribution = await installBrowserRequestGate(context, {
     gate,
+    // @ts-expect-error
     publicOriginPredicate: isWikidotCapturePublicOrigin
   })
   const observation = await captureBrowserParityObservation({
     context,
+    // @ts-expect-error
     page,
     url: "https://scp-wiki.wikidot.com/gate-attribution-fixture",
     label: "live",
@@ -30,8 +34,10 @@ test("an intentional request-gate abort is sealed separately from organic page f
     viewport: { width: 800, height: 600 },
     timeoutMs: 10_000,
     settleMs: 0,
+    // @ts-expect-error
     requestGateAttribution: attribution,
-    navigate: async ({ page: target }) => {
+    // @ts-expect-error
+    navigate: async ({ page: target }: { page: Page }) => {
       await target.setContent(
         '<main id="page-content">fixture</main><script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js"></script>',
         { waitUntil: "load" }

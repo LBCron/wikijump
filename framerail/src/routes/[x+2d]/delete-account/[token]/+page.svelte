@@ -47,7 +47,7 @@
 {#if done}
   <p role="status" class="auth-notice">
     Your account has been deleted. You have been signed out.
-    <a href={resolve("/-/login", {})}>{data.internationalization?.login}</a>
+    <a href={resolve("-/login")}>{data.internationalization?.login}</a>
   </p>
 {:else if grant}
   <p class="auth-notice">

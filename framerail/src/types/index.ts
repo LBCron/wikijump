@@ -1,4 +1,20 @@
 export interface Locales {
+  "site-info": string
+  "site-info.name": string
+  "site-info.slug": string
+  "site-info.tagline": string
+  "site-info.description": string
+  "site-info.default-page": string
+  "site-info.locale": string
+  "site-info.layout": string
+  "admin-unauthorized": string
+  "-service-name": string
+  "message-loading": string
+  "goto-home": string
+  "goto-service": string
+  "base-title": string
+  "navigated-to": string
+  about: string
   "about-info": string
   "about-info.backend": string
   "about-info.frontend": string
@@ -16,22 +32,6 @@ export interface Locales {
   "about-info.blog": string
   "about-info.node-version": string
   "about-info.pnpm-version": string
-  "site-info": string
-  "site-info.name": string
-  "site-info.slug": string
-  "site-info.tagline": string
-  "site-info.description": string
-  "site-info.default-page": string
-  "site-info.locale": string
-  "site-info.layout": string
-  "admin-unauthorized": string
-  "-service-name": string
-  "message-loading": string
-  "goto-home": string
-  "goto-service": string
-  "base-title": string
-  "navigated-to": string
-  about: string
   account: string
   "alt-title": string
   applications: string
@@ -342,6 +342,8 @@ export interface Locales {
   "user-profile-info.name": string
   "user-profile-info.real-name": string
   "user-profile-info.email": string
+  "user-profile-info.current-password": string
+  "user-profile-info.current-password-hint": string
   "user-profile-info.avatar": string
   "user-profile-info.pronouns": string
   "user-profile-info.birthday": string
@@ -385,6 +387,7 @@ export interface Locales {
   "wiki-page-action-lock": string
   "wiki-page-action-rename-move": string
   "wiki-page-revision-history": string
+  "wiki-page-revision-filter": string
   "wiki-page-revision-filter.show": string
   "wiki-page-revision-filter.all": string
   "wiki-page-revision-filter.source": string
@@ -396,6 +399,7 @@ export interface Locales {
   "wiki-page-revision-perpage": string
   "wiki-page-revision-update-list": string
   "wiki-page-revision-compare-versions": string
+  "wiki-page-revision-pager": string
   "wiki-page-revision-pager.page": string
   "wiki-page-revision-pager.of": string
   "wiki-page-revision-pager.previous": string
@@ -409,6 +413,10 @@ export interface Locales {
   "wiki-page-revision-diff.no-changes": string
   "wiki-page-revision-diff.unavailable": string
   "wiki-page-revision-view-unavailable": string
+  "wiki-page-revision-banner": string
+  "wiki-page-revision-banner.title": string
+  "wiki-page-revision-banner.page": string
+  "wiki-page-revision-banner.close": string
   "wiki-page-revision-number": string
   "wiki-page-revision-created-at": string
   "wiki-page-revision-user": string
@@ -456,6 +464,25 @@ export interface Locales {
   "wiki-page-restore.toast": string
   "wiki-page-deleted": string
   "wiki-page-file-no-files": string
+  "wiki-page-file-upload": string
+  "wiki-page-file-upload.select": string
+  "wiki-page-file-upload.name": string
+  "wiki-page-file-upload.toast": string
+  "wiki-page-file-delete": string
+  "wiki-page-file-delete.toast": string
+  "wiki-page-file-delete.confirmation": string
+  "wiki-page-file-delete.filename": string
+  "wiki-page-file-delete.page": string
+  "wiki-page-file-delete.confirm": string
+  "wiki-page-file-move-destination-page": string
+  "wiki-page-file": string
+  "wiki-page-file.name": string
+  "wiki-page-file.created-at": string
+  "wiki-page-file.updated-at": string
+  "wiki-page-file.mime": string
+  "wiki-page-file.size": string
+  "wiki-page-file.page": string
+  "wiki-page-file-list": string
   "wiki-page-file-list.title": string
   "wiki-page-file-list.total-files": string
   "wiki-page-file-list.total-size": string
@@ -469,6 +496,7 @@ export interface Locales {
   "wiki-page-file-list.delete": string
   "wiki-page-file-list.history": string
   "wiki-page-file-list.upload": string
+  "wiki-page-file-info": string
   "wiki-page-file-info.title": string
   "wiki-page-file-info.name": string
   "wiki-page-file-info.url": string
@@ -479,28 +507,6 @@ export interface Locales {
   "wiki-page-file-info.upload-date": string
   "wiki-page-file-info.unavailable": string
   "wiki-page-file-info.close": string
-  "wiki-page-file-upload": string
-  "wiki-page-file-upload.select": string
-  "wiki-page-file-upload.name": string
-  "wiki-page-file-upload.toast": string
-  "wiki-page-file-delete": string
-  "wiki-page-file-delete.toast": string
-  "wiki-page-file-delete.confirmation": string
-  "wiki-page-file-delete.filename": string
-  "wiki-page-file-delete.page": string
-  "wiki-page-file-delete.confirm": string
-  "wiki-page-file-move-destination-page": string
-  "wiki-page-file-mirror-readonly.title": string
-  "wiki-page-file-mirror-readonly.lead-in": string
-  "wiki-page-file-mirror-readonly.message": string
-  "wiki-page-file-mirror-readonly.extra-message": string
-  "wiki-page-file": string
-  "wiki-page-file.name": string
-  "wiki-page-file.created-at": string
-  "wiki-page-file.updated-at": string
-  "wiki-page-file.mime": string
-  "wiki-page-file.size": string
-  "wiki-page-file.page": string
   "wiki-page-file-history": string
   "wiki-page-file-revision-type": string
   "wiki-page-file-revision-type.create": string
@@ -514,6 +520,11 @@ export interface Locales {
   "wiki-page-file-restore.new-page": string
   "wiki-page-file-restore.new-name": string
   "wiki-page-file-restore.toast": string
+  "wiki-page-file-mirror-readonly": string
+  "wiki-page-file-mirror-readonly.title": string
+  "wiki-page-file-mirror-readonly.lead-in": string
+  "wiki-page-file-mirror-readonly.message": string
+  "wiki-page-file-mirror-readonly.extra-message": string
   "wiki-page-lock": string
   "wiki-page-lock.permission-only": string
   "wiki-page-lock.author-or-permission-only": string

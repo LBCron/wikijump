@@ -268,6 +268,7 @@ group_framerail() {
   # The unit tests and the build both regenerate .svelte-kit, so they stay in
   # one job.
   if group_selected framerail; then
+    run "framerail check" pnpm --dir framerail check
     run_test "framerail unit tests" pnpm --dir framerail test:unit
     if [[ "${MODE}" == "final" ]]; then
       run "framerail build" pnpm --dir framerail build

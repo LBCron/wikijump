@@ -212,7 +212,7 @@
           cancel()
           leaseSession.noteSaveSucceeded(result.data.res)
           syncLease()
-          goto(resolve(`/${params.slug}`, {}), { noScroll: true })
+          goto(resolve(`${params.slug}`), { reset: false })
         }
         if (result.type === "failure" && result.data) {
           const kind = classifyEditLeaseSaveError((result.data as { code?: number }).code)

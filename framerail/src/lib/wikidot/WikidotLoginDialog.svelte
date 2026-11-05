@@ -65,7 +65,7 @@
     bind:this={formElement}
     class="login-form"
     method="POST"
-    action={resolve("/-/login", {})}
+    action={resolve("-/login")}
     autocomplete="off"
     use:enhance={() => {
       pending = true
@@ -120,7 +120,7 @@
         {labels.mfaRequired}
         <!-- eslint-disable svelte/no-navigation-without-resolve -- already resolve()d; only a query string is appended -->
         <a
-          href={`${resolve("/-/login", {})}?return=${encodeURIComponent(
+          href={`${resolve("-/login")}?return=${encodeURIComponent(
             page.url.pathname + page.url.search
           )}`}>{labels.signInPage}</a
         >

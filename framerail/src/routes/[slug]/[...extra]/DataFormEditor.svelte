@@ -442,7 +442,7 @@
             }
             return
           }
-          goto(resolve(`/${destinationSlug}`, {}), { noScroll: true })
+          goto(resolve(`${destinationSlug}`), { reset: false })
         }
         if (result.type === "failure" && result.data) {
           const handled = onLeaseSaveFailure?.({
@@ -494,7 +494,7 @@
   })
 
   function cancelEdit() {
-    goto(resolve(`/${slug}`, {}), { noScroll: true })
+    goto(resolve(`${slug}`), { reset: false })
   }
 </script>
 

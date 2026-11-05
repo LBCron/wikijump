@@ -200,7 +200,7 @@ test("UserInfo view renders the evidenced action row for anonymous viewers only"
   assert.doesNotMatch(source, /page\.data\.user_session/u)
   assert.match(
     source,
-    /href=\{resolve\(data\.privateMessageControl\.authenticationPath, \{\}\)\}/u
+    /href=\{resolve\(data\.privateMessageControl\.authenticationPath\)\}/u
   )
   assert.match(source, /data-action="write-private-message"/u)
   assert.match(source, /data-action="add-to-contacts"/u)

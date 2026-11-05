@@ -111,7 +111,7 @@
     {:else}
       <ul>
         {#each state.items as backlink (backlink.slug)}
-          <li><a href={resolve(`/${backlink.slug}`, {})}>{backlink.title}</a></li>
+          <li><a href={resolve(`${backlink.slug}`)}>{backlink.title}</a></li>
         {/each}
       </ul>
     {/if}

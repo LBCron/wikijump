@@ -7,6 +7,7 @@ import {
   siteFilePresenceKey
 } from "$lib/site-settings.js"
 
+import type { LocalSiteEvidence } from "$lib/site-settings.js"
 import type { RequestContext } from "../request-context"
 
 export interface SiteFileReference {
@@ -16,7 +17,7 @@ export interface SiteFileReference {
 
 export function collectThemeSiteFileReferences(
   theme: unknown,
-  site: { slug?: unknown; from_wikidot?: unknown } | null
+  site: LocalSiteEvidence | null
 ): SiteFileReference[] {
   const urls: string[] = []
   if (typeof theme === "object" && theme !== null) {

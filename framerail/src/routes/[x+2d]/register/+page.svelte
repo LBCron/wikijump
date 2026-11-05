@@ -16,7 +16,7 @@
   )
 
   const cancelRegistration = async () => {
-    await goto(resolve(authCancelDestination(), {}), { replaceState: true })
+    await goto(resolve(authCancelDestination()), { replaceState: true })
   }
 
   const { form, enhance, errors } = superForm(
@@ -44,7 +44,7 @@
 {#if isRegistered}
   <p role="status" class="register-success">
     {data.internationalization?.["register.toast"]}
-    <a href={resolve("/-/login", {})}>{data.internationalization?.login}</a>
+    <a href={resolve("-/login")}>{data.internationalization?.login}</a>
   </p>
 {:else}
   <form id="register" class="register-form" method="POST" use:enhance>

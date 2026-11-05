@@ -17,7 +17,7 @@
   let totpOrCode = $state("")
 
   const cancelLogin = async () => {
-    await goto(resolve(authCancelDestination(), {}), { replaceState: true })
+    await goto(resolve(authCancelDestination()), { replaceState: true })
   }
 
   const { form, enhance } = superForm(
@@ -36,7 +36,7 @@
           isLoggedIn = result.data.isLoggedIn
           if (isLoggedIn) {
             // eslint-disable-next-line svelte/no-navigation-without-resolve -- return target is a validated same-site path
-            await goto(authReturnDestination(page.url), {
+            await goto(authReturnDestination(new URL(page.url.href)), {
               replaceState: true,
               invalidateAll: true
             })
@@ -120,13 +120,13 @@
     </div>
   </form>
   <p class="auth-notice">
-    <a href={resolve("/-/forgot", {})}>
+    <a href={resolve("-/forgot")}>
       {data.internationalization?.["forgot-password.question"]}
     </a>
   </p>
   {#if emailVerificationRequired}
     <p class="auth-notice">
-      <a href={resolve("/-/verify-email", {})}>
+      <a href={resolve("-/verify-email")}>
         {data.internationalization?.["wiki-auth-verify-email.resend-email"]}
       </a>
     </p>

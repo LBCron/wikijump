@@ -459,7 +459,7 @@
           data-id={detail.page_id}
         >
           {#if detail.slug !== data.page?.slug}
-            <a data-id={detail.page_id} href={resolve(`/${detail.slug}`, {})}>
+            <a data-id={detail.page_id} href={resolve(`${detail.slug}`)}>
               <circle
                 cx={scaleOffset(detail.x ?? 0)}
                 cy={scaleOffset(detail.y ?? 0)}

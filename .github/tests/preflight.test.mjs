@@ -156,6 +156,7 @@ test("checkpoint preflight avoids compiled checks for every selected group", (t)
     "cargo fmt --manifest-path deepwell/Cargo.toml --check",
     "cargo fmt --manifest-path wws/Cargo.toml --check",
     "pnpm --dir framerail lint",
+    "pnpm --dir framerail check",
     "pnpm --dir framerail test:unit",
     "cargo fmt --manifest-path locales/validator/Cargo.toml --all -- --check"
   ])
@@ -212,6 +213,7 @@ test("final preflight is the single explicit full-check barrier", (t) => {
     "cargo test --manifest-path wws/Cargo.toml --locked --all-features -- --nocapture --test-threads 1",
     "node --test wws/tests/resize-iframe.test.mjs",
     "pnpm --dir framerail lint",
+    "pnpm --dir framerail check",
     "pnpm --dir framerail test:unit",
     "pnpm --dir framerail build",
     "node --test framerail/tests/production-boot.test.js",

@@ -20,14 +20,14 @@
 
 use super::structs::{ParentDescription, ParentalRelationshipType, RemoveParentOutput};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
-use crate::models::page::Model as PageModel;
+use crate::models::page::{self, Entity as Page, Model as PageModel};
 use crate::models::page_parent::{self, Entity as PageParent, Model as PageParentModel};
 use crate::services::relation::RelationObject;
 use crate::services::{OutdateService, PageService, RelationService, ServiceContext};
 use crate::types::{PageId, Reference, RerenderDepth};
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, DeleteResult, EntityTrait, QueryFilter,
-    QuerySelect, Set,
+    ActiveModelTrait, ColumnTrait, DeleteResult, EntityTrait, QueryFilter, QuerySelect,
+    Set,
 };
 use std::collections::BTreeMap;
 use std::collections::HashSet;
@@ -251,7 +251,9 @@ impl ParentService {
             .await
             .or_raise(make_error)?;
 
-        Ok(models)
+        Self::retain_live_edges(ctx, models)
+            .await
+            .or_raise(make_error)
     }
 
     pub async fn get_children(
@@ -322,6 +324,9 @@ impl ParentService {
             .all(ctx.transaction())
             .await
             .or_raise(make_error)?;
+        let models = Self::retain_live_edges(ctx, models)
+            .await
+            .or_raise(make_error)?;
 
         let mut grouped = page_ids
             .iter()
@@ -339,32 +344,38 @@ impl ParentService {
         children_id: Vec<i64>,
     ) -> Result<Vec<PageParentModel>> {
         let txn = ctx.transaction();
-        PageParent::find()
+        let make_error = || {
+            Error::new(
+                format!("failed to get parents of pages {:?}", children_id,),
+                ErrorType::PageParent,
+            )
+        };
+        let models = PageParent::find()
             .filter(page_parent::Column::ChildPageId.is_in(children_id.clone()))
             .all(txn)
             .await
-            .or_raise(|| {
-                Error::new(
-                    format!("failed to get parents of pages {:?}", children_id,),
-                    ErrorType::PageParent,
-                )
-            })
+            .or_raise(make_error)?;
+        Self::retain_live_edges(ctx, models)
+            .await
+            .or_raise(make_error)
     }
 
-    pub async fn remove_all(ctx: &ServiceContext<'_>, page_id: i64) -> Result<u64> {
+    /// Defers rerenders for the parents of a page being deleted or restored.
+    ///
+    /// The parent rows themselves are preserved across the tombstone so that
+    /// restoring the page brings the graph back; every read path filters out
+    /// edges touching deleted pages instead.
+    pub async fn outdate_parents(ctx: &ServiceContext<'_>, page_id: i64) -> Result<()> {
         let txn = ctx.transaction();
 
         let make_error = || {
             Error::new(
-                format!(
-                    "failed to remove all parent/child relationships for page ID {}",
-                    page_id,
-                ),
+                format!("failed to outdate parents of page ID {}", page_id,),
                 ErrorType::PageParent,
             )
         };
 
-        let former_parent_ids = PageParent::find()
+        let parent_ids: Vec<i64> = PageParent::find()
             .select_only()
             .column(page_parent::Column::ParentPageId)
             .filter(page_parent::Column::ChildPageId.eq(page_id))
@@ -373,24 +384,54 @@ impl ParentService {
             .await
             .or_raise(make_error)?;
 
-        let rows_deleted = PageParent::delete_many()
-            .filter(
-                Condition::any()
-                    .add(page_parent::Column::ParentPageId.eq(page_id))
-                    .add(page_parent::Column::ChildPageId.eq(page_id)),
-            )
-            .exec(txn)
-            .await
-            .or_raise(make_error)?
-            .rows_affected;
-
-        for parent_id in former_parent_ids {
+        for parent_id in parent_ids {
             OutdateService::defer(ctx, parent_id, RerenderDepth::default())
                 .await
                 .or_raise(make_error)?;
         }
 
-        Ok(rows_deleted)
+        Ok(())
+    }
+
+    async fn retain_live_edges(
+        ctx: &ServiceContext<'_>,
+        models: Vec<PageParentModel>,
+    ) -> Result<Vec<PageParentModel>> {
+        if models.is_empty() {
+            return Ok(models);
+        }
+
+        let make_error = || {
+            Error::new(
+                "failed to filter parent edges to live pages",
+                ErrorType::PageParent,
+            )
+        };
+
+        let mut page_ids = HashSet::with_capacity(models.len() * 2);
+        for model in &models {
+            page_ids.insert(model.parent_page_id);
+            page_ids.insert(model.child_page_id);
+        }
+
+        let live: Vec<i64> = Page::find()
+            .select_only()
+            .column(page::Column::PageId)
+            .filter(page::Column::PageId.is_in(page_ids.into_iter().collect::<Vec<_>>()))
+            .filter(page::Column::DeletedAt.is_null())
+            .into_tuple()
+            .all(ctx.transaction())
+            .await
+            .or_raise(make_error)?;
+        let live: HashSet<i64> = live.into_iter().collect();
+
+        Ok(models
+            .into_iter()
+            .filter(|model| {
+                live.contains(&model.parent_page_id)
+                    && live.contains(&model.child_page_id)
+            })
+            .collect())
     }
 
     pub async fn check_cycle(

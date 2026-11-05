@@ -822,7 +822,7 @@ impl PageRevisionService {
         .await
         .or_raise(make_error)?;
 
-        ParentService::remove_all(ctx, page_id)
+        ParentService::outdate_parents(ctx, page_id)
             .await
             .or_raise(make_error)?;
 
@@ -992,6 +992,10 @@ impl PageRevisionService {
         )
         .await
         .or_raise(make_error)?;
+
+        ParentService::outdate_parents(ctx, page_id)
+            .await
+            .or_raise(make_error)?;
 
         let model = page_revision::ActiveModel {
             revision_type: Set(PageRevisionType::Undelete),

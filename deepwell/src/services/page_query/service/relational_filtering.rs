@@ -11,12 +11,23 @@
  */
 
 use super::{
-    AuthorSelector, ColumnTrait, Condition, ConnectionType, Expr, ExprTrait,
+    AuthorSelector, ColumnTrait, Condition, ConnectionType, Expr, ExprTrait, Page,
     PageConnection, PageParent, PageParentSelector, PageService, Query, Reference,
     Result, ServiceContext, SimpleExpr, current_parent_ids,
     normalize_wikidot_author_name, page, page_connection, page_parent,
     postgres_bind_placeholders, wikidot_author_name_sql,
 };
+
+/// Live page IDs, for parent selectors that must ignore edges kept across a
+/// page's tombstone (deleted pages keep their parent rows so undelete can
+/// restore them; reads filter to live pages instead).
+fn live_page_ids_subquery() -> sea_query::SelectStatement {
+    Query::select()
+        .column(page::Column::PageId)
+        .from(Page)
+        .and_where(page::Column::DeletedAt.is_null())
+        .to_owned()
+}
 
 pub(super) async fn page_parent_condition(
     ctx: &ServiceContext<'_>,
@@ -38,6 +49,10 @@ pub(super) async fn page_parent_condition(
                     Query::select()
                         .column(page_parent::Column::ChildPageId)
                         .from(PageParent)
+                        .and_where(
+                            page_parent::Column::ParentPageId
+                                .in_subquery(live_page_ids_subquery()),
+                        )
                         .to_owned(),
                 ),
             );
@@ -65,6 +80,10 @@ pub(super) async fn page_parent_condition(
                         Query::select()
                             .column(page_parent::Column::ChildPageId)
                             .from(PageParent)
+                            .and_where(
+                                page_parent::Column::ParentPageId
+                                    .in_subquery(live_page_ids_subquery()),
+                            )
                             .to_owned(),
                     ),
                 )

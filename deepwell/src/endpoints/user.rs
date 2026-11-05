@@ -28,8 +28,14 @@ use crate::services::user::{
     GetUserOutput, UpdateUser, UpdateUserBody, User, UserOutput, WikijumpUserOutput,
 };
 use crate::services::{
-    AuthenticationService, MutationAuthorization, PasswordService, SessionService,
+    AuthenticationAttemptService, AuthenticationService, MutationAuthorization,
+    PasswordService, SessionService,
 };
+
+const REGISTER_IP_MAX_ATTEMPTS: i64 = 20;
+const REGISTER_IP_WINDOW_SECONDS: i64 = 3600;
+const REGISTER_GLOBAL_MAX_ATTEMPTS: i64 = 100;
+const REGISTER_GLOBAL_WINDOW_SECONDS: i64 = 3600;
 
 use crate::types::{AliasType, Maybe, Reference, UserType};
 use sea_orm::EntityTrait;
@@ -48,11 +54,54 @@ pub async fn user_create(
         || input.override_user_id.is_some();
     if privileged_creation {
         MutationAuthorization::require_platform_staff(ctx, "privileged user creation")?;
+    } else {
+        check_registration_rate_limit(ctx, &input.ip_address.to_string()).await?;
     }
 
     UserService::create(ctx, input)
         .await
         .or_raise(|| Error::new("failed to create user", ErrorType::User))
+}
+
+async fn check_registration_rate_limit(
+    ctx: &ServiceContext<'_>,
+    ip_address: &str,
+) -> Result<()> {
+    let make_error =
+        || Error::new("failed to check registration rate limit", ErrorType::User);
+    let ip_allowed = AuthenticationAttemptService::reserve(
+        ctx,
+        &AuthenticationAttemptService::register_ip_bucket(ip_address),
+        REGISTER_IP_MAX_ATTEMPTS,
+        REGISTER_IP_WINDOW_SECONDS,
+    )
+    .await
+    .or_raise(make_error)?;
+    if !ip_allowed {
+        ctx.commit_expected_authentication_rejection();
+        bail!(Error::new(
+            "too many account registrations, try again later",
+            ErrorType::RateLimited,
+        ));
+    }
+
+    let global_allowed = AuthenticationAttemptService::reserve(
+        ctx,
+        &AuthenticationAttemptService::register_global_bucket(),
+        REGISTER_GLOBAL_MAX_ATTEMPTS,
+        REGISTER_GLOBAL_WINDOW_SECONDS,
+    )
+    .await
+    .or_raise(make_error)?;
+    if !global_allowed {
+        ctx.commit_expected_authentication_rejection();
+        bail!(Error::new(
+            "too many account registrations, try again later",
+            ErrorType::RateLimited,
+        ));
+    }
+
+    Ok(())
 }
 
 pub async fn user_import(

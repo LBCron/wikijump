@@ -2121,6 +2121,7 @@ impl RenderService {
                              contents,
                              language,
                              name,
+                             wikidot_block_open_elements,
                          }| CodeBlock {
                             contents: Cow::Owned(
                                 protection.restore_compat_text_with_cleanup(
@@ -2136,6 +2137,10 @@ impl RenderService {
                                 .as_ref()
                                 .map(|language| Cow::Owned(language.to_string())),
                             name: name.as_ref().map(|name| Cow::Owned(name.to_string())),
+                            wikidot_block_open_elements: wikidot_block_open_elements
+                                .iter()
+                                .map(|element| element.to_owned())
+                                .collect(),
                         },
                     )
                     .collect();
@@ -2513,6 +2518,7 @@ impl RenderService {
                                   contents,
                                   language,
                                   name,
+                                  wikidot_block_open_elements,
                               }| {
                             let contents = Self::restore_wikidot_code_block_compatibility(
                                         &protection.compat_html().restore_plain(contents),
@@ -2531,6 +2537,11 @@ impl RenderService {
                                 name: name
                                     .as_ref()
                                     .map(|name| Cow::Owned(name.to_string())),
+                                wikidot_block_open_elements:
+                                    wikidot_block_open_elements
+                                        .iter()
+                                        .map(|element| element.to_owned())
+                                        .collect(),
                             }
                         })
                         .collect();

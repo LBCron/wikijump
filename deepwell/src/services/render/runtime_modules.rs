@@ -975,6 +975,7 @@ impl RenderService {
         wikitext: String,
         settings: &WikitextSettings,
         current_site_id: Option<i64>,
+        viewer_user_id: Option<i64>,
         compat_html: &mut CompatHtmlFragments,
     ) -> Result<String> {
         if !settings.enable_page_syntax || !MEMBERS_MODULE_REGEX.is_match(&wikitext) {
@@ -999,7 +1000,8 @@ impl RenderService {
             module_index += 1;
             let head = captures.name("head").map_or("", |head| head.as_str());
             let Some(rendered) =
-                render_members_module(ctx, site_id, head, module_index).await?
+                render_members_module(ctx, site_id, viewer_user_id, head, module_index)
+                    .await?
             else {
                 continue;
             };
@@ -1282,6 +1284,7 @@ impl RenderService {
             wikitext,
             settings,
             options.current_site_id,
+            options.viewer_user_id,
             compat_html,
         )
         .await

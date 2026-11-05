@@ -194,12 +194,16 @@ struct DirectoryCandidate {
 pub(super) async fn render_members_module(
     ctx: &ServiceContext<'_>,
     site_id: i64,
+    viewer_user_id: Option<i64>,
     head: &str,
     module_index: usize,
 ) -> Result<Option<String>> {
     let Some(arguments) = MembersArguments::parse(head) else {
         return Ok(None);
     };
+    if !check_member_directory_site_view(ctx, site_id, viewer_user_id).await? {
+        return Ok(Some(String::new()));
+    }
     let (rows, total_count) = load_directory_page(ctx, site_id, arguments, 0).await?;
     let total_pages = total_count.div_ceil(MEMBERS_PAGE_SIZE);
     Ok(Some(render_directory(
@@ -219,24 +223,9 @@ impl RenderService {
         let Some(page) = members_ajax_page(parameters) else {
             return Ok(members_ajax_response("not_ok", String::new()));
         };
-        let can_view = PermissionService::check_user_can(
-            ctx,
-            &CheckPermissionContext {
-                user_id: ctx.request().user_id().ok(),
-                site_id,
-                page_reference: None,
-            },
-            Permission {
-                resource_type: Resource::Page,
-                resource_category: None,
-                action: Action::View,
-            },
-        )
-        .await
-        .or_raise(|| {
-            Error::new("failed to check member directory site", ErrorType::Render)
-        })?;
-        if !can_view {
+        if !check_member_directory_site_view(ctx, site_id, ctx.request().user_id().ok())
+            .await?
+        {
             return Ok(members_ajax_response("not_ok", String::new()));
         }
 
@@ -265,6 +254,28 @@ fn members_ajax_page(parameters: &BTreeMap<String, String>) -> Option<u32> {
         return None;
     }
     Some(page.parse::<u32>().ok()?.max(1))
+}
+
+async fn check_member_directory_site_view(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    viewer_user_id: Option<i64>,
+) -> Result<bool> {
+    PermissionService::check_user_can(
+        ctx,
+        &CheckPermissionContext {
+            user_id: viewer_user_id,
+            site_id,
+            page_reference: None,
+        },
+        Permission {
+            resource_type: Resource::Page,
+            resource_category: None,
+            action: Action::View,
+        },
+    )
+    .await
+    .or_raise(|| Error::new("failed to check member directory site", ErrorType::Render))
 }
 
 fn members_ajax_response(status: &str, body: String) -> WikidotMembersListModuleResponse {

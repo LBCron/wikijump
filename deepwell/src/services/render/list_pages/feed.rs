@@ -235,14 +235,7 @@ impl RenderService {
                     per_page: WIKIDOT_RSS_ITEM_LIMIT as u8,
                     reversed: false,
                 },
-                fields: FoundPageFields {
-                    title: true,
-                    slug: true,
-                    page_revision_id: true,
-                    created_at: true,
-                    created_by: true,
-                    ..FoundPageFields::default()
-                },
+                fields: feed_found_page_fields(),
             };
             let mut permission_cache = BTreeMap::new();
             let mut score_filter_cache = PageQueryScoreFilterCache::default();
@@ -358,6 +351,18 @@ impl RenderService {
     }
 }
 
+fn feed_found_page_fields() -> FoundPageFields {
+    FoundPageFields {
+        title: true,
+        slug: true,
+        page_category_id: true,
+        page_revision_id: true,
+        created_at: true,
+        created_by: true,
+        ..FoundPageFields::default()
+    }
+}
+
 fn bounded_feed_values(value: &str) -> Result<Vec<String>> {
     let values = split_list_pages_values(value);
     if values.len() > MAX_WIKIDOT_RSS_SELECTOR_VALUES {
@@ -381,4 +386,20 @@ fn wikidot_feed_rating_is_valid(value: &str) -> bool {
 
 fn wikidot_feed_argument_error(message: &'static str) -> ExnError {
     Error::new(message, ErrorType::BadRequest).into()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::feed_found_page_fields;
+
+    #[test]
+    fn feed_projects_the_category_view_filtering_needs() {
+        let fields = feed_found_page_fields();
+        assert!(fields.page_category_id);
+        assert!(fields.title);
+        assert!(fields.slug);
+        assert!(fields.page_revision_id);
+        assert!(fields.created_at);
+        assert!(fields.created_by);
+    }
 }

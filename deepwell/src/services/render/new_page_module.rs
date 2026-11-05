@@ -4,6 +4,7 @@ use std::sync::LazyLock;
 use regex::Regex;
 
 use super::literal_regions::LiteralRegionIndex;
+use super::module_arguments::module_invocation_starts_line;
 use super::service::{escape_list_pages_html_attr, escape_list_pages_html_text};
 use crate::utils::{normalize_page_slug, split_category, trim_default};
 
@@ -37,7 +38,9 @@ pub(super) fn executable_new_page_modules(
         let matched = captures
             .get(0)
             .expect("a NewPage module capture always has a complete match");
-        if literal_regions.contains(matched.start()) {
+        if literal_regions.contains(matched.start())
+            || !module_invocation_starts_line(source, matched.start())
+        {
             continue;
         }
         if module_count >= MAX_NEW_PAGE_MODULES_PER_RENDER {

@@ -264,7 +264,7 @@ impl RenderService {
                     None
                 },
                 updated_at: if fields.updated_at {
-                    page.updated_at
+                    Some(page.updated_at.unwrap_or(page.created_at))
                 } else {
                     None
                 },

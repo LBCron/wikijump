@@ -1,11 +1,12 @@
 use crate::services::PageDraftPageType;
 
 use super::{
-    CompatHtmlFragments, LISTDRAFTS_EMPTY_HTML, LISTDRAFTS_MODULE_REGEX,
-    LISTUSERS_MODULE_REGEX, LISTUSERS_UNSUPPORTED_USERS_ERROR, LiteralRegionIndex,
-    PageDraftService, PageDraftView, RenderService, Result, ServiceContext,
-    WikidotModuleArgumentValueKind, WikitextSettings, escape_list_pages_html_attr,
-    escape_list_pages_html_text, resolve_list_users_viewer,
+    CompatHtmlFragments, CompatTextFragments, LISTDRAFTS_EMPTY_HTML,
+    LISTDRAFTS_MODULE_REGEX, LISTUSERS_MODULE_REGEX, LISTUSERS_UNSUPPORTED_USERS_ERROR,
+    LiteralRegionIndex, PageDraftService, PageDraftView, RenderService, Result,
+    ServiceContext, WikidotModuleArgumentValueKind, WikitextSettings,
+    escape_list_pages_html_attr, escape_list_pages_html_text,
+    module_invocation_starts_line, resolve_list_users_viewer,
     substitute_list_users_variables, wikidot_module_argument, wikidot_module_arguments,
 };
 
@@ -60,6 +61,7 @@ impl RenderService {
         current_site_id: Option<i64>,
         viewer_user_id: Option<i64>,
         compat_html: &mut CompatHtmlFragments,
+        compat_text: &mut CompatTextFragments,
     ) -> Result<String> {
         if !settings.enable_page_syntax || !LISTDRAFTS_MODULE_REGEX.is_match(&wikitext) {
             return Ok(wikitext);
@@ -72,6 +74,7 @@ impl RenderService {
                 wikitext,
                 &literal_regions,
                 compat_html,
+                compat_text,
             ));
         };
         let mut output = String::with_capacity(wikitext.len());
@@ -81,6 +84,12 @@ impl RenderService {
                 .get(0)
                 .expect("a ListDrafts capture always has a complete match");
             if literal_regions.contains(matched.start()) {
+                continue;
+            }
+            if !module_invocation_starts_line(&wikitext, matched.start()) {
+                output.push_str(&wikitext[cursor..matched.start()]);
+                output.push_str(&compat_text.push_escaped_html_text(matched.as_str()));
+                cursor = matched.end();
                 continue;
             }
             output.push_str(&wikitext[cursor..matched.start()]);
@@ -97,7 +106,9 @@ impl RenderService {
                 }
                 None => Vec::new(),
             };
-            output.push_str(&compat_html.push_html(Self::render_list_drafts(&drafts)));
+            output.push_str(
+                &compat_html.push_block_html(Self::render_list_drafts(&drafts)),
+            );
             cursor = matched.end();
         }
         if cursor == 0 {
@@ -129,6 +140,7 @@ impl RenderService {
         wikitext: String,
         literal_regions: &LiteralRegionIndex,
         compat_html: &mut CompatHtmlFragments,
+        compat_text: &mut CompatTextFragments,
     ) -> String {
         let mut output = String::with_capacity(wikitext.len());
         let mut cursor = 0;
@@ -139,8 +151,15 @@ impl RenderService {
             if literal_regions.contains(matched.start()) {
                 continue;
             }
+            if !module_invocation_starts_line(&wikitext, matched.start()) {
+                output.push_str(&wikitext[cursor..matched.start()]);
+                output.push_str(&compat_text.push_escaped_html_text(matched.as_str()));
+                cursor = matched.end();
+                continue;
+            }
             output.push_str(&wikitext[cursor..matched.start()]);
-            output.push_str(&compat_html.push_html(LISTDRAFTS_EMPTY_HTML.to_owned()));
+            output
+                .push_str(&compat_html.push_block_html(LISTDRAFTS_EMPTY_HTML.to_owned()));
             cursor = matched.end();
         }
         if cursor == 0 {

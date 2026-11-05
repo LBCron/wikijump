@@ -271,7 +271,9 @@ pub(super) async fn project_page_query_results(
                     .then_some(page.latest_revision_id)
                     .flatten(),
                 created_at: fields.created_at.then_some(page.created_at),
-                updated_at: fields.updated_at.then_some(page.updated_at).flatten(),
+                updated_at: fields
+                    .updated_at
+                    .then(|| page.updated_at.unwrap_or(page.created_at)),
                 title: fields
                     .title
                     .then(|| revision.map(|revision| revision.title.clone()))

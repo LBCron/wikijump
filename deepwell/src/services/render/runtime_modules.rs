@@ -38,15 +38,17 @@ use super::list_pages::{CountPagesExpansionOptions, ListPagesRuntimeDisplay};
 use super::literal_regions::LiteralRegionIndex;
 use super::mail_form_module::expand_mail_form_modules;
 use super::module_arguments::{
-    WikidotModuleArgumentValueKind, wikidot_module_argument, wikidot_module_arguments,
+    WikidotModuleArgumentValueKind, module_invocation_starts_line,
+    wikidot_module_argument, wikidot_module_arguments,
     wikidot_module_arguments_ignoring_bare_flags,
 };
 use super::native_list_context::{
     collect_unproven_scope_ranges, matching_source_scope_close,
 };
 use super::new_page_module::{
-    NEWPAGE_MODULE_REGEX, NewPageTemplateOption, NewPageTemplateRendering,
-    executable_new_page_modules, new_page_template_lookup_slug, render_new_page_module,
+    MAX_NEW_PAGE_MODULES_PER_RENDER, NEWPAGE_MODULE_REGEX, NewPageTemplateOption,
+    NewPageTemplateRendering, new_page_template_lookup_slug, new_page_template_names,
+    render_new_page_module,
 };
 use super::percent_encoding::percent_encode_path_segment;
 use super::rate_actions::RateActionRegistry;
@@ -806,6 +808,11 @@ impl RenderService {
             if !should_expand(name) {
                 continue;
             }
+            if name.eq_ignore_ascii_case("NewPage")
+                && !module_invocation_starts_line(&wikitext, matched.start())
+            {
+                continue;
+            }
             output.push_str(&wikitext[cursor..matched.start()]);
             let head = captures.name("head").map_or("", |mtch| mtch.as_str());
             let rendered = if name.eq_ignore_ascii_case("NewPage") {
@@ -820,10 +827,10 @@ impl RenderService {
                 debug_assert!(name.eq_ignore_ascii_case("Join"));
                 render_join_module(head)
             };
-            let marker = if name.eq_ignore_ascii_case("Join") {
-                compat_html.push_block_html(rendered)
-            } else {
+            let marker = if name.eq_ignore_ascii_case("Clone") {
                 compat_html.push_html(rendered)
+            } else {
+                compat_html.push_block_html(rendered)
             };
             output.push_str(&marker);
             cursor = matched.end();
@@ -857,6 +864,7 @@ impl RenderService {
         language: &str,
         current_site_id: Option<i64>,
         compat_html: &mut CompatHtmlFragments,
+        compat_text: &mut CompatTextFragments,
     ) -> Result<String> {
         if !settings.enable_page_syntax || !NEWPAGE_MODULE_REGEX.is_match(&wikitext) {
             return Ok(wikitext);
@@ -868,21 +876,40 @@ impl RenderService {
             "wiki-page-module-new-page-name",
             "Name of the new page",
         );
+        let literal_regions =
+            LiteralRegionIndex::new_wikidot_module_recognition(&wikitext);
         let mut output = String::with_capacity(wikitext.len());
         let mut cursor = 0;
-        for module in executable_new_page_modules(&wikitext) {
-            output.push_str(&wikitext[cursor..module.source_range.start]);
-            let Some(template_names) = module.template_names.as_deref() else {
-                output.push_str(&wikitext[module.source_range.clone()]);
-                cursor = module.source_range.end;
+        let mut module_count = 0;
+        for captures in NEWPAGE_MODULE_REGEX.captures_iter(&wikitext) {
+            let matched = captures
+                .get(0)
+                .expect("a NewPage module capture always has a complete match");
+            if literal_regions.contains(matched.start()) {
+                continue;
+            }
+            if !module_invocation_starts_line(&wikitext, matched.start()) {
+                output.push_str(&wikitext[cursor..matched.start()]);
+                output.push_str(&compat_text.push_escaped_html_text(matched.as_str()));
+                cursor = matched.end();
+                continue;
+            }
+            if module_count >= MAX_NEW_PAGE_MODULES_PER_RENDER {
+                break;
+            }
+            module_count += 1;
+            output.push_str(&wikitext[cursor..matched.start()]);
+            let head = captures.name("head").map_or("", |head| head.as_str());
+            let Some(template_names) = new_page_template_names(head) else {
+                output.push_str(matched.as_str());
+                cursor = matched.end();
                 continue;
             };
             let templates =
-                resolve_new_page_templates(ctx, current_site_id, template_names).await?;
-            let rendered =
-                render_new_page_module(module.head, templates, &accessible_name);
-            output.push_str(&compat_html.push_html(rendered));
-            cursor = module.source_range.end;
+                resolve_new_page_templates(ctx, current_site_id, &template_names).await?;
+            let rendered = render_new_page_module(head, templates, &accessible_name);
+            output.push_str(&compat_html.push_block_html(rendered));
+            cursor = matched.end();
         }
         if cursor == 0 {
             return Ok(wikitext);
@@ -1300,6 +1327,7 @@ impl RenderService {
             options.current_site_id,
             options.viewer_user_id,
             compat_html,
+            compat_text,
         )
         .await
         .or_raise(make_error)?;

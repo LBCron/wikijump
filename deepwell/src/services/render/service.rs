@@ -1271,6 +1271,7 @@ impl RenderService {
                 list_pages_pager_route: super::list_pages::ListPagesPagerRoute::SavedPage,
                 page_preview: false,
                 suppress_nested_list_pages: false,
+                allow_page_discussion_creation: false,
             },
         )
         .await?;
@@ -1389,6 +1390,7 @@ impl RenderService {
             list_pages_pager_route,
             page_preview,
             suppress_nested_list_pages,
+            allow_page_discussion_creation,
         } = options;
         let backlinks_page_id = current_page_id;
         let next_previous_page_id = current_page_id;
@@ -1532,6 +1534,7 @@ impl RenderService {
                 page_preview,
                 url,
                 trace,
+                allow_page_discussion_creation,
             },
             &mut wikidot_compat_text,
             &mut wikidot_compat_html,
@@ -1920,6 +1923,7 @@ impl RenderService {
                 list_pages_pager_route,
                 page_preview: lifecycle == RenderLifecycle::PagePreview,
                 suppress_nested_list_pages,
+                allow_page_discussion_creation: !persist_compiled_text,
             },
         )
         .await?;

@@ -79,6 +79,26 @@ Evidence:
 
 
 
+### The Comments module creates the page discussion thread and renders live's zero-comment thread UI
+
+- Observation ID: `forum-comments-live-empty-state-20261105`
+- Classification: `live-clarification`
+- Observed at: `2026-11-05`
+- Analysis: Anonymous GETs of run-owned saved pages on `sandbox-for-codex` establish the discussion-thread lifecycle of a page that carries `[[module Comments]]`: the first render creates the page's discussion thread, and a plain page without the module gets no thread. The zero-comment thread keeps live's full thread UI; the comments options row appears only after a comment exists.
+
+Normative behavior:
+
+- A Comments render for a page without a discussion thread creates the thread (creating the hidden forum group and Per page discussions category when the site has no per-page discussion category) and renders the thread UI. A repeat render reuses the created thread.
+- The zero-comment thread body is the `forumThreadId` script, hidden `thread-container-posts`, the Add a New Comment control, and the hidden `post-options-template`. The `comments-options-shown` row is absent until the thread has at least one comment.
+- The outer comments shell hides its `comments-options-hidden` row (`style="display: none"`) whenever the thread body is rendered, including the zero-comment state.
+- `hide="true"` keeps the shell inert, renders no thread body, and creates no discussion thread.
+- The created thread title is the page title, the thread is created anonymously (`created_by = -1`), and it belongs to the site's per-page discussion forum category.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/forum-mini-and-comments-live-20261105.json` (SHA-256 `89e139bbbba3234cad5edebcc742c1c692d6203a66c8ca6a69b85f06fa59ba34`), cases: `comments-empty-first-render`, `comments-empty-second-render`, `comments-hidden`, `comments-one-comment`, `comments-nested-reply`
+
+
 ## Suggested public TDD seams
 
 These seams are recommendations. The implementation agent must present and confirm the actual seam map before writing tests.

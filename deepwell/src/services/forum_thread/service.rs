@@ -24,18 +24,19 @@ use super::structs::{
     CreateForumThread, DeleteForumThread, ForumThreadListOrder, GetForumThread,
     GetForumThreads, TouchForumThread, UpdateForumThread, UpdateForumThreadBody,
 };
+use crate::constants::ANONYMOUS_USER_ID;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::models::forum_category::{
     self, Entity as ForumCategory, Model as ForumCategoryModel,
 };
-use crate::models::forum_group::Entity as ForumGroup;
+use crate::models::forum_group::{self, Entity as ForumGroup};
 use crate::models::forum_thread::{
     self, Entity as ForumThread, Model as ForumThreadModel,
 };
 use crate::models::page::Model as PageModel;
 use crate::models::{forum_post, forum_post_revision};
-use crate::services::ForumService;
-use crate::services::ServiceContext;
+use crate::services::forum::{CreateForumCategory, CreateForumGroup};
+use crate::services::{ForumService, ServiceContext};
 use crate::types::Maybe;
 use crate::utils::now;
 use paste::paste;
@@ -170,7 +171,17 @@ impl ForumThreadService {
             return Ok(thread);
         }
 
-        let category = Self::active_page_discussion_category(ctx, page.site_id).await?;
+        let category = Self::active_page_discussion_category(ctx, page.site_id)
+            .await?
+            .ok_or_else(|| {
+                Error::new(
+                    format!(
+                        "site ID {} has no active per-page discussion forum category in an active group",
+                        page.site_id,
+                    ),
+                    ErrorType::ForumCategory,
+                )
+            })?;
 
         ForumThread::insert(forum_thread::ActiveModel {
             forum_category_id: Set(category.forum_category_id),
@@ -210,10 +221,93 @@ impl ForumThreadService {
         Ok(thread)
     }
 
-    async fn active_page_discussion_category(
+    pub async fn ensure_page_discussion_category(
         ctx: &ServiceContext<'_>,
         site_id: i64,
     ) -> Result<ForumCategoryModel> {
+        if let Some(category) =
+            Self::active_page_discussion_category(ctx, site_id).await?
+        {
+            return Ok(category);
+        }
+
+        let txn = ctx.transaction();
+        let group =
+            ForumGroup::find()
+                .filter(forum_group::Column::SiteId.eq(site_id))
+                .filter(forum_group::Column::Name.eq("Hidden"))
+                .filter(forum_group::Column::DeletedAt.is_null())
+                .order_by_asc(forum_group::Column::SortIndex)
+                .lock_exclusive()
+                .one(txn)
+                .await
+                .or_raise(|| {
+                    Error::new(
+                        format!(
+                            "failed to find the hidden forum group in site ID {site_id}",
+                        ),
+                        ErrorType::ForumGroup,
+                    )
+                })?;
+        let group = match group {
+            Some(group) => group,
+            None => ForumService::create_group(
+                ctx,
+                CreateForumGroup {
+                    site_id,
+                    user_id: ANONYMOUS_USER_ID,
+                    name: "Hidden".to_owned(),
+                    description: "Hidden group used for storing some discussion threads."
+                        .to_owned(),
+                    visible: false,
+                    sort_index: None,
+                    from_wikidot: true,
+                },
+            )
+            .await
+            .or_raise(|| {
+                Error::new(
+                    format!(
+                        "failed to create the hidden forum group in site ID {site_id}",
+                    ),
+                    ErrorType::ForumGroup,
+                )
+            })?,
+        };
+
+        ForumService::create_category(
+            ctx,
+            CreateForumCategory {
+                forum_group_id: group.forum_group_id,
+                user_id: ANONYMOUS_USER_ID,
+                name: "Per page discussions".to_owned(),
+                description: concat!(
+                    "This category groups discussions related to particular pages ",
+                    "within this site.",
+                )
+                .to_owned(),
+                sort_index: None,
+                max_nest_level: None,
+                per_page_discussion: Some(true),
+                layout: None,
+                from_wikidot: true,
+            },
+        )
+        .await
+        .or_raise(|| {
+            Error::new(
+                format!(
+                    "failed to create the per-page discussion forum category in site ID {site_id}",
+                ),
+                ErrorType::ForumCategory,
+            )
+        })
+    }
+
+    async fn active_page_discussion_category(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+    ) -> Result<Option<ForumCategoryModel>> {
         let txn = ctx.transaction();
         let categories = ForumCategory::find()
             .filter(forum_category::Column::SiteId.eq(site_id))
@@ -270,17 +364,11 @@ impl ForumThreadService {
                 ));
             }
             if group.deleted_at.is_none() {
-                return Ok(category);
+                return Ok(Some(category));
             }
         }
 
-        bail!(Error::new(
-            format!(
-                "site ID {} has no active per-page discussion forum category in an active group",
-                site_id,
-            ),
-            ErrorType::ForumCategory,
-        ));
+        Ok(None)
     }
 
     fn ensure_page_discussion_site(

@@ -48,6 +48,29 @@ Evidence:
 
 
 
+### Forum mini modules accept the ForumMini registry names and share live selection, limit, argument, and content rules
+
+- Observation ID: `forum-mini-registry-alias-and-content-rules-20261105`
+- Classification: `live-clarification`
+- Observed at: `2026-11-05`
+- Analysis: Anonymous GETs of run-owned saved pages on `sandbox-for-codex`, backed by run-owned forum threads with known post counts, establish the registry and alias spellings, the limit clamp, `categoryId` handling, row selection, and the exact row content contract for all three mini modules. This observation supersedes the earlier inference that standalone thread roots are absent from RecentPosts; it samples standalone roots directly.
+
+Normative behavior:
+
+- `ForumMiniRecentThreads`, `ForumMiniActiveThreads`, and `ForumMiniRecentPosts` are live module names. `MiniRecentThreads`, `MiniActiveThreads`, and `MiniRecentPosts` are registered aliases of the same modules and render identical output. Module names are case-insensitive; other names render the theme's No such module error.
+- A positive integer `limit` from 1 through 300 constrains rows and the default is 5. Zero, negative, nonnumeric, single-quoted, unquoted, and spaced attribute forms retain the default. Duplicate double-quoted `limit` attributes use the last value. A numeric non-integer limit renders `<div class="error-block">An error occurred when processing your request.</div>`.
+- `RecentPosts` honors a double-quoted `categoryId`: a numeric category that exists renders `<div class="error-block">An error occurred when processing your request.</div>`, a numeric category that does not exist renders `<div class="error-block">The category can not be found.</div>`, and a nonnumeric value renders the generic processing error block. `RecentThreads` and `ActiveThreads` ignore `categoryId`.
+- `RecentThreads` selects every site thread ordered by descending thread id, including zero-post page discussion threads, and renders the thread total post count.
+- `ActiveThreads` selects threads with at least one post inside the last seven days, ordered by that count descending, and renders the thread total post count. Equal-count tie ordering is not established.
+- `RecentPosts` selects every post ordered by descending post id, including standalone thread roots and page-discussion roots, renders the thread total post count, renders `(No title)` for an empty post title, and renders the tag-stripped compiled post text truncated to 100 characters at the last space plus three dots.
+- Standalone thread post anchors are `/forum/t-<thread-id>/<unixified-thread-title>#post-<post-id>`; page discussion anchors are `/<page-slug>/comments/show#post-<post-id>`.
+- Inline module text and a module opener owned by a raw span remain literal.
+
+Evidence:
+
+- `install/local/wikidot-verification/artifacts/forum-mini-and-comments-live-20261105.json` (SHA-256 `89e139bbbba3234cad5edebcc742c1c692d6203a66c8ca6a69b85f06fa59ba34`), cases: `fm-recent-threads`, `fm-active-threads`, `fm-recent-posts`, `alias-recent-threads`, `alias-recent-posts`, `limit-0`, `limit-negative`, `limit-text`, `limit-301`, `limit-300`, `limit-100`, `limit-duplicate`, `limit-single-quoted`, `limit-bare`, `limit-space`, `limit-empty`, `limit-float`, `limit-unterminated`, `head-junk`, `name-lowercase`, `name-unknown`, `unknown-attribute`, `cat-valid-other`, `cat-text`, `cat-threads`, `cat-posts-limit`, `active-cat`
+
+
 ## Suggested public TDD seams
 
 These seams are recommendations. The implementation agent must present and confirm the actual seam map before writing tests.

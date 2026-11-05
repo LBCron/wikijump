@@ -1,4 +1,39 @@
 use super::*;
+use crate::utils::trim_default;
+use wikidot_normalize::normalize as normalize_slug;
+
+fn slug_targets_reserved_admin_page(slug: &str) -> bool {
+    let mut normalized = slug.to_owned();
+    normalize_slug(&mut normalized);
+    trim_default(normalized.trim_matches('/')).eq_ignore_ascii_case("_admin")
+}
+
+async fn ensure_admin_for_reserved_page(
+    ctx: &ServiceContext<'_>,
+    site_id: i64,
+    user_id: i64,
+    action_name: &str,
+) -> Result<()> {
+    let can_access_admin =
+        PermissionService::check_user_can_access_admin(ctx, Some(user_id), site_id)
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "failed to check admin page permission",
+                    ErrorType::Permission,
+                )
+            })?;
+
+    if can_access_admin {
+        Ok(())
+    } else {
+        Err(Error::new(
+            format!("user does not have permission to {action_name} this page"),
+            ErrorType::PermissionDenied,
+        )
+        .into())
+    }
+}
 
 pub(super) async fn ensure_page_create_permission(
     ctx: &ServiceContext<'_>,
@@ -6,6 +41,10 @@ pub(super) async fn ensure_page_create_permission(
     slug: &str,
     user_id: i64,
 ) -> Result<()> {
+    if slug_targets_reserved_admin_page(slug) {
+        ensure_admin_for_reserved_page(ctx, site_id, user_id, "create").await?;
+    }
+
     let category_slug = get_category_name(slug);
     let category = CategoryService::get_optional(
         ctx,
@@ -67,6 +106,10 @@ pub(super) async fn ensure_page_action_permission<'a>(
             )
         })?;
 
+    if page.slug.eq_ignore_ascii_case("_admin") {
+        ensure_admin_for_reserved_page(ctx, site_id, user_id, action_name).await?;
+    }
+
     ensure_page_permission(
         ctx,
         site_id,
@@ -100,6 +143,10 @@ pub(super) async fn ensure_deleted_page_delete_permission_and_get_category_id(
             ErrorType::PermissionDenied,
         )
         .into());
+    }
+
+    if page.slug.eq_ignore_ascii_case("_admin") {
+        ensure_admin_for_reserved_page(ctx, site_id, user_id, "restore").await?;
     }
 
     ensure_page_permission(
@@ -271,4 +318,39 @@ pub async fn page_delete_permission(
         })?;
 
     Ok(PageDeletePermissionOutput { can_delete })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::slug_targets_reserved_admin_page;
+
+    #[test]
+    fn reserved_admin_slug_matches_write_path_spellings() {
+        for slug in [
+            "_admin",
+            "_ADMIN",
+            "/_admin",
+            "/_admin/",
+            "_admin ",
+            " _admin",
+            "_default:_admin",
+            "_DEFAULT:_ADMIN",
+        ] {
+            assert!(slug_targets_reserved_admin_page(slug), "{slug}");
+        }
+
+        // "//_admin//" normalizes to the ordinary "admin" slug, not "_admin".
+        for slug in [
+            "admin",
+            "//_admin//",
+            "start",
+            "category:_admin",
+            "cycle3x:_admin",
+            "_admin:page",
+            "_admins",
+            "my_admin",
+        ] {
+            assert!(!slug_targets_reserved_admin_page(slug), "{slug}");
+        }
+    }
 }

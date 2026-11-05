@@ -1541,3 +1541,160 @@ async fn membership_password_submit_is_throttled_per_site_and_actor() {
         deepwell::services::membership::MembershipPasswordOutcome::WrongPassword,
     );
 }
+
+fn marked_membership_section<'a>(body: &'a str, label: &str) -> &'a str {
+    let start = format!("{label}_START");
+    let end = format!("{label}_END");
+    body.split_once(&start)
+        .and_then(|(_, tail)| tail.split_once(&end))
+        .map(|(section, _)| section)
+        .unwrap_or_else(|| panic!("missing {label} markers in:\n{body}"))
+}
+
+#[tokio::test]
+async fn membership_email_invitation_matches_live_missing_invitation_text() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let source = concat!(
+        "MEIBARE_START\n[[module MembershipEmailInvitation]]\nMEIBARE_END\n",
+        "MEIHASH_START\n[[module MembershipEmailInvitation hash=\"abc\"]]\nMEIHASH_END\n",
+        "MEIUPPER_START\n[[module MEMBERSHIPEMAILINVITATION HASH=\"abc\"]]\nMEIUPPER_END\n",
+        "MEIBODY_START\n[[module MembershipEmailInvitation]]\nBODY\n[[/module]]\nMEIBODY_END\n",
+        "MEIINLINE_START\n[[module MembershipEmailInvitation]]x[[/module]]\nMEIINLINE_END",
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let preview = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": "MembershipEmailInvitation live text",
+            "wikitext": source,
+        }),
+    )
+    .body;
+
+    for label in ["MEIBARE", "MEIHASH", "MEIUPPER", "MEIBODY"] {
+        let section = marked_membership_section(&preview, label);
+        assert!(
+            section.contains(r#"<div id="membership-email-invitation-box">"#),
+            "{label} should render the invitation box:\n{section}",
+        );
+        assert!(
+            section.contains(
+                "It might have been canceled by the sender, expired, already\n\t\t\tused by someone (you?)"
+            ),
+            "{label} must carry live's current missing-invitation sentence:\n{section}",
+        );
+        assert!(
+            !section.contains("aleady"),
+            "{label} must not keep the fossil typo:\n{section}",
+        );
+    }
+    let body_section = marked_membership_section(&preview, "MEIBODY");
+    assert!(
+        !body_section.contains("BODY"),
+        "the block body is consumed by the invocation:\n{body_section}",
+    );
+    let inline = marked_membership_section(&preview, "MEIINLINE");
+    assert!(
+        inline.contains("[[module MembershipEmailInvitation]]x[[/module]]")
+            && !inline.contains("membership-email-invitation-box"),
+        "an inline MembershipEmailInvitation invocation must stay literal like live:\n{inline}",
+    );
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-membership-email-invitation-text",
+        "Fixture MembershipEmailInvitation Text",
+        source,
+    )
+    .await;
+    let view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": "fixture-membership-email-invitation-text", "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let saved = match view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found MembershipEmailInvitation view, got {other:?}"),
+    };
+    assert!(
+        saved.contains("canceled by the sender, expired, already")
+            && !saved.contains("aleady")
+            && saved.contains("[[module MembershipEmailInvitation]]x[[/module]]"),
+        "saved MembershipEmailInvitation page should match the preview text:\n{saved}",
+    );
+}
+
+#[tokio::test]
+async fn membership_by_password_ignores_arguments_and_module_source_boundaries() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let source = concat!(
+        "MBPBARE_START\n[[module MembershipByPassword]]\nMBPBARE_END\n",
+        "MBPARGS_START\n[[module MembershipByPassword foo=\"bar\"]]\nMBPARGS_END\n",
+        "MBPBODY_START\n[[module MembershipByPassword]]\nBODY\n[[/module]]\nMBPBODY_END\n",
+        "MBPINLINE_START\n[[module MembershipByPassword]]x[[/module]]\nMBPINLINE_END",
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let preview = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": "MembershipByPassword argument boundaries",
+            "wikitext": source,
+        }),
+    )
+    .body;
+
+    for label in ["MBPBARE", "MBPARGS", "MBPBODY"] {
+        let section = marked_membership_section(&preview, label);
+        assert!(
+            section.contains(r#"<div id="membership-by-password-box">"#)
+                && section
+                    .contains("Membership via password is not enabled for this site."),
+            "{label} should render the site-configured state instead of failing the module:\n{section}",
+        );
+        assert!(
+            !section.contains("No such module"),
+            "{label} must not fall through to the unknown-module error:\n{section}",
+        );
+    }
+    let body_section = marked_membership_section(&preview, "MBPBODY");
+    assert!(
+        !body_section.contains("BODY"),
+        "the block body is consumed by the invocation:\n{body_section}",
+    );
+    let inline = marked_membership_section(&preview, "MBPINLINE");
+    assert!(
+        inline.contains("[[module MembershipByPassword]]x[[/module]]")
+            && !inline.contains("membership-by-password-box"),
+        "an inline MembershipByPassword invocation must stay literal like live:\n{inline}",
+    );
+}

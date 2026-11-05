@@ -438,6 +438,8 @@ mod tests {
         for source in [
             "[[module Members]]",
             r#"[[module Members group="admins" order="name"]]"#,
+            r#"[[module Members group="owners"]]"#,
+            r#"[[module Members limit="1"]]"#,
         ] {
             assert!(wikitext_requires_runtime_render(source), "{source}");
             assert!(!wikitext_reads_url_arguments(source), "{source}");
@@ -446,7 +448,7 @@ mod tests {
         for source in [
             "[[code]]\n[[module Members]]\n[[/code]]",
             "<pre>[[module Members]]</pre>",
-            r#"[[module Members group="owners"]]"#,
+            "[[module Members]]x[[/module]]",
         ] {
             assert!(!wikitext_requires_runtime_render(source), "{source}");
             assert!(!wikitext_reads_url_arguments(source), "{source}");

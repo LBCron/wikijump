@@ -28,9 +28,11 @@ use sha1::{Digest, Sha1};
 
 use super::compat::CompatHtmlFragments;
 use super::literal_regions::LiteralRegionIndex;
-use super::module_arguments::wikidot_module_argument;
-use super::native_list_context::matching_source_scope_close;
+use super::module_arguments::wikidot_module_double_quoted_arguments;
+use super::module_tokens::scan_source_modules;
 use super::service::{escape_list_pages_html_attr, escape_list_pages_html_text};
+
+pub(super) const MAIL_FORM_MODULE_NAMES: &[&str] = &["MailForm"];
 
 const MAIL_FORM_DEFAULT_SIZE: u32 = 30;
 
@@ -99,14 +101,22 @@ pub(crate) struct MailFormDefinition {
     pub(crate) fields: Vec<MailFormField>,
 }
 
+fn mail_form_argument<'a>(head: &'a str, name: &str) -> Option<&'a str> {
+    wikidot_module_double_quoted_arguments(head)
+        .into_iter()
+        .rev()
+        .find(|(key, _)| *key == name)
+        .map(|(_, value)| value)
+}
+
 pub(crate) fn parse_mail_form_definition(head: &str, body: &str) -> MailFormDefinition {
     let mut definition = MailFormDefinition {
-        recipients: wikidot_module_argument(head, "to").map(str::to_owned),
-        button: wikidot_module_argument(head, "button").map(str::to_owned),
-        format_csv: wikidot_module_argument(head, "format")
+        recipients: mail_form_argument(head, "to").map(str::to_owned),
+        button: mail_form_argument(head, "button").map(str::to_owned),
+        format_csv: mail_form_argument(head, "format")
             .is_some_and(|value| value.trim().eq_ignore_ascii_case("csv")),
-        email_title: wikidot_module_argument(head, "title").map(str::to_owned),
-        success_page: wikidot_module_argument(head, "successPage").map(str::to_owned),
+        email_title: mail_form_argument(head, "title").map(str::to_owned),
+        success_page: mail_form_argument(head, "successPage").map(str::to_owned),
         fields: Vec::new(),
     };
     parse_mail_form_fields(body, &mut definition.fields);
@@ -234,6 +244,11 @@ fn mail_form_rule_flag(value: &str) -> bool {
     !value.is_empty() && value != "0" && !value.eq_ignore_ascii_case("false")
 }
 
+/// PHP truthiness of a field default, which is what live's templates test.
+fn mail_form_php_truthy(value: &str) -> bool {
+    !value.is_empty() && value != "0"
+}
+
 pub(crate) fn mail_form_definition_handle(
     definition: &MailFormDefinition,
     instance: usize,
@@ -273,11 +288,21 @@ pub(crate) fn mail_form_definition_handle(
     format!("{hex}_{}", page_id.unwrap_or(0))
 }
 
+pub(crate) const MAIL_FORM_TITLE_ERROR_HTML: &str =
+    r#"<div class="error-block">The title="..." attribute is not valid.</div>"#;
+
 pub(crate) fn render_mail_form_module(
     definition: &MailFormDefinition,
     instance: usize,
     page_id: Option<i64>,
 ) -> String {
+    if definition
+        .email_title
+        .as_deref()
+        .is_some_and(|title| title.chars().count() > 200)
+    {
+        return MAIL_FORM_TITLE_ERROR_HTML.to_owned();
+    }
     let button = definition
         .button
         .as_deref()
@@ -336,7 +361,9 @@ fn render_mail_form_field_row(
             output.push_str(&format!(
                 r#"<input name="{name_attr}" class="text" type="text""#
             ));
-            if let Some(default) = &field.default {
+            if let Some(default) = &field.default
+                && mail_form_php_truthy(default)
+            {
                 output.push_str(&format!(
                     r#" value="{}""#,
                     escape_list_pages_html_attr(default)
@@ -360,13 +387,19 @@ fn render_mail_form_field_row(
         }
         MailFormFieldType::Select => {
             output.push_str(&format!(r#"<select name="{name_attr}" class="select">"#));
-            output.push_str(r#"<option value="">-- Please select --</option>"#);
+            let default = field
+                .default
+                .as_deref()
+                .filter(|default| mail_form_php_truthy(default));
+            if default.is_none() {
+                output.push_str(r#"<option value="">-- Please select --</option>"#);
+            }
             for (value, label) in &field.options {
                 output.push_str(&format!(
                     r#"<option value="{}""#,
                     escape_list_pages_html_attr(value)
                 ));
-                if field.default.as_deref() == Some(value.as_str()) {
+                if default == Some(value.as_str()) {
                     output.push_str(r#" selected="selected""#);
                 }
                 output.push_str(&format!(
@@ -378,14 +411,9 @@ fn render_mail_form_field_row(
         }
         MailFormFieldType::Checkbox => {
             output.push_str(&format!(
-                r#"<input name="{name_attr}" class="checkbox" type="checkbox" value="1""#
+                r#"<input name="{name_attr}" class="checkbox" type="checkbox""#
             ));
-            if field
-                .default
-                .as_deref()
-                .map(str::trim)
-                .is_some_and(mail_form_rule_flag)
-            {
+            if field.default.as_deref().is_some_and(mail_form_php_truthy) {
                 output.push_str(r#" checked="checked""#);
             }
             output.push_str("/>");
@@ -520,47 +548,6 @@ static MAILFORM_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         .expect("MailForm module expression is valid")
 });
 
-fn mail_form_occurrence_body<'a>(
-    source: &'a str,
-    module_start: usize,
-    open_end: usize,
-    literal_regions: &LiteralRegionIndex,
-) -> (usize, Option<&'a str>) {
-    let suffix = &source[open_end..];
-    if suffix.starts_with("[[/module]]") {
-        return (open_end + "[[/module]]".len(), Some(""));
-    }
-
-    if !suffix
-        .chars()
-        .next()
-        .is_some_and(|character| matches!(character, '\n' | '\r'))
-    {
-        return (open_end, None);
-    }
-
-    let Some(close) = matching_source_scope_close(source, literal_regions, module_start)
-    else {
-        return (open_end, None);
-    };
-    (close.end, Some(&source[open_end..close.start]))
-}
-
-fn mail_form_occurrence_is_block_owned(source: &str, start: usize, end: usize) -> bool {
-    let line_start = source[..start].rfind('\n').map_or(0, |index| index + 1);
-    if !source[line_start..start].trim().is_empty() {
-        return false;
-    }
-    let last_line_start = source[..end].rfind('\n').map_or(0, |index| index + 1);
-    if !source[last_line_start..end].ends_with("[[/module]]") {
-        return false;
-    }
-    let line_end = source[end..]
-        .find('\n')
-        .map_or(source.len(), |index| end + index);
-    source[end..line_end].trim().is_empty()
-}
-
 struct MailFormOccurrence<'a> {
     start: usize,
     end: usize,
@@ -570,35 +557,15 @@ struct MailFormOccurrence<'a> {
 
 fn mail_form_occurrences(wikitext: &str) -> Vec<MailFormOccurrence<'_>> {
     let literal_regions = LiteralRegionIndex::new_wikidot_module_recognition(wikitext);
-    let mut occurrences = Vec::new();
-    for captures in MAILFORM_MODULE_REGEX.captures_iter(wikitext) {
-        let matched = captures
-            .get(0)
-            .expect("a MailForm capture always has a complete match");
-        if literal_regions.contains(matched.start()) {
-            continue;
-        }
-        let (occurrence_end, body) = mail_form_occurrence_body(
-            wikitext,
-            matched.start(),
-            matched.end(),
-            &literal_regions,
-        );
-        let Some(body) = body else {
-            continue;
-        };
-        if !mail_form_occurrence_is_block_owned(wikitext, matched.start(), occurrence_end)
-        {
-            continue;
-        }
-        occurrences.push(MailFormOccurrence {
-            start: matched.start(),
-            end: occurrence_end,
-            head: captures.name("head").map_or("", |head| head.as_str()),
-            body,
-        });
-    }
-    occurrences
+    scan_source_modules(wikitext, &literal_regions, MAIL_FORM_MODULE_NAMES)
+        .into_iter()
+        .map(|module| MailFormOccurrence {
+            start: module.start,
+            end: module.end,
+            head: module.head,
+            body: module.body.unwrap_or(""),
+        })
+        .collect()
 }
 
 pub(crate) fn find_mail_form_definition(
@@ -780,7 +747,7 @@ mod tests {
             r#"<select name="payment" class="select"><option value="">-- Please select --</option>"#,
             r#"<option value="creditcard">Credit card</option>"#,
             r#"<option value="na">Not applicable</option></select>"#,
-            r#"<input name="logging" class="checkbox" type="checkbox" value="1"/>"#,
+            r#"<input name="logging" class="checkbox" type="checkbox"/>"#,
             r#"<textarea name="comments" cols="30" rows="5"></textarea>"#,
         ] {
             assert!(html.contains(expected), "missing {expected:?} in {html}");
@@ -923,6 +890,8 @@ mod tests {
 mod mail_form_expansion_tests {
     use std::borrow::Cow;
 
+    use super::MAIL_FORM_TITLE_ERROR_HTML;
+
     use crate::services::render::compat::CompatHtmlFragments;
     use crate::services::render::compat::text_fragments::CompatTextFragments;
     use ftml::data::{PageInfo, ScoreValue};
@@ -1015,16 +984,107 @@ mod mail_form_expansion_tests {
     }
 
     #[test]
-    fn unclosed_mail_form_is_left_untouched() {
+    fn unclosed_mail_form_expands_without_owning_following_lines() {
         let source = "[[module MailForm to=\"aaaa (DUMMY)\"]]\n# name\n * title: ID\n";
-        assert_eq!(expand(source), source);
+        let expanded = expand(source);
+        assert!(
+            expanded.contains(r#"<div class="mailform-box" id="mailform-box-1">"#),
+            "{expanded}",
+        );
+        assert!(
+            expanded.contains("<table class=\"form\"></table>"),
+            "a bodyless MailForm renders the empty live form shell:\n{expanded}",
+        );
+        assert!(
+            expanded.contains("# name") && expanded.contains("* title: ID"),
+            "text after a bodyless opener must stay ordinary page content:\n{expanded}",
+        );
+    }
+
+    #[test]
+    fn mail_form_title_length_and_field_defaults_match_live() {
+        let title_200 = "t".repeat(200);
+        let expanded = expand(&format!("[[module MailForm title=\"{title_200}\"]]\n"));
+        assert!(!expanded.contains(MAIL_FORM_TITLE_ERROR_HTML), "{expanded}");
+
+        let title_201 = "t".repeat(201);
+        let expanded = expand(&format!("[[module MailForm title=\"{title_201}\"]]\n"));
+        assert!(
+            expanded.contains(MAIL_FORM_TITLE_ERROR_HTML),
+            "live rejects titles longer than 200 characters:\n{expanded}",
+        );
+
+        let multibyte_201 = "あ".repeat(201);
+        let expanded =
+            expand(&format!("[[module MailForm title=\"{multibyte_201}\"]]\n"));
+        assert!(
+            expanded.contains(MAIL_FORM_TITLE_ERROR_HTML),
+            "the title limit counts characters, not bytes:\n{expanded}",
+        );
+
+        let text_zero = expand(
+            "[[module MailForm]]\n# a\n * type: text\n * default: 0\n[[/module]]\n",
+        );
+        assert!(!text_zero.contains("value=\"0\""), "{text_zero}");
+        let text_false = expand(
+            "[[module MailForm]]\n# a\n * type: text\n * default: false\n[[/module]]\n",
+        );
+        assert!(
+            text_false.contains(r#"value="false""#),
+            "live uses PHP truthiness for field defaults:\n{text_false}",
+        );
+
+        let select_default = expand(
+            "[[module MailForm]]\n# a\n * type: select\n * options:\n  * one: First\n  * two: Second\n * default: two\n[[/module]]\n",
+        );
+        assert!(
+            !select_default.contains("-- Please select --")
+                && select_default.contains(r#"selected="selected""#),
+            "{select_default}",
+        );
+        let select_zero = expand(
+            "[[module MailForm]]\n# a\n * type: select\n * options:\n  * one: First\n * default: 0\n[[/module]]\n",
+        );
+        assert!(
+            select_zero.contains("-- Please select --")
+                && !select_zero.contains(r#"selected="selected""#),
+            "{select_zero}",
+        );
+
+        let checkbox_false = expand(
+            "[[module MailForm]]\n# a\n * type: checkbox\n * default: false\n[[/module]]\n",
+        );
+        assert!(
+            checkbox_false.contains(r#"checked="checked""#)
+                && !checkbox_false.contains(r#"value="1""#),
+            "live's checkbox carries no value attribute and treats \"false\" as truthy:\n{checkbox_false}",
+        );
+        let checkbox_zero = expand(
+            "[[module MailForm]]\n# a\n * type: checkbox\n * default: 0\n[[/module]]\n",
+        );
+        assert!(
+            !checkbox_zero.contains(r#"checked="checked""#),
+            "{checkbox_zero}"
+        );
     }
 
     #[test]
     fn inline_mail_form_is_not_expanded() {
         let source = format!("before {FAKE_LOGIN_SOURCE}");
         assert_eq!(expand(&source), source);
+    }
+
+    #[test]
+    fn a_closing_tag_with_trailing_text_still_executes_the_module() {
         let source = format!("{} after\n", FAKE_LOGIN_SOURCE.trim_end());
-        assert_eq!(expand(&source), source);
+        let expanded = expand(&source);
+        assert!(
+            expanded.contains(r#"<div class="mailform-box" id="mailform-box-1">"#),
+            "live executes a block module whose closing tag has trailing text:\n{expanded}",
+        );
+        assert!(
+            expanded.contains(" after"),
+            "text after the closing tag stays page content:\n{expanded}",
+        );
     }
 }

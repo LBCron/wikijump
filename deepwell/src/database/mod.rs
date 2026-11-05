@@ -22,13 +22,20 @@ mod seeder;
 
 pub use self::seeder::seed;
 
+use crate::config::Config;
 use crate::error::prelude::*;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use std::time::Duration;
 
+/// Connect to PostgreSQL with the pool size, prepared-statement cache size, and
+/// connection lifetime from configuration.
+///
+/// The defaults keep the previous behavior (`max_connections = 100`, a
+/// 100-statement cache per connection, no lifetime limit); deployments that
+/// need a smaller footprint lower them in `[database]`.
 pub async fn connect<S: Into<String>>(
     database_uri: S,
-    sqlx_logging: bool,
+    config: &Config,
 ) -> Result<DatabaseConnection> {
     let make_error =
         || Error::new("failed to connect to database", ErrorType::DatabaseSetup);
@@ -37,10 +44,19 @@ pub async fn connect<S: Into<String>>(
     let mut options = ConnectOptions::new(database_uri);
     options
         .min_connections(4)
-        .max_connections(100)
+        .max_connections(config.database_max_connections)
         .connect_timeout(Duration::from_secs(5))
         .idle_timeout(Duration::from_secs(10))
-        .sqlx_logging(sqlx_logging);
+        .sqlx_logging(config.sqlx_logging);
+
+    if let Some(max_lifetime) = config.database_max_lifetime {
+        options.max_lifetime(max_lifetime);
+    }
+
+    let statement_cache_capacity = config.database_statement_cache_capacity as usize;
+    options.map_sqlx_postgres_opts(move |options| {
+        options.statement_cache_capacity(statement_cache_capacity)
+    });
 
     let sea_orm_db = Database::connect(options).await.or_raise(make_error)?;
     Ok(sea_orm_db)

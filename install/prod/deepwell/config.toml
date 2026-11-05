@@ -9,6 +9,14 @@ pid-file = ""
 [database]
 run-seeder = false
 seeder-path = "seeder"
+# Connection fan-out (PLAN-memory-reduction phase 3, intervention 4).
+# PostgreSQL allows 100 connections by default and each one is a backend
+# process with its own catalog, plan, and prepared-statement caches. 32 is far
+# above the 12 connections measured on standing at idle, and leaves room for
+# the render-ahead container's own pool inside the database's max_connections.
+max-connections = 32
+statement-cache-capacity = 32
+max-lifetime-secs = 1800
 
 [security]
 authentication-fail-delay-ms = 100
@@ -49,6 +57,14 @@ path = "/opt/locales"
 [ftml]
 render-timeout-ms = 2000
 preprocess-timeout-ms = 500
+# Bound concurrent blocking renders (PLAN-memory-reduction phase 4,
+# intervention 6). 8 is about the CPU quota of the small-node target with room
+# for the default render-ahead concurrency to queue rather than fail. A timed
+# out render keeps its slot until the blocking thread finishes. The queue wait
+# is outside the render timeout, so queueing never changes which pages hit the
+# Wikidot-compatible render timeout.
+render-concurrency = 8
+render-queue-timeout-ms = 30000
 rerender-skip = [
     { job-depth = 3, last-update-ms = 100 },
     { job-depth = 10, last-update-ms = 1500 },

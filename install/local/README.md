@@ -12,6 +12,43 @@ There are two important things to note about the local tier:
 
 See `docs/development.md` for more information on local deployments.
 
+## Memory on a shared workstation
+
+The local tier is not the deployment target, but on a workstation that runs
+several stacks and agent lanes at once it is the tier whose memory is worth
+watching (`docs/agents/compatibility/execution.md` describes the host memory
+guard that kills the largest process under pressure). Two settings matter:
+
+* **`FRAMERAIL_MODE`** (default `dev`) selects the Framerail entry point.
+  `dev` runs the Vite dev server, which watches and recompiles the frontend;
+  `built` runs `pnpm build` once at container start and then the much lighter
+  `node server.ts`. Use `FRAMERAIL_MODE=built` for any work that does not
+  iterate on Framerail source, for example Deepwell, WWS, corpus, or
+  verification runs:
+  ```sh
+  FRAMERAIL_MODE=built install/local/deploy.py up
+  ```
+  Switch back to `dev` (or unset it) when editing the frontend, and expect the
+  one-off `pnpm build` startup peak when the container starts in `built` mode.
+* **`CARGO_BUILD_JOBS`** (default `2`) bounds the rustc processes inside the
+  `deepwell` and `wws` containers. Keep it at 2 on a shared workstation: the
+  build peaks, not steady serving, dominate this tier's memory, and every lane
+  on the box shares the same CPU and memory budget. Raise it only when the
+  workstation is otherwise idle.
+
+The same reasoning is why `MALLOC_ARENA_MAX=2` and a modest
+`TOKIO_WORKER_THREADS` are set in `docker-compose.yaml` for the Rust services:
+glibc arenas and Tokio workers otherwise scale with the host's core count.
+
+`scripts/measure-stack-memory.sh` prints the per-service memory numbers for a
+running Compose project (cgroup current/peak, PSS, the Valkey key census, and
+PostgreSQL connection counts). It only reads, so it is safe to run against a
+stack other work is using:
+
+```sh
+scripts/measure-stack-memory.sh --project wikijump-local-development
+```
+
 For prebuilt/no-dev lab runtimes that still contain `cargo-watch`, use
 `deepwell_hot_reload.py` to copy a Deepwell candidate into the running
 container without rebuilding its image. The guarded workflow and its

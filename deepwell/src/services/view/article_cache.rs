@@ -38,6 +38,16 @@ use time::OffsetDateTime;
 
 const ARTICLE_VIEW_PAGE_CACHE_PREFIX: &str = "deepwell:article-view:page";
 
+/// Expiry for anonymous article-view cache entries.
+///
+/// The key embeds the renderer epoch, the revision, the public-content fence,
+/// and the permission fence, so every site write, permission change,
+/// re-render, and renderer promotion makes the previous entry unreachable but
+/// still resident. Without an expiry the cache grows for the life of the
+/// volume. The TTL only shortens how long an entry may be served; the fence
+/// keys still decide what is current, so it cannot cause stale content.
+const ARTICLE_VIEW_PAGE_CACHE_TTL_SECONDS: u64 = 60 * 60;
+
 pub(super) struct ArticlePageCache;
 
 pub(super) struct ArticlePageCacheMetadata {
@@ -265,7 +275,11 @@ impl ArticlePageCache {
         })?;
         let mut redis = ctx.redis();
         redis
-            .set::<_, _, ()>(cache_key, serialized)
+            .set_ex::<_, _, ()>(
+                cache_key,
+                serialized,
+                ARTICLE_VIEW_PAGE_CACHE_TTL_SECONDS,
+            )
             .await
             .or_raise(|| {
                 Error::new(

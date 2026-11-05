@@ -398,7 +398,13 @@ impl ViewService {
         ) && page.from_wikidot
             && !matches!(redirect_kind, Some(PageRedirectKind::RandomHelper))
         {
-            ArticlePageCache::set(ctx, cache_key, &page_view).await?;
+            // A cache write is an optimization: when it fails, serve the
+            // view we already generated instead of failing the request. This
+            // also makes a full cache (Valkey `noeviction` at `maxmemory`)
+            // degrade to a cache miss rather than an error.
+            if let Err(error) = ArticlePageCache::set(ctx, cache_key, &page_view).await {
+                warn!("Failed to cache anonymous article view: {error}");
+            }
         }
 
         Self::refresh_rate_widget_score(ctx, &mut page_view).await?;

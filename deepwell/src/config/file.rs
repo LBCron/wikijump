@@ -76,6 +76,21 @@ struct Database {
     seeder_path: PathBuf,
     #[serde(default = "default_true")]
     sqlx_logging: bool,
+    #[serde(default = "default_database_max_connections")]
+    max_connections: u32,
+    #[serde(default = "default_database_statement_cache_capacity")]
+    statement_cache_capacity: u32,
+    /// 0 disables the connection lifetime limit.
+    #[serde(default)]
+    max_lifetime_secs: u64,
+}
+
+fn default_database_max_connections() -> u32 {
+    100
+}
+
+fn default_database_statement_cache_capacity() -> u32 {
+    100
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -146,6 +161,22 @@ struct Ftml {
     render_timeout_ms: u64,
     rerender_skip: Vec<RerenderSkip>,
     layout: FtmlLayout,
+    /// Maximum number of blocking renders in flight. 512 is the Tokio
+    /// blocking-pool default and therefore the behavior before the cap.
+    #[serde(default = "default_render_concurrency")]
+    render_concurrency: usize,
+    /// How long a request may wait for a render slot before it fails with a
+    /// retryable capacity error. This wait is outside the render timeout.
+    #[serde(default = "default_render_queue_timeout_ms")]
+    render_queue_timeout_ms: u64,
+}
+
+fn default_render_concurrency() -> usize {
+    512
+}
+
+fn default_render_queue_timeout_ms() -> u64 {
+    30_000
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -266,6 +297,9 @@ impl ConfigFile {
                     run_seeder,
                     seeder_path,
                     sqlx_logging,
+                    max_connections: database_max_connections,
+                    statement_cache_capacity: database_statement_cache_capacity,
+                    max_lifetime_secs: database_max_lifetime_secs,
                 },
             security:
                 Security {
@@ -313,6 +347,8 @@ impl ConfigFile {
                     preprocess_timeout_ms,
                     render_timeout_ms,
                     rerender_skip,
+                    render_concurrency,
+                    render_queue_timeout_ms,
                     layout:
                         FtmlLayout {
                             messages: message_layout,
@@ -415,6 +451,13 @@ impl ConfigFile {
             run_seeder,
             seeder_path,
             sqlx_logging,
+            database_max_connections,
+            database_statement_cache_capacity,
+            database_max_lifetime: if database_max_lifetime_secs == 0 {
+                None
+            } else {
+                Some(StdDuration::from_secs(database_max_lifetime_secs))
+            },
             localization_path,
             authentication_fail_delay: StdDuration::from_millis(
                 authentication_fail_delay_ms,
@@ -448,6 +491,8 @@ impl ConfigFile {
             ),
             preprocess_timeout: StdDuration::from_millis(preprocess_timeout_ms),
             render_timeout: StdDuration::from_millis(render_timeout_ms),
+            render_concurrency,
+            render_queue_timeout: StdDuration::from_millis(render_queue_timeout_ms),
             rerender_skip: rerender_skip
                 .iter()
                 .map(
@@ -567,6 +612,9 @@ mod tests {
                 run_seeder: true,
                 seeder_path: PathBuf::from("seeder"),
                 sqlx_logging: true,
+                max_connections: 100,
+                statement_cache_capacity: 100,
+                max_lifetime_secs: 0,
             },
             security: Security {
                 authentication_fail_delay_ms: 250,
@@ -607,6 +655,8 @@ mod tests {
             ftml: Ftml {
                 preprocess_timeout_ms: 1_000,
                 render_timeout_ms: 9_000,
+                render_concurrency: 512,
+                render_queue_timeout_ms: 30_000,
                 rerender_skip: vec![
                     RerenderSkip {
                         job_depth: 2,
@@ -777,6 +827,62 @@ mod tests {
         assert_ne!(toml, false_toml);
         let false_config: ConfigFile = toml::from_str(&false_toml).unwrap();
         assert!(!false_config.database.sqlx_logging);
+    }
+
+    #[test]
+    fn ftml_render_cap_defaults_and_parses() {
+        let toml = toml::to_string(&sample_config_file()).unwrap();
+
+        let absent_toml = toml
+            .replace("render-concurrency = 512\n", "")
+            .replace("render-queue-timeout-ms = 30000\n", "");
+        let absent_config: ConfigFile = toml::from_str(&absent_toml).unwrap();
+        assert_eq!(absent_config.ftml.render_concurrency, 512);
+        assert_eq!(absent_config.ftml.render_queue_timeout_ms, 30_000);
+
+        let parsed_toml = toml
+            .replace("render-concurrency = 512", "render-concurrency = 8")
+            .replace(
+                "render-queue-timeout-ms = 30000",
+                "render-queue-timeout-ms = 10000",
+            );
+        let parsed_config: ConfigFile = toml::from_str(&parsed_toml).unwrap();
+        let config = parsed_config.into_config(extra_config());
+        assert_eq!(config.render_concurrency, 8);
+        assert_eq!(
+            config.render_queue_timeout,
+            StdDuration::from_millis(10_000),
+        );
+    }
+
+    #[test]
+    fn database_pool_settings_default_and_parse() {
+        let toml = toml::to_string(&sample_config_file()).unwrap();
+
+        let absent_toml = toml
+            .replace("max-connections = 100\n", "")
+            .replace("statement-cache-capacity = 100\n", "")
+            .replace("max-lifetime-secs = 0\n", "");
+        let absent_config: ConfigFile = toml::from_str(&absent_toml).unwrap();
+        assert_eq!(absent_config.database.max_connections, 100);
+        assert_eq!(absent_config.database.statement_cache_capacity, 100);
+        assert_eq!(absent_config.database.max_lifetime_secs, 0);
+
+        let parsed_toml = toml
+            .replace("max-connections = 100", "max-connections = 16")
+            .replace(
+                "statement-cache-capacity = 100",
+                "statement-cache-capacity = 32",
+            )
+            .replace("max-lifetime-secs = 0", "max-lifetime-secs = 1800");
+        let parsed_config: ConfigFile = toml::from_str(&parsed_toml).unwrap();
+        let config = parsed_config.into_config(extra_config());
+        assert_eq!(config.database_max_connections, 16);
+        assert_eq!(config.database_statement_cache_capacity, 32);
+        assert_eq!(
+            config.database_max_lifetime,
+            Some(StdDuration::from_secs(1800)),
+        );
     }
 
     #[test]

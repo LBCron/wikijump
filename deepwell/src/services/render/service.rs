@@ -184,7 +184,7 @@ use std::ops::Range;
 use std::pin::Pin;
 use std::sync::LazyLock;
 use std::time::Instant;
-use tokio::sync::oneshot;
+use tokio::sync::{OwnedSemaphorePermit, oneshot};
 use tokio::task;
 use tokio::time::timeout;
 
@@ -694,6 +694,33 @@ static WIKIDOT_LOCAL_FILE_CSS_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 
 impl RenderService {
+    /// Take a render slot before starting a blocking render.
+    ///
+    /// The permit is moved into the blocking closure, so a render abandoned
+    /// after its timeout keeps holding the slot until the thread really
+    /// finishes: the cap counts abandoned renders too, and the memory peak is
+    /// bounded by the number of slots rather than by the number of requests.
+    /// Waiting for a slot happens before the render-timeout clock starts; a
+    /// wait that runs out is a retryable capacity error, not the
+    /// Wikidot-compatible render-timeout fallback.
+    async fn acquire_render_permit(
+        ctx: &ServiceContext<'_>,
+    ) -> Result<OwnedSemaphorePermit> {
+        let state = ctx.state();
+        let wait = ctx.config().render_queue_timeout;
+        timeout(wait, state.render_permits.clone().acquire_owned())
+            .await
+            .or_raise(|| {
+                Error::new(
+                    "timed out waiting for a free wikitext render slot",
+                    ErrorType::RenderBusy,
+                )
+            })?
+            .or_raise(|| {
+                Error::new("wikitext render slot semaphore closed", ErrorType::Render)
+            })
+    }
+
     fn owned_page_info(page_info: &PageInfo<'_>) -> PageInfo<'static> {
         PageInfo {
             page: Cow::Owned(page_info.page.to_string()),
@@ -2288,10 +2315,12 @@ impl RenderService {
         let parse_worker_trace = worker_trace.clone();
         let parser_page_info = render_page_info.clone();
         let parse_settings = render_settings.clone();
+        let parse_permit = Self::acquire_render_permit(ctx).await?;
         let parse_queued_at = parse_worker_trace.as_ref().map(|_| Instant::now());
         let parse_started = Instant::now();
         let (parse_tx, mut parse_rx) = oneshot::channel();
         task::spawn_blocking(move || {
+            let _permit = parse_permit;
             let trace = parse_worker_trace
                 .as_ref()
                 .map(|(trace, scope)| (trace, *scope));
@@ -2369,8 +2398,10 @@ impl RenderService {
                 }
             }
         };
+        let render_permit = Self::acquire_render_permit(ctx).await?;
         let render_queued_at = worker_trace.as_ref().map(|_| Instant::now());
         let render_task = task::spawn_blocking(move || {
+            let _permit = render_permit;
             let trace = worker_trace.as_ref().map(|(trace, scope)| (trace, *scope));
             if let (Some((trace, scope)), Some(queued_at)) = (trace, render_queued_at) {
                 trace.record_elapsed(scope, CorpusRenderStage::WorkerQueue, queued_at);
@@ -2569,9 +2600,11 @@ impl RenderService {
             })?
             .or_raise(|| Error::new("failed to join render task", ErrorType::Render))?;
 
+        let embed_video_permit = Self::acquire_render_permit(ctx).await?;
         let (mut html_output, embed_video_resolved) = timeout(
             render_timeout,
             task::spawn_blocking(move || {
+                let _permit = embed_video_permit;
                 let mut html_output = html_output;
                 let resolved =
                     Self::resolve_wikidot_embed_video_requirements(&mut html_output);

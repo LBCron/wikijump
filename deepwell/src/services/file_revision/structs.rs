@@ -51,16 +51,12 @@ pub struct FileBlob {
     pub size: i64,
     pub mime: String,
     pub content_type: Option<ContentTypeDescriptor>,
-    pub blob_created: bool,
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
 pub struct CreateFileRevisionOutput {
     pub file_revision_id: i64,
     pub file_revision_number: i32,
-
-    #[serde(default, skip_serializing_if = "Maybe::is_unset")]
-    pub blob_created: Maybe<bool>,
 }
 
 #[derive(Debug, Clone)]
@@ -74,7 +70,6 @@ pub struct CreateFirstFileRevision {
     pub size: i64,
     pub mime: String,
     pub content_type: Option<ContentTypeDescriptor>,
-    pub blob_created: bool,
     pub revision_comments: String,
 }
 
@@ -82,7 +77,6 @@ pub struct CreateFirstFileRevision {
 pub struct CreateFirstFileRevisionOutput {
     pub file_id: i64,
     pub file_revision_id: i64,
-    pub blob_created: bool,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -190,3 +184,39 @@ pub struct PageFileRevisionHistoryOutput {
 }
 
 pub type FileRevisionCountOutput = PageRevisionCountOutput;
+
+#[cfg(test)]
+mod tests {
+    use super::{CreateFileRevisionOutput, CreateFirstFileRevisionOutput};
+    use serde_json::json;
+
+    #[test]
+    fn file_revision_outputs_expose_no_dedup_flag() {
+        let first = serde_json::to_value(CreateFirstFileRevisionOutput {
+            file_id: 1,
+            file_revision_id: 2,
+        })
+        .expect("output serializes");
+        assert_eq!(first, json!({"file_id": 1, "file_revision_id": 2}),);
+
+        let revision = serde_json::to_value(CreateFileRevisionOutput {
+            file_revision_id: 2,
+            file_revision_number: 1,
+        })
+        .expect("output serializes");
+        assert_eq!(
+            revision,
+            json!({"file_revision_id": 2, "file_revision_number": 1}),
+        );
+
+        for value in [&first, &revision] {
+            assert!(
+                !value
+                    .as_object()
+                    .expect("output is an object")
+                    .contains_key("blob_created"),
+                "dedup flag must stay out of responses: {value}",
+            );
+        }
+    }
+}

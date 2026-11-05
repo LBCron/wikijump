@@ -1643,7 +1643,6 @@ impl ImportService {
                             size,
                             mime,
                             content_type: Some(content_type),
-                            blob_created,
                         }),
                         ..Default::default()
                     },
@@ -1746,7 +1745,6 @@ impl ImportService {
                 size: staged.size,
                 mime: staged.mime,
                 content_type: Some(staged.content_type),
-                blob_created: staged.created,
                 revision_comments,
             },
         )

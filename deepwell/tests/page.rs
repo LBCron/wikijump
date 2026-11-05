@@ -22590,7 +22590,6 @@ async fn create_file_fixture_with_mime(
                 label: mime.to_owned(),
                 description: mime.to_owned(),
             }),
-            blob_created: false,
             revision_comments: "create file fixture".to_owned(),
         },
     )
@@ -22650,7 +22649,6 @@ async fn insert_file_fixture_with_descriptor(
             size,
             mime: "image/jpeg".to_owned(),
             content_type,
-            blob_created: false,
             revision_comments: "create descriptor file fixture".to_owned(),
         },
     )

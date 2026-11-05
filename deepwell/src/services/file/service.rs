@@ -108,7 +108,7 @@ impl FileService {
             mime,
             size,
             content_type,
-            created: blob_created,
+            created: _,
         } = match direct_upload {
             None => BlobService::finish_page_upload(
                 ctx,
@@ -155,7 +155,6 @@ impl FileService {
                 size,
                 mime,
                 content_type: Some(content_type),
-                blob_created,
                 revision_comments,
             },
         )
@@ -261,7 +260,7 @@ impl FileService {
                     mime,
                     size,
                     content_type,
-                    created: blob_created,
+                    created: _,
                 } = match direct_upload {
                     Maybe::Unset => BlobService::finish_page_upload(
                         ctx, user_id, site_id, page_id, id,
@@ -278,7 +277,6 @@ impl FileService {
                     mime,
                     size,
                     content_type: Some(content_type),
-                    blob_created,
                 })
             }
         };
@@ -726,7 +724,6 @@ impl FileService {
                     (None, None) => None,
                     _ => unreachable!("file revision descriptor columns are paired"),
                 },
-                blob_created: false,
             })
         };
 

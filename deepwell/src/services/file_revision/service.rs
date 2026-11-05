@@ -87,7 +87,6 @@ impl FileRevisionService {
         );
 
         let mut changes = Vec::new();
-        let mut blob_created = Maybe::Unset;
         let FileRevisionModel {
             mut name,
             mut s3_hash,
@@ -138,7 +137,6 @@ impl FileRevisionService {
             content_type_description = new_blob
                 .content_type
                 .map(|descriptor| descriptor.description);
-            blob_created = Maybe::Set(new_blob.blob_created);
         }
 
         if changes.is_empty() {
@@ -202,7 +200,6 @@ impl FileRevisionService {
         Ok(Some(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
-            blob_created,
         }))
     }
 
@@ -218,7 +215,6 @@ impl FileRevisionService {
             size,
             mime,
             content_type,
-            blob_created,
             revision_comments,
         }: CreateFirstFileRevision,
     ) -> Result<CreateFirstFileRevisionOutput> {
@@ -282,7 +278,6 @@ impl FileRevisionService {
         Ok(CreateFirstFileRevisionOutput {
             file_id,
             file_revision_id: revision_id,
-            blob_created,
         })
     }
 
@@ -372,7 +367,6 @@ impl FileRevisionService {
         Ok(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
-            blob_created: Maybe::Unset,
         })
     }
 
@@ -470,7 +464,6 @@ impl FileRevisionService {
         Ok(CreateFileRevisionOutput {
             file_revision_id: revision_id,
             file_revision_number: revision_number,
-            blob_created: Maybe::Unset,
         })
     }
 

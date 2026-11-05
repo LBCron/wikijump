@@ -1168,7 +1168,8 @@ pub async fn page_get_direct(
     match page {
         None => Ok(None),
         Some(page) => {
-            match direct_page_gate(page.site_id, site_id, page.deleted_at.is_some()) {
+            let gate = direct_page_gate(page.site_id, site_id, page.deleted_at.is_some());
+            match gate {
                 DirectPageGate::Show => {}
                 DirectPageGate::Hide => return Ok(None),
                 DirectPageGate::RequireDeletePermission => {
@@ -1221,6 +1222,23 @@ pub async fn page_get_direct(
                     ErrorType::PermissionDenied,
                 )
                 .into());
+            }
+            if gate == DirectPageGate::Show {
+                let can_view = PermissionService::check_user_can_view_page(
+                    ctx,
+                    ctx.request().user_id,
+                    &page,
+                )
+                .await
+                .or_raise(|| {
+                    Error::new(
+                        "failed to check page view permission",
+                        ErrorType::Permission,
+                    )
+                })?;
+                if !can_view {
+                    return Ok(None);
+                }
             }
             build_page_output(ctx, page, details)
                 .await

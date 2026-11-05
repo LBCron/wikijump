@@ -22,6 +22,7 @@
     type PageLayoutContext
   } from "$lib/layout/page-layout-context"
   import { resolveShellLayout, sideBarHasCloseMenu } from "$lib/layout/wikidot-shell"
+  import { shouldRenderManageSiteTakeover } from "$lib/wikidot/manage-site-takeover"
   import {
     resolveCanonicalViewData,
     resolveCanonicalViewMetadata
@@ -51,6 +52,7 @@
     installWikidotHovertips
   } from "$lib/wikidot/wikidot-hovertips"
   import { installWikidotOdates } from "$lib/wikidot/wikidot-odates"
+  import ManageSitePanel from "$lib/wikidot/ManageSitePanel.svelte"
   import WikidotBottomToolbar from "$lib/wikidot/WikidotBottomToolbar.svelte"
   import WikidotLoginDialog from "$lib/wikidot/WikidotLoginDialog.svelte"
   import {
@@ -136,8 +138,12 @@
     })
   )
   const isImportedWikidotLayout = $derived(isImportedWikidotView(viewData))
+  const manageSiteTakeover = $derived(
+    shouldRenderManageSiteTakeover(currentLayout, viewData)
+  )
   const documentTitle = $derived.by(() => {
     const siteName = viewData?.site?.name ?? ""
+    if (manageSiteTakeover) return siteName
     const pageTitle = viewData?.page_revision?.title
     if (page.route.id !== "/[slug]/[...extra]" || !pageTitle) return siteName
     const separator = isImportedWikidotLayout ? " - " : " | "
@@ -338,6 +344,14 @@
 
 {#if isPrinterFriendlyView}
   {@render children?.()}
+{:else if manageSiteTakeover}
+  <ManageSitePanel
+    siteName={viewData?.site?.name ?? ""}
+    body={viewData?.compiled_body_html ?? ""}
+    loginLabels={wikidotLoginLabels}
+    accountLabels={wikidotAccountLabels}
+    sessionUserName={wikidotSessionUserName}
+  />
 {:else if currentLayout === Layout.WIKIDOT}
   {#if showTopToolbar}
     <div id="navi-bar">

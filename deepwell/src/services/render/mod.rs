@@ -138,6 +138,9 @@ pub use self::site_changes_feed::{
     SITE_CHANGES_FEED_ITEM_LIMIT, WikidotSiteChangesFeedItem,
     WikidotSiteChangesFeedOutput, wikidot_site_changes_change_type,
 };
+pub(crate) use self::site_utility_modules::{
+    render_manage_site_page_html, wikitext_has_manage_site_page_takeover,
+};
 pub use self::sitemap::{
     AnonymousViewer, SITEMAP_ENTRIES_PER_SHARD, WikidotSitemapEntry, WikidotSitemapOutput,
 };

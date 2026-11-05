@@ -1357,6 +1357,7 @@ impl RenderService {
             settings,
             options.url,
             &search_all_accessible_name,
+            options.page_preview,
             compat_html,
         );
         wikitext = Self::expand_simpletodo_modules(wikitext, settings, compat_html);
@@ -1420,7 +1421,6 @@ impl RenderService {
                     settings,
                     PageCalendarExpansionOptions {
                         current_site_id: options.current_site_id,
-                        current_page_id: options.current_page_id,
                         url: options.url,
                     },
                     compat_html,
@@ -1451,7 +1451,6 @@ impl RenderService {
                 settings,
                 TagCloudExpansionOptions {
                     current_site_id: options.current_site_id,
-                    current_page_id: options.current_page_id,
                 },
                 compat_text,
                 compat_html,
@@ -1876,6 +1875,7 @@ mod localized_module_accessible_name_tests {
             &settings,
             UrlArguments::default(),
             &search_all_name,
+            false,
             &mut compat_html,
         );
         let search_all_html = compat_html.restore(&expanded);

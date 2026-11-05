@@ -23,7 +23,6 @@ const TAG_CLOUD_COLOR_ERROR: &str = "Unsupported color format. Use \"RRR,GGG,BBB
 #[derive(Clone, Copy, Debug)]
 pub(super) struct TagCloudExpansionOptions {
     pub(super) current_site_id: Option<i64>,
-    pub(super) current_page_id: Option<i64>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -424,9 +423,7 @@ impl RenderService {
             return Ok(wikitext);
         }
 
-        let (Some(current_site_id), Some(current_page_id)) =
-            (options.current_site_id, options.current_page_id)
-        else {
+        let Some(current_site_id) = options.current_site_id else {
             return Ok(wikitext);
         };
 
@@ -461,7 +458,6 @@ impl RenderService {
             let tags = Self::load_tag_cloud_counts(
                 ctx,
                 current_site_id,
-                current_page_id,
                 current_branch_tag,
                 arguments.category.as_deref(),
             )
@@ -482,7 +478,6 @@ impl RenderService {
     async fn load_tag_cloud_counts(
         ctx: &ServiceContext<'_>,
         current_site_id: i64,
-        _current_page_id: i64,
         current_branch_tag: Option<&str>,
         category: Option<&str>,
     ) -> Result<Vec<(String, usize)>> {

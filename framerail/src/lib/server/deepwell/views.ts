@@ -159,6 +159,7 @@ interface PageViewFound {
     membership_actions: MembershipBrowserAction[]
     theme_previewer_no_ui?: boolean
     theme_previewer_blank?: boolean
+    manage_site_takeover?: boolean
     meta_tags: PageMetaTagView[]
   }
 }

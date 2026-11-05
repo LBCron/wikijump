@@ -53,7 +53,6 @@ struct PageCalendarArguments {
 #[derive(Clone, Copy, Debug)]
 pub(super) struct PageCalendarExpansionOptions<'a> {
     pub(super) current_site_id: Option<i64>,
-    pub(super) current_page_id: Option<i64>,
     pub(super) url: UrlArguments<'a>,
 }
 
@@ -360,9 +359,7 @@ impl RenderService {
             return Ok(wikitext);
         }
 
-        let (Some(current_site_id), Some(current_page_id)) =
-            (options.current_site_id, options.current_page_id)
-        else {
+        let Some(current_site_id) = options.current_site_id else {
             return Ok(wikitext);
         };
 
@@ -397,7 +394,6 @@ impl RenderService {
                     Self::load_page_calendar_counts(
                         ctx,
                         current_site_id,
-                        current_page_id,
                         current_branch_tag,
                         &arguments.categories,
                     )
@@ -428,7 +424,6 @@ impl RenderService {
     async fn load_page_calendar_counts(
         ctx: &ServiceContext<'_>,
         current_site_id: i64,
-        _current_page_id: i64,
         current_branch_tag: Option<&str>,
         categories: &PageCalendarCategorySelector,
     ) -> Result<Option<BTreeMap<i32, BTreeMap<u8, usize>>>> {

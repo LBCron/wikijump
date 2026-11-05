@@ -1566,6 +1566,7 @@ impl RenderService {
             settings,
             (current_site_id, current_page_id),
             viewer_user_id,
+            page_preview,
             &mut wikidot_compat_html,
         )
         .await

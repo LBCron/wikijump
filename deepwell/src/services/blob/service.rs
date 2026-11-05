@@ -1106,13 +1106,15 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<Vec<u8>>> {
+        let hash = Self::checked_blob_hash(hash)?;
+
         if hash == EMPTY_BLOB_HASH {
             debug!("Returning the empty blob");
             return Ok(Some(Vec::new()));
         }
 
         let bucket = ctx.s3_files_bucket();
-        let hex_hash = blob_hash_to_hex(hash);
+        let hex_hash = blob_hash_to_hex(&hash);
         let response = bucket
             .get_object(&hex_hash)
             .await
@@ -1134,7 +1136,8 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<Option<BlobMetadata>> {
-        let hex_hash = blob_hash_to_hex(hash);
+        let hash = Self::checked_blob_hash(hash)?;
+        let hex_hash = blob_hash_to_hex(&hash);
         let make_error = || {
             Error::new(
                 format!("failed to get blob metadata for '{}'", hex_hash),
@@ -1309,20 +1312,23 @@ impl BlobService {
         ctx: &ServiceContext<'_>,
         hash: &[u8],
     ) -> Result<bool> {
-        let hex_hash = blob_hash_to_hex(hash);
+        let hash = Self::checked_blob_hash(hash)?;
+        let hex_hash = blob_hash_to_hex(&hash);
         Self::exists(ctx, &hex_hash)
             .await
             .or_raise(|| Error::new("failed to check blob existence", ErrorType::Blob))
     }
 
     pub async fn hard_delete(ctx: &ServiceContext<'_>, hash: &[u8]) -> Result<()> {
+        let hash = Self::checked_blob_hash(hash)?;
+
         if hash == EMPTY_BLOB_HASH {
             debug!("Ignoring attempt to hard delete the empty blob");
             return Ok(());
         }
 
         let bucket = ctx.s3_files_bucket();
-        let hex_hash = blob_hash_to_hex(hash);
+        let hex_hash = blob_hash_to_hex(&hash);
 
         let response = bucket
             .delete_object(&hex_hash)
@@ -1410,5 +1416,37 @@ impl<T: Hash + Ord + Eq> SamplerCounter<T> {
         };
 
         (count, samples)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::BlobService;
+    use crate::error::ErrorType;
+    use crate::hash::BLOB_HASH_LENGTH;
+
+    #[test]
+    fn checked_blob_hash_accepts_exact_length_hash() {
+        let bytes = hex::decode("ab".repeat(BLOB_HASH_LENGTH)).expect("valid hex");
+        let hash = BlobService::checked_blob_hash(&bytes).expect("64-byte hash is valid");
+
+        assert_eq!(hash.as_slice(), bytes.as_slice());
+    }
+
+    #[test]
+    fn checked_blob_hash_rejects_wrong_length_hashes() {
+        for len in [0, 1, 48, 63, 65, 128] {
+            let bytes = vec![0xab; len];
+            let error =
+                BlobService::checked_blob_hash(&bytes).expect_err("must reject length");
+
+            assert_eq!(error.error_type, ErrorType::BadRequest);
+            assert_eq!(
+                error.message,
+                format!(
+                    "blob hash must be {BLOB_HASH_LENGTH} bytes, but got {len} bytes",
+                ),
+            );
+        }
     }
 }

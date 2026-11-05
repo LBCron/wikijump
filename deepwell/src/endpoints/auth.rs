@@ -134,6 +134,12 @@ pub async fn auth_session_get_others(
         .await
         .or_raise(make_error)?;
 
+    // Restricted (pre-MFA) sessions authenticate nothing except MFA completion,
+    // so they can neither satisfy the membership check below nor appear in the
+    // output. A restricted presenting token lands on the uniform 3001 with no
+    // disclosure, matching session_get (restricted reads as null).
+    sessions.retain(|session| !session.restricted);
+
     let current = match sessions
         .iter()
         .position(|session| session.session_token == session_token)

@@ -195,8 +195,6 @@ impl LinkService {
         page_slug: &str,
         connection_types: Option<&[ConnectionType]>,
     ) -> Result<GetLinksToMissingOutput> {
-        let txn = ctx.transaction();
-
         let make_error = || {
             Error::new(
                 match connection_types {
@@ -230,6 +228,33 @@ impl LinkService {
                 ErrorType::PageLink
             ));
         }
+
+        Self::get_to_missing_rows(ctx, site_id, page_slug, connection_types).await
+    }
+
+    pub async fn get_to_missing_rows(
+        ctx: &ServiceContext<'_>,
+        site_id: i64,
+        page_slug: &str,
+        connection_types: Option<&[ConnectionType]>,
+    ) -> Result<GetLinksToMissingOutput> {
+        let txn = ctx.transaction();
+
+        let make_error = || {
+            Error::new(
+                match connection_types {
+                    Some(ctypes) => format!(
+                        "failed to get connections to missing site ID {} page '{}' (connection types {:?}",
+                        site_id, page_slug, ctypes,
+                    ),
+                    None => format!(
+                        "failed to get connections to missing site ID {} page '{}'  (all connection types)",
+                        site_id, page_slug,
+                    ),
+                },
+                ErrorType::PageLink,
+            )
+        };
 
         let connections = PageConnectionMissing::find()
             .filter(

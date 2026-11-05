@@ -334,7 +334,6 @@ async fn create_listpages_file_fixture(
             size: 0,
             mime: mime.to_owned(),
             content_type: None,
-            blob_created: false,
             revision_comments: "create ListPages file fixture".to_owned(),
         },
     )

@@ -830,7 +830,6 @@ async fn insert_local_origin_file(
             size: 0,
             mime: "text/plain".to_owned(),
             content_type: None,
-            blob_created: false,
             revision_comments: "local fixture, not source data".to_owned(),
         },
     )

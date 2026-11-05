@@ -183,7 +183,7 @@ test("public file upload commits the pending blob without returning the File obj
       }
     }
     if (method === "file_create") {
-      return { file_id: 1062, file_revision_id: 1063, blob_created: true }
+      return { file_id: 1062, file_revision_id: 1063 }
     }
     throw new Error(`Unexpected Deepwell method ${method}`)
   }

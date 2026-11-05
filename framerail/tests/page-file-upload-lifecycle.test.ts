@@ -170,7 +170,7 @@ test("page file create cancels after PUT failure but not before pending creation
 
 test("page file create leaves a successful committed upload alone", async (t) => {
   const calls: any[] = []
-  const expected = { file_id: 31, file_revision_id: 37, blob_created: true }
+  const expected = { file_id: 31, file_revision_id: 37 }
   const request = async (method: any, params: any, context: any) => {
     calls.push({ method, params, context })
     if (method === "page_edit_permission") return { can_edit: true }

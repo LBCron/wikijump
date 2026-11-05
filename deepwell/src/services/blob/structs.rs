@@ -64,6 +64,7 @@ pub struct FinalizeBlobUploadOutput {
     pub mime: String,
     pub size: i64,
     pub content_type: ContentTypeDescriptor,
+    // Internal only: never return to callers (dedup existence oracle).
     pub created: bool,
 }
 

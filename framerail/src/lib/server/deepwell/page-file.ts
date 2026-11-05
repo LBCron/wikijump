@@ -81,7 +81,6 @@ export async function pageFileGet(
 interface PageFileCreate {
   file_id: number
   file_revision_id: number
-  blob_created: boolean
 }
 export interface PageFileCreateInput {
   siteId: number

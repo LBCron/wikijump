@@ -447,6 +447,177 @@ async fn parent_get_all_enforces_child_and_parent_view_permissions() {
 }
 
 #[tokio::test]
+async fn child_get_all_enforces_parent_and_child_view_permissions() {
+    const SITE_SLUG: &str = "scp-wiki";
+    const PRIVATE_PARENT_SLUG: &str = "fixture-parent-read-private:children-parent";
+    const PRIVATE_CHILD_SLUG: &str = "fixture-parent-read-private:children-child";
+    const PUBLIC_PARENT_SLUG: &str = "fixture-parent-children-public-parent";
+    const PUBLIC_CHILD_SLUG: &str = "fixture-parent-children-public-child";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    grant_private_parent_view_role(runner.context(), site_id).await;
+    let private_parent_id =
+        create_parent_auth_page(&mut runner, site_id, PRIVATE_PARENT_SLUG).await;
+    let private_child_id =
+        create_parent_auth_page(&mut runner, site_id, PRIVATE_CHILD_SLUG).await;
+    let public_parent_id =
+        create_parent_auth_page(&mut runner, site_id, PUBLIC_PARENT_SLUG).await;
+    let public_child_id =
+        create_parent_auth_page(&mut runner, site_id, PUBLIC_CHILD_SLUG).await;
+
+    insert_parent_relationship(&runner, private_parent_id, private_child_id).await;
+    insert_parent_relationship(&runner, public_parent_id, private_child_id).await;
+    insert_parent_relationship(&runner, public_parent_id, public_child_id).await;
+
+    for page in [json!(private_parent_id), json!(PRIVATE_PARENT_SLUG)] {
+        runner.set_request_context(RequestContext::default());
+        let error = run_endpoint_err!(
+            runner,
+            child_get_all,
+            json!({
+                "site_id": site_id,
+                "page": page,
+            }),
+        );
+        assert_contains_error!(error, ErrorType::PermissionDenied);
+    }
+
+    runner.set_request_context(RequestContext::default());
+    let anonymous_children = run_endpoint!(
+        runner,
+        child_get_all,
+        json!({
+            "site_id": site_id,
+            "page": public_parent_id,
+        }),
+    );
+    assert_eq!(anonymous_children.len(), 1);
+    assert_eq!(anonymous_children[0].slug, PUBLIC_CHILD_SLUG);
+    assert_eq!(anonymous_children[0].title, PUBLIC_CHILD_SLUG);
+    assert_eq!(anonymous_children[0].page_id, public_child_id);
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Id(public_parent_id)),
+    });
+    let mut admin_children = run_endpoint!(
+        runner,
+        child_get_all,
+        json!({
+            "site_id": site_id,
+            "page": public_parent_id,
+        }),
+    );
+    admin_children.sort_by(|left, right| left.slug.cmp(&right.slug));
+    let admin_slugs = admin_children
+        .iter()
+        .map(|child| child.slug.clone())
+        .collect::<Vec<_>>();
+    assert_eq!(
+        admin_slugs,
+        [PUBLIC_CHILD_SLUG.to_owned(), PRIVATE_CHILD_SLUG.to_owned(),],
+    );
+}
+
+#[tokio::test]
+async fn parent_trace_enforces_start_and_ancestor_view_permissions() {
+    const SITE_SLUG: &str = "scp-wiki";
+    const PRIVATE_MID_SLUG: &str = "fixture-parent-read-private:trace-mid";
+    const PUBLIC_TOP_SLUG: &str = "fixture-parent-trace-public-top";
+    const PUBLIC_KID_SLUG: &str = "fixture-parent-trace-public-kid";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": SITE_SLUG}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    grant_private_parent_view_role(runner.context(), site_id).await;
+    let private_mid_id =
+        create_parent_auth_page(&mut runner, site_id, PRIVATE_MID_SLUG).await;
+    let public_top_id =
+        create_parent_auth_page(&mut runner, site_id, PUBLIC_TOP_SLUG).await;
+    let public_kid_id =
+        create_parent_auth_page(&mut runner, site_id, PUBLIC_KID_SLUG).await;
+
+    insert_parent_relationship(&runner, public_top_id, private_mid_id).await;
+    insert_parent_relationship(&runner, private_mid_id, public_kid_id).await;
+
+    for page in [json!(private_mid_id), json!(PRIVATE_MID_SLUG)] {
+        runner.set_request_context(RequestContext::default());
+        let error = run_endpoint_err!(
+            runner,
+            parent_trace,
+            json!({
+                "site_id": site_id,
+                "page": page,
+            }),
+        );
+        assert_contains_error!(error, ErrorType::PermissionDenied);
+    }
+
+    runner.set_request_context(RequestContext::default());
+    let anonymous_trace = run_endpoint!(
+        runner,
+        parent_trace,
+        json!({
+            "site_id": site_id,
+            "page": public_kid_id,
+        }),
+    );
+    let mut anonymous_slugs = anonymous_trace
+        .details
+        .iter()
+        .map(|detail| detail.slug.clone())
+        .collect::<Vec<_>>();
+    anonymous_slugs.sort();
+    assert_eq!(
+        anonymous_slugs,
+        [PUBLIC_KID_SLUG.to_owned(), PUBLIC_TOP_SLUG.to_owned()],
+    );
+    assert!(
+        anonymous_trace.details.iter().all(|detail| {
+            detail.slug != PRIVATE_MID_SLUG && detail.title != PRIVATE_MID_SLUG
+        }),
+        "an unviewable ancestor must contribute no slug or title",
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Id(public_kid_id)),
+    });
+    let admin_trace = run_endpoint!(
+        runner,
+        parent_trace,
+        json!({
+            "site_id": site_id,
+            "page": public_kid_id,
+        }),
+    );
+    let mut admin_slugs = admin_trace
+        .details
+        .iter()
+        .map(|detail| detail.slug.clone())
+        .collect::<Vec<_>>();
+    admin_slugs.sort();
+    assert_eq!(
+        admin_slugs,
+        [
+            PRIVATE_MID_SLUG.to_owned(),
+            PUBLIC_KID_SLUG.to_owned(),
+            PUBLIC_TOP_SLUG.to_owned(),
+        ],
+    );
+}
+
+#[tokio::test]
 async fn direct_parent_metadata_tracks_one_current_relationship_and_rejects_ambiguity() {
     const CHILD_SLUG: &str = "fixture-parent-metadata-child";
     const FIRST_PARENT_SLUG: &str = "fixture-parent-metadata-first";

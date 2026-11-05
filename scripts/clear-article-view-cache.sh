@@ -100,12 +100,22 @@ fi
 # size arrive as positional parameters, so no scanned key is ever part of a
 # command string, and xargs passes keys as literal exec arguments. Each UNLINK
 # reply is a count; the host sums the replies to report the true total.
+#
+# The pipeline tools are checked inside the same program because the host's
+# `set -euo pipefail` cannot see failures in the middle of a pipeline: without
+# the check, a container missing tr or xargs would look like "deleted 0".
 # shellcheck disable=SC2016
 deleted=$(
   docker exec "${CONTAINER}" sh -c '
     cli=$1
     pattern=$2
     batch=$3
+    for tool in tr xargs; do
+      command -v "$tool" >/dev/null 2>&1 || {
+        echo "clear-article-view-cache: ${tool} is required in the container" >&2
+        exit 3
+      }
+    done
     "$cli" --scan --pattern "$pattern" --count "$batch" \
       | tr "\n" "\000" \
       | xargs -0 -r -n "$batch" "$cli" UNLINK

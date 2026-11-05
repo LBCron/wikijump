@@ -176,31 +176,6 @@ pub async fn fetch_range_stream(
     Ok(Body::from_stream(bytes))
 }
 
-pub async fn fetch_range_bytes(
-    state: &ServerState,
-    file_info: &FileData,
-    range: ByteRange,
-) -> Result<Vec<u8>, s3::error::S3Error> {
-    let resp = state
-        .s3_files_bucket
-        .get_object_range(&file_info.s3_hash, range.start, Some(range.end))
-        .await?;
-
-    if resp.status_code() != 206 {
-        error!(
-            s3_hash = &file_info.s3_hash,
-            status_code = resp.status_code(),
-            "S3 range get returned unexpected status (expected 206)",
-        );
-        return Err(s3::error::S3Error::HttpFailWithBody(
-            resp.status_code(),
-            format!("expected 206, got {}", resp.status_code()),
-        ));
-    }
-
-    Ok(resp.to_vec())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -426,40 +401,6 @@ mod tests {
 
         let error =
             fetch_range_stream(&state, &file_data(), ByteRange { start: 1, end: 3 })
-                .await
-                .unwrap_err();
-
-        assert!(format!("{error}").contains("expected 206, got 200"));
-        server.join();
-    }
-
-    #[tokio::test]
-    async fn fetch_range_bytes_returns_partial_body() {
-        let server = spawn_s3_server(vec![(206, b"cde")]);
-        let state = test_state(&server.endpoint).await;
-
-        let bytes =
-            fetch_range_bytes(&state, &file_data(), ByteRange { start: 2, end: 4 })
-                .await
-                .unwrap();
-
-        assert_eq!(bytes, b"cde");
-        let requests = server.requests();
-        assert!(
-            requests[0]
-                .to_ascii_lowercase()
-                .contains("range: bytes=2-4"),
-        );
-        server.join();
-    }
-
-    #[tokio::test]
-    async fn fetch_range_bytes_rejects_non_partial_response() {
-        let server = spawn_s3_server(vec![(200, b"abcdef")]);
-        let state = test_state(&server.endpoint).await;
-
-        let error =
-            fetch_range_bytes(&state, &file_data(), ByteRange { start: 2, end: 4 })
                 .await
                 .unwrap_err();
 

@@ -506,7 +506,13 @@ async fn childpages_module_renders_live_child_list_and_empty_state() {
             "CHILDPAGES_END\n\n",
             "UNKNOWN_START\n\n",
             "[[module ChildPages foo=\"bar\"]]\n\n",
-            "UNKNOWN_END",
+            "UNKNOWN_END\n\n",
+            "BARE_START\n\n",
+            "[[module ChildPages foo]]\n\n",
+            "BARE_END\n\n",
+            "INLINE_START\n\n",
+            "text inline: [[module ChildPages]] after\n\n",
+            "INLINE_END",
         ),
     )
     .await;
@@ -608,6 +614,23 @@ async fn childpages_module_renders_live_child_list_and_empty_state() {
             && unknown_section.contains("fixture-childpages:alpha")
             && !unknown_section.contains("[[module ChildPages"),
         "live Wikidot ignores unknown ChildPages arguments while rendering children:\n{html}",
+    );
+
+    let bare_section = section(&html, "BARE_START", "BARE_END");
+    assert!(
+        bare_section.contains(r#"<div class="child-pages-block">"#)
+            && bare_section.contains("fixture-childpages:alpha")
+            && !bare_section.contains("[[module ChildPages")
+            && !bare_section.contains("No such module"),
+        "live Wikidot ignores a bare ChildPages argument token while rendering children:\n{html}",
+    );
+
+    let inline_section = section(&html, "INLINE_START", "INLINE_END");
+    assert!(
+        inline_section.contains("text inline: [[module ChildPages]] after")
+            && !inline_section.contains("child-pages-block")
+            && !inline_section.contains("No such module"),
+        "live Wikidot keeps an inline ChildPages invocation literal instead of executing it:\n{html}",
     );
 
     create_listpages_test_page(
@@ -5762,6 +5785,11 @@ async fn newpage_module_resolves_existing_templates_in_rendered_pages() {
     assert!(
         !html.contains("[[module NewPage"),
         "NewPage template output should not leak the raw module:\n{html}"
+    );
+    assert!(
+        html.contains("</p><div class=\"new-page-box\"")
+            && !html.contains("<p><div class=\"new-page-box\""),
+        "NewPage block output must be a paragraph sibling instead of nesting a div inside a paragraph:\n{html}",
     );
 
     let missing_html =

@@ -26,8 +26,11 @@ use regex::Regex;
 use sea_orm::{ConnectionTrait, FromQueryResult, Statement};
 
 use super::compat::CompatHtmlFragments;
+use super::compat::text_fragments::CompatTextFragments;
 use super::literal_regions::LiteralRegionIndex;
-use super::module_arguments::{module_arguments_are_complete, wikidot_module_arguments};
+use super::module_arguments::{
+    module_invocation_starts_line, wikidot_module_arguments_ignoring_bare_flags,
+};
 use super::service::{
     MAX_LISTPAGES_RENDER_SCAN_ROWS, RenderService, escape_list_pages_html_attr,
     escape_list_pages_html_text,
@@ -87,11 +90,7 @@ fn child_pages_scan_exceeded(row_count: usize) -> bool {
 }
 
 fn parse_child_pages_module_arguments(head: &str) -> Option<()> {
-    if !module_arguments_are_complete(head) {
-        return None;
-    }
-
-    let _ = wikidot_module_arguments(head)?;
+    let _ = wikidot_module_arguments_ignoring_bare_flags(head)?;
     Some(())
 }
 
@@ -130,6 +129,7 @@ impl RenderService {
         current_site_id: Option<i64>,
         current_page_id: Option<i64>,
         compat_html: &mut CompatHtmlFragments,
+        compat_text: &mut CompatTextFragments,
     ) -> Result<String> {
         if !settings.enable_page_syntax || !CHILD_PAGES_MODULE_REGEX.is_match(&wikitext) {
             return Ok(wikitext);
@@ -151,6 +151,12 @@ impl RenderService {
                 .get(0)
                 .expect("a ChildPages capture always has a complete match");
             if literal_regions.contains(matched.start()) {
+                continue;
+            }
+            if !module_invocation_starts_line(&wikitext, matched.start()) {
+                expanded.push_str(&wikitext[cursor..matched.start()]);
+                expanded.push_str(&compat_text.push_escaped_html_text(matched.as_str()));
+                cursor = matched.end();
                 continue;
             }
 
@@ -280,16 +286,19 @@ mod tests {
     }
 
     #[test]
-    fn parser_accepts_empty_and_unknown_complete_arguments() {
+    fn parser_accepts_empty_unknown_and_bare_flag_arguments() {
         assert_eq!(parse_child_pages_module_arguments(""), Some(()));
         assert_eq!(
             parse_child_pages_module_arguments(r#" foo="bar" data="ignored""#),
             Some(()),
         );
+        assert_eq!(parse_child_pages_module_arguments(" foo"), Some(()));
+        assert_eq!(parse_child_pages_module_arguments(" foo=1"), Some(()));
         assert_eq!(
             parse_child_pages_module_arguments(r#" foo="bar" junk"#),
-            None
+            Some(())
         );
+        assert_eq!(parse_child_pages_module_arguments("\""), None);
     }
 
     #[test]

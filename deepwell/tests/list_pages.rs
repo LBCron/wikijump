@@ -635,6 +635,127 @@ async fn listpages_updated_at_preview_keeps_server_date_spaces_breakable() {
     );
 }
 
+/// Live capture (sandbox-for-codex, 2026-11-05, display-hunt W2-M4): a page
+/// that was created and never edited reports its creation time from
+/// `%%updated_at%%` (live stores the creation timestamp as the edit
+/// timestamp), and an authored tag `dh2mtagA` is listed as `dh2mtaga`.
+#[tokio::test]
+async fn listpages_created_pages_report_creation_time_as_updated_at_and_lowercase_tags() {
+    const CATEGORY: &str = "listpages-created-effects";
+    const TARGET_SLUG: &str = "listpages-created-effects:target";
+    const SOURCE_SLUG: &str = "listpages-created-effects:source";
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(TARGET_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": "Never-edited target body.",
+            "title": "ListPages created-effects target",
+            "alt_title": null,
+            "slug": TARGET_SLUG,
+            "layout": "wikidot",
+            "tags": ["DH2MtagA"],
+            "revision_comments": "created-effects ListPages fixture",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: Some(ADMIN_USER_ID),
+        site_id: Some(site_id),
+        page_reference: Some(Reference::Slug(SOURCE_SLUG.into())),
+    });
+    run_endpoint!(
+        runner,
+        page_create,
+        json!({
+            "site_id": site_id,
+            "wikitext": format!(
+                concat!(
+                    "[[module ListPages category=\"{}\" order=\"title\" limit=\"5\"]]\n",
+                    "TAGS=%%tags%% DATE=%%created_at|%Y-%m-%dT%H:%M:%S%% ",
+                    "UPD=%%updated_at|%Y-%m-%dT%H:%M:%S%%\n",
+                    "[[/module]]",
+                ),
+                CATEGORY,
+            ),
+            "title": "ListPages created-effects source",
+            "alt_title": null,
+            "slug": SOURCE_SLUG,
+            "layout": "wikidot",
+            "revision_comments": "created-effects ListPages source",
+            "user_id": ADMIN_USER_ID,
+            "bypass_filter": true,
+            "ip_address": common::IP_ADDRESS,
+        }),
+    );
+
+    let page = deepwell::endpoints::all::page_get(
+        runner.context(),
+        common::make_params(json!({
+            "site_id": site_id,
+            "page": SOURCE_SLUG,
+            "details": {"compiled": true},
+        })),
+    )
+    .await
+    .expect("created-effects source page_get should succeed")
+    .expect("created-effects source page should exist");
+    let html = page
+        .compiled_body_html
+        .expect("compiled body should be included in page_get details");
+
+    let field_value = |name: &str| {
+        html.split_once(&format!("{name}="))
+            .unwrap_or_else(|| {
+                panic!(
+                    "ListPages output should contain {name}:
+{html}"
+                )
+            })
+            .1
+            .split_whitespace()
+            .next()
+            .unwrap_or_default()
+            .trim_end_matches("</p>")
+            .to_owned()
+    };
+    let created_at = field_value("DATE");
+    let updated_at = field_value("UPD");
+    assert!(
+        !created_at.is_empty() && !updated_at.is_empty(),
+        "never-edited pages must render both ListPages timestamps:
+{html}",
+    );
+    assert_eq!(
+        updated_at, created_at,
+        "live Wikidot reports a never-edited page's creation time from %%updated_at%%:\n{html}",
+    );
+    assert!(
+        html.contains("TAGS=dh2mtaga"),
+        "live Wikidot lower-cases stored tags before they reach ListPages:\n{html}",
+    );
+    assert!(
+        !html.contains("TAGS=DH2MtagA"),
+        "the authored tag case must not reach the listing output:\n{html}",
+    );
+}
+
 #[tokio::test]
 async fn listpages_title_order_is_case_insensitive() {
     const CATEGORY: &str = "listpages-title-order";

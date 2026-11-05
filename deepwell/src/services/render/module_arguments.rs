@@ -37,6 +37,17 @@ pub(in crate::services::render) fn module_arguments_are_complete(head: &str) -> 
     wikidot_module_arguments(head).is_some()
 }
 
+/// Live Wikidot only executes a module invocation that starts a physical line.
+/// An invocation with authored text before it on the same line stays literal
+/// (captured for ChildPages in display-hunt W2-M9, and already enforced by the
+/// PageTree and NextPreviousPage runtime modules).
+pub(in crate::services::render) fn module_invocation_starts_line(
+    source: &str,
+    start: usize,
+) -> bool {
+    start == 0 || source.as_bytes().get(start - 1) == Some(&b'\n')
+}
+
 pub(in crate::services::render) fn wikidot_module_argument<'a>(
     head: &'a str,
     name: &str,
@@ -541,5 +552,17 @@ mod tests {
                 .collect::<Vec<_>>(),
             vec![("description", "[!-- visible value --]"), ("limit", "1"),],
         );
+    }
+
+    #[test]
+    fn module_invocation_requires_a_line_start() {
+        use super::module_invocation_starts_line;
+
+        let source = "[[module ChildPages]]\ntext [[module ChildPages]] after";
+        let first = source.find("[[module").expect("first opener");
+        let second = source.rfind("[[module").expect("second opener");
+        assert!(module_invocation_starts_line(source, first));
+        assert!(!module_invocation_starts_line(source, second));
+        assert!(!module_invocation_starts_line("  [[module ChildPages]]", 2));
     }
 }

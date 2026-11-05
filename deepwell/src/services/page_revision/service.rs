@@ -257,11 +257,12 @@ impl PageRevisionDraft {
             old_slug = Some(slug);
             slug = value;
         }
-        if let Maybe::Set(value) = new_tags
-            && tags != value
-        {
-            changes.push(PageRevisionChange::Tags);
-            tags = value;
+        if let Maybe::Set(value) = new_tags {
+            let value = normalize_wikidot_tags(value);
+            if tags != value {
+                changes.push(PageRevisionChange::Tags);
+                tags = value;
+            }
         }
 
         let wikitext = match wikitext {
@@ -377,6 +378,16 @@ impl PageRevisionDraft {
             ..Default::default()
         }
     }
+}
+
+/// Live Wikidot stores every tag lower-cased: an authored tag `dh2mtagA`
+/// renders as `dh2mtaga` in ListPages body fields (display-hunt W2-M4).
+/// Tags are stored as postgres text arrays, and Wikidot tag comparison is
+/// plain ASCII lower-casing, so only ASCII case is folded here.
+fn normalize_wikidot_tags(tags: Vec<String>) -> Vec<String> {
+    tags.into_iter()
+        .map(|tag| tag.to_ascii_lowercase())
+        .collect()
 }
 
 fn first_revision_followups(
@@ -623,6 +634,7 @@ impl PageRevisionService {
             category_id,
             page_id,
         } = id;
+        let tags = normalize_wikidot_tags(tags);
 
         let make_error = || {
             Error::new(
@@ -2429,4 +2441,17 @@ fn first_revision_followups_ignore_literal_and_invalid_runtime_markers() {
             "inert source must not schedule a second first-revision render: {source}",
         );
     }
+}
+
+#[test]
+fn wikidot_tags_are_stored_lower_cased() {
+    assert_eq!(
+        normalize_wikidot_tags(vec![
+            "DH2MtagA".to_owned(),
+            "already-lower".to_owned(),
+            "_Hidden".to_owned(),
+        ]),
+        ["dh2mtaga", "already-lower", "_hidden"],
+    );
+    assert_eq!(normalize_wikidot_tags(Vec::new()), Vec::<String>::new());
 }

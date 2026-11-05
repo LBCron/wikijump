@@ -213,19 +213,7 @@ impl RenderService {
     }
 
     fn count_pages_unclosed_default_shell_head(head: &str) -> bool {
-        let Some(arguments) =
-            parse_list_pages_arguments_with_url(head, UrlArguments::default())
-        else {
-            return false;
-        };
-        arguments.category_selector_present
-            && arguments.category_all
-            && arguments.count_pages_explicit_limit.is_none()
-            && arguments.count_pages_per_page.is_none()
-            && !arguments.unsupported_author_filter
-            && !arguments.unsupported_list_pages_filter
-            && !arguments.unsupported_score_filter
-            && !arguments.unsupported_count_pages_filter
+        parse_list_pages_arguments_with_url(head, UrlArguments::default()).is_some()
     }
 
     pub(in crate::services::render) async fn load_count_pages_required_tag_totals(

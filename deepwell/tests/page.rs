@@ -12508,6 +12508,11 @@ async fn listdrafts_module_matches_live_empty_draft_state() {
         !body.contains("[[module ListDrafts") && !body.contains("list-drafts-item"),
         "saved page view should not leak raw ListDrafts source or render nonexistent drafts:\n{body}",
     );
+    assert!(
+        body.contains("</p><div class=\"list-drafts-box\">")
+            && !body.contains("<p><div class=\"list-drafts-box\""),
+        "the ListDrafts block must be a paragraph sibling instead of nesting a div inside a paragraph:\n{body}",
+    );
 }
 
 #[tokio::test]
@@ -26254,6 +26259,48 @@ async fn unclosed_countpages_all_category_uses_live_default_shell() {
         !html.contains("[[module CountPages")
             && !html.contains("TODO: module CountPages"),
         "the unclosed CountPages opener must not remain literal or leak an unsupported-module marker:\n{html}",
+    );
+}
+
+/// Live capture (sandbox-for-codex, 2026-11-05, display-hunt W2-M1): the
+/// deprecated CountPages default shell is emitted for every unclosed opener,
+/// including the bare module, tag filters, and an explicit default category.
+#[tokio::test]
+async fn unclosed_countpages_default_shell_covers_bare_and_filtered_heads() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let slug = "fixture-countpages-unclosed-default-shell-heads";
+    let source = concat!(
+        "CP1\n",
+        "[[module CountPages]]\n",
+        "CP2\n",
+        "[[module CountPages tags=\"+dh2mtagA\"]]\n",
+        "CP3\n",
+        "[[module CountPages tags=\"+dh2mtag-nosuch\"]]\n",
+        "CP4\n",
+        "[[module CountPages category=\"_default\"]]",
+    );
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        slug,
+        "Fixture CountPages Unclosed Default Shell Heads",
+        source,
+    )
+    .await;
+
+    let html = load_listpages_test_compiled_html(&runner, site_id, slug).await;
+    assert_eq!(
+        html.matches(r#"<div class="list-pages-box">"#).count(),
+        4,
+        "each unclosed CountPages opener should use the live default shell:\n{html}",
+    );
+    assert!(
+        !html.contains("[[module CountPages"),
+        "the unclosed openers must not remain literal:\n{html}",
     );
 }
 

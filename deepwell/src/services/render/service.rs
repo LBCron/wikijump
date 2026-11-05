@@ -1579,6 +1579,7 @@ impl RenderService {
                 current_site_id,
                 current_page_id,
                 &mut wikidot_compat_html,
+                &mut wikidot_compat_text,
             )
             .await
             .or_raise(make_error)?
@@ -1627,6 +1628,7 @@ impl RenderService {
                 page_info.language.as_ref(),
                 current_site_id,
                 &mut wikidot_compat_html,
+                &mut wikidot_compat_text,
             ))
             .await
             .or_raise(make_error)?;

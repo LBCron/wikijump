@@ -148,6 +148,7 @@ cgroup_probe() {
 # memory and no smaps_rollup; they are counted, not reported missing.
 process_probe() {
   local name="$1"
+  # shellcheck disable=SC2016 # the probe is a script for the container's sh
   local probe='
     for dir in /proc/[0-9]*; do
       [ -r "${dir}/status" ] || continue
@@ -180,6 +181,7 @@ process_probe() {
       printf "%s %s %s\n" "${rss:-0}" "${hwm:-0}" "${pss:-missing}"
     done
   '
+  # shellcheck disable=SC2016 # the summarizer is an awk program
   local summarize='
     $4 == "zombie" { zombies += 1; next }
     $3 == "missing" { missing += 1; next }
@@ -193,17 +195,17 @@ process_probe() {
       printf "proc_pss_missing=%d\n", missing
     }
   '
-  local output source=plain
+  local output pss_source=plain
   output=$(docker exec "${name}" sh -c "${probe}" 2>/dev/null | awk "${summarize}")
   if awk -F= '/^proc_pss_missing=/ { exit !($2 > 0) }' <<< "${output}"; then
     local privileged
     privileged=$(docker exec --privileged "${name}" sh -c "${probe}" 2>/dev/null | awk "${summarize}")
     if ! awk -F= '/^proc_pss_missing=/ { exit !($2 > 0) }' <<< "${privileged}"; then
       output="${privileged}"
-      source=privileged-exec
+      pss_source="privileged-exec"
     fi
   fi
-  printf 'proc_pss_source=%s\n' "${source}"
+  printf 'proc_pss_source=%s\n' "${pss_source}"
   printf '%s\n' "${output}"
 }
 

@@ -4650,6 +4650,71 @@ async fn renderer_epoch_invalidates_pre_freeze_compiled_artifacts() {
 }
 
 #[tokio::test]
+async fn anonymous_article_view_cache_entries_expire() {
+    // The plan's Phase 1: an entry whose key can no longer be reached must not
+    // stay resident forever. The fence keys still decide what is current, so
+    // the expiry only bounds how long an unreachable entry is kept.
+    const SLUG: &str = "article-cache-ttl-fixture";
+    const BODY: &str = "article cache ttl fixture body";
+    const EXPECTED_TTL_SECONDS: i64 = 60 * 60;
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "test"}))
+        .expect("seeded test site should exist");
+    let site_id = site.site.site_id;
+    create_listpages_test_page(&mut runner, site_id, SLUG, "TTL fixture", BODY).await;
+
+    let page = PageTable::find()
+        .filter(
+            sea_orm::Condition::all()
+                .add(page::Column::SiteId.eq(site_id))
+                .add(page::Column::Slug.eq(SLUG)),
+        )
+        .one(runner.context().transaction())
+        .await
+        .expect("ttl page lookup should not fail")
+        .expect("ttl page should exist");
+    let mut page = page.into_active_model();
+    page.from_wikidot = Set(true);
+    page.update(runner.context().transaction())
+        .await
+        .expect("ttl page should be marked imported");
+
+    runner.set_request_context(RequestContext {
+        site_id: Some(site_id),
+        ..Default::default()
+    });
+    let input = json!({
+        "site_id": site_id,
+        "session_token": null,
+        "route": {"slug": SLUG, "extra": ""},
+        "locales": ["en-US", "en"],
+    });
+    let view = run_endpoint!(runner, article_view, input);
+    let GetArticleViewOutput {
+        article_page_cache_key: Some(cache_key),
+        ..
+    } = view
+    else {
+        panic!("imported static page should return an anonymous cache key");
+    };
+
+    let mut redis = runner.context().redis();
+    let ttl: i64 = redis
+        .ttl(&cache_key)
+        .await
+        .expect("article view cache key TTL should be readable");
+    assert!(
+        ttl > 0,
+        "anonymous article view cache entry must expire, got ttl={ttl} (-1 is no expiry)",
+    );
+    assert!(
+        ttl <= EXPECTED_TTL_SECONDS,
+        "anonymous article view cache entry must expire within {EXPECTED_TTL_SECONDS}s, got {ttl}",
+    );
+}
+
+#[tokio::test]
 async fn category_theme_change_invalidates_article_view_cache() {
     const SLUG: &str = "theme-cache-fixture";
     const BODY: &str = "theme cache fixture body";

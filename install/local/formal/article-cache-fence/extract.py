@@ -71,12 +71,20 @@ def reader_order(facts: list[str]) -> list[str]:
     find_one(ARTICLE_CACHE, m_start, m_body, "Some(fence) => fence,")
 
     src = lines(VIEW_SERVICE)
-    call = " ".join(line.strip() for line in src[metadata - 1 : metadata + 2])
-    passed = re.search(r"ArticlePageCache::metadata\(ctx, &input, Some\(public_content_cache_fence\)\)", call)
+    # The call passes a struct argument, so the fence is a field a few lines
+    # below the method name. Scan the whole call rather than three lines.
+    call = " ".join(line.strip() for line in src[metadata - 1 : metadata + 8])
+    passed = re.search(
+        r"ArticlePageCache::metadata\(.*Some\(public_content_cache_fence\)",
+        call,
+    )
     if passed:
         fence = find_one(VIEW_SERVICE, start, body, "PublicContentCache::cache_fence(")
         fence_note = "PublicContentCache::cache_fence, passed to ArticlePageCache::metadata"
-    elif re.search(r"ArticlePageCache::metadata\(ctx, &input, None\)", call):
+    elif re.search(
+        r"ArticlePageCache::metadata\(.*public_content_cache_fence: None",
+        call,
+    ):
         fence = metadata
         fence_note = "ArticlePageCache::metadata"
     else:

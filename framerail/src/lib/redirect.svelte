@@ -9,7 +9,7 @@
   let { redirectPage = "/" }: Props = $props()
 
   $effect(() => {
-    goto(resolve(redirectPage, {}), {
+    goto(resolve(redirectPage), {
       replaceState: true
     })
   })

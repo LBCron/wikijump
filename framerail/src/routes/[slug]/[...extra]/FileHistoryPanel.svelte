@@ -278,7 +278,7 @@
           </div>
           <div class="revision-attribute page">
             {#if data.page?.page_id === revisionItem.page_id && data.site.site_id === revisionItem.site_id}
-              <a href={resolve(`/${data.page.slug}`, {})}>{data.page.slug}</a>
+              <a href={resolve(`${data.page.slug}`)}>{data.page.slug}</a>
             {:else}
               <span>—</span>
             {/if}

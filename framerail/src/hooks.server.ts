@@ -26,7 +26,8 @@ import {
   injectWikidotRequestInfo,
   requestHostFromRequest
 } from "$lib/server/wikidot-request-info"
-import type { Handle, RequestEvent } from "@sveltejs/kit"
+import type { RequestEvent } from "@sveltejs/kit"
+import type { Handle } from "@sveltejs/kit/hooks"
 
 const SITE_CONTEXT_EXEMPT_PATHS = new Set(["/xml-rpc-api.php"])
 const PRINTER_FRIENDLY_ROUTE = "/printer--friendly/[...path]"
@@ -187,7 +188,7 @@ export const handle: Handle = async ({ event, resolve }) => {
       if (writeGate.cacheable) {
         const wroteResponse = await writeAnonymousArticleResponseCache({
           store: responseStore,
-          metadata: locals.anonymousArticleResponseCacheMetadata,
+          metadata: locals.anonymousArticleResponseCacheMetadata ?? null,
           response
         })
         const metadata = locals.anonymousArticleResponseCacheMetadata

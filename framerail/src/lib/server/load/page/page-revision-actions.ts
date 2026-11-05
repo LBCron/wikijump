@@ -155,7 +155,7 @@ export async function pageRollbackAction(event: RequestEvent) {
         pageId,
         userId: context.sessionUserId,
         userIpAddr: ipAddress,
-        slug,
+        slug: slug ?? "",
         lastRevisionId,
         revisionNumber,
         revisionComments: comments ?? ""

@@ -72,7 +72,7 @@
     class:is-primary={primary}
     class:is-sharp={sharp}
     class:is-wide={wide}
-    href={resolve(href, {})}
+    href={resolve(href)}
     onclick={() => {}}
     use:tippy={tip}
     {...others}

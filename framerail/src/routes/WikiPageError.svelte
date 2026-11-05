@@ -23,8 +23,8 @@
   let deletedPages = $state<PageDeletedGet[]>([])
 
   function cancelCreate() {
-    goto(resolve(`/${page.params.slug}`, {}), {
-      noScroll: true
+    goto(resolve(`${page.params.slug}`), {
+      reset: false
     })
   }
 
@@ -44,8 +44,8 @@
       showCreateDenied()
       return
     }
-    goto(resolve(`/${missingPageSlug}/edit/true`, {}), {
-      noScroll: true
+    goto(resolve(`${missingPageSlug}/edit/true`), {
+      reset: false
     })
   }
 
@@ -83,8 +83,8 @@
             }
             return
           }
-          goto(resolve(`/${destinationSlug}`, {}), {
-            noScroll: true
+          goto(resolve(`${destinationSlug}`), {
+            reset: false
           })
         }
         if (result.type === "failure" && result.data) {
@@ -325,7 +325,7 @@
         {@html defaultMissingMessage}
         <ul id="create-it-now-link">
           <li>
-            <a href={resolve(`/${missingPageSlug}/edit/true`, {})} onclick={startCreate}
+            <a href={resolve(`${missingPageSlug}/edit/true`)} onclick={startCreate}
               >Create page</a
             >
           </li>

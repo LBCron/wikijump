@@ -52,7 +52,7 @@
   <ul id="page-children" class="page-children">
     {#each children as child (child.slug)}
       <li class="page-child">
-        <a href={resolve(`/${child.slug}`, {})}>{child.title || child.slug}</a>
+        <a href={resolve(`${child.slug}`)}>{child.title || child.slug}</a>
       </li>
     {/each}
   </ul>

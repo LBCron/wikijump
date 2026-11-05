@@ -43,7 +43,7 @@
     <div class="col-md-9" data-user-id={data.user.userId}>
       {#if !data.user_session}
         <a
-          href={resolve(data.privateMessageControl.authenticationPath, {})}
+          href={resolve(data.privateMessageControl.authenticationPath)}
           data-action="write-private-message"
           data-target-user-id={data.user.userId}
         >

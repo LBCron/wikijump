@@ -120,7 +120,7 @@ export async function pageBacklinksAction(event: RequestEvent) {
     const context = await resolvePageActionRequestContext(event)
     const res = await pageBacklinksView(
       context.siteId,
-      params.slug,
+      params.slug ?? "",
       context.requestContext
     )
     return { res }

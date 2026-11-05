@@ -86,7 +86,7 @@ export async function pageDeleteAction(event: RequestEvent) {
             pageId: view.data.page.page_id,
             userId,
             userIpAddr: ipAddress,
-            slug: params.slug,
+            slug: params.slug ?? "",
             lastRevisionId: view.data.page_revision.revision_id,
             newSlug: form.data["new-slug"],
             revisionComments: form.data.comments
@@ -102,7 +102,7 @@ export async function pageDeleteAction(event: RequestEvent) {
           pageId: view.data.page.page_id,
           userId,
           userIpAddr: ipAddress,
-          slug: params.slug,
+          slug: params.slug ?? "",
           lastRevisionId: view.data.page_revision.revision_id,
           revisionComments: form.data.comments
         },
@@ -137,7 +137,7 @@ export async function pageDeleteAction(event: RequestEvent) {
           pageId,
           userId,
           userIpAddr: ipAddress,
-          slug,
+          slug: slug ?? "",
           lastRevisionId,
           newSlug,
           revisionComments: comments
@@ -153,7 +153,7 @@ export async function pageDeleteAction(event: RequestEvent) {
         pageId,
         userId,
         userIpAddr: ipAddress,
-        slug,
+        slug: slug ?? "",
         lastRevisionId,
         revisionComments: comments
       },
@@ -325,7 +325,7 @@ export async function pageEditAction(event: RequestEvent) {
             pageId,
             userId,
             userIpAddr: ipAddress,
-            slug,
+            slug: slug ?? "",
             lastRevisionId,
             revisionComments: comments,
             wikitext,
@@ -462,7 +462,7 @@ export async function pageMoveAction(event: RequestEvent) {
           pageId: view.data.page.page_id,
           userId: context.sessionUserId,
           userIpAddr: ipAddress,
-          slug,
+          slug: slug ?? "",
           lastRevisionId: view.data.page_revision.revision_id,
           newSlug: form.data["new-slug"],
           revisionComments: form.data.comments
@@ -493,7 +493,7 @@ export async function pageMoveAction(event: RequestEvent) {
         pageId,
         userId: context.sessionUserId,
         userIpAddr: ipAddress,
-        slug,
+        slug: slug ?? "",
         lastRevisionId,
         newSlug,
         revisionComments: comments

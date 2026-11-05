@@ -19,8 +19,9 @@ declare global {
     }
 
     interface Error extends PageData {
+      status: number
       message?: string
-      view: string
+      view?: string
       internationalization?: Partial<Locales>
       compiled_body_html?: string
     }

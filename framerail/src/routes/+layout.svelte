@@ -176,7 +176,9 @@
   const siteFilePresence = $derived(
     new Set(
       Array.isArray(viewData?.site_file_presence)
-        ? viewData.site_file_presence.filter((key) => typeof key === "string")
+        ? viewData.site_file_presence.filter(
+            (key: unknown): key is string => typeof key === "string"
+          )
         : []
     )
   )
@@ -356,7 +358,7 @@
         <span>Tags</span>
         <span>Source</span>
       </div>
-      <a class="random-site" href={resolve("/random-site.php", {})}>Explore »</a>
+      <a class="random-site" href={resolve("random-site.php")}>Explore »</a>
     </div>
     <div id="navi-bar-shadow">&nbsp;</div>
   {/if}
@@ -368,7 +370,7 @@
   >
     {#snippet header()}
       <h1>
-        <a class="active" href={resolve("/", {})}><span>{wikidotSiteTitle}</span></a>
+        <a class="active" href={resolve("/")}><span>{wikidotSiteTitle}</span></a>
       </h1>
       {#if wikidotSiteTagline}
         <h2>
@@ -393,7 +395,7 @@
 
     {#snippet topBar()}
       {#if useSandboxWikidotChrome}
-        <a class="navbar-brand" href={resolve("/", {})}>Home</a>
+        <a class="navbar-brand" href={resolve("/")}>Home</a>
       {/if}
       {@html viewData?.compiled_top_bar_html ?? ""}
     {/snippet}
@@ -401,33 +403,33 @@
     {#snippet loginStatus()}
       {#if !useSandboxWikidotChrome && wikidotSessionUserName}
         <div id="login-status">
-          <a id="my-account" href={resolve("/-/user", {})}>{wikidotSessionUserName}</a>
+          <a id="my-account" href={resolve("-/user")}>{wikidotSessionUserName}</a>
           <span class="printuser">{wikidotSessionUserName}</span>
           <!-- svelte-ignore a11y_invalid_attribute -- Wikidot-compatible legacy account toggle -->
           <a id="account-topbutton" href="javascript:;">&#9660;</a>
           <div id="account-options">
             <ul>
               <li>
-                <a href={resolve("/-/user", {})}>{wikidotAccountLabels.myAccount}</a>
+                <a href={resolve("-/user")}>{wikidotAccountLabels.myAccount}</a>
               </li>
               <li>
-                <a href={resolve("/-/settings", {})}>{wikidotAccountLabels.settings}</a>
+                <a href={resolve("-/settings")}>{wikidotAccountLabels.settings}</a>
               </li>
               <li>
-                <a href={resolve("/-/logout", {})}>{wikidotAccountLabels.signOut}</a>
+                <a href={resolve("-/logout")}>{wikidotAccountLabels.signOut}</a>
               </li>
             </ul>
           </div>
         </div>
       {:else if !useSandboxWikidotChrome && !viewData?.user_session}
         <div id="login-status">
-          <a class="login-status-create-account btn" href={resolve("/-/register", {})}
+          <a class="login-status-create-account btn" href={resolve("-/register")}
             >{wikidotLoginLabels.createAccount}</a
           >
           <span>{wikidotLoginLabels.or}</span>
           <a
             class="login-status-sign-in btn btn-primary"
-            href={resolve("/-/login", {})}
+            href={resolve("-/login")}
             onclick={isImportedWikidotLayout ? openWikidotSignIn : undefined}
             >{wikidotLoginLabels.signIn}</a
           >

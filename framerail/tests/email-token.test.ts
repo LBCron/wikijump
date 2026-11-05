@@ -294,7 +294,7 @@ describe("email-token routes", () => {
       new URL("../src/routes/[x+2d]/login/+page.svelte", import.meta.url),
       "utf8"
     )
-    assert.match(template, /"\/-\/forgot"/u)
+    assert.match(template, /"-\/forgot"/u)
     assert.match(template, /forgot-password\.question/u)
   })
 

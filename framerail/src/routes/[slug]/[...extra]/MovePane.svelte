@@ -30,8 +30,8 @@
       onResult: async ({ result, cancel }) => {
         if (result.type === "success" && result.data) {
           cancel()
-          goto(resolve(`/${result.data.res.new_slug}`, {}), {
-            noScroll: true
+          goto(resolve(`${result.data.res.new_slug}`), {
+            reset: false
           })
           pagePaneState = PagePane.None
         }

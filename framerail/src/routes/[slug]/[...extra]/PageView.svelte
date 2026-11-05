@@ -258,8 +258,8 @@
       .filter(([, enabled]) => enabled)
       .map(([key]) => `/${key}`)
 
-    goto(resolve(`/${data.page!.slug}${options.join("")}/edit`, {}), {
-      noScroll: true
+    goto(resolve(`${data.page!.slug}${options.join("")}/edit`), {
+      reset: false
     })
   }
 
@@ -1077,6 +1077,7 @@
     {props}
     {setRevision}
     {setShowRevision}
+    {setRevisionContext}
     {showSource}
     wikidot={false}
     bind:pagePaneState

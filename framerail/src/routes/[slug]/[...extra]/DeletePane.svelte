@@ -31,8 +31,8 @@
         if (result.type === "success" && result.data) {
           if (result.data.option === DeleteOptions.Move) {
             cancel()
-            goto(resolve(`/${result.data.res.new_slug}`, {}), {
-              noScroll: true
+            goto(resolve(`${result.data.res.new_slug}`), {
+              reset: false
             })
             pagePaneState = PagePane.None
           } else if (result.data.option === DeleteOptions.Delete) {

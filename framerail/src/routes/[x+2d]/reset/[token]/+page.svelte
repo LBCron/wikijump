@@ -49,7 +49,7 @@
 <h1>{data.internationalization?.["password-recovery"]}</h1>
 {#if done}
   <p role="status" class="auth-notice">
-    <a href={resolve("/-/login", {})}>{data.internationalization?.login}</a>
+    <a href={resolve("-/login")}>{data.internationalization?.login}</a>
   </p>
 {:else if grant}
   <form

@@ -63,7 +63,7 @@ const SLUG_UNIQUE_INDEX: &str = "user_slug_active_unique_idx";
 const EMAIL_UNIQUE_INDEX: &str = "user_email_active_unique_idx";
 
 #[derive(Debug, FromQueryResult)]
-struct NonAsciiUserSlug {
+struct LiveUserSlug {
     slug: String,
 }
 
@@ -1254,38 +1254,9 @@ impl UserService {
         let skeleton = confusable_skeleton(slug);
         let txn = ctx.transaction();
 
-        let mut condition = Condition::all()
-            .add(user::Column::Slug.eq(skeleton.as_str()))
-            .add(user::Column::DeletedAt.is_null());
-
-        if let Some(user_id) = exclude_user_id {
-            condition = condition.add(user::Column::UserId.ne(user_id));
-        }
-
-        let latin_owner = WikijumpUser::find()
-            .filter(condition)
-            .one(txn)
-            .await
-            .or_raise(make_error)?;
-
-        if let Some(owner) = latin_owner
-            && owner.slug != slug
-        {
-            error!(
-                "Slug '{slug}' is confusable with existing user slug '{}'",
-                owner.slug,
-            );
-            bail!(Error::new(
-                format!(
-                    "cannot use slug '{slug}', it is confusable with another user's slug"
-                ),
-                ErrorType::UserExists,
-            ));
-        }
-
-        let rows = NonAsciiUserSlug::find_by_statement(Statement::from_sql_and_values(
+        let rows = LiveUserSlug::find_by_statement(Statement::from_sql_and_values(
             txn.get_database_backend(),
-            r#"SELECT slug FROM "user" WHERE deleted_at IS NULL AND user_id <> $1 AND char_length(slug) < octet_length(slug)"#,
+            r#"SELECT slug FROM "user" WHERE deleted_at IS NULL AND user_id <> $1"#,
             [Value::from(exclude_user_id.unwrap_or(i64::MIN))],
         ))
         .all(txn)

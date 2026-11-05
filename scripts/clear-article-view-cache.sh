@@ -15,12 +15,20 @@
 # UNLINK. It never runs FLUSHDB or FLUSHALL: the RSMQ job queue and the
 # public-content and permission fences share the database and must persist.
 #
+# Key names are data, never shell code. The scan, the batch split, and the
+# UNLINK calls run as one pipeline inside the container, and xargs runs the
+# CLI directly, so each scanned key reaches UNLINK as one literal argument.
+# A key name containing spaces, quotes, `$(...)`, backticks, or semicolons is
+# deleted as a key; it is never word-split, substituted, or executed. No batch
+# of keys is ever interpolated into a command line on either side of the
+# `docker exec` boundary.
+#
 # Usage:
 #   scripts/clear-article-view-cache.sh --container NAME [--batch N] [--execute]
 #
 # Options:
 #   --container NAME  Valkey container to talk to (required)
-#   --batch N         Keys per UNLINK round trip (default 500)
+#   --batch N         Upper bound on keys per UNLINK round trip (default 500)
 #   --execute         Actually delete. Without this the script only counts the
 #                     keys and prints what it would delete.
 #
@@ -32,6 +40,7 @@ set -euo pipefail
 CONTAINER=""
 BATCH=500
 EXECUTE=false
+PATTERN='deepwell:article-view:page:*'
 
 usage() {
   sed -n '2,/^# The deletion can run/p' "${BASH_SOURCE[0]}" | sed 's/^# \?//'
@@ -61,15 +70,17 @@ command -v docker >/dev/null || {
   exit 2
 }
 
-# The valkey-cli binary differs between images.
+# The CLI binary differs between images.
 CLI="valkey-cli"
-if ! docker exec "${CONTAINER}" sh -c "command -v ${CLI}" >/dev/null 2>&1; then
+if ! docker exec "${CONTAINER}" sh -c 'command -v "$1" >/dev/null 2>&1' sh "${CLI}"; then
   CLI="redis-cli"
+  docker exec "${CONTAINER}" sh -c 'command -v "$1" >/dev/null 2>&1' sh "${CLI}" 2>/dev/null || {
+    echo "clear-article-view-cache: neither valkey-cli nor redis-cli exists in ${CONTAINER}" >&2
+    exit 2
+  }
 fi
 
-PATTERN='deepwell:article-view:page:*'
-
-count=$(docker exec "${CONTAINER}" sh -c "${CLI} --scan --pattern '${PATTERN}' | wc -l")
+count=$(docker exec "${CONTAINER}" "${CLI}" --scan --pattern "${PATTERN}" | wc -l)
 count=$(printf '%s' "${count}" | tr -d '[:space:]')
 echo "article-view keys: ${count}"
 
@@ -78,19 +89,41 @@ if [[ "${EXECUTE}" != true ]]; then
   exit 0
 fi
 
-deleted=0
-while :; do
-  batch=$(docker exec "${CONTAINER}" sh -c \
-    "${CLI} --scan --pattern '${PATTERN}' --count ${BATCH} | head -n ${BATCH}")
-  if [[ -z "${batch}" ]]; then
-    break
-  fi
-  # shellcheck disable=SC2086
-  removed=$(docker exec "${CONTAINER}" sh -c \
-    "printf '%s\\n' ${batch} | xargs -r ${CLI} UNLINK")
-  removed=$(printf '%s' "${removed}" | tr -d '[:space:]')
-  deleted=$((deleted + removed))
-  echo "deleted ${deleted}/${count}"
-done
+if [[ "${count}" -eq 0 ]]; then
+  echo "done: deleted 0 article-view keys"
+  exit 0
+fi
+
+# One in-container pipeline: SCAN produces newline-separated keys, tr turns the
+# separators into NULs, and xargs runs `UNLINK` on batches of at most $batch
+# keys. The program text below is constant: the CLI name, pattern, and batch
+# size arrive as positional parameters, so no scanned key is ever part of a
+# command string, and xargs passes keys as literal exec arguments. Each UNLINK
+# reply is a count; the host sums the replies to report the true total.
+#
+# The pipeline tools are checked inside the same program because the host's
+# `set -euo pipefail` cannot see failures in the middle of a pipeline: without
+# the check, a container missing tr or xargs would look like "deleted 0".
+# shellcheck disable=SC2016
+deleted=$(
+  docker exec "${CONTAINER}" sh -c '
+    cli=$1
+    pattern=$2
+    batch=$3
+    for tool in tr xargs; do
+      command -v "$tool" >/dev/null 2>&1 || {
+        echo "clear-article-view-cache: ${tool} is required in the container" >&2
+        exit 3
+      }
+    done
+    "$cli" --scan --pattern "$pattern" --count "$batch" \
+      | tr "\n" "\000" \
+      | xargs -0 -r -n "$batch" "$cli" UNLINK
+  ' sh "${CLI}" "${PATTERN}" "${BATCH}" \
+    | awk '{ total += $1 } END { printf "%d\n", total }'
+)
 
 echo "done: deleted ${deleted} article-view keys"
+if [[ "${deleted}" -ne "${count}" ]]; then
+  echo "note: ${count} keys were present when counted; ${deleted} UNLINKed" >&2
+fi

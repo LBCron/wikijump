@@ -684,6 +684,8 @@ mod tests {
         for source in [
             "[[module Members]]",
             r#"[[module Members group="moderators" order="nameDesc"]]"#,
+            r#"[[module Members group="owners"]]"#,
+            r#"[[module Members limit="1" foo="bar"]]"#,
         ] {
             let classes = classify_render_dependencies(source);
             assert!(
@@ -703,7 +705,8 @@ mod tests {
         for source in [
             "[[code]]\n[[module Members]]\n[[/code]]",
             "<pre>[[module Members]]</pre>",
-            r#"[[module Members group="owners"]]"#,
+            "[[module Members]]x[[/module]]",
+            "[[module Members]]x",
         ] {
             let classes = classify_render_dependencies(source);
             assert!(

@@ -40,8 +40,9 @@ use super::mail_form_module::expand_mail_form_modules;
 use super::module_arguments::{
     WikidotModuleArgumentValueKind, module_invocation_starts_line,
     wikidot_module_argument, wikidot_module_arguments,
-    wikidot_module_arguments_ignoring_bare_flags,
+    wikidot_module_arguments_ignoring_bare_flags, wikidot_module_double_quoted_arguments,
 };
+use super::module_tokens::scan_source_modules;
 use super::native_list_context::{
     collect_unproven_scope_ranges, matching_source_scope_close,
 };
@@ -66,7 +67,7 @@ use super::service::{
 use super::site_changes::expand_site_changes_modules;
 use super::site_utility_modules::expand_site_utility_modules;
 use super::url_arguments::UrlArguments;
-use super::user_directory::{MEMBERS_MODULE_REGEX, render_members_module};
+use super::user_directory::{MEMBERS_MODULE_NAMES, render_members_module};
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
 use crate::services::domain::DomainService;
 use crate::services::membership::{JoinModuleState, MembershipService};
@@ -111,7 +112,7 @@ const THEME_PREVIEWER_PREVIEW_ERROR_HTML: &str = r#"<div class="error-block">Pre
 const MEMBERSHIP_EMAIL_INVITATION_MISSING_HTML: &str = concat!(
     r#"<div id="membership-email-invitation-box">"#,
     "\n\t\n\t\t\t<p>\n\t\t\t",
-    "Sorry, the invitation could not be found. It might have been canceled by the sender, aleady",
+    "Sorry, the invitation could not be found. It might have been canceled by the sender, expired, already",
     "\n\t\t\tused by someone (you?) or the URL link that you were supposed to copy",
     "\n\t\t\tfrom the invitation email might be corrupted somehow.",
     "\n\t\t</p>\t\n\t</div>",
@@ -325,6 +326,11 @@ const MEMBERSHIP_APPLY_ALREADY_APPLIED_HTML: &str = concat!(
     "</div></div>",
 );
 
+pub(super) const EMAIL_LIST_SUBSCRIBE_MODULE_NAMES: &[&str] = &["EmailListSubscribe"];
+pub(super) const MEMBERSHIP_BY_PASSWORD_MODULE_NAMES: &[&str] = &["MembershipByPassword"];
+pub(super) const MEMBERSHIP_EMAIL_INVITATION_MODULE_NAMES: &[&str] =
+    &["MembershipEmailInvitation"];
+
 static LISTUSERS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)\[\[module\s+ListUsers(?P<head>(?:[^\]"]+|"[^"]*")*)\]\](?P<body>.*?)\[\[/module\]\]"#)
         .expect("ListUsers module expression is valid")
@@ -343,15 +349,9 @@ static SENDINVITATIONS_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 static STATIC_ACCOUNT_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
-        r#"(?is)\[\[module\s+(?P<name>AnonymousNotificationsUnsubscribe|Dashboard|UserInfo|SearchUsers|WhoInvited|ThemePreviewer|MembershipEmailInvitation)\b(?P<head>(?:[^\]"]+|"[^"]*")*)\]\]"#,
+        r#"(?is)\[\[module\s+(?P<name>AnonymousNotificationsUnsubscribe|Dashboard|UserInfo|SearchUsers|WhoInvited|ThemePreviewer)\b(?P<head>(?:[^\]"]+|"[^"]*")*)\]\]"#,
     )
     .expect("static account module expression is valid")
-});
-static MEMBERSHIPBYPASSWORD_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r#"(?is)\[\[module\s+MembershipByPassword\b(?P<head>(?:[^\]"]+|"[^"]*")*)\]\]"#,
-    )
-    .expect("MembershipByPassword module expression is valid")
 });
 static MEMBERSHIPAPPLY_MODULE_REGEX: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(?is)\[\[module\s+MembershipApply\b(?P<head>(?:[^\]"]+|"[^"]*")*)\]\]"#)
@@ -525,38 +525,22 @@ pub(crate) fn membership_apply_action_count(wikitext: &str) -> usize {
 
 pub(crate) fn membership_by_password_action_count(wikitext: &str) -> usize {
     let literal_regions = LiteralRegionIndex::new_wikidot_module_recognition(wikitext);
-    MEMBERSHIPBYPASSWORD_MODULE_REGEX
-        .captures_iter(wikitext)
-        .filter(|captures| {
-            let matched = captures
-                .get(0)
-                .expect("a MembershipByPassword capture always has a complete match");
-            !literal_regions.contains(matched.start())
-                && captures
-                    .name("head")
-                    .is_none_or(|head| head.as_str().trim().is_empty())
-        })
-        .count()
+    scan_source_modules(
+        wikitext,
+        &literal_regions,
+        MEMBERSHIP_BY_PASSWORD_MODULE_NAMES,
+    )
+    .len()
 }
 
 pub(crate) fn membership_email_invitation_action_count(wikitext: &str) -> usize {
     let literal_regions = LiteralRegionIndex::new_wikidot_module_recognition(wikitext);
-    STATIC_ACCOUNT_MODULE_REGEX
-        .captures_iter(wikitext)
-        .filter(|captures| {
-            let matched = captures
-                .get(0)
-                .expect("a static account module capture always has a complete match");
-            !literal_regions.contains(matched.start())
-                && captures.name("name").is_some_and(|name| {
-                    name.as_str()
-                        .eq_ignore_ascii_case("MembershipEmailInvitation")
-                })
-                && captures
-                    .name("head")
-                    .is_none_or(|head| head.as_str().trim().is_empty())
-        })
-        .count()
+    scan_source_modules(
+        wikitext,
+        &literal_regions,
+        MEMBERSHIP_EMAIL_INVITATION_MODULE_NAMES,
+    )
+    .len()
 }
 
 fn render_simpletodo_module(head: &str, index: usize) -> String {
@@ -694,6 +678,18 @@ fn redirect_preview_destination_notice(head: &str) -> Option<String> {
             escape_redirect_notice_text(destination),
         )
     })
+}
+
+fn render_email_list_subscribe_module(head: &str) -> String {
+    let list = wikidot_module_double_quoted_arguments(head)
+        .into_iter()
+        .rev()
+        .find(|(key, _)| *key == "list")
+        .map_or("", |(_, value)| value);
+    format!(
+        r#"<div class="error-block">List "{}" cannot be found.</div>"#,
+        escape_list_pages_html_text(list),
+    )
 }
 
 fn render_unavailable_page_module(name: &str) -> String {
@@ -1006,7 +1002,7 @@ impl RenderService {
         viewer_user_id: Option<i64>,
         compat_html: &mut CompatHtmlFragments,
     ) -> Result<String> {
-        if !settings.enable_page_syntax || !MEMBERS_MODULE_REGEX.is_match(&wikitext) {
+        if !settings.enable_page_syntax {
             return Ok(wikitext);
         }
         let Some(site_id) = current_site_id else {
@@ -1018,24 +1014,24 @@ impl RenderService {
         let mut output = String::with_capacity(wikitext.len());
         let mut cursor = 0;
         let mut module_index = 0;
-        for captures in MEMBERS_MODULE_REGEX.captures_iter(&wikitext) {
-            let matched = captures
-                .get(0)
-                .expect("a Members capture always has a complete match");
-            if literal_regions.contains(matched.start()) {
-                continue;
-            }
+        for module in
+            scan_source_modules(&wikitext, &literal_regions, MEMBERS_MODULE_NAMES)
+        {
             module_index += 1;
-            let head = captures.name("head").map_or("", |head| head.as_str());
-            let Some(rendered) =
-                render_members_module(ctx, site_id, viewer_user_id, head, module_index)
-                    .await?
+            let Some(rendered) = render_members_module(
+                ctx,
+                site_id,
+                viewer_user_id,
+                module.head,
+                module_index,
+            )
+            .await?
             else {
                 continue;
             };
-            output.push_str(&wikitext[cursor..matched.start()]);
+            output.push_str(&wikitext[cursor..module.start]);
             output.push_str(&compat_html.push_block_html(rendered));
-            cursor = matched.end();
+            cursor = module.end;
         }
         if cursor == 0 {
             return Ok(wikitext);
@@ -1116,6 +1112,38 @@ impl RenderService {
         output
     }
 
+    fn expand_email_list_subscribe_modules(
+        wikitext: String,
+        settings: &WikitextSettings,
+        compat_html: &mut CompatHtmlFragments,
+    ) -> String {
+        if !settings.enable_page_syntax {
+            return wikitext;
+        }
+        let literal_regions =
+            LiteralRegionIndex::new_wikidot_module_recognition(&wikitext);
+        let modules = scan_source_modules(
+            &wikitext,
+            &literal_regions,
+            EMAIL_LIST_SUBSCRIBE_MODULE_NAMES,
+        );
+        if modules.is_empty() {
+            return wikitext;
+        }
+        let mut output = String::with_capacity(wikitext.len());
+        let mut cursor = 0;
+        for module in modules {
+            output.push_str(&wikitext[cursor..module.start]);
+            output.push_str(
+                &compat_html
+                    .push_block_html(render_email_list_subscribe_module(module.head)),
+            );
+            cursor = module.end;
+        }
+        output.push_str(&wikitext[cursor..]);
+        output
+    }
+
     fn render_static_account_module(name: &str) -> &'static str {
         if name.eq_ignore_ascii_case("AnonymousNotificationsUnsubscribe") {
             ANONYMOUS_NOTIFICATIONS_UNSUBSCRIBE_INVALID_TOKEN_HTML
@@ -1127,8 +1155,6 @@ impl RenderService {
             SEARCHUSERS_DISABLED_HTML
         } else if name.eq_ignore_ascii_case("ThemePreviewer") {
             THEME_PREVIEWER_PREVIEW_ERROR_HTML
-        } else if name.eq_ignore_ascii_case("MembershipEmailInvitation") {
-            MEMBERSHIP_EMAIL_INVITATION_MISSING_HTML
         } else {
             debug_assert!(name.eq_ignore_ascii_case("WhoInvited"));
             WHOINVITED_FORM_HTML
@@ -1169,9 +1195,8 @@ impl RenderService {
                 cursor = matched.end();
                 continue;
             }
-            let opaque_token_surface = name
-                .eq_ignore_ascii_case("AnonymousNotificationsUnsubscribe")
-                || name.eq_ignore_ascii_case("MembershipEmailInvitation");
+            let opaque_token_surface =
+                name.eq_ignore_ascii_case("AnonymousNotificationsUnsubscribe");
             if !head.trim().is_empty() && !opaque_token_surface {
                 continue;
             }
@@ -1396,6 +1421,8 @@ impl RenderService {
             compat_html,
         );
         wikitext = Self::expand_send_invitations_modules(wikitext, settings, compat_html);
+        wikitext =
+            Self::expand_email_list_subscribe_modules(wikitext, settings, compat_html);
         wikitext = Self::expand_membership_email_invitation_modules(
             ctx,
             wikitext,
@@ -1908,5 +1935,82 @@ mod localized_module_accessible_name_tests {
         );
         let search_all_html = compat_html.restore(&expanded);
         assert!(search_all_html.contains(r#"aria-label="すべてのWikiを検索""#));
+    }
+}
+
+#[cfg(test)]
+mod email_list_subscribe_tests {
+    use super::*;
+
+    use ftml::layout::Layout;
+    use ftml::settings::{WikitextMode, WikitextSettings};
+
+    fn expand(source: &str) -> String {
+        let settings = WikitextSettings::from_mode(WikitextMode::Page, Layout::Wikidot);
+        let mut compat_html = CompatHtmlFragments::new(source);
+        let expanded = RenderService::expand_email_list_subscribe_modules(
+            source.to_owned(),
+            &settings,
+            &mut compat_html,
+        );
+        compat_html.restore(&expanded)
+    }
+
+    #[test]
+    fn renders_the_live_list_error_block() {
+        for (source, expected) in [
+            (
+                "[[module EmailListSubscribe]]",
+                r#"<div class="error-block">List "" cannot be found.</div>"#,
+            ),
+            (
+                r#"[[module EmailListSubscribe list="foo"]]"#,
+                r#"<div class="error-block">List "foo" cannot be found.</div>"#,
+            ),
+            (
+                "[[module emaillistsubscribe]]",
+                r#"<div class="error-block">List "" cannot be found.</div>"#,
+            ),
+            (
+                r#"[[module EmailListSubscribe list="foo" list="bar"]]"#,
+                r#"<div class="error-block">List "bar" cannot be found.</div>"#,
+            ),
+            (
+                r#"[[module EmailListSubscribe list="a&b<q>"]]"#,
+                r#"<div class="error-block">List "a&amp;b&lt;q&gt;" cannot be found.</div>"#,
+            ),
+        ] {
+            assert_eq!(expand(source), expected, "{source}");
+        }
+    }
+
+    #[test]
+    fn ignores_unknown_and_unparseable_arguments_like_live() {
+        let expected = r#"<div class="error-block">List "" cannot be found.</div>"#;
+        for source in [
+            r#"[[module EmailListSubscribe foo="bar"]]"#,
+            "[[module EmailListSubscribe list=123]]",
+            r#"[[module EmailListSubscribe LIST="foo"]]"#,
+        ] {
+            assert_eq!(expand(source), expected, "{source}");
+        }
+    }
+
+    #[test]
+    fn honors_wikidot_module_source_boundaries() {
+        let block =
+            expand("[[module EmailListSubscribe list=\"foo\"]]\nBODY\n[[/module]]");
+        assert_eq!(
+            block,
+            r#"<div class="error-block">List "foo" cannot be found.</div>"#,
+        );
+        for literal in [
+            "[[module EmailListSubscribe]]x[[/module]]",
+            " [[module EmailListSubscribe]]",
+            "[[module EmailListSubscribe]]x",
+            "[[code]]\n[[module EmailListSubscribe]]\n[[/code]]",
+        ] {
+            assert_eq!(expand(literal), literal, "{literal}");
+        }
     }
 }

@@ -53,6 +53,7 @@ mod mail_form_module;
 mod membership_actions;
 mod metacomponent;
 mod module_arguments;
+mod module_tokens;
 mod native_list_context;
 mod new_page_module;
 mod next_previous_page;

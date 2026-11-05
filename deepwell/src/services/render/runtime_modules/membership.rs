@@ -1,15 +1,16 @@
 #[cfg(test)]
 use super::membership_apply_action_count;
+use super::scan_source_modules;
 use super::{
     CompatHtmlFragments, GetSiteMember, LiteralRegionIndex,
     MEMBERSHIP_APPLY_ALREADY_APPLIED_HTML, MEMBERSHIP_APPLY_ANONYMOUS_HTML,
     MEMBERSHIP_APPLY_DISABLED_HTML, MEMBERSHIP_APPLY_FORM_HTML,
     MEMBERSHIP_APPLY_MEMBER_HTML, MEMBERSHIP_BY_PASSWORD_ANONYMOUS_HTML,
     MEMBERSHIP_BY_PASSWORD_DISABLED_HTML, MEMBERSHIP_BY_PASSWORD_FORM_HTML,
-    MEMBERSHIP_BY_PASSWORD_MEMBER_HTML, MEMBERSHIP_EMAIL_INVITATION_MISSING_HTML,
-    MEMBERSHIPAPPLY_MODULE_REGEX, MEMBERSHIPBYPASSWORD_MODULE_REGEX,
-    MembershipByPasswordResultCache, MembershipService, Reference, RelationService,
-    RenderService, Result, STATIC_ACCOUNT_MODULE_REGEX, ServiceContext, SiteService,
+    MEMBERSHIP_BY_PASSWORD_MEMBER_HTML, MEMBERSHIP_BY_PASSWORD_MODULE_NAMES,
+    MEMBERSHIP_EMAIL_INVITATION_MISSING_HTML, MEMBERSHIP_EMAIL_INVITATION_MODULE_NAMES,
+    MEMBERSHIPAPPLY_MODULE_REGEX, MembershipByPasswordResultCache, MembershipService,
+    Reference, RelationService, RenderService, Result, ServiceContext, SiteService,
     UrlArguments, UserService, WikitextSettings,
     render_membership_email_invitation_valid,
 };
@@ -92,9 +93,7 @@ impl RenderService {
         url: UrlArguments<'_>,
         compat_html: &mut CompatHtmlFragments,
     ) -> Result<String> {
-        if !settings.enable_page_syntax
-            || !STATIC_ACCOUNT_MODULE_REGEX.is_match(&wikitext)
-        {
+        if !settings.enable_page_syntax {
             return Ok(wikitext);
         }
         let hash = url
@@ -129,26 +128,17 @@ impl RenderService {
 
         let literal_regions =
             LiteralRegionIndex::new_wikidot_module_recognition(&wikitext);
+        let modules = scan_source_modules(
+            &wikitext,
+            &literal_regions,
+            MEMBERSHIP_EMAIL_INVITATION_MODULE_NAMES,
+        );
         let mut output = String::with_capacity(wikitext.len());
         let mut cursor = 0;
-        for captures in STATIC_ACCOUNT_MODULE_REGEX.captures_iter(&wikitext) {
-            let matched = captures
-                .get(0)
-                .expect("a static account module capture always has a complete match");
-            if literal_regions.contains(matched.start())
-                || !captures.name("name").is_some_and(|name| {
-                    name.as_str()
-                        .eq_ignore_ascii_case("MembershipEmailInvitation")
-                })
-                || captures
-                    .name("head")
-                    .is_some_and(|head| !head.as_str().trim().is_empty())
-            {
-                continue;
-            }
-            output.push_str(&wikitext[cursor..matched.start()]);
+        for module in modules {
+            output.push_str(&wikitext[cursor..module.start]);
             output.push_str(&compat_html.push_block_html(rendered.clone()));
-            cursor = matched.end();
+            cursor = module.end;
         }
         if cursor == 0 {
             return Ok(wikitext);
@@ -195,28 +185,24 @@ impl RenderService {
         viewer_user_id: Option<i64>,
         compat_html: &mut CompatHtmlFragments,
     ) -> Result<String> {
-        if !settings.enable_page_syntax
-            || !MEMBERSHIPBYPASSWORD_MODULE_REGEX.is_match(&wikitext)
-        {
+        if !settings.enable_page_syntax {
             return Ok(wikitext);
         }
 
         let literal_regions =
             LiteralRegionIndex::new_wikidot_module_recognition(&wikitext);
+        let modules = scan_source_modules(
+            &wikitext,
+            &literal_regions,
+            MEMBERSHIP_BY_PASSWORD_MODULE_NAMES,
+        );
+        if modules.is_empty() {
+            return Ok(wikitext);
+        }
         let mut output = String::with_capacity(wikitext.len());
         let mut cursor = 0;
         let mut result_cache = MembershipByPasswordResultCache::default();
-        for captures in MEMBERSHIPBYPASSWORD_MODULE_REGEX.captures_iter(&wikitext) {
-            let matched = captures
-                .get(0)
-                .expect("a MembershipByPassword capture always has a complete match");
-            if literal_regions.contains(matched.start()) {
-                continue;
-            }
-            let head = captures.name("head").map_or("", |head| head.as_str());
-            if !head.trim().is_empty() {
-                continue;
-            }
+        for module in modules {
             let rendered = result_cache
                 .get_or_init(|| {
                     Self::render_membership_by_password_module(
@@ -229,9 +215,9 @@ impl RenderService {
             let Some(rendered) = rendered else {
                 continue;
             };
-            output.push_str(&wikitext[cursor..matched.start()]);
+            output.push_str(&wikitext[cursor..module.start]);
             output.push_str(&compat_html.push_block_html(rendered.to_owned()));
-            cursor = matched.end();
+            cursor = module.end;
         }
         if cursor == 0 {
             return Ok(wikitext);

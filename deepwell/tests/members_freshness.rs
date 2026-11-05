@@ -221,12 +221,12 @@ async fn saved_members_pages_refresh_after_membership_changes_without_mutating_r
             if slug == &direct_slug {
                 assert_eq!(
                     html.matches(&member_name).count(),
-                    1,
-                    "code, pre, and invalid Members forms must not execute:\n{html}",
+                    2,
+                    "live executes both the bare module and the module whose unknown group value is ignored, while code and pre forms stay literal:\n{html}",
                 );
                 assert!(
-                    html.contains("No such module"),
-                    "invalid Members group must retain the fail-closed rendering:\n{html}",
+                    !html.contains("No such module"),
+                    "an unknown Members group value is ignored instead of failing closed:\n{html}",
                 );
             }
         }
@@ -246,12 +246,17 @@ async fn imported_members_sources_preserve_runtime_cache_boundaries() {
     for (offset, (label, source, expects_cache_key)) in [
         ("executable", "[[module Members]]", false),
         ("literal", "[[code]]\n[[module Members]]\n[[/code]]", true),
-        ("invalid", "[[module Members group=\"owners\"]]", true),
+        ("inline", "[[module Members]]x[[/module]]", true),
+        (
+            "ignored-argument",
+            "[[module Members group=\"owners\"]]",
+            false,
+        ),
     ]
     .into_iter()
     .enumerate()
     {
-        let offset = i64::try_from(offset).expect("three cache fixtures fit i64");
+        let offset = i64::try_from(offset).expect("four cache fixtures fit i64");
         let page_id = page_id_base + offset;
         let revision_id = revision_id_base + offset;
         let slug = format!("members-import-cache-{run_id}:{label}");

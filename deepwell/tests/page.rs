@@ -11594,10 +11594,10 @@ async fn members_module_ssr_and_ajax_share_100_row_duplicate_relation_boundary()
     assert!(
         nondefault.find("SSR Member 100") < nondefault.find("SSR Member 099")
             && !nondefault.contains("SSR Member 000")
-            && !nondefault.contains("class=\"pager\"")
-            && !nondefault.contains("updateMemberList")
-            && !nondefault.contains("membership/MembersListModule"),
-        "a non-default first slice must not advertise an AMC continuation Framerail rejects:\n{nondefault}",
+            && nondefault.contains(r#"<span class="pager-no">page 1 of 2</span>"#)
+            && nondefault.contains("p.order     = 'nameDesc';")
+            && nondefault.contains("membership/MembersListModule"),
+        "a non-default first slice keeps live's evidenced continuation script:\n{nondefault}",
     );
 
     runner.set_request_context(RequestContext {
@@ -11619,6 +11619,24 @@ async fn members_module_ssr_and_ajax_share_100_row_duplicate_relation_boundary()
             && !continuation.body.contains("SSR Member 099"),
         "the supported continuation must begin exactly after the 100-row SSR slice:\n{}",
         continuation.body,
+    );
+
+    let namedesc_continuation = run_endpoint!(
+        runner,
+        wikidot_members_list_module,
+        json!({
+            "site_id": site_id,
+            "parameters": {"group": "", "order": "nameDesc", "page": "2"},
+        }),
+    );
+    assert_eq!(namedesc_continuation.status, "ok");
+    assert_eq!(namedesc_continuation.body.matches("<tr>").count(), 1);
+    assert!(
+        namedesc_continuation.body.contains("SSR Member 000")
+            && !namedesc_continuation.body.contains("SSR Member 001"),
+        "the non-default continuation keeps the advertised slice:
+{}",
+        namedesc_continuation.body,
     );
 }
 
@@ -11764,8 +11782,9 @@ async fn members_module_renders_directory_larger_than_legacy_scan_budget() {
         namedesc.find("Scale Member 2399") < namedesc.find("Scale Member 2300")
             && namedesc.contains("Scale Member 2300")
             && !namedesc.contains("Scale Member 2299")
-            && !namedesc.contains("class=\"pager\""),
-        "nameDesc must slice the filtered directory from the highest name:\n{namedesc}",
+            && namedesc.contains(r#"<span class="pager-no">page 1 of 24</span>"#)
+            && namedesc.contains("p.order     = 'nameDesc';"),
+        "nameDesc must slice the filtered directory from the highest name and keep live's continuation script:\n{namedesc}",
     );
 
     let last_page = run_endpoint!(
@@ -11960,11 +11979,10 @@ async fn members_module_queries_only_visible_site_members_and_roles() {
             "module IDs must be unique and moderator rows must come from this site's active role assignments:\n{html}",
         );
         assert!(
-            !members.contains("updateMemberList")
-                && !members.contains("membership/MembersListModule")
-                && !moderators.contains("updateMemberList")
-                && !moderators.contains("membership/MembersListModule"),
-            "non-default order and group directories must not advertise an unsupported continuation:\n{html}",
+            members.contains("p.order     = 'nameDesc';")
+                && members.contains("p.showSince = 'false';")
+                && moderators.contains("p.group     = 'moderators';"),
+            "live's continuation script reflects the parsed group, order and showSince:\n{html}",
         );
         assert!(
             !html.contains("ml-607935")
@@ -11979,10 +11997,10 @@ async fn members_module_queries_only_visible_site_members_and_roles() {
             .map(|(invalid, _)| invalid)
             .expect("invalid module should remain between authored markers");
         assert!(
-            invalid.contains("No such module")
-                && !invalid.contains("Alpha Member")
-                && !invalid.contains("Zeta Member"),
-            "unverified groups must fail closed instead of widening the site query:\n{invalid}",
+            !invalid.contains("No such module")
+                && invalid.contains("Alpha Member")
+                && invalid.contains("Zeta Member"),
+            "live ignores an unknown group value and renders the default member list:\n{invalid}",
         );
     }
 }
@@ -12181,7 +12199,8 @@ async fn members_list_ajax_paginates_only_filtered_site_identities() {
     for parameters in [
         json!({"group": "", "order": "joined"}),
         json!({"group": "members", "order": "joined", "page": "1"}),
-        json!({"group": "", "order": "name", "page": "1"}),
+        json!({"group": "admins", "order": "joined", "page": "1", "showSince": "no"}),
+        json!({"group": "", "order": "userId", "page": "1"}),
         json!({"group": "", "order": "joined", "page": "-1"}),
         json!({"group": "", "order": "joined", "page": "01"}),
         json!({"group": "", "order": "joined", "page": "1.0"}),
@@ -14064,7 +14083,7 @@ async fn static_account_modules_match_live_preview_and_page_view_basics() {
         assert!(
             html.contains(r#"<div id="membership-email-invitation-box">"#)
                 && html.contains("Sorry, the invitation could not be found.")
-                && html.contains("aleady\n\t\t\tused by someone"),
+                && html.contains("expired, already\n\t\t\tused by someone"),
             "{label} should render MembershipEmailInvitation's live missing invitation box:\n{html}",
         );
         assert!(
@@ -29670,5 +29689,460 @@ async fn editor_preview_executes_tag_cloud_page_tree_page_calendar_and_join() {
                 .contains("WIKIDOT.page.listeners.join(event, 'unified')"),
         "live PagePreview renders the anonymous Join box:\n{}",
         join.body,
+    );
+}
+
+fn marked_module_section<'a>(body: &'a str, label: &str) -> &'a str {
+    let start = format!("{label}_START");
+    let end = format!("{label}_END");
+    body.split_once(&start)
+        .and_then(|(_, tail)| tail.split_once(&end))
+        .map(|(section, _)| section)
+        .unwrap_or_else(|| panic!("missing {label} markers in:\n{body}"))
+}
+
+#[tokio::test]
+async fn emaillistsubscribe_module_matches_live_list_errors_and_source_boundaries() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let source = concat!(
+        "ELSBARE_START\n[[module EmailListSubscribe]]\nELSBARE_END\n",
+        "ELSLIST_START\n[[module EmailListSubscribe list=\"foo\"]]\nELSLIST_END\n",
+        "ELSDUP_START\n[[module EmailListSubscribe list=\"foo\" list=\"bar\"]]\nELSDUP_END\n",
+        "ELSHTML_START\n[[module EmailListSubscribe list=\"a&b<q>\"]]\nELSHTML_END\n",
+        "ELSLOWER_START\n[[module emaillistsubscribe]]\nELSLOWER_END\n",
+        "ELSIGNORE_START\n[[module EmailListSubscribe foo=\"bar\"]]\nELSIGNORE_END\n",
+        "ELSUNQUOTED_START\n[[module EmailListSubscribe list=123]]\nELSUNQUOTED_END\n",
+        "ELSUPPER_START\n[[module EmailListSubscribe LIST=\"foo\"]]\nELSUPPER_END\n",
+        "ELSBODY_START\n[[module EmailListSubscribe list=\"foo\"]]\nBODY\n[[/module]]\nELSBODY_END\n",
+        "ELSINLINE_START\n[[module EmailListSubscribe]]x[[/module]]\nELSINLINE_END\n",
+        "ELSLEAD_START\n [[module EmailListSubscribe]]\nELSLEAD_END",
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let preview = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": "EmailListSubscribe live basics",
+            "wikitext": source,
+        }),
+    )
+    .body;
+
+    for (label, expected) in [
+        (
+            "ELSBARE",
+            r#"<div class="error-block">List "" cannot be found.</div>"#,
+        ),
+        (
+            "ELSLIST",
+            r#"<div class="error-block">List "foo" cannot be found.</div>"#,
+        ),
+        (
+            "ELSDUP",
+            r#"<div class="error-block">List "bar" cannot be found.</div>"#,
+        ),
+        (
+            "ELSHTML",
+            r#"<div class="error-block">List "a&amp;b&lt;q&gt;" cannot be found.</div>"#,
+        ),
+        (
+            "ELSLOWER",
+            r#"<div class="error-block">List "" cannot be found.</div>"#,
+        ),
+        (
+            "ELSIGNORE",
+            r#"<div class="error-block">List "" cannot be found.</div>"#,
+        ),
+        (
+            "ELSUNQUOTED",
+            r#"<div class="error-block">List "" cannot be found.</div>"#,
+        ),
+        (
+            "ELSUPPER",
+            r#"<div class="error-block">List "" cannot be found.</div>"#,
+        ),
+        (
+            "ELSBODY",
+            r#"<div class="error-block">List "foo" cannot be found.</div>"#,
+        ),
+    ] {
+        let section = marked_module_section(&preview, label);
+        assert!(
+            section.contains(expected),
+            "{label} should render live's list error:\n{section}",
+        );
+        assert!(
+            !section.contains("No such module"),
+            "{label} must not degrade to the unknown-module error:\n{section}",
+        );
+    }
+    let body_section = marked_module_section(&preview, "ELSBODY");
+    assert!(
+        !body_section.contains("BODY"),
+        "the module body is consumed by the invocation:\n{body_section}",
+    );
+    for (label, literal) in [
+        ("ELSINLINE", "[[module EmailListSubscribe]]x[[/module]]"),
+        ("ELSLEAD", "[[module EmailListSubscribe]]"),
+    ] {
+        let section = marked_module_section(&preview, label);
+        assert!(
+            section.contains(literal) && !section.contains("cannot be found"),
+            "{label} must stay literal like live:\n{section}",
+        );
+    }
+    for module in [
+        "[[module EmailListSubscribe]]",
+        "[[module emaillistsubscribe]]",
+    ] {
+        assert!(
+            !preview
+                .split_once("ELSINLINE_START")
+                .map(|(head, _)| head)
+                .unwrap_or_default()
+                .contains(module),
+            "executable EmailListSubscribe invocations must not leak source:\n{preview}",
+        );
+    }
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-emaillistsubscribe",
+        "Fixture EmailListSubscribe",
+        source,
+    )
+    .await;
+    let view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": "fixture-emaillistsubscribe", "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let body = match view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found EmailListSubscribe view, got {other:?}"),
+    };
+    assert!(
+        body.contains(r#"<div class="error-block">List "foo" cannot be found.</div>"#)
+            && body
+                .contains(r#"<div class="error-block">List "" cannot be found.</div>"#)
+            && body.contains("[[module EmailListSubscribe]]x[[/module]]")
+            && !body.contains("No such module"),
+        "saved EmailListSubscribe page should match the preview boundary:\n{body}",
+    );
+}
+
+#[tokio::test]
+async fn mailform_bare_forms_title_limits_and_field_defaults_match_live() {
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let title_200 = "t".repeat(200);
+    let title_201 = "t".repeat(201);
+    let source = format!(
+        concat!(
+            "MFBARE_START\n[[module MailForm]]\nMFBARE_END\n",
+            "MFARGS_START\n[[module MailForm to=\"a@example.com\" button=\"Go\"]]\nMFARGS_END\n",
+            "MFBODY_START\n[[module MailForm to=\"a@example.com\"]]\n",
+            "# name\n * title: ID\n * type: text\n * default: driosua\n",
+            " * rules:\n  * maxLength: 10\n",
+            "[[/module]]\nMFBODY_END\n",
+            "MFTITLE200_START\n[[module MailForm title=\"{title_200}\"]]\nMFTITLE200_END\n",
+            "MFTITLE201_START\n[[module MailForm title=\"{title_201}\"]]\nMFTITLE201_END\n",
+            "MFDEFAULTS_START\n[[module MailForm]]\n",
+            "# note\n * type: text\n * default: 0\n",
+            "# flag\n * type: checkbox\n * default: false\n",
+            "# kind\n * type: select\n * options:\n  * one: First\n  * two: Second\n * default: two\n",
+            "[[/module]]\nMFDEFAULTS_END\n",
+            "MFINLINE_START\n[[module MailForm]]x[[/module]]\nMFINLINE_END\n",
+            "MFLEAD_START\n [[module MailForm]]\nMFLEAD_END",
+        ),
+        title_200 = title_200,
+        title_201 = title_201,
+    );
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let preview = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": "MailForm live basics",
+            "wikitext": source,
+        }),
+    )
+    .body;
+
+    let bare = marked_module_section(&preview, "MFBARE");
+    assert!(
+        bare.contains(r#"<div class="mailform-box" id="mailform-box-1">"#)
+            && bare.contains(r#"<table class="form"></table>"#)
+            && bare.contains(r#"<input type="button" value="Send""#),
+        "a bare MailForm must render live's empty form shell:\n{bare}",
+    );
+
+    let args = marked_module_section(&preview, "MFARGS");
+    assert!(
+        args.contains(r#"value="Go""#),
+        "the button attribute must render as the live button label:\n{args}",
+    );
+
+    let body = marked_module_section(&preview, "MFBODY");
+    assert!(
+        body.contains(r#"<tr id="mailform-row-3-name"><td>ID</td>"#)
+            && body.contains(r#"<input name="name" class="text" type="text" value="driosua" size="30" maxlength="10"/>"#),
+        "a block MailForm body must render its live field rows:\n{body}",
+    );
+
+    let title_200_section = marked_module_section(&preview, "MFTITLE200");
+    assert!(
+        title_200_section.contains(r#"<div class="mailform-box""#)
+            && !title_200_section.contains("not valid"),
+        "a 200-character title is accepted:\n{title_200_section}",
+    );
+    let title_201_section = marked_module_section(&preview, "MFTITLE201");
+    assert!(
+        title_201_section.contains(
+            r#"<div class="error-block">The title="..." attribute is not valid.</div>"#
+        ),
+        "live rejects titles longer than 200 characters:\n{title_201_section}",
+    );
+
+    let defaults = marked_module_section(&preview, "MFDEFAULTS");
+    assert!(
+        !defaults.contains(r#"value="0""#)
+            && defaults.contains(r#"checked="checked""#)
+            && !defaults.contains(r#"value="1""#)
+            && !defaults.contains("-- Please select --")
+            && defaults.contains(r#"selected="selected""#),
+        "field defaults must follow live's PHP truthiness:\n{defaults}",
+    );
+
+    let inline = marked_module_section(&preview, "MFINLINE");
+    assert!(
+        inline.contains("[[module MailForm]]x[[/module]]")
+            && !inline.contains("mailform-box"),
+        "an inline MailForm invocation must stay literal like live:\n{inline}",
+    );
+    let lead = marked_module_section(&preview, "MFLEAD");
+    assert!(
+        lead.contains("[[module MailForm]]") && !lead.contains("mailform-box"),
+        "an indented MailForm invocation must stay literal like live:\n{lead}",
+    );
+
+    create_listpages_test_page(
+        &mut runner,
+        site_id,
+        "fixture-mailform-bare-forms",
+        "Fixture MailForm Bare Forms",
+        &source,
+    )
+    .await;
+    let view = run_endpoint!(
+        runner,
+        page_view,
+        json!({
+            "site_id": site_id,
+            "session_token": null,
+            "route": {"slug": "fixture-mailform-bare-forms", "extra": ""},
+            "locales": ["en-US", "en"],
+        }),
+    );
+    let saved = match view {
+        GetPageViewOutput::Found {
+            compiled_body_html, ..
+        } => compiled_body_html,
+        other => panic!("expected found MailForm view, got {other:?}"),
+    };
+    assert!(
+        saved.contains(r#"<div class="mailform-box" id="mailform-box-1">"#)
+            && saved.contains(r#"<tr id="mailform-row-3-name"><td>ID</td>"#)
+            && saved.contains("The title=\"...\" attribute is not valid.")
+            && saved.contains("[[module MailForm]]x[[/module]]")
+            && !saved.contains("No such module"),
+        "saved MailForm page should match the preview boundary:\n{saved}",
+    );
+}
+
+#[tokio::test]
+async fn members_module_arguments_follow_live_leniency() {
+    const ALPHA_USER_ID: i64 = 19_104_100;
+    const ZETA_USER_ID: i64 = 19_104_101;
+
+    let mut runner = TestRunner::setup().await;
+    let site = run_endpoint!(runner, site_get, json!({"site": "scp-wiki"}))
+        .expect("seeded SCP Wiki site should exist");
+    let site_id = site.site.site_id;
+    let transaction = runner.context().transaction();
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            "INSERT INTO known_user (user_id) VALUES ($1), ($2)",
+            [Value::from(ALPHA_USER_ID), Value::from(ZETA_USER_ID)],
+        ))
+        .await
+        .expect("member argument fixtures should be inserted");
+    transaction
+        .execute_raw(Statement::from_sql_and_values(
+            transaction.get_database_backend(),
+            concat!(
+                "INSERT INTO wikidot_user (",
+                "user_id, created_at, fetched_at, is_deleted, name, slug, karma, is_pro",
+                ") VALUES ",
+                "($1, NOW() - INTERVAL '2 second', NOW(), FALSE, 'Alpha Member', 'alpha-member', 2, FALSE), ",
+                "($2, NOW() - INTERVAL '1 second', NOW(), FALSE, 'Zeta Member', 'zeta-member', 4, FALSE)",
+            ),
+            [Value::from(ALPHA_USER_ID), Value::from(ZETA_USER_ID)],
+        ))
+        .await
+        .expect("member argument Wikidot fixtures should be inserted");
+    for user_id in [ALPHA_USER_ID, ZETA_USER_ID] {
+        RelationService::create_site_member(
+            runner.context(),
+            CreateSiteMember {
+                site_id,
+                user_id,
+                metadata: SiteMemberData {
+                    accepted: SiteMemberAccepted::Accepted(SYSTEM_USER_ID),
+                },
+                created_by: SYSTEM_USER_ID,
+            },
+            common::IP_ADDRESS,
+        )
+        .await
+        .expect("member argument relation should be created");
+    }
+
+    let cases: Vec<(&str, &str)> = vec![
+        ("MBARE", "[[module Members]]"),
+        ("MLIMIT", r#"[[module Members limit="1"]]"#),
+        ("MUNKNOWN", r#"[[module Members foo="bar"]]"#),
+        ("MGROUP", r#"[[module Members group="admin"]]"#),
+        ("MORDER", r#"[[module Members order="abc"]]"#),
+        ("MSINGLE", "[[module Members order='name']]"),
+        ("MSHOWSINCE", r#"[[module Members showSince="no"]]"#),
+        ("MPAGE", r#"[[module Members page="2"]]"#),
+        ("MFROM", r#"[[module Members from="admins"]]"#),
+        ("MUSERID", r#"[[module Members order="userId"]]"#),
+        (
+            "MBLOCK",
+            "[[module Members group=\"admin\"]]\nBODY\n[[/module]]",
+        ),
+        ("MINLINE", "[[module Members]]x[[/module]]"),
+    ];
+    let mut source = String::new();
+    for (label, body) in &cases {
+        source.push_str(&format!("{label}_START\n{body}\n{label}_END\n"));
+    }
+
+    runner.set_request_context(RequestContext {
+        session: None,
+        user_id: None,
+        site_id: Some(site_id),
+        page_reference: None,
+    });
+    let preview = run_endpoint!(
+        runner,
+        wikidot_page_preview,
+        json!({
+            "site_id": site_id,
+            "title": "Members argument leniency",
+            "wikitext": source,
+        }),
+    )
+    .body;
+
+    for label in [
+        "MBARE",
+        "MLIMIT",
+        "MUNKNOWN",
+        "MGROUP",
+        "MORDER",
+        "MSINGLE",
+        "MSHOWSINCE",
+        "MBLOCK",
+    ] {
+        let section = marked_module_section(&preview, label);
+        assert!(
+            section.contains("Alpha Member") && section.contains("Zeta Member"),
+            "{label} should render the default member directory:\n{section}",
+        );
+        assert!(
+            !section.contains("No such module"),
+            "{label} must not fall through to the unknown-module error:\n{section}",
+        );
+        assert!(
+            section.contains("p.order     = 'joined';")
+                && section.contains("p.group     = '';"),
+            "{label} should advertise live's continuation script:\n{section}",
+        );
+        if label != "MSHOWSINCE" {
+            assert!(
+                section.contains(r#"since <span class="odate"#),
+                "{label} should keep the joined dates:\n{section}",
+            );
+        }
+    }
+    let showsince = marked_module_section(&preview, "MSHOWSINCE");
+    assert!(
+        !showsince.contains(r#"since <span class="odate"#)
+            && showsince.contains("p.showSince = 'false';"),
+        "showSince=false must drop the joined column and pass the live flag:\n{showsince}",
+    );
+
+    let page = marked_module_section(&preview, "MPAGE");
+    assert!(
+        page.contains("No users.") && !page.contains("No such module"),
+        "page=2 on a two-member site must render live's empty page:\n{page}",
+    );
+
+    let from = marked_module_section(&preview, "MFROM");
+    assert!(
+        from.contains("No users.") && !from.contains("No such module"),
+        "the from= alias selects another group instead of failing:\n{from}",
+    );
+
+    let userid = marked_module_section(&preview, "MUSERID");
+    assert!(
+        userid.contains(
+            r#"<div class="error-block">An error occurred when processing your request.</div>"#
+        ),
+        "live renders its generic processing error for order=userId:\n{userid}",
+    );
+
+    let block = marked_module_section(&preview, "MBLOCK");
+    assert!(
+        block.contains("Alpha Member") && !block.contains("BODY"),
+        "a block body belongs to the Members invocation and is ignored:\n{block}",
+    );
+
+    let inline = marked_module_section(&preview, "MINLINE");
+    assert!(
+        inline.contains("[[module Members]]x[[/module]]")
+            && !inline.contains(r#"id="ml-"#),
+        "an inline Members invocation must stay literal like live:\n{inline}",
     );
 }

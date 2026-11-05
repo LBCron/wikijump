@@ -59,6 +59,64 @@ pub(in crate::services::render) fn wikidot_module_argument<'a>(
         .map(|argument| argument.value)
 }
 
+/// Extracts the well-formed `key="value"` pairs from a module head the way
+/// Wikidot's parameter parser does: bare values, single-quoted values and
+/// stray tokens are ignored, and the last occurrence of a key wins.
+pub(in crate::services::render) fn wikidot_module_double_quoted_arguments(
+    head: &str,
+) -> Vec<(&str, &str)> {
+    let bytes = head.as_bytes();
+    let mut arguments = Vec::new();
+    let mut cursor = 0usize;
+    while cursor < bytes.len() {
+        while cursor < bytes.len()
+            && !(bytes[cursor].is_ascii_alphabetic() || bytes[cursor] == b'_')
+        {
+            cursor += 1;
+        }
+        if cursor >= bytes.len() {
+            break;
+        }
+        let key_start = cursor;
+        cursor += 1;
+        while cursor < bytes.len()
+            && (bytes[cursor].is_ascii_alphanumeric()
+                || matches!(bytes[cursor], b'_' | b'-'))
+        {
+            cursor += 1;
+        }
+        let key = &head[key_start..cursor];
+
+        let mut equals = cursor;
+        while matches!(bytes.get(equals), Some(b' ' | b'\t' | b'\r' | b'\n')) {
+            equals += 1;
+        }
+        if bytes.get(equals) == Some(&b'!') {
+            equals += 1;
+        }
+        if bytes.get(equals) != Some(&b'=') {
+            cursor = equals.max(cursor + 1);
+            continue;
+        }
+
+        let mut value_start = equals + 1;
+        while matches!(bytes.get(value_start), Some(b' ' | b'\t' | b'\r' | b'\n')) {
+            value_start += 1;
+        }
+        if bytes.get(value_start) != Some(&b'"') {
+            cursor = value_start.max(cursor + 1);
+            continue;
+        }
+        let Some(value_end) = head[value_start + 1..].find('"') else {
+            break;
+        };
+        let value_end = value_start + 1 + value_end;
+        arguments.push((key, &head[value_start + 1..value_end]));
+        cursor = value_end + 1;
+    }
+    arguments
+}
+
 pub(in crate::services::render) fn wikidot_module_arguments(
     head: &str,
 ) -> Option<Vec<WikidotModuleArgument<'_>>> {

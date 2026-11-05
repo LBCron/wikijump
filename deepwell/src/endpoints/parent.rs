@@ -381,20 +381,37 @@ pub async fn child_get_all(
         page, site_id,
     );
 
-    let parents: Vec<Reference<'_>> = ParentService::get_children(ctx, site_id, page)
+    let parent = PageService::get(ctx, site_id, page)
         .await
-        .or_raise(make_error)?
-        .iter()
-        .map(|p| Reference::from(p.child_page_id))
-        .collect();
+        .or_raise(make_error)?;
+    if !page_is_viewable(ctx, &parent).await.or_raise(make_error)? {
+        return Err(Error::new(
+            "user does not have permission to view this parent page",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
 
-    let page_revision_ids: Vec<i64> =
-        PageService::get_pages(ctx, site_id, parents.as_slice())
+    let parents: Vec<Reference<'_>> =
+        ParentService::get_children(ctx, site_id, Reference::Id(parent.page_id))
             .await
             .or_raise(make_error)?
-            .into_iter()
-            .filter_map(|p| p.latest_revision_id)
+            .iter()
+            .map(|p| Reference::from(p.child_page_id))
             .collect();
+
+    let child_pages = PageService::get_pages(ctx, site_id, parents.as_slice())
+        .await
+        .or_raise(make_error)?;
+
+    let mut page_revision_ids = Vec::with_capacity(child_pages.len());
+    for child in child_pages {
+        if page_is_viewable(ctx, &child).await.or_raise(make_error)?
+            && let Some(revision_id) = child.latest_revision_id
+        {
+            page_revision_ids.push(revision_id);
+        }
+    }
 
     let page_details = PageRevisionService::get_revisions(ctx, page_revision_ids)
         .await
@@ -427,9 +444,20 @@ pub async fn parent_trace(
         depth,
     } = params.parse().or_raise(make_error)?;
 
-    let page_id = PageService::get_id(ctx, site_id, page)
+    let start_page = PageService::get(ctx, site_id, page)
         .await
         .or_raise(make_error)?;
+    if !page_is_viewable(ctx, &start_page)
+        .await
+        .or_raise(make_error)?
+    {
+        return Err(Error::new(
+            "user does not have permission to view this page",
+            ErrorType::PermissionDenied,
+        )
+        .into());
+    }
+    let page_id = start_page.page_id;
     let page_details = PageRevisionService::get_latest(ctx, site_id, page_id)
         .await
         .or_raise(make_error)?;
@@ -517,13 +545,21 @@ pub async fn parent_trace(
             .map(|i| Reference::Id(*i))
             .collect();
 
-        let page_revision_ids: Vec<i64> =
+        let ancestor_pages =
             PageService::get_pages(ctx, site_id, parent_pages_id.as_slice())
                 .await
+                .or_raise(make_error)?;
+
+        let mut page_revision_ids = Vec::with_capacity(ancestor_pages.len());
+        for ancestor in ancestor_pages {
+            if page_is_viewable(ctx, &ancestor)
+                .await
                 .or_raise(make_error)?
-                .into_iter()
-                .filter_map(|p| p.latest_revision_id)
-                .collect();
+                && let Some(revision_id) = ancestor.latest_revision_id
+            {
+                page_revision_ids.push(revision_id);
+            }
+        }
 
         let details = PageRevisionService::get_revisions(ctx, page_revision_ids)
             .await

@@ -17,17 +17,31 @@ pub(super) async fn build_page_output(
             .or_raise(make_error)?;
 
     let (wikitext, compiled_body_html, compiled_body_styles) = join!(
-        TextService::get_conditional(ctx, details.wikitext, &revision.wikitext_hash),
-        TextService::get_conditional(
-            ctx,
-            details.compiled_html,
-            &revision.compiled_body_html_hash,
-        ),
-        TextService::get_conditional_option(
-            ctx,
-            details.compiled_html,
-            &revision.compiled_body_styles_hash,
-        ),
+        async {
+            if details.wikitext {
+                TextService::get(ctx, &revision.wikitext_hash)
+                    .await
+                    .map(Some)
+            } else {
+                Ok(None)
+            }
+        },
+        async {
+            if details.compiled_html {
+                TextService::get(ctx, &revision.compiled_body_html_hash)
+                    .await
+                    .map(Some)
+            } else {
+                Ok(None)
+            }
+        },
+        async {
+            if details.compiled_html {
+                TextService::get_option(ctx, &revision.compiled_body_styles_hash).await
+            } else {
+                Ok(None)
+            }
+        },
     );
     let (wikitext, compiled_body_html, compiled_body_styles) =
         raise_multiple!(wikitext, compiled_body_html, compiled_body_styles; make_error);

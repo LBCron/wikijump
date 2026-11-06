@@ -1,7 +1,0 @@
-73a74,75
->     #[sea_orm(has_many = "super::site_domain::Entity")]
->     SiteDomain,
-81c83
-<     SiteDomain,
----
->     SiteDomainPreferredDomain,

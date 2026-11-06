@@ -1,6 +1,6 @@
 import { parse } from "accept-language-parser"
 
-const FALLBACK_LOCALE = "en"
+export const FALLBACK_LOCALE = "en"
 
 export const MAX_LOCALE_PREFERENCES = 16
 export const MAX_LOCALE_LENGTH = 64

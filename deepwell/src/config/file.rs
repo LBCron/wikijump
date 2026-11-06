@@ -196,7 +196,6 @@ struct RerenderSkip {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "kebab-case")]
 struct Blueprint {
-    page_prefix: String,
     template: String,
     missing: String,
     private: String,
@@ -357,7 +356,6 @@ impl ConfigFile {
                 },
             blueprint:
                 Blueprint {
-                    page_prefix: blueprint_page_prefix,
                     template: blueprint_page_template,
                     missing: blueprint_page_missing,
                     private: blueprint_page_private,
@@ -514,7 +512,6 @@ impl ConfigFile {
                 .collect(),
             message_layout,
             default_page_layout,
-            blueprint_page_prefix,
             blueprint_page_template,
             blueprint_page_missing,
             blueprint_page_private,
@@ -673,7 +670,6 @@ mod tests {
                 },
             },
             blueprint: Blueprint {
-                page_prefix: str!("_"),
                 template: str!("_template"),
                 missing: str!("_404"),
                 private: str!("_public"),
@@ -788,7 +784,6 @@ mod tests {
         );
         assert_eq!(config.message_layout, Layout::Wikijump);
         assert_eq!(config.default_page_layout, Layout::Wikidot);
-        assert_eq!(config.blueprint_page_prefix, "_");
         assert_eq!(config.blueprint_page_template, "_template");
         assert_eq!(config.blueprint_page_missing, "_404");
         assert_eq!(config.blueprint_page_private, "_public");

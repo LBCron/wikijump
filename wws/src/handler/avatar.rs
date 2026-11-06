@@ -19,72 +19,15 @@
  */
 
 use crate::{
-    deepwell::BlobData,
-    error::{BasicError, ResponseResult},
+    content::is_active_content_type, error::BasicError, fetch::fetch_blob,
     state::ServerState,
 };
 use axum::{
-    body::Body,
     extract::{Path, State},
     http::StatusCode,
     http::header::{self, HeaderMap},
     response::{IntoResponse, Response},
 };
-use s3::request::request_trait::ResponseDataStream;
-
-async fn fetch_blob(
-    state: &ServerState,
-    headers: &HeaderMap,
-    s3_hash: &str,
-) -> ResponseResult<(BlobData, Body)> {
-    let (file_size, mime_type) = match state.s3_files_bucket.head_object(&s3_hash).await {
-        Ok((result, status_code)) => {
-            assert_eq!(
-                status_code,
-                StatusCode::OK,
-                "head_object() succeeded but did not reply 200",
-            );
-            (result.content_length, result.content_type)
-        }
-        Err(error) => {
-            error!(s3_hash = s3_hash, "Cannot get blob metadata: {error}");
-
-            let response = state
-                .build_basic_error_response(headers, BasicError::BlobFetch { s3_hash })
-                .await;
-
-            return Err(response);
-        }
-    };
-
-    let body = match state.s3_files_bucket.get_object_stream(s3_hash).await {
-        Ok(ResponseDataStream { bytes, status_code }) => {
-            assert_eq!(
-                status_code,
-                StatusCode::OK,
-                "get_object_stream() succeeded but did not reply 200",
-            );
-            Body::from_stream(bytes)
-        }
-        Err(error) => {
-            error!(s3_hash = s3_hash, "Cannot get blob data: {error}",);
-
-            let response = state
-                .build_basic_error_response(headers, BasicError::BlobFetch { s3_hash })
-                .await;
-
-            return Err(response);
-        }
-    };
-
-    Ok((
-        BlobData {
-            size: file_size.expect("File size should be known"),
-            mime: mime_type.expect("File mime type should be known"),
-        },
-        body,
-    ))
-}
 
 pub async fn handle_user_avatar(
     State(state): State<ServerState>,
@@ -103,9 +46,19 @@ pub async fn handle_user_avatar(
         Err(response) => return response,
     };
 
-    let (file_info, body) = match fetch_blob(&state, &headers, &avatar_s3_hash).await {
+    let (file_info, body) = match fetch_blob(&state, &avatar_s3_hash).await {
         Ok(output) => output,
-        Err(response) => return response,
+        Err(error) => {
+            error!(s3_hash = &avatar_s3_hash, "Cannot get blob data: {error}");
+            return state
+                .build_basic_error_response(
+                    &headers,
+                    BasicError::BlobFetch {
+                        s3_hash: &avatar_s3_hash,
+                    },
+                )
+                .await;
+        }
     };
 
     let mut builder = Response::builder()
@@ -114,7 +67,7 @@ pub async fn handle_user_avatar(
         .header(header::ETAG, format!("\"{}\"", avatar_s3_hash))
         .header(header::X_CONTENT_TYPE_OPTIONS, "nosniff");
 
-    if super::file::is_active_content_type(&file_info.mime) {
+    if is_active_content_type(&file_info.mime) {
         builder = builder.header(header::CONTENT_DISPOSITION, "attachment");
     }
 

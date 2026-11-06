@@ -434,7 +434,7 @@ async fn verify_account_deletion(
         .into());
     }
 
-    PasswordService::verify_sleep(ctx, password, &user.password, true)
+    PasswordService::verify(ctx, password, &user.password)
         .await
         .map_err(|_| {
             Error::new(

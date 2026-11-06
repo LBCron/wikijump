@@ -195,7 +195,7 @@ impl AuthenticationService {
         password: &str,
         auth: &UserAuthInfo,
     ) -> Result<()> {
-        PasswordService::verify_sleep(ctx, password, &auth.password_hash, false).await
+        PasswordService::verify_no_sleep(ctx, password, &auth.password_hash).await
     }
 
     pub async fn auth_mfa(

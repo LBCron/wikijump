@@ -255,7 +255,7 @@ pub async fn user_edit(
                     ErrorType::InvalidAuthentication,
                 )
             })?;
-        PasswordService::verify_sleep(ctx, proof, &target.password, true)
+        PasswordService::verify(ctx, proof, &target.password)
             .await
             .map_err(|_| {
                 Error::new(

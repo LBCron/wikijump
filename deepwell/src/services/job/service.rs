@@ -20,9 +20,6 @@
 
 use super::structs::Job;
 use crate::error::prelude::{Error, ErrorType, Result, ResultExt};
-use crate::services::ServiceContext;
-use crate::services::page_revision::RerenderType;
-use crate::types::{PageId, RerenderDepth};
 use rsmq_async::{Rsmq, RsmqConnection};
 use std::time::Duration;
 
@@ -38,15 +35,6 @@ pub const JOB_QUEUE_MAXIMUM_SIZE: Option<i64> = Some(1024);
 pub struct JobService;
 
 impl JobService {
-    pub async fn queue_job(
-        ctx: &ServiceContext<'_>,
-        job: &Job,
-        delay: Option<Duration>,
-    ) -> Result<()> {
-        let mut rsmq = ctx.rsmq();
-        Self::queue_job_inner(&mut rsmq, job, delay).await
-    }
-
     pub async fn queue_job_inner(
         rsmq: &mut Rsmq,
         job: &Job,
@@ -71,47 +59,5 @@ impl JobService {
             .or_raise(make_error)?;
 
         Ok(())
-    }
-
-    pub async fn queue_rerender_page(
-        ctx: &ServiceContext<'_>,
-        id: PageId,
-        depth: RerenderDepth,
-    ) -> Result<()> {
-        debug!(
-            "Queuing page rerender for page ID {} and site ID {}",
-            id.page_id, id.site_id,
-        );
-        Self::queue_job(
-            ctx,
-            &Job::RerenderPage {
-                id,
-                depth,
-                r#type: RerenderType::Full,
-            },
-            None,
-        )
-        .await
-    }
-
-    pub async fn queue_rerender_nav_page(
-        ctx: &ServiceContext<'_>,
-        id: PageId,
-        depth: RerenderDepth,
-    ) -> Result<()> {
-        debug!(
-            "Queuing page rerender for page ID {} and site ID {}",
-            id.page_id, id.site_id,
-        );
-        Self::queue_job(
-            ctx,
-            &Job::RerenderPage {
-                id,
-                depth,
-                r#type: RerenderType::NavigationOnly,
-            },
-            None,
-        )
-        .await
     }
 }

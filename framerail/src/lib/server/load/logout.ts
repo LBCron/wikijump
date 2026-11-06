@@ -1,6 +1,6 @@
 import defaults from "$lib/defaults"
 
-import { parseAcceptLangHeader } from "$lib/locales"
+import { parseAcceptLangHeader, withFallbackLocale } from "$lib/locales"
 import { authLogout } from "$lib/server/auth/logout"
 import { deleteSessionCookie } from "$lib/server/auth/session-cookie"
 import { isInvalidSessionTokenError } from "$lib/server/deepwell/public-error"
@@ -39,10 +39,7 @@ export async function logoutAction({ cookies, request }: RequestEvent) {
   const sessionToken = cookies.get("wikijump_token")
 
   if (!sessionToken) {
-    const locales = parseAcceptLangHeader(request)
-    if (!locales.includes(defaults.fallbackLocale)) {
-      locales.push(defaults.fallbackLocale)
-    }
+    const locales = withFallbackLocale(parseAcceptLangHeader(request))
     const translateStrings = await translate(locales, {
       "error-api.NOT_LOGGED_IN": {}
     })

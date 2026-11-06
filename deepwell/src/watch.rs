@@ -91,14 +91,11 @@ pub fn setup_autorestart(config: &Config) -> Result<RecommendedWatcher> {
     )
     .or_raise(make_error)?;
 
-    // Add autowatch to configuration file.
     debug!("Adding regular watch to {}", config.raw_toml_path.display());
     watcher
         .watch(&config.raw_toml_path, RecursiveMode::NonRecursive)
         .or_raise(make_error)?;
 
-    // Add autowatch to localization directory.
-    // Recursive because it is nested.
     debug!(
         "Adding recursive watch to {}",
         config.localization_path.display(),

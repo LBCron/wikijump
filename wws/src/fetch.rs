@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use crate::deepwell::FileData;
+use crate::deepwell::{BlobData, FileData};
 use crate::error::{BasicError, Error, ResponseResult};
 use crate::handler::get_session_token;
 use crate::range::ByteRange;
@@ -110,6 +110,38 @@ async fn fetch_blob_body(
         Err(error) if is_missing_blob_error(&error) => Err(missing_blob(file_info)),
         Err(error) => Err(Error::S3(error)),
     }
+}
+
+pub async fn fetch_blob(
+    state: &ServerState,
+    s3_hash: &str,
+) -> crate::error::Result<(BlobData, Body)> {
+    let head = state.s3_files_bucket.head_object(s3_hash).await?;
+    if head.1 != 200 {
+        return Err(Error::S3(s3::error::S3Error::HttpFailWithBody(
+            head.1,
+            format!("expected 200, got {}", head.1),
+        )));
+    }
+    let (result, _) = head;
+    let size = result.content_length.expect("File size should be known");
+    let mime = result.content_type.expect("File mime type should be known");
+
+    let stream = state.s3_files_bucket.get_object_stream(s3_hash).await?;
+    if stream.status_code != StatusCode::OK.as_u16() {
+        return Err(Error::S3(s3::error::S3Error::HttpFailWithBody(
+            stream.status_code,
+            format!("expected 200, got {}", stream.status_code),
+        )));
+    }
+
+    Ok((
+        BlobData {
+            size: size as i64,
+            mime,
+        },
+        Body::from_stream(stream.bytes),
+    ))
 }
 
 pub async fn fetch_full_body(
@@ -264,7 +296,6 @@ mod tests {
 
     fn file_data() -> FileData {
         FileData {
-            file_id: 1,
             revision_id: 17,
             revision_created_at: time::OffsetDateTime::from_unix_timestamp(1_595_486_319)
                 .unwrap(),

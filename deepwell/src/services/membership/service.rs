@@ -589,7 +589,7 @@ WHERE invitation_id = $1 AND accepted = FALSE
         let Some(password_hash) = site.membership_password_hash.as_deref() else {
             return Err(Self::denied().into());
         };
-        if PasswordService::verify_sleep(ctx, &input.password, password_hash, false)
+        if PasswordService::verify_no_sleep(ctx, &input.password, password_hash)
             .await
             .is_err()
         {

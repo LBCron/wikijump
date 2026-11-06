@@ -1,5 +1,7 @@
+import { FALLBACK_LOCALE } from "./locales.ts"
+
 const defaults = {
-  fallbackLocale: "en",
+  fallbackLocale: FALLBACK_LOCALE,
   translateKeys: {
     "error": {},
     "close": {},

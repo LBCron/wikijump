@@ -423,8 +423,6 @@ pub struct PageData {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct FileData {
-    #[cfg_attr(not(test), allow(dead_code))]
-    pub file_id: i64,
     pub revision_id: i64,
     #[serde(with = "time::serde::rfc3339")]
     pub revision_created_at: time::OffsetDateTime,
@@ -677,7 +675,6 @@ mod tests {
             .await
             .unwrap()
             .unwrap();
-        assert_eq!(file.file_id, 7);
         assert_eq!(file.revision_created_at.unix_timestamp(), 1_595_486_319);
         assert_eq!(file.mime, "text/plain");
         assert_eq!(file.size, 42);

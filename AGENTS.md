@@ -13,6 +13,12 @@
 - If this repository is on the WSL Linux filesystem and accessed from Windows through a WSL UNC path, use Linux Git in that WSL distribution for branch checkout and worktree operations. Do not use Windows Git or helpers that invoke it on the UNC path. Windows cannot check out tracked paths containing colons, such as `install/local/wikidot-verification/artifacts/listpages-campaign-inventory/dependency-source-bundle-20260802/sites/icebox/pages/inc:author-table/meta.json`.
 - Do not change tracked paths or modify the primary checkout if you cannot create a compatible WSL worktree. This restriction applies to WSL UNC checkouts, not separate native-Windows checkouts.
 
+## Searching on this machine
+
+- Never run an unbounded search rooted at the home directory (`find /home/roku`, `find ~`, or a recursive `rg` / `grep` started from `~`). The home directory holds very large trees - the SCP Wiki translation corpus at `~/src/Rokurolize/scp-wiki-translation`, other checkouts and worktrees, and build output - so a casual home-wide search can run for minutes, time out, and load the machine.
+- Start every search from the specific repository or directory the task concerns, and state the starting point and the exclusions before running it. Inside a repository, list files with `git ls-files` and search contents with `rg`, which respects ignore rules.
+- When `find` is unavoidable, prune heavy trees explicitly: at minimum the translation corpus (unless it is the task target), and any `target/`, `node_modules/`, and `.git/` directory.
+
 ## Core invariants
 
 - **Wikidot compatibility:** Reproduce independently verified Wikidot behavior, including DOM, CSS, typography, layout, responsive design, hover, pointer, keyboard and focus interactions, editing, forms, modules, page actions, time-dependent states, errors, legacy quirks, escaping, sanitization, HTTP behavior, and security-relevant output. Internal code may differ, but observable results must match Wikidot even when its behavior is outdated or nonstandard. General web best practices do not establish compatibility. These requirements do not apply to Wikijump-only audit and verification tools.

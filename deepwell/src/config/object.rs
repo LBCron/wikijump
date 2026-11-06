@@ -123,9 +123,6 @@ pub struct Config {
 
     pub default_page_layout: Layout,
 
-    #[allow(dead_code)]
-    pub blueprint_page_prefix: String,
-
     pub blueprint_page_template: String,
 
     pub blueprint_page_missing: String,
@@ -267,7 +264,6 @@ impl Config {
             ],
             message_layout: Layout::Wikijump,
             default_page_layout: Layout::Wikidot,
-            blueprint_page_prefix: str!("_"),
             blueprint_page_template: str!("_template"),
             blueprint_page_missing: str!("_404"),
             blueprint_page_private: str!("_public"),

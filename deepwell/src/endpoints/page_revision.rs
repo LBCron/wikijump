@@ -362,27 +362,43 @@ async fn filter_and_populate_revision(
         compiled_top_bar_html,
         compiled_side_bar_html,
     ) = join!(
-        TextService::get_conditional(ctx, details.wikitext, &wikitext_hash),
-        TextService::get_conditional(
-            ctx,
-            details.compiled_html,
-            &compiled_body_html_hash,
-        ),
-        TextService::get_conditional_option(
-            ctx,
-            details.compiled_html,
-            &compiled_body_styles_hash,
-        ),
-        TextService::get_conditional_option(
-            ctx,
-            details.compiled_html,
-            &compiled_top_bar_html_hash,
-        ),
-        TextService::get_conditional_option(
-            ctx,
-            details.compiled_html,
-            &compiled_side_bar_html_hash,
-        ),
+        async {
+            if details.wikitext {
+                TextService::get(ctx, &wikitext_hash).await.map(Some)
+            } else {
+                Ok(None)
+            }
+        },
+        async {
+            if details.compiled_html {
+                TextService::get(ctx, &compiled_body_html_hash)
+                    .await
+                    .map(Some)
+            } else {
+                Ok(None)
+            }
+        },
+        async {
+            if details.compiled_html {
+                TextService::get_option(ctx, &compiled_body_styles_hash).await
+            } else {
+                Ok(None)
+            }
+        },
+        async {
+            if details.compiled_html {
+                TextService::get_option(ctx, &compiled_top_bar_html_hash).await
+            } else {
+                Ok(None)
+            }
+        },
+        async {
+            if details.compiled_html {
+                TextService::get_option(ctx, &compiled_side_bar_html_hash).await
+            } else {
+                Ok(None)
+            }
+        },
     );
 
     let wikitext = wikitext.or_raise(make_error)?;

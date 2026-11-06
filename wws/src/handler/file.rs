@@ -20,6 +20,7 @@
 
 use super::get_site_id;
 use crate::attachment::content_disposition_attachment;
+use crate::content::is_active_content_type;
 use crate::deepwell::FileData;
 use crate::fetch::{fetch_file_info, fetch_full_body, fetch_range_stream};
 use crate::range::{ByteRange, ParsedRange, evaluate_range};
@@ -462,24 +463,6 @@ fn response_content_type<'a>(filename: &str, mime: &'a str) -> &'a str {
     }
 }
 
-pub(super) fn is_active_content_type(mime: &str) -> bool {
-    let essence = mime
-        .split(';')
-        .next()
-        .unwrap_or("")
-        .trim()
-        .to_ascii_lowercase();
-    matches!(
-        essence.as_str(),
-        "text/html"
-            | "application/xhtml+xml"
-            | "image/svg+xml"
-            | "image/svg"
-            | "text/xml"
-            | "application/xml",
-    ) || essence.ends_with("+xml")
-}
-
 fn base_headers(
     status: StatusCode,
     etag: &str,
@@ -772,7 +755,7 @@ mod tests {
                 "result": {"title": "fetch", "body": "backend failure"},
                 "id": id
             }),
-            "basic_error_user_avatar" => json!({
+            "basic_error_user_fetch" | "basic_error_user_avatar" => json!({
                 "jsonrpc": "2.0",
                 "result": {"title": "user not found", "body": "user not found"},
                 "id": id
@@ -1029,7 +1012,6 @@ mod tests {
 
     fn file_data(size: i64) -> FileData {
         FileData {
-            file_id: 1,
             revision_id: 17,
             revision_created_at: time::OffsetDateTime::from_unix_timestamp(1_595_486_319)
                 .unwrap(),

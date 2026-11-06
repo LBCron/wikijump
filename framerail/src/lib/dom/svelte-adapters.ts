@@ -1,22 +1,7 @@
-import {
-  FocusGroup,
-  FocusObserver,
-  type FocusGroupDirection,
-  type FocusOpts
-} from "./focus"
+import { FocusGroup, type FocusGroupDirection } from "./focus"
 import { HeldObserver, type WhileHeldOpts } from "./held"
 import { HoverObserver, type HoverOpts } from "./hover"
 import { KeyObserver, type InputHandler } from "./key-handling"
-import { SwipeObserver, type SwipeOpts } from "./swipe"
-import { UserLocaleObserver } from "./user-locale"
-
-export function onSwipe(target: HTMLElement, opts: Partial<SwipeOpts>) {
-  const observer = new SwipeObserver(target, opts)
-  return {
-    update: (opts: Partial<SwipeOpts>) => observer.update(opts),
-    destroy: () => observer.destroy()
-  }
-}
 
 export function focusGroup(node: HTMLElement, direction: FocusGroupDirection) {
   const observer = new FocusGroup(node, direction)
@@ -34,14 +19,6 @@ export function keyHandle(target: HTMLElement, handlers: InputHandler[]) {
   }
 }
 
-export function userLocale(target: HTMLElement, opts: App.PageData) {
-  const observer = new UserLocaleObserver(target, opts)
-  return {
-    update: (opts: App.PageData) => observer.update(opts),
-    destroy: () => observer.destroy()
-  }
-}
-
 export function whileHeld(target: HTMLElement, opts: WhileHeldOpts) {
   const observer = new HeldObserver(target, opts)
   return {
@@ -54,14 +31,6 @@ export function onHover(target: HTMLElement, opts: HoverOpts) {
   const observer = new HoverObserver(target, opts)
   return {
     update: (opts: HoverOpts) => observer.update(opts),
-    destroy: () => observer.destroy()
-  }
-}
-
-export function onFocus(target: HTMLElement, opts: FocusOpts) {
-  const observer = new FocusObserver(target, opts)
-  return {
-    update: (opts: FocusOpts) => observer.update(opts),
     destroy: () => observer.destroy()
   }
 }

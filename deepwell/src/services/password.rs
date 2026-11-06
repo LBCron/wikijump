@@ -60,10 +60,18 @@ impl PasswordService {
         password: &str,
         hash: &str,
     ) -> Result<()> {
-        Self::verify_sleep(ctx, password, hash, true).await
+        Self::verify_impl(ctx, password, hash, true).await
     }
 
-    pub async fn verify_sleep(
+    pub async fn verify_no_sleep(
+        ctx: &ServiceContext<'_>,
+        password: &str,
+        hash: &str,
+    ) -> Result<()> {
+        Self::verify_impl(ctx, password, hash, false).await
+    }
+
+    async fn verify_impl(
         ctx: &ServiceContext<'_>,
         password: &str,
         hash: &str,

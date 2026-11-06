@@ -43,13 +43,12 @@ macro_rules! get_connection {
     };
 }
 
-macro_rules! redis_key {
-    (site_domain => $site_id:expr $(,)?) => {
-        format!("site_domain:{}", $site_id)
-    };
-    (user_avatar => $user_id:expr $(,)?) => {
-        format!("user_avatar:{}", $user_id)
-    };
+fn site_domain_key(site_id: i64) -> String {
+    format!("site_domain:{site_id}")
+}
+
+fn user_avatar_key(user_id: i64) -> String {
+    format!("user_avatar:{user_id}")
 }
 
 #[derive(Debug)]
@@ -78,13 +77,13 @@ impl Cache {
 
     pub async fn get_avatar(&self, user_id: i64) -> Result<Option<String>> {
         let mut conn = get_connection!(self.client);
-        let key = redis_key!(user_avatar => user_id);
+        let key = user_avatar_key(user_id);
         Ok(conn.get(key).await?)
     }
 
     pub async fn set_avatar(&self, user_id: i64, avatar_s3_hash: &str) -> Result<()> {
         let mut conn = get_connection!(self.client);
-        let key = redis_key!(user_avatar => user_id);
+        let key = user_avatar_key(user_id);
         conn.set_ex::<_, _, ()>(key, avatar_s3_hash, AVATAR_CACHE_TTL.as_secs())
             .await?;
         Ok(())
@@ -95,7 +94,7 @@ async fn read_site_domain<C: AsyncCommands>(
     conn: &mut C,
     site_id: i64,
 ) -> Result<Option<String>> {
-    let key = redis_key!(site_domain => site_id);
+    let key = site_domain_key(site_id);
     Ok(conn.get(key).await?)
 }
 
@@ -104,7 +103,7 @@ async fn write_site_domain<C: AsyncCommands>(
     site_id: i64,
     preferred_domain: &str,
 ) -> Result<()> {
-    let key = redis_key!(site_domain => site_id);
+    let key = site_domain_key(site_id);
     conn.set_ex::<_, _, ()>(key, preferred_domain, SITE_DOMAIN_CACHE_TTL.as_secs())
         .await?;
     Ok(())
@@ -184,19 +183,6 @@ mod tests {
                         Value::BulkString(value.clone())
                     }))
                 }
-                (b"SET", 3) => {
-                    state.keys.insert(args[1].clone(), (args[2].clone(), None));
-                    Ok(Value::Okay)
-                }
-                (b"SET", 5) if args[3].eq_ignore_ascii_case(b"EX") => {
-                    let seconds: u64 =
-                        std::str::from_utf8(&args[4]).unwrap().parse().unwrap();
-                    let expires_at = now + Duration::from_secs(seconds);
-                    state
-                        .keys
-                        .insert(args[1].clone(), (args[2].clone(), Some(expires_at)));
-                    Ok(Value::Okay)
-                }
                 (b"SETEX", 4) => {
                     // redis-rs `set_ex` sends `SETEX key seconds value`.
                     let seconds: u64 =
@@ -209,7 +195,7 @@ mod tests {
                 }
                 _ => Err(RedisError::from((
                     ErrorKind::Client,
-                    "FakeValkey implements only GET, SET and SETEX",
+                    "FakeValkey implements only GET and SETEX",
                 ))),
             }
         }
@@ -281,8 +267,8 @@ mod tests {
 
     #[test]
     fn redis_keys_include_all_identifying_parts() {
-        assert_eq!(redis_key!(site_domain => 42), "site_domain:42");
-        assert_eq!(redis_key!(user_avatar => 7), "user_avatar:7");
+        assert_eq!(site_domain_key(42), "site_domain:42");
+        assert_eq!(user_avatar_key(7), "user_avatar:7");
     }
 
     #[test]

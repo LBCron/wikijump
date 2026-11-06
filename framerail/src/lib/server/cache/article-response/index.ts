@@ -12,6 +12,7 @@ import {
   serializeArticleResponseForCache,
   writeCachedArticleResponse
 } from "./storage.ts"
+import { ARTICLE_ROUTES } from "../../load/article-route-registry.ts"
 import type { ArticleResponseCacheStore } from "./storage.ts"
 
 export interface AnonymousArticleResponseCacheMetadata {
@@ -36,7 +37,6 @@ export interface AnonymousArticleResponseTokenMetadata {
   permissionFence: string
 }
 
-const ARTICLE_ROUTES = new Set(["/", "/[slug]/[...extra]"])
 const PERMISSION_FENCE = "anonymous-page-view-v1"
 const RESPONSE_CACHE_PREFIX = "framerail:article-response:v1"
 const RESPONSE_TOKEN_PREFIX = "framerail:article-response-token:v1"

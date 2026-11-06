@@ -1,4 +1,6 @@
-export const WIKIDOT_LAYOUT = "wikidot"
+import { WIKIDOT_LAYOUT } from "../layout/wikidot-shell-decision.ts"
+
+export { WIKIDOT_LAYOUT }
 
 export interface ManageSiteTakeoverView {
   view?: unknown

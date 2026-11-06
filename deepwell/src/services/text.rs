@@ -90,21 +90,6 @@ impl TextService {
             .map(|text| text.is_some())
     }
 
-    pub async fn get_conditional(
-        ctx: &ServiceContext<'_>,
-        should_fetch: bool,
-        hash: &[u8],
-    ) -> Result<Option<String>> {
-        if should_fetch {
-            let text = Self::get(ctx, hash).await.or_raise(|| {
-                Error::new("failed to conditionally get text entry", ErrorType::Text)
-            })?;
-            Ok(Some(text))
-        } else {
-            Ok(None)
-        }
-    }
-
     pub async fn get_option<B: AsRef<[u8]>>(
         ctx: &ServiceContext<'_>,
         hash: &Option<B>,
@@ -119,18 +104,6 @@ impl TextService {
 
                 Ok(Some(text))
             }
-        }
-    }
-
-    pub async fn get_conditional_option<B: AsRef<[u8]>>(
-        ctx: &ServiceContext<'_>,
-        should_fetch: bool,
-        hash: &Option<B>,
-    ) -> Result<Option<String>> {
-        if should_fetch {
-            Self::get_option(ctx, hash).await
-        } else {
-            Ok(None)
         }
     }
 

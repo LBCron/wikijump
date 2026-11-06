@@ -21,7 +21,10 @@
     PAGE_LAYOUT_CONTEXT_KEY,
     type PageLayoutContext
   } from "$lib/layout/page-layout-context"
-  import { resolveShellLayout, sideBarHasCloseMenu } from "$lib/layout/wikidot-shell"
+  import {
+    resolveShellLayoutValue as resolveShellLayout,
+    sideBarHasCloseMenuValue as sideBarHasCloseMenu
+  } from "$lib/layout/wikidot-shell-decision"
   import { shouldRenderManageSiteTakeover } from "$lib/wikidot/manage-site-takeover"
   import {
     resolveCanonicalViewData,
@@ -110,7 +113,7 @@
       return Layout.WIKIJUMP
     }
 
-    return resolveShellLayout(resolveCanonicalViewData(page.error, page.data))
+    return resolveShellLayout(resolveCanonicalViewData(page.error, page.data)) as Layout
   }
 
   const currentLayout = $derived.by(resolveCurrentLayout)

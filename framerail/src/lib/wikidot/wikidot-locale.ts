@@ -1,10 +1,13 @@
+export const normalizeWikidotLocale = (locale: string | null | undefined): string =>
+  `${locale ?? ""}`.toLowerCase().replaceAll("_", "-")
+
 export const isJapaneseWikidotLocale = (locale: string | null | undefined): boolean => {
-  const normalized = `${locale ?? ""}`.toLowerCase().replaceAll("_", "-")
+  const normalized = normalizeWikidotLocale(locale)
   return normalized === "ja" || normalized.startsWith("ja-") || normalized === "jp"
 }
 
 export const isEnglishWikidotLocale = (locale: string | null | undefined): boolean => {
-  const normalized = `${locale ?? ""}`.toLowerCase().replaceAll("_", "-")
+  const normalized = normalizeWikidotLocale(locale)
   return normalized === "en" || normalized.startsWith("en-")
 }
 
@@ -33,7 +36,7 @@ export const editPermissionDeniedDialog = (
 export const editPermissionDeniedMessage = (
   locale: string | null | undefined
 ): string => {
-  const normalized = `${locale ?? ""}`.toLowerCase().replaceAll("_", "-")
+  const normalized = normalizeWikidotLocale(locale)
   if (isJapaneseWikidotLocale(normalized)) return "このページを編集する権限がありません。"
 
   const language = normalized.split("-", 1)[0]

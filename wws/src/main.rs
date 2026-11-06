@@ -30,6 +30,7 @@ mod macros;
 mod attachment;
 mod cache;
 mod config;
+mod content;
 mod deepwell;
 mod error;
 mod fetch;

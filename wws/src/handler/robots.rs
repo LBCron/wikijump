@@ -51,6 +51,8 @@ pub async fn handle_robots_txt(
         return robots_response(ROBOTS_TXT_ALLOW_ALL, StatusCode::OK);
     }
     let site_id = get_site_id(&headers);
+    // robots.txt must reflect domain changes immediately, so it reads
+    // Deepwell directly instead of the cached site domain.
     match state.deepwell.get_sitemap_presence(site_id).await {
         Ok(false) => return robots_response(ROBOTS_TXT_PRIVATE, StatusCode::OK),
         Ok(true) => {}

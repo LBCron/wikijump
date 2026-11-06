@@ -201,7 +201,7 @@ impl MfaService {
             )
         };
 
-        PasswordService::verify_sleep(ctx, password, &user.password, false).await?;
+        PasswordService::verify_no_sleep(ctx, password, &user.password).await?;
 
         if user.multi_factor_secret.is_some() {
             let mfa_bucket = AuthenticationAttemptService::mfa_user_bucket(user.user_id);
@@ -395,14 +395,9 @@ impl MfaService {
     ) -> Option<&'a String> {
         let mut matched = None;
         for recovery_code_hash in recovery_code_hashes {
-            if PasswordService::verify_sleep(
-                ctx,
-                recovery_code,
-                recovery_code_hash,
-                false,
-            )
-            .await
-            .is_ok()
+            if PasswordService::verify_no_sleep(ctx, recovery_code, recovery_code_hash)
+                .await
+                .is_ok()
             {
                 matched = Some(recovery_code_hash);
             }

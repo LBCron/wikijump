@@ -38,8 +38,6 @@ pub struct RequestContextHeaders {
     pub local_page_mutation_actor: bool,
 }
 
-/// tower middleware layer to extract relevant headers from the request
-/// and store them in the request extensions for later use in the handlers.
 #[derive(Debug, Clone)]
 pub struct RequestContextLayer;
 
@@ -51,7 +49,6 @@ impl<S> Layer<S> for RequestContextLayer {
     }
 }
 
-// Service that does the interception of the request.
 #[derive(Debug, Clone)]
 pub struct RequestContextService<S> {
     service: S,

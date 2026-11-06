@@ -33,7 +33,7 @@ pub const USER_NOT_SET_KEY: &str = "anonymous";
 pub const PERMISSION_CACHE_TTL_SECONDS: i64 = 300;
 pub const PERMISSION_CACHE_FENCE_TTL_SECONDS: i64 = PERMISSION_CACHE_TTL_SECONDS * 2;
 pub const PERMISSION_CACHE_INVALIDATION_CHANNEL: &str =
-    "wikijump:article-response-fence-invalidation:v1";
+    crate::services::public_cache::PUBLIC_CONTENT_CACHE_INVALIDATION_CHANNEL;
 
 #[derive(Debug, Clone, Copy)]
 pub struct PermissionCache;

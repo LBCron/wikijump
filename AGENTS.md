@@ -47,6 +47,7 @@
 
 ## Context pointers
 
+- **Local Docker stack (deploy.py):** Read `docs/agents/local-stack-notes.md` when debugging or scripting compose startup order, `DEEPWELL_RPC_TOKEN`, Deepwell `ping`, Caddy/HTTPS on port 18443, or host-based `curl` checks. It points at existing install and development docs; it does not replace them.
 - **Compatibility maintenance:** Read `docs/agents/compatibility/README.md` for normal regression testing and rules for new evidence acquisition.
 - **Live evidence and sandbox changes:** Read `docs/agents/compatibility/evidence.md` before external capture, browser comparison, authenticated tests, test-owned changes, or decisions requiring paid services or external authorization.
 - **Candidate and standing:** Read `docs/agents/compatibility/runtime.md` before candidate tests, promotion, rerendering saved pages, standing comparisons, or runtime repair.

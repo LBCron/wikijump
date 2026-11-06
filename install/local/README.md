@@ -4,6 +4,8 @@ This `docker-compose.yaml` (and corresponding `docker-compose.dev.yaml`) file ar
 
 Before starting the stack, copy `.env.example` to the ignored `.env` file and set `DEEPWELL_RPC_TOKEN` to the output of `openssl rand -hex 32`. Deepwell requires this service token on every RPC request, and the local host publication is additionally restricted to `127.0.0.1:2747`.
 
+Agents may use `docs/agents/local-stack-notes.md` as a small index of these requirements with common misreads (empty token, Caddy provisional config vs HTTPS, `ping` vs edge readiness).
+
 For disposable local bulk-import runs only, `docker-compose.postgres-perf.yaml` can be layered onto the base local compose file to relax Postgres durability settings for faster writes: `docker compose -f docker-compose.yaml -f docker-compose.postgres-perf.yaml up -d`. These settings can corrupt data after a crash and are fenced to `install/local`; do not use the override with persistent, shared, or production databases.
 
 There are two important things to note about the local tier:

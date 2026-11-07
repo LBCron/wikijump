@@ -142,17 +142,19 @@ fn render_membership_email_invitation_print_user(
         );
     }
     let name_attr = escape_list_pages_html_attr(name);
+    let avatar_timestamp = now().unix_timestamp();
     format!(
         concat!(
             r#"<span class="printuser avatarhover"><a href="{profile}" "#,
             r#"onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;">"#,
-            r#"<img class="small" src="https://www.wikidot.com/avatar.php?userid={user_id}&amp;size=small" "#,
+            r#"<img class="small" src="https://www.wikidot.com/avatar.php?userid={user_id}&amp;amp;size=small&amp;amp;timestamp={avatar_timestamp}" "#,
             r#"alt="{name_attr}" style="background-image:url(https://www.wikidot.com/userkarma.php?u={user_id})"/></a>"#,
             r#"<a href="{profile}" onclick="WIKIDOT.page.listeners.userInfo({user_id}); return false;">"#,
             "{name_text}</a></span>",
         ),
         profile = profile,
         user_id = user_id,
+        avatar_timestamp = avatar_timestamp,
         name_attr = name_attr,
         name_text = name_text,
     )
@@ -1556,6 +1558,50 @@ mod theme_previewer_no_ui_tests {
         assert!(!has_theme_previewer_no_ui(
             "<!-- [[module ThemePreviewer noUi=\"true\"]] -->"
         ));
+    }
+}
+
+#[cfg(test)]
+mod membership_email_invitation_print_user_tests {
+    use super::render_membership_email_invitation_valid;
+    use crate::services::membership::MembershipEmailInvitationView;
+
+    #[test]
+    fn sender_avatar_follows_the_live_printuser_shape() {
+        let invitation = MembershipEmailInvitationView {
+            invitation_id: 1,
+            site_id: 1,
+            site_name: "Sandbox".to_owned(),
+            site_slug: "sandbox-for-codex".to_owned(),
+            sender_user_id: 5700026,
+            sender_user_name: "Rokurokubi".to_owned(),
+            sender_profile_url: "https://www.wikidot.com/user:info/rokurokubi".to_owned(),
+            recipient_name: "Intended Recipient".to_owned(),
+        };
+        let html = render_membership_email_invitation_valid(&invitation, None, "abc");
+        assert!(
+            html.contains(r#"<span class="printuser avatarhover">"#),
+            "{html}"
+        );
+        assert!(
+            html.contains(
+                "avatar.php?userid=5700026&amp;amp;size=small&amp;amp;timestamp="
+            ),
+            "{html}"
+        );
+        assert!(
+            !html.contains("avatar.php?userid=5700026&amp;size=small"),
+            "{html}"
+        );
+        let start = html
+            .find("&amp;amp;timestamp=")
+            .expect("timestamp separator")
+            + "&amp;amp;timestamp=".len();
+        let digits: String = html[start..]
+            .chars()
+            .take_while(|character| character.is_ascii_digit())
+            .collect();
+        assert!(digits.len() >= 10, "{html}");
     }
 }
 

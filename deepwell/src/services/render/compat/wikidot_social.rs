@@ -154,6 +154,12 @@ mod tests {
                 "http%3A%2F%2Fscp-wiki.wikidot.com%2Fajax-module-connector.php"
             )
         );
+        assert!(
+            output
+                .body
+                .contains("https://d3g0gp89917ko0.cloudfront.net/v--1e049c54eb7c/common--images/social/reddit.png")
+        );
+        assert!(!output.body.contains("v--7690939296dc"));
         assert!(output.body.contains("encodeURIComponent(document.title)"));
     }
 

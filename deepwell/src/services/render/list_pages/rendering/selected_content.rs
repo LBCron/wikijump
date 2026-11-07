@@ -98,6 +98,9 @@ struct WikidotSocialProvider {
     onclick: Option<&'static str>,
 }
 
+const WIKIDOT_SOCIAL_IMAGE_PREFIX: &str =
+    "https://d3g0gp89917ko0.cloudfront.net/v--1e049c54eb7c/common--images/social/";
+
 const WIKIDOT_SOCIAL_PROVIDERS: &[WikidotSocialProvider] = &[
     WikidotSocialProvider {
         service: SocialService::BlinkList,
@@ -245,9 +248,10 @@ pub(in crate::services::render) fn render_wikidot_social_module(
     let mut output = format!("\n\n<span id=\"{social_id}\">");
     for provider in selected {
         let Some(provider) = provider else {
-            output.push_str(
-                "<a href=\"\" style=\"margin: 0 2px\" title=\"\"><img src=\"http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--images/social/\" alt=\"\" /></a>",
-            );
+            output
+                .push_str("<a href=\"\" style=\"margin: 0 2px\" title=\"\"><img src=\"");
+            output.push_str(WIKIDOT_SOCIAL_IMAGE_PREFIX);
+            output.push_str("\" alt=\"\" /></a>");
             continue;
         };
         let href = provider
@@ -264,7 +268,8 @@ pub(in crate::services::render) fn render_wikidot_social_module(
             output.push_str(&escape_list_pages_html_attr(onclick));
             output.push('"');
         }
-        output.push_str("><img src=\"http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--images/social/");
+        output.push_str("><img src=\"");
+        output.push_str(WIKIDOT_SOCIAL_IMAGE_PREFIX);
         output.push_str(provider.image);
         output.push_str("\" alt=\"");
         output.push_str(provider.title);

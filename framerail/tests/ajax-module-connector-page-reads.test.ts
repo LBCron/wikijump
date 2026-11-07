@@ -176,7 +176,7 @@ test("renders typed Deepwell revisions in the wikidot.py history parser boundary
         "user-name": "Test <User>",
         "user-karma": 5,
         "user-avatar-data":
-          "http://www.wikidot.com/avatar.php?userid=12345&amp;size=small",
+          "http://www.wikidot.com/avatar.php?userid=12345&size=small",
         "user-profile-url": "http://www.wikidot.com/user:info/test-user"
       },
       changes: ["slug"],
@@ -207,7 +207,7 @@ test("renders typed Deepwell revisions in the wikidot.py history parser boundary
   assert.match(body, /title="Revert to revision"[^>]*>R<\/a>/u)
   assert.match(
     body,
-    /<span class="printuser avatarhover"><a href="https:\/\/www\.wikidot\.com\/user:info\/test-user"><img class="small" src="https:\/\/www\.wikidot\.com\/avatar\.php\?userid=12345&amp;amp;size=small" alt="Test &lt;User&gt;" style="background-image:url\(https:\/\/www\.wikidot\.com\/userkarma\.php\?u=12345\)"\/><\/a><a href="https:\/\/www\.wikidot\.com\/user:info\/test-user">Test &lt;User&gt;<\/a><\/span>/u
+    /<span class="printuser avatarhover"><a href="https:\/\/www\.wikidot\.com\/user:info\/test-user"><img class="small" src="https:\/\/www\.wikidot\.com\/avatar\.php\?userid=12345&amp;size=small" alt="Test &lt;User&gt;" style="background-image:url\(https:\/\/www\.wikidot\.com\/userkarma\.php\?u=12345\)"\/><\/a><a href="https:\/\/www\.wikidot\.com\/user:info\/test-user">Test &lt;User&gt;<\/a><\/span>/u
   )
   assert.match(
     body,
@@ -240,7 +240,7 @@ test("History flags and headers use the shared localized Wikidot contract", () =
           "user-name": "Test User",
           "user-karma": 0,
           "user-avatar-data":
-            "http://www.wikidot.com/avatar.php?userid=12345&amp;size=small",
+            "http://www.wikidot.com/avatar.php?userid=12345&size=small",
           "user-profile-url": "http://www.wikidot.com/user:info/test-user"
         },
         changes: ["wikitext"],
@@ -260,7 +260,7 @@ test("History flags and headers use the shared localized Wikidot contract", () =
           "user-name": "Test User",
           "user-karma": 0,
           "user-avatar-data":
-            "http://www.wikidot.com/avatar.php?userid=12345&amp;size=small",
+            "http://www.wikidot.com/avatar.php?userid=12345&size=small",
           "user-profile-url": "http://www.wikidot.com/user:info/test-user"
         },
         changes: ["tags"],

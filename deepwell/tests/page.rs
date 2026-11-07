@@ -13913,7 +13913,7 @@ async fn social_syntax_matches_frozen_live_service_selection_and_widget_identity
         );
         assert!(
             html.contains(
-                "http://d3g0gp89917ko0.cloudfront.net/v--7690939296dc/common--images/social/",
+                "https://d3g0gp89917ko0.cloudfront.net/v--1e049c54eb7c/common--images/social/",
             ),
             "social icons must retain the frozen Wikidot resource prefix: {html}",
         );

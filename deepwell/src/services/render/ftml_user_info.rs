@@ -147,7 +147,7 @@ async fn load_observed_wikidot_identities(
 
 fn wikidot_avatar_url(user_id: i64, avatar_timestamp: i64) -> String {
     format!(
-        "{WIKIDOT_AVATAR_BASE}/avatar.php?userid={user_id}&size=small&timestamp={avatar_timestamp}"
+        "{WIKIDOT_AVATAR_BASE}/avatar.php?userid={user_id}&amp;size=small&amp;timestamp={avatar_timestamp}"
     )
 }
 
@@ -358,7 +358,7 @@ mod tests {
     fn wikidot_avatar_url_matches_the_compiled_wikidot_avatar() {
         assert_eq!(
             wikidot_avatar_url(3158795, 1791147832),
-            "https://www.wikidot.com/avatar.php?userid=3158795&size=small&timestamp=1791147832",
+            "https://www.wikidot.com/avatar.php?userid=3158795&amp;size=small&amp;timestamp=1791147832",
         );
     }
 

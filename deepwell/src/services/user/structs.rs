@@ -85,7 +85,7 @@ impl User {
                     user_name: Cow::Owned(name),
                     user_karma: karma,
                     user_avatar_data: Cow::Owned(format!(
-                        "http://www.wikidot.com/avatar.php?userid={user_id}&amp;size=small"
+                        "http://www.wikidot.com/avatar.php?userid={user_id}&size=small"
                     )),
                     user_profile_url: Cow::Owned(format!(
                         "http://www.wikidot.com/user:info/{slug}"

@@ -43,7 +43,7 @@ APP_ROLES = ("deepwell", "framerail", "wws")
 REQUIRED_ROLES = APP_ROLES + ("database",)
 ABOUT_HOSTS = (
     "scp-jp.localhost",
-    "scp-wiki.localhost",
+    "scp-wiki.wikijump.localhost",
     "scpaiueouiuiuiui.wikijump.localhost",
     "scp-jp-sigma10.localhost",
 )

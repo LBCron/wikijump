@@ -96,10 +96,11 @@ impl Deepwell {
         R: DeserializeOwned,
         P: ToRpcParams + Send,
     {
-        let _permit = self
-            .in_flight
-            .try_acquire()
-            .map_err(|_| Error::DeepwellBusy)?;
+        let _permit =
+            tokio::time::timeout(JSONRPC_ADMISSION.timeout, self.in_flight.acquire())
+                .await
+                .map_err(|_| Error::DeepwellBusy)?
+                .map_err(|_| Error::DeepwellBusy)?;
         Ok(self.client.request(method, params).await?)
     }
 
@@ -612,7 +613,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn calls_beyond_the_in_flight_bound_fail_without_reaching_deepwell() {
+    async fn calls_queued_past_the_admission_timeout_fail_without_reaching_deepwell() {
         let (url, requests) = spawn_rpc_server().await;
         let deepwell =
             Deepwell::connect(&url, &RpcToken::parse("0".repeat(64)).unwrap()).unwrap();
@@ -622,8 +623,10 @@ mod tests {
             .await
             .unwrap();
 
+        let started = std::time::Instant::now();
         let error = deepwell.get_page(1, "scp-9506", None).await.unwrap_err();
         assert!(matches!(error, Error::DeepwellBusy), "{error}");
+        assert!(started.elapsed() >= JSONRPC_ADMISSION.timeout);
         assert!(requests_by_method(&requests, "page_get").is_empty());
 
         drop(held);
@@ -634,6 +637,31 @@ mod tests {
                 .unwrap()
                 .is_some()
         );
+    }
+
+    #[tokio::test]
+    async fn a_queued_call_is_admitted_once_a_permit_frees() {
+        let (url, requests) = spawn_rpc_server().await;
+        let deepwell = std::sync::Arc::new(
+            Deepwell::connect(&url, &RpcToken::parse("0".repeat(64)).unwrap()).unwrap(),
+        );
+        let held = deepwell
+            .in_flight
+            .acquire_many(JSONRPC_ADMISSION.max_in_flight as u32)
+            .await
+            .unwrap();
+        let caller = {
+            let deepwell = std::sync::Arc::clone(&deepwell);
+            tokio::spawn(async move { deepwell.get_page(1, "scp-9506", None).await })
+        };
+
+        tokio::time::sleep(Duration::from_millis(500)).await;
+        let started = std::time::Instant::now();
+        drop(held);
+        let page = caller.await.unwrap().unwrap();
+        assert!(started.elapsed() < JSONRPC_ADMISSION.timeout);
+        assert_eq!(page.map(|page| page.page_id), Some(123));
+        assert_eq!(requests_by_method(&requests, "page_get").len(), 1);
     }
 
     #[test]

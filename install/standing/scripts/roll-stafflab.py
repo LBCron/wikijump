@@ -46,6 +46,7 @@ ABOUT_HOSTS = (
     "scp-wiki.wikijump.localhost",
     "scpaiueouiuiuiui.wikijump.localhost",
     "scp-jp-sigma10.localhost",
+    "scp-jp-basalt.localhost",
 )
 KNOWN_SWEEP_STATUSES = {("scp-jp-sigma10.localhost", "_admin"): 401}
 GIT_OBJECT = re.compile(r"[0-9a-f]{40}")
